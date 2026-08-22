@@ -16,8 +16,19 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from . import curriculum, emit, features, frequency, minimal_pairs, sentences, sources
-from .inflect import noun_forms, paradigm
+from . import (
+    course,
+    curriculum,
+    emit,
+    features,
+    frequency,
+    minimal_pairs,
+    resources,
+    sentences,
+    sources,
+    wiktionary_ru,
+)
+from .inflect import noun_forms, paradigm, slot_for
 from .wiktionary import Entry, FormOf
 from .wiktionary import parse as parse_wiktionary
 
@@ -224,16 +235,38 @@ def main() -> int:
             if lid in target_ids:
                 attested.add((form, lid, feats))
 
+        # Attested cells of the display table, keyed by (lemma_id, slot).
+        #
+        # The paradigm table is what the reader shows a learner, so a wrong cell
+        # is a wrong form actively taught. The generator alone is not good
+        # enough: for `ház` it produces `házan` in the superessive while
+        # Wiktionary attests `házon`. Attested wins wherever the two disagree.
+        attested_cells: dict[tuple[int, str], str] = {}
+        for form, lid, feats_key in attested:
+            slot = slot_for(dict(
+                kv.split("=", 1) for kv in feats_key.split("|") if "=" in kv))
+            if slot is not None:
+                attested_cells.setdefault((lid, slot), form)
+
         gen_rows, para_rows = [], []
         skipped = 0
+        overridden = 0
         for lid, lemma in targets:
             for f in noun_forms(lemma):
                 if (f.form, lid, f.feats_key) in attested:
                     skipped += 1
                     continue
                 gen_rows.append((f.form, lid, "NOUN", f.feats_key, "generated", f.confidence.value))
-            for slot, form in paradigm(lemma).items():
-                para_rows.append((lid, slot, form))
+            cells = paradigm(lemma)
+            for slot, form in cells.items():
+                best = attested_cells.get((lid, slot), form)
+                if best != form:
+                    overridden += 1
+                para_rows.append((lid, slot, best))
+            # Cells the generator could not fill but the dictionary can.
+            for (cell_lid, slot), form in attested_cells.items():
+                if cell_lid == lid and slot not in cells:
+                    para_rows.append((lid, slot, form))
         stats["forms_generated"] = emit.bulk(
             conn, "wordform", ["form", "lemma_id", "upos", "feats", "source", "confidence"], gen_rows)
         stats["paradigm_cells"] = emit.bulk(
@@ -241,7 +274,8 @@ def main() -> int:
         conn.commit()
         print(f"  generated forms: {stats['forms_generated']}  "
               f"paradigm cells: {stats['paradigm_cells']}  "
-              f"(skipped {skipped} duplicating attested rows)")
+              f"(skipped {skipped} duplicating attested rows, "
+              f"{overridden} cells corrected from the dictionary)")
 
     # ── sentences ────────────────────────────────────────────────────────
     hu_path = paths.get("tatoeba_sentences")
@@ -308,6 +342,75 @@ def main() -> int:
         print(f"  n-grams (count >= 2): {stats['ngrams']}")
 
     # ── finalise ─────────────────────────────────────────────────────────
+    # ── the guided course ────────────────────────────────────────────────
+    # Emitted late: validation needs the lemma and grammar_topic tables to
+    # already exist, because a course word the pack cannot look up is a word the
+    # app cannot teach — and discovering that at runtime means discovering it in
+    # front of the learner, on the screen that is supposed to be the plan.
+    print("→ course and resources")
+    known_lemmas = {r[0] for r in conn.execute("SELECT lemma FROM lemma")}
+    topic_codes = {r[0] for r in conn.execute("SELECT code FROM grammar_topic")}
+    problems = course.validate(known_lemmas, topic_codes)
+    if problems:
+        print("the course is invalid:", *problems[:40], sep="\n  ")
+        if len(problems) > 40:
+            print(f"  … and {len(problems) - 40} more")
+        return 1
+    emit.bulk(
+        conn, "course_unit",
+        ["code", "month", "ord", "title_ru", "title_en", "goal_ru", "goal_en",
+         "situation_ru", "situation_en", "topic_codes"],
+        (
+            (u["code"], u["month"], u["ord"], u["title_ru"], u["title_en"],
+             u["goal_ru"], u["goal_en"], u["situation_ru"], u["situation_en"],
+             u.get("topic_codes", ""))
+            for u in course.UNITS
+        ),
+    )
+    emit.bulk(
+        conn, "course_word",
+        ["unit_code", "lemma", "upos", "gloss_ru", "gloss_en", "note", "ord"],
+        course.words(),
+    )
+    cs = course.stats()
+    stats.update({"course_units": cs["units"], "course_words": cs["words"]})
+    print(f"  course: {cs['units']} units over {cs['months']} months, {cs['words']} words")
+
+    emit.bulk(
+        conn, "resource",
+        ["kind", "title", "url", "level", "blurb_ru", "blurb_en", "free", "ord"],
+        (
+            (r["kind"], r["title"], r["url"], r["level"], r["blurb_ru"],
+             r["blurb_en"], 1 if r.get("free", True) else 0, r.get("ord", 0))
+            for r in resources.RESOURCES
+        ),
+    )
+    stats["resources"] = len(resources.RESOURCES)
+    print(f"  resources: {stats['resources']}")
+    conn.commit()
+
+    # ── Russian glosses ──────────────────────────────────────────────────
+    #
+    # After the course, not before: the syllabus's hand-written glosses are
+    # promoted over the dictionary's, so `course_word` has to be populated
+    # first. See pipeline/wiktionary_ru.py for why that order is the right one.
+    print("→ Russian glosses")
+    ru_path = paths.get("wiktionary_ru")
+    if ru_path:
+        ru = wiktionary_ru.parse(ru_path)
+        rs = wiktionary_ru.apply(conn, ru)
+        cs_ru = wiktionary_ru.apply_course_glosses(conn)
+        stats["glosses_ru"] = rs["gloss_rows"]
+        stats["glosses_ru_course"] = cs_ru["promoted"]
+        gloss_langs.append("ru")
+        print(f"  ru: {rs['gloss_rows']} rows over {rs['lemmas_matched']} lemmas; "
+              f"{cs_ru['promoted']} course glosses promoted to sense 0")
+    else:
+        stats["glosses_ru"] = stats["glosses_ru_course"] = 0
+        print("  ! Russian Wiktionary unavailable — English glosses only, "
+              "which the UI labels as a fallback")
+    conn.commit()
+
     print("→ indexing and vacuuming")
     meta = {
         "version": args.version,

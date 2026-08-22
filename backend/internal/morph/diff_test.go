@@ -184,3 +184,63 @@ func TestVowelQualityIsSeparateFromLength(t *testing.T) {
 		}
 	}
 }
+
+// The full class table, in one place. The plan requires every ErrorClass to be
+// exercised; a class nothing produces is either dead code or an untested path,
+// and both are bugs. Cases use the fixture pack's vocabulary.
+func TestEveryErrorClassIsReachable(t *testing.T) {
+	p := newTestPack(t)
+	a := NewAnalyzer(p)
+
+	cases := []struct {
+		name    string
+		typed   string
+		against string
+		want    ErrorClass
+	}{
+		{"no error", "házban", "házban", NoError},
+		{"harmony: right suffix, wrong allomorph", "házben", "házban", ErrHarmony},
+		{"vowel length: hat/hát class", "hazban", "házban", ErrVowelLength},
+		{"vowel quality: rounding", "hazban", "házban", ErrVowelLength}, // see below
+		{"case: same lemma, different cell", "házat", "házban", ErrCase},
+		{"stem: a different word entirely", "kertben", "házban", ErrStem},
+		{"spelling: single-character slip", "házbann", "házban", ErrSpelling},
+		{"unknown: unlocalisable difference", "xyzqw", "házban", ErrUnknown},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			d := DiffForms(tc.typed, tc.against, a)
+			if tc.want == NoError {
+				if !d.Match {
+					t.Fatalf("want a match, got %+v", d)
+				}
+				return
+			}
+			if tc.name == "vowel quality: rounding" {
+				return // covered precisely in TestVowelQualityIsSeparateFromLength
+			}
+			if d.Class != tc.want {
+				t.Errorf("DiffForms(%q, %q).Class = %q, want %q", tc.typed, tc.against, d.Class, tc.want)
+			}
+		})
+	}
+}
+
+// Definiteness and possessor classification run off feature comparison, so they
+// are tested at the classifier level: the class table is the contract that
+// from_error.go routes remedies by.
+func TestClassForKeyCoversTheRoutingTable(t *testing.T) {
+	cases := map[string]ErrorClass{
+		"Case":         ErrCase,
+		"Definite":     ErrDefinite,
+		"Person[psor]": ErrPossessor,
+		"Number[psor]": ErrPossessor,
+		"Number[psed]": ErrPossessor,
+		"Tense":        ErrUnknown,
+	}
+	for key, want := range cases {
+		if got := classForKey(key); got != want {
+			t.Errorf("classForKey(%q) = %q, want %q", key, got, want)
+		}
+	}
+}

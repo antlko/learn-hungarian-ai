@@ -9,9 +9,14 @@ package api
 
 // BootstrapDTO drives the first-run wizard. Unauthenticated.
 type BootstrapDTO struct {
-	NeedsSetup  bool     `json:"needsSetup"`
-	PackPresent bool     `json:"packPresent"`
-	PackVersion string   `json:"packVersion,omitempty"`
+	NeedsSetup  bool   `json:"needsSetup"`
+	PackPresent bool   `json:"packPresent"`
+	PackVersion string `json:"packVersion,omitempty"`
+	// PackEdition is "starter" (the pack embedded in the binary) or "full".
+	// The setup wizard and Settings both say which one is installed, and
+	// [ADR-010] promises they can — a promise that needs the field to be here
+	// rather than only in the pack.
+	PackEdition string   `json:"packEdition,omitempty"`
 	Locales     []string `json:"locales"`
 	Version     string   `json:"version"`
 }
@@ -112,6 +117,8 @@ type HVPTDTO struct {
 
 type CurriculumDTO struct {
 	FocusUnlockListeningHours int `json:"focusUnlockListeningHours"`
+	// ExamDate is the booked exam (ISO date), the [R14] countdown anchor.
+	ExamDate string `json:"examDate"`
 }
 
 type ServiceDTO struct {

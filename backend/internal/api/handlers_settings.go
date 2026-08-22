@@ -125,6 +125,7 @@ func (s *Server) handleUpdateSettings(c fiber.Ctx) error {
 		}
 		if v := req.Curriculum; v != nil {
 			cfg.Curriculum.FocusUnlockListeningHours = v.FocusUnlockListeningHours
+			cfg.Curriculum.ExamDate = v.ExamDate
 		}
 		for name, svc := range req.Services {
 			target := serviceField(cfg, name)

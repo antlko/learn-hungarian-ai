@@ -96,6 +96,7 @@ export const useReviewStore = defineStore('review', () => {
       })
       result.value = res
       phase.value = 'answer'
+      canUndo.value = true
       return res
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'failed'
@@ -109,7 +110,36 @@ export const useReviewStore = defineStore('review', () => {
     resetCard()
   }
 
+  /**
+   * Undo the last answer. Server-side delete-and-replay reverts BOTH state
+   * spaces; the client only has to step back to the card it just left. Only
+   * one step — the server reverts the latest answer, whoever's screen it was.
+   */
+  const canUndo = ref(false)
+
+  async function undo() {
+    if (!canUndo.value || submitting.value) return
+    submitting.value = true
+    error.value = ''
+    try {
+      const res = await api.undo()
+      canUndo.value = false
+      // Step back to the undone card if it is the one behind us.
+      const prev = queue.value[index.value - 1]
+      if (prev && prev.cardId === res.cardId) {
+        index.value -= 1
+      }
+      resetCard()
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'failed'
+    } finally {
+      submitting.value = false
+    }
+  }
+
   return {
+    canUndo,
+    undo,
     queue,
     counts,
     index,

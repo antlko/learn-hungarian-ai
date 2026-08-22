@@ -1,5 +1,6 @@
 # ── build output ─────────────────────────────────────────────
 /tanulom
+/bin/
 # The embedded SPA is produced by the Dockerfile / DEVELOPMENT.md build steps.
 # Only the .gitkeep is tracked, so //go:embed all:dist still compiles on a fresh
 # clone before anyone has run `npm run build`.
@@ -20,6 +21,21 @@ node_modules/
 *.db-shm
 *.sqlite
 *.sqlite3
+
+# ── the embedded starter pack — TRACKED ON PURPOSE ────────────
+# backend/internal/lang/starter/*.gz is committed, not generated at build time,
+# and no pattern here may come to cover it. //go:embed on a missing file is a
+# COMPILE ERROR, so ignoring these would mean a fresh clone cannot build the
+# backend at all — and a binary built without them would boot with no language
+# pack, which is the exact state [ADR-010] removes. ~16 MB, refreshed by
+# `make starter`, which is rare.
+
+# ── Piper voice models — fetched, not committed ───────────────
+# 60 MB each and redistributable from rhasspy/piper-voices, so they are a
+# download rather than a repository. `make voices` fetches them; only the small
+# .json voice cards are tracked, which is what records WHICH three voices the
+# ear trainer expects and under what licence.
+langpack/voices/*.onnx
 
 # ── language pack build artefacts ─────────────────────────────
 langpack/cache/

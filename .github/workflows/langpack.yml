@@ -1,0 +1,104 @@
+# What this does NOT do: build the language pack. `make langpack` needs the
+# Wiktionary and Tatoeba dumps, tens of gigabytes of scratch space and hours of
+# CPU; a GitHub runner has 14 GB of disk and a six-hour ceiling. The pack is
+# built on a maintainer's machine and its inputs are checksum-pinned so that
+# build is reproducible. What CI can do is check the parts that go stale
+# silently — which is what this workflow is.
+
+name: Language pack
+
+on:
+  pull_request:
+    paths:
+      - 'langpack/**'
+      - 'backend/internal/lang/**'
+      - '.github/workflows/langpack.yml'
+  push:
+    branches: [main, master]
+    paths:
+      - 'langpack/**'
+      - 'backend/internal/lang/**'
+
+permissions:
+  contents: read
+
+jobs:
+  pipeline:
+    name: Pipeline tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: langpack
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      # 144 tests over the vowel-harmony engine, the inflection generator, the
+      # course aggregation and the gloss imports. No network, no dumps.
+      - run: python -m pytest tests -q
+
+      # Every source must declare a licence and an attribution before anything
+      # it produces can ship. Catches a source added in a hurry.
+      - name: Every source declares its provenance
+        run: |
+          python - <<'EOF'
+          import sys
+          from pipeline import sources
+          ledger = open('LICENSES.md').read()
+          ok = True
+          for s in sources.SOURCES:
+              if not s.licence or not s.attribution:
+                  print(f"::error::source '{s.key}' has no licence or no attribution")
+                  ok = False
+                  continue
+              # Match the attribution's leading phrase, not the whole string: the
+              # ledger says "Hermit Dave; derived from OpenSubtitles via OPUS"
+              # where the source says "Hermit Dave, FrequencyWords (...)". The
+              # rightsholder is the part that has to be there.
+              who = s.attribution.split(',')[0].split('(')[0].strip()
+              if who not in ledger:
+                  print(f"::error::source '{s.key}' ({who}) is not in langpack/LICENSES.md")
+                  ok = False
+          sys.exit(0 if ok else 1)
+          EOF
+
+  embedded:
+    name: Embedded starter pack
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache-dependency-path: backend/go.sum
+
+      # The artefacts are committed, because //go:embed on a missing file is a
+      # compile error and a fresh clone must build. Saying so here turns "the
+      # backend job failed with an embed error" into a sentence that names the
+      # actual problem.
+      - name: The embedded artefacts are present
+        run: |
+          missing=0
+          for f in backend/internal/lang/starter/langpack-hu-starter.sqlite.gz \
+                   backend/internal/lang/starter/media.tar.gz; do
+            if [ ! -s "$f" ]; then
+              echo "::error file=$f::missing or empty — regenerate with 'make starter' and commit it"
+              missing=1
+            fi
+          done
+          exit $missing
+
+      - name: Stub embedded SPA
+        run: |
+          mkdir -p backend/internal/web/dist
+          echo '<!doctype html><title>stub</title>' > backend/internal/web/dist/index.html
+
+      # This is the check with teeth: it extracts the committed pack exactly the
+      # way a first boot does, opens it, and reads the course out of it. A
+      # pipeline change that was never followed by `make starter` fails here
+      # rather than shipping last month's syllabus inside the binary.
+      - name: The starter installs, opens and carries a course
+        working-directory: backend
+        run: go test ./internal/lang/ ./internal/course/ -count=1 -v

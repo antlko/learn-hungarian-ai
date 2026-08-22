@@ -89,6 +89,42 @@ SOURCES: list[Source] = [
         # silently shipped.
         required=False,
     ),
+    Source(
+        key="wiktionary_ru",
+        url=(
+            "https://kaikki.org/ruwiktionary/"
+            "%D0%92%D0%B5%D0%BD%D0%B3%D0%B5%D1%80%D1%81%D0%BA%D0%B8%D0%B9/"
+            "kaikki.org-dictionary-"
+            "%D0%92%D0%B5%D0%BD%D0%B3%D0%B5%D1%80%D1%81%D0%BA%D0%B8%D0%B9.jsonl"
+        ),
+        filename="kaikki-hu-ru.jsonl",
+        licence="CC BY-SA 3.0 / GFDL",
+        attribution="Wiktionary contributors, Russian Wiktionary (via wiktextract)",
+        # ~12 MB, and far smaller in coverage than the English edition: roughly
+        # 12 900 senses against 45 900. That asymmetry is the point of keeping
+        # both -- the Russian edition covers the frequent words a beginner meets
+        # and thins out fast, so English stays the fallback rather than the
+        # other way round.
+        required=False,
+    ),
+    Source(
+        key="ud_treebank",
+        url=(
+            "https://raw.githubusercontent.com/UniversalDependencies/"
+            "UD_Hungarian-Szeged/master/hu_szeged-ud-test.conllu"
+        ),
+        filename="hu_szeged-ud-test.conllu",
+        licence="CC BY-NC-SA 3.0",
+        attribution="Szeged Dependency Treebank, converted to UD (Vincze et al.)",
+        # Held out from the pack ON PURPOSE: nothing in the build reads this, and
+        # nothing in it reaches a learner. It exists so the morphology can be
+        # scored against human annotation instead of against itself, which is
+        # what the pack's own 88.2% token-resolution figure does.
+        #
+        # NC, so it is fetched and never committed. The Go golden test skips with
+        # a message when the cache is empty.
+        required=False,
+    ),
 ]
 
 

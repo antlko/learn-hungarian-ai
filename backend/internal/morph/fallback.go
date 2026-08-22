@@ -81,9 +81,12 @@ func (a *Analyzer) loadSuffixes() []suffixEntry {
 
 // lemmaExists reports whether a string is a known lemma, and returns its row.
 func (a *Analyzer) lemmaExists(s string) (id int64, lemma, upos string, ok bool) {
+	// IN over the case variants rather than COLLATE NOCASE: the latter cannot
+	// use idx_lemma_lemma and turns every miss into a full scan. See casefold.go.
+	marks, args := placeholders(caseVariants(s))
 	err := a.pack.DB().QueryRow(
-		`SELECT id, lemma, upos FROM lemma WHERE lemma = ? COLLATE NOCASE
-		  ORDER BY COALESCE(freq_rank, 1000000) LIMIT 1`, s,
+		`SELECT id, lemma, upos FROM lemma WHERE lemma IN (`+marks+`)
+		  ORDER BY COALESCE(freq_rank, 1000000) LIMIT 1`, args...,
 	).Scan(&id, &lemma, &upos)
 	return id, lemma, upos, err == nil
 }

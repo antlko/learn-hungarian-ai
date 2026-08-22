@@ -1,9 +1,10 @@
 {
   "brand": {
-    "tagline": "Hungarian, built on the evidence"
+    "tagline": "Hungarian, built on evidence"
   },
   "nav": {
     "today": "Today",
+    "plan": "Plan",
     "review": "Review",
     "read": "Read",
     "listen": "Listen",
@@ -13,6 +14,7 @@
     "write": "Write",
     "library": "Library",
     "progress": "Progress",
+    "users": "Accounts",
     "settings": "Settings"
   },
   "common": {
@@ -22,27 +24,54 @@
     "cancel": "Cancel",
     "continue": "Continue",
     "back": "Back",
+    "backHome": "Back to Today",
     "loading": "Loading…",
-    "retry": "Retry",
+    "retry": "Try again",
     "email": "Email",
     "password": "Password",
     "signOut": "Sign out",
     "comingSoon": "Coming soon",
     "min": "min",
-    "of": "of"
+    "of": "of",
+    "dismiss": "Dismiss"
   },
   "setup": {
-    "title": "Set up",
+    "title": "First run",
     "subtitle": "Create the administrator account. The password is stored on your server and nowhere else.",
     "uiLanguage": "Interface language",
-    "glossLanguage": "Gloss language",
+    "glossLanguage": "Translation language",
     "glossRu": "Russian",
     "glossEn": "English",
     "glossBoth": "Both",
     "glossHint": "Russian dictionary data is markedly thinner than English. If you choose Russian, missing senses fall back to English and are labelled as a fallback rather than substituted silently.",
     "passwordHint": "At least {min} characters. Length matters more than special characters.",
     "submit": "Create account",
-    "creating": "Creating…"
+    "creating": "Creating…",
+    "step": "Step {n} of {of}",
+    "local": {
+      "title": "This machine",
+      "subtitle": "What is already installed here, and the two things you can add later.",
+      "readyTitle": "Ready to use",
+      "ready": {
+        "vocabulary": "The starter language pack: frequent vocabulary with its forms, translations and real sentences from the corpus.",
+        "course": "The six-month course and the grammar curriculum underneath it.",
+        "audio": "Recorded audio for the ear trainer's minimal pairs."
+      },
+      "readyHint": "All of it came inside the binary and installed itself on first boot. Nothing to download, nothing to configure — you can start learning as soon as this wizard closes.",
+      "noPack": "The starter pack did not install. The app will still run, but every language feature stays dead until a pack is present in the data directory — the server log says why.",
+      "extrasTitle": "Optional, and optional means optional",
+      "extrasHint": "Both are set to “later”, deliberately. A modest machine should not be pushed through a 252 MB download before its owner has read a word of Hungarian.",
+      "fullPack": "The full language pack",
+      "fullPackLater": "Later — the starter pack is enough to begin",
+      "fullPackBuild": "I will build it myself",
+      "fullPackHint": "252 MB: much wider vocabulary and far more sentences to collect from. It changes how much material there is, not what the app does with it.",
+      "fullPackBuildHint": "It is built from source rather than downloaded. In a clone of the repository, run:",
+      "speech": "Local speech services (synthesis and recognition)",
+      "speechLater": "Later — the app is complete without them",
+      "speechNow": "Take me to their settings after this",
+      "speechHint": "Optional sidecars. Without them there is no synthesised audio and no pronunciation feedback; everything else behaves exactly the same.",
+      "laterInSettings": "Both of these live in Settings afterwards, and the About section there reports which pack is actually installed."
+    }
   },
   "login": {
     "title": "Sign in",
@@ -53,23 +82,97 @@
     "title": "Today",
     "loops": {
       "memory": "Memory",
-      "input": "Input",
-      "study": "Study and output",
-      "human": "A human"
+      "input": "Listening and reading",
+      "study": "Grammar and practice",
+      "human": "A real person"
     },
     "loopHints": {
       "memory": "Spaced review. In the morning, before email.",
       "input": "Comprehensible audio or text. Commuting, exercising, cooking.",
-      "study": "Grammar on odd days, sentence mining on even ones.",
+      "study": "Grammar on odd days, collecting sentences from your own texts on even ones.",
       "human": "A live teacher or tandem partner. Twice a week."
     },
     "humanNotice": "The app cannot tick this off for you. A real person is the one irreplaceable part: a model has no social stakes, understands your broken Hungarian far too well, and will tell you nothing about your pauses or intonation.",
     "markDone": "Mark done manually",
     "empty": {
       "title": "Ready to start",
-      "body": "The language pack is not installed yet, so the loops are empty. This is Phase 1 — the skeleton runs; the content comes next.",
+      "body": "The language pack is not installed yet, so all four loops are empty. The app runs; the material arrives with the pack.",
       "packMissing": "No language pack found"
+    },
+    "loopUnits": {
+      "memory": "reviews",
+      "input": "min listened",
+      "study": "items"
+    },
+    "examIn": "exam in {n} d",
+    "examPassed": "exam date has passed",
+    "streakDays": "day streak",
+    "streakHint": "A day counts when the due queue is cleared and your stated minutes are met — not when the app was opened.",
+    "queueClear": "queue clear",
+    "queueDue": "{n} due",
+    "obligationsMet": "today's obligations met",
+    "obligationsPending": "obligations not yet met",
+    "humanAttest": "it happened today",
+    "humanAttested": "attested for today"
+  },
+  "plan": {
+    "title": "Plan",
+    "completedOf": "{n} of {of} units done",
+    "month": "Month {n}",
+    "unitOf": "unit {n} of {of}",
+    "status": {
+      "done": "done",
+      "current": "now",
+      "ahead": "ahead"
+    },
+    "aheadNotice": "This one sits further down the plan. Nothing stops you taking it now — the order is advice and the app does not enforce it.",
+    "orderNotice": "“Ahead” is not “locked”. A unit counts as done when every one of its words is in your review deck, and you may start anywhere you like.",
+    "grammar": "Grammar it leans on",
+    "words": "Words",
+    "wordsInDeck": "{n}/{of} in the deck",
+    "word": {
+      "in": "in the deck",
+      "out": "not in the deck",
+      "unknown": "cannot be told from here",
+      "partialNotice": "Some of these are already in your deck, but the plan reports a count rather than naming them — so they are left unmarked instead of guessed at. Take the unit on and the list becomes exact."
+    },
+    "enrol": "Take this unit on",
+    "topUp": "Add what is still missing",
+    "enrolling": "Adding…",
+    "enrolHint": "Every word becomes a card built from a real sentence containing it — never a bare word pair, which would teach nothing about the morphology carrying the meaning.",
+    "report": {
+      "made": "Cards made: {n}",
+      "duplicate": "Already in your deck, so not duplicated: {n}.",
+      "skipped": "Left without a card ({n}):",
+      "skippedWhy": "The corpus has no sentence for these, and a card here is a sentence. Inventing one would put Hungarian in front of you that nobody has written, so they were left out instead. They stay part of the unit, and a wider language pack may well have material for them.",
+      "none": "Nothing new to add: every word of this unit is already in your deck."
+    },
+    "syllabus": "The whole plan",
+    "browseResources": "Where to read on your own",
+    "noCourse": "The course ships inside the language pack. A pack built before the course existed serves everything else and leaves this screen empty.",
+    "handOver": {
+      "badge": "Course complete",
+      "title": "The prescribed course ends here",
+      "done": "Every unit of the course is done — all {n} of them — and every word in them is in your review deck.",
+      "why": "The app stops prescribing vocabulary on purpose. What carries you from here is volume of reading and listening, and it has to be material you chose: a course that never ends produces a learner who can only read what was made for them.",
+      "next": "The machinery stays. The review deck, sentence collection, the grammar drills and the ear trainer all keep working exactly as before — what changes is where the material comes from.",
+      "toResources": "Open the catalogue"
     }
+  },
+  "resources": {
+    "title": "Where to go next",
+    "intro": "Places to find your own Hungarian, now that the course has stopped handing it to you. Each entry names the level it becomes usable at — the point where it stops being decoding, not the level it is written at.",
+    "kind": {
+      "news": "News",
+      "reading": "Reading",
+      "listening": "Listening",
+      "video": "Video",
+      "reference": "Reference",
+      "practice": "Practice"
+    },
+    "usableFrom": "from {level}",
+    "paid": "paid",
+    "empty": "This language pack carries no catalogue. The list ships with the pack rather than with the app, so a newer pack will bring one — nothing here is broken."
   },
   "settings": {
     "title": "Settings",
@@ -78,14 +181,13 @@
       "review": "Review",
       "services": "Services",
       "language": "Language",
-      "data": "Data",
       "about": "About"
     },
     "review": {
       "desiredRetention": "Desired retention",
       "desiredRetentionHint": "The share of cards you should recall. Below 0.80 material decays before it consolidates; above 0.95 workload grows faster than the benefit.",
       "newPerDay": "New cards per day",
-      "newPerDayHint": "The most common reason people abandon spaced repetition is a review avalanche three weeks in. The workload forecast arrives with the review engine.",
+      "newPerDayHint": "The most common reason people abandon spaced repetition is the review avalanche three weeks in. This limit is what prevents it.",
       "dailyMinutes": "Minutes per day",
       "goal": "Goal",
       "goals": {
@@ -107,11 +209,76 @@
       "local": "Local",
       "openai": "External API",
       "notConfigured": "not configured",
-      "unreachable": "unreachable",
-      "reachable": "reachable",
+      "unreachable": "no connection",
+      "reachable": "connected",
       "hint": "All of these are optional. The core app works completely without them."
     },
-    "clamped": "“{field}” was adjusted from {from} to {to}."
+    "clamped": "“{field}” was pulled back into range: {from} became {to}.",
+    "curriculum": {
+      "title": "Exam",
+      "examDate": "Booked exam date",
+      "examHint": "A pre-booked, pre-paid exam is the best-known defence against the month-4–7 motivational trough. The Today screen counts down to it."
+    },
+    "sound": {
+      "title": "Feedback sounds",
+      "hint": "A short tone on every answer, and one when something real is finished. Synthesised in the browser — nothing is downloaded and nothing is scored.",
+      "on": "Sound on",
+      "off": "Sound off",
+      "preview": "Switching it on plays the tone."
+    },
+    "about": {
+      "pack": "Language pack",
+      "edition": {
+        "starter": "starter — the one inside the binary",
+        "full": "full — the 252 MB build"
+      }
+    },
+    "language": {
+      "ui": "Interface language",
+      "gloss": "Word meanings shown in",
+      "locales": {
+        "ru": "Russian",
+        "en": "English"
+      },
+      "glosses": {
+        "ru": "Russian",
+        "en": "English",
+        "both": "Both"
+      },
+      "glossFallback": "Fall back to the other language when a meaning is missing",
+      "glossFallbackHint": "The pack has 8,620 Russian glosses against 45,917 English ones. With this on you see the English meaning marked as a substitute rather than an empty card; with it off, a word with no meaning in your language shows none."
+    }
+  },
+  "users": {
+    "title": "Accounts",
+    "listTitle": "Who has an account",
+    "listHint": "Everyone signs in separately and keeps their own cards, texts and progress. Settings are shared, so only an administrator can change them.",
+    "you": "(you)",
+    "role": "Role",
+    "roles": {
+      "admin": "Administrator",
+      "learner": "Learner"
+    },
+    "since": "since {date}",
+    "makeAdmin": "Make administrator",
+    "makeLearner": "Make learner",
+    "delete": "Delete account",
+    "confirmDelete": "Delete for good?",
+    "deleted": "{email} deleted",
+    "addTitle": "Add someone",
+    "addHint": "They sign in with this address and password, and can change the password themselves afterwards.",
+    "add": "Add account",
+    "added": "{email} added",
+    "password": {
+      "title": "Change your password",
+      "hint": "This signs you out on every other device, but not here.",
+      "current": "Current password",
+      "next": "New password",
+      "confirm": "Repeat new password",
+      "mismatch": "The two new passwords do not match.",
+      "submit": "Change password",
+      "changed": "Password changed"
+    }
   },
   "capabilities": {
     "tts": "Speech synthesis",
@@ -120,7 +287,7 @@
     "llm": "Language model"
   },
   "errors": {
-    "network-unreachable": "The server is unreachable. Check that it is running.",
+    "network-unreachable": "The server is not answering. Check that it is running.",
     "unexpected-response": "Unexpected response from the server.",
     "generic": "Something went wrong.",
     "notFound": "Page not found",
@@ -137,7 +304,7 @@
   "review": {
     "allDone": "Done for today",
     "allDoneBody": "The queue is empty. Come back tomorrow — spacing only works if you keep to it.",
-    "newCapped": "{n} more new cards are waiting: the daily limit is reached. That is a guard, not a fault — it is what stops the review avalanche three weeks from now.",
+    "newCapped": "New cards still waiting: {n}. The daily limit is reached — that is a guard, not a fault: it is what stops the review avalanche three weeks from now.",
     "newCard": "new",
     "typeAnswer": "type the Hungarian",
     "check": "Check",
@@ -146,9 +313,9 @@
     "next": "Next",
     "right": "Correct",
     "youWrote": "you:",
-    "correct": "correct:",
+    "correct": "needed:",
     "graded": "Grammatical features graded:",
-    "glossFallback": "(English — no Russian gloss available)",
+    "glossFallback": "(English — no Russian translation available)",
     "keysProductive": "Enter — check, then continue",
     "keysReceptive": "Space — show · 1–4 — grade · h — hint",
     "directions": {
@@ -178,7 +345,7 @@
     "lemmaCoverage": "by lemma",
     "elementCoverage": "by element",
     "thresholdCaveat": "The 95% and 98% lines were derived for English and are indicative only. “By element” is the stricter figure: a word counts only if both its lemma and every grammatical feature on it are known — you can know “ház” and still be stopped by “házaimban”.",
-    "unresolved": "{n} words unanalysed",
+    "unresolved": "words unanalysed: {n}",
     "verdict": {
       "too_hard": "too hard",
       "with_help": "readable with help",
@@ -199,14 +366,16 @@
     "keys": "j / k — move by word · K — known · i — ignore · a — add card",
     "certainty": {
       "uncertain": "This form has several readings; the more frequent one was chosen. Check it against the sense.",
-      "derived": "Derived automatically rather than attested — it may be wrong."
+      "derived": "Derived automatically rather than found in the corpus — it may be wrong."
     },
-    "cardExists": "“{word}” is already in your cards"
+    "cardExists": "“{word}” is already in your cards",
+    "reportWrong": "this analysis is wrong",
+    "reportedWrong": "reported as wrong — tap to retract"
   },
   "library": {
     "addTitle": "Add a text",
     "title": "Title",
-    "titleHint": "optional — we'll take the opening words",
+    "titleHint": "optional — we take the opening words",
     "kind": "Format",
     "kinds": {
       "paste": "Plain text",
@@ -220,5 +389,209 @@
     "words": "words",
     "remove": "Delete",
     "empty": "Nothing here yet. Paste something you genuinely want to read — difficulty is handled by selecting sentences, not by simplifying the text."
+  },
+  "gate": {
+    "phase": {
+      "locked": "Locked",
+      "explained": "Explained",
+      "blocked": "Blocked practice",
+      "interleaved": "Interleaved",
+      "mastered": "Mastered"
+    },
+    "demoted": "dropped back a phase",
+    "window": "{n} of {of} answers",
+    "notEnoughYet": "not enough answers to judge yet",
+    "why": "why?",
+    "whyTitle": "Why topics are not mixed from the start",
+    "whyBody": "Mixing topics together — interleaving — is genuinely useful, but not from the first lesson. The evidence says its benefit is much smaller for explicit grammar rules than the popular advice implies, and that before you have a working grasp of a rule the extra load actually prevents you from forming it. So the app practises one thing at a time until you are reliably right, and only then starts mixing in contrasting forms.",
+    "whyNumbers": "Here: blocked practice until {gate}% accuracy over the last {window} answers, then interleaved. Mastery needs {mastery}% over {masteryWindow} interleaved answers. A topic drops back if accuracy falls more than {hysteresis} points below the gate — the door swings both ways.",
+    "whyCaveat": "The thresholds come from studies whose participants were not you, which is exactly why they are settings rather than rules. Raise or lower them in Settings.",
+    "locked": {
+      "prereq": "Locked until “{topic}” is reliably coming out right.",
+      "listening": "Word order and focus cannot be learned from rules — they need volume of heard Hungarian first. You have {heard} h of the {need} h this topic needs.",
+      "checkpoint": "This level is closed by a failed checkpoint. Repair below the line, then retake it — advancing past a failed assessment is how plateaus are built."
+    },
+    "blocked": {
+      "warmup": "Practising one topic at a time. {answered} of {need} answers so far — not enough to judge yet.",
+      "accuracy": "Practising one topic at a time until accuracy reaches {gate}%. You are at {accuracy}%.",
+      "fallback": "Back to one topic at a time: accuracy fell to {accuracy}%, below the {floor}% floor. The gate opens again at {gate}%."
+    },
+    "interleaved": {
+      "cleared": "Accuracy reached {accuracy}%, past the {gate}% gate. Contrasting forms are now mixed in.",
+      "warmup": "Mixing in contrasting forms. {answered} of {need} answers towards mastery.",
+      "accuracy": "Mixed practice. Mastery needs {mastery}%; you are at {accuracy}%.",
+      "speed": "Right {accuracy}% of the time, but your median is {median} ms against a {budget} ms target. Vowel harmony is a motor skill — it counts as learned when it is fast, not merely correct.",
+      "lost": "Accuracy slipped to {accuracy}%, below the {mastery}% mastery bar. Back to mixed practice."
+    },
+    "mastered": {
+      "reached": "Mastered at {accuracy}% under mixed practice. It will keep coming back for maintenance.",
+      "automated": "Automated: median {median} ms, inside the {budget} ms target. Speed is the point for a motor skill."
+    },
+    "explained": {
+      "ruleCardOnly": "This topic is taught by its explanation. We have not built exercises for it, so it does not hold up anything after it."
+    },
+    "windowFull": "rolling average of the last {of}"
+  },
+  "grammar": {
+    "title": "Grammar",
+    "allTopics": "All topics",
+    "teachOrder": "step {n}",
+    "needsFirst": "Needs first:",
+    "ruleCardOnly": "explanation only — no exercises yet",
+    "fallbacks": "dropped back {n}×",
+    "notSeen": "not seen yet",
+    "automated": "automatic",
+    "notAWord": "not a Hungarian word",
+    "keys": "1–4 — choose · Enter — next",
+    "ruleStillApplies": "The explanation above is still the lesson — read it, then move on.",
+    "remedyTitle": "Exercises will not fix these",
+    "kind": {
+      "allomorph": "Which variant of the suffix?",
+      "case": "Which case?",
+      "conjugation": "Definite or indefinite?",
+      "cloze": "Fill the gap",
+      "transform": "Produce the form",
+      "mcq": "Which form?"
+    },
+    "row": {
+      "interior": "inside",
+      "surface": "on the surface",
+      "proximity": "nearby"
+    },
+    "column": {
+      "where": "where",
+      "whither": "to where",
+      "whence": "from where"
+    },
+    "harmony": {
+      "back": "back vowels",
+      "front_unrounded": "front unrounded",
+      "front_rounded": "front rounded"
+    },
+    "object": {
+      "definite": "definite",
+      "demonstrative": "a demonstrative pronoun",
+      "indefinite": "indefinite"
+    },
+    "placement": {
+      "title": "Placement",
+      "intro": "A short ladder up the curriculum, three items per topic, so you do not have to start at the alphabet. It stops as soon as two topics in a row go badly.",
+      "start": "Take the placement test",
+      "done": "Here is what the test decided",
+      "apply": "Apply this",
+      "retake": "Start over",
+      "inferred": "assumed from a later pass",
+      "honesty": "Nothing is marked mastered: three items cannot show that. Each topic is seeded with exactly the answers you gave, so the scheduler knows how little it has to go on and keeps measuring."
+    },
+    "recall": "recall",
+    "hitRate": "right",
+    "keysTyped": "Enter — check · Enter again — next item"
+  },
+  "drill": {
+    "prompt": {
+      "allomorph": "{lemma} + {feature} — which variant?",
+      "case": "{lemma}: {row}, {column} — which form?",
+      "conjugation": "The object is {object}. Which conjugation?",
+      "cloze": "Put {lemma} into the form the sentence needs ({feature}).",
+      "transform": "{lemma} → {feature}",
+      "mcq": "Which is the {feature} of {lemma}?"
+    },
+    "unavailable": {
+      "noGenerator": "We have not built exercises for this topic yet. Its explanation is real; the drills are not there.",
+      "noPack": "No language pack is installed, so no exercises can be generated.",
+      "noMaterial": "The corpus in this language pack has no material for this topic, so we would have to invent the answers. We will not."
+    },
+    "remedy": {
+      "volume": "understood but not yet automatic — it needs repetition, measured in speed",
+      "rule": "the rule itself is not holding — read it again, then drill it",
+      "ear": "this is a hearing problem wearing a spelling costume. Vowel length and rounding are not distinguishable to a Russian or English ear without training, and no amount of typing fixes that — it needs the ear trainer.",
+      "vocabulary": "a different word entirely — that is the review deck's job, not grammar",
+      "none": "a typo, not a gap"
+    }
+  },
+  "ear": {
+    "title": "Ear",
+    "accuracy": "accuracy",
+    "talkersUsed": "voices: {n}",
+    "replay": "again (r)",
+    "right": "Right —",
+    "wrong": "Actually —",
+    "keys": "← / → — choose · r — again · space — next",
+    "refusedTitle": "Not enough voices for honest training",
+    "refusedBody": "This pack has {have} distinct voices; high-variability training needs {need}. The variety of talkers is the ingredient that makes the training transfer to real speech — with too few voices you learn the voices, not the sounds.",
+    "refusedHint": "An admin can lower the bar in settings (hvpt.minTalkers). That trades away some of the effect and the app will not pretend otherwise. All available voices here are synthetic — a stated limitation of this pack.",
+    "sessionDone": "{correct}/{total} across {talkers} voices.",
+    "neverDone": "No contrast is ever finished: perception gains decay, so every contrast keeps coming back on its own schedule. That is by design.",
+    "another": "Another session",
+    "contrasts": "Contrasts"
+  },
+  "listen": {
+    "title": "Listen",
+    "add": "Add material",
+    "upload": "Upload",
+    "transcriptHint": "Paste the transcript (required)",
+    "whyTranscript": "The transcript is required because passes 2–3 and the comprehensibility pre-check are built on it. It goes through the same analysis as a reading text.",
+    "materials": "Materials",
+    "empty": "No listening materials yet. Upload audio with its transcript — a podcast episode, a news clip, anything you have the rights to listen to.",
+    "coverageWarn": "Element coverage is {pct}% — below ~90% this is decoding, not listening practice. Consider an easier text first; the thresholds are English-derived and indicative only.",
+    "pass1": "Pass 1 · gist",
+    "pass2": "Pass 2 · with transcript",
+    "pass3": "Pass 3 · dictation",
+    "pass1Hint": "First pass: no transcript. Listen for what it is about — the transcript appears in pass 2.",
+    "heard": "heard: {min} min",
+    "speed": "speed",
+    "loopSetA": "Loop start",
+    "loopSetB": "Loop end",
+    "loopClear": "Clear loop",
+    "dictation": "Sentence {n}/{of} — type what you hear.",
+    "dictationPlaceholder": "type the sentence…"
+  },
+  "progress": {
+    "title": "Progress",
+    "lemmas": "Lemmas",
+    "known": "known",
+    "noLemmas": "No lemmas in play yet — start with reading or with the review deck.",
+    "targetsCaveat": "The A1–B2 lines are the source plan's month-milestone targets. They are reference points, not judgements, and the CEFR mapping is approximate.",
+    "locative": "The locative system",
+    "heatmap": "Grammatical features",
+    "noMastery": "Nothing graded yet. Cloze reviews and grammar drills feed this map.",
+    "weakest": "weakest"
+  },
+  "checkpoint": {
+    "title": "Checkpoints",
+    "blocked": "advance blocked beyond: {levels}",
+    "take": "Record the verdict",
+    "passed": "Passed.",
+    "failed": "Failed — and that blocks advancing, on purpose.",
+    "rollback": "The rule from the source plan: a failed checkpoint stops the programme until you find what broke. The findings above are what the data supports.",
+    "measured": "measured by the app",
+    "selfAttested": "your own word — the app cannot verify this",
+    "lemmaCriterion": "{have} of {need} lemmas in play",
+    "m1": {
+      "title": "Month 1 — sounds and survival",
+      "readAloud": "I read an unfamiliar text aloud without stumbling"
+    },
+    "m3": {
+      "title": "Month 3 — A1 closed",
+      "monologue": "A teacher understood my recorded 5-minute monologue without asking me to repeat"
+    },
+    "m6": {
+      "title": "Month 6 — A2",
+      "phoneCall": "I resolved an everyday matter by phone in Hungarian",
+      "mockExam": "I passed a mock ECL A2"
+    },
+    "m12": {
+      "title": "Month 12 — B1, the point of no return",
+      "realExam": "I passed a real ECL or Origó B1 exam"
+    },
+    "m18": {
+      "title": "Months 18–24 — B2",
+      "b2Exam": "I passed the ECL/Origó B2"
+    },
+    "diag": {
+      "missedDays": "Missed days: {n} of the last 30 did not meet the obligations. This is the most common cause of failure.",
+      "inputTooHard": "Input too hard: average element coverage of what you read was {pct}% — below the ~90% floor, reading is decoding.",
+      "noLivePractice": "No live practice attested in 30 days. The app cannot do this loop for you — that is exactly why it is on the Today screen."
+    }
   }
 }

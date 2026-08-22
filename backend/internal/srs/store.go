@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"tanulom/internal/db"
 )
 
 // Store persists notes, cards and both knowledge state spaces.
@@ -34,27 +36,6 @@ func (s *Store) q(tx *sql.Tx) querier {
 		return tx
 	}
 	return s.db
-}
-
-const rfc3339ms = "2006-01-02T15:04:05.000Z07:00"
-
-func fmtTime(t time.Time) string {
-	if t.IsZero() {
-		return ""
-	}
-	return t.UTC().Format(rfc3339ms)
-}
-
-func parseTime(s sql.NullString) time.Time {
-	if !s.Valid || s.String == "" {
-		return time.Time{}
-	}
-	for _, layout := range []string{rfc3339ms, time.RFC3339Nano, time.RFC3339} {
-		if t, err := time.Parse(layout, s.String); err == nil {
-			return t.UTC()
-		}
-	}
-	return time.Time{}
 }
 
 // Note is a thing to learn: normally a sentence, because a bare lemma teaches
@@ -145,7 +126,7 @@ func (s *Store) CreateNote(n Note, directions []Direction, now time.Time) (int64
 			INSERT INTO card (note_id, direction, due, stability, difficulty,
 			                  scheduled_days, reps, lapses, state, last_review)
 			VALUES (?,?,?,0,0,0,0,0,0,NULL)`,
-			noteID, string(d), fmtTime(fresh.Due))
+			noteID, string(d), db.FmtTime(fresh.Due))
 		if err != nil {
 			return 0, nil, fmt.Errorf("create card %s: %w", d, err)
 		}
@@ -203,8 +184,8 @@ func (s *Store) Card(userID, cardID int64) (Card, error) {
 	if err != nil {
 		return Card{}, fmt.Errorf("load card: %w", err)
 	}
-	c.State.Due = parseTime(sql.NullString{String: due, Valid: true})
-	c.State.LastReview = parseTime(last)
+	c.State.Due = db.ParseTime(sql.NullString{String: due, Valid: true})
+	c.State.LastReview = db.ParseTime(last)
 	return c, nil
 }
 
@@ -213,13 +194,13 @@ func (s *Store) SaveCard(tx *sql.Tx, c Card) error {
 	exec := s.q(tx).Exec
 	var last any
 	if !c.State.LastReview.IsZero() {
-		last = fmtTime(c.State.LastReview)
+		last = db.FmtTime(c.State.LastReview)
 	}
 	_, err := exec(`
 		UPDATE card SET due=?, stability=?, difficulty=?, scheduled_days=?,
 		                reps=?, lapses=?, state=?, last_review=?
 		 WHERE id=?`,
-		fmtTime(c.State.Due), c.State.Stability, c.State.Difficulty,
+		db.FmtTime(c.State.Due), c.State.Stability, c.State.Difficulty,
 		c.State.ScheduledDays, c.State.Reps, c.State.Lapses, c.State.State, last, c.ID)
 	if err != nil {
 		return fmt.Errorf("save card: %w", err)
@@ -239,9 +220,9 @@ func (s *Store) AppendLog(tx *sql.Tx, cardID int64, e LogEntry) error {
 		                        elapsed_days, last_elapsed_days, scheduled_days,
 		                        review_time, duration_ms, answer, correct)
 		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-		cardID, int(e.Rating), e.State, fmtTime(e.Due), e.Stability, e.Difficulty,
+		cardID, int(e.Rating), e.State, db.FmtTime(e.Due), e.Stability, e.Difficulty,
 		e.ElapsedDays, e.LastElapsedDays, e.ScheduledDays,
-		fmtTime(e.ReviewTime), e.DurationMs, e.Answer, correct)
+		db.FmtTime(e.ReviewTime), e.DurationMs, e.Answer, correct)
 	if err != nil {
 		return fmt.Errorf("append review log: %w", err)
 	}
@@ -276,8 +257,8 @@ func (s *Store) FeatureState(tx *sql.Tx, userID int64, featureID string, now tim
 	if err != nil {
 		return fs, fmt.Errorf("load feature state: %w", err)
 	}
-	fs.State.Due = parseTime(due)
-	fs.State.LastReview = parseTime(last)
+	fs.State.Due = db.ParseTime(due)
+	fs.State.LastReview = db.ParseTime(last)
 	return fs, nil
 }
 
@@ -286,10 +267,10 @@ func (s *Store) SaveFeatureState(tx *sql.Tx, userID int64, fs FeatureState) erro
 	exec := s.q(tx).Exec
 	var due, last any
 	if !fs.State.Due.IsZero() {
-		due = fmtTime(fs.State.Due)
+		due = db.FmtTime(fs.State.Due)
 	}
 	if !fs.State.LastReview.IsZero() {
-		last = fmtTime(fs.State.LastReview)
+		last = db.FmtTime(fs.State.LastReview)
 	}
 	_, err := exec(`
 		INSERT INTO morph_state (user_id, feature_id, due, stability, difficulty,
@@ -324,7 +305,7 @@ func (s *Store) AppendFeatureReview(tx *sql.Tx, userID int64, g FeatureGrade,
 		                            duration_ms, review_time, card_id, origin)
 		VALUES (?,?,?,?,?,?,?,?)`,
 		userID, g.FeatureID, int(g.Rating), correct, durationMs,
-		fmtTime(now), nullableID(cardID), orDefault(origin, "review"))
+		db.FmtTime(now), nullableID(cardID), orDefault(origin, "review"))
 	if err != nil {
 		return fmt.Errorf("append feature review: %w", err)
 	}
@@ -348,9 +329,28 @@ func (s *Store) LemmaState(userID, lemmaID int64, now time.Time) (string, CardSt
 	if err != nil {
 		return status, st, fmt.Errorf("load lemma state: %w", err)
 	}
-	st.Due = parseTime(due)
-	st.LastReview = parseTime(last)
+	st.Due = db.ParseTime(due)
+	st.LastReview = db.ParseTime(last)
 	return status, st, nil
+}
+
+// MarkLemmaLearning puts a lemma into the learning state — the effect of
+// creating a note for it. Deliberately weaker than SetLemmaStatus: it never
+// overrides a learner's own declaration, so a word marked `known` in the
+// reader stays known when a card is later minted for it, and an `ignored`
+// word stays ignored. Only `new` (or absent) becomes `learning`.
+//
+// This is what feeds the lemma curve and the checkpoints' "лемм в Anki"
+// criterion: a lemma is IN PLAY from the moment it has a card.
+func (s *Store) MarkLemmaLearning(userID, lemmaID int64) error {
+	_, err := s.db.Exec(`
+		INSERT INTO lemma_state (user_id, lemma_id, status) VALUES (?,?,'learning')
+		ON CONFLICT(user_id, lemma_id) DO UPDATE SET status='learning'
+		 WHERE lemma_state.status = 'new'`, userID, lemmaID)
+	if err != nil {
+		return fmt.Errorf("mark lemma learning: %w", err)
+	}
+	return nil
 }
 
 // SetLemmaStatus records a learner declaration such as "I know this word".
@@ -407,4 +407,19 @@ func nullableID(id int64) any {
 		return nil
 	}
 	return id
+}
+
+// DueCount counts review-due cards right now — the streak's "queue cleared"
+// obligation. New cards are not obligations (they are budget), and suspended
+// cards are not due by definition.
+func (s *Store) DueCount(userID int64, now time.Time) (int, error) {
+	var n int
+	err := s.db.QueryRow(`
+		SELECT COUNT(*) FROM card c JOIN note n ON n.id = c.note_id
+		 WHERE n.user_id = ? AND c.suspended = 0 AND c.state != 0 AND c.due <= ?`,
+		userID, db.FmtTime(now)).Scan(&n)
+	if err != nil {
+		return 0, fmt.Errorf("count due: %w", err)
+	}
+	return n, nil
 }

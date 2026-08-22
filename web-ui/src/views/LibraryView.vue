@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import Note from '@/components/common/Note.vue'
 import { api } from '@/api'
 import type { TextSummary } from '@/types'
 
@@ -54,10 +55,43 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
 
 <template>
   <div class="mx-auto flex w-full max-w-3xl flex-col gap-6">
-    <h1 class="text-2xl font-semibold tracking-tight">{{ $t('nav.library') }}</h1>
+    <h1 class="text-3xl font-semibold tracking-tight">{{ $t('nav.library') }}</h1>
 
-    <Card>
-      <CardHeader>
+    <!--
+      What you already have comes first. The form to add more is a tool, not the
+      point of the screen — putting it on top made an empty library look like a
+      data-entry task instead of a shelf.
+    -->
+    <div v-if="texts.length" class="stagger-in flex flex-col gap-2">
+      <div
+        v-for="tx in texts"
+        :key="tx.id"
+        class="flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:border-primary/50 hover:bg-accent/40"
+      >
+        <RouterLink :to="`/read/${tx.id}`" class="min-w-0 flex-1">
+          <p class="truncate text-sm font-medium">{{ tx.title }}</p>
+          <p class="text-xs tabular-nums text-muted-foreground">
+            {{ tx.wordCount }} {{ $t('library.words') }} · {{ $t('reader.lemmaCoverage') }}
+            {{ pct(tx.lemmaCoverage) }} · {{ $t('reader.elementCoverage') }}
+            {{ pct(tx.elementCoverage) }}
+          </p>
+        </RouterLink>
+        <Button
+          variant="ghost"
+          size="icon"
+          :aria-label="$t('library.remove')"
+          @click="remove(tx.id)"
+        >
+          <Trash2 class="size-4" />
+        </Button>
+      </div>
+    </div>
+
+    <!-- An empty shelf is a starting point, not a failure. -->
+    <Note v-else variant="info">{{ $t('library.empty') }}</Note>
+
+    <Card variant="quiet">
+      <CardHeader class="pb-3">
         <CardTitle class="text-base">{{ $t('library.addTitle') }}</CardTitle>
       </CardHeader>
       <CardContent class="flex flex-col gap-3">
@@ -91,31 +125,5 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
         </Button>
       </CardContent>
     </Card>
-
-    <div v-if="texts.length" class="flex flex-col gap-2">
-      <div
-        v-for="tx in texts"
-        :key="tx.id"
-        class="flex items-center gap-3 rounded-md border border-border p-3"
-      >
-        <RouterLink :to="`/read/${tx.id}`" class="min-w-0 flex-1">
-          <p class="truncate text-sm font-medium">{{ tx.title }}</p>
-          <p class="text-xs text-muted-foreground">
-            {{ tx.wordCount }} {{ $t('library.words') }} · {{ $t('reader.lemmaCoverage') }}
-            {{ pct(tx.lemmaCoverage) }} · {{ $t('reader.elementCoverage') }}
-            {{ pct(tx.elementCoverage) }}
-          </p>
-        </RouterLink>
-        <Button
-          variant="ghost"
-          size="icon"
-          :aria-label="$t('library.remove')"
-          @click="remove(tx.id)"
-        >
-          <Trash2 class="size-4" />
-        </Button>
-      </div>
-    </div>
-    <p v-else class="text-sm text-muted-foreground">{{ $t('library.empty') }}</p>
   </div>
 </template>

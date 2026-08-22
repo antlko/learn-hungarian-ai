@@ -184,3 +184,47 @@ func TestSuffixTableIsPerAnalyzerNotPerProcess(t *testing.T) {
 		t.Errorf("second analyzer did not load its own suffix table: got %q", got.Lemma)
 	}
 }
+
+// The fallback analyser on deliberately out-of-vocabulary forms. Its contract:
+// derive when a known lemma survives the peel, refuse when nothing does — and
+// everything it produces is marked derived, never certain.
+func TestFallbackOnOutOfVocabularyForms(t *testing.T) {
+	p := newTestPack(t)
+	a := NewAnalyzer(p)
+
+	cases := []struct {
+		form      string
+		wantLemma string // "" = must stay unknown
+	}{
+		// kertnek is not in the wordform table; kert is a lemma; -nek peels.
+		{"kertnek", "kert"},
+		// Two layers: kertekben = kert + ek?? — 'ek' is not a stored allomorph
+		// ('k' is), so the peel goes ben → kertek, k → kerte — not the lemma.
+		// Depth-2 with linking vowels is out of the fallback's reach on purpose;
+		// it must refuse rather than guess.
+		{"kertekben", ""},
+		// A proper noun the pack has never seen: no peel reaches a lemma.
+		{"Kovácsnak", ""},
+		// Pure noise.
+		{"zzzzqqq", ""},
+	}
+	for _, tc := range cases {
+		an, err := a.Best(tc.form)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if tc.wantLemma == "" {
+			if an.Certainty != UnknownAnalysis {
+				t.Errorf("%s: certainty = %s (%+v), want unknown — refusing beats guessing",
+					tc.form, an.Certainty, an)
+			}
+			continue
+		}
+		if an.Lemma != tc.wantLemma {
+			t.Errorf("%s: lemma = %q, want %q", tc.form, an.Lemma, tc.wantLemma)
+		}
+		if an.Certainty != DerivedAnalysis {
+			t.Errorf("%s: a fallback analysis must be marked derived, got %s", tc.form, an.Certainty)
+		}
+	}
+}

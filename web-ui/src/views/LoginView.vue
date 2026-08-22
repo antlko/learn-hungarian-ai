@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import Note from '@/components/common/Note.vue'
 import LocaleToggle from '@/components/common/LocaleToggle.vue'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
 import { ApiError } from '@/api'
 import { useAuthStore } from '@/stores/auth'
-import { APP_NAME } from '@/lib/brand'
+import { APP_NAME, APP_TAGLINE_KEY } from '@/lib/brand'
 
 const auth = useAuthStore()
 const route = useRoute()
@@ -49,9 +50,17 @@ async function submit() {
       <ThemeToggle />
     </div>
 
-    <Card class="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle class="text-xl">{{ APP_NAME }} · {{ $t('login.title') }}</CardTitle>
+    <!-- Nothing else is on this screen, so the panel is the object: raised,
+         and the only thing with any weight on the page. -->
+    <Card variant="raised" class="animate-card-in w-full max-w-sm">
+      <CardHeader class="gap-2">
+        <div class="flex flex-col">
+          <span class="text-2xl font-semibold tracking-tight">{{ APP_NAME }}</span>
+          <span class="text-xs text-muted-foreground">{{ $t(APP_TAGLINE_KEY) }}</span>
+        </div>
+        <CardTitle class="text-base font-medium text-muted-foreground">
+          {{ $t('login.title') }}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <form class="flex flex-col gap-4" @submit.prevent="submit">
@@ -78,7 +87,7 @@ async function submit() {
             />
           </div>
 
-          <p v-if="error" class="text-sm text-error" role="alert">{{ error }}</p>
+          <Note v-if="error" variant="error" bare>{{ error }}</Note>
 
           <Button type="submit" :disabled="busy">
             {{ busy ? $t('login.signingIn') : $t('login.submit') }}

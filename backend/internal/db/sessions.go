@@ -57,6 +57,23 @@ func (d *DB) DeleteSession(tokenHash string) error {
 	return nil
 }
 
+// DeleteOtherSessions ends every session a user has except the one identified by
+// keepTokenHash.
+//
+// This is what a password change does: the point of changing a password is to
+// evict whoever else is signed in, but signing the person out of the browser they
+// just typed the new password into is a bug, not security. An empty keepTokenHash
+// keeps nothing — an admin resetting someone else's password wants that account
+// signed out everywhere.
+func (d *DB) DeleteOtherSessions(userID int64, keepTokenHash string) (int64, error) {
+	res, err := d.Exec(`DELETE FROM session WHERE user_id = ? AND token_hash <> ?`,
+		userID, keepTokenHash)
+	if err != nil {
+		return 0, fmt.Errorf("delete other sessions: %w", err)
+	}
+	return res.RowsAffected()
+}
+
 // PurgeExpiredSessions drops sessions past their expiry. Called on startup and
 // periodically; it is housekeeping, not a security boundary — UserBySession
 // already rejects expired tokens.

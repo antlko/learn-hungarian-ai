@@ -15,7 +15,9 @@ defineProps<{ features: FeatureGrade[] }>()
 
 <template>
   <div v-if="features.length" class="flex flex-col gap-1.5">
-    <p class="text-xs text-muted-foreground">{{ $t('review.graded') }}</p>
+    <p class="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+      {{ $t('review.graded') }}
+    </p>
     <div class="flex flex-wrap gap-1.5">
       <span
         v-for="f in features"

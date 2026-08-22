@@ -1,0 +1,257 @@
+"""Build the STARTER language pack: the one baked into the binary.
+
+The full pack is a quarter of a gigabyte of Wiktionary and Tatoeba. That is the
+right artefact to *download*, and the wrong one to ship inside an executable —
+but an app that boots into "no language pack is installed" is not a product, it
+is a build step wearing a UI. So the binary embeds a compact pack that is enough
+to actually learn from on day one, and the full pack is an upgrade.
+
+What "enough" means here, concretely:
+
+  * every morph_feature, grammar_topic, minimal_pair and course unit — the
+    curriculum is small and is the whole spine of the app;
+  * the top-N lemmas by corpus frequency plus every lemma the course names, with
+    their glosses, their attested wordforms and their display paradigm;
+  * only sentences whose every word resolves inside that lemma set, so the
+    reader and the drill generator never hand the learner a sentence the starter
+    cannot explain;
+  * the n-gram attestation index in full — it is tiny and it is a guardrail.
+
+Everything omitted is omitted because its absence DEGRADES rather than breaks:
+a rarer word looks up as unknown, which the UI already renders honestly.
+
+    python -m pipeline.starter --full ../data/langpack-hu-v1.sqlite \
+        --out ../backend/internal/lang/starter/langpack-hu-starter.sqlite
+"""
+
+from __future__ import annotations
+
+import argparse
+import gzip
+import json
+import shutil
+import sqlite3
+from pathlib import Path
+
+# Tuned against the real pack: 4000 lemmas covers the frequency band the first
+# six months of the course lives in, and keeps the gzipped artefact small enough
+# that nobody thinks twice about it being in the repo.
+DEFAULT_LEMMAS = 4000
+DEFAULT_SENTENCES = 12000
+
+TABLES_COPIED_WHOLE = (
+    "pack_meta",
+    "morph_feature",
+    "grammar_topic",
+    "minimal_pair",
+    "pair_audio",
+    "ngram",
+)
+
+
+def build(full: Path, out: Path, *, lemmas: int, sentences: int) -> None:
+    if out.exists():
+        out.unlink()
+    for suffix in ("-wal", "-shm"):
+        p = out.with_name(out.name + suffix)
+        if p.exists():
+            p.unlink()
+
+    src = sqlite3.connect(f"file:{full}?mode=ro", uri=True)
+    schema = [
+        row[0]
+        for row in src.execute(
+            "SELECT sql FROM sqlite_master WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%'"
+        )
+    ]
+
+    dst = sqlite3.connect(out)
+    dst.executescript("PRAGMA journal_mode=OFF; PRAGMA synchronous=OFF;")
+    for stmt in schema:
+        dst.execute(stmt)
+
+    src.close()
+    dst.execute("ATTACH DATABASE ? AS full", (str(full),))
+
+    # course_unit may not exist in an older full pack; copy what is there.
+    have = {
+        r[0]
+        for r in dst.execute("SELECT name FROM full.sqlite_master WHERE type='table'")
+    }
+    whole = [
+        t
+        for t in (*TABLES_COPIED_WHOLE, "course_unit", "course_word", "resource")
+        if t in have
+    ]
+
+    for table in whole:
+        dst.execute(f"INSERT INTO {table} SELECT * FROM full.{table}")
+
+    # ── the lemma set ────────────────────────────────────────────────────
+    # Frequency band first, then anything the course explicitly names: a course
+    # word outside the band must still be learnable, or the course is a lie.
+    dst.execute(
+        """
+        CREATE TEMP TABLE keep_lemma AS
+        SELECT id FROM full.lemma
+         WHERE freq_rank IS NOT NULL AND freq_rank <= ?
+        """,
+        (lemmas,),
+    )
+    if "course_word" in have:
+        dst.execute(
+            """
+            INSERT INTO keep_lemma
+            SELECT DISTINCT l.id FROM full.lemma l
+              JOIN full.course_word cw ON cw.lemma = l.lemma
+             WHERE l.id NOT IN (SELECT id FROM keep_lemma)
+            """
+        )
+    # Course words come FIRST, and this is not a nicety. Enrolling a unit turns
+    # each of its words into a cloze card built from an attested sentence, and a
+    # word with no sentence in the pack is honestly skipped — so a starter that
+    # picks its sentences purely by length quietly teaches a short version of
+    # every unit.
+    #
+    # The subtlety is that a course word's only sentences often contain a rarer
+    # word that the frequency band excluded, which would disqualify the whole
+    # sentence under the "fully resolvable" rule below. Dropping the sentence
+    # loses the course word; keeping it unresolvable breaks the rule. So we do
+    # neither: take the sentences, then PULL THEIR LEMMAS IN. The lemma set
+    # grows by the handful of words the syllabus implies, which is exactly the
+    # set a learner of that syllabus will meet.
+    if "course_word" in have:
+        dst.execute(
+            """
+            CREATE TEMP TABLE course_sentence AS
+            SELECT DISTINCT id FROM (
+                SELECT s.id AS id,
+                       ROW_NUMBER() OVER (PARTITION BY cw.lemma ORDER BY s.len_tokens) AS rn
+                  FROM full.sentence s
+                  JOIN full.sentence_token t ON t.sentence_id = s.id
+                  JOIN full.lemma l          ON l.id = t.lemma_id
+                  JOIN full.course_word cw   ON cw.lemma = l.lemma
+                 WHERE s.len_tokens BETWEEN 3 AND 14
+                 GROUP BY s.id, cw.lemma
+            )
+            WHERE rn <= 3
+            """
+        )
+        dst.execute("CREATE UNIQUE INDEX temp.idx_cs ON course_sentence(id)")
+        dst.execute(
+            """
+            INSERT INTO keep_lemma
+            SELECT DISTINCT t.lemma_id FROM full.sentence_token t
+             WHERE t.sentence_id IN (SELECT id FROM course_sentence)
+               AND t.lemma_id IS NOT NULL
+               AND t.lemma_id NOT IN (SELECT id FROM keep_lemma)
+            """
+        )
+    else:
+        dst.execute("CREATE TEMP TABLE course_sentence (id INTEGER)")
+
+    dst.execute("CREATE TEMP TABLE keep_sentence AS SELECT id FROM course_sentence")
+    dst.execute(
+        """
+        INSERT INTO keep_sentence
+        SELECT s.id FROM full.sentence s
+         WHERE s.id NOT IN (SELECT id FROM keep_sentence)
+           AND NOT EXISTS (
+                 SELECT 1 FROM full.sentence_token t
+                  WHERE t.sentence_id = s.id
+                    AND (t.lemma_id IS NULL OR t.lemma_id NOT IN (SELECT id FROM keep_lemma)))
+         ORDER BY s.len_tokens
+         LIMIT MAX(0, ? - (SELECT COUNT(*) FROM keep_sentence))
+        """,
+        (sentences,),
+    )
+    dst.execute("CREATE INDEX temp.idx_keep ON keep_lemma(id)")
+
+    dst.execute("INSERT INTO lemma SELECT * FROM full.lemma WHERE id IN (SELECT id FROM keep_lemma)")
+    dst.execute(
+        "INSERT INTO lemma_gloss SELECT * FROM full.lemma_gloss "
+        "WHERE lemma_id IN (SELECT id FROM keep_lemma)"
+    )
+    dst.execute(
+        "INSERT INTO wordform SELECT * FROM full.wordform "
+        "WHERE lemma_id IN (SELECT id FROM keep_lemma)"
+    )
+    dst.execute(
+        "INSERT INTO paradigm SELECT * FROM full.paradigm "
+        "WHERE lemma_id IN (SELECT id FROM keep_lemma)"
+    )
+
+    # ── sentences the starter can fully explain ──────────────────────────
+    # A sentence is kept only when EVERY word token resolves to a kept lemma.
+    # Half-known sentences are exactly what the n+1 scorer is supposed to grade
+    # down, and shipping them unresolvable would poison the coverage numbers.
+    dst.execute("CREATE INDEX temp.idx_keep_s ON keep_sentence(id)")
+
+    dst.execute("INSERT INTO sentence SELECT * FROM full.sentence WHERE id IN (SELECT id FROM keep_sentence)")
+    dst.execute(
+        "INSERT INTO sentence_token SELECT * FROM full.sentence_token "
+        "WHERE sentence_id IN (SELECT id FROM keep_sentence)"
+    )
+    if "sentence_trans" in have:
+        dst.execute(
+            "INSERT INTO sentence_trans SELECT * FROM full.sentence_trans "
+            "WHERE sentence_id IN (SELECT id FROM keep_sentence)"
+        )
+
+    # The starter says what it is, so the UI can offer the upgrade honestly.
+    dst.execute(
+        "INSERT OR REPLACE INTO pack_meta (key, value) VALUES ('edition', 'starter')"
+    )
+    # pack_meta is copied whole from the full pack, so gloss_langs arrives
+    # describing the FULL pack's glosses. Recompute it from the rows that
+    # actually made it in: the Go side offers the gloss-language setting off
+    # this field, and a value the pack cannot back is a setting that silently
+    # does nothing.
+    langs = [
+        lang
+        for (lang,) in dst.execute(
+            "SELECT DISTINCT lang FROM lemma_gloss ORDER BY lang = 'en' DESC, lang"
+        )
+    ]
+    dst.execute(
+        "INSERT OR REPLACE INTO pack_meta (key, value) VALUES ('gloss_langs', ?)",
+        (json.dumps(langs),),
+    )
+    dst.commit()
+    dst.execute("DETACH DATABASE full")
+    dst.execute("VACUUM")
+    dst.commit()
+
+    counts = {
+        t: dst.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+        for t in (
+            "lemma", "wordform", "sentence", "sentence_token", "minimal_pair",
+            "ngram", "course_unit", "course_word", "resource",
+        )
+        if t in have
+    }
+    dst.close()
+
+    gz = out.with_suffix(out.suffix + ".gz")
+    with open(out, "rb") as fin, gzip.open(gz, "wb", compresslevel=9) as fout:
+        shutil.copyfileobj(fin, fout)
+    out.unlink()
+
+    print("  " + "  ".join(f"{k}={v}" for k, v in counts.items()))
+    print(f"✓ {gz}  ({gz.stat().st_size / 1e6:.1f} MB gzipped)")
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description="Build the embedded starter language pack")
+    ap.add_argument("--full", type=Path, required=True)
+    ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--lemmas", type=int, default=DEFAULT_LEMMAS)
+    ap.add_argument("--sentences", type=int, default=DEFAULT_SENTENCES)
+    args = ap.parse_args()
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    build(args.full, args.out, lemmas=args.lemmas, sentences=args.sentences)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

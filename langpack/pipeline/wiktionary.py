@@ -191,7 +191,15 @@ def _is_plausible_form(form: str) -> bool:
         return False
     if any(ch in form for ch in " /(),;"):
         return False
-    return bool(form) and set(form.lower()) <= _FORM_CHARS
+    if not set(form.lower()) <= _FORM_CHARS:
+        return False
+    # An EMPTY declension cell is written "-" in Wiktionary's tables, and the
+    # hyphen is in _FORM_CHARS because it is word-internal in compounds and in
+    # `van-e`. Without this check the placeholder was imported as a real form:
+    # the shipped hu-v1 pack has "-" as the essive of several thousand nouns,
+    # where it wins any "shortest attested form" tie-break outright. A wordform
+    # has to contain at least one letter.
+    return any(ch.isalpha() for ch in form)
 
 
 def _first_ipa(sounds: list[dict]) -> str:

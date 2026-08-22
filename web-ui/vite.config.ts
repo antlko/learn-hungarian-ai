@@ -15,8 +15,8 @@ export default defineConfig({
     // Proxy to the Go backend in development so cookies and requests work end
     // to end. In production the Go binary serves this build from an embedded FS.
     proxy: {
-      '/api': 'http://localhost:8080',
-      '/media': 'http://localhost:8080',
+      '/api': 'http://localhost:8012',
+      '/media': 'http://localhost:8012',
     },
   },
 })

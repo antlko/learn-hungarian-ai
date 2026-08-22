@@ -6,9 +6,8 @@ Everything lives in one data directory, mounted at `/data` in Docker.
 /data
 ├── config.yaml              # settings — hand-editable, rewritten atomically by the app
 ├── tanulom.db               # users, sessions, secrets, all learner data
-├── langpack-hu-v1.sqlite    # the language pack (read-only; downloaded or baked in)
-├── media/                   # TTS cache, HVPT clips, learner recordings
-└── backups/                 # automatic snapshots taken before an import
+├── langpack-hu-v1.sqlite    # the language pack (read-only; installed from the binary)
+└── media/                   # HVPT clips installed on first boot; TTS cache and recordings
 ```
 
 The schema is created and upgraded **automatically at start**. There is no migrate command, and
@@ -19,7 +18,7 @@ the distroless image has no shell to run one.
 | Variable | Default | Description |
 |---|---|---|
 | `TANULOM_DATA_DIR` | `/data` | where config, database, pack and media live |
-| `TANULOM_ADDR` | `:8080` | listen address (`host:port`) |
+| `TANULOM_ADDR` | `:8012` | listen address (`host:port`) |
 | `TANULOM_LOG_LEVEL` | `info` | `debug` · `info` · `warn` · `error` |
 
 Flags mirror these: `--data-dir`, `--addr`. Precedence: **flag > env > saved state > default**.
@@ -31,7 +30,7 @@ consistent — the same pattern upmonitor uses.
 ```yaml
 # Settings only. The learning domain lives in SQLite; secrets never appear here.
 server:
-  addr: ":8080"
+  addr: ":8012"
 
 locale:
   ui: ru                 # ru | en
@@ -73,23 +72,29 @@ drill:                      # the blocked → interleaved gate            [R5]
   harmonyLatencyMs: 2500    # harmony counts as automated below this median latency
 
 hvpt:
-  minTalkers: 5             # a session below this is refused           [R7]
+  # 3, not the 5 [R7] evidences: three is every CC0 Hungarian voice that exists.
+  # The gap is stated in the product, and the refusal below carries both numbers.
+  # Raise it if you add human recordings — see docs/PEDAGOGY.md §2.7.
+  minTalkers: 3             # a session below this is refused           [R7]
   trialsPerSession: 40
   rateJitter: 0.10
 
 curriculum:
   focusUnlockListeningHours: 40   # word-order/focus stays locked until this [R15]
+  examDate: ""                    # booked exam, YYYY-MM-DD. [R14]: the pre-booked exam is the
+                                  # best defence against the month-4–7 trough; Today counts
+                                  # down to it. Empty = none booked (no default on purpose)
 
 services:                   # endpoints only — keys live in SQLite      [ADR-005]
   tts: {provider: local, endpoint: "http://tts:5000",  voices: [anna, berta, imre]}
   asr: {provider: local, endpoint: "http://asr:5001"}
   nlp: {provider: local, endpoint: "http://nlp:5002"}
   llm: {provider: off,   endpoint: "http://ollama:11434/v1", model: "qwen3:8b"}
-
-langpack:
-  autoDownload: true
-  releaseUrl: ""            # blank = the project's default GitHub Releases
 ```
+
+There is no `langpack:` block. `autoDownload` and `releaseUrl` were removed with the download
+step itself ([ADR-010](../.claude/DECISIONS.md#adr-010)): the binary carries the pack. A stale
+`langpack:` block in an existing file is ignored, not an error.
 
 ## Rules that prevent real bugs
 

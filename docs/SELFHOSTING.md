@@ -6,14 +6,16 @@ One container, one volume. Optional services when you want speech or an LLM.
 
 ```bash
 docker run -d --name tanulom \
-  -p 8080:8080 \
+  -p 8012:8012 \
   -v tanulom-data:/data \
   --restart unless-stopped \
-  ghcr.io/<owner>/tanulom:latest
+  ghcr.io/antlko/tanulom:latest
 ```
 
-Open **http://localhost:8080** and create your account. The setup wizard offers to download the
-Hungarian language pack (~a few hundred MB) on first run.
+Open **http://localhost:8012** and create your account. **Nothing is downloaded**: the binary
+carries a starter language pack and installs it into `/data` on first boot, audio included. The
+252 MB full pack is an upgrade you build yourself with `make langpack` — offered, never
+required. See [ADR-010](../.claude/DECISIONS.md#adr-010).
 
 ## Docker Compose, with optional services
 
@@ -54,7 +56,7 @@ Caddy:
 
 ```
 tanulom.example.com {
-    reverse_proxy localhost:8080
+    reverse_proxy localhost:8012
 }
 ```
 
@@ -69,7 +71,7 @@ server {
     client_max_body_size 64M;          # EPUB uploads and audio recordings
 
     location / {
-        proxy_pass http://127.0.0.1:8080;
+        proxy_pass http://127.0.0.1:8012;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -83,13 +85,10 @@ requires a secure context** — the Speak trainer will not work over plain HTTP 
 
 ## Backup and restore
 
-**Settings → Data → Export** downloads a zip containing `config.yaml`, `tanulom.db` and `media/`.
-The language pack is excluded because it is reproducible and large.
-
-**Import** validates the archive, snapshots your current state into `backups/`, then applies —
-so a restore is always recoverable.
-
-For scripted backups, the volume is self-contained:
+**There is no backup, restore or export API, and no Data panel in Settings.** Backup is a
+filesystem operation, because the data directory is the whole install: `tanulom.db` (every
+user's notes, cards, review log, both state spaces, API keys), `config.yaml`, `media/` and the
+language pack. Copy the directory and you have copied the install; put it back and it is back.
 
 ```bash
 docker run --rm -v tanulom-data:/data -v "$PWD:/out" alpine \
@@ -97,7 +96,13 @@ docker run --rm -v tanulom-data:/data -v "$PWD:/out" alpine \
 ```
 
 Stop the container first, or accept a WAL-consistent-but-not-quiesced snapshot. SQLite in WAL
-mode tolerates the latter, but a clean stop is better.
+mode tolerates the latter, but a clean stop is better — and a **restore must be done stopped**.
+Swapping a SQLite file under a live WAL connection is how databases die; there is no code path
+in the app that does it, and there should not be one at the shell either.
+
+Two entries are reproducible and can be left out of an archive if size matters: the language
+pack (the starter edition reinstalls itself from the binary on the next boot; the full one is
+rebuilt with `make langpack`) and `media/hvpt/` (re-rendered by `make audio`).
 
 ## Updating
 
@@ -123,7 +128,7 @@ scoping.
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| "language pack not found" | first run, no download | Settings → Data → Download, or mount the file into `/data` |
+| "language pack not found" | **should be unreachable** — the binary installs its own pack on first boot | check the startup log for `starter language pack installed`, and that `/data` is writable by uid 65532 (`nonroot`). A pack-dependent route answering 503 on a fresh install means something broke, not that setup is incomplete |
 | "pack schema version N required" | pack too old or too new for the binary | pull a matching pack or roll the image back |
 | Capability dot hollow | service configured but unreachable | check the container is up and the endpoint is right; hover the dot for the error |
 | Microphone unavailable | insecure context | serve over HTTPS |

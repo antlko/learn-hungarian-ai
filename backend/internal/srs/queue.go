@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
+
+	"tanulom/internal/db"
 )
 
 // QueueItem is one card ready to be shown, with everything the UI needs.
@@ -44,7 +46,7 @@ type QueueCounts struct {
 //     in one session turns the second into a copying exercise; the answer is
 //     still on screen in the learner's memory, so it tests nothing.
 func (s *Store) Queue(userID int64, newLimit, maxReviews int, burySiblings bool, now time.Time) ([]QueueItem, QueueCounts, error) {
-	nowStr := fmtTime(now)
+	nowStr := db.FmtTime(now)
 
 	counts, err := s.queueCounts(userID, nowStr)
 	if err != nil {
@@ -119,7 +121,7 @@ func (s *Store) selectQueue(userID int64, where string, args ...any) ([]QueueIte
 			return nil, fmt.Errorf("scan queue item: %w", err)
 		}
 		it.IsNew = state == 0
-		it.Due = parseTime(sql.NullString{String: due, Valid: true})
+		it.Due = db.ParseTime(sql.NullString{String: due, Valid: true})
 		it.TargetFeats = splitFeats(feats)
 		out = append(out, it)
 	}
@@ -153,7 +155,7 @@ func (s *Store) newCardsIntroducedToday(userID int64, now time.Time) (int, error
 		  JOIN card c ON c.id = r.card_id
 		  JOIN note n ON n.id = c.note_id
 		 WHERE n.user_id = ? AND r.state = 0 AND r.review_time >= ?`,
-		userID, fmtTime(midnight)).Scan(&n)
+		userID, db.FmtTime(midnight)).Scan(&n)
 	if err != nil {
 		return 0, fmt.Errorf("count new cards today: %w", err)
 	}

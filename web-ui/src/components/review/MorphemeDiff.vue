@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import Note from '@/components/common/Note.vue'
 import type { Diff } from '@/types'
 
 /**
@@ -37,7 +38,9 @@ const isPerceptual = computed(
 
 <template>
   <div class="flex flex-col gap-3">
-    <div class="font-mono text-lg leading-relaxed">
+    <!-- A well, not another card: the diff is evidence produced by the answer
+         above it, and it should read as cut into that surface. -->
+    <div class="rounded-lg border border-border-subtle bg-background p-3 font-mono text-lg leading-relaxed">
       <div class="flex items-baseline gap-2">
         <span class="w-16 shrink-0 text-xs text-muted-foreground">{{ $t('review.youWrote') }}</span>
         <span class="text-error"
@@ -60,15 +63,16 @@ const isPerceptual = computed(
       </div>
     </div>
 
-    <p
-      v-if="diff.hint"
-      class="text-sm leading-relaxed"
-      :class="isPerceptual ? 'text-uncertain' : 'text-muted-foreground'"
-    >
+    <!--
+      A vowel-length or rounding slip is a perception problem and no amount of
+      typing treats it, so it is marked as a routed limitation rather than as
+      another correction. See internal/drill/from_error.go.
+    -->
+    <Note v-if="diff.hint" :variant="isPerceptual ? 'limit' : 'info'" bare>
       {{ $t(diff.hint, diff.hintArgs ?? {}) }}
       <span v-if="diff.wrongFeature" class="ml-1 font-mono text-xs opacity-70">
         {{ diff.wrongFeature }}
       </span>
-    </p>
+    </Note>
   </div>
 </template>

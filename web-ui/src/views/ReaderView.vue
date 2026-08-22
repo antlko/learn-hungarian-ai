@@ -3,9 +3,11 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { toast } from 'vue-sonner'
 import { useI18n } from 'vue-i18n'
+import Note from '@/components/common/Note.vue'
 import CoverageMeter from '@/components/reader/CoverageMeter.vue'
 import WordDetail from '@/components/reader/WordDetail.vue'
 import { api } from '@/api'
+import { prefersReducedMotion } from '@/lib/motion'
 import type { LemmaStatus, ScoredSentence, StoredToken, TextDetail } from '@/types'
 
 /**
@@ -122,9 +124,16 @@ function move(delta: number) {
   const at = list.findIndex((w) => w.index === selected.value)
   const next = at < 0 ? 0 : Math.min(list.length - 1, Math.max(0, at + delta))
   selected.value = list[next].index
+  /*
+    `scrollIntoView({ behavior: 'smooth' })` is a script API and overrides the
+    stylesheet, so the global `prefers-reduced-motion` rule in tailwind.css does
+    NOT reach it — it is the one place in the app where motion could escape the
+    guarantee. `lib/motion.ts` exists for exactly this kind of script-side
+    consequence.
+  */
   document
     .querySelector(`[data-token="${selected.value}"]`)
-    ?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    ?.scrollIntoView({ block: 'nearest', behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
 }
 
 function onKey(e: KeyboardEvent) {
@@ -171,13 +180,13 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   <!-- The rail is sticky rather than a fixed sibling column, so the reading
        measure stays constant and the rail follows instead of competing. -->
   <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
-    <div class="flex min-w-0 flex-1 flex-col gap-4">
+    <div class="flex min-w-0 flex-1 flex-col gap-5">
       <p v-if="loading" class="text-sm text-muted-foreground">{{ $t('common.loading') }}</p>
-      <p v-else-if="error" class="text-sm text-error" role="alert">{{ error }}</p>
+      <Note v-else-if="error" variant="error">{{ error }}</Note>
 
       <template v-else-if="detail">
         <div class="flex flex-col gap-3">
-          <h1 class="text-xl font-semibold tracking-tight">{{ detail.text.title }}</h1>
+          <h1 class="text-2xl font-semibold tracking-tight">{{ detail.text.title }}</h1>
           <CoverageMeter
             :coverage="detail.coverage"
             :verdict="detail.verdict"
@@ -185,10 +194,20 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           />
         </div>
 
-        <!-- max-w-prose keeps the measure readable; a full-width column of
-             Hungarian is exhausting to read and hurts the thing we are here to
-             encourage, which is volume. -->
-        <article class="max-w-prose text-lg leading-relaxed" lang="hu">
+        <!--
+          The text is the primary object of this screen and the only raised
+          surface on it: everything else here — the meter, the rail, the key
+          hints — exists to serve the reading, and reading is what the app is
+          trying to buy volume of. [R11]
+
+          max-w-prose keeps the measure readable; a full-width column of
+          Hungarian is exhausting to read and hurts the thing we are here to
+          encourage, which is volume.
+        -->
+        <article
+          class="max-w-prose rounded-xl border border-border bg-card p-6 text-lg leading-relaxed shadow-raised sm:p-8"
+          lang="hu"
+        >
           <template v-for="(tk, i) in detail.tokens" :key="tk.index">
             <span
               v-if="tk.isWord"
@@ -202,19 +221,21 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         </article>
 
         <!-- n+1 rail -->
-        <section v-if="rail.length" class="flex flex-col gap-2 border-t border-border pt-4">
-          <h2 class="text-xs font-medium text-muted-foreground">
+        <section v-if="rail.length" class="flex flex-col gap-2">
+          <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
             {{ $t('reader.nPlusOne') }}
           </h2>
-          <ul class="flex flex-col gap-2">
+          <ul class="stagger-in flex flex-col gap-2">
             <li
               v-for="s in rail"
               :key="s.sentIdx"
-              class="rounded-md border border-border p-3 text-sm"
+              class="rounded-lg border border-border-subtle bg-card p-3 text-sm"
             >
               <p lang="hu">{{ s.text }}</p>
-              <p class="mt-1 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-                <span>{{ $t('reader.newElements', { n: s.unknownWeighted.toFixed(1) }) }}</span>
+              <p class="mt-1.5 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                <span class="tabular-nums">
+                  {{ $t('reader.newElements', { n: s.unknownWeighted.toFixed(1) }) }}
+                </span>
                 <span
                   v-for="f in s.unknownFeatures.slice(0, 3)"
                   :key="f"
@@ -234,7 +255,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       v-if="detail"
       :token="selectedToken"
       :status="selectedStatus"
-      class="lg:sticky lg:top-6 lg:max-h-[calc(100dvh-6rem)]"
+      class="lg:sticky lg:top-2 lg:max-h-[calc(100dvh-6rem)]"
       @status-change="setStatus"
       @add-card="addCard"
     />

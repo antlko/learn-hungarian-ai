@@ -14,12 +14,12 @@ Optional sidecars add speech and NLP. Nothing in v1.0 requires a sidecar.
 
 ```
                     ┌──────────────────────────────────────────┐
-   browser ────────►│  tanulom  (one static binary, distroless) │
+   browser ────────►│ tanulom  (one static binary, distroless) │
                     │  ┌────────────────────────────────────┐  │
-                    │  │ Fiber v3 · API + SPA catch-all      │  │
+                    │  │ Fiber v3 · API + SPA catch-all     │  │
                     │  ├────────────────────────────────────┤  │
-                    │  │ srs · morph · mining · drill · hvpt │  │
-                    │  │ curriculum · stats · export · corpus│  │
+                    │  │ srs · morph · mining · drill · hvpt│  │
+                    │  │ curriculum · course · stats · lang │  │
                     │  └───────┬──────────────────┬─────────┘  │
                     │          ▼                  ▼            │
                     │   tanulom.db          langpack-hu-vN     │
@@ -77,8 +77,8 @@ Two SQLite files in the data dir, plus one YAML.
 | Store | Holds | Mutability |
 |---|---|---|
 | `config.yaml` | settings: review params, mining weights, drill thresholds, service endpoints | hand-editable; app writes atomically |
-| `tanulom.db` | users, sessions, **secrets**, notes, cards, review logs, both state spaces, texts, drills, HVPT trials, recordings, checkpoints | read-write |
-| `langpack-hu-vN.sqlite` | lemmas, wordforms, paradigms, features, sentences, minimal pairs, curriculum, n-grams | **read-only**, `ATTACH`ed |
+| `tanulom.db` | users, sessions, **secrets**, notes, cards, review logs, both state spaces, texts, drills, HVPT trials + contrast states, the listening ledger, the daily ledger, checkpoints, corrections, `course_progress` | read-write |
+| `langpack-hu-vN.sqlite` | lemmas, wordforms, paradigms, features, sentences, minimal pairs, curriculum, n-grams, the guided course (`course_unit`, `course_word`) and the hand-off catalogue (`resource`) | **read-only**, `ATTACH`ed |
 
 **Invariants.**
 
@@ -92,38 +92,87 @@ Two SQLite files in the data dir, plus one YAML.
    fields — never silently rewrites a user's stored values.
 5. **Migrations are embedded and run inside `db.Open`.** There is no migrate command and the
    distroless image has no shell to run one. Never edit an applied migration.
+6. **The split follows who owns the fact.** An ordering of Hungarian vocabulary is language
+   content, so the syllabus is in the pack; which units a learner took up is learner state, so
+   `course_progress` is in the user DB. Note what `course_progress` does *not* hold: a
+   "completed" flag. A unit is done when its words are in the review deck — see [§5.11](#511-the-guided-course--internalcourse).
+
+---
+
+## 3a. Pack bootstrap
+
+**There is always a pack.** The binary embeds one (`internal/lang/starter.go`), and
+`lang.EnsurePack` installs it into the data directory on first boot — gunzip beside the target,
+**prove it opens**, then rename into place. The ear trainer's clips ride along in the same
+embedded archive, skipping any file already present so a re-install never clobbers learner media.
+
+Two failures shaped this:
+
+- **An app that boots into "download a language pack" is a build step wearing a UI.** Every
+  screen except Settings is dead, and the newcomer is asked to solve a distribution problem
+  before reading a word of Hungarian. The starter pack — the whole curriculum and course, the
+  5,132 lemmas with their 502,480 forms and glosses (2,290 of them glossed in Russian, and all
+  853 course words), 12,000 sentences it can fully explain, every minimal pair — is 15.6 MB
+  gzipped in the binary, beside 513 KB of Opus clips, and is enough to work through the first
+  months for real. The 252 MB full pack is an **upgrade** that widens the vocabulary, built with
+  `make langpack`; it is offered, never required.
+- **`lang.Detect` verifies that a candidate opens, rather than trusting the filename.** A
+  truncated download or an interrupted copy leaves a zero-byte `langpack-hu-v1.sqlite`, which
+  the old name-only check reported as present. The server then started with morphology, reading,
+  drills, the ear trainer and the curriculum all dead, behind a message telling the user to
+  download a pack that was, as far as they could see, already there. Verifying costs one `Open`
+  per candidate at startup, and newest-first means a working older pack beats a broken new one.
+
+`EnsurePack` runs before the pack is opened, so a corrupt file is *replaced* rather than merely
+reported. If even that fails the server still boots and every language route answers 503 — the
+same honest degradation as an absent sidecar — and the log says why.
+
+`GET /api/bootstrap` therefore reports `packPresent: true` on a fresh install.
+`pack_meta.edition` distinguishes `starter` from `full`, so the UI can offer the upgrade without
+guessing from the file size.
 
 ---
 
 ## 4. Package graph
 
-Import direction matters; these are the edges that prevent cycles.
+Import direction matters; these are the edges that prevent cycles. Every edge below is a real
+import — `grep -h '"tanulom/internal/' internal/<pkg>/*.go` reproduces the list.
 
 ```
 cmd/tanulom
     └── api ──┬── config ── state
               ├── db (goose migrations, embedded)
               ├── auth
-              ├── lang ── (opens + ATTACHes the pack)
+              ├── lang ── (embeds the starter pack; opens + ATTACHes)
               ├── morph ── lang
               ├── srs ── db
-              ├── mining ── morph, srs, stats
-              ├── curriculum ── lang, db
-              ├── drill ── curriculum, morph, srs, llm?
-              ├── hvpt ── lang, srs, media
-              ├── stats ── db, lang
-              ├── export ── db, media
-              ├── speech ── media          (optional providers)
-              ├── llm ── corpus            (optional providers)
-              ├── corpus ── lang
-              ├── media
+              ├── mining ── (pure: text and rows in, scores out)
+              ├── curriculum ── lang
+              ├── course ── lang
+              ├── drill ── curriculum, morph, srs, lang, db
+              ├── hvpt ── drill, srs, lang, db
+              ├── stats ── db
               └── web (//go:embed all:dist)
+
+    reserved, empty until v1.1:  corpus · llm · speech · media
 ```
+
+`internal/mining` imports nothing from `internal/` at all: ingestion, coverage and the `n+1`
+scorer take plain values, which is what makes them cheap to test. `internal/course` sits beside
+`curriculum` rather than under it — one owns the order rules arrive in, the other the order
+words do, and neither should know about the other's DAG.
 
 **Never:** `lang` or `morph` importing `srs` (they are language knowledge, not learner state).
 **Never:** `srs` importing `drill` (the scheduler must not know about exercise types).
+**Never:** `course` importing `srs` — the syllabus is pack content; the join to the learner's
+deck happens in `api` (`Server.inPlaySet`), because `lemma_state` keys on the pack's `lemma_id`
+across two separate databases.
 **Never:** `llm` importing anything that would let it write cards directly — generation goes
 through `corpus` attestation and then through the normal note-creation path.
+
+`internal/export` is **gone**, with the `.apkg`/CSV/backup endpoints it served. Data safety is a
+filesystem property here: the data directory is self-contained, so a backup is a `tar` of a
+volume and a restore is putting it back ([SELFHOSTING.md](SELFHOSTING.md#backup-and-restore)).
 
 ---
 
@@ -169,18 +218,130 @@ raise `L`** and render the curve. The learner may override — after seeing it.
 
 This exists because the brief names review-avalanche as the single most common cause of quitting.
 
-### 5.4 Corpus attestation — `internal/corpus/attest.go`
+### 5.4 Corpus attestation — `internal/corpus/attest.go` *(v1.1, not yet written)*
 
 2–4-grams of any LLM-generated Hungarian are checked against the pack's `ngram` index.
 Unattested spans are marked *«не подтверждено корпусом» / "not attested in corpus"* and
 **cannot become a card without an explicit override**. See
 [R10](../.claude/research/10-llm-tutors.md).
 
-### 5.5 Morpheme-aware diff — `internal/morph/diff.go`
+The `ngram` index ships in both packs already — it is tiny and it is a guardrail — but
+`internal/corpus` is an empty directory until Phase 9 brings the LLM in. Nothing generates
+Hungarian in v1.0, so there is nothing yet for it to guard.
+
+### 5.5 The blocked → interleaved gate — `internal/drill/schedule.go`
+
+A pure function of the learner's counters. Same numbers in, same verdict out — which is what
+lets the UI show the learner the exact rule the server applied.
+
+```
+phase(topic) :=
+    locked        if a prerequisite has not itself reached `interleaved`,
+                  or the listening gate is shut                             [R15]
+    explained     if no generator can build items for this topic
+    blocked       if rolling_accuracy(window = drill.gateWindow) < gateThreshold
+    interleaved   if that accuracy >= gateThreshold
+    mastered      if interleaved_accuracy(window = masteryWindow) >= masteryThreshold
+                  AND, for a motor-skill topic, median latency <= harmonyLatencyMs
+```
+
+Four things about this are load-bearing:
+
+1. **A prerequisite counts as met at `interleaved`, not at `mastered`.** Requiring mastery of
+   every ancestor would serialise a two-year curriculum into a crawl. [R5]'s floor is about
+   whether the learner can absorb the load of the topic in front of them.
+2. **`explained` exists so an un-drillable topic cannot wall off the curriculum.** The alphabet
+   has a real rule card and no exercises; it teaches by explanation and does not gate.
+3. **Two accuracy windows, not one.** The gate window counts *every* answer, so the fallback can
+   see a collapse. The mastery window counts only answers served under interleaving — otherwise
+   a learner could reach "mastered" without ever having had to discriminate.
+4. **The door swings both ways, with hysteresis.** Below `gateThreshold − hysteresis` a topic
+   falls back to `blocked` — from `mastered` too, all the way down, because if the learner can
+   no longer do it at all then mixing it with confusable items is exactly wrong.
+
+### 5.6 Drill item generation — `internal/drill/generate.go`
+
+Six generators, chosen per topic from the features it teaches rather than from a table, so
+adding a topic to the pack needs no code change: `allomorph | case | conjugation | cloze |
+transform | mcq`.
+
+Two rules constrain every one of them.
+
+- **The correct answer must be attested.** Distractors may be constructed — a wrong allomorph is
+  not a word, which is the point — but the form marked right has to be one the language has.
+  Resolution goes through `internal/morph/forms.go`, never through the pack's `paradigm` table,
+  which is generator-only and disagrees with the dictionary in places.
+- **An item declares exactly the features it required.** A harmony item grades
+  `Skill=VowelHarmony` alone; a case choice between forms of one noun does not grade harmony at
+  all, because every option shares the stem's harmony class.
+
+Phase decides the mix. `blocked` serves **one kind**; `interleaved` shuffles kinds and contrasts
+minimally different items — `-ban` against `-ba` of the *same* noun, definite against indefinite
+of the *same* verb. Variety is not the mechanism; discriminability is. [R5]
+
+Availability is **proven by building an item**, cached per topic: a topic can pass every
+structural test and still produce nothing, because the pack's attested `olvashat` carries no
+features at all. Saying "we have not built exercises for this" is a supported outcome.
+
+### 5.7 Replay — `internal/srs/replay.go`
+
+The review log is complete so that replaying it reproduces stored FSRS state **bit for bit**
+(fuzz is seeded from review time + reps, so even fuzzed due dates replay). Two things stand on
+that property:
+
+- **Undo** is "delete the last log row and replay the rest" — in both state spaces, in one
+  transaction. No stored-previous-state bookkeeping that can drift.
+- The **property test** (`replay_test.go`, 200 randomised trials) that catches any change —
+  including an FSRS upgrade — breaking the correspondence.
+
+### 5.8 The ear trainer — `internal/hvpt`
+
+2AFC identification over the pack's minimal pairs. Three [R7] rules are load-bearing:
+**multiple talkers are the active ingredient** (a session below `hvpt.minTalkers` distinct
+voices is refused with the numbers, and the session plan rotates voices so consecutive trials
+never share one); identification, not same/different; **no contrast is ever complete** — every
+contrast stays on FSRS maintenance with a positive selection weight forever. The played member
+is held server-side (ADR-008 applies to trials too).
+
+### 5.9 The daily ledger and the streak — `internal/stats`
+
+`daily_log` rows are written at interaction time; the streak is computed from them with one
+rule ([R14]): a day counts when the due queue was cleared AND the stated minutes were reached.
+Loop 4's attestation is stored in the same row and deliberately ignored by the streak — it is
+signal for the checkpoint diagnostic only. Checkpoints gate the curriculum: a failed
+assessment locks its CEFR level and above (resolved in `drill.Resolve`, reason
+`gate.locked.checkpoint`) until a retake passes.
+
+### 5.10 Morpheme-aware diff — `internal/morph/diff.go`
 
 Segment the learner's answer and the target, align morphemes, classify the divergence:
 `harmony | case | definiteness | possessor | vowel_length | agreement | spelling`. The **class**,
 not the mere fact of being wrong, drives what gets drilled next.
+
+### 5.11 The guided course — `internal/course`
+
+Twenty-four units over six months, shipped in the pack: each names the errand it buys ("I can
+register at a GP"), the grammar topics it leans on, and the words to own. It answers the
+question the DAG and the miner both leave open — *what do I do today* — for as long as a
+beginner needs it answered, and then stops.
+
+Two properties are load-bearing.
+
+**Completion is derived, never stored.** `Syllabus.Resolve` takes an `inPlay(lemma)` predicate
+and a unit is `done` when every one of its words is in that learner's `lemma_state` as
+`learning` or `known`. `course_progress` records enrolment and the counts an enrolment produced;
+there is no completion column, and adding one would let the plan screen disagree with the deck.
+The join lives in `api.Server.inPlaySet` because the two tables are in two databases.
+
+**The hand-off is the design.** `plan.handedOver` goes true when the last unit is done, and the
+app stops prescribing vocabulary in favour of the pack's `resource` catalogue. A course that
+never ends produces a learner who can only read material made for them
+([R11](../.claude/research/11-extensive-reading.md)).
+
+Enrolling a unit builds one **sentence** note per word — shortest attested sentence containing
+that lemma, so a first encounter is not also a parsing exercise — and marks the lemma
+`learning`. A word the pack has no attested sentence for is **skipped and named**, not turned
+into a bare-word card ([R16 §8](../.claude/research/16-debunked.md)).
 
 ---
 
@@ -207,6 +368,18 @@ POST /api/texts
   → mining.Score(sentences)         // n+1 rail
 ```
 
+**Answering a drill item**
+```
+POST /api/drill/answer  {itemId, answer, durationMs}
+  → drill.Pending.Take(itemID)          // the server held the expected answer
+  → morph.DiffForms | option compare    // typed vs choice
+  → srs.RequiredFeatures(item.feats)    // only what the item tested
+  → drill.Fold(progress, servedPhase)   // the window the answer belongs in
+  → drill.Evaluate(progress, gate)      // pure: the phase and the reason for it
+  → db tx: feature_review[] + morph_state[] + drill_attempt + topic_progress
+  → drill.FromError(class, feature)     // what to practise next, or "a drill won't fix this"
+```
+
 **Capability probing**
 ```
 GET /api/capabilities
@@ -226,8 +399,16 @@ GET /api/capabilities
 | Change how sentences are chosen | `internal/mining/score.go` + `mining:` in `config.yaml` |
 | Add a grammar topic | `langpack/pipeline/curriculum.py`, then rebuild the pack |
 | Change the blocked→interleaved gate | `internal/drill/schedule.go` + `drill:` in `config.yaml` |
-| Add an exercise type | `internal/drill/generate.go` + a renderer in `web-ui/src/components/drill/` |
-| Add a minimal pair | `langpack/pipeline/minimal_pairs.py` |
+| Change what unlocks what | `langpack/pipeline/curriculum.py` (the DAG) + `internal/drill/resolve.go` (how it is walked) |
+| Add an exercise type | a generator in `internal/drill/generate.go`, a `Kind`, and a branch in `web-ui/src/components/grammar/DrillItem.vue` |
+| Find the surface form of a paradigm cell | `internal/morph/forms.go` — **never** the pack's `paradigm` table, which is generator-only |
+| Add a minimal pair | `langpack/pipeline/minimal_pairs.py`, then `python -m pipeline.minimal_pairs --pack … --media … --voices-dir …` to render its audio |
+| Change what counts as a streak day | `internal/stats/streak.go` (`Day.Met`) |
+| Add a checkpoint criterion | `internal/stats/checkpoint.go` (`Specs`) + both locale files |
+| Change a course unit's words or its goal | `langpack/pipeline/course_mN.py` (one module per month), then rebuild the pack. Never in Go — the syllabus is pack content |
+| Change what makes a unit done, or what enrolment creates | `internal/course/course.go` (`Resolve`) and `internal/api/handlers_course.go` (`noteForWord`). Completion stays **derived from the deck** |
+| Add or drop a hand-off resource | `langpack/pipeline/resources.py`, then rebuild the pack |
+| Change what the binary ships with | `langpack/pipeline/starter.py` + `make starter`; the artefact is embedded by `internal/lang/starter.go` |
 | Add an API endpoint | `internal/api/handlers_*.go`, DTO in `dto.go`, mirror in `web-ui/src/types/`, document in [`API.md`](API.md) |
 | Change the schema | new `internal/db/migrations/NNNNN_name.sql`; never edit an applied one |
 | Add a language | out of scope for v1 — the pack schema is language-agnostic but the curriculum and minimal pairs are not |
@@ -239,8 +420,12 @@ GET /api/capabilities
 Vue 3 `<script setup>`, Pinia, vue-router, Tailwind v4, shadcn-vue (Reka UI), `@lucide/vue`
 (**not** `lucide-vue-next`), `vue-i18n`, `vite-plugin-pwa`.
 
-- Stores: `auth`, `settings`, `ui`, `capabilities`, `review`, `texts`, `curriculum`, `hvpt`,
-  `progress`.
+- Stores: `auth`, `settings`, `ui`, `capabilities`, `review`, `curriculum`, `milestone`.
+  Everything else fetches through `src/api/index.ts` inside the view that needs it — a store
+  exists where state outlives a screen, not as a reflex.
+- The grammar screen's keyboard map lives in `components/grammar/DrillItem.vue` on a **window**
+  listener. A choice item focuses nothing — focusing an answer button would visually nominate an
+  answer — so a handler bound to the component root never fires.
 - `src/types/` mirrors `backend/internal/api/dto.go` (camelCase). Keep them in sync when shapes
   change.
 - Router guards gate setup / login / role — **UX only**. The API enforces roles independently.

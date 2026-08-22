@@ -20,11 +20,18 @@ func (s *Server) handleBootstrap(c fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	present, version := lang.Detect(s.dataDir)
+	version, present := lang.Detect(s.dataDir)
+	// Read off the loaded pack rather than reopening it: this endpoint is
+	// unauthenticated and hit on every cold load of the SPA.
+	edition := ""
+	if p := s.Pack(); p != nil {
+		edition = p.Meta.Edition
+	}
 	return c.JSON(BootstrapDTO{
 		NeedsSetup:  n == 0,
 		PackPresent: present,
 		PackVersion: version,
+		PackEdition: edition,
 		Locales:     []string{"ru", "en"},
 		Version:     Version,
 	})

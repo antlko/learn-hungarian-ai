@@ -100,7 +100,10 @@ func settingsDTO(c config.Config, secrets map[string]bool) SettingsDTO {
 			TrialsPerSession: c.HVPT.TrialsPerSession,
 			RateJitter:       c.HVPT.RateJitter,
 		},
-		Curriculum: CurriculumDTO{FocusUnlockListeningHours: c.Curriculum.FocusUnlockListeningHours},
+		Curriculum: CurriculumDTO{
+			FocusUnlockListeningHours: c.Curriculum.FocusUnlockListeningHours,
+			ExamDate:                  c.Curriculum.ExamDate,
+		},
 		Services: map[string]ServiceDTO{
 			"tts": svc(c.Services.TTS),
 			"asr": svc(c.Services.ASR),

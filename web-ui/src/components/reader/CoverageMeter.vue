@@ -46,7 +46,9 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
           <span class="ml-1 font-mono text-foreground">{{ pct(coverage.elementCoverage) }}</span>
         </span>
       </span>
-      <span :class="verdictColour">{{ $t(`reader.verdict.${verdict}`) }}</span>
+      <span class="font-medium" :class="verdictColour">
+        {{ $t(`reader.verdict.${verdict}`) }}
+      </span>
     </div>
 
     <!-- Two stacked bars: the lower one is the honest number. -->
@@ -60,7 +62,7 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
         :style="{ width: pct(coverage.elementCoverage) }"
       />
       <div
-        class="absolute inset-y-0 w-px bg-foreground/40"
+        class="absolute inset-y-0 w-px bg-foreground/50"
         :style="{ left: pct(thresholds.minimal) }"
         :title="`${pct(thresholds.minimal)}`"
       />

@@ -46,7 +46,12 @@ toward listening time.
 **We therefore do not:** invent scheduling maths. `internal/srs/` wraps `go-fsrs/v4` (FSRS-6)
 and adds only the *application* of it to a second state space.
 
-**We do:** keep `.apkg` export first-class so the learner is never locked in.
+**We did:** keep `.apkg` export first-class so the learner is never locked in.
+**We now do not** — see [ADR-011](../DECISIONS.md#adr-011). The finding above is not in dispute;
+the response to it is. An `.apkg` carries one card with one interval, so it can express the
+lemma half of this app's state and not the morphological half. Handing that over as "your
+progress" is its own kind of lock-in. The answer is the data directory: an ordinary SQLite file
+with a documented schema, and the review log inside it replays to stored state bit-for-bit.
 
 ## 5. "Fluent in 3 months"
 

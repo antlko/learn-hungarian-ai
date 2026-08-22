@@ -69,7 +69,9 @@ func newTestPack(t *testing.T) *lang.Pack {
 		(2,'kert','NOUN',900,'[ˈkɛrt]'),
 		(3,'vár','NOUN',2500,'[ˈvaːr]'),
 		(4,'vár','VERB',400,'[ˈvaːr]'),
-		(5,'gyümölcs','NOUN',1800,NULL)`)
+		(5,'gyümölcs','NOUN',1800,NULL),
+		(6,'lát','VERB',48,NULL),
+		(7,'csónak','NOUN',1900,NULL)`)
 	exec(`INSERT INTO lemma_gloss VALUES (1,'en',0,'house'),(2,'en',0,'garden')`)
 
 	exec(`INSERT INTO wordform (form,lemma_id,upos,feats,source,confidence) VALUES
@@ -81,7 +83,9 @@ func newTestPack(t *testing.T) *lang.Pack {
 		('kertben',2,'NOUN','Case=Ine|Number=Sing','wiktionary','high'),
 		('vár',3,'NOUN','','wiktionary','high'),
 		('vár',4,'VERB','Person=3|Number=Sing','wiktionary','high'),
-		('gyümölcs',5,'NOUN','','wiktionary','high')`)
+		('gyümölcs',5,'NOUN','','wiktionary','high'),
+		('látta',6,'VERB','Definite=Def|Mood=Ind|Number=Sing|Person=3|Tense=Past','wiktionary','high'),
+		('csónak',7,'NOUN','Case=Nom|Number=Sing','wiktionary','high')`)
 
 	exec(`INSERT INTO paradigm VALUES (1,'Nom.Sing','ház'),(1,'Ine.Sing','házban')`)
 
@@ -92,7 +96,17 @@ func newTestPack(t *testing.T) *lang.Pack {
 		('Case=All','Case','All','аллатив','allative',
 		 '{"back":"hoz","front_unrounded":"hez","front_rounded":"höz"}','x','x',37,'','proximity/whither'),
 		('Number=Plur','Number','Plur','мн. число','plural',
-		 '{"back":"k","front_unrounded":"k","front_rounded":"k"}','x','x',25,'',NULL)`)
+		 '{"back":"k","front_unrounded":"k","front_rounded":"k"}','x','x',25,'',NULL),
+		('Case=Acc','Case','Acc','винительный','accusative',
+		 '{"back":"t","front_unrounded":"t","front_rounded":"t"}','x','x',20,'',NULL),
+		('Case=Dat','Case','Dat','дательный','dative',
+		 '{"back":"nak","front_unrounded":"nek","front_rounded":"nek"}','x','x',40,'',NULL),
+		('Tense=Past','Tense','Past','прошедшее','past tense',
+		 '{"back":"t","front_unrounded":"t","front_rounded":"t"}','x','x',70,'',NULL),
+		('Person[psor]=1','Person[psor]','1','мой','my',
+		 '{"back":"m","front_unrounded":"m","front_rounded":"m"}','x','x',61,'',NULL),
+		('Number[psed]=Plur','Number[psed]','Plur','мн. обладаемое','plural possessed',
+		 '{"back":"i","front_unrounded":"i","front_rounded":"i"}','x','x',67,'',NULL)`)
 
 	if err := db.Close(); err != nil {
 		t.Fatal(err)

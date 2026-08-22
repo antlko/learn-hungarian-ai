@@ -140,6 +140,61 @@ CREATE TABLE grammar_topic (
 );
 CREATE INDEX idx_topic_order ON grammar_topic(teach_order);
 
+-- ─── the guided course ────────────────────────────────────────────────────
+--
+-- The grammar DAG says what order to learn RULES in. It says nothing about
+-- which WORDS, and a learner who is told "mine your own sentences" on day one
+-- has been handed a research project instead of a course. So the pack also
+-- carries an explicit six-month syllabus: ordered units, each with the concrete
+-- situation it buys you, the grammar it leans on, and the vocabulary to own.
+--
+-- After the last unit the app stops prescribing and points at real sources —
+-- that hand-off is the point of the course, not an afterthought. See
+-- docs/PEDAGOGY.md and .claude/research/11-extensive-reading.md.
+CREATE TABLE course_unit (
+    id            INTEGER PRIMARY KEY,
+    code          TEXT NOT NULL UNIQUE,
+    month         INTEGER NOT NULL,
+    ord           INTEGER NOT NULL,
+    title_ru      TEXT NOT NULL, title_en      TEXT NOT NULL,
+    -- What the learner can DO afterwards, in the first person. A unit whose
+    -- goal cannot be written as a real errand is a unit about grammar, not
+    -- about Hungary, and does not belong in this table.
+    goal_ru       TEXT NOT NULL, goal_en       TEXT NOT NULL,
+    -- The situation this unit is for: "at the doctor", "at the ügyfélszolgálat".
+    situation_ru  TEXT NOT NULL, situation_en  TEXT NOT NULL,
+    -- grammar_topic codes this unit assumes or introduces, comma separated.
+    topic_codes   TEXT NOT NULL DEFAULT ''
+);
+CREATE INDEX idx_course_unit_ord ON course_unit(ord);
+
+CREATE TABLE course_word (
+    unit_code TEXT NOT NULL,
+    lemma     TEXT NOT NULL,
+    upos      TEXT NOT NULL DEFAULT '',
+    gloss_ru  TEXT NOT NULL,
+    gloss_en  TEXT NOT NULL,
+    -- Anything that will trip the learner: irregular stem, formal register,
+    -- a false friend. Empty for the ordinary majority.
+    note      TEXT NOT NULL DEFAULT '',
+    ord       INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (unit_code, lemma)
+);
+
+-- Where to read and listen once the course hands over. Curated, licensed,
+-- and levelled — "just read the news" is not a plan for an A2 learner.
+CREATE TABLE resource (
+    id          INTEGER PRIMARY KEY,
+    kind        TEXT NOT NULL CHECK (kind IN ('news','reading','listening','video','reference','practice')),
+    title       TEXT NOT NULL,
+    url         TEXT NOT NULL,
+    -- The level this becomes usable at, not the level it is written at.
+    level       TEXT NOT NULL,
+    blurb_ru    TEXT NOT NULL, blurb_en TEXT NOT NULL,
+    free        INTEGER NOT NULL DEFAULT 1 CHECK (free IN (0,1)),
+    ord         INTEGER NOT NULL DEFAULT 0
+);
+
 -- ─── the attestation guardrail ────────────────────────────────────────────
 CREATE TABLE ngram (
     gram  TEXT NOT NULL,

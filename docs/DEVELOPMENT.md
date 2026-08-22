@@ -15,37 +15,63 @@ embedded into the binary; in development the two run side by side with Vite prox
 Run `npm` from `web-ui/`. Run `go` from `backend/`. They are separate projects that ship as one
 binary.
 
-## Run both dev servers
+## Running locally without Docker
 
-**Terminal 1 — backend** (API on `:8080`, writes to `./data`):
+The `Makefile` at the repo root drives both toolchains together. **Docker is not needed for any
+of it** — only for building the published image. `make` on its own prints every target:
 
 ```bash
-cd backend && go run ./cmd/tanulom --data-dir ../data --addr :8080
+git clone https://github.com/antlko/tanulom.git
+cd tanulom
+make deps    # go mod download + npm ci + the pipeline's Python requirements
+make dev     # backend and Vite together, in the foreground
 ```
 
-**Terminal 2 — frontend** (Vite on `:5173`):
+| Target | What it does |
+|---|---|
+| `make dev` | Runs the Go API **and** the Vite dev server in one terminal. Ctrl-C stops both. |
+| `make backend` / `make frontend` | Either half alone, when you want two terminals. |
+| `make spa` | Builds the SPA and embeds it into `backend/internal/web/dist`. |
+| `make build` | `spa`, then the static `CGO_ENABLED=0` binary into `bin/tanulom`. |
+| `make run` | `build`, then serves UI + API from that one binary against `./data`. |
+| `make test` | Everything CI gates on: Go vet/build/test, then type-check, lint, SPA build. |
+| `make test-backend` / `make test-frontend` | Either half. |
+| `make lint` / `make fmt` | gofmt + `go vet` + oxlint/eslint; or rewrite in place. |
+| `make langpack` | Rebuilds `data/langpack-hu-v1.sqlite` (see the caveats below). |
+| `make clean` | Removes build output. **Never touches `./data`.** |
+
+Overridable: `DATA_DIR`, `PACK`, `PYTHON`, `VERSION`, `DEV_ADDR`, `GO_TEST_FLAGS` — e.g.
+`make test GO_TEST_FLAGS='-race -count=1'` to match CI exactly, or
+`make deps PYTHON=langpack/.venv/bin/python` to keep pip out of the system interpreter.
+
+Open **http://localhost:5173** for `make dev`. Vite proxies `/api` and `/media` to the backend
+(see `web-ui/vite.config.ts`), so cookies and requests work end to end. Both sides hot-reload.
+
+Two things the Makefile knows that are easy to get wrong by hand:
+
+- **`make dev` pins the backend to `:8012`** (`DEV_ADDR`), because the Vite proxy target is
+  written literally in `vite.config.ts` and the two have to agree. It happens to equal
+  `config.DefaultAddr` today, but it is not read from it — change one and you must change the
+  other, or every `/api` call from the dev SPA 502s with no clue why. `make run` passes no
+  `--addr` at all, so the single binary uses the configured default.
+- **`//go:embed all:dist` does not compile when `backend/internal/web/dist` is absent**, which is
+  every fresh clone. Any Go target writes a placeholder there first, for the same reason
+  `ci.yml` has a "Stub embedded SPA" step. It never overwrites a real `make spa` build.
+
+## Doing it by hand
+
+The Makefile is a convenience, not a dependency. The underlying commands:
 
 ```bash
-cd web-ui && npm install && npm run dev
-```
+# Two dev servers, two terminals
+cd backend  && go run ./cmd/tanulom --data-dir ../data --addr :8012
+cd web-ui   && npm install && npm run dev
 
-Open **http://localhost:5173**. Vite proxies `/api` and `/media` to the backend (see
-`web-ui/vite.config.ts`), so cookies and requests work end to end. Both sides hot-reload.
-
-## Build the single binary
-
-```bash
-# 1. Build the SPA
+# The single binary
 cd web-ui && npm ci && npm run build && cd ..
-
-# 2. Embed it
 rm -rf backend/internal/web/dist && cp -r web-ui/dist backend/internal/web/dist
-
-# 3. Static binary — pure Go, no CGO
-cd backend && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o ../tanulom ./cmd/tanulom
-
-# 4. Run it — UI + API on :8080
-cd .. && ./tanulom --data-dir ./data
+cd backend && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o ../bin/tanulom ./cmd/tanulom
+cd .. && ./bin/tanulom --data-dir ./data
 ```
 
 The `Dockerfile` automates exactly these steps across build stages.
@@ -68,12 +94,13 @@ go test ./...
 go build ./...
 ```
 
-Both run in `.github/workflows/ci.yml` on every PR.
+Both run in `.github/workflows/ci.yml` on every PR, and `make test` runs the same set locally.
 
 ## Language pack
 
-You do **not** need to build the pack to develop. Download a release asset into `./data/`, or let
-the setup wizard fetch it. To rebuild — see [`LANGPACK.md`](LANGPACK.md) — expect hours and tens
+You do **not** need to build the pack to develop, and there is nothing to fetch: the binary
+installs its embedded starter pack into the data directory on first boot. It is a real pack —
+5,132 lemmas, the whole 24-unit course, every minimal pair — so every screen works against it. To rebuild — see [`LANGPACK.md`](LANGPACK.md) — expect hours and tens
 of GB of scratch space; it runs in CI on tag, not on a laptop.
 
 ## Optional sidecars
@@ -93,6 +120,11 @@ and hard to notice.
 - **Golden tests** for morphology live in `internal/morph/testdata/` against a held-out UD
   Hungarian sample. These are the product's quality floor — if they regress, `n+1` and the
   heatmap are wrong.
+- **Real-pack tests** (`*_realpack_test.go` in `internal/drill` and `internal/morph`) run the
+  generators and the segmenter against the actual `data/langpack-hu-v1.sqlite` when present and
+  skip cleanly in CI. Point them elsewhere with `TANULOM_TEST_PACK=/path/to/pack.sqlite`.
+- **Pipeline tests** are plain functions under `langpack/tests/`; run them with `pytest` if you
+  have it, or import-and-call (the repo's Python needs no extra deps for these).
 - **Property test:** replaying a `review_log` through FSRS must reproduce stored card state
   exactly. If this fails, review history is not trustworthy.
 - **No frontend test framework is wired.** Verify UI changes by running the dev servers. Do not

@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { Check, EyeOff, Plus } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
+import Note from '@/components/common/Note.vue'
 import { api } from '@/api'
 import { useUiStore } from '@/stores/ui'
 import type { LemmaDetail, LemmaStatus, StoredToken } from '@/types'
@@ -61,7 +62,7 @@ function setStatus(status: LemmaStatus) {
 
 <template>
   <aside
-    class="flex w-full shrink-0 flex-col gap-4 overflow-y-auto rounded-xl border border-border bg-card/40 p-5 lg:w-80"
+    class="flex w-full shrink-0 flex-col gap-4 overflow-y-auto rounded-xl border border-border-subtle bg-card p-5 lg:w-80"
   >
     <p v-if="!token" class="text-sm text-muted-foreground">{{ $t('reader.pickAWord') }}</p>
 
@@ -73,7 +74,11 @@ function setStatus(status: LemmaStatus) {
           <span class="ml-2 font-mono text-xs opacity-70">{{ lemma.upos }}</span>
           <span v-if="lemma.ipa" class="ml-2 font-mono text-xs opacity-70">{{ lemma.ipa }}</span>
         </p>
-        <p v-else-if="!loading" class="text-xs text-uncertain">{{ $t('reader.noAnalysis') }}</p>
+        <!-- A word the pack does not carry is a gap in the pack, not a fault:
+             the same calm treatment as every other stated limitation. -->
+        <Note v-else-if="!loading" variant="limit" bare class="text-xs">
+          {{ $t('reader.noAnalysis') }}
+        </Note>
       </div>
 
       <!-- The breakdown of THIS occurrence. -->
@@ -83,19 +88,22 @@ function setStatus(status: LemmaStatus) {
           <span
             v-for="f in token.feats"
             :key="f"
-            class="rounded border border-border px-1.5 py-0.5 font-mono text-[11px]"
+            class="rounded border border-border-subtle bg-background px-1.5 py-0.5 font-mono text-[11px]"
           >
             {{ f }}
           </span>
         </div>
       </div>
 
-      <p
+      <!-- An analysis we are not sure of says so. [ADR-002] -->
+      <Note
         v-if="token.certainty === 'uncertain' || token.certainty === 'derived'"
-        class="text-[11px] leading-relaxed text-uncertain"
+        variant="limit"
+        bare
+        class="text-[11px]"
       >
         {{ $t(`reader.certainty.${token.certainty}`) }}
-      </p>
+      </Note>
 
       <div v-if="glosses.length" class="flex flex-col gap-1">
         <p class="text-xs text-muted-foreground">
@@ -140,7 +148,7 @@ function setStatus(status: LemmaStatus) {
         </summary>
         <table class="mt-2 w-full font-mono text-[11px]">
           <tbody>
-            <tr v-for="[slot, form] in paradigmRows" :key="slot" class="border-b border-border/40">
+            <tr v-for="[slot, form] in paradigmRows" :key="slot" class="border-b border-border-subtle">
               <td class="py-0.5 pr-2 text-muted-foreground">{{ slot }}</td>
               <td class="py-0.5" lang="hu">{{ form }}</td>
             </tr>

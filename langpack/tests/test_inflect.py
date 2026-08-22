@@ -304,3 +304,26 @@ def test_accusative_of_a_derived_stem_uses_the_low_vowel():
         assert expected in forms, f"missing {expected}"
     for wrong in ("házakot", "házamot"):
         assert wrong not in forms, f"generated the wrong form {wrong}"
+
+
+def test_slot_for_names_the_display_cells():
+    """The slot rule is shared with build.py, which uses it to overlay the
+    attested forms onto the generated paradigm. If the two ever disagree, the
+    overlay silently stops correcting anything."""
+    from pipeline.inflect import slot_for
+
+    assert slot_for({"Case": "Sup", "Number": "Sing"}) == "Sup.Sing"
+    assert slot_for({"Case": "Nom", "Number": "Plur"}) == "Nom.Plur"
+    assert slot_for({"Number": "Sing"}) == "Nom.Sing"  # Case defaults to nominative
+    assert slot_for({
+        "Case": "Nom", "Number": "Sing",
+        "Person[psor]": "1", "Number[psor]": "Sing",
+    }) == "Poss.1Sing"
+    assert slot_for({
+        "Case": "Nom", "Number": "Sing", "Number[psed]": "Plur",
+        "Person[psor]": "3", "Number[psor]": "Sing",
+    }) == "PossPl.3Sing"
+
+    # Not display cells: a rare case, and a stacked possessive+case form.
+    assert slot_for({"Case": "Ess", "Number": "Sing"}) is None
+    assert slot_for({"Case": "Ine", "Person[psor]": "1", "Number[psor]": "Sing"}) is None

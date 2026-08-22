@@ -129,6 +129,9 @@ func (s *Server) handleAnswer(c fiber.Ctx) error {
 	if res.GradedFeatures == nil {
 		res.GradedFeatures = []srs.FeatureGrade{}
 	}
+	// The daily ledger, for the streak. Best-effort by design: the answer is
+	// already committed, and losing it over a ledger hiccup would be worse.
+	s.recordInteraction(u.ID, "review", req.DurationMs)
 
 	out := AnswerResponse{
 		Correct: outcome.Correct, Rating: int(res.Rating),
@@ -139,6 +142,25 @@ func (s *Server) handleAnswer(c fiber.Ctx) error {
 		out.Expected = note.TargetForm
 	}
 	return c.JSON(out)
+}
+
+// handleUndo reverts the learner's last answer in both state spaces.
+//
+// Delete-and-replay, per internal/srs/undo.go: the log is the truth, state is a
+// cache of it, and the property test that proves replay fidelity proves undo.
+func (s *Server) handleUndo(c fiber.Ctx) error {
+	u, err := mustUser(c)
+	if err != nil {
+		return err
+	}
+	res, err := s.engine().UndoLast(u.ID, s.Config().Drill.GateWindow, time.Now())
+	if errors.Is(err, srs.ErrNothingToUndo) {
+		return fiber.NewError(fiber.StatusConflict, "nothing to undo")
+	}
+	if err != nil {
+		return err
+	}
+	return c.JSON(res)
 }
 
 // ForecastResponse is the workload projection behind the new-card governor.

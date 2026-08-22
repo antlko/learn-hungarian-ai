@@ -17,7 +17,11 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/static"
 
 	"tanulom/internal/config"
+	"tanulom/internal/course"
+	"tanulom/internal/curriculum"
 	"tanulom/internal/db"
+	"tanulom/internal/drill"
+	"tanulom/internal/hvpt"
 	"tanulom/internal/lang"
 	"tanulom/internal/morph"
 	"tanulom/internal/web"
@@ -37,11 +41,26 @@ type Server struct {
 	db  *db.DB
 	app *fiber.App
 
-	// The language pack is optional at startup: the app must boot and let the
-	// user download one rather than refusing to start. Features that need it
-	// report unavailable, the same way an absent sidecar does.
+	// The language pack is installed from the binary on first boot, so it is
+	// present in every normal case. It is still nil-able: if the embedded pack
+	// cannot be written or opened, the app boots and the features that need it
+	// report unavailable, the same way an absent sidecar does — a genuine
+	// failure path, not the first-run state. See [ADR-010].
 	pack     *lang.Pack
 	analyzer *morph.Analyzer
+	dag      *curriculum.DAG
+	drills   *drill.Generator
+
+	// pending holds drill items that have been served and not yet answered. In
+	// memory on purpose — see internal/drill/pending.go.
+	pending *drill.Pending
+
+	// The guided syllabus: the pack's answer to "what do I do today".
+	syllabus *course.Syllabus
+
+	// The ear trainer's material and its own served-trial store.
+	hvptInv     *hvpt.Inventory
+	hvptPending *hvpt.Pending
 }
 
 // New wires a server against a data directory, creating it if needed.
@@ -49,10 +68,12 @@ func New(dataDir string) (*Server, error) {
 	if err := os.MkdirAll(dataDir, 0o755); err != nil {
 		return nil, fmt.Errorf("create data dir: %w", err)
 	}
-	for _, sub := range []string{"media", "backups"} {
-		if err := os.MkdirAll(filepath.Join(dataDir, sub), 0o755); err != nil {
-			return nil, fmt.Errorf("create %s dir: %w", sub, err)
-		}
+	// media only. `backups/` used to be created here for the staged restore that
+	// went with internal/export ([ADR-011]); nothing has written to it since, and
+	// an empty directory named `backups` in the learner's data dir is a promise
+	// the app does not keep. A backup is a tar of this whole directory.
+	if err := os.MkdirAll(filepath.Join(dataDir, "media"), 0o755); err != nil {
+		return nil, fmt.Errorf("create media dir: %w", err)
 	}
 
 	cfg, err := config.Load(dataDir)
@@ -67,20 +88,31 @@ func New(dataDir string) (*Server, error) {
 		slog.Info("purged expired sessions", "count", n)
 	}
 
-	s := &Server{dataDir: dataDir, cfg: cfg, db: database}
+	s := &Server{dataDir: dataDir, cfg: cfg, db: database,
+		pending: drill.NewPending(), hvptPending: hvpt.NewPending()}
 	s.loadPack()
 	s.app = s.buildApp()
 	return s, nil
 }
 
-// loadPack opens the language pack if one is present. A missing or unusable pack
-// is logged and the server starts anyway — the setup wizard exists precisely to
-// let a user fetch one, and refusing to boot would leave them nowhere to do it.
+// loadPack installs the embedded starter pack if the data directory has no
+// usable one, then opens it. A pack that cannot be installed or opened is
+// logged and the server starts anyway: there is nowhere better to report it
+// than a running UI, and refusing to boot would take the report down with it.
 func (s *Server) loadPack() {
-	present, version := lang.Detect(s.dataDir)
-	if !present {
-		slog.Info("no language pack found", "data_dir", s.dataDir)
+	// The binary carries a starter pack, so "no language pack" is a state the
+	// learner should never reach: on a fresh data directory — or one holding a
+	// truncated download — we install the embedded pack and carry on. Failing
+	// that, the app still boots and every language feature reports unavailable,
+	// the same way an absent sidecar does.
+	version, installed, err := lang.EnsurePack(s.dataDir)
+	if err != nil {
+		slog.Error("no usable language pack and the starter could not be installed",
+			"data_dir", s.dataDir, "error", err)
 		return
+	}
+	if installed {
+		slog.Info("starter language pack installed", "version", version)
 	}
 	p, err := lang.Open(lang.Path(s.dataDir, version))
 	if err != nil {
@@ -89,6 +121,36 @@ func (s *Server) loadPack() {
 	}
 	s.pack = p
 	s.analyzer = morph.NewAnalyzer(p)
+
+	// A pack whose curriculum DAG is broken still serves reading and review;
+	// only the grammar screen goes unavailable, and it says why. Refusing to
+	// boot over it would take out four working loops to protect one.
+	dag, err := curriculum.Load(p)
+	if err != nil {
+		slog.Error("curriculum unavailable", "error", err)
+		return
+	}
+	s.dag = dag
+	s.drills = drill.NewGenerator(p, s.analyzer, dag)
+
+	// The HVPT inventory is optional the same way the curriculum is: a pack
+	// without audio still serves everything else, and the Ear screen says what
+	// is missing instead of erroring.
+	// A pack without a course still serves everything else; the plan screen
+	// says the pack carries no syllabus rather than the app refusing to boot.
+	syl, err := course.Load(p)
+	if err != nil {
+		slog.Error("course unavailable", "error", err)
+	} else {
+		s.syllabus = syl
+	}
+
+	inv, err := hvpt.LoadInventory(p)
+	if err != nil {
+		slog.Error("hvpt inventory unavailable", "error", err)
+		return
+	}
+	s.hvptInv = inv
 }
 
 // Pack returns the loaded language pack, or nil.
@@ -176,6 +238,7 @@ func (s *Server) buildApp() *fiber.App {
 	// Putting it last silently makes it run after the handler — which for a rate
 	// limiter means no limiting at all.
 	api.Get("/me", s.requireAuth, s.handleMe)
+	api.Post("/me/password", s.requireAuth, s.handleChangeOwnPassword)
 	api.Get("/settings", s.requireAuth, s.handleGetSettings)
 	api.Get("/capabilities", s.requireAuth, s.handleCapabilities)
 
@@ -183,13 +246,46 @@ func (s *Server) buildApp() *fiber.App {
 	api.Post("/analyze", s.requireAuth, s.handleAnalyze)
 	api.Get("/lemma/:id", s.requireAuth, s.handleLemma)
 	api.Get("/features", s.requireAuth, s.handleFeatures)
+	api.Get("/breakdown", s.requireAuth, s.handleBreakdown)
+	api.Post("/morph/correction", s.requireAuth, s.handleCreateCorrection)
+	api.Delete("/morph/correction", s.requireAuth, s.handleDeleteCorrection)
+	api.Get("/morph/corrections", s.requireAuth, s.handleListCorrections)
 
 	// Review.
 	api.Get("/review/queue", s.requireAuth, s.handleQueue)
 	api.Post("/review/answer", s.requireAuth, s.handleAnswer)
+	api.Post("/review/undo", s.requireAuth, s.handleUndo)
 	api.Get("/review/forecast", s.requireAuth, s.handleForecast)
 	api.Post("/notes", s.requireAuth, s.handleCreateNote)
 	api.Get("/stats/mastery", s.requireAuth, s.handleMastery)
+
+	// Progress.
+	api.Get("/stats/overview", s.requireAuth, s.handleOverview)
+	api.Post("/checkpoints", s.requireAuth, s.handleCheckpoint)
+	api.Post("/today/human", s.requireAuth, s.handleAttestHuman)
+
+	// Grammar and curriculum.
+	api.Get("/curriculum", s.requireAuth, s.handleCurriculum)
+	api.Get("/curriculum/:code", s.requireAuth, s.handleTopic)
+	api.Get("/drill/next", s.requireAuth, s.handleDrillNext)
+	api.Post("/drill/answer", s.requireAuth, s.handleDrillAnswer)
+	api.Get("/placement", s.requireAuth, s.handlePlacement)
+	api.Post("/placement", s.requireAuth, s.handlePlacementAction)
+
+	// Listening.
+	api.Post("/listen/material", s.requireAuth, s.handleListenUpload)
+	api.Get("/listen/:id/state", s.requireAuth, s.handleListenState)
+	api.Post("/listen/:id/progress", s.requireAuth, s.handleListenProgress)
+
+	// The guided course and the hand-off catalogue.
+	api.Get("/course", s.requireAuth, s.handleCourse)
+	api.Post("/course/:code/enrol", s.requireAuth, s.handleEnrolUnit)
+	api.Get("/resources", s.requireAuth, s.handleResources)
+
+	// Ear trainer.
+	api.Get("/hvpt/session", s.requireAuth, s.handleHVPTSession)
+	api.Post("/hvpt/answer", s.requireAuth, s.handleHVPTAnswer)
+	api.Get("/hvpt/contrasts", s.requireAuth, s.handleHVPTContrasts)
 
 	// Reading library.
 	api.Get("/texts", s.requireAuth, s.handleListTexts)
@@ -201,6 +297,13 @@ func (s *Server) buildApp() *fiber.App {
 
 	// Admin-only: settings are global (config.yaml), so a learner must not edit them.
 	api.Put("/settings", s.requireAuth, s.requireAdmin, s.handleUpdateSettings)
+
+	// Admin-only: account management. Changing your own password is above, on
+	// /me/password, because it is the one thing here every learner may do.
+	api.Get("/users", s.requireAuth, s.requireAdmin, s.handleListUsers)
+	api.Post("/users", s.requireAuth, s.requireAdmin, s.handleCreateUser)
+	api.Patch("/users/:id", s.requireAuth, s.requireAdmin, s.handleUpdateUser)
+	api.Delete("/users/:id", s.requireAuth, s.requireAdmin, s.handleDeleteUser)
 
 	// Anything else under /api is a 404 in the API's own error shape. Registered
 	// last so real routes win, and before the SPA so an unknown endpoint never

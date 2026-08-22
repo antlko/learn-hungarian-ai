@@ -57,9 +57,35 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   return payload as T
 }
 
+/** Multipart POST — the browser sets the boundary header itself. */
+async function requestForm<T>(path: string, form: FormData): Promise<T> {
+  let res: Response
+  try {
+    res = await fetch(path, { method: 'POST', credentials: 'same-origin', body: form })
+  } catch {
+    throw new ApiError(0, 'network-unreachable')
+  }
+  const text = await res.text()
+  let payload: unknown
+  try {
+    payload = text ? JSON.parse(text) : undefined
+  } catch {
+    throw new ApiError(res.status, 'unexpected-response')
+  }
+  if (!res.ok) {
+    const message =
+      typeof payload === 'object' && payload !== null && 'error' in payload
+        ? String((payload as { error: unknown }).error)
+        : `request-failed-${res.status}`
+    throw new ApiError(res.status, message)
+  }
+  return payload as T
+}
+
 export const http = {
   get: <T>(path: string) => request<T>('GET', path),
   post: <T>(path: string, body?: unknown) => request<T>('POST', path, body),
+  postForm: <T>(path: string, form: FormData) => requestForm<T>(path, form),
   put: <T>(path: string, body?: unknown) => request<T>('PUT', path, body),
   del: <T>(path: string) => request<T>('DELETE', path),
 }

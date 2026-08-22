@@ -4,76 +4,199 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
-  Design tokens. Dark-first: the light theme is the override, because the app is
-  used in the morning before work and at night, and a bright field is hostile in
-  both. See docs/UX.md.
+  ─── Design tokens ────────────────────────────────────────────────────────────
+  The full reasoning, with the measurement method, lives in docs/UX.md §14.
 
-  The `kn-*` (knowledge) scale is the semantic core: the same six states colour
-  the reader, the review feedback, the heatmap and the curriculum map. Colour is
-  never the ONLY channel — every state also carries an icon, shape or label, both
-  for colour-blind users and because a red/green grid is meaningless to a screen
-  reader.
+  Dark-first: the light theme is the override, because the app is used in the
+  morning before work and at night, and a bright field is hostile in both.
+
+  Three rules govern every value below.
+
+  1. CONTRAST IS MEASURED, NOT JUDGED. Every ratio in the comments was computed
+     from the oklch() triple — converted to linear sRGB via the Oklab matrices,
+     gamma-encoded, then WCAG 2.1 relative luminance. Text and any colour that
+     carries state reaches 4.5:1; boundaries reach 3:1. The numbers are written
+     down so the next person can re-derive them instead of trusting us.
+  2. BORDERS ARE OPAQUE. The old tokens were `oklch(1 0 0 / 12%)`: an alpha
+     border's contrast depends on whatever happens to be behind it, so it cannot
+     be stated once and verified. It also measured 1.33:1 — which is why the UI
+     read as flat. Opaque values can be checked against every surface we ship.
+  3. DE-EMPHASIS COMES FROM CHROMA, NOT FROM CONTRAST. `ignored` is the quietest
+     state, and it is quiet because it is grey (C = 0.02), not because it is
+     dim. Anything a learner has to read stays at 4.5:1 whatever it means.
+
+  ─── Identity ─────────────────────────────────────────────────────────────────
+  The accent is a cold mineral teal, oklch hue 198.
+
+  Why a specific hue and not "shadcn blue": the knowledge scale already owns
+  green (known, 150), amber (learning, 75–80), blue (new, 258), violet
+  (uncertain, 305) and red (error, 25). The old primary sat at hue 250 — the
+  same colour as `new`, so a primary button and an unseen word were the same
+  signal. The accent has to live in a hue none of the six states use, and the
+  widest unclaimed arc is 150→258; 198 is near its midpoint, ≥48° from either
+  neighbour. It is Hungarian the way the thermal-bath and Zsolnay glazes are
+  Hungarian — a material, not a flag, and nothing here is paprika-coloured.
+
+  Surfaces are not neutral grey. Dark surfaces carry a trace of ink-blue
+  (C ≈ 0.012–0.03 at hue 255) and light surfaces a trace of warm paper
+  (C ≈ 0.004–0.006 at hue 95). Both are far below the threshold where they read
+  as "a colour"; they exist so the greys look chosen rather than defaulted.
+
+  ─── Colour-blindness ─────────────────────────────────────────────────────────
+  Simulated (Machado 2009, severity 1.0): under deuteranopia `known` and `error`
+  land 0.04 apart in Oklab, and under protanopia `known` and `learning` land
+  0.05 apart — i.e. indistinguishable. This palette is NOT colour-blind-safe and
+  no six-hue palette on this small a set can be. That is why the rule in
+  docs/UX.md §11 — colour is never the only channel — is a hard requirement and
+  not a nicety.
+*/
+
+/*
+  DARK (default). Measured against --background #0a0e12 / --card #13181e:
+    foreground        17.80 / 16.42   muted-foreground   9.05 / 8.35 (7.02 on muted)
+    primary           10.16 / 9.38    primary-fg on primary       9.98
+    destructive        5.72 (its own fg) / 5.27 on card
+    border             3.31 / 3.05    input              4.00 / 3.70
+    ring vs background 10.16          border-subtle vs card       1.50
+    kn-known  9.28 / 8.56 / 7.20      kn-learning 10.25 / 9.46 / 7.95
+    kn-new    7.79 / 7.19 / 6.05      kn-ignored   6.25 / 5.76 / 4.85
+    kn-uncertain 8.00 / 7.38 / 6.20   kn-error     6.67 / 6.15 / 5.18
+  (third figure = against --muted, where chips and badges sit)
 */
 :root {
   --radius: 0.625rem;
 
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.185 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.72 0.16 250);
-  --primary-foreground: oklch(0.145 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.637 0.208 25.3);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.72 0.16 250);
+  --background: oklch(0.16 0.012 255);
+  --foreground: oklch(0.97 0.005 255);
+  --card: oklch(0.205 0.014 255);
+  --card-foreground: oklch(0.97 0.005 255);
+  --popover: oklch(0.235 0.014 255);
+  --popover-foreground: oklch(0.97 0.005 255);
+  --primary: oklch(0.78 0.12 198);
+  --primary-foreground: oklch(0.17 0.03 220);
+  --secondary: oklch(0.27 0.016 255);
+  --secondary-foreground: oklch(0.97 0.005 255);
+  --muted: oklch(0.27 0.016 255);
+  --muted-foreground: oklch(0.76 0.02 255);
+  --accent: oklch(0.3 0.03 205);
+  --accent-foreground: oklch(0.97 0.005 255);
+  --destructive: oklch(0.66 0.19 25);
+  --destructive-foreground: oklch(0.16 0.01 25);
+  --border: oklch(0.505 0.02 255);
+  --input: oklch(0.55 0.02 255);
+  --ring: oklch(0.78 0.12 198);
+
+  /*
+    `border` is the 3:1 tier and is the only one allowed to bound a control —
+    an outline button, an input, a tab. `border-subtle` is the decorative tier
+    for rules *inside* a surface (table row separators, the hairline under a
+    card header), where 3:1 turns the screen into a wireframe. WCAG 1.4.11 asks
+    3:1 of things that identify a component, not of every line we draw; the two
+    tiers make that distinction reviewable instead of implicit. A control must
+    never be identified by `border-subtle` alone.
+  */
+  --border-subtle: oklch(0.335 0.016 255);
 
   /* Knowledge states — see docs/UX.md §11 */
-  --kn-known: oklch(0.72 0.15 152);
-  --kn-learning: oklch(0.78 0.14 85);
-  --kn-new: oklch(0.70 0.14 250);
-  --kn-ignored: oklch(0.55 0.01 250);
-  --kn-uncertain: oklch(0.72 0.13 300);
-  --kn-error: oklch(0.68 0.19 25);
+  --kn-known: oklch(0.75 0.16 150);
+  --kn-learning: oklch(0.8 0.14 80);
+  --kn-new: oklch(0.72 0.13 258);
+  --kn-ignored: oklch(0.66 0.02 255);
+  --kn-uncertain: oklch(0.74 0.14 305);
+  --kn-error: oklch(0.7 0.19 25);
+
+  /*
+    Elevation. Deep and nearly black, because on a 0.16-lightness ground a
+    shadow tuned for paper is invisible — the ambient layer has to be wide and
+    dark enough to read as distance rather than as dirt.
+  */
+  --elevation-raised:
+    0 1px 2px -1px oklch(0 0 0 / 55%), 0 10px 30px -12px oklch(0 0 0 / 75%);
 }
 
+/*
+  LIGHT. Measured against --background #fbfaf7 / --card #ffffff:
+    foreground        16.58 / 17.31   muted-foreground   6.53 / 6.82 (5.98 on muted)
+    primary            6.29 / 6.56    primary-fg on primary       6.38
+    destructive        5.98 (its own fg) / 6.15 on card
+    border             3.04 / 3.17    input              3.78 / 3.94
+    ring vs background  6.29          border-subtle vs card       1.46
+    kn-known  5.28 / 5.51 / 4.83      kn-learning  5.16 / 5.39 / 4.73
+    kn-new    5.39 / 5.62 / 4.94      kn-ignored   4.95 / 5.16 / 4.53
+    kn-uncertain 5.73 / 5.98 / 5.25   kn-error     5.86 / 6.12 / 5.37
+
+  `learning` is ochre here, not amber. Amber cannot reach 4.5:1 on paper at any
+  chroma worth having — the hue is preserved, the lightness is not. Chromas are
+  also capped at the sRGB gamut boundary (primary 0.08, known 0.139, learning
+  0.112): a value outside the gamut is silently clamped by the browser, which
+  makes the number in this comment a measurement of something we did not ship.
+*/
 .light {
-  --background: oklch(0.995 0 0);
-  --foreground: oklch(0.17 0 0);
+  --background: oklch(0.985 0.004 95);
+  --foreground: oklch(0.22 0.015 255);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.17 0 0);
+  --card-foreground: oklch(0.22 0.015 255);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.17 0 0);
-  --primary: oklch(0.52 0.18 250);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.96 0 0);
-  --secondary-foreground: oklch(0.24 0 0);
-  --muted: oklch(0.96 0 0);
-  --muted-foreground: oklch(0.48 0 0);
-  --accent: oklch(0.96 0 0);
-  --accent-foreground: oklch(0.24 0 0);
-  --destructive: oklch(0.55 0.22 25.3);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0 0 0 / 12%);
-  --input: oklch(0 0 0 / 16%);
-  --ring: oklch(0.52 0.18 250);
+  --popover-foreground: oklch(0.22 0.015 255);
+  --primary: oklch(0.47 0.08 198);
+  --primary-foreground: oklch(0.99 0.004 95);
+  --secondary: oklch(0.955 0.006 95);
+  --secondary-foreground: oklch(0.25 0.015 255);
+  --muted: oklch(0.955 0.006 95);
+  --muted-foreground: oklch(0.47 0.015 255);
+  --accent: oklch(0.94 0.01 198);
+  --accent-foreground: oklch(0.3 0.06 198);
+  --destructive: oklch(0.52 0.21 25);
+  --destructive-foreground: oklch(0.99 0.004 95);
+  --border: oklch(0.655 0.014 255);
+  --input: oklch(0.6 0.016 255);
+  --ring: oklch(0.47 0.08 198);
+  --border-subtle: oklch(0.875 0.008 95);
 
-  --kn-known: oklch(0.55 0.15 152);
-  --kn-learning: oklch(0.62 0.15 78);
-  --kn-new: oklch(0.52 0.17 250);
-  --kn-ignored: oklch(0.62 0.01 250);
-  --kn-uncertain: oklch(0.52 0.16 300);
-  --kn-error: oklch(0.55 0.21 25);
+  --kn-known: oklch(0.505 0.139 150);
+  --kn-learning: oklch(0.53 0.112 75);
+  --kn-new: oklch(0.52 0.17 258);
+  --kn-ignored: oklch(0.535 0.02 255);
+  --kn-uncertain: oklch(0.52 0.17 305);
+  --kn-error: oklch(0.52 0.2 25);
+
+  /* Tinted with the ink-blue of `foreground`, not with black: a neutral-black
+     shadow on warm paper greys the surface under it. */
+  --elevation-raised:
+    0 1px 2px -1px oklch(0.22 0.015 255 / 10%), 0 10px 30px -14px oklch(0.22 0.015 255 / 22%);
 }
+
+/*
+  ─── Elevation ────────────────────────────────────────────────────────────────
+  HIERARCHY IS CARRIED BY THE BOUNDARY, NOT BY THE FILL.
+
+  The obvious way to raise a surface is to lighten it. Measured, that is the
+  wrong move: `border` against `--popover` — one step up from `--card` in dark —
+  is 2.84, and against `--muted` 2.57 / 2.78. Both are under the 3:1 the
+  boundary tier promises, so every outline button, input and tab sitting on a
+  lightened surface would quietly stop meeting WCAG 1.4.11. Lightening the fill
+  buys 0.03 of perceived elevation and costs 0.2 of contrast on every control.
+
+  So every surface keeps the `--card` fill and each measurement already written
+  down for `card` (foreground 16.42 / 17.31, border 3.05 / 3.17, dark / light)
+  holds unchanged everywhere. What changes between tiers is the boundary and the
+  shadow:
+
+    quiet    `border-subtle`  1.50 / 1.46   things you only read
+    default  `border`         3.05 / 3.17   things you can click
+    raised   `border` + shadow-raised       ONE primary object per screen
+
+  `inset` is the exception and is a fill: `--background` inside a card, i.e. a
+  well cut into the plane rather than a plate laid on it. `border` against
+  `--background` measures 3.31 / 3.04, so a control inside a well is still
+  bounded to standard.
+
+  The rule that makes this a hierarchy rather than a palette: a card the learner
+  can CLICK keeps the 3:1 boundary, because it is a component and 1.4.11 applies
+  to it; a card they only READ drops to the decorative tier. Before this pass
+  every card was bounded at 3:1, which is exactly why the app read as one flat
+  plane — thirty objects all shouting at the same volume say nothing.
+*/
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -98,8 +221,11 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
+  --shadow-raised: var(--elevation-raised);
 
   --color-known: var(--kn-known);
   --color-learning: var(--kn-learning);
@@ -109,6 +235,223 @@
   --color-error: var(--kn-error);
 
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  /*
+    Morpheme splits, character diffs and paradigm tables are columns of text
+    that only make sense when they line up: `ház·ban` above `ház·ben`. That is
+    a monospace job. A system stack, so the single binary stays byte-free.
+  */
+  --font-mono:
+    ui-monospace, 'SF Mono', 'JetBrains Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+
+  /*
+    Type scale — 12 · 14 · 16 · 18 · 20 · 24 · 30 · 36 px.
+
+    Two ratios on purpose. The body range (12→20) steps at ≈1.125 because a
+    single card here routinely stacks label, value, unit and caveat, and four
+    levels of hierarchy have to fit between 12 and 20px without any two reading
+    as the same size. The display range (24→36) steps at ≈1.2–1.25, because a
+    heading has to win instantly rather than gracefully.
+
+    Every line-height is a multiple of 0.125rem (2px) so baselines still align
+    when two columns use different steps. Tracking is negative at display sizes
+    to answer Inter's optical looseness when scaled up, and slightly positive at
+    12px so that ő and ű — which Hungarian uses constantly — keep their double
+    acutes clear of the next glyph.
+  */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.125rem;
+  --text-xs--letter-spacing: 0.01em;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.3125rem;
+  --text-sm--letter-spacing: 0.005em;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-base--letter-spacing: 0em;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.625rem;
+  --text-lg--letter-spacing: -0.005em;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.75rem;
+  --text-xl--letter-spacing: -0.01em;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 1.875rem;
+  --text-2xl--letter-spacing: -0.015em;
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: 2.125rem;
+  --text-3xl--letter-spacing: -0.02em;
+  --text-4xl: 2.25rem;
+  --text-4xl--line-height: 2.5rem;
+  --text-4xl--letter-spacing: -0.025em;
+}
+
+/*
+  ─── Motion ───────────────────────────────────────────────────────────────────
+  Seven movements, nothing else. Rules they all obey:
+
+  · 120–320ms. A learner answering 200 cards a day sees `answer-correct` 200
+    times; anything longer is a tax collected 200 times.
+  · Transform and opacity only. Both are compositor-only, so an animation can
+    never contend with the keystroke that started it. Never animate width,
+    height, top or left here.
+  · Nothing waits for an animation. The next card is interactive on the frame it
+    mounts; the animation decorates a state that has already changed. Feedback
+    that overlays content sets `pointer-events: none`.
+  · Amplitudes are small — 4px of shake, 6px of rise, 1% of scale. This is an
+    instrument acknowledging an answer, not an app congratulating you.
+
+  Every one of them is switched off by the single `prefers-reduced-motion` rule
+  at the bottom of this file. Do not add a per-component reduced-motion check —
+  the guarantee has to be global to be a guarantee.
+*/
+@theme {
+  --animate-answer-correct: answer-correct 180ms cubic-bezier(0.2, 0, 0, 1);
+  --animate-answer-wrong: answer-wrong 300ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  --animate-card-in: card-in 160ms cubic-bezier(0.2, 0, 0, 1);
+  --animate-card-out: card-out 120ms cubic-bezier(0.4, 0, 1, 1);
+  --animate-tick-up: tick-up 240ms cubic-bezier(0.2, 0, 0, 1);
+  --animate-phase-change: phase-change 260ms cubic-bezier(0.2, 0, 0, 1);
+  --animate-milestone: milestone 320ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* A confirmation, not a celebration: one small settle, no bounce. */
+  @keyframes answer-correct {
+    0% {
+      transform: scale(0.985);
+      opacity: 0.7;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  /*
+    The shake is ±4px and damped. It has to be legible as "no" without being a
+    punishment — the learner is wrong roughly a fifth of the time by design, and
+    a violent animation on a fifth of answers teaches avoidance.
+  */
+  @keyframes answer-wrong {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    18% {
+      transform: translate3d(-4px, 0, 0);
+    }
+    38% {
+      transform: translate3d(4px, 0, 0);
+    }
+    58% {
+      transform: translate3d(-2.5px, 0, 0);
+    }
+    78% {
+      transform: translate3d(1.5px, 0, 0);
+    }
+  }
+
+  @keyframes card-in {
+    from {
+      transform: translate3d(0, 6px, 0) scale(0.99);
+      opacity: 0;
+    }
+    to {
+      transform: translate3d(0, 0, 0) scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes card-out {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+      opacity: 1;
+    }
+    to {
+      transform: translate3d(0, -6px, 0) scale(0.99);
+      opacity: 0;
+    }
+  }
+
+  /*
+    A number that changed rises into place. Pair it with `tabular-nums` on the
+    element or the digits reflow while they move.
+  */
+  @keyframes tick-up {
+    from {
+      transform: translate3d(0, 0.35em, 0);
+      opacity: 0;
+    }
+    to {
+      transform: translate3d(0, 0, 0);
+      opacity: 1;
+    }
+  }
+
+  /* The interleaving badge changing phase is information: it must be noticed. */
+  @keyframes phase-change {
+    0% {
+      transform: scale(0.94);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(1.02);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes milestone {
+    from {
+      transform: translate3d(0, 10px, 0) scale(0.96);
+      opacity: 0;
+    }
+    to {
+      transform: translate3d(0, 0, 0) scale(1);
+      opacity: 1;
+    }
+  }
+}
+
+/*
+  A list arriving. Not an eighth movement — it is `card-in`, the one that
+  already exists, dealt out along the list so the eye is led down it instead of
+  being handed the whole block at once.
+
+  The stagger stops at the eighth child. Beyond that the delay would exceed the
+  animation itself and late rows would read as loading rather than as arriving;
+  a syllabus of twenty-four units must not take two seconds to become legible.
+
+  `both` fill mode is what makes the delay work at all — without it a waiting
+  row is painted at full opacity and then jumps back to the start of the
+  animation. Under `prefers-reduced-motion` the global rule below zeroes both
+  duration and delay, so every row is simply there.
+*/
+@utility stagger-in {
+  & > * {
+    animation: card-in 160ms cubic-bezier(0.2, 0, 0, 1) both;
+  }
+  & > *:nth-child(2) {
+    animation-delay: 25ms;
+  }
+  & > *:nth-child(3) {
+    animation-delay: 50ms;
+  }
+  & > *:nth-child(4) {
+    animation-delay: 75ms;
+  }
+  & > *:nth-child(5) {
+    animation-delay: 100ms;
+  }
+  & > *:nth-child(6) {
+    animation-delay: 125ms;
+  }
+  & > *:nth-child(7) {
+    animation-delay: 150ms;
+  }
+  & > *:nth-child(n + 8) {
+    animation-delay: 175ms;
+  }
 }
 
 @layer base {
@@ -121,6 +464,7 @@
        letting the browser substitute a fallback face mid-word. */
     font-feature-settings: 'cv11', 'ss01';
     font-variation-settings: normal;
+    font-optical-sizing: auto;
   }
   :focus-visible {
     @apply outline-ring outline-2 outline-offset-2;
@@ -128,16 +472,21 @@
 }
 
 /*
-  Respect the OS setting. Every transition in the app is decorative — progress
-  rings, card flips, toasts — so disabling them costs nothing functionally.
+  THE reduced-motion rule. One global override, so a component cannot forget:
+  every animation and transition in the app is decorative — feedback tints,
+  card swaps, the milestone overlay — and the information each one carries is
+  also present in text, colour or an icon. Removing the movement removes
+  nothing a learner needs.
 */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
     scroll-behavior: auto !important;
   }
 }

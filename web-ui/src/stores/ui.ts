@@ -1,6 +1,7 @@
 import { ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { setLocale, type AppLocale } from '@/i18n'
+import { isSoundEnabled, play, setSoundEnabled } from '@/lib/sound'
 
 export type Theme = 'dark' | 'light'
 
@@ -8,13 +9,20 @@ const THEME_KEY = 'tanulom.theme'
 const LOCALE_KEY = 'tanulom.locale'
 
 /**
- * Presentation state that belongs to the browser, not the account: theme and the
- * locale actually rendered. The server holds the *preferred* locale in config;
- * this store applies it and lets the user override per device.
+ * Presentation state that belongs to the browser, not the account: theme, the
+ * locale actually rendered, and whether feedback sounds play. The server holds
+ * the *preferred* locale in config; this store applies it and lets the user
+ * override per device.
+ *
+ * Sound sits here rather than in server settings for the same reason theme
+ * does: the right answer differs between the laptop at home and the phone on
+ * the metro, and it is nobody else's business. `lib/sound.ts` owns the storage
+ * key; this store is the reactive view of it, so the two cannot disagree.
  */
 export const useUiStore = defineStore('ui', () => {
   const theme = ref<Theme>(readTheme())
   const locale = ref<AppLocale>(readLocale())
+  const sound = ref(isSoundEnabled())
   const sidebarOpen = ref(true)
 
   function readTheme(): Theme {
@@ -43,6 +51,17 @@ export const useUiStore = defineStore('ui', () => {
     locale.value = next
   }
 
+  function toggleSound() {
+    sound.value = !sound.value
+  }
+
+  watch(sound, (on) => {
+    setSoundEnabled(on)
+    // Turning it on plays the sound you just agreed to hear — the toggle is a
+    // gesture, which is also what lets the browser open the audio context.
+    if (on) play('correct')
+  })
+
   watch(theme, (t) => {
     localStorage.setItem(THEME_KEY, t)
     applyTheme()
@@ -59,5 +78,5 @@ export const useUiStore = defineStore('ui', () => {
 
   applyTheme()
 
-  return { theme, locale, sidebarOpen, toggleTheme, setAppLocale }
+  return { theme, locale, sound, sidebarOpen, toggleTheme, setAppLocale, toggleSound }
 })

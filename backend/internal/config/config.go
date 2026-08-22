@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -18,7 +19,7 @@ import (
 // Exported defaults. These live in exactly one place so that API fallbacks cannot
 // drift from what a fresh config gets. Do not re-hardcode any of them at a use site.
 const (
-	DefaultAddr = ":8080"
+	DefaultAddr = ":8012"
 
 	DefaultUILocale  = "ru"
 	DefaultGlossLang = "ru"
@@ -57,7 +58,22 @@ const (
 	DefaultHarmonyLatencyMs  = 2500
 
 	// HVPT talker variability is the active ingredient, not a nicety. See [R7].
-	DefaultMinTalkers       = 5
+	//
+	// EvidenceMinTalkers is what the literature asks for. DefaultMinTalkers is
+	// what we ship, and they differ on purpose: the language pack carries three
+	// synthetic Piper voices, because three is how many freely-licensed
+	// Hungarian voices exist. Shipping the evidence number would mean the ear
+	// trainer refuses every session out of the box — a screen nobody can ever
+	// pass, which teaches nothing and reads as a broken feature.
+	//
+	// So the shipped floor is the number we can actually meet, and the Ear
+	// screen states the shortfall permanently: three voices, the research wants
+	// five, the effect is correspondingly weaker. That is the project's rule —
+	// a known limitation is stated in the product, not only in the docs — and
+	// it is recorded as a documented divergence in docs/PEDAGOGY.md. Adding
+	// human recordings raises the count; rate variants deliberately do not.
+	EvidenceMinTalkers      = 5
+	DefaultMinTalkers       = 3
 	DefaultTrialsPerSession = 40
 	DefaultRateJitter       = 0.10
 
@@ -89,7 +105,6 @@ type Config struct {
 	HVPT       HVPT       `yaml:"hvpt"`
 	Curriculum Curriculum `yaml:"curriculum"`
 	Services   Services   `yaml:"services"`
-	LangPack   LangPack   `yaml:"langpack"`
 }
 
 type Server struct {
@@ -177,6 +192,11 @@ type HVPT struct {
 
 type Curriculum struct {
 	FocusUnlockListeningHours int `yaml:"focusUnlockListeningHours"`
+	// ExamDate is the learner's booked exam, ISO date. [R14]: a pre-booked,
+	// pre-paid exam is the best-known defence against the month-4–7
+	// motivational trough, so the app treats it as a first-class object and
+	// counts down to it. Empty = none booked.
+	ExamDate string `yaml:"examDate,omitempty"`
 }
 
 // Services holds endpoints only. API keys live in SQLite — never in YAML.
@@ -192,11 +212,6 @@ type Service struct {
 	Endpoint string   `yaml:"endpoint"`
 	Model    string   `yaml:"model,omitempty"`
 	Voices   []string `yaml:"voices,omitempty"`
-}
-
-type LangPack struct {
-	AutoDownload bool   `yaml:"autoDownload"`
-	ReleaseURL   string `yaml:"releaseUrl"`
 }
 
 // Default returns a fresh config with every field populated.
@@ -297,6 +312,8 @@ func (c *Config) normalize() {
 	if c.Curriculum.FocusUnlockListeningHours == 0 {
 		c.Curriculum.FocusUnlockListeningHours = DefaultFocusUnlockListeningHours
 	}
+	// ExamDate has no default on purpose: an exam the learner did not book is
+	// not an exam.
 	for _, s := range []*Service{&c.Services.TTS, &c.Services.ASR, &c.Services.NLP, &c.Services.LLM} {
 		if s.Provider == "" {
 			s.Provider = ProviderOff
@@ -398,6 +415,11 @@ func (c *Config) Validate() (clamped []ErrClamped, err error) {
 
 	if c.HVPT.MinTalkers < 2 {
 		return nil, errors.New("hvpt.minTalkers must be >= 2")
+	}
+	if d := c.Curriculum.ExamDate; d != "" {
+		if _, err := time.Parse("2006-01-02", d); err != nil {
+			return nil, fmt.Errorf("curriculum.examDate: want YYYY-MM-DD, got %q", d)
+		}
 	}
 	if c.HVPT.TrialsPerSession < 1 {
 		return nil, errors.New("hvpt.trialsPerSession must be >= 1")

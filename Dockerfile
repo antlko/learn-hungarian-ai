@@ -29,13 +29,17 @@ RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
 
 # --- Stage 3: minimal runtime image ---
 FROM gcr.io/distroless/static:nonroot
+# image.source is what links the GHCR package to the repository, which is also
+# what makes the package inherit the repo's visibility and README.
 LABEL org.opencontainers.image.title="tanulom" \
       org.opencontainers.image.description="Self-hosted, research-grounded Hungarian trainer" \
+      org.opencontainers.image.source="https://github.com/antlko/tanulom" \
+      org.opencontainers.image.url="https://github.com/antlko/tanulom" \
       org.opencontainers.image.licenses="MIT"
 COPY --from=build /tanulom /tanulom
 ENV TANULOM_DATA_DIR=/data \
-    TANULOM_ADDR=:8080
-EXPOSE 8080
+    TANULOM_ADDR=:8012
+EXPOSE 8012
 VOLUME ["/data"]
 USER nonroot:nonroot
 ENTRYPOINT ["/tanulom"]

@@ -115,6 +115,14 @@ func (s *Server) handleCreateNote(c fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	// A lemma with a card is a lemma in play: it enters the learning state,
+	// which is what the lemma curve and the checkpoints count. A learner's own
+	// `known`/`ignored` declaration is never overridden by this.
+	if note.LemmaID != nil {
+		if err := store.MarkLemmaLearning(u.ID, *note.LemmaID); err != nil {
+			return err
+		}
+	}
 
 	names := make([]string, 0, len(cards))
 	for _, c := range cards {

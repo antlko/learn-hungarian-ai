@@ -17,9 +17,13 @@ async function signOut() {
 </script>
 
 <template>
-  <header class="flex h-14 shrink-0 items-center justify-end gap-2 border-b border-border px-4">
+  <!-- Chrome, like the sidebar: the decorative boundary tier, so the rule under
+       it separates without drawing the eye away from the page. -->
+  <header
+    class="flex h-14 shrink-0 items-center justify-end gap-1 border-b border-border-subtle px-4"
+  >
     <CapabilityDots />
-    <div class="mx-2 h-4 w-px bg-border" />
+    <div class="mx-2 h-4 w-px bg-border-subtle" />
     <LocaleToggle />
     <ThemeToggle />
     <Button

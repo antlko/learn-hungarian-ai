@@ -434,6 +434,29 @@ _DISPLAY_CASES = (
 )
 
 
+def slot_for(feats: dict[str, str]) -> str | None:
+    """The display-table slot a feature set belongs to, or None.
+
+    Factored out of `paradigm` so that build.py can apply the SAME naming to the
+    attested Wiktionary forms and overlay them cell by cell. Before that, the
+    paradigm table was generator-only: for `ház` it showed the generated `házan`
+    while `házon` sat attested in `wordform` beside it, and the reader taught the
+    wrong form.
+    """
+    case = feats.get("Case", "Nom")
+    if "Person[psor]" in feats:
+        if case != "Nom":
+            return None
+        number = feats.get("Number[psor]")
+        if not number:
+            return None
+        possessum = "Pl" if feats.get("Number[psed]") == "Plur" else ""
+        return f"Poss{possessum}.{feats['Person[psor]']}{number}"
+    if case not in _DISPLAY_CASES:
+        return None
+    return f"{case}.{feats.get('Number', 'Sing')}"
+
+
 def paradigm(lemma: str) -> dict[str, str]:
     """High-confidence forms only, keyed by slot, for display to the learner.
 
@@ -448,19 +471,8 @@ def paradigm(lemma: str) -> dict[str, str]:
     for f in noun_forms(lemma):
         if f.confidence is Confidence.LOW:
             continue
-        feats = f.feats
-        case = feats.get("Case", "Nom")
-
-        if "Person[psor]" in feats:
-            # Only the base (nominative) possessive cells go in the table; the
-            # stacked possessive+case forms belong to the lookup index.
-            if case != "Nom":
-                continue
-            possessum = "Pl" if feats.get("Number[psed]") == "Plur" else ""
-            slot = f"Poss{possessum}.{feats['Person[psor]']}{feats['Number[psor]']}"
-        else:
-            if case not in _DISPLAY_CASES:
-                continue
-            slot = f"{case}.{feats.get('Number', 'Sing')}"
+        slot = slot_for(f.feats)
+        if slot is None:
+            continue
         out.setdefault(slot, f.form)
     return out

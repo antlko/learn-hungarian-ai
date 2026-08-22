@@ -87,6 +87,10 @@ morph state space has no representation in Anki, so scheduling cannot be delegat
 cards, once over morphological features. Keep `.apkg` export first-class so the learner is never
 locked in.
 
+> **Superseded in part by [ADR-011](#adr-011).** The `.apkg` clause is withdrawn: the format
+> cannot carry the morph state space, so exporting one would hand the learner half the truth.
+> The FSRS decision above stands unchanged.
+
 **Consequences.**
 - We honour the rule in substance: no invented algorithm.
 - A single cloze answer emits 1 card review + N feature reviews — the mechanism that makes the
@@ -178,3 +182,158 @@ LLM land in v1.1. **Every phase ends shippable.**
 | No optional services | compose profiles for `nlp`/`speech`/`llm` | [ADR-001](#adr-001) |
 
 **Consequences.** A user who has deployed upmonitor already knows how to deploy this.
+
+---
+
+## ADR-008 — Drill items are held server-side between serve and answer
+
+**Status:** accepted · 2026-08-22
+
+**Context.** A grammar item has an expected answer. The client has to render the item, and the
+server has to grade it. Three ways to bridge that:
+
+1. **Send the answer with the item.** Simplest, and wrong twice over: the answer is visible in
+   devtools, so the exercise stops being retrieval practice; and the client would have to echo
+   back which features the item graded, which means a client can write anything it likes into
+   `morph_state`. The mastery heatmap is the one number in this app that has to be trustworthy.
+2. **Sign the item** (HMAC over topic/kind/features/expected). Stateless, but it needs a key,
+   a rotation story, and it still ships the answer to the client unless the answer is left out —
+   at which point the server needs the item anyway.
+3. **Keep the item.** The server mints an opaque id, holds the item, and the client posts back
+   `{itemId, answer, durationMs}`.
+
+**Decision.** (3), in memory, with a 2-hour TTL and a per-user cap.
+
+**Why not a table.** These records are worthless the moment the answer arrives. Persisting them
+buys surviving a restart — which costs the learner one keystroke — in exchange for a migration,
+a cleanup job, and a class of stale-row bugs. An expired id returns **410 Gone** and the client
+fetches a new batch.
+
+**Consequences.**
+
+- The expected answer never appears in any response until an attempt has been made.
+- A client cannot name the features it graded, cannot replay an item, and cannot answer another
+  user's item.
+- Pending items are lost on restart. Accepted.
+- This works because the process is single. A multi-process deployment would need (2) or a
+  shared store; nothing in the v1 shape is heading there ([ADR-001](#adr-001)).
+
+---
+
+## ADR-009 — A prerequisite is met at `interleaved`, and an un-drillable topic is `explained`
+
+**Status:** accepted · 2026-08-22
+
+**Context.** [R5](research/05-interleaving.md) specifies the gate as
+`locked if prerequisites unmet` without saying what "unmet" means. Two questions fall out of
+that, and both can wedge a learner permanently.
+
+**Decision 1 — prerequisites are met at `interleaved`, not at `mastered`.**
+
+Requiring mastery of every ancestor would serialise a two-year curriculum into a crawl: the
+locative grid would wait on 50 interleaved answers about the accusative. R5's floor is about
+whether the learner can absorb the load of the topic *in front of them*, and clearing the
+competence floor upstream is what establishes that. Mastery is a maintenance state, not a gate.
+
+**Decision 2 — a topic with no generator resolves to `explained`, a fifth phase.**
+
+Some topics have a real rule card and no exercises behind them: the alphabet, politeness
+registers, preverb detachment, and — on the shipped hu-v1 pack — every topic whose forms
+Wiktionary lists without features. The alternatives were both bad:
+
+- treat them as `locked` → the alphabet permanently walls off the entire curriculum;
+- treat them as `mastered` → the app claims a mastery nobody demonstrated.
+
+`explained` says what is true: this topic teaches by its explanation ([R4](research/04-explicit-instruction.md)),
+we have not built exercises for it, and it does not hold up anything after it. It is rendered as
+such in the topic map, not hidden behind a neutral colour.
+
+**Consequences.** Availability has to be *proven* rather than assumed — a topic can pass every
+structural test and still generate nothing — so `Generator.Availability` builds one item and
+caches the verdict. That cost is paid once per topic per process.
+
+---
+
+## ADR-010 — The pack ships inside the binary; there is no download step
+
+**Status:** accepted · 2026-08-22 · **supersedes** the "download a pack on first run" plan in
+Phase 2 and the `packPresent: false` empty state it implied
+
+**Context.** Every language feature — analysis, drills, the reader, the course — reads the
+language pack. Until this ADR the pack was a separate 252 MB download, so a fresh install booted
+into a working app with all of it dead behind *"no language pack is installed — download one
+from Settings → Data"*. Two things made that worse than it sounds.
+
+First, the message was reachable through no fault of the user: `lang.Detect` matched on the
+*filename*, so a truncated or zero-byte download counted as an installed pack, and the app then
+reported one as present while every query against it failed. That is the failure that was
+actually observed.
+
+Second, "download one from Settings" is a promise about a host that does not exist. This is
+self-hosted software with no release infrastructure behind it; there was no URL to fetch from.
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| Keep the download, add a real release host | Rejected — it makes first run depend on a service the maintainer has to keep alive forever, and on the user's network. The app stops being a single binary |
+| Ship the 252 MB pack inside the binary | Rejected — a 290 MB binary and a 290 MB image layer, paid by everyone, to carry a long tail most learners never reach |
+| **Embed a compact starter pack, keep the full pack as an offline upgrade** | **Accepted** |
+
+**Decision.** `internal/lang` embeds a gzipped starter pack (5 132 lemmas, 502 480 wordforms,
+12 000 sentences, the whole 24-unit course, the minimal pairs and the resource catalogue —
+15.6 MB compressed) plus the 384 HVPT Opus clips. `EnsurePack` extracts them on first boot,
+**proves the result opens** before renaming it into place, and does nothing on later boots.
+`Detect` now verifies each candidate opens and walks back to an older pack if the newest is
+broken. `pack_meta.edition` records which edition is installed.
+
+The starter's contents are not a frequency band alone: the course's sentences are selected
+first and *their* lemmas are pulled in, because a course word's only attested sentence often
+contains a rarer word the band excluded. Without that, the pack would ship a syllabus it could
+not teach — 781 of 853 course words now get a sentence-backed card against a full-pack ceiling
+of 783.
+
+**Consequences.**
+- There is no first-run empty state left to design, and no download endpoint to secure. The
+  binary is 37 MB.
+- The full pack degrades *rarity*, not function: an unknown word already renders honestly, so
+  the upgrade is a genuine option rather than a hidden requirement. It is built with
+  `make langpack` — there is no in-app upgrade path, and the UI says so rather than offering a
+  button the app cannot honour.
+- The starter is a build artefact under `internal/lang/starter/`. It must be rebuilt
+  (`make starter`) whenever the pack pipeline changes, or the binary ships last week's course.
+
+---
+
+## ADR-011 — No export; lock-in is answered by the data directory
+
+**Status:** accepted · 2026-08-22 · **supersedes** the `.apkg` export commitment in
+[ADR-003](#adr-003) and [R16 §4](research/16-debunked.md)
+
+**Context.** v1.0 shipped `internal/export`: `.apkg`, CSV, a full backup, and a staged restore
+that swapped the SQLite file at next boot because doing it live destroys a WAL database. The
+stated reason was anti-lock-in — "the learner is never locked in".
+
+**Decision.** The package and its four endpoints are removed. The Settings → Data panel and its
+locale keys go with them.
+
+**Why this is not a retreat from the promise.** An `.apkg` never carried what this app knows.
+Anki's model is one card with one interval; the thing being exported is *two* FSRS state spaces,
+a per-feature weakness map and a review log that replays bit-for-bit. What fits through the
+`.apkg` bottleneck is the lemma side flattened to a single interval — the morphological half,
+which is the whole thesis, cannot cross. Offering it invites the learner to believe they have
+their progress when they have a vocabulary list.
+
+What they do have is the data directory: `tanulom.db` is an ordinary SQLite file with a
+documented schema, and the review log in it is the source of truth (undo is already
+delete-and-replay over it). A backup is `tar` of the volume; a restore is putting it back with
+the container stopped. That is a stronger guarantee than a lossy interchange format, and it is
+true without any code.
+
+**Consequences.**
+- The docs, the README and the product now say the app has no export. Nothing claims one.
+- The staged-restore machinery is gone, and with it the only code path that could swap a SQLite
+  file under a live connection.
+- Anki users cannot import their existing decks *out* of tanulom, and this is a real cost. If it
+  is ever paid, the honest shape is a full JSON dump of both state spaces plus the review log —
+  not an `.apkg`.

@@ -27,7 +27,7 @@ func main() {
 		dataDir     string
 		showVersion bool
 	)
-	flag.StringVar(&addr, "addr", envOr("TANULOM_ADDR", config.DefaultAddr), "HTTP listen address")
+	flag.StringVar(&addr, "addr", envOr("TANULOM_ADDR", ""), "HTTP listen address")
 	flag.StringVar(&dataDir, "data-dir", "", "data directory (default: $TANULOM_DATA_DIR or ./data)")
 	flag.BoolVar(&showVersion, "version", false, "print version and exit")
 	flag.Parse()
@@ -38,7 +38,7 @@ func main() {
 	}
 
 	dir := resolveDataDir(dataDir)
-	slog.Info("starting tanulom", "version", api.Version, "data_dir", dir, "addr", addr)
+	slog.Info("starting tanulom", "version", api.Version, "data_dir", dir)
 
 	srv, err := api.New(dir)
 	if err != nil {
@@ -46,6 +46,21 @@ func main() {
 		os.Exit(1)
 	}
 	defer srv.Close()
+
+	// --addr > TANULOM_ADDR > config.yaml server.addr > config.DefaultAddr.
+	//
+	// The config file has to be consulted here, after the server is built,
+	// because that is what parses it. Before this, `server.addr` was written
+	// into every generated config.yaml and documented as the listen address
+	// while nothing read it: setting it did nothing, silently, which is worse
+	// than not offering the setting at all.
+	if addr == "" {
+		addr = srv.Config().Server.Addr
+	}
+	if addr == "" {
+		addr = config.DefaultAddr
+	}
+	slog.Info("listen address resolved", "addr", addr)
 
 	app := srv.App()
 	go func() {

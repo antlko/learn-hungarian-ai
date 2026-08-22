@@ -5,5 +5,7 @@
   "tatoeba_links_rus": "94940df037ffc08b9ed704f49619025ed576a9e146d67a855a10e6fb74b69ef7",
   "tatoeba_rus": "428bca8851cea4297cf9a8f5be4b36a83983ba74030c337258c7c7d153fae742",
   "tatoeba_sentences": "203debaef5def819c5b266e599761e11be8447ead8f1dabde488258475641293",
-  "wiktionary": "f211343d1bda1c17e801fa2a9c02e2cf9796abdf5e9d46596d4e3cbbfd051875"
+  "ud_treebank": "9031ec98f775ceae6940580a1bb4ef8a2a9e9bee38c40eb9e8ce0f006b56fa59",
+  "wiktionary": "f211343d1bda1c17e801fa2a9c02e2cf9796abdf5e9d46596d4e3cbbfd051875",
+  "wiktionary_ru": "e995fa45ca1d1bcb32ff51d8c584bd7ece174f9707c81100ccb3c71cb78d10dc"
 }

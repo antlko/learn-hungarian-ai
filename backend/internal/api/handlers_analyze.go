@@ -2,6 +2,7 @@ package api
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v3"
 
@@ -20,10 +21,21 @@ type AnalyzeRequest struct {
 	Text string `json:"text"`
 }
 
+// AnalyzedTokenDTO is a token plus its segmentation.
+//
+// Segments ride along on every word token: the map from surface to morphemes is
+// the product thesis made visible, and the reader colours by it. Segmentation
+// is cached per distinct form inside AnalyzeText's own cache, so the cost is
+// per-vocabulary, not per-token.
+type AnalyzedTokenDTO struct {
+	morph.AnalyzedToken
+	Segments []morph.Segment `json:"segments,omitempty"`
+}
+
 // AnalyzeResponse carries the analysed tokens plus sentence boundaries.
 type AnalyzeResponse struct {
-	Tokens    []morph.AnalyzedToken `json:"tokens"`
-	Sentences []morph.Sentence      `json:"sentences"`
+	Tokens    []AnalyzedTokenDTO `json:"tokens"`
+	Sentences []morph.Sentence   `json:"sentences"`
 	// Coverage is the share of word tokens that resolved to a known lemma. It is
 	// the honest headline number for "can I read this".
 	Coverage  float64 `json:"coverage"`
@@ -60,15 +72,25 @@ func (s *Server) handleAnalyze(c fiber.Ctx) error {
 		return err
 	}
 
+	segCache := map[string][]morph.Segment{}
+	out := make([]AnalyzedTokenDTO, 0, len(tokens))
 	words, known := 0, 0
 	for _, t := range tokens {
-		if !t.IsWord {
-			continue
+		dto := AnalyzedTokenDTO{AnalyzedToken: t}
+		if t.IsWord {
+			words++
+			if t.Analysis.Certainty != morph.UnknownAnalysis {
+				known++
+			}
+			key := strings.ToLower(t.Text)
+			segs, ok := segCache[key]
+			if !ok {
+				segs = s.analyzer.SegmentForm(t.Text, t.Analysis)
+				segCache[key] = segs
+			}
+			dto.Segments = segs
 		}
-		words++
-		if t.Analysis.Certainty != morph.UnknownAnalysis {
-			known++
-		}
+		out = append(out, dto)
 	}
 	coverage := 0.0
 	if words > 0 {
@@ -76,8 +98,50 @@ func (s *Server) handleAnalyze(c fiber.Ctx) error {
 	}
 
 	return c.JSON(AnalyzeResponse{
-		Tokens: tokens, Sentences: sentences,
+		Tokens: out, Sentences: sentences,
 		Coverage: coverage, WordCount: words,
+	})
+}
+
+// BreakdownResponse is the full explanation of ONE form, for the reader's
+// detail rail and the post-answer explanation.
+type BreakdownResponse struct {
+	Form     string              `json:"form"`
+	Analysis morph.Analysis      `json:"analysis"`
+	Segments []morph.Segment     `json:"segments"`
+	Explain  []morph.ExplainLine `json:"explain"`
+}
+
+// handleBreakdown decomposes one form and explains each piece in both locales.
+// This is [R4]'s "explicit instruction in miniature" as an endpoint.
+func (s *Server) handleBreakdown(c fiber.Ctx) error {
+	u, err := mustUser(c)
+	if err != nil {
+		return err
+	}
+	if err := s.requirePack(); err != nil {
+		return err
+	}
+	form := strings.TrimSpace(c.Query("form"))
+	if form == "" {
+		return badRequest("form is required")
+	}
+	if len(form) > 100 {
+		return badRequest("form is too long")
+	}
+	an, err := s.analyzer.Best(form)
+	if err != nil {
+		return err
+	}
+	// The learner's own correction overlays the pack's reading here — this is
+	// the endpoint behind the detail rail, which is where a wrong analysis is
+	// noticed and where the override must therefore be visible.
+	if lemma, feats, ok := s.correctionFor(u.ID, form); ok {
+		an = applyCorrection(an, lemma, feats)
+	}
+	segs := s.analyzer.SegmentForm(form, an)
+	return c.JSON(BreakdownResponse{
+		Form: form, Analysis: an, Segments: segs, Explain: s.analyzer.Explain(segs),
 	})
 }
 
@@ -94,6 +158,10 @@ type LemmaDTO struct {
 	// was substituted. Never silent — see ADR-004.
 	GlossFallback bool              `json:"glossFallback"`
 	Paradigm      map[string]string `json:"paradigm,omitempty"`
+	// ParadigmDerived marks the cells our own generator produced rather than the
+	// dictionary. The UI renders those differently: a generated form is a good
+	// guess, and a learner is entitled to know which is which.
+	ParadigmDerived map[string]bool `json:"paradigmDerived,omitempty"`
 }
 
 func (s *Server) handleLemma(c fiber.Ctx) error {
@@ -135,27 +203,31 @@ func (s *Server) handleLemma(c fiber.Ctx) error {
 		dto.Glosses[lg] = append(dto.Glosses[lg], g)
 	}
 
-	// The pack currently ships English glosses only; a learner who asked for
-	// Russian sees English WITH a badge rather than nothing, and never English
-	// silently presented as Russian.
+	// Russian glosses cover roughly 45% of the starter pack's lemmas and all
+	// 853 course words; English covers the rest. A learner who asked for
+	// Russian and hits one of the gaps sees English WITH a badge rather than
+	// nothing, and never English silently presented as Russian.
 	want := s.Config().Locale.Gloss
 	if want != "both" && len(dto.Glosses[want]) == 0 && len(dto.Glosses) > 0 {
 		dto.GlossFallback = true
 	}
 
-	prows, err := s.pack.DB().Query(
-		`SELECT slot, form FROM paradigm WHERE lemma_id = ? ORDER BY slot`, id)
+	// The paradigm comes from the lookup index, not from the pack's precomputed
+	// `paradigm` table, because that table is generator-only: for `ház` it says
+	// the superessive is `házan` while `házon` sits attested in `wordform` right
+	// beside it. A wrong cell in the table a learner reads is a wrong form
+	// actively taught. See internal/morph/forms.go and, for future packs,
+	// langpack/pipeline/build.py.
+	paradigm, attested, err := s.analyzer.Paradigm(id)
 	if err != nil {
 		return err
 	}
-	defer prows.Close()
-	dto.Paradigm = map[string]string{}
-	for prows.Next() {
-		var slot, form string
-		if err := prows.Scan(&slot, &form); err != nil {
-			return err
+	dto.Paradigm = paradigm
+	dto.ParadigmDerived = map[string]bool{}
+	for slot := range paradigm {
+		if !attested[slot] {
+			dto.ParadigmDerived[slot] = true
 		}
-		dto.Paradigm[slot] = form
 	}
 	return c.JSON(dto)
 }

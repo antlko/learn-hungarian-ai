@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
+
+	"tanulom/internal/db"
 )
 
 // Engine ties the scheduler, the store and the two state spaces together.
@@ -89,10 +91,26 @@ func (e *Engine) Answer(
 	}, nil
 }
 
-// applyFeatureGrades advances the morphological state space.
+// applyFeatureGrades advances the morphological state space from a card answer.
 func (e *Engine) applyFeatureGrades(
 	tx *sql.Tx, userID int64, grades []FeatureGrade,
 	cardID int64, outcome Outcome, now time.Time,
+) error {
+	return e.GradeFeatures(tx, userID, grades, cardID, outcome, "review", now)
+}
+
+// GradeFeatures advances the morphological state space for grades that did not
+// come from a card.
+//
+// A grammar drill has no note and no card, but it is exactly as much a retrieval
+// attempt as a cloze review is, and the second state space is where that
+// evidence belongs — otherwise the mastery heatmap would silently ignore every
+// drill the learner ever answered. `origin` records where the evidence came
+// from, so "your inessive is weak" can always be traced back to the items that
+// said so. Pass cardID 0 when there is no card.
+func (e *Engine) GradeFeatures(
+	tx *sql.Tx, userID int64, grades []FeatureGrade,
+	cardID int64, outcome Outcome, origin string, now time.Time,
 ) error {
 	durationMs := outcome.Duration.Milliseconds()
 
@@ -116,7 +134,7 @@ func (e *Engine) applyFeatureGrades(
 		if err := e.store.SaveFeatureState(tx, userID, fs); err != nil {
 			return err
 		}
-		if err := e.store.AppendFeatureReview(tx, userID, g, cardID, durationMs, now, "review"); err != nil {
+		if err := e.store.AppendFeatureReview(tx, userID, g, cardID, durationMs, now, origin); err != nil {
 			return err
 		}
 	}
@@ -160,7 +178,7 @@ func (e *Engine) Mastery(userID int64, harmonyLatencyMs int, now time.Time) ([]F
 			&m.Accuracy, &m.Observations, &m.MedianMs); err != nil {
 			return nil, err
 		}
-		st.LastReview = parseTime(last)
+		st.LastReview = db.ParseTime(last)
 		m.Reps = st.Reps
 		m.Retrievability = e.scheduler.Retrievability(st, now)
 		m.Automated = m.MedianMs > 0 && m.MedianMs <= int64(harmonyLatencyMs) &&

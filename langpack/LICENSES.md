@@ -34,6 +34,17 @@ This is a legal obligation, not a courtesy. This file is surfaced in the app und
 | [HuSpaCy](https://github.com/huspacy/huspacy) + `hu_core_news_lg` | morphological analysis and lemmatisation at build time | Apache-2.0 (library); models CC BY-SA |
 | [emMorph](https://github.com/dlt-rilmta/emMorph) / [morphdb.hu](http://mokk.bme.hu/resources/morphdb-hu/) | fallback suffix rules | see repos |
 
+### Evaluation only — never shipped
+
+| Source | Used for | Licence | Attribution |
+|---|---|---|---|
+| [UD Hungarian-Szeged](https://github.com/UniversalDependencies/UD_Hungarian-Szeged) | scoring the morphology against human annotation (`backend/internal/morph/golden_ud_test.go`) | **CC BY-NC-SA 3.0** | Szeged Dependency Treebank, converted to UD (Vincze et al.) |
+
+The **NC** matters and is why this sits in its own section: nothing derived from this treebank
+enters the pack, no text from it reaches a learner, and the file is fetched into
+`langpack/cache/` rather than committed. It is a measuring stick held against the pack from
+outside — held *inside*, it would put a non-commercial restriction on a pack released CC BY-SA.
+
 ### Audio
 
 | Source | Used for | Licence | Attribution |

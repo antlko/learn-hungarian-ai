@@ -17,13 +17,15 @@
 
 services:
   tanulom:
-    image: ghcr.io/OWNER/tanulom:latest
+    image: ghcr.io/antlko/tanulom:latest
     # To build from source instead of pulling, comment out `image:` above and
     # uncomment the next line:
     # build: .
     container_name: tanulom
     ports:
-      - '8080:8080'
+      # host:container. Both are 8012 because config.DefaultAddr is, and the
+      # Dockerfile no longer overrides it — change only the left-hand number.
+      - '8012:8012'
     volumes:
       - tanulom-data:/data
     environment:

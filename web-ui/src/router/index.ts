@@ -20,10 +20,26 @@ const routes: RouteRecordRaw[] = [
     meta: { public: true },
   },
   { path: '/', name: 'today', component: () => import('@/views/TodayView.vue') },
+  { path: '/plan', name: 'plan', component: () => import('@/views/PlanView.vue') },
+  // The catalogue the course hands over to. Not sidebar-level: it is where you
+  // go once the plan runs out, and the plan itself is what sends you there.
+  { path: '/resources', name: 'resources', component: () => import('@/views/ResourcesView.vue') },
   { path: '/review', name: 'review', component: () => import('@/views/ReviewView.vue') },
   { path: '/library', name: 'library', component: () => import('@/views/LibraryView.vue') },
   { path: '/read/:id', name: 'read', component: () => import('@/views/ReaderView.vue') },
+  { path: '/grammar', name: 'grammar', component: () => import('@/views/GrammarView.vue') },
+  { path: '/ear', name: 'ear', component: () => import('@/views/EarView.vue') },
+  { path: '/progress', name: 'progress', component: () => import('@/views/ProgressView.vue') },
+  { path: '/listen', name: 'listen', component: () => import('@/views/ListenView.vue') },
+  {
+    path: '/grammar/placement',
+    name: 'placement',
+    component: () => import('@/views/PlacementView.vue'),
+  },
   { path: '/settings', name: 'settings', component: () => import('@/views/SettingsView.vue') },
+  // Not admin-gated: the account list on this screen is, but changing your own
+  // password lives here too and every learner needs it.
+  { path: '/users', name: 'users', component: () => import('@/views/UsersView.vue') },
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',

@@ -2,12 +2,19 @@ package morph
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
+	"sync"
 
 	"tanulom/internal/lang"
 )
+
+// jsonUnmarshal and sortStrings keep segment.go free of direct imports it would
+// otherwise need for two one-liners.
+func jsonUnmarshal(s string, dst any) error { return json.Unmarshal([]byte(s), dst) }
+func sortStrings(s []string)                { sort.Strings(s) }
 
 // Certainty describes how much to trust an analysis. It is surfaced in the API
 // and rendered in the UI: an uncertain analysis must never look like a confident
@@ -24,6 +31,9 @@ const (
 	DerivedAnalysis Certainty = "derived"
 	// UnknownAnalysis: nothing matched at all.
 	UnknownAnalysis Certainty = "unknown"
+	// CorrectedAnalysis: the learner overrode the pack's reading. Shown as
+	// such — an override must not masquerade as the dictionary.
+	CorrectedAnalysis Certainty = "corrected"
 )
 
 // Analysis is one reading of a wordform.
@@ -46,6 +56,13 @@ type Analysis struct {
 type Analyzer struct {
 	pack     *lang.Pack
 	suffixes suffixTable
+
+	// alloTables caches morph_feature.allomorphs per feature id, for the
+	// segmenter and the explainer. Loaded once per analyzer, read-only after.
+	alloOnce   sync.Once
+	alloTables map[string]map[string]string
+
+	labelCache featureLabels
 }
 
 func NewAnalyzer(p *lang.Pack) *Analyzer { return &Analyzer{pack: p} }
@@ -60,6 +77,12 @@ func featureIDs(feats map[string]string) []string {
 	sort.Strings(out)
 	return out
 }
+
+// ParseFeats turns "Case=Ine|Number=Sing" into a map.
+func ParseFeats(s string) map[string]string { return parseFeats(s) }
+
+// FeatureIDs renders a feats map as sorted UD identifiers.
+func FeatureIDs(feats map[string]string) []string { return featureIDs(feats) }
 
 // parseFeats turns "Case=Ine|Number=Sing" into a map.
 func parseFeats(s string) map[string]string {
@@ -85,16 +108,18 @@ func (a *Analyzer) Lookup(form string) ([]Analysis, error) {
 	if a == nil || a.pack == nil {
 		return nil, nil
 	}
+	// Case-insensitively, but through the index — see casefold.go.
+	marks, args := placeholders(caseVariants(form))
 	rows, err := a.pack.DB().Query(`
 		SELECT w.form, l.lemma, l.id, w.upos, w.feats, w.source, w.confidence, l.freq_rank
 		  FROM wordform w
 		  JOIN lemma l ON l.id = w.lemma_id
-		 WHERE w.form = ? COLLATE NOCASE
+		 WHERE w.form IN (`+marks+`)
 		 ORDER BY
 		   CASE w.source     WHEN 'corpus' THEN 0 WHEN 'wiktionary' THEN 1 ELSE 2 END,
 		   CASE w.confidence WHEN 'high' THEN 0 WHEN 'medium' THEN 1 ELSE 2 END,
 		   COALESCE(l.freq_rank, 1000000)
-		 LIMIT 25`, form)
+		 LIMIT 25`, args...)
 	if err != nil {
 		return nil, fmt.Errorf("lookup %q: %w", form, err)
 	}

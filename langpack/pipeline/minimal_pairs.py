@@ -56,7 +56,9 @@ PAIRS: list[MinimalPair] = [
     MinimalPair("tur", "túr", "u/ú", "(нет слова)", "роет", "(non-word)", "digs", 3),
     MinimalPair("fut", "fűt", "u/ű", "бежит", "топит, отапливает", "runs", "heats", 2),
     MinimalPair("tuz", "tűz", "u/ű", "(нет слова)", "огонь", "(non-word)", "fire", 2),
-    MinimalPair("orul", "örül", "o/ö", "(нет слова)", "радуется", "(non-word)", "rejoices", 2),
+    # sor/sör is the textbook real-word pair for this opposition; the previous
+    # orul/örül differed in TWO vowels (o→ö AND u→ü) and trained an unattributable blend.
+    MinimalPair("sor", "sör", "o/ö", "ряд, очередь", "пиво", "row, queue", "beer", 2),
 
     # --- rounded front vowels: absent from both L1s --------------------------
     MinimalPair("tud", "tűd", "u/ű", "знает", "твоя игла", "knows", "your needle", 3),
@@ -72,9 +74,9 @@ PAIRS: list[MinimalPair] = [
     MinimalPair("cél", "csél", "c/cs", "цель", "(нет слова)", "goal", "(non-word)", 3),
 
     # --- palatals: easier for a Russian ear, still trained --------------------
-    MinimalPair("hagy", "hadj", "gy/dj", "оставляет", "(нет слова)", "leaves", "(non-word)", 6),
-    MinimalPair("anya", "ana", "ny/n", "мать", "(нет слова)", "mother", "(non-word)", 6),
-    MinimalPair("tyúk", "tuk", "ty/t", "курица", "(нет слова)", "hen", "(non-word)", 6),
+    MinimalPair("hagy", "hadj", "gy/dj", "оставляет", "(нет слова)", "leaves", "(non-word)", 5),
+    MinimalPair("anya", "ana", "ny/n", "мать", "(нет слова)", "mother", "(non-word)", 5),
+    MinimalPair("tyúk", "tuk", "ty/t", "курица", "(нет слова)", "hen", "(non-word)", 5),
 
     # --- gemination ----------------------------------------------------------
     MinimalPair("hal", "hall", "l/ll", "рыба; умирает", "слышит", "fish; dies", "hears", 2,
@@ -116,3 +118,119 @@ def contrasts() -> dict[str, list[MinimalPair]]:
     for p in PAIRS:
         out.setdefault(p.contrast, []).append(p)
     return out
+
+
+# ── the rendering stage ──────────────────────────────────────────────────────
+#
+# Talker variability is the ACTIVE INGREDIENT of HVPT, not a nicety [R7], so
+# rendering is organised around talkers: every pair member × every available
+# Piper voice × two speaking rates. Rate variants are recorded as rates, never
+# counted as extra talkers — three synthetic voices are three talkers, and the
+# app says so rather than inflating the number.
+#
+# Voices: hu_HU-{anna,berta,imre}-medium from rhasspy/piper-voices. Dataset
+# licence per model card: CC0. Clips land under <media>/hvpt/ and are
+# registered in the pack's pair_audio table, which is exactly the "audio is
+# added by the rendering stage" contract in schema.sql.
+
+import shutil as _shutil
+
+_HAVE_FFMPEG = _shutil.which("ffmpeg") is not None
+# Without ffmpeg the render still works, it just ships WAV — degraded, never broken.
+_EXT = ".ogg" if _HAVE_FFMPEG else ".wav"
+
+VOICES = ("anna", "berta", "imre")
+RATES = (1.0, 0.85)  # 1.0 natural; 0.85 slightly slow — length_scale = 1/rate
+VOICE_LICENSE = "CC0 (OHF voice-datasets, per piper model card)"
+
+
+def render(pack_path, media_dir, voices_dir, *, only_missing=True):
+    """Render every pair member across voices and rates; register in the pack.
+
+    Idempotent: with only_missing (the default) it skips clips whose file and
+    row both exist, so a re-run after adding pairs renders just the new ones.
+    """
+    import sqlite3
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    pack = sqlite3.connect(pack_path)
+    out_root = Path(media_dir) / "hvpt"
+    out_root.mkdir(parents=True, exist_ok=True)
+
+    pairs = pack.execute("SELECT id, a, b FROM minimal_pair").fetchall()
+    rendered = skipped = 0
+    for pair_id, a, b in pairs:
+        for member, word in (("a", a), ("b", b)):
+            for voice in VOICES:
+                model = Path(voices_dir) / f"hu_HU-{voice}-medium.onnx"
+                if not model.exists():
+                    raise SystemExit(f"voice model missing: {model}")
+                for rate in RATES:
+                    rel = f"hvpt/{pair_id}_{member}_{voice}_{int(rate*100)}{_EXT}"
+                    dest = Path(media_dir) / rel
+                    row = pack.execute(
+                        "SELECT 1 FROM pair_audio WHERE pair_id=? AND member=? "
+                        "AND talker_id=? AND rate=?",
+                        (pair_id, member, voice, rate)).fetchone()
+                    # The clip on disk is the expensive artefact; the row is
+                    # free. Skip only the RENDER when the file is already there
+                    # and still upsert the row, so a pack rebuild — which starts
+                    # from an empty pair_audio — costs seconds instead of
+                    # re-synthesising the whole inventory.
+                    if only_missing and dest.exists():
+                        skipped += 1
+                        pack.execute(
+                            "INSERT OR REPLACE INTO pair_audio (pair_id, member, talker_id, "
+                            "talker_kind, rate, path, license) VALUES (?,?,?,?,?,?,?)",
+                            (pair_id, member, voice, "piper", rate, rel, VOICE_LICENSE))
+                        continue
+                    wav = dest.with_suffix(".wav")
+                    subprocess.run(
+                        [sys.executable, "-m", "piper",
+                         "-m", str(model), "-f", str(wav),
+                         "--length-scale", str(round(1.0 / rate, 3)),
+                         "--sentence-silence", "0.1"],
+                        input=word.encode(), check=True, capture_output=True)
+                    # Transcode to Opus. A single spoken word is ~0.5 s, so the
+                    # whole 384-clip inventory drops from ~7 MB of WAV to well
+                    # under a megabyte — which is what makes it small enough to
+                    # ship INSIDE the binary alongside the starter pack. Every
+                    # target browser decodes Opus in Ogg natively.
+                    if _HAVE_FFMPEG:
+                        subprocess.run(
+                            ["ffmpeg", "-y", "-loglevel", "error", "-i", str(wav),
+                             "-c:a", "libopus", "-b:a", "24k", "-ac", "1", str(dest)],
+                            check=True, capture_output=True)
+                        wav.unlink()
+                    elif wav != dest:
+                        wav.rename(dest)
+                    # OR REPLACE, not a pre-checked INSERT: the render is meant
+                    # to be re-runnable after an interruption, and a row whose
+                    # clip was rewritten must not abort the whole stage.
+                    pack.execute(
+                        "INSERT OR REPLACE INTO pair_audio (pair_id, member, talker_id, "
+                        "talker_kind, rate, path, license) VALUES (?,?,?,?,?,?,?)",
+                        (pair_id, member, voice, "piper", rate, rel, VOICE_LICENSE))
+                    rendered += 1
+        pack.commit()
+    pack.commit()
+    n_clips = pack.execute("SELECT COUNT(*) FROM pair_audio").fetchone()[0]
+    n_talkers = pack.execute(
+        "SELECT COUNT(DISTINCT talker_id) FROM pair_audio").fetchone()[0]
+    pack.close()
+    print(f"rendered {rendered} clips (skipped {skipped}); "
+          f"pair_audio now holds {n_clips} rows across {n_talkers} talkers")
+
+
+if __name__ == "__main__":
+    import argparse
+
+    ap = argparse.ArgumentParser(description="Render HVPT pair audio via Piper.")
+    ap.add_argument("--pack", required=True)
+    ap.add_argument("--media", required=True)
+    ap.add_argument("--voices-dir", required=True)
+    ap.add_argument("--force", action="store_true", help="re-render existing clips")
+    args = ap.parse_args()
+    render(args.pack, args.media, args.voices_dir, only_missing=not args.force)

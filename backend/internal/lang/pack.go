@@ -26,10 +26,16 @@ type Meta struct {
 	Version       string   `json:"version"`
 	SchemaVersion int      `json:"schema_version"`
 	GlossLangs    []string `json:"gloss_langs"`
+	// Edition is "starter" for the pack embedded in the binary and "full" for
+	// the one built with `make langpack`. The UI names the installed edition off
+	// this field rather than guessing from a row count. There is no in-app
+	// upgrade path and the UI says so — [ADR-010].
+	Edition string `json:"edition"`
 }
 
-// Open opens a pack read-only and verifies it is one this binary understands.
-func Open(path string) (*Pack, error) {
+// openQuiet opens a pack read-only and verifies it is one this binary
+// understands, without announcing it. See Open.
+func openQuiet(path string) (*Pack, error) {
 	// mode=ro is belt and braces: nothing in the codebase writes here, and the
 	// driver will refuse if something ever tries.
 	dsn := "file:" + path + "?mode=ro&_pragma=busy_timeout(5000)&_pragma=query_only(1)"
@@ -53,11 +59,28 @@ func Open(path string) (*Pack, error) {
 		// confusing lookup failures later.
 		return nil, fmt.Errorf(
 			"language pack schema version %d is not supported by this build (needs %d): "+
-				"download a matching pack or update the application",
+				"update the application, or remove this pack so the binary can "+
+				"install the starter it carries",
 			p.Meta.SchemaVersion, SchemaVersion)
 	}
-	slog.Info("language pack loaded",
-		"version", p.Meta.Version, "schema", p.Meta.SchemaVersion, "glosses", p.Meta.GlossLangs)
+	return p, nil
+}
+
+// Open loads a pack and says so in the log.
+//
+// Split from openQuiet because two callers open a pack only to prove it is one
+// — Detect vetting candidates, EnsurePack vetting what it just extracted — and
+// their probes were reaching the log as "language pack loaded", announcing a
+// pack before it was installed and again when it really loaded. A startup log
+// that says a thing twice teaches the reader to stop trusting it.
+func Open(path string) (*Pack, error) {
+	p, err := openQuiet(path)
+	if err != nil {
+		return nil, err
+	}
+	slog.Info("language pack loaded", "version", p.Meta.Version,
+		"edition", p.Meta.Edition, "schema", p.Meta.SchemaVersion,
+		"glosses", p.Meta.GlossLangs)
 	return p, nil
 }
 
@@ -85,6 +108,8 @@ func (p *Pack) readMeta() error {
 			p.Meta.SchemaVersion = n
 		case "gloss_langs":
 			_ = json.Unmarshal([]byte(v), &p.Meta.GlossLangs)
+		case "edition":
+			p.Meta.Edition = strings.Trim(v, `"`)
 		}
 	}
 	if err := rows.Err(); err != nil {
@@ -92,6 +117,9 @@ func (p *Pack) readMeta() error {
 	}
 	if p.Meta.Version == "" {
 		return fmt.Errorf("language pack has no version in pack_meta")
+	}
+	if p.Meta.Edition == "" {
+		p.Meta.Edition = EditionFull
 	}
 	return nil
 }

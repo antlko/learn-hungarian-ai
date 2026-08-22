@@ -27,6 +27,9 @@ type Text struct {
 	LemmaCoverage   float64   `json:"lemmaCoverage"`
 	ElementCoverage float64   `json:"elementCoverage"`
 	AddedAt         time.Time `json:"addedAt"`
+	// AudioPath is a /media-relative path when this text is a listening
+	// material. Empty for plain reading texts.
+	AudioPath string `json:"audioPath"`
 }
 
 // StoredToken is one analysed token as persisted.
@@ -100,7 +103,7 @@ func (s *Store) List(userID int64, limit int) ([]Text, error) {
 	}
 	rows, err := s.db.Query(`
 		SELECT id, title, source_url, kind, word_count,
-		       lemma_coverage, element_coverage, added_at
+		       lemma_coverage, element_coverage, added_at, audio_path
 		  FROM text WHERE user_id = ? ORDER BY added_at DESC LIMIT ?`, userID, limit)
 	if err != nil {
 		return nil, fmt.Errorf("list texts: %w", err)
@@ -112,7 +115,7 @@ func (s *Store) List(userID int64, limit int) ([]Text, error) {
 		var t Text
 		var added string
 		if err := rows.Scan(&t.ID, &t.Title, &t.SourceURL, &t.Kind, &t.WordCount,
-			&t.LemmaCoverage, &t.ElementCoverage, &added); err != nil {
+			&t.LemmaCoverage, &t.ElementCoverage, &added, &t.AudioPath); err != nil {
 			return nil, err
 		}
 		t.AddedAt, _ = time.Parse(time.RFC3339, added)
@@ -126,10 +129,10 @@ func (s *Store) Get(userID, id int64) (Text, error) {
 	var t Text
 	var added string
 	err := s.db.QueryRow(`
-		SELECT id, title, source_url, kind, body, word_count,
+		SELECT id, title, source_url, kind, body, audio_path, word_count,
 		       lemma_coverage, element_coverage, added_at
 		  FROM text WHERE id = ? AND user_id = ?`, id, userID,
-	).Scan(&t.ID, &t.Title, &t.SourceURL, &t.Kind, &t.Body, &t.WordCount,
+	).Scan(&t.ID, &t.Title, &t.SourceURL, &t.Kind, &t.Body, &t.AudioPath, &t.WordCount,
 		&t.LemmaCoverage, &t.ElementCoverage, &added)
 	if errors.Is(err, sql.ErrNoRows) {
 		return Text{}, ErrNotFound

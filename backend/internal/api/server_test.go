@@ -89,8 +89,16 @@ func TestBootstrapAndSetupFlow(t *testing.T) {
 	if !boot.NeedsSetup {
 		t.Error("fresh install should need setup")
 	}
-	if boot.PackPresent {
-		t.Error("fresh install should have no language pack")
+	// The binary embeds a starter pack, so a fresh install ALWAYS has one.
+	// This assertion used to read the other way round; that was the bug, not
+	// the spec. See internal/lang/starter.go.
+	if !boot.PackPresent {
+		t.Error("a fresh install must come with the embedded starter pack")
+	}
+	// The wizard and Settings both name the installed edition, and
+	// [ADR-010] says they can — which is only true while this field is here.
+	if boot.PackEdition != "starter" && boot.PackEdition != "full" {
+		t.Errorf("packEdition = %q; the UI cannot say which pack is installed", boot.PackEdition)
 	}
 	if len(boot.Locales) != 2 {
 		t.Errorf("want both locales offered, got %v", boot.Locales)
