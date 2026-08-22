@@ -129,8 +129,17 @@ and every note contains a "What this changes in our code" section.
 - [x] Single binary serves the SPA + API; setup → Today → Settings verified in a browser
 - [x] Clamped values are reported to the user (toast), not applied silently
 - [x] Both locales render; capability dots show all four services correctly degraded
-- [ ] `docker build` verified
-- [ ] Multi-arch build succeeds for `linux/arm64`
+- [x] `docker compose config` valid; `docker compose up -d` resolves to the core service
+      alone (the `nlp`/`speech`/`llm` services are correctly excluded without a profile)
+- [ ] **`docker build` NOT verified** — the Docker daemon in this environment cannot reach
+      any registry (`docker pull hello-world` hangs), so the base images
+      (`node:24-alpine`, `golang:1.26`, `gcr.io/distroless/static`) never download. This is
+      an environment limitation, not a known defect in the Dockerfile: the same three-stage
+      pattern is proven in `antlko/upmonitor`, and every step it runs
+      (`npm ci`, `npm run build-only`, `go mod download`, `CGO_ENABLED=0 go build`) has been
+      run and verified natively here. **Run `docker build -t tanulom .` on a machine with
+      registry access before tagging a release.**
+- [ ] Multi-arch build succeeds for `linux/arm64` (same blocker; CI will exercise it on tag)
 
 **Known gaps carried into Phase 2**
 - `services/{nlp,tts,asr}` are documented placeholders; the `nlp` and `speech` compose

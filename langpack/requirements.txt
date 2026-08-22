@@ -1,0 +1,8 @@
+# Build-time only. None of this ships in the application image — the Go binary
+# reads the emitted SQLite pack and needs no Python at runtime (ADR-002).
+pytest>=8.0
+
+# Added as the pipeline stages land:
+# huspacy>=0.13          # hu_core_news_lg: lemma 97.6%, POS 96.7%
+# requests>=2.32         # pinned+checksummed source downloads
+# tqdm>=4.66
