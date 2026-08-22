@@ -57,3 +57,21 @@ def test_non_harmonising_suffixes_are_flat():
     for fid in ("Case=Ter", "Case=Tem", "Case=Cau"):
         forms = set(index[fid].allomorphs.values())
         assert len(forms) == 1, f"{fid} should not harmonise, got {forms}"
+
+
+def test_feature_ids_match_their_key_and_value():
+    """The id is the contract between pack, analyser and learner state.
+
+    A mismatch means a learner's morph_state row points at a feature the
+    analyser will never emit — silently, and forever.
+    """
+    for f in ALL_FEATURES:
+        assert f.id == f"{f.key}={f.value}", f"{f.id} != {f.key}={f.value}"
+
+
+def test_every_feature_is_taught_by_some_topic():
+    """A feature no topic introduces can be scheduled but never explained."""
+    from pipeline.curriculum import uncovered_features
+
+    missing = uncovered_features({f.id for f in ALL_FEATURES})
+    assert not missing, f"features with no topic: {sorted(missing)}"

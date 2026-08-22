@@ -150,7 +150,7 @@ CASES: list[Feature] = [
     Feature("Case=Dis", "Case", "Dis", "дистрибутив — по, за каждый", "distributive — per",
             _h("nként", "nként"),
             "«За каждый»: hetenként — еженедельно.", "'Per each': hetenként — weekly.", 70),
-    Feature("Case=Ill|Case=Sbl", "Case", "Loc", "локатив — в (в топонимах)", "locative — at (place names)",
+    Feature("Case=Loc", "Case", "Loc", "локатив — в (в топонимах)", "locative — at (place names)",
             _flat("t"),
             "Архаичный, живёт в названиях: Pécsett, Győrött.",
             "Archaic, survives in place names: Pécsett, Győrött.", 90),
@@ -351,6 +351,12 @@ def validate() -> list[str]:
 
         if set(f.allomorphs) and set(f.allomorphs) != {B, FU, FR}:
             problems.append(f"{f.id}: allomorphs must cover all three harmony classes")
+
+        # The id IS the key=value pair. A mismatch means the pack and the
+        # analyser disagree about what a feature is called, and a learner's
+        # morph_state would point at nothing.
+        if f.id != f"{f.key}={f.value}":
+            problems.append(f"{f.id}: id does not match key={f.key} value={f.value}")
 
         for prereq in f.prereq_ids:
             if prereq not in index:

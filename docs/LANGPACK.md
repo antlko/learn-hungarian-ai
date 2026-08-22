@@ -108,6 +108,60 @@ the application code is MIT. Both facts are stated in the README.
 
 ---
 
+## 3a. Source quality — what we learned by actually parsing it
+
+Findings from the real extract, recorded because they are not obvious and cost
+real debugging time.
+
+### Wiktionary noun and adjective tables are excellent; verb tables are unusable
+
+The wiktextract Hungarian extract (~580 MB, 78,730 raw entries) yields **75,224
+usable lemmas, all glossed, 70k with IPA**. But its inflection tables split sharply
+by part of speech:
+
+| POS | Forms kept | Verdict |
+|---|---:|---|
+| NOUN | ~971,000 | trustworthy |
+| ADJ | ~352,000 | trustworthy |
+| NUM / PRON | ~25,000 | trustworthy |
+| **VERB** | **0 — rejected** | **unusable** |
+
+Two distinct problems, both real:
+
+1. **`error-unrecognized-form`.** wiktextract sets this tag when it fails to parse
+   a table. On Hungarian verb tables the surviving rows are **shifted by one**, so
+   `megyek` (1sg) arrives carrying the tags of the next row — `second-person`.
+   Importing that would write wrong `Person`/`Number` values into `morph_state`.
+   Dropping these rows takes the corpus from 2.75 M forms to 1.44 M.
+2. **Unsplit table cells.** Even among rows without the error tag, verb tables
+   emit cells like `menve (menvén)`, `mehetve / mehetvén`, and literally
+   `intransitive verb` as pseudo-forms, with a `Person` attached to converbs.
+
+**Decision: `TRUSTED_FORM_POS` excludes VERB.** Since the definite/indefinite
+conjugation is the single most important thing this app teaches
+([R15](../.claude/research/15-hungarian-difficulty.md)), a plausible-looking but
+wrong verb paradigm is strictly worse than no paradigm. Verb forms come from the
+generator and from corpus attestation instead.
+
+A form must also be a single orthographic token of Hungarian letters
+(`_is_plausible_form`) to be imported at all.
+
+### Possessive columns re-tag person and number
+
+Inside a possessive column, `first-person` describes the **possessor**, not the
+word. Mapped to `Person[psor]` / `Number[psor]`, or `házam` would land in the same
+bucket as a first-person verb.
+
+### Russian glosses are not in this source
+
+The English Wiktionary edition gives EN glosses only. RU glosses require the
+Russian edition through the same toolchain. Until that stage lands, lemmas carry
+EN glosses and the pack manifest records `gloss_langs: ["en"]`, so the UI shows
+its documented fallback badge rather than silently presenting English as Russian
+([ADR-004](../.claude/DECISIONS.md#adr-004)).
+
+---
+
 ## 4. Pipeline
 
 ```
