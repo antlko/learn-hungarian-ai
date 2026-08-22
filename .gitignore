@@ -1,14 +1,19 @@
 # ── build output ─────────────────────────────────────────────
 /tanulom
 /bin/
-# The embedded SPA is produced by the Dockerfile / DEVELOPMENT.md build steps.
-# Only the .gitkeep is tracked, so //go:embed all:dist still compiles on a fresh
-# clone before anyone has run `npm run build`.
+# The embedded SPA is produced by `make spa` / the Dockerfile. Only the .gitkeep
+# is tracked: `//go:embed all:dist` needs the directory to contain at least one
+# file, and `all:` matches dotfiles, so an empty .gitkeep is enough to make a
+# fresh clone compile with `go build` and nothing else.
+#
+# index.html is NOT tracked. It was listed as an exception below and never
+# actually committed (a bare `dist/` further down swallowed the whole directory,
+# and git cannot re-include a file inside an excluded directory) — and tracking
+# the real one would leave the tree permanently dirty after every SPA build.
+# Anything that needs a servable placeholder writes one: `make ensure-spa`, and
+# ci.yml's "Stub embedded SPA" step.
 backend/internal/web/dist/*
 !backend/internal/web/dist/.gitkeep
-# A tracked placeholder so a fresh clone compiles (//go:embed needs a real file)
-# and the SPA-fallback test has something to serve. Overwritten by the build.
-!backend/internal/web/dist/index.html
 web-ui/dist/
 web-ui/node_modules/
 node_modules/
@@ -69,4 +74,9 @@ __pycache__/
 .env.*
 !.env.example
 config.local.yaml
-dist/
+# NOT a bare `dist/`. A bare pattern matches a DIRECTORY at any depth, and git
+# cannot re-include a file whose parent directory is excluded — so it silently
+# killed the `!backend/internal/web/dist/index.html` exception at the top of
+# this file, the placeholder never got committed, and a fresh clone could not
+# `go build` at all. `web-ui/dist/` above already covers the SPA build.
+/dist/
