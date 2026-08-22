@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -108,4 +109,12 @@ func settingsDTO(c config.Config, secrets map[string]bool) SettingsDTO {
 		},
 		Secrets: secrets,
 	}
+}
+
+// jsonUnmarshalString decodes a JSON string column, tolerating an empty value.
+func jsonUnmarshalString(s string, dst any) error {
+	if s == "" {
+		return nil
+	}
+	return json.Unmarshal([]byte(s), dst)
 }

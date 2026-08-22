@@ -5,6 +5,9 @@
 # clone before anyone has run `npm run build`.
 backend/internal/web/dist/*
 !backend/internal/web/dist/.gitkeep
+# A tracked placeholder so a fresh clone compiles (//go:embed needs a real file)
+# and the SPA-fallback test has something to serve. Overwritten by the build.
+!backend/internal/web/dist/index.html
 web-ui/dist/
 web-ui/node_modules/
 node_modules/

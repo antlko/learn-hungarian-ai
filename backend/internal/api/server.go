@@ -17,6 +17,8 @@ import (
 
 	"tanulom/internal/config"
 	"tanulom/internal/db"
+	"tanulom/internal/lang"
+	"tanulom/internal/morph"
 	"tanulom/internal/web"
 )
 
@@ -33,6 +35,12 @@ type Server struct {
 
 	db  *db.DB
 	app *fiber.App
+
+	// The language pack is optional at startup: the app must boot and let the
+	// user download one rather than refusing to start. Features that need it
+	// report unavailable, the same way an absent sidecar does.
+	pack     *lang.Pack
+	analyzer *morph.Analyzer
 }
 
 // New wires a server against a data directory, creating it if needed.
@@ -59,15 +67,40 @@ func New(dataDir string) (*Server, error) {
 	}
 
 	s := &Server{dataDir: dataDir, cfg: cfg, db: database}
+	s.loadPack()
 	s.app = s.buildApp()
 	return s, nil
 }
+
+// loadPack opens the language pack if one is present. A missing or unusable pack
+// is logged and the server starts anyway — the setup wizard exists precisely to
+// let a user fetch one, and refusing to boot would leave them nowhere to do it.
+func (s *Server) loadPack() {
+	present, version := lang.Detect(s.dataDir)
+	if !present {
+		slog.Info("no language pack found", "data_dir", s.dataDir)
+		return
+	}
+	p, err := lang.Open(lang.Path(s.dataDir, version))
+	if err != nil {
+		slog.Error("language pack could not be opened", "version", version, "error", err)
+		return
+	}
+	s.pack = p
+	s.analyzer = morph.NewAnalyzer(p)
+}
+
+// Pack returns the loaded language pack, or nil.
+func (s *Server) Pack() *lang.Pack { return s.pack }
 
 // App exposes the Fiber app for listening and for tests.
 func (s *Server) App() *fiber.App { return s.app }
 
 // Close releases resources.
 func (s *Server) Close() error {
+	if s.pack != nil {
+		_ = s.pack.Close()
+	}
 	if s.db != nil {
 		return s.db.Close()
 	}
@@ -144,6 +177,11 @@ func (s *Server) buildApp() *fiber.App {
 	api.Get("/me", s.requireAuth, s.handleMe)
 	api.Get("/settings", s.requireAuth, s.handleGetSettings)
 	api.Get("/capabilities", s.requireAuth, s.handleCapabilities)
+
+	// Language and morphology.
+	api.Post("/analyze", s.requireAuth, s.handleAnalyze)
+	api.Get("/lemma/:id", s.requireAuth, s.handleLemma)
+	api.Get("/features", s.requireAuth, s.handleFeatures)
 
 	// Admin-only: settings are global (config.yaml), so a learner must not edit them.
 	api.Put("/settings", s.requireAuth, s.requireAdmin, s.handleUpdateSettings)
