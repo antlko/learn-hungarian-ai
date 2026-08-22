@@ -1,0 +1,48 @@
+# ── build output ─────────────────────────────────────────────
+/tanulom
+backend/internal/web/dist/
+web-ui/dist/
+web-ui/node_modules/
+node_modules/
+*.tsbuildinfo
+
+# ── runtime data — never commit a learner's database ──────────
+/data/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# ── language pack build artefacts ─────────────────────────────
+langpack/cache/
+langpack/.venv/
+langpack/build/
+/dist/
+__pycache__/
+*.py[cod]
+
+# ── media ─────────────────────────────────────────────────────
+/media/
+*.wav
+*.opus
+*.webm
+
+# ── research PDFs that may not be redistributed ───────────────
+# See .claude/research/pdf/README.md for the per-file ledger.
+# These are held locally for reference but must not be published.
+.claude/research/pdf/02-cepeda-2006-distributed-practice.pdf
+.claude/research/pdf/02-spacing-benefit-metaanalysis.pdf
+
+# ── editor / OS ───────────────────────────────────────────────
+.DS_Store
+.idea/
+*.swp
+.vscode/*
+!.vscode/extensions.json
+
+# ── secrets ───────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+config.local.yaml

@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend (Go)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache-dependency-path: backend/go.sum
+      # The Go build embeds internal/web/dist; provide a placeholder so `go build`
+      # works without running the full SPA build in this job.
+      - name: Stub embedded SPA
+        run: mkdir -p internal/web/dist && echo '<!doctype html><title>stub</title>' > internal/web/dist/index.html
+      - run: go vet ./...
+      - run: go build ./...
+      - run: go test ./... -race -count=1
+
+  frontend:
+    name: Frontend (Vue)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web-ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: web-ui/package-lock.json
+      - run: npm ci
+      - run: npm run type-check
+      - run: npm run lint
+      - run: npm run build
+
+  docs:
+    name: Docs integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Every [Rn] citation in code or docs must resolve to a research note,
+      # and every note must say what it changes in the code.
+      - name: Every cited research note exists
+        run: |
+          missing=0
+          for id in $(grep -rhoE '\[R[0-9]+\]' docs .claude/PLAN.md CLAUDE.md backend web-ui 2>/dev/null \
+                      | tr -d '[]R' | sort -un); do
+            n=$(printf '%02d' "$id")
+            if ! ls .claude/research/${n}-*.md >/dev/null 2>&1; then
+              echo "::error::cited [R$id] but .claude/research/${n}-*.md does not exist"
+              missing=1
+            fi
+          done
+          exit $missing
+      - name: Every research note states its code impact
+        run: |
+          bad=0
+          for f in .claude/research/[0-9][0-9]-*.md; do
+            case "$f" in *00-source-plan.md) continue;; esac
+            grep -qi 'What this changes in our code' "$f" || {
+              echo "::error file=$f::missing 'What this changes in our code' section"; bad=1; }
+          done
+          exit $bad

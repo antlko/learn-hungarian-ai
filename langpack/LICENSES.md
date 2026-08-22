@@ -1,0 +1,65 @@
+# Language pack — source attribution ledger
+
+The Hungarian language pack is a **derived work** of the sources below. Several are CC BY-SA,
+which is share-alike, so **the pack as a whole is released under CC BY-SA 4.0** — even though the
+application code is MIT.
+
+This is a legal obligation, not a courtesy. This file is surfaced in the app under
+**Settings → Data → Sources**, and shipped inside the pack as `pack_meta.attribution`.
+
+## Sources
+
+### Lexicon
+
+| Source | Used for | Licence | Attribution |
+|---|---|---|---|
+| [English Wiktionary](https://en.wiktionary.org) via [wiktextract](https://github.com/tatuylonen/wiktextract) / [kaikki.org](https://kaikki.org/dictionary/Hungarian/) | EN glosses, IPA, full inflection tables | **CC BY-SA 3.0 / GFDL** | "Wiktionary contributors, English Wiktionary" |
+| [Russian Wiktionary](https://ru.wiktionary.org) via wiktextract | RU glosses | **CC BY-SA 3.0 / GFDL** | "Wiktionary contributors, Russian Wiktionary" |
+| [Hungarian WordNet](https://github.com/mmihaltz/huwn) | sense relations | see repo | Miháltz Márton et al. |
+
+### Corpora & frequency
+
+| Source | Used for | Licence | Attribution |
+|---|---|---|---|
+| [Tatoeba](https://tatoeba.org) | example sentences, HU↔EN/RU links | **CC BY 2.0 FR**; some sentences CC0 | "Tatoeba Project contributors" |
+| Tatoeba **audio** | HVPT + sentence audio | **per-clip — set by the contributor** | recorded per clip in `pair_audio.license`; clips without a permissive licence are excluded |
+| [hermitdave/FrequencyWords](https://github.com/hermitdave/FrequencyWords) (`hu_50k`, OpenSubtitles) | frequency ranks | **CC BY-SA 4.0** | Hermit Dave; derived from OpenSubtitles via OPUS |
+| [Hungarian Webcorpus 2.0](https://hlt.bme.hu/en/resources/webcorpus2) | n-gram attestation index, lemma frequency | **CC BY-SA 4.0** (Wikipedia subcorpus); Common Crawl terms for the CC subcorpus | SZTAKI-HLT / BME |
+| [UD Hungarian](https://github.com/UniversalDependencies/UD_Hungarian) | feature inventory, golden test data | **CC BY-SA 4.0** | Universal Dependencies contributors |
+
+### Tooling (build-time only — not redistributed in the pack)
+
+| Source | Used for | Licence |
+|---|---|---|
+| [HuSpaCy](https://github.com/huspacy/huspacy) + `hu_core_news_lg` | morphological analysis and lemmatisation at build time | Apache-2.0 (library); models CC BY-SA |
+| [emMorph](https://github.com/dlt-rilmta/emMorph) / [morphdb.hu](http://mokk.bme.hu/resources/morphdb-hu/) | fallback suffix rules | see repos |
+
+### Audio
+
+| Source | Used for | Licence | Attribution |
+|---|---|---|---|
+| [Piper](https://github.com/rhasspy/piper) voices `hu_HU-anna`, `hu_HU-berta`, `hu_HU-imre` | synthetic talkers, card audio | **MIT** (models per voice card — verify each) | Rhasspy / Piper contributors |
+| [Mozilla Common Voice — Hungarian](https://commonvoice.mozilla.org/hu/datasets) | **human talkers for HVPT** | **CC0 1.0** | Mozilla Common Voice contributors |
+
+## Obligations this creates
+
+1. **Attribution.** Every CC BY / CC BY-SA source is named here, in the app, and in
+   `pack_meta.attribution` inside the pack itself.
+2. **Share-alike.** The pack is CC BY-SA 4.0. Anyone redistributing a modified pack must do the
+   same. This does **not** extend to the application code (MIT) — the pack is data the program
+   reads, not a derivative of the program.
+3. **Per-clip audio filtering.** Tatoeba audio licences are chosen by the individual contributor.
+   `pipeline/sentences.py` **must** check each clip and record the licence in `pair_audio.license`;
+   clips whose licence cannot be resolved are excluded. This is a pack quality gate.
+4. **No paywalled or scraped content.** The pipeline fetches only the pinned, publicly licensed
+   sources listed above, verified by SHA256.
+
+## Verifying
+
+```bash
+cd langpack && python -m pipeline.verify_licenses --pack ../dist/langpack-hu-v1.sqlite
+```
+
+Checks that every `pair_audio` and `sentence` row carries a resolvable licence, and that
+`pack_meta.attribution` matches this file. It runs as a release gate in
+`.github/workflows/langpack.yml`.
