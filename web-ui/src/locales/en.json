@@ -133,5 +133,45 @@
   },
   "locale": {
     "toggle": "Switch language"
+  },
+  "review": {
+    "allDone": "Done for today",
+    "allDoneBody": "The queue is empty. Come back tomorrow — spacing only works if you keep to it.",
+    "newCapped": "{n} more new cards are waiting: the daily limit is reached. That is a guard, not a fault — it is what stops the review avalanche three weeks from now.",
+    "newCard": "new",
+    "typeAnswer": "type the Hungarian",
+    "check": "Check",
+    "hint": "Hint",
+    "show": "Show",
+    "next": "Next",
+    "right": "Correct",
+    "youWrote": "you:",
+    "correct": "correct:",
+    "graded": "Grammatical features graded:",
+    "glossFallback": "(English — no Russian gloss available)",
+    "keysProductive": "Enter — check, then continue",
+    "keysReceptive": "Space — show · 1–4 — grade · h — hint",
+    "directions": {
+      "recognize": "recognise",
+      "produce": "produce",
+      "listen": "listening",
+      "cloze": "cloze",
+      "spell": "spelling"
+    },
+    "ratings": {
+      "again": "Again",
+      "hard": "Hard",
+      "good": "Good",
+      "easy": "Easy"
+    }
+  },
+  "diff": {
+    "vowelLength": "Vowel length. It distinguishes words in Hungarian: the form is “{expected}”. This is an ear problem before it is a writing problem — worth training perception.",
+    "vowelQuality": "Vowel rounding. The form is “{expected}”. The front rounded vowels (ö, ő, ü, ű) have no English counterpart, so ear training is what helps here.",
+    "harmony": "Right case, wrong variant of the suffix: it should be “{expected}”. This is vowel harmony — a motor skill rather than knowledge, so it needs volume.",
+    "feature": "Wrong grammatical feature. The form is “{expected}”.",
+    "stem": "Different word. It should have been “{expected}”.",
+    "spelling": "A typo. It should be “{expected}”.",
+    "generic": "The form is “{expected}”."
   }
 }

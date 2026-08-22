@@ -188,7 +188,7 @@ Full spec: [`../docs/LANGPACK.md`](../docs/LANGPACK.md).
 - [x] `internal/morph/fallback.go` — suffix-stripper from `morph_feature` allomorphs for
       unknown forms
 - [ ] `internal/morph/segment.go` — morpheme segmentation (stem + ordered affixes)
-- [ ] `internal/morph/diff.go` — align two segmentations, classify the error
+- [x] `internal/morph/diff.go` — align two segmentations, classify the error
       (harmony / case / definiteness / possessor / length / spelling)
 - [ ] `internal/morph/explain.go` — human-readable RU+EN explanation of a form
 - [x] `handlers_analyze.go` — `POST /api/analyze`, `GET /api/lemma/:id`, `GET /api/paradigm/:id`
@@ -214,24 +214,24 @@ Full spec: [`../docs/LANGPACK.md`](../docs/LANGPACK.md).
 **Goal:** a full day's review cycle runs; replaying a log reproduces state exactly; `.apkg`
 imports into real Anki.
 
-- [ ] `migrations/00002_srs.sql` — `note`, `card`, `review_log`, `lemma_state`, `morph_state`
-- [ ] `internal/srs/scheduler.go` — `go-fsrs/v4` wrapper; FSRS-6 defaults; desired retention
+- [x] `migrations/00002_srs.sql` — `note`, `card`, `review_log`, `lemma_state`, `morph_state`
+- [x] `internal/srs/scheduler.go` — `go-fsrs/v4` wrapper; FSRS-6 defaults; desired retention
       from settings, clamped 0.80–0.95 ([R3](research/03-fsrs.md))
-- [ ] `internal/srs/directions.go` — the five directions; goal-based weighting
+- [x] `internal/srs/directions.go` — the five directions; goal-based weighting
       ([R12](research/12-retrieval-direction.md))
-- [ ] `internal/srs/emit.go` — **dual-space emission**: one answer → 1 card review + N feature
+- [x] `internal/srs/emit.go` — **dual-space emission**: one answer → 1 card review + N feature
       reviews; rating from correctness × latency; only features *required by the item* graded
-- [ ] `internal/srs/queue.go` — daily queue assembly; new/review interleave; sibling burying
-- [ ] `internal/srs/forecast.go` — 90-day workload simulation
-- [ ] `internal/srs/governor.go` — refuse to raise the new-card limit past sustainable load;
+- [x] `internal/srs/queue.go` — daily queue assembly; new/review interleave; sibling burying
+- [x] `internal/srs/forecast.go` — 90-day workload simulation
+- [x] `internal/srs/governor.go` — refuse to raise the new-card limit past sustainable load;
       always show the curve first
 - [ ] `internal/export/apkg.go` — `.apkg` writer (zip + `collection.anki21` SQLite + `media`)
 - [ ] `internal/export/csv.go`, `internal/export/backup.go` (full zip export/import)
-- [ ] `handlers_review.go` — `GET /api/review/queue`, `POST /api/review/answer`,
+- [x] `handlers_review.go` — `GET /api/review/queue`, `POST /api/review/answer`,
       `POST /api/review/undo`, `GET /api/review/forecast`
-- [ ] `ReviewView.vue` — chrome-free, keyboard-only (`space`/`1-4`/`e`/`s`/`u`), audio autoplay,
+- [x] `ReviewView.vue` — chrome-free, keyboard-only (`space`/`1-4`/`e`/`s`/`u`), audio autoplay,
       morpheme diff on answer, feature chips showing what was graded
-- [ ] `stores/review.ts` — optimistic answer, undo buffer, prefetch next card
+- [x] `stores/review.ts` — optimistic answer, undo buffer, prefetch next card
 - [ ] **Property test:** replay `review_log` through FSRS → stored state reproduced exactly
 - [ ] Round-trip test: export `.apkg` → re-import → note/card counts and fields preserved
 

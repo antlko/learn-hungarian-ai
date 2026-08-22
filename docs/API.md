@@ -25,29 +25,29 @@ REST over JSON. Cookie sessions. All routes under `/api`.
 
 | Method | Path | Status | Notes |
 |---|---|---|---|
-| `GET` | `/api/bootstrap` | 🔨 | `{needsSetup, packPresent, packVersion, locales}` — unauthenticated; drives the wizard |
-| `POST` | `/api/setup` | 🔨 | first admin. `{email, password, uiLocale, glossLang}`. 409 once a user exists |
-| `POST` | `/api/login` | 🔨 | `{email, password}` → sets cookie |
-| `POST` | `/api/logout` | 🔨 | clears cookie |
-| `GET` | `/api/me` | 🔨 | current user + settings |
+| `GET` | `/api/bootstrap` | ✅ | `{needsSetup, packPresent, packVersion, locales}` — unauthenticated; drives the wizard |
+| `POST` | `/api/setup` | ✅ | first admin. `{email, password, uiLocale, glossLang}`. 409 once a user exists |
+| `POST` | `/api/login` | ✅ | `{email, password}` → sets cookie |
+| `POST` | `/api/logout` | ✅ | clears cookie |
+| `GET` | `/api/me` | ✅ | current user + settings |
 
 ## Settings & capabilities
 
 | Method | Path | Status | Notes |
 |---|---|---|---|
-| `GET` | `/api/settings` | 🔨 | secrets stripped; presence exposed as `secrets: {openaiKey: true}` |
-| `PUT` | `/api/settings` | 🔨 | partial; **blank/omitted secret preserves the stored one** |
-| `GET` | `/api/capabilities` | 🔨 | `[{name, configured, reachable, latencyMs, detail}]`, cached 30 s |
+| `GET` | `/api/settings` | ✅ | secrets stripped; presence exposed as `secrets: {openaiKey: true}` |
+| `PUT` | `/api/settings` | ✅ | partial; **blank/omitted secret preserves the stored one** |
+| `GET` | `/api/capabilities` | ✅ | `[{name, configured, reachable, latencyMs, detail}]`, cached 30 s |
 | `POST` | `/api/capabilities/:name/test` | ⏳ | round-trip test against a provider |
 
 ## Language & morphology
 
 | Method | Path | Status | Notes |
 |---|---|---|---|
-| `POST` | `/api/analyze` | 🔨 P2 | `{text}` → tokens with `lemma`, `upos`, `feats`, `segments`, `certainty` |
-| `GET` | `/api/lemma/:id` | 🔨 P2 | lemma, glosses (ru/en + `glossFallback` flag), IPA, frequency, CEFR |
-| `GET` | `/api/paradigm/:lemmaId` | 🔨 P2 | full declension/conjugation table |
-| `GET` | `/api/features` | 🔨 P2 | the `morph_feature` inventory with labels and teach order |
+| `POST` | `/api/analyze` | ✅ | `{text}` → tokens with `lemma`, `upos`, `feats`, `segments`, `certainty` |
+| `GET` | `/api/lemma/:id` | ✅ | lemma, glosses (ru/en + `glossFallback` flag), IPA, frequency, CEFR |
+| `GET` | `/api/paradigm/:lemmaId` | ⏳ | folded into `/api/lemma/:id`, which returns `paradigm` inline |
+| `GET` | `/api/features` | ✅ | the `morph_feature` inventory with labels and teach order |
 | `POST` | `/api/morph/correction` | ⏳ P4 | learner-reported wrong analysis → overlay |
 
 `POST /api/analyze` response shape:
@@ -72,11 +72,12 @@ REST over JSON. Cookie sessions. All routes under `/api`.
 
 | Method | Path | Status | Notes |
 |---|---|---|---|
-| `GET` | `/api/review/queue` | ⏳ P3 | today's queue; `?limit=` |
-| `POST` | `/api/review/answer` | ⏳ P3 | `{cardId, rating, typed?, durationMs}` → next card + graded features |
+| `GET` | `/api/review/queue` | ✅ | today's queue; `?limit=` |
+| `POST` | `/api/review/answer` | ✅ | `{cardId, rating, typed?, durationMs}` → next card + graded features |
 | `POST` | `/api/review/undo` | ⏳ P3 | reverts the last answer including feature reviews |
-| `GET` | `/api/review/forecast` | ⏳ P3 | 90-day projection for the governor |
-| `GET/POST/PUT/DELETE` | `/api/notes[/:id]` | ⏳ P3 | notes and their card directions |
+| `GET` | `/api/review/forecast` | ✅ | 90-day projection for the governor |
+| `POST` | `/api/notes` | ✅ | creates a note; the server locates the target span, reads its features off the live analysis, and spawns one card per planned direction |
+| `GET/PUT/DELETE` | `/api/notes/:id` | ⏳ | editing and deletion |
 
 ## Texts & mining
 
@@ -112,7 +113,7 @@ REST over JSON. Cookie sessions. All routes under `/api`.
 | Method | Path | Status | Notes |
 |---|---|---|---|
 | `GET` | `/api/stats/overview` | ⏳ P7 | lemma count, streak, adherence |
-| `GET` | `/api/stats/heatmap` | ⏳ P7 | per-feature mastery |
+| `GET` | `/api/stats/mastery` | ✅ | per-feature mastery |
 | `GET` | `/api/stats/forecast` | ⏳ P7 | review load projection |
 | `GET/POST` | `/api/checkpoints` | ⏳ P7 | assessments; failure blocks curriculum advance |
 | `GET` | `/api/export/apkg` | ⏳ P3 | `.apkg` download |

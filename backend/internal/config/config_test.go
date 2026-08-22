@@ -176,3 +176,36 @@ func TestLoadRejectsInvalidStoredConfig(t *testing.T) {
 		t.Fatal("want error for invalid stored config, got nil")
 	}
 }
+
+func TestBurySiblingsDefaultsTrueAndRespectsAnExplicitFalse(t *testing.T) {
+	// A plain bool cannot carry a true default through normalize(), because
+	// "unset" and "explicitly false" are the same value — the setting would
+	// silently switch itself back on every time the user turned it off.
+	if !Default().Review.BurySiblingsEnabled() {
+		t.Error("burySiblings should default to true")
+	}
+
+	dir := t.TempDir()
+	if err := os.WriteFile(Path(dir), []byte("review:\n  burySiblings: false\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	got, err := Load(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Review.BurySiblingsEnabled() {
+		t.Error("an explicit false was overwritten by the default")
+	}
+
+	// And it must survive a save/load round trip rather than reverting.
+	if err := Save(dir, got); err != nil {
+		t.Fatal(err)
+	}
+	again, err := Load(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if again.Review.BurySiblingsEnabled() {
+		t.Error("explicit false lost on round trip")
+	}
+}

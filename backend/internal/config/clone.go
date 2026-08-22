@@ -29,6 +29,10 @@ func (c Config) Clone() Config {
 	if c.Services.LLM.Voices != nil {
 		out.Services.LLM.Voices = append([]string(nil), c.Services.LLM.Voices...)
 	}
+	if c.Review.BurySiblings != nil {
+		v := *c.Review.BurySiblings
+		out.Review.BurySiblings = &v
+	}
 	// Mining.TargetLength is a [2]int array, not a slice: copied by value above.
 	return out
 }

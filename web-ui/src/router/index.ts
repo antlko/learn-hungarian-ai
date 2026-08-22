@@ -20,6 +20,7 @@ const routes: RouteRecordRaw[] = [
     meta: { public: true },
   },
   { path: '/', name: 'today', component: () => import('@/views/TodayView.vue') },
+  { path: '/review', name: 'review', component: () => import('@/views/ReviewView.vue') },
   { path: '/settings', name: 'settings', component: () => import('@/views/SettingsView.vue') },
   {
     path: '/:pathMatch(.*)*',

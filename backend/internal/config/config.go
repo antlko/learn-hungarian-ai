@@ -105,7 +105,23 @@ type Review struct {
 	DailyMinutes     int                  `yaml:"dailyMinutes"`
 	Goal             string               `yaml:"goal"`
 	Directions       map[string]Direction `yaml:"directions"`
-	BurySiblings     bool                 `yaml:"burySiblings"`
+	// BurySiblings is a pointer because its default is TRUE.
+	//
+	// normalize() fills only zero-valued fields, and for a plain bool "unset"
+	// and "explicitly false" are the same value — so a true default would
+	// silently re-enable itself every time a user turned it off. A pointer makes
+	// absence distinguishable from a deliberate false, which is the only correct
+	// way to give a bool a non-zero default here.
+	BurySiblings *bool `yaml:"burySiblings"`
+}
+
+// BurySiblingsEnabled resolves the pointer, defaulting to true.
+//
+// Showing `recognize` and `produce` of the same note in one session turns the
+// second into a copying exercise: the answer is still in the learner's short-term
+// memory, so it tests nothing.
+func (r Review) BurySiblingsEnabled() bool {
+	return r.BurySiblings == nil || *r.BurySiblings
 }
 
 // Direction is one review direction. Five exist: recognize, produce, listen,
@@ -212,6 +228,10 @@ func (c *Config) normalize() {
 	}
 	if c.Review.Directions == nil {
 		c.Review.Directions = DefaultDirections()
+	}
+	if c.Review.BurySiblings == nil {
+		t := true
+		c.Review.BurySiblings = &t
 	}
 	if c.Mining.KnownThreshold == 0 {
 		c.Mining.KnownThreshold = DefaultKnownThreshold

@@ -90,7 +90,8 @@ func (s *Server) handleUpdateSettings(c fiber.Ctx) error {
 			cfg.Review.MaxReviewsPerDay = v.MaxReviewsPerDay
 			cfg.Review.DailyMinutes = v.DailyMinutes
 			cfg.Review.Goal = v.Goal
-			cfg.Review.BurySiblings = v.BurySiblings
+			b := v.BurySiblings
+			cfg.Review.BurySiblings = &b
 			if v.Directions != nil {
 				dirs := make(map[string]config.Direction, len(v.Directions))
 				for k, d := range v.Directions {

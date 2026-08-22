@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -183,6 +184,13 @@ func (s *Server) buildApp() *fiber.App {
 	api.Get("/lemma/:id", s.requireAuth, s.handleLemma)
 	api.Get("/features", s.requireAuth, s.handleFeatures)
 
+	// Review.
+	api.Get("/review/queue", s.requireAuth, s.handleQueue)
+	api.Post("/review/answer", s.requireAuth, s.handleAnswer)
+	api.Get("/review/forecast", s.requireAuth, s.handleForecast)
+	api.Post("/notes", s.requireAuth, s.handleCreateNote)
+	api.Get("/stats/mastery", s.requireAuth, s.handleMastery)
+
 	// Admin-only: settings are global (config.yaml), so a learner must not edit them.
 	api.Put("/settings", s.requireAuth, s.requireAdmin, s.handleUpdateSettings)
 
@@ -195,6 +203,27 @@ func (s *Server) buildApp() *fiber.App {
 
 	// Learner-uploaded and generated media.
 	app.Use("/media", static.New(filepath.Join(s.dataDir, "media")))
+
+	// Cache policy for the SPA.
+	//
+	// Vite fingerprints every asset, so `/assets/*` is immutable and can be
+	// cached for a year. `index.html` is NOT fingerprinted — it is the file that
+	// names the current asset hashes — so it must never be cached. Getting this
+	// wrong means a user who has visited before keeps loading an old index.html
+	// after an update, and therefore keeps running the previous build while the
+	// server happily serves the new assets nobody asks for.
+	app.Use("/", func(c fiber.Ctx) error {
+		path := c.Path()
+		switch {
+		case strings.HasPrefix(path, "/assets/"):
+			c.Set("Cache-Control", "public, max-age=31536000, immutable")
+		case strings.HasPrefix(path, "/api/"), strings.HasPrefix(path, "/media/"):
+			// handled elsewhere
+		default:
+			c.Set("Cache-Control", "no-cache, must-revalidate")
+		}
+		return c.Next()
+	})
 
 	// SPA: serve the embedded build, falling back to index.html so client-side
 	// routes deep-link correctly. Registered last so /api always wins.

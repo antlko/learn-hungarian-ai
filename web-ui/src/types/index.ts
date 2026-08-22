@@ -114,3 +114,167 @@ export interface Capability {
   latencyMs?: number
   detail?: string
 }
+
+// ─── Review ────────────────────────────────────────────────────────────────
+
+export type Certainty = 'certain' | 'uncertain' | 'derived' | 'unknown'
+
+export interface Analysis {
+  form: string
+  lemma: string
+  lemmaId: number
+  upos: string
+  feats: Record<string, string>
+  featureIds: string[]
+  source: string
+  certainty: Certainty
+  freqRank?: number
+  alternatives: number
+}
+
+export interface AnalyzedToken {
+  index: number
+  text: string
+  start: number
+  end: number
+  isWord: boolean
+  analysis: Analysis
+}
+
+export interface AnalyzeResponse {
+  tokens: AnalyzedToken[]
+  sentences: { start: number; end: number }[]
+  coverage: number
+  wordCount: number
+}
+
+export interface QueueItem {
+  cardId: number
+  noteId: number
+  direction: DirectionName
+  isNew: boolean
+  due: string
+  hu: string
+  targetForm: string
+  targetStart: number
+  targetEnd: number
+  targetFeats: string[]
+  glossRu: string
+  glossEn: string
+  lemmaId?: number
+}
+
+export interface QueueCounts {
+  due: number
+  new: number
+  learning: number
+  total: number
+  /** New cards held back by the daily limit — shown so the cap is visible. */
+  newCapped: number
+}
+
+export interface QueueResponse {
+  items: QueueItem[]
+  counts: QueueCounts
+}
+
+export type ErrorClass =
+  | ''
+  | 'harmony'
+  | 'vowel_length'
+  | 'vowel_quality'
+  | 'case'
+  | 'definiteness'
+  | 'possessor'
+  | 'stem'
+  | 'spelling'
+  | 'unknown'
+
+/** The morpheme-level comparison of a typed answer against the target. */
+export interface Diff {
+  typed: string
+  expected: string
+  match: boolean
+  nearMatch: boolean
+  class: ErrorClass
+  wrongFeature?: string
+  commonPrefix: number
+  commonSuffix: number
+  /** An i18n key, not prose — the backend never picks a language. */
+  hint?: string
+  hintArgs?: Record<string, string>
+}
+
+export interface FeatureGrade {
+  FeatureID: string
+  Rating: number
+  Correct: boolean
+}
+
+export interface AnswerResponse {
+  correct: boolean
+  rating: number
+  nextDue: string
+  intervalDays: number
+  gradedFeatures: FeatureGrade[]
+  diff?: Diff
+  expected?: string
+}
+
+export interface AnswerRequest {
+  cardId: number
+  rating?: number
+  typed?: string
+  usedHint?: boolean
+  durationMs: number
+}
+
+export interface MorphFeature {
+  id: string
+  key: string
+  value: string
+  labelRu: string
+  labelEn: string
+  allomorphs: Record<string, string>
+  explainRu: string
+  explainEn: string
+  teachOrder: number
+  grid?: string
+}
+
+export interface FeatureMastery {
+  featureId: string
+  retrievability: number
+  accuracy: number
+  reps: number
+  observations: number
+  medianMs: number
+  /** Correct AND fast. Matters for motor skills like vowel harmony. */
+  automated: boolean
+}
+
+export interface ForecastDay {
+  date: string
+  reviews: number
+  newCards: number
+  minutes: number
+}
+
+export interface Forecast {
+  days: ForecastDay[]
+  peakReviews: number
+  peakMinutes: number
+  steadyStateReviews: number
+  steadyStateMinutes: number
+  budgetMinutes: number
+  sustainable: boolean
+  suggestedNewPerDay: number
+}
+
+export interface GovernorVerdict {
+  allowed: boolean
+  requested: number
+  suggested: number
+  reason: string
+  forecast: Forecast
+}

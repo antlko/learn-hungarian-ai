@@ -28,7 +28,7 @@ const { t } = useI18n()
  */
 const items = computed(() => [
   { to: '/', icon: House, label: t('nav.today'), enabled: true },
-  { to: '/review', icon: BrainCircuit, label: t('nav.review'), enabled: false },
+  { to: '/review', icon: BrainCircuit, label: t('nav.review'), enabled: true },
   { to: '/read', icon: BookOpen, label: t('nav.read'), enabled: false },
   { to: '/listen', icon: Headphones, label: t('nav.listen'), enabled: false },
   { to: '/speak', icon: Mic, label: t('nav.speak'), enabled: false },

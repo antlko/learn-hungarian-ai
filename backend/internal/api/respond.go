@@ -75,7 +75,7 @@ func settingsDTO(c config.Config, secrets map[string]bool) SettingsDTO {
 			DailyMinutes:     c.Review.DailyMinutes,
 			Goal:             c.Review.Goal,
 			Directions:       dirs,
-			BurySiblings:     c.Review.BurySiblings,
+			BurySiblings:     c.Review.BurySiblingsEnabled(),
 		},
 		Mining: MiningDTO{
 			KnownThreshold: c.Mining.KnownThreshold,

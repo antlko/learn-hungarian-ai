@@ -371,3 +371,27 @@ func TestAuthRoutesAreRateLimited(t *testing.T) {
 		t.Fatal("login accepted 15 attempts without rate limiting")
 	}
 }
+
+func TestSPACacheHeaders(t *testing.T) {
+	// index.html must never be cached: it is the file that names the current
+	// asset hashes, so caching it pins a returning visitor to the previous
+	// build for as long as the cache lives. Fingerprinted assets, by contrast,
+	// can be cached forever because their name changes when they do.
+	_, c := newTestServer(t)
+
+	resp, _ := c.do(http.MethodGet, "/", nil)
+	if cc := resp.Header.Get("Cache-Control"); !strings.Contains(cc, "no-cache") {
+		t.Errorf("index.html Cache-Control = %q, want no-cache", cc)
+	}
+
+	// A deep client route also serves index.html and must be equally uncached.
+	resp, _ = c.do(http.MethodGet, "/review", nil)
+	if cc := resp.Header.Get("Cache-Control"); !strings.Contains(cc, "no-cache") {
+		t.Errorf("client route Cache-Control = %q, want no-cache", cc)
+	}
+
+	resp, _ = c.do(http.MethodGet, "/assets/index-abc123.js", nil)
+	if cc := resp.Header.Get("Cache-Control"); !strings.Contains(cc, "immutable") {
+		t.Errorf("fingerprinted asset Cache-Control = %q, want immutable", cc)
+	}
+}
