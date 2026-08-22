@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#1c1c1e"/>
+  <!-- "ő" — the double acute is the diacritic learners of Hungarian
+       most often drop, and the one the app's ear training targets first. -->
+  <text x="16" y="23" font-family="Inter, system-ui, sans-serif" font-size="21"
+        font-weight="600" fill="#7aa2f7" text-anchor="middle">ő</text>
+</svg>

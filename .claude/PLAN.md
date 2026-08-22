@@ -79,53 +79,65 @@ and every note contains a "What this changes in our code" section.
 
 ### Backend
 
-- [ ] `go mod init tanulom`; pin Go 1.26, Fiber v3, `modernc.org/sqlite`, `pressly/goose/v3`,
+- [x] `go mod init tanulom`; pin Go 1.26, Fiber v3, `modernc.org/sqlite`, `pressly/goose/v3`,
       `go-fsrs/v4`, `golang.org/x/crypto/bcrypt`, `gopkg.in/yaml.v3`
-- [ ] `internal/logger` — slog JSON, level from `TANULOM_LOG_LEVEL`
-- [ ] `internal/state` — `state.json` outside the data dir, records the active data dir
-- [ ] `internal/config` — `Config` struct, `Load`/`Save`/`Validate`, atomic write via
+- [x] `internal/logger` — slog JSON, level from `TANULOM_LOG_LEVEL`
+- [x] `internal/state` — `state.json` outside the data dir, records the active data dir
+- [x] `internal/config` — `Config` struct, `Load`/`Save`/`Validate`, atomic write via
       temp+rename, `Clone()` for copy-on-write; `normalize()` fills only zero fields
       (never rewrites a user's existing values)
-- [ ] `internal/db` — `Open(path)` with the WAL/busy_timeout/foreign_keys DSN,
+- [x] `internal/db` — `Open(path)` with the WAL/busy_timeout/foreign_keys DSN,
       `SetMaxOpenConns(1)`, embedded goose migrations run inside `Open`
-- [ ] `migrations/00001_init.sql` — `user`, `session`, `settings`
-- [ ] `internal/auth` — bcrypt hash/verify, session token mint/verify, expiry
-- [ ] `internal/web` — `//go:embed all:dist`, `FS()`
-- [ ] `internal/api` — `Server` owning config+db; Fiber v3 app; central `ErrorHandler` →
+- [x] `migrations/00001_init.sql` — `user`, `session`, `settings`
+- [x] `internal/auth` — bcrypt hash/verify, session token mint/verify, expiry
+- [x] `internal/web` — `//go:embed all:dist`, `FS()`
+- [x] `internal/api` — `Server` owning config+db; Fiber v3 app; central `ErrorHandler` →
       `{"error": msg}`; `auth`/`admin` middleware; rate limiter on auth routes; SPA catch-all
-- [ ] `handlers_auth.go` — `POST /api/setup`, `POST /api/login`, `POST /api/logout`,
+- [x] `handlers_auth.go` — `POST /api/setup`, `POST /api/login`, `POST /api/logout`,
       `GET /api/me`
-- [ ] `handlers_settings.go` — `GET/PUT /api/settings`
-- [ ] `GET /api/capabilities` — probes optional services, returns status + latency
-- [ ] `cmd/tanulom/main.go` — flags (`--data-dir`, `--addr`), env fallback, graceful shutdown
-- [ ] Tests: config round-trip, atomic save, auth hash/verify, migration idempotency
+- [x] `handlers_settings.go` — `GET/PUT /api/settings`
+- [x] `GET /api/capabilities` — probes optional services, returns status + latency
+- [x] `cmd/tanulom/main.go` — flags (`--data-dir`, `--addr`), env fallback, graceful shutdown
+- [x] Tests: config round-trip, atomic save, auth hash/verify, migration idempotency
 
 ### Frontend
 
-- [ ] `npm create vue@latest` scaffold; TS, Pinia, vue-router, ESLint+oxlint, Prettier
-- [ ] Tailwind v4 via `@tailwindcss/vite`; dark-first token set in `assets/tailwind.css`
-- [ ] shadcn-vue primitives: button, input, label, card, dialog, select, switch, tabs, table,
-      tooltip, separator, dropdown-menu, badge, avatar, sonner
-- [ ] `vue-i18n` with `locales/ru.json` + `locales/en.json` — **both keys added together, always**
-- [ ] `src/api/http.ts` — fetch wrapper, `{error}` unwrapping, 401 → login redirect
-- [ ] `src/stores/` — `auth`, `settings`, `ui`, `capabilities`
-- [ ] `AppShell` / `AppSidebar` / `AppTopbar`; router with setup/login/role guards
-- [ ] Views: `SetupView`, `LoginView`, `TodayView` (empty state), `SettingsView`, `NotFoundView`
-- [ ] `ThemeToggle`, `LocaleToggle`, `CapabilityDots`
+- [x] `npm create vue@latest` scaffold; TS, Pinia, vue-router, ESLint+oxlint, Prettier
+- [x] Tailwind v4 via `@tailwindcss/vite`; dark-first token set in `assets/tailwind.css`
+- [x] shadcn-vue primitives — **built so far:** button, input, label, card (+header/title/
+      description/content/footer), select; plus `vue-sonner` for toasts.
+      **Deferred until a screen needs them:** dialog, switch, tabs, table, tooltip, separator,
+      dropdown-menu, badge, avatar. Adding a primitive nothing renders is dead code.
+- [x] `vue-i18n` with `locales/ru.json` + `locales/en.json` — **both keys added together, always**
+- [x] `src/api/http.ts` — fetch wrapper, `{error}` unwrapping, 401 → login redirect
+- [x] `src/stores/` — `auth`, `settings`, `ui`, `capabilities`
+- [x] `AppShell` / `AppSidebar` / `AppTopbar`; router with setup/login/role guards
+- [x] Views: `SetupView`, `LoginView`, `TodayView` (empty state), `SettingsView`, `NotFoundView`
+- [x] `ThemeToggle`, `LocaleToggle`, `CapabilityDots`
 
 ### Deployment
 
-- [ ] `Dockerfile` — node build → `--platform=$BUILDPLATFORM golang` cross-compile
+- [x] `Dockerfile` — node build → `--platform=$BUILDPLATFORM golang` cross-compile
       (`CGO_ENABLED=0`) → `gcr.io/distroless/static`
-- [ ] `docker-compose.yml` — core service + `nlp`/`speech`/`llm` profiles (stubs)
-- [ ] `.github/workflows/docker-publish.yml` — buildx amd64+arm64 → GHCR on tag
-- [ ] `.dockerignore`
+- [x] `docker-compose.yml` — core service + `nlp`/`speech`/`llm` profiles (stubs)
+- [x] `.github/workflows/docker-publish.yml` — buildx amd64+arm64 → GHCR on tag
+- [x] `.dockerignore`
 
 **Exit criteria**
-- `cd backend && go vet ./... && go test ./...` clean
-- `cd web-ui && npm run type-check && npm run lint && npm run build` clean
-- `docker build -t tanulom . && docker run -p 8080:8080 -v $(pwd)/data:/data tanulom` → wizard
-- Multi-arch build succeeds for `linux/arm64`
+- [x] `cd backend && go vet ./... && go test ./...` clean
+- [x] `cd web-ui && npm run type-check && npm run lint && npm run build` clean
+- [x] Single binary serves the SPA + API; setup → Today → Settings verified in a browser
+- [x] Clamped values are reported to the user (toast), not applied silently
+- [x] Both locales render; capability dots show all four services correctly degraded
+- [ ] `docker build` verified
+- [ ] Multi-arch build succeeds for `linux/arm64`
+
+**Known gaps carried into Phase 2**
+- `services/{nlp,tts,asr}` are documented placeholders; the `nlp` and `speech` compose
+  profiles will not start until Phase 8–9. Stated in `services/README.md` and in the
+  compose file itself rather than left to be discovered.
+- No PWA/offline yet (`vite-plugin-pwa` lands with the review queue in Phase 3 — there is
+  nothing worth precaching until then).
 
 ---
 

@@ -1,0 +1,137 @@
+{
+  "brand": {
+    "tagline": "Hungarian, built on the evidence"
+  },
+  "nav": {
+    "today": "Today",
+    "review": "Review",
+    "read": "Read",
+    "listen": "Listen",
+    "speak": "Speak",
+    "ear": "Ear",
+    "grammar": "Grammar",
+    "write": "Write",
+    "library": "Library",
+    "progress": "Progress",
+    "settings": "Settings"
+  },
+  "common": {
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "back": "Back",
+    "loading": "Loading…",
+    "retry": "Retry",
+    "email": "Email",
+    "password": "Password",
+    "signOut": "Sign out",
+    "comingSoon": "Coming soon",
+    "min": "min",
+    "of": "of"
+  },
+  "setup": {
+    "title": "Set up",
+    "subtitle": "Create the administrator account. The password is stored on your server and nowhere else.",
+    "uiLanguage": "Interface language",
+    "glossLanguage": "Gloss language",
+    "glossRu": "Russian",
+    "glossEn": "English",
+    "glossBoth": "Both",
+    "glossHint": "Russian dictionary data is markedly thinner than English. If you choose Russian, missing senses fall back to English and are labelled as a fallback rather than substituted silently.",
+    "passwordHint": "At least {min} characters. Length matters more than special characters.",
+    "submit": "Create account",
+    "creating": "Creating…"
+  },
+  "login": {
+    "title": "Sign in",
+    "submit": "Sign in",
+    "signingIn": "Signing in…"
+  },
+  "today": {
+    "title": "Today",
+    "loops": {
+      "memory": "Memory",
+      "input": "Input",
+      "study": "Study and output",
+      "human": "A human"
+    },
+    "loopHints": {
+      "memory": "Spaced review. In the morning, before email.",
+      "input": "Comprehensible audio or text. Commuting, exercising, cooking.",
+      "study": "Grammar on odd days, sentence mining on even ones.",
+      "human": "A live teacher or tandem partner. Twice a week."
+    },
+    "humanNotice": "The app cannot tick this off for you. A real person is the one irreplaceable part: a model has no social stakes, understands your broken Hungarian far too well, and will tell you nothing about your pauses or intonation.",
+    "markDone": "Mark done manually",
+    "empty": {
+      "title": "Ready to start",
+      "body": "The language pack is not installed yet, so the loops are empty. This is Phase 1 — the skeleton runs; the content comes next.",
+      "packMissing": "No language pack found"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "sections": {
+      "profile": "Profile",
+      "review": "Review",
+      "services": "Services",
+      "language": "Language",
+      "data": "Data",
+      "about": "About"
+    },
+    "review": {
+      "desiredRetention": "Desired retention",
+      "desiredRetentionHint": "The share of cards you should recall. Below 0.80 material decays before it consolidates; above 0.95 workload grows faster than the benefit.",
+      "newPerDay": "New cards per day",
+      "newPerDayHint": "The most common reason people abandon spaced repetition is a review avalanche three weeks in. The workload forecast arrives with the review engine.",
+      "dailyMinutes": "Minutes per day",
+      "goal": "Goal",
+      "goals": {
+        "reading": "Reading",
+        "conversation": "Conversation",
+        "exam": "Exam"
+      },
+      "goalHint": "Your goal reweights the card directions: you get back what you train."
+    },
+    "drill": {
+      "title": "Grammar drills",
+      "gateThreshold": "Interleaving threshold",
+      "gateHint": "Topics are drilled in blocks until accuracy reaches this threshold, and only then interleaved. Interleaving too early prevents the rule from consolidating — this contradicts the common advice, deliberately."
+    },
+    "services": {
+      "provider": "Provider",
+      "endpoint": "Endpoint",
+      "off": "Off",
+      "local": "Local",
+      "openai": "External API",
+      "notConfigured": "not configured",
+      "unreachable": "unreachable",
+      "reachable": "reachable",
+      "hint": "All of these are optional. The core app works completely without them."
+    },
+    "clamped": "“{field}” was adjusted from {from} to {to}."
+  },
+  "capabilities": {
+    "tts": "Speech synthesis",
+    "asr": "Speech recognition",
+    "nlp": "Text analysis",
+    "llm": "Language model"
+  },
+  "errors": {
+    "network-unreachable": "The server is unreachable. Check that it is running.",
+    "unexpected-response": "Unexpected response from the server.",
+    "generic": "Something went wrong.",
+    "notFound": "Page not found",
+    "notFoundBody": "There is no such page here."
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "dark": "Dark",
+    "light": "Light"
+  },
+  "locale": {
+    "toggle": "Switch language"
+  }
+}

@@ -75,3 +75,26 @@ jobs:
               echo "::error file=$f::missing 'What this changes in our code' section"; bad=1; }
           done
           exit $bad
+      # ADR-004: both locales are complete, always. A key added to one but not
+      # the other is an incomplete change, not a follow-up task.
+      - name: Locales are in sync
+        run: |
+          python3 - <<'EOF'
+          import json, sys
+          def keys(o, p=""):
+              out = set()
+              for k, v in o.items():
+                  kp = f"{p}.{k}" if p else k
+                  out.add(kp)
+                  if isinstance(v, dict):
+                      out |= keys(v, kp)
+              return out
+          ru = keys(json.load(open('web-ui/src/locales/ru.json')))
+          en = keys(json.load(open('web-ui/src/locales/en.json')))
+          ok = True
+          for missing, where in ((ru - en, 'en'), (en - ru, 'ru')):
+              for k in sorted(missing):
+                  print(f"::error::locale key '{k}' is missing from {where}.json")
+                  ok = False
+          sys.exit(0 if ok else 1)
+          EOF

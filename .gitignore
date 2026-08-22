@@ -1,6 +1,10 @@
 # ── build output ─────────────────────────────────────────────
 /tanulom
-backend/internal/web/dist/
+# The embedded SPA is produced by the Dockerfile / DEVELOPMENT.md build steps.
+# Only the .gitkeep is tracked, so //go:embed all:dist still compiles on a fresh
+# clone before anyone has run `npm run build`.
+backend/internal/web/dist/*
+!backend/internal/web/dist/.gitkeep
 web-ui/dist/
 web-ui/node_modules/
 node_modules/

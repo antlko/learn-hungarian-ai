@@ -1,0 +1,86 @@
+# tanulom — copy this file and run `docker compose up -d`.
+#
+# The core service is the whole product: SRS, reader, grammar, ear training,
+# listening and progress all work with nothing else running. The profiles below
+# are strictly additive; the app probes them at runtime and disables the
+# features that need them, with a visible reason.
+#
+#   docker compose up -d                                 core only
+#   docker compose --profile speech up -d                + TTS and ASR
+#   docker compose --profile nlp --profile speech up -d  + HuSpaCy
+#   docker compose --profile llm up -d                   + a local model
+#
+# NOTE (v0.1): the `nlp` and `speech` services are NOT IMPLEMENTED YET — those
+# build contexts are empty, so those two profiles will fail to start. They are
+# declared here so the intended topology is visible. See services/README.md.
+# The `llm` profile works today: it pulls a published Ollama image.
+
+services:
+  tanulom:
+    image: ghcr.io/OWNER/tanulom:latest
+    # To build from source instead of pulling, comment out `image:` above and
+    # uncomment the next line:
+    # build: .
+    container_name: tanulom
+    ports:
+      - '8080:8080'
+    volumes:
+      - tanulom-data:/data
+    environment:
+      TANULOM_LOG_LEVEL: info
+    restart: unless-stopped
+
+  # --- optional: Hungarian text analysis (HuSpaCy) --------------------------
+  # Enables context-aware disambiguation (vár = castle vs. waits) and analysis
+  # of forms absent from the language pack. Without it the app falls back to the
+  # pack's frequency prior and marks such analyses as uncertain.
+  nlp:
+    profiles: ['nlp']
+    build: ./services/nlp
+    container_name: tanulom-nlp
+    expose:
+      - '5002'
+    restart: unless-stopped
+
+  # --- optional: speech ------------------------------------------------------
+  # Piper gives three Hungarian voices for card audio and ear training; the
+  # Whisper fine-tune transcribes your speech. Note that Hungarian ASR has a
+  # word error rate around 11%, so the app gates its feedback on confidence.
+  tts:
+    profiles: ['speech']
+    build: ./services/tts
+    container_name: tanulom-tts
+    expose:
+      - '5000'
+    volumes:
+      - tanulom-voices:/voices
+    restart: unless-stopped
+
+  asr:
+    profiles: ['speech']
+    build: ./services/asr
+    container_name: tanulom-asr
+    expose:
+      - '5001'
+    volumes:
+      - tanulom-models:/models
+    restart: unless-stopped
+
+  # --- optional: local language model ---------------------------------------
+  # Alternatively, point Settings -> Services -> LLM at any OpenAI-compatible
+  # endpoint. Keys are stored in the database, never in config.yaml.
+  ollama:
+    profiles: ['llm']
+    image: ollama/ollama:latest
+    container_name: tanulom-ollama
+    expose:
+      - '11434'
+    volumes:
+      - tanulom-ollama:/root/.ollama
+    restart: unless-stopped
+
+volumes:
+  tanulom-data:
+  tanulom-voices:
+  tanulom-models:
+  tanulom-ollama:
