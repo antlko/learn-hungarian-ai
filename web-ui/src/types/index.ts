@@ -278,3 +278,83 @@ export interface GovernorVerdict {
   reason: string
   forecast: Forecast
 }
+
+// ─── Reading ───────────────────────────────────────────────────────────────
+
+export type LemmaStatus = 'new' | 'learning' | 'known' | 'ignored'
+
+export interface TextSummary {
+  id: number
+  title: string
+  sourceUrl: string
+  kind: 'paste' | 'url' | 'srt' | 'epub' | 'generated'
+  wordCount: number
+  lemmaCoverage: number
+  elementCoverage: number
+  addedAt: string
+}
+
+export interface StoredToken {
+  index: number
+  sentIdx: number
+  form: string
+  start: number
+  end: number
+  isWord: boolean
+  lemmaId: number
+  feats: string[] | null
+  certainty: Certainty
+}
+
+/**
+ * Two coverage numbers, deliberately.
+ *
+ * `lemmaCoverage` is comparable to the published 95%/98% figures — which were
+ * derived from English word families. `elementCoverage` additionally requires
+ * every suffix on the token to be known, and is the honest number for an
+ * agglutinative language: you can know `ház` perfectly and still be stopped by
+ * `házaimban`.
+ */
+export interface Coverage {
+  words: number
+  knownLemmas: number
+  knownElements: number
+  unresolved: number
+  lemmaCoverage: number
+  elementCoverage: number
+  unknownLemmaIds: number[]
+  unknownFeatures: string[]
+}
+
+export type CoverageVerdict = 'too_hard' | 'with_help' | 'comfortable'
+
+export interface TextDetail {
+  text: TextSummary & { body: string }
+  tokens: StoredToken[]
+  coverage: Coverage
+  verdict: CoverageVerdict
+  known: Record<string, LemmaStatus>
+  thresholds: { minimal: number; unassisted: number; listening: number }
+}
+
+export interface ScoredSentence {
+  sentIdx: number
+  text: string
+  score: number
+  unknownLemmas: number[]
+  unknownFeatures: string[]
+  unknownWeighted: number
+  coverage: number
+}
+
+export interface LemmaDetail {
+  id: number
+  lemma: string
+  upos: string
+  ipa?: string
+  freqRank?: number
+  cefr?: string
+  glosses: Record<string, string[]>
+  glossFallback: boolean
+  paradigm?: Record<string, string>
+}

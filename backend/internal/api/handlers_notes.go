@@ -29,6 +29,9 @@ type CreateNoteResponse struct {
 	NoteID      int64    `json:"noteId"`
 	Directions  []string `json:"directions"`
 	TargetFeats []string `json:"targetFeats"`
+	// Duplicate reports that this exact sentence and target were already saved,
+	// so nothing new was created. The client says so rather than pretending.
+	Duplicate bool `json:"duplicate"`
 	// TargetStart/End locate the blank, so the client does not have to re-find it.
 	TargetStart int `json:"targetStart"`
 	TargetEnd   int `json:"targetEnd"`
@@ -80,6 +83,22 @@ func (s *Server) handleCreateNote(c fiber.Ctx) error {
 		}
 	}
 
+	store := srs.NewStore(s.db.DB)
+
+	// Re-adding the same word from the reader must not double the review load.
+	if existing, err := store.FindDuplicate(u.ID, note.HU, note.TargetForm); err != nil {
+		return err
+	} else if existing != 0 {
+		feats := note.TargetFeats
+		if feats == nil {
+			feats = []string{}
+		}
+		return c.JSON(CreateNoteResponse{
+			NoteID: existing, Directions: []string{}, TargetFeats: feats,
+			Duplicate: true, TargetStart: note.TargetStart, TargetEnd: note.TargetEnd,
+		})
+	}
+
 	cfg := s.Config()
 	plan := srs.PlanFor(cfg.Review.Goal, directionWeights(cfg), s.audioAvailable())
 	directions := plan.Directions
@@ -92,7 +111,7 @@ func (s *Server) handleCreateNote(c fiber.Ctx) error {
 		return badRequest("no review directions are enabled")
 	}
 
-	id, cards, err := srs.NewStore(s.db.DB).CreateNote(note, directions, time.Now())
+	id, cards, err := store.CreateNote(note, directions, time.Now())
 	if err != nil {
 		return err
 	}

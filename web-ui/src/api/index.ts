@@ -5,6 +5,12 @@ import type {
   AnswerResponse,
   Bootstrap,
   Capability,
+  Coverage,
+  LemmaDetail,
+  LemmaStatus,
+  ScoredSentence,
+  TextDetail,
+  TextSummary,
   FeatureMastery,
   Forecast,
   GovernorVerdict,
@@ -60,9 +66,32 @@ export const api = {
     glossEn?: string
     lemmaId?: number
   }) =>
-    http.post<{ noteId: number; directions: string[]; targetFeats: string[] }>('/api/notes', body),
+    http.post<{
+      noteId: number
+      directions: string[]
+      targetFeats: string[]
+      duplicate: boolean
+    }>('/api/notes', body),
 
   mastery: () => http.get<{ features: FeatureMastery[] }>('/api/stats/mastery'),
+
+  // ── reading ───────────────────────────────────────────────────────────
+  texts: () => http.get<{ texts: TextSummary[] }>('/api/texts'),
+
+  createText: (body: { title?: string; body: string; kind?: string; sourceUrl?: string }) =>
+    http.post<{ id: number; title: string; coverage: Coverage }>('/api/texts', body),
+
+  text: (id: number) => http.get<TextDetail>(`/api/texts/${id}`),
+
+  deleteText: (id: number) => http.del<void>(`/api/texts/${id}`),
+
+  nextSentences: (id: number, limit = 10) =>
+    http.get<{ sentences: ScoredSentence[] }>(`/api/texts/${id}/next?limit=${limit}`),
+
+  lemma: (id: number) => http.get<LemmaDetail>(`/api/lemma/${id}`),
+
+  setKnown: (lemmaId: number, status: LemmaStatus) =>
+    http.post<void>('/api/knowledge/lemma', { lemmaId, status }),
 }
 
 export { ApiError } from './http'

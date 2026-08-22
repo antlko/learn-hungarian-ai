@@ -173,5 +173,52 @@
     "stem": "Different word. It should have been “{expected}”.",
     "spelling": "A typo. It should be “{expected}”.",
     "generic": "The form is “{expected}”."
+  },
+  "reader": {
+    "lemmaCoverage": "by lemma",
+    "elementCoverage": "by element",
+    "thresholdCaveat": "The 95% and 98% lines were derived for English and are indicative only. “By element” is the stricter figure: a word counts only if both its lemma and every grammatical feature on it are known — you can know “ház” and still be stopped by “házaimban”.",
+    "unresolved": "{n} words unanalysed",
+    "verdict": {
+      "too_hard": "too hard",
+      "with_help": "readable with help",
+      "comfortable": "comfortable"
+    },
+    "pickAWord": "Pick a word in the text.",
+    "thisForm": "This form breaks down as:",
+    "noAnalysis": "Not in the language pack.",
+    "meaning": "Meaning",
+    "frequency": "frequency rank {rank}",
+    "markKnown": "Known",
+    "ignore": "Ignore",
+    "addCard": "Add card",
+    "paradigm": "Paradigm",
+    "nPlusOne": "Sentences at your level (n+1)",
+    "newElements": "new elements: {n}",
+    "cardAdded": "Card added: {word}",
+    "keys": "j / k — move by word · K — known · i — ignore · a — add card",
+    "certainty": {
+      "uncertain": "This form has several readings; the more frequent one was chosen. Check it against the sense.",
+      "derived": "Derived automatically rather than attested — it may be wrong."
+    },
+    "cardExists": "“{word}” is already in your cards"
+  },
+  "library": {
+    "addTitle": "Add a text",
+    "title": "Title",
+    "titleHint": "optional — we'll take the opening words",
+    "kind": "Format",
+    "kinds": {
+      "paste": "Plain text",
+      "html": "HTML from a page",
+      "srt": "Subtitles (.srt)"
+    },
+    "text": "Text",
+    "textHint": "Paste an article, subtitles or a chat log — something you actually wanted to read.",
+    "add": "Add",
+    "added": "Added: {title}",
+    "words": "words",
+    "remove": "Delete",
+    "empty": "Nothing here yet. Paste something you genuinely want to read — difficulty is handled by selecting sentences, not by simplifying the text."
   }
 }

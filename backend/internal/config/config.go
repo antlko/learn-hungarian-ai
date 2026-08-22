@@ -35,7 +35,11 @@ const (
 	DefaultFeatureWeight  = 0.70
 	DefaultTargetUnknown  = 1.5
 	DefaultUnknownSigma   = 0.8
-	DefaultMinCoverage    = 0.90
+	// DefaultMinCoverage is the MINING floor, not a reading threshold. A mined
+	// sentence wants one or two unknowns and a lookup; the 95%/98% figures
+	// describe comprehending a whole text unaided. Applying the reading number
+	// here would penalise every short n+1 sentence. See internal/mining/score.go.
+	DefaultMinCoverage = 0.75
 
 	// Drill gate: blocked -> interleaved. See [R5] —
 	// .claude/research/05-interleaving.md. These are deliberately tunable

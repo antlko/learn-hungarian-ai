@@ -270,3 +270,35 @@ func TestMasteryReportsNonZeroRetrievabilityAfterAReview(t *testing.T) {
 		}
 	}
 }
+
+func TestFindDuplicateStopsDoubleAdding(t *testing.T) {
+	// A learner rereading a paragraph will press "add card" on a word they
+	// already added. Creating a second identical note doubles their review load
+	// for no gain while appearing to have worked.
+	e, uid := newEngine(t)
+	now := time.Now().UTC()
+	n := clozeNote(uid)
+
+	if id, err := e.Store().FindDuplicate(uid, n.HU, n.TargetForm); err != nil || id != 0 {
+		t.Fatalf("fresh store: got (%d, %v)", id, err)
+	}
+
+	created, _, err := e.Store().CreateNote(n, []Direction{Cloze}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := e.Store().FindDuplicate(uid, n.HU, n.TargetForm)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != created {
+		t.Errorf("duplicate lookup: got %d, want %d", got, created)
+	}
+
+	// A different target form in the same sentence is a genuinely different card.
+	other := n
+	other.TargetForm = "könyv"
+	if id, _ := e.Store().FindDuplicate(uid, other.HU, other.TargetForm); id != 0 {
+		t.Error("a different target form was wrongly treated as a duplicate")
+	}
+}

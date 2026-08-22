@@ -85,6 +85,28 @@ type Card struct {
 	Suspended bool
 }
 
+// FindDuplicate returns the id of an existing note with the same sentence and
+// target form, or 0.
+//
+// Adding the same word twice is not a hypothetical: a learner rereading a
+// paragraph will press "add card" on a word they already added, and silently
+// creating a second identical note doubles their review load for no gain while
+// looking like the app worked.
+func (s *Store) FindDuplicate(userID int64, hu, targetForm string) (int64, error) {
+	var id int64
+	err := s.db.QueryRow(`
+		SELECT id FROM note
+		 WHERE user_id = ? AND hu = ? AND target_form = ?
+		 LIMIT 1`, userID, hu, targetForm).Scan(&id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return 0, nil
+	}
+	if err != nil {
+		return 0, fmt.Errorf("check duplicate note: %w", err)
+	}
+	return id, nil
+}
+
 // CreateNote inserts a note and its cards in one transaction: a note with no
 // cards is unreviewable and would sit invisible in the database forever.
 func (s *Store) CreateNote(n Note, directions []Direction, now time.Time) (int64, []Card, error) {

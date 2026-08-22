@@ -191,6 +191,14 @@ func (s *Server) buildApp() *fiber.App {
 	api.Post("/notes", s.requireAuth, s.handleCreateNote)
 	api.Get("/stats/mastery", s.requireAuth, s.handleMastery)
 
+	// Reading library.
+	api.Get("/texts", s.requireAuth, s.handleListTexts)
+	api.Post("/texts", s.requireAuth, s.handleCreateText)
+	api.Get("/texts/:id", s.requireAuth, s.handleGetText)
+	api.Delete("/texts/:id", s.requireAuth, s.handleDeleteText)
+	api.Get("/texts/:id/next", s.requireAuth, s.handleNextSentences)
+	api.Post("/knowledge/lemma", s.requireAuth, s.handleSetKnown)
+
 	// Admin-only: settings are global (config.yaml), so a learner must not edit them.
 	api.Put("/settings", s.requireAuth, s.requireAdmin, s.handleUpdateSettings)
 

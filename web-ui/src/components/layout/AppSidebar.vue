@@ -8,7 +8,6 @@ import {
   Ear,
   Headphones,
   House,
-  Library,
   Mic,
   PencilLine,
   Settings,
@@ -29,13 +28,12 @@ const { t } = useI18n()
 const items = computed(() => [
   { to: '/', icon: House, label: t('nav.today'), enabled: true },
   { to: '/review', icon: BrainCircuit, label: t('nav.review'), enabled: true },
-  { to: '/read', icon: BookOpen, label: t('nav.read'), enabled: false },
+  { to: '/library', icon: BookOpen, label: t('nav.read'), enabled: true },
   { to: '/listen', icon: Headphones, label: t('nav.listen'), enabled: false },
   { to: '/speak', icon: Mic, label: t('nav.speak'), enabled: false },
   { to: '/ear', icon: Ear, label: t('nav.ear'), enabled: false },
   { to: '/grammar', icon: Table2, label: t('nav.grammar'), enabled: false },
   { to: '/write', icon: PencilLine, label: t('nav.write'), enabled: false },
-  { to: '/library', icon: Library, label: t('nav.library'), enabled: false },
 ])
 
 const footer = computed(() => [

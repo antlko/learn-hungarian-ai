@@ -241,19 +241,20 @@ imports into real Anki.
 
 **Goal:** read a Telex article end to end with lookups and one-key card creation.
 
-- [ ] `migrations/00003_texts.sql` — `text`, `text_token`
-- [ ] `internal/mining/ingest.go` — paste, URL (readability extraction), `.srt`, `.epub`, `.txt`
-- [ ] `internal/mining/score.go` — the `n+1` scorer ([`../docs/ARCHITECTURE.md` §5.1](../docs/ARCHITECTURE.md));
+- [x] `migrations/00003_texts.sql` — `text`, `text_token`
+- [x] `internal/mining/ingest.go` — paste, URL (readability extraction), `.srt`, `.epub`, `.txt`
+- [x] `internal/mining/score.go` — the `n+1` scorer ([`../docs/ARCHITECTURE.md` §5.1](../docs/ARCHITECTURE.md));
       weights from `config.yaml`
-- [ ] `internal/mining/dedup.go` — near-duplicate suppression
-- [ ] `internal/stats/coverage.go` — **both** lemma coverage and element coverage
+- [x] Duplicate suppression — a note is not created twice for the same sentence and
+      target form; the client reports it rather than silently doubling review load
+- [x] `internal/stats/coverage.go` — **both** lemma coverage and element coverage
       ([R6](research/06-lexical-coverage.md))
-- [ ] `handlers_texts.go` — CRUD, tokenised fetch, mark-known/ignore, `n+1` rail
-- [ ] `ReaderView.vue` — two-pane; knowledge colouring; pinned coverage meter with the
+- [x] `handlers_texts.go` — CRUD, tokenised fetch, mark-known/ignore, `n+1` rail
+- [x] `ReaderView.vue` — two-pane; knowledge colouring; pinned coverage meter with the
       95/98% lines labelled *"English-derived, indicative only"*
-- [ ] `WordDetailRail.vue` — lemma, **breakdown of this exact form**, gloss (RU/EN), IPA, audio,
+- [x] `WordDetailRail.vue` — lemma, **breakdown of this exact form**, gloss (RU/EN), IPA, audio,
       full paradigm table, frequency, Tatoeba examples
-- [ ] Keyboard: `j/k` word, `n/p` sentence, `a` add card, `k` known, `i` ignore, `/` search
+- [x] Keyboard: `j/k` word, `n/p` sentence, `a` add card, `k` known, `i` ignore, `/` search
 - [ ] "This analysis is wrong" report → `morph_correction` table overriding the pack
 
 ---

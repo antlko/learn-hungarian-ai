@@ -21,6 +21,8 @@ const routes: RouteRecordRaw[] = [
   },
   { path: '/', name: 'today', component: () => import('@/views/TodayView.vue') },
   { path: '/review', name: 'review', component: () => import('@/views/ReviewView.vue') },
+  { path: '/library', name: 'library', component: () => import('@/views/LibraryView.vue') },
+  { path: '/read/:id', name: 'read', component: () => import('@/views/ReaderView.vue') },
   { path: '/settings', name: 'settings', component: () => import('@/views/SettingsView.vue') },
   {
     path: '/:pathMatch(.*)*',
