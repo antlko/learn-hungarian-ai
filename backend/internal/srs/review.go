@@ -56,6 +56,7 @@ func (e *Engine) Answer(
 	}
 	log.DurationMs = outcome.Duration.Milliseconds()
 	log.Correct = outcome.Correct
+	log.Answer = outcome.Typed
 
 	// Only cloze grades features: blanking exactly one span is what makes it
 	// sound to say which suffix was wrong. See Direction.GradesFeatures.
@@ -152,10 +153,25 @@ type FeatureMastery struct {
 	// Automated matters for motor skills such as vowel harmony, where being
 	// correct-but-slow means the skill is not yet automatic. See [R15].
 	Automated bool `json:"automated"`
+	// Ready reports that `Accuracy` rests on enough observations to be worth
+	// acting on — the SAME line the interleaving gate draws (`drill.gateWindow`),
+	// because "three lucky answers are not evidence" cannot mean one thing to
+	// the scheduler and another to the screen that reports on it.
+	//
+	// It exists because the progress heatmap had no way to distinguish "you get
+	// this right" from "you have seen this twice", and so drew a full bar for
+	// both. A learner four days in met nine features at 100% and correctly read
+	// the screen as broken.
+	Ready bool `json:"ready"`
+	// Weak is Ready AND below `drill.masteryThreshold`: a real weakness, as
+	// opposed to an unmeasured one. Derived here so no client re-hardcodes the
+	// threshold it is measured against.
+	Weak bool `json:"weak"`
 }
 
 // Mastery returns every feature the learner has met, for the progress heatmap.
-func (e *Engine) Mastery(userID int64, harmonyLatencyMs int, now time.Time) ([]FeatureMastery, error) {
+func (e *Engine) Mastery(userID int64, harmonyLatencyMs int, masteryThreshold float64,
+	now time.Time) ([]FeatureMastery, error) {
 	// `state` is not decoration: FSRS reports zero retrievability for a card it
 	// believes is New, so omitting the column made every feature read 0.00 no
 	// matter how much stability it had accumulated.
@@ -181,8 +197,10 @@ func (e *Engine) Mastery(userID int64, harmonyLatencyMs int, now time.Time) ([]F
 		st.LastReview = db.ParseTime(last)
 		m.Reps = st.Reps
 		m.Retrievability = e.scheduler.Retrievability(st, now)
+		m.Ready = GateReady(m.Observations, e.gateWindow)
+		m.Weak = m.Ready && m.Accuracy < masteryThreshold
 		m.Automated = m.MedianMs > 0 && m.MedianMs <= int64(harmonyLatencyMs) &&
-			m.Accuracy >= 0.9 && GateReady(m.Observations, e.gateWindow)
+			m.Accuracy >= 0.9 && m.Ready
 		out = append(out, m)
 	}
 	return out, rows.Err()

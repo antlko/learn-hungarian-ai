@@ -24,8 +24,26 @@ This is a legal obligation, not a courtesy. This file is surfaced in the app und
 | [Tatoeba](https://tatoeba.org) | example sentences, HU↔EN/RU links | **CC BY 2.0 FR**; some sentences CC0 | "Tatoeba Project contributors" |
 | Tatoeba **audio** | HVPT + sentence audio | **per-clip — set by the contributor** | recorded per clip in `pair_audio.license`; clips without a permissive licence are excluded |
 | [hermitdave/FrequencyWords](https://github.com/hermitdave/FrequencyWords) (`hu_50k`, OpenSubtitles) | frequency ranks | **CC BY-SA 4.0** | Hermit Dave; derived from OpenSubtitles via OPUS |
+| [OPUS OpenSubtitles](https://opus.nlpl.eu/OpenSubtitles/) v2018, `hu-ru` and `en-hu` | conversational example sentences and their translations | **free for research use**; the corpus is derived from opensubtitles.org and OPUS asks that the paper be cited rather than granting an explicit content licence | P. Lison and J. Tiedemann, *OpenSubtitles2016: Extracting Large Parallel Corpora from Movie and TV Subtitles*, LREC 2016 |
 | [Hungarian Webcorpus 2.0](https://hlt.bme.hu/en/resources/webcorpus2) | n-gram attestation index, lemma frequency | **CC BY-SA 4.0** (Wikipedia subcorpus); Common Crawl terms for the CC subcorpus | SZTAKI-HLT / BME |
 | [UD Hungarian](https://github.com/UniversalDependencies/UD_Hungarian) | feature inventory, golden test data | **CC BY-SA 4.0** | Universal Dependencies contributors |
+
+#### OpenSubtitles and redistribution — the line this project draws
+
+OPUS OpenSubtitles is the standard free source of conversational Hungarian and the frequency
+list above is already derived from it. Its licensing is weaker than Tatoeba's, though: OPUS
+distributes it for research and asks for a citation, which is not the same as a licence to
+embed film dialogue in a binary we publish. So:
+
+- The **full pack** is built on the learner's own machine, by them, from sources they fetch.
+  It may contain these sentences, marked `sentence.source = 'opensubtitles'`.
+- The **starter pack**, which is compiled into the distributed executable, takes
+  `source = 'tatoeba'` only. `pipeline/starter.py` enforces this with an allow-list rather than
+  a deny-list, so a future source stays out until someone decides otherwise.
+
+Nothing in the selection is generated: every sentence is one a person wrote and every
+translation is one a human translator produced. The pipeline only chooses — see
+`pipeline/subtitles.py`.
 
 ### Tooling (build-time only — not redistributed in the pack)
 

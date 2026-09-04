@@ -46,17 +46,24 @@ type AnswerInput struct {
 	DurationMs int64
 	Origin     string
 	Gate       Gate
+	// AccentTolerance accepts a typed answer that differs from the expected
+	// form only in diacritics. Threaded in from config by the handler; the
+	// engine stays a pure function of its inputs.
+	AccentTolerance bool
 }
 
 // AnswerResult is everything the UI needs to render the outcome and the gate.
 type AnswerResult struct {
-	Correct        bool               `json:"correct"`
-	Expected       string             `json:"expected"`
-	Rating         int                `json:"rating"`
-	Diff           *morph.Diff        `json:"diff,omitempty"`
-	GradedFeatures []srs.FeatureGrade `json:"gradedFeatures"`
-	Progress       Progress           `json:"progress"`
-	Decision       Decision           `json:"decision"`
+	Correct bool `json:"correct"`
+	// AcceptedWithAccents marks a correct-by-tolerance answer — the right form
+	// minus the marks a plain keyboard cannot type. Shown, never silent.
+	AcceptedWithAccents bool               `json:"acceptedWithAccents,omitempty"`
+	Expected            string             `json:"expected"`
+	Rating              int                `json:"rating"`
+	Diff                *morph.Diff        `json:"diff,omitempty"`
+	GradedFeatures      []srs.FeatureGrade `json:"gradedFeatures"`
+	Progress            Progress           `json:"progress"`
+	Decision            Decision           `json:"decision"`
 	// FollowUp is what this specific mistake says to practise next, including
 	// the honest "a drill cannot fix this" cases. See from_error.go.
 	FollowUp []Target `json:"followUp,omitempty"`
@@ -89,6 +96,19 @@ func (e *Engine) Answer(in AnswerInput, now time.Time) (AnswerResult, error) {
 		outcome.PartiallyCorrect = d.NearMatch
 		wrongFeature = d.WrongFeature
 		errorClass = string(d.Class)
+
+		// Same policy as the review loop: the right form on a plain keyboard
+		// passes at Hard, with the missing mark underlined. The features the
+		// item required WERE produced — the case ending was right; what was
+		// dropped is a diacritic, and that is the ear trainer's jurisdiction,
+		// where errorClass still routes it. A harmony choice can never slip
+		// through here: -ban/-ben differ in the vowel itself, not its length,
+		// and the folds do not merge a with e.
+		if d.AccentOnly() && in.AccentTolerance {
+			outcome.Correct = true
+			outcome.PartiallyCorrect = true
+			res.AcceptedWithAccents = true
+		}
 	} else {
 		// A choice item is graded by string equality, case-insensitively: the
 		// options came from the server, and a sentence-initial capital is not a
@@ -152,7 +172,11 @@ func (e *Engine) Answer(in AnswerInput, now time.Time) (AnswerResult, error) {
 		return res, fmt.Errorf("commit drill answer: %w", err)
 	}
 
-	if !outcome.Correct {
+	// A tolerated accent miss still produces its follow-up: the answer PASSED,
+	// but the dropped mark is a real perception gap and the routing to the ear
+	// trainer is the whole point of classifying it. Tolerance changes the
+	// grade, not the diagnosis.
+	if !outcome.Correct || res.AcceptedWithAccents {
 		res.FollowUp = FromError(morph.ErrorClass(errorClass), wrongFeature, item.FeatureIDs, e.dag)
 	}
 	return res, nil

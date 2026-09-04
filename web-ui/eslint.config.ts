@@ -15,7 +15,7 @@ export default defineConfigWithVueTs(
     // shadcn-vue primitives are intentionally single-word (Button, Card, Input).
     // The convention comes from upstream; renaming them would break every import.
     name: 'app/ui-primitives',
-    files: ['src/components/ui/**/*.vue'],
+    files: ['src/components/ui/**/*.vue', 'src/components/art/**/*.vue'],
     rules: {
       'vue/multi-word-component-names': 'off',
     },

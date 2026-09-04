@@ -76,7 +76,7 @@ onMounted(async () => {
 <template>
   <div class="mx-auto flex w-full max-w-4xl flex-col gap-6">
     <div class="flex flex-col gap-2">
-      <h1 class="text-3xl font-semibold tracking-tight">{{ $t('resources.title') }}</h1>
+      <h1 class="page-title">{{ $t('resources.title') }}</h1>
       <p class="max-w-2xl text-sm leading-relaxed text-muted-foreground">
         {{ $t('resources.intro') }}
       </p>

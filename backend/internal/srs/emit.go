@@ -32,6 +32,11 @@ type Outcome struct {
 	// PartiallyCorrect marks a typed answer that differed from the target only
 	// in ways the diff classified as minor (an accent, a single character).
 	PartiallyCorrect bool
+	// Typed is what the learner actually wrote on a productive direction. It
+	// goes into review_log.answer — a column migration 00002 created for error
+	// mining and never filled — so a wrong form can be shown back later: the
+	// tutor quotes it ("you typed házben for házban"). Never graded here.
+	Typed string
 }
 
 // DeriveRating turns an outcome into an FSRS grade.

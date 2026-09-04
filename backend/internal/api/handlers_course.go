@@ -149,7 +149,25 @@ type EnrolResponse struct {
 	// never hidden: a card must be a sentence (a bare lemma teaches nothing
 	// about the morphology that carries the meaning), so a word without one is
 	// honestly left out rather than turned into a word-list card.
-	Skipped []string `json:"skipped"`
+	Skipped []SkippedWord `json:"skipped"`
+}
+
+// SkippedWord is a course word that got no card, WITH ITS MEANING.
+//
+// It used to be the bare Hungarian string. Naming a word to a learner and then
+// declining to say what it means is the one thing this panel must not do: the
+// unit taught them the word exists, the deck does not carry it, and the screen
+// was leaving them with an untranslated token and no way to look it up. The
+// gloss is already in the pack beside the word — the course could not have
+// listed it otherwise.
+type SkippedWord struct {
+	Lemma   string `json:"lemma"`
+	GlossRU string `json:"glossRu"`
+	GlossEN string `json:"glossEn"`
+}
+
+func skippedWord(w course.Word) SkippedWord {
+	return SkippedWord{Lemma: w.Lemma, GlossRU: w.GlossRU, GlossEN: w.GlossEN}
 }
 
 func (s *Server) handleEnrolUnit(c fiber.Ctx) error {
@@ -172,14 +190,14 @@ func (s *Server) handleEnrolUnit(c fiber.Ctx) error {
 		return badRequest("no review directions are enabled")
 	}
 
-	out := EnrolResponse{UnitCode: unit.Code, Skipped: []string{}}
+	out := EnrolResponse{UnitCode: unit.Code, Skipped: []SkippedWord{}}
 	for _, w := range unit.Words {
 		note, ok, err := s.noteForWord(w)
 		if err != nil {
 			return err
 		}
 		if !ok {
-			out.Skipped = append(out.Skipped, w.Lemma)
+			out.Skipped = append(out.Skipped, skippedWord(w))
 			continue
 		}
 		note.UserID = u.ID
@@ -188,22 +206,32 @@ func (s *Server) handleEnrolUnit(c fiber.Ctx) error {
 		if existing, err := store.FindDuplicate(u.ID, note.HU, note.TargetForm); err != nil {
 			return err
 		} else if existing != 0 {
+			// A trashed word comes back when its unit is taken up again: the
+			// duplicate check would otherwise match the trashed note forever and
+			// leave the unit permanently unable to restock itself. Counted as a
+			// duplicate either way — nothing new was created — but the word is in
+			// the deck again, which is what enrolling asked for. See ADR-025.
+			if _, err := store.Restore(u.ID, existing); err != nil {
+				return err
+			}
 			out.Duplicate++
 			continue
 		}
 		directions := plan.Directions
-		if len(note.TargetFeats) == 0 {
+		// A cloze needs a SPAN, not features — the same rule note creation
+		// applies, through the same predicate so the two cannot drift.
+		if !clozeable(note) {
 			directions = withoutCloze(directions)
 		}
 		if len(directions) == 0 {
-			out.Skipped = append(out.Skipped, w.Lemma)
+			out.Skipped = append(out.Skipped, skippedWord(w))
 			continue
 		}
 		if _, _, err := store.CreateNote(note, directions, time.Now()); err != nil {
 			return err
 		}
 		if note.LemmaID != nil {
-			if err := store.MarkLemmaLearning(u.ID, *note.LemmaID); err != nil {
+			if _, err := store.MarkLemmaLearning(u.ID, *note.LemmaID); err != nil {
 				return err
 			}
 		}
@@ -277,20 +305,119 @@ func (s *Server) noteForWord(w course.Word) (srs.Note, bool, error) {
 }
 
 // noteFromSentences builds a note from the shortest attested sentence that
-// contains this exact lemma id.
+// contains this exact lemma.
+//
+// Two searches, because ONE OF THEM IS NOT ENOUGH and the failure was silent.
+//
+// The corpus links each token to a lemma id chosen by the tagger that built the
+// pack. The course names its words with the DICTIONARY's lemma. Those two
+// disagree more often than you would hope, and when they do the join finds
+// nothing and the word is dropped from the unit with a message saying the
+// corpus has no sentence for it — which was simply false:
+//
+//   - `nagyon` (ADV, the dictionary's own headword) is lemmatised by the tagger
+//     to the adjective `nagy`. The wordform `nagyon` occurs in 820 corpus
+//     sentences and the join returned zero.
+//   - `bemutatkozik` appears as `bemutatkozzak`, `bemutatkozzam`, `Bemutatkozna`
+//     — all with a NULL lemma id — and as `bemutatkozó`, filed under a separate
+//     lemma row for the participle.
+//
+// So the second pass searches by SURFACE FORM instead, over the forms the pack
+// attests for this lemma. Both passes then go through the same verification:
+// the runtime analyser has to agree that the token in the sentence really reads
+// as this lemma. Nothing is loosened — a sentence still has to be attested and
+// the token still has to be the word being taught — only the way candidates are
+// found is widened.
 func (s *Server) noteFromSentences(lemmaID int64, w course.Word) (srs.Note, bool, error) {
+	seen := map[int64]bool{}
 
-	// Shortest first, but no hard upper bound: a long sentence is a worse first
-	// encounter than a short one, and no sentence at all is worse than both —
-	// the word would be skipped and the unit would quietly teach less than it
-	// says. The reader's n+1 scoring handles difficulty properly later.
-	rows, err := s.pack.DB().Query(`
+	for _, find := range []func(int64) (*sql.Rows, error){
+		s.sentencesByLemmaID,
+		s.sentencesBySurfaceForm,
+	} {
+		rows, err := find(lemmaID)
+		if err != nil {
+			return srs.Note{}, false, err
+		}
+		note, ok, err := s.firstUsableSentence(rows, lemmaID, w, seen)
+		if err != nil {
+			return srs.Note{}, false, err
+		}
+		if ok {
+			return note, true, nil
+		}
+	}
+	return srs.Note{}, false, nil
+}
+
+// sentencesByLemmaID: the corpus's own link. Indexed, exact, and preferred.
+//
+// Shortest first, but no hard upper bound: a long sentence is a worse first
+// encounter than a short one, and no sentence at all is worse than both — the
+// word would be skipped and the unit would quietly teach less than it says. The
+// reader's n+1 scoring handles difficulty properly later.
+func (s *Server) sentencesByLemmaID(lemmaID int64) (*sql.Rows, error) {
+	return s.pack.DB().Query(`
 		SELECT s.id, s.hu FROM sentence s
 		  JOIN sentence_token t ON t.sentence_id = s.id
 		 WHERE t.lemma_id = ? AND s.len_tokens >= 3
 		 ORDER BY s.len_tokens LIMIT 12`, lemmaID)
+}
+
+// maxFormsSearched bounds the IN clause of the surface search. The forms come
+// back best-trusted first, so the cut falls on the speculative tail; a verb with
+// two hundred generated forms must not turn one enrolment into a scan.
+const maxFormsSearched = 24
+
+// sentencesBySurfaceForm: sentences containing any attested spelling of the
+// lemma, whatever the tagger decided the token's lemma was.
+//
+// `sentence_token.form` is BINARY-collated like every other index in the pack,
+// so the casings are enumerated rather than folded — `COLLATE NOCASE` here would
+// scan all 331k rows. See internal/morph/casefold.go.
+func (s *Server) sentencesBySurfaceForm(lemmaID int64) (*sql.Rows, error) {
+	forms, err := s.analyzer.FormsOf(lemmaID)
 	if err != nil {
-		return srs.Note{}, false, err
+		return nil, err
+	}
+	var variants []string
+	seen := map[string]bool{}
+	for _, f := range forms {
+		// Only attested spellings. A generated form is exactly what must not be
+		// used to go looking for "real Hungarian" — and if the generator has
+		// invented a form, no corpus sentence contains it anyway.
+		if !f.Attested() {
+			continue
+		}
+		for _, v := range morph.CaseVariants(f.Form) {
+			if !seen[v] {
+				seen[v] = true
+				variants = append(variants, v)
+			}
+		}
+		if len(variants) >= maxFormsSearched {
+			break
+		}
+	}
+	if len(variants) == 0 {
+		return nil, nil
+	}
+	marks, args := morph.Placeholders(variants)
+	return s.pack.DB().Query(`
+		SELECT s.id, s.hu FROM sentence s
+		  JOIN sentence_token t ON t.sentence_id = s.id
+		 WHERE t.form IN (`+marks+`) AND s.len_tokens >= 3
+		 ORDER BY s.len_tokens LIMIT 12`, args...)
+}
+
+// firstUsableSentence returns a note from the first candidate whose tokens the
+// analyser confirms as this lemma. `seen` carries across the two passes so a
+// sentence found by both is only examined once.
+func (s *Server) firstUsableSentence(
+	rows *sql.Rows, lemmaID int64, w course.Word, seen map[int64]bool,
+) (srs.Note, bool, error) {
+	if rows == nil {
+		return srs.Note{}, false, nil
 	}
 	defer rows.Close()
 
@@ -300,6 +427,11 @@ func (s *Server) noteFromSentences(lemmaID int64, w course.Word) (srs.Note, bool
 		if err := rows.Scan(&sentenceID, &hu); err != nil {
 			return srs.Note{}, false, err
 		}
+		if seen[sentenceID] {
+			continue
+		}
+		seen[sentenceID] = true
+
 		// Locate the token that belongs to THIS lemma so the cloze blanks the
 		// word being taught rather than whichever token happens to be first.
 		for _, tok := range morph.Tokenize(hu) {

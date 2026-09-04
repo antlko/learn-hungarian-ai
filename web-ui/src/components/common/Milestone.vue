@@ -95,7 +95,7 @@ onBeforeUnmount(clearTimers)
     -->
     <div
       v-if="current"
-      class="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4"
+      class="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4 md:left-(--rail)"
       role="status"
       aria-live="polite"
     >

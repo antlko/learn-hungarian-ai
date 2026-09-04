@@ -61,7 +61,14 @@ import (
 const (
 	minLemmaAccuracy = 0.72
 	minUPOSAccuracy  = 0.67
-	minFeatsExact    = 0.53
+	// Re-baselined 2026-08-26 from 0.53, and NOT because the analyser got worse
+	// — it is byte-identical. The pack's feature inventory gained the verb's
+	// `Person` (three rows in `langpack/pipeline/features.py`), and this test
+	// reads the keys it scores FROM the pack on purpose, so the comparison
+	// widened from 13 keys to 14 and exact-set accuracy fell 56.2% → 52.2%. A
+	// feature the app grades and could not name was the actual defect; scoring
+	// it is the metric getting more honest, not the parser getting worse.
+	minFeatsExact = 0.49
 	// Coverage is the share of gold tokens the analyser produced any answer for.
 	// It bounds all three above: an analysis that is never offered cannot be
 	// right, and this separates "wrong" from "absent", which are different

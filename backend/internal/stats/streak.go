@@ -200,3 +200,27 @@ func ComputeStreak(days []Day, today string, dailyMinutes int) Streak {
 	}
 	return st
 }
+
+// RecordPractice folds free practice into today's row.
+//
+// Minutes only, and deliberately no counter of its own in daily_log: the volume
+// and accuracy live in practice_log, where they can be reported honestly as
+// practice rather than blurred into the review count.
+//
+// It does NOT write due_left. Practice clears no obligation, so the day's
+// standing must be whatever the review queue last left it at — otherwise a
+// practice session could refresh a stale zero and hand out a streak nobody
+// earned. See [R14] and ADR-019.
+func (s *Store) RecordPractice(userID int64, day string, durationMs int64) error {
+	_, err := s.db.Exec(`
+		INSERT INTO daily_log (user_id, day, active_ms, updated_at)
+		VALUES (?,?,?,?)
+		ON CONFLICT(user_id, day) DO UPDATE SET
+		  active_ms = active_ms + excluded.active_ms,
+		  updated_at = excluded.updated_at`,
+		userID, day, durationMs, db.FmtTime(time.Now()))
+	if err != nil {
+		return fmt.Errorf("record practice: %w", err)
+	}
+	return nil
+}

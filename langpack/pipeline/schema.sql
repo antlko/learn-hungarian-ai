@@ -98,6 +98,12 @@ CREATE TABLE sentence_token (
     PRIMARY KEY (sentence_id, idx)
 );
 CREATE INDEX idx_stoken_lemma ON sentence_token(lemma_id);
+-- The tagger's lemma_id and the dictionary's headword disagree often enough
+-- that the course also has to find a sentence by SURFACE FORM: `nagyon` is
+-- lemmatised to `nagy`, so the lemma join returns nothing for 820 sentences
+-- that plainly contain the word. BINARY-collated like every other index here —
+-- callers enumerate the casings (morph.CaseVariants) rather than folding.
+CREATE INDEX idx_stoken_form ON sentence_token(form);
 
 -- ─── phonetics ────────────────────────────────────────────────────────────
 CREATE TABLE minimal_pair (

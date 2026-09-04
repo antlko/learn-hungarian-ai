@@ -76,6 +76,7 @@ func settingsDTO(c config.Config, secrets map[string]bool) SettingsDTO {
 			Goal:             c.Review.Goal,
 			Directions:       dirs,
 			BurySiblings:     c.Review.BurySiblingsEnabled(),
+			AccentTolerance:  c.Review.AccentToleranceEnabled(),
 		},
 		Mining: MiningDTO{
 			KnownThreshold: c.Mining.KnownThreshold,
@@ -109,6 +110,7 @@ func settingsDTO(c config.Config, secrets map[string]bool) SettingsDTO {
 			"asr": svc(c.Services.ASR),
 			"nlp": svc(c.Services.NLP),
 			"llm": svc(c.Services.LLM),
+			"mt":  svc(c.Services.MT),
 		},
 		Secrets: secrets,
 	}

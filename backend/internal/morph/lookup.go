@@ -221,5 +221,5 @@ func (a *Analyzer) AnalyzeText(text string) ([]AnalyzedToken, []Sentence, error)
 		}
 		out = append(out, at)
 	}
-	return out, SplitSentences(tokens), nil
+	return out, SplitSentences(text, tokens), nil
 }

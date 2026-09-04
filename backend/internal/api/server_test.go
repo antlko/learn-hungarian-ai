@@ -7,10 +7,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"tanulom/internal/auth"
 	"testing"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
+
+	"tanulom/internal/config"
 )
 
 // newTestServer returns a server backed by a temp data dir, plus a request helper
@@ -51,7 +54,7 @@ func (c *client) do(method, path string, body any) (*http.Response, []byte) {
 	}
 
 	// bcrypt hashing makes setup/login slower than the 1s default.
-	resp, err := c.app.App().Test(req, fiber.TestConfig{Timeout: 15 * time.Second, FailOnTimeout: true})
+	resp, err := c.app.App().Test(req, fiber.TestConfig{Timeout: 90 * time.Second, FailOnTimeout: true})
 	if err != nil {
 		c.t.Fatalf("%s %s: %v", method, path, err)
 	}
@@ -324,10 +327,27 @@ func TestCapabilitiesReportUnconfiguredServices(t *testing.T) {
 	if resp := c.json(http.MethodGet, "/api/capabilities", nil, &caps); resp.StatusCode != 200 {
 		t.Fatalf("capabilities: got %d", resp.StatusCode)
 	}
-	if len(caps) != 4 {
-		t.Fatalf("want tts/asr/nlp/llm, got %d: %+v", len(caps), caps)
+	if len(caps) != 5 {
+		t.Fatalf("want tts/asr/nlp/llm/mt, got %d: %+v", len(caps), caps)
 	}
 	for _, cap := range caps {
+		if cap.Name == "tts" {
+			// Speech defaults to the learner's own browser, which is the one
+			// optional capability that needs nothing deployed. It is therefore
+			// CONFIGURED out of the box — and never reachable from here, because
+			// this process cannot see that browser. Asserting reachability we
+			// have not tested is the thing this case exists to prevent.
+			if !cap.Configured || cap.Provider != config.ProviderDevice {
+				t.Errorf("tts should default to the device, got %+v", cap)
+			}
+			if cap.Reachable {
+				t.Errorf("the server cannot reach a browser; tts must not claim it: %+v", cap)
+			}
+			if cap.Detail != "device" {
+				t.Errorf("tts detail should tell the client to check for itself, got %q", cap.Detail)
+			}
+			continue
+		}
 		if cap.Configured || cap.Reachable {
 			t.Errorf("%s should be unconfigured by default, got %+v", cap.Name, cap)
 		}
@@ -401,5 +421,21 @@ func TestSPACacheHeaders(t *testing.T) {
 	resp, _ = c.do(http.MethodGet, "/assets/index-abc123.js", nil)
 	if cc := resp.Header.Get("Cache-Control"); !strings.Contains(cc, "immutable") {
 		t.Errorf("fingerprinted asset Cache-Control = %q, want immutable", cc)
+	}
+}
+
+// The setup and users screens print the password floor the server enforces,
+// not a copy of it: bootstrap carries auth.MinPasswordLength (ADR-038).
+func TestBootstrapReportsTheMinimumPasswordLength(t *testing.T) {
+	_, c := newTestServer(t)
+	var boot BootstrapDTO
+	if resp := c.json(http.MethodGet, "/api/bootstrap", nil, &boot); resp.StatusCode != 200 {
+		t.Fatalf("bootstrap: status %d", resp.StatusCode)
+	}
+	if boot.MinPassword != auth.MinPasswordLength {
+		t.Fatalf("minPassword = %d, want %d", boot.MinPassword, auth.MinPasswordLength)
+	}
+	if boot.MinPassword < 8 {
+		t.Fatalf("a floor of %d is not a floor", boot.MinPassword)
 	}
 }

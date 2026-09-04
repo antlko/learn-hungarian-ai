@@ -55,6 +55,9 @@ type Note struct {
 	GlossEN     string
 	Notes       string
 	Source      string
+	// Trashed reports that the learner set this word aside. Read on the answer
+	// path so a stale tab cannot schedule a card that is out of the deck.
+	Trashed bool
 }
 
 // Card is one direction of a note, with its own FSRS state.
@@ -146,10 +149,12 @@ func (s *Store) Note(userID, noteID int64) (Note, error) {
 	var feats string
 	err := s.db.QueryRow(`
 		SELECT id, user_id, kind, lemma_id, sentence_id, hu, target_form,
-		       target_start, target_end, target_feats, gloss_ru, gloss_en, notes, source
+		       target_start, target_end, target_feats, gloss_ru, gloss_en, notes, source,
+		       trashed_at IS NOT NULL
 		  FROM note WHERE id = ? AND user_id = ?`, noteID, userID,
 	).Scan(&n.ID, &n.UserID, &n.Kind, &n.LemmaID, &n.SentenceID, &n.HU, &n.TargetForm,
-		&n.TargetStart, &n.TargetEnd, &feats, &n.GlossRU, &n.GlossEN, &n.Notes, &n.Source)
+		&n.TargetStart, &n.TargetEnd, &feats, &n.GlossRU, &n.GlossEN, &n.Notes, &n.Source,
+		&n.Trashed)
 	if errors.Is(err, sql.ErrNoRows) {
 		return Note{}, ErrNotFound
 	}
@@ -172,12 +177,13 @@ func (s *Store) Card(userID, cardID int64) (Card, error) {
 	var last sql.NullString
 	err := s.db.QueryRow(`
 		SELECT c.id, c.note_id, c.direction, c.due, c.stability, c.difficulty,
-		       c.scheduled_days, c.reps, c.lapses, c.state, c.last_review, c.suspended
+		       c.scheduled_days, c.reps, c.lapses, c.state, c.last_review, c.suspended,
+		       c.remaining_steps
 		  FROM card c JOIN note n ON n.id = c.note_id
 		 WHERE c.id = ? AND n.user_id = ?`, cardID, userID,
 	).Scan(&c.ID, &c.NoteID, &c.Direction, &due, &c.State.Stability, &c.State.Difficulty,
 		&c.State.ScheduledDays, &c.State.Reps, &c.State.Lapses, &c.State.State,
-		&last, &c.Suspended)
+		&last, &c.Suspended, &c.State.RemainingSteps)
 	if errors.Is(err, sql.ErrNoRows) {
 		return Card{}, ErrNotFound
 	}
@@ -198,10 +204,11 @@ func (s *Store) SaveCard(tx *sql.Tx, c Card) error {
 	}
 	_, err := exec(`
 		UPDATE card SET due=?, stability=?, difficulty=?, scheduled_days=?,
-		                reps=?, lapses=?, state=?, last_review=?
+		                reps=?, lapses=?, state=?, last_review=?, remaining_steps=?
 		 WHERE id=?`,
 		db.FmtTime(c.State.Due), c.State.Stability, c.State.Difficulty,
-		c.State.ScheduledDays, c.State.Reps, c.State.Lapses, c.State.State, last, c.ID)
+		c.State.ScheduledDays, c.State.Reps, c.State.Lapses, c.State.State, last,
+		c.State.RemainingSteps, c.ID)
 	if err != nil {
 		return fmt.Errorf("save card: %w", err)
 	}
@@ -246,11 +253,11 @@ func (s *Store) FeatureState(tx *sql.Tx, userID int64, featureID string, now tim
 	var due, last sql.NullString
 	err := s.q(tx).QueryRow(`
 		SELECT due, stability, difficulty, scheduled_days, reps, lapses, state,
-		       last_review, recent_accuracy, recent_total, median_ms
+		       last_review, recent_accuracy, recent_total, median_ms, remaining_steps
 		  FROM morph_state WHERE user_id = ? AND feature_id = ?`, userID, featureID,
 	).Scan(&due, &fs.State.Stability, &fs.State.Difficulty, &fs.State.ScheduledDays,
 		&fs.State.Reps, &fs.State.Lapses, &fs.State.State, &last,
-		&fs.Accuracy, &fs.Total, &fs.MedianMs)
+		&fs.Accuracy, &fs.Total, &fs.MedianMs, &fs.State.RemainingSteps)
 	if errors.Is(err, sql.ErrNoRows) {
 		return fs, nil
 	}
@@ -275,17 +282,17 @@ func (s *Store) SaveFeatureState(tx *sql.Tx, userID int64, fs FeatureState) erro
 	_, err := exec(`
 		INSERT INTO morph_state (user_id, feature_id, due, stability, difficulty,
 		                         scheduled_days, reps, lapses, state, last_review,
-		                         recent_accuracy, recent_total, median_ms)
-		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+		                         recent_accuracy, recent_total, median_ms, remaining_steps)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 		ON CONFLICT(user_id, feature_id) DO UPDATE SET
 		  due=excluded.due, stability=excluded.stability, difficulty=excluded.difficulty,
 		  scheduled_days=excluded.scheduled_days, reps=excluded.reps,
 		  lapses=excluded.lapses, state=excluded.state, last_review=excluded.last_review,
 		  recent_accuracy=excluded.recent_accuracy, recent_total=excluded.recent_total,
-		  median_ms=excluded.median_ms`,
+		  median_ms=excluded.median_ms, remaining_steps=excluded.remaining_steps`,
 		userID, fs.FeatureID, due, fs.State.Stability, fs.State.Difficulty,
 		fs.State.ScheduledDays, fs.State.Reps, fs.State.Lapses, fs.State.State, last,
-		fs.Accuracy, fs.Total, fs.MedianMs)
+		fs.Accuracy, fs.Total, fs.MedianMs, fs.State.RemainingSteps)
 	if err != nil {
 		return fmt.Errorf("save feature state: %w", err)
 	}
@@ -342,15 +349,31 @@ func (s *Store) LemmaState(userID, lemmaID int64, now time.Time) (string, CardSt
 //
 // This is what feeds the lemma curve and the checkpoints' "лемм в Anki"
 // criterion: a lemma is IN PLAY from the moment it has a card.
-func (s *Store) MarkLemmaLearning(userID, lemmaID int64) error {
+// It returns the status the lemma ENDED UP with rather than leaving the caller
+// to re-derive it. The reader recolours the word from this answer, and a client
+// that reimplemented "only new becomes learning" would be a second copy of a
+// rule that already lives in one ON CONFLICT clause — one that would recolour a
+// `known` word as `learning` the moment the two drifted.
+func (s *Store) MarkLemmaLearning(userID, lemmaID int64) (string, error) {
+	// Deliberately not RETURNING: with `DO UPDATE ... WHERE status = 'new'` the
+	// upsert is a no-op for a `known` row, so RETURNING yields NO row and a
+	// known lemma would surface as sql.ErrNoRows — the one case this function
+	// exists to report faithfully.
 	_, err := s.db.Exec(`
 		INSERT INTO lemma_state (user_id, lemma_id, status) VALUES (?,?,'learning')
 		ON CONFLICT(user_id, lemma_id) DO UPDATE SET status='learning'
 		 WHERE lemma_state.status = 'new'`, userID, lemmaID)
 	if err != nil {
-		return fmt.Errorf("mark lemma learning: %w", err)
+		return "", fmt.Errorf("mark lemma learning: %w", err)
 	}
-	return nil
+	var status string
+	err = s.db.QueryRow(
+		`SELECT status FROM lemma_state WHERE user_id = ? AND lemma_id = ?`,
+		userID, lemmaID).Scan(&status)
+	if err != nil {
+		return "", fmt.Errorf("mark lemma learning: %w", err)
+	}
+	return status, nil
 }
 
 // SetLemmaStatus records a learner declaration such as "I know this word".
@@ -409,17 +432,65 @@ func nullableID(id int64) any {
 	return id
 }
 
-// DueCount counts review-due cards right now — the streak's "queue cleared"
-// obligation. New cards are not obligations (they are budget), and suspended
-// cards are not due by definition.
-func (s *Store) DueCount(userID int64, now time.Time) (int, error) {
+// The streak's "queue cleared" number is ActionableDue in breakdown.go: the
+// raw due-card count that used to live here included siblings buried until
+// tomorrow, which made the obligation impossible to meet. ADR-021.
+
+// LinkNoteOrigin records that a note was mined from a text. Idempotent: the
+// duplicate-add path calls it too — a word re-added from a second text gains
+// that text's claim rather than a second note. ADR-022.
+func (s *Store) LinkNoteOrigin(noteID, textID int64) error {
+	_, err := s.db.Exec(`
+		INSERT OR IGNORE INTO note_origin (note_id, text_id) VALUES (?, ?)`,
+		noteID, textID)
+	if err != nil {
+		return fmt.Errorf("link note %d to text %d: %w", noteID, textID, err)
+	}
+	return nil
+}
+
+// TextNoteCount counts the user's notes mined from one text — the number the
+// library card prints beside «повторить слова из этого текста».
+func (s *Store) TextNoteCount(userID, textID int64) (int, error) {
 	var n int
 	err := s.db.QueryRow(`
-		SELECT COUNT(*) FROM card c JOIN note n ON n.id = c.note_id
-		 WHERE n.user_id = ? AND c.suspended = 0 AND c.state != 0 AND c.due <= ?`,
-		userID, db.FmtTime(now)).Scan(&n)
+		SELECT COUNT(*)
+		  FROM note_origin o JOIN note n ON n.id = o.note_id
+		 WHERE o.text_id = ? AND n.user_id = ? AND n.trashed_at IS NULL`,
+		textID, userID).Scan(&n)
 	if err != nil {
-		return 0, fmt.Errorf("count due: %w", err)
+		return 0, fmt.Errorf("count text notes: %w", err)
 	}
 	return n, nil
+}
+
+// BackfillClozeCards mints the cloze card a note should already have had.
+//
+// Notes created while a cloze needed FEATURES as well as a span have a
+// sentence, a located target, and no card that asks about it. This repairs them
+// in place rather than through a migration: the rule that decides whether a
+// learner gets cloze cards at all lives in config.yaml, and a migration runs
+// inside db.Open, before any config has been read — so it would mint cloze
+// cards for somebody who turned the direction off.
+//
+// Idempotent: `card` carries UNIQUE(note_id, direction), and after the first
+// pass this is one indexed NOT EXISTS that returns nothing. Returns how many
+// cards were created.
+func (s *Store) BackfillClozeCards(userID int64, now time.Time) (int, error) {
+	res, err := s.db.Exec(`
+		INSERT OR IGNORE INTO card (note_id, direction, due, stability, difficulty,
+		                            scheduled_days, reps, lapses, state, last_review)
+		SELECT n.id, 'cloze', ?, 0, 0, 0, 0, 0, 0, NULL
+		  FROM note n
+		 WHERE n.user_id = ? AND n.trashed_at IS NULL
+		   AND n.target_start >= 0 AND n.target_end > n.target_start
+		   AND NOT EXISTS (
+		         SELECT 1 FROM card c
+		          WHERE c.note_id = n.id AND c.direction = 'cloze')`,
+		db.FmtTime(NewCardState(now).Due), userID)
+	if err != nil {
+		return 0, fmt.Errorf("backfill cloze cards: %w", err)
+	}
+	n, err := res.RowsAffected()
+	return int(n), err
 }

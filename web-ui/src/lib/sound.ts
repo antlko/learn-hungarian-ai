@@ -27,7 +27,7 @@
 
 const STORAGE_KEY = 'tanulom.sound'
 
-export type SoundName = 'correct' | 'wrong' | 'milestone' | 'sessionComplete'
+export type SoundName = 'correct' | 'wrong' | 'milestone' | 'sessionComplete' | 'setComplete'
 
 interface Voice {
   /** Hertz. */
@@ -66,6 +66,13 @@ const RECIPES: Record<SoundName, Voice[]> = {
     { freq: 880.0, type: 'sine', at: 0.06, dur: 0.1, gain: 0.05 },
     { freq: 1174.66, type: 'sine', at: 0.12, dur: 0.12, gain: 0.06 },
     { freq: 293.66, type: 'triangle', at: 0.12, dur: 0.12, gain: 0.02 },
+  ],
+  // D5 rising to A5: a two-note cue for a set finished, quieter and shorter
+  // than the full stop below. A set is a comma in the day's work, not the end
+  // of it, and the sound says so. [R18]
+  setComplete: [
+    { freq: 587.33, type: 'sine', at: 0, dur: 0.1, gain: 0.04 },
+    { freq: 880.0, type: 'sine', at: 0.08, dur: 0.12, gain: 0.045 },
   ],
   // E5 falling to A4: a descending fifth is a full stop. The queue is empty; go
   // and do something else.

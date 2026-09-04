@@ -1,0 +1,6 @@
+# The full pack (`make langpack`) on top of requirements.txt: HuSpaCy's
+# hu_core_news_lg (lemma 97.6%, POS 96.7%), ~500 MB of wheels. The starter pack
+# and every refresh/audio/subtitles target need none of this.
+-r requirements.txt
+huspacy>=0.13
+https://huggingface.co/huspacy/hu_core_news_lg/resolve/main/hu_core_news_lg-any-py3-none-any.whl

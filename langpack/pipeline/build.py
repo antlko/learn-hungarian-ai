@@ -25,9 +25,11 @@ from . import (
     minimal_pairs,
     resources,
     sentences,
+    subtitles,
     sources,
     wiktionary_ru,
 )
+from . import verbs
 from .inflect import noun_forms, paradigm, slot_for
 from .wiktionary import Entry, FormOf
 from .wiktionary import parse as parse_wiktionary
@@ -49,6 +51,14 @@ def main() -> int:
     ap.add_argument("--version", default="1")
     ap.add_argument("--record-checksums", action="store_true")
     ap.add_argument("--force-fetch", action="store_true")
+    ap.add_argument(
+        "--subtitle-sentences",
+        type=int,
+        default=120_000,
+        help="how many conversational sentences to take from OpenSubtitles "
+             "(0 = none). They are chosen by how often the phrase recurs and by "
+             "how much of it a learner already knows; see pipeline/subtitles.py.",
+    )
     ap.add_argument(
         "--generate-forms-top",
         type=int,
@@ -277,6 +287,16 @@ def main() -> int:
               f"(skipped {skipped} duplicating attested rows, "
               f"{overridden} cells corrected from the dictionary)")
 
+        # Verbs get the same recognition net as nouns. Wiktionary's verb
+        # coverage is spotty — `hoz` arrived with `hoztuk` and without
+        # `hoztunk` — and the missing cell reads as "not in the pack" on a
+        # word the course itself teaches. See pipeline/verbs.py.
+        print("→ generating verb conjugations")
+        verb_stats = verbs.backfill(conn)
+        conn.commit()
+        stats["verb_forms_generated"] = verb_stats["generated_forms"]
+        print(f"  verb forms: {verb_stats['generated_forms']} across {verb_stats['verbs']} verbs")
+
     # ── sentences ────────────────────────────────────────────────────────
     hu_path = paths.get("tatoeba_sentences")
     if hu_path and hu_path.exists():
@@ -317,6 +337,44 @@ def main() -> int:
             count += 1
             if count >= 60_000:
                 break
+
+        # ── conversational sentences from subtitles ───────────────────────
+        #
+        # Tatoeba is careful written Hungarian and there is not much of it.
+        # OpenSubtitles is dialogue, which is what the app is for, and there is
+        # far too much of it — see pipeline/subtitles.py for what gets thrown
+        # away and why. Marked with its own source so the starter pack, which
+        # ships inside a distributed binary, can take Tatoeba only.
+        subs_archives = {
+            lang: paths.get(key)
+            for lang, key in (("ru", "opensubtitles_ru"), ("en", "opensubtitles_en"))
+        }
+        subs_archives = {k: v for k, v in subs_archives.items() if v and v.exists()}
+        if subs_archives and args.subtitle_sentences > 0:
+            print("→ conversational sentences (this takes a while — two passes "
+                  "over ~19M subtitle lines per language)")
+            picked, sub_stats = subtitles.select(
+                subs_archives, rank_by_form, args.subtitle_sentences)
+            stats["subtitles"] = sub_stats
+            next_sid = max((r[0] for r in srows), default=0) + 1
+            seen_hu = {r[1] for r in srows}
+            for sel in picked:
+                if sel.hu in seen_hu:
+                    continue
+                seen_hu.add(sel.hu)
+                toks = tokenise(sel.hu)
+                if not toks:
+                    continue
+                srows.append((next_sid, sel.hu, "opensubtitles",
+                              "OPUS OpenSubtitles (Lison & Tiedemann 2016)", len(toks),
+                              sentences.difficulty(sel.hu, rank_by_form)))
+                for lang, text in (("ru", sel.ru), ("en", sel.en)):
+                    if text:
+                        trows.append((next_sid, lang, text))
+                for i, tok in enumerate(toks):
+                    tokrows.append((next_sid, i, tok, lemma_by_form.get(tok.lower()), ""))
+                next_sid += 1
+            print(f"  subtitles: {sub_stats}")
 
         stats["sentences"] = emit.bulk(
             conn, "sentence", ["id", "hu", "source", "license", "len_tokens", "difficulty"], srows)
@@ -424,6 +482,14 @@ def main() -> int:
         ],
         "attribution": "See langpack/LICENSES.md. Pack data is CC BY-SA 4.0.",
     }
+    # The ear trainer's pairs against the dictionary just built: a member the
+    # language does not have is not a stimulus, and the build says which.
+    missing = minimal_pairs.unattested(conn)
+    if missing:
+        print("minimal pairs name forms the dictionary does not carry:", *missing, sep="\n  ")
+        conn.close()
+        return 1
+
     emit.finalise(conn, index_ddl, meta)
     conn.close()
 

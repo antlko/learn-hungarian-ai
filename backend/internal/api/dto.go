@@ -19,6 +19,9 @@ type BootstrapDTO struct {
 	PackEdition string   `json:"packEdition,omitempty"`
 	Locales     []string `json:"locales"`
 	Version     string   `json:"version"`
+	// MinPassword is auth.MinPasswordLength, so the setup and users screens
+	// print the floor the server enforces rather than a copy of it.
+	MinPassword int `json:"minPassword"`
 }
 
 // UserDTO is a rendered account. Never carries the password hash.
@@ -79,6 +82,7 @@ type ReviewDTO struct {
 	Goal             string                  `json:"goal"`
 	Directions       map[string]DirectionDTO `json:"directions"`
 	BurySiblings     bool                    `json:"burySiblings"`
+	AccentTolerance  bool                    `json:"accentTolerance"`
 }
 
 type DirectionDTO struct {
@@ -153,6 +157,33 @@ type ClampDTO struct {
 	To    float64 `json:"to"`
 }
 
+// TranslateRequest asks for a batch of sentences in one call. Batched because
+// the reader's natural unit is a paragraph, and a model that takes a second per
+// sentence must not be woken up eight times to answer one screen.
+type TranslateRequest struct {
+	Texts []string `json:"texts"`
+	// Target is a UI locale ("ru" / "en"); blank means the configured gloss
+	// language. The FLORES code the model wants is mapped in internal/mt.
+	Target string `json:"target"`
+}
+
+// TranslationDTO is one machine translation.
+//
+// Model travels with the text on purpose. The learner is shown who wrote this
+// line, every time, because it is the only line in the app that no human and no
+// corpus stands behind — ADR-014. Cached says the answer came from the local
+// cache, which is why it arrived with the sidecar stopped.
+type TranslationDTO struct {
+	Source string `json:"source"`
+	Text   string `json:"text"`
+	Model  string `json:"model,omitempty"`
+	Cached bool   `json:"cached"`
+}
+
+type TranslateResponse struct {
+	Translations []TranslationDTO `json:"translations"`
+}
+
 // CapabilityDTO reports an optional service. The UI renders these as the
 // capability dots and disables dependent features with a visible reason —
 // never silently. See ADR-005.
@@ -163,4 +194,8 @@ type CapabilityDTO struct {
 	Reachable  bool   `json:"reachable"`
 	LatencyMs  int64  `json:"latencyMs,omitempty"`
 	Detail     string `json:"detail,omitempty"`
+	// Models is what an llm endpoint says it serves (GET /v1/models), for
+	// the settings screen to offer; absent for every other service and for an
+	// endpoint that does not answer the route.
+	Models []string `json:"models,omitempty"`
 }

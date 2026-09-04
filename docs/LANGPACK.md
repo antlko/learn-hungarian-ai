@@ -32,6 +32,12 @@ Steps 1–3 are fully offline with zero dependencies. Step 4 is an upgrade, neve
 
 ```sql
 -- ─── lexicon ────────────────────────────────────────────────────────────
+-- `cefr` is estimated from frequency bands (900/2000/4500/8000/16000,
+-- pipeline/frequency.py) and is the ONE band table: the reader's text-level
+-- estimate reads it (ADR-023). internal/drill/generate.go's `bandFor` uses
+-- different cutoffs on purpose — it budgets drill VOCABULARY per curriculum
+-- level, a different dial — so neither should be "fixed" to match the other,
+-- and nothing may fork a third table.
 lemma(id INTEGER PK, lemma TEXT, upos TEXT, freq_rank INTEGER,
       freq_pm REAL, cefr TEXT, ipa TEXT, flags INTEGER)
 lemma_gloss(lemma_id, lang TEXT CHECK(lang IN ('ru','en')), sense_idx INTEGER, gloss TEXT)
@@ -201,8 +207,117 @@ fetch → normalise → analyse → merge → score → emit
 | normalise | `wiktionary.py`, `wiktionary_ru.py`, `frequency.py` | JSONL → `lemma`, `lemma_gloss`, `paradigm`, IPA; frequency → ranks |
 | analyse | `analyse.py` | HuSpaCy over Tatoeba + a Webcorpus sample → `sentence_token`; expand `wordform` from **corpus-attested forms ∪ Wiktionary paradigms** |
 | merge | `features.py` | resolve lemma identity across sources; derive `morph_feature` incl. allomorph tables from harmony class |
-| score | `sentences.py`, `minimal_pairs.py`, `curriculum.py`, `ngram.py` | sentence difficulty; CEFR estimate per lemma; contrast inventory + audio rendering; topic DAG; n-gram counts |
+| score | `sentences.py`, `minimal_pairs.py`, `curriculum.py`, `lessons.py`, `ngram.py` | sentence difficulty; CEFR estimate per lemma; contrast inventory + audio rendering; topic DAG + lesson text; n-gram counts |
 | emit | `emit.py` | write SQLite, create indexes, `VACUUM`, checksum, `manifest.json` |
+
+### Editing a lesson without a full rebuild
+
+`curriculum.py` owns the teaching DAG; **`lessons.py` owns the prose**, keyed by topic code, in
+both locales. They were one file, and that is why every lesson used to be a single paragraph of
+50–450 characters: nobody puts a page of prose in the middle of a graph definition. A lesson
+now states the rule, shows the paradigm as a paradigm, works through examples and names the
+mistake a learner actually makes — which is [R4] applied rather than cited.
+
+Four tables are computed from Python literals alone and need nothing downloaded —
+`morph_feature`, `grammar_topic`, `minimal_pair`, and `course_unit`/`course_word`. Rewriting
+them in an existing pack takes seconds:
+
+```bash
+make refresh-curriculum          # python -m pipeline.refresh --pack ...
+make starter                     # then re-embed, and COMMIT the result
+```
+
+`pipeline/refresh.py` validates everything **before** it opens the file for writing — including
+every minimal-pair member against the pack's own `wordform` table ([ADR-033](../.claude/DECISIONS.md#adr-033))
+— and swaps all five tables in one transaction: a pack left half-rewritten by a content error
+is worse than one carrying the old text. The ear trainer's `pair_audio` rows follow their pair
+to its new id and the rows of pairs that are gone are dropped, so a refresh never plays one
+pair's clips under another. **Stop the server first** — the app treats a pack as read-only, and
+this is a build step writing to one. After a refresh that changed the pairs, `make audio`
+renders the missing clips (`rm -rf data/media/hvpt` first to drop the old id-named files).
+
+**`make starter` is not optional after either command.** The binary embeds its own pack, so
+skipping it ships last month's lessons ([ADR-010](../.claude/DECISIONS.md#adr-010)).
+
+### Conversational sentences, and adding them without a rebuild
+
+Tatoeba is 60,000 sentences of careful *written* Hungarian, and only 3,746 of them carry a
+Russian translation. For an app whose stated goal is conversation that is a thin corpus: the
+`n+1` rail repeats itself, a course word with no attested sentence gets no card, and the review
+screen shows sentences it cannot translate.
+
+`pipeline/subtitles.py` reads the OPUS OpenSubtitles parallel corpora (`hu-ru`, 690 MB;
+`en-hu`, 1.3 GB — 19.1M aligned line pairs each) and keeps a fraction of a percent of them.
+
+**The alignment cannot be trusted pair by pair, and that shapes the whole design.**
+OpenSubtitles is aligned automatically and it fails predictably at the head of every film, where
+one side runs translator credits and opening-song lyrics against the other side's dialogue.
+Sampling the first lines gives nonsense; sampling deep in the corpus gives 17 correct
+translations out of 18. Structural guards (numerals must survive, a question stays a question,
+plausible length ratio, no credit lines) remove the obvious cases and are not enough.
+
+So selection is by **recurrence and majority vote**:
+
+- a sentence must occur at least `MIN_OCCURRENCES` times before it counts as a phrase rather
+  than a line from one film — which also means the sort key *is* "how often people say this";
+- its translation is the one that wins a vote across all its occurrences, by at least
+  `MIN_AGREEMENT`. A true translation recurs; forty independent misalignments do not agree with
+  each other. Below the threshold the sentence is kept and the **translation is dropped** —
+  real Hungarian with no translation is useful, a wrong translation is not.
+
+Measured on `hu-ru`: 10.0M usable pairs → 8.85M distinct sentences → 132,079 recurring →
+26,781 with a translation that carried its vote. The top of that list is
+`Mit csinálsz itt?`, `Hogy érzed magad?`, `Mennyi az idő?`, `Hány éves vagy?`.
+
+```bash
+make subtitles                   # ~40 min, no full rebuild
+```
+
+The sentence stage never calls HuSpaCy — `build.py` links each token through the pack's own
+`wordform` index — so adding sentences to a pack that already has a lexicon is minutes of I/O
+rather than the hours a full `make langpack` costs. `pipeline/add_subtitles.py` is idempotent:
+it owns every `source='opensubtitles'` row and replaces them wholesale, never touching Tatoeba's,
+and it rebuilds the n-gram attestation index because the counts in it are what make it a
+guardrail.
+
+**These sentences never reach the starter pack.** See
+[LICENSES.md](../langpack/LICENSES.md#opensubtitles-and-redistribution--the-line-this-project-draws).
+
+### The ear trainer's clips are citation-form, and why
+
+The first render sent Piper the bare word. Its VITS voices are trained on sentences, and an
+isolated three-letter word is out of distribution: the inventory came out with a **median clip
+of 0.35 s** (minimum 0.16 s) in which the kor/kór vowel-length contrast — the thing HVPT exists
+to teach — was physically absent. Learners heard "different words entirely" and scored at
+chance, which is exactly what stimuli carrying no signal produce.
+
+The render now produces **citation forms**: the word as a one-word sentence (`kór.`), slowed by
+`CITATION_SCALE` (HVPT stimuli in the literature are clear citation speech, not conversational
+tempo), with enough trailing silence that the Opus encode cannot clip a final consonant —
+öt/őt is decided in the last hundred milliseconds. Measured effect: the long member is now
+consistently 15–25% longer than its short partner, at every voice and rate, which is the
+natural Hungarian ratio. Re-render an existing inventory with `make audio` after
+`--force`-clearing, or delete `data/media/hvpt` first.
+
+### Verb conjugations, generated
+
+Wiktionary's extraction is spotty for verbs: `hoz` arrived with 24 forms, holding `hoztuk`
+(definite) but not `hoztunk` (indefinite), so a learner clicking a word on their own course
+card was told it is not in the pack. `pipeline/verbs.py` generates the **present and past
+indicative, both definitenesses, plus -lak/-lek and the infinitive** for every regular verb —
+the cells months one to four of the course actually produce.
+
+The honesty rules it operates under: rows are `source='generated'` and can never displace an
+attested form (`trustRank`) or be presented as a drill answer without a caveat
+(`Form.Attested()`); the past stem is **extracted from an attested past form** where one exists
+(`hoztuk` → `hozt` → `hoztunk`, MEDIUM) and only built by rule at LOW where none does; and the
+dozen suppletive verbs (`megy`, `van`, `eszik`…) are refused outright — a generator that emits
+`megytunk` has stopped being a safety net. Conditional, imperative and potential are out of
+scope on purpose: their assimilations are where a generator starts inventing wrong Hungarian.
+
+`make verbs` backfills an existing pack in seconds (it also folds in corpus-attested forms the
+original build dropped — 7,872 on hu-v1); the full build runs the same code. Insert-if-absent
+per `(form, lemma_id)`, so re-runs are no-ops.
 
 **Why `wordform` is a union.** Corpus-attested forms give real-world coverage including
 irregulars; Wiktionary paradigms give systematic coverage including forms that are rare but
@@ -259,10 +374,17 @@ topics produce drills on hu-v1.
 
 ### The audio render stage
 
+Every pair member is a word the dictionary carries ([ADR-033](../.claude/DECISIONS.md#adr-033)):
+`minimal_pairs.unattested` runs in the build after the lexicon and in `refresh` before it
+writes, and either refuses the pack naming the form. Clips are named by the **word**
+(`hvpt/kor-ef012f_anna_100.ogg` — diacritics folded, a hash keeping `kor` and `kór` apart),
+never by the pair id, which `refresh` reassigns; `refresh` moves `pair_audio` rows to their
+pair's new id and drops the rows of pairs that are gone.
+
 `pair_audio` is populated by `make audio` (which fetches the voice models first — see below),
 or directly by `python -m pipeline.minimal_pairs --pack … --media … --voices-dir …`. It renders
 every pair member × three Piper voices (`hu_HU-{anna,berta,imre}-medium`, dataset licence
-**CC0** per the model cards) × two rates (1.0, 0.85) into `<media>/hvpt/` — **384 Opus clips in
+**CC0** per the model cards) × two rates (1.0, 0.85) into `<media>/hvpt/` — **342 Opus clips in
 an Ogg container, 513 KB** for the 32-pair inventory, transcoded with `ffmpeg` where it is
 available and left as WAV where it is not. That size is why the whole inventory rides inside the
 binary.
@@ -325,6 +447,7 @@ Each is checked by a test or by the pipeline itself, and each currently passes.
 | Gate | Threshold | Why |
 |---|---|---|
 | Every `grammar_topic` has non-empty `explain_md` in **both** locales | 100% | [R4](../.claude/research/04-explicit-instruction.md) — a topic without an explanation cannot be taught explicitly |
+| Every `grammar_topic` lesson is a lesson, not a blurb | ≥ 800 chars, both locales | a paragraph of context above an exercise is not explicit instruction; see `pipeline/lessons.py` |
 | Every `morph_feature` has labels in both locales | 100% | [ADR-004](../.claude/DECISIONS.md#adr-004) |
 | Every `pair_audio` row has a resolvable licence | 100% | Tatoeba audio licensing is per-clip |
 | Every `course_word.lemma` resolves in `lemma` | 100% | a course word the pack cannot look up is a word the app cannot teach — enforced in `pipeline/course.py` `validate()` |
@@ -351,10 +474,17 @@ against **UD Hungarian-Szeged**, 8 873 word tokens the pack never saw
 
 | | measured on hu-v1 | regression floor |
 |---|---|---|
-| coverage — an analysis was produced at all | 78.2% | 75% |
-| lemma — gold lemma among the candidates | 75.1% | 72% |
-| UPOS | 70.0% | 67% |
-| feature set, exact, over the 13 modelled keys | 56.2% | 53% |
+| coverage — an analysis was produced at all | 80.7% | 75% |
+| lemma — gold lemma among the candidates | 76.9% | 72% |
+| UPOS | 72.3% | 67% |
+| feature set, exact, over the 14 modelled keys | 52.2% | 49% |
+
+**The feature figure fell from 56.2% and the analyser did not change.** The test reads the keys
+it scores from the pack, so extending the inventory automatically widens the comparison — and
+the inventory gained the verb's `Person`, which the app has always graded (every conjugated form
+carries one, so it has a `morph_state` row) but could not name, because it had no row in
+`morph_feature`. The progress heatmap printed `Person=1` at the learner. Scoring a feature we
+were already grading is the metric becoming more honest, not the parser becoming worse.
 
 **Of the tokens it does analyse, the lemma is right 96% of the time.** Coverage is the binding
 constraint, not correctness: proper nouns (60% of 745 unanalysed) and verbs (45% of 927) are

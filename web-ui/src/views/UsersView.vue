@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 import { Trash2 } from '@lucide/vue'
+import { describeError } from '@/lib/errors'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { api, ApiError } from '@/api'
+import { api } from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import type { Role, User } from '@/types'
 
-// Mirrors auth.MinPasswordLength. The server is the only enforcer; this drives
-// the hint and the browser's own minlength check.
-const MIN_PASSWORD = 10
 
 const auth = useAuthStore()
+/** The server's floor, reported by /api/bootstrap; it is the only enforcer. */
+const MIN_PASSWORD = computed(() => auth.bootstrap?.minPassword ?? 10)
 const { t } = useI18n()
 
 const users = ref<User[]>([])
@@ -97,6 +97,12 @@ async function toggleRole(u: User) {
 async function remove(u: User) {
   if (armed.value !== u.id) {
     armed.value = u.id
+    // Disarm on its own, the way the library's delete does: an armed
+    // destructive button left behind for the rest of the session is a trap for
+    // the next stray click.
+    window.setTimeout(() => {
+      if (armed.value === u.id) armed.value = null
+    }, 5000)
     return
   }
   armed.value = null
@@ -134,12 +140,8 @@ async function changePassword() {
   }
 }
 
-// Server messages are already human-readable; only our own sentinel codes need
-// mapping to a localised string.
 function fail(e: unknown) {
-  const message = e instanceof ApiError ? e.message : ''
-  const sentinels = ['network-unreachable', 'unexpected-response']
-  toast.error(sentinels.includes(message) ? t(`errors.${message}`) : message || t('errors.generic'))
+  toast.error(describeError(e))
 }
 
 const isSelf = (u: User) => u.id === auth.user?.id
@@ -148,7 +150,7 @@ const since = (iso: string) => new Date(iso).toLocaleDateString()
 
 <template>
   <div class="mx-auto flex w-full max-w-3xl flex-col gap-6">
-    <h1 class="text-3xl font-semibold tracking-tight">{{ $t('users.title') }}</h1>
+    <h1 class="page-title">{{ $t('users.title') }}</h1>
 
     <p v-if="!loaded" class="text-sm text-muted-foreground">{{ $t('common.loading') }}</p>
 

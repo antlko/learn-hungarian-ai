@@ -19,24 +19,52 @@ func testConfig() GateConfig {
 
 func openGate() Gate { return Gate{Drillable: true} }
 
-func TestLockedUntilPrerequisitesOpen(t *testing.T) {
+// An unmet prerequisite is ADVICE, not a lock.
+//
+// It used to be a lock, and that wedged the learner it was meant to help.
+// `vowel-harmony` is the second topic in the course and the app's own lesson
+// says it takes three months to automate; at 68% rolling accuracy against an
+// 80% gate, a learner could not touch the plural, the accusative, or anything
+// else in A1 — for months. A competence floor nobody can cross is a wall.
+func TestUnmetPrerequisitesAdviseRatherThanLock(t *testing.T) {
 	cfg := testConfig()
 	d := Evaluate(Progress{Phase: Blocked}, Gate{Drillable: true,
 		UnmetPrereqs: []string{"past-tense", "possessive"}}, cfg)
 
-	if d.Phase != Locked {
-		t.Fatalf("phase = %v, want locked", d.Phase)
+	if d.Phase == Locked {
+		t.Fatal("an unmet prerequisite must not lock the topic")
 	}
-	if d.Reason != ReasonPrereq {
-		t.Errorf("reason = %q, want the prerequisite reason", d.Reason)
+	if !d.Phase.Servable() {
+		t.Fatalf("phase = %v; the topic has to remain practisable", d.Phase)
+	}
+	if d.Advice != ReasonPrereq {
+		t.Errorf("advice = %q, want the prerequisite recommendation", d.Advice)
 	}
 	// Naming the blocker is the difference between advice a learner can act on
 	// and a shrug.
-	if d.Args["topic"] != "past-tense" {
-		t.Errorf("args must name the nearest unmet prerequisite, got %v", d.Args)
+	if d.AdviceArgs["topic"] != "past-tense" {
+		t.Errorf("advice must name the nearest unmet prerequisite, got %v", d.AdviceArgs)
 	}
-	if !d.Demoted {
-		t.Error("falling back to locked is a demotion and must be announced")
+	if d.Demoted {
+		t.Error("advice is not a demotion and must not be announced as one")
+	}
+}
+
+// The two hard blocks survive: a failed checkpoint and the listening volume
+// word order cannot be reached without. Neither is an ordering preference.
+func TestHardGatesStillLock(t *testing.T) {
+	cfg := testConfig()
+
+	d := Evaluate(Progress{Phase: Interleaved}, Gate{Drillable: true,
+		CheckpointBlocked: true, UnmetPrereqs: []string{"past-tense"}}, cfg)
+	if d.Phase != Locked || d.Reason != ReasonCheckpoint {
+		t.Errorf("a failed checkpoint must still lock: %v / %v", d.Phase, d.Reason)
+	}
+
+	d = Evaluate(Progress{Phase: Blocked}, Gate{Drillable: true,
+		Listening: &ListeningGate{HeardHours: 3, NeedHours: 40}}, cfg)
+	if d.Phase != Locked || d.Reason != ReasonListening {
+		t.Errorf("the listening gate must still lock: %v / %v", d.Phase, d.Reason)
 	}
 }
 

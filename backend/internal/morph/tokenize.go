@@ -8,6 +8,7 @@ package morph
 import (
 	"strings"
 	"unicode"
+	"unicode/utf8"
 )
 
 // Token is one orthographic unit of a text.
@@ -115,22 +116,39 @@ const sentenceEnders = ".!?…"
 // after digits is therefore treated as an ordinal marker, not a boundary,
 // unless the next word starts a new sentence by beginning with a capital and
 // following a gap.
-func SplitSentences(tokens []Token) []Sentence {
+//
+// **A LINE BREAK also ends a sentence**, and needs the source text to see:
+// whitespace is not tokenised, so the only trace of a newline is the gap
+// between one token's End and the next one's Start. Without this a heading —
+// which carries no terminal punctuation — swallowed the sentence after it, and
+// a card mined from the first line of a text asked about
+// `Egy átlagos nap Budapesten Reggel hét órakor ____.`: a title welded to a
+// sentence, which is not something anybody wrote.
+func SplitSentences(text string, tokens []Token) []Sentence {
 	var out []Sentence
 	start := 0
 
 	for i, t := range tokens {
-		if t.IsWord || !strings.ContainsAny(t.Text, sentenceEnders) {
+		var end int
+		switch {
+		case !t.IsWord && strings.ContainsAny(t.Text, sentenceEnders):
+			if t.Text == "." && i > 0 && isNumeric(tokens[i-1].Text) {
+				continue // ordinal or date, e.g. "1848." or "22."
+			}
+			// Absorb any run of following punctuation (`?!`, `..."`).
+			end = i + 1
+			for end < len(tokens) && !tokens[end].IsWord &&
+				strings.ContainsAny(tokens[end].Text, sentenceEnders+`"»'`) {
+				end++
+			}
+		case endsLine(text, tokens, i):
+			end = i + 1
+		default:
 			continue
 		}
-		if t.Text == "." && i > 0 && isNumeric(tokens[i-1].Text) {
-			continue // ordinal or date, e.g. "1848." or "22."
-		}
-		// Absorb any run of following punctuation (`?!`, `..."`).
-		end := i + 1
-		for end < len(tokens) && !tokens[end].IsWord &&
-			strings.ContainsAny(tokens[end].Text, sentenceEnders+`"»'`) {
-			end++
+		// The punctuation run may already have carried us past this boundary.
+		if end <= start {
+			continue
 		}
 		out = append(out, Sentence{Start: start, End: end})
 		start = end
@@ -139,6 +157,39 @@ func SplitSentences(tokens []Token) []Sentence {
 		out = append(out, Sentence{Start: start, End: len(tokens)})
 	}
 	return out
+}
+
+// endsLine reports whether the gap after token i breaks the line.
+//
+// A BLANK line is always a boundary: nothing spans a paragraph break. A single
+// newline is a boundary only when the next token starts with a capital, because
+// the other thing a single newline means is a hard-wrapped paragraph — and the
+// reader invites the learner to paste subtitles, which wrap mid-sentence:
+//
+//	Nem tudom, hogy mit
+//	csináljak most.
+//
+// Splitting there would cut a sentence in half. Hungarian capitalises sentence
+// starts and proper nouns but not common nouns, so a wrapped line beginning
+// with a capital is rare, and a genuine new line beginning with one is not.
+func endsLine(text string, tokens []Token, i int) bool {
+	if i+1 >= len(tokens) {
+		return false
+	}
+	lo, hi := tokens[i].End, tokens[i+1].Start
+	if lo < 0 || hi > len(text) || lo >= hi {
+		return false
+	}
+	gap := text[lo:hi]
+	n := strings.Count(gap, "\n")
+	if n == 0 {
+		return false
+	}
+	if n > 1 {
+		return true // a blank line: a paragraph break
+	}
+	r, _ := utf8.DecodeRuneInString(tokens[i+1].Text)
+	return unicode.IsUpper(r)
 }
 
 func isNumeric(s string) bool {

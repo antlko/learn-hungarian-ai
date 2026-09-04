@@ -11,6 +11,8 @@ export interface Bootstrap {
   packEdition?: string
   locales: string[]
   version: string
+  /** The password floor the server enforces (auth.MinPasswordLength). */
+  minPassword: number
 }
 
 export interface User {
@@ -69,6 +71,8 @@ export interface Settings {
     goal: Goal
     directions: Record<string, Direction>
     burySiblings: boolean
+    /** Accept typed answers missing only diacritics. Default true; rated Hard. */
+    accentTolerance: boolean
   }
   mining: {
     knownThreshold: number
@@ -96,7 +100,12 @@ export interface Settings {
   secrets: Record<string, boolean>
 }
 
-export type ServiceProvider = 'off' | 'local' | 'openai'
+/**
+ * `device` is TTS spoken by this browser through the Web Speech API. It is
+ * valid for `tts` only, takes no endpoint, and is the default — see
+ * `config.ProviderDevice` and `lib/speech.ts`.
+ */
+export type ServiceProvider = 'off' | 'device' | 'local' | 'openai'
 
 export interface Service {
   provider: ServiceProvider
@@ -128,7 +137,22 @@ export interface UpdateSettingsResponse {
   clamped?: Clamp[]
 }
 
-export type CapabilityName = 'tts' | 'asr' | 'nlp' | 'llm'
+export type CapabilityName = 'tts' | 'asr' | 'nlp' | 'llm' | 'mt'
+
+/**
+ * One machine translation.
+ *
+ * `model` is not decoration and is not optional in practice: this is the only
+ * text in the app that no person and no corpus stands behind, so the screen
+ * names who wrote it. See ADR-014. `cached` explains how an answer arrived
+ * with the translator switched off.
+ */
+export interface Translation {
+  source: string
+  text: string
+  model?: string
+  cached: boolean
+}
 
 export interface Capability {
   name: CapabilityName
@@ -137,6 +161,8 @@ export interface Capability {
   reachable: boolean
   latencyMs?: number
   detail?: string
+  /** What an llm endpoint says it serves (`GET /v1/models`) — the picker's list. */
+  models?: string[]
 }
 
 // ─── Review ────────────────────────────────────────────────────────────────
@@ -172,34 +198,293 @@ export interface AnalyzeResponse {
   wordCount: number
 }
 
+/**
+ * The sentence either side of the target word, split by the server.
+ *
+ * The offsets behind it are byte offsets into UTF-8 and JavaScript indexes
+ * UTF-16, so the split has to happen where the bytes are. Never reconstruct it
+ * from `hu` on this side.
+ */
+export interface TargetSplit {
+  before: string
+  after: string
+}
+
+/**
+ * Where a card is in its life, in the words Anki users already read. `young`
+ * and `mature` split at a 21-day interval — a reporting convention, not a
+ * memory threshold, and the UI says so. ADR-026.
+ */
+export type MemoryStage = 'new' | 'learning' | 'young' | 'mature' | 'relearning'
+
+/** What each grade would schedule, as instants. Approximate: fuzz is seeded at answer time. */
+export interface MemoryPreview {
+  /** When the figures were computed; an interval is `due − at`, never `due − now`. */
+  at: string
+  again: string
+  hard: string
+  good: string
+  easy: string
+}
+
+/**
+ * What a card knows about itself, for the learner to see while answering.
+ * Every figure is measured or computed by the scheduler's own library — the
+ * chance of recall, the interval, the tallies from the review log. There is
+ * no score in here. [R18], ADR-026.
+ */
+export interface Memory {
+  stage: MemoryStage
+  /** 0–1; the same "chance of recalling it now" the words browser shows. */
+  retrievability: number
+  stabilityDays: number
+  intervalDays: number
+  reps: number
+  lapses: number
+  /** This card's answers in the review log. */
+  correct: number
+  total: number
+  /** Every card of the word. */
+  wordCorrect: number
+  wordTotal: number
+  /** The last outcomes, oldest first, at most eight. */
+  history: boolean[]
+  /** Absent in free practice, where nothing is scheduled. */
+  preview?: MemoryPreview
+}
+
 export interface QueueItem {
   cardId: number
   noteId: number
   direction: DirectionName
   isNew: boolean
   due: string
+  /** The card's memory figures. Absent only from an older server. */
+  memory?: Memory
   hu: string
   targetForm: string
-  targetStart: number
-  targetEnd: number
+  /** Absent when the note has no located target span. */
+  target?: TargetSplit
   targetFeats: string[]
+  /** The TARGET WORD's dictionary gloss. */
+  glossRu: string
+  glossEn: string
+  /**
+   * What the WHOLE SENTENCE means, where the pack has a translation.
+   * Absent is normal — the pack translates 19,641 of its sentences, not all.
+   */
+  sentenceRu?: string
+  sentenceEn?: string
+  /**
+   * The MACHINE that wrote sentenceRu/sentenceEn, and empty for a pack
+   * translation — those were written by people and there is no model to name.
+   *
+   * A word mined from a text has no pack sentence to borrow from, so its crib
+   * comes from the MT sidecar. ADR-014 makes this label the entire defence: a
+   * wrong translation is perfectly well-formed, so it has to say who wrote it,
+   * beside the text and never in a tooltip.
+   */
+  sentenceModel?: string
+  lemmaId?: number
+  /** Dictionary form of the target word — the cue a cloze cannot be answered without. */
+  lemma?: string
+  /**
+   * The string this card is graded against, as the SERVER computes it.
+   *
+   * Here so «Подсказка» can reveal the answer without grading the card. Never
+   * re-derive it in the client: `produce` grades the dictionary form and
+   * `cloze` the form in the sentence, and a second copy of that rule is how the
+   * hint comes to show one word while the grader wants another. See ADR-017.
+   */
+  expected?: string
+}
+
+/**
+ * What is waiting, in BOTH units.
+ *
+ * A note is a word to learn; a card is one direction of it, and a note spawns
+ * three to five. "59 new cards waiting" was accurate and useless to a learner
+ * who had taken up 27 words — there was no way to turn one number into the
+ * other. Lead with words, explain in cards.
+ */
+export interface QueueCounts {
+  /** The served scope's dueNow: what THIS session serves, post-burial. */
+  due: number
+  /** New CARDS in the deck (raw pool). */
+  new: number
+  total: number
+  /**
+   * Every new word this build considered, on one basis: shown now · deferred
+   * because a sibling was already due or answered today · held back by the
+   * daily budget alone. Deferrals are NOT the limit's doing — the old screen
+   * blamed Settings for them.
+   */
+  newShownNotes: number
+  newDeferredNotes: number
+  newBacklogNotes: number
+  /** The global daily budget: started today, the cap (0 = unlimited), left. */
+  introducedToday: number
+  newPerDay: number
+  newBudgetLeft: number
+  /** Learning steps maturing before local midnight, and the earliest of them. */
+  dueLaterToday: number
+  nextDueAt?: string
+  /** Due items maxReviewsPerDay trimmed from this build. */
+  reviewsCapped?: number
+}
+
+/** Which pile of the deck a session is drawn from. */
+export type ReviewScope = 'all' | 'course' | 'reader'
+
+/**
+ * A queue request's scope: one of the three piles, the words mined from one
+ * text — a SUB-slice of the reader pile, never a fourth one (ADR-022) — or the
+ * trash.
+ *
+ * `trash` is accepted by FREE PRACTICE only. The review queue refuses it, and
+ * the server refuses it too: a trash the scheduler drew from would be a pile
+ * cards come back from, which is the opposite of what the button promised.
+ * ADR-025.
+ */
+export type QueueScope = ReviewScope | 'trash' | `text:${number}`
+
+/**
+ * One pile's numbers, in the single vocabulary every screen shares (ADR-021):
+ * post-burial and day-granular, so a number on screen is a number the queue
+ * will honour. dueNow is the session; dueLaterToday are learning steps that
+ * return today; buriedToday is where due-but-hidden cards are counted instead
+ * of inside a bigger figure — «26 к повторению» over a 10-item session was
+ * exactly that.
+ */
+export interface Breakdown {
+  scope: ReviewScope | string
+  dueNow: number
+  dueLaterToday: number
+  nextDueAt?: string
+  buriedToday: number
+  newCards: number
+  newNotes: number
+}
+
+/**
+ * Free practice: retrieval without scheduling.
+ *
+ * A separate mode, not a second queue. Nothing here moves a due date, so the
+ * response deliberately carries no schedule — see ADR-019.
+ */
+export interface PracticeQueueResponse {
+  items: QueueItem[]
+  scope: QueueScope
+  /**
+   * What was actually served: weak falls back to random on a deck with nothing
+   * reviewed yet, and the screen prints the criterion really applied (ADR-024).
+   */
+  mode: 'random' | 'weak'
+  /** How many words the pile could offer at all, so an empty one can say so. */
+  pool: number
+}
+
+export interface PracticeAnswerResponse {
+  correct: boolean
+  diff?: Diff
+  expected?: string
+  acceptedWithAccents?: boolean
+}
+
+/** Practice volume AND accuracy: a count alone only ever goes up. */
+export interface PracticeStats {
+  today: number
+  todayRight: number
+  total: number
+  totalRight: number
+}
+
+/** One local day of practice, for the Progress series. */
+export interface PracticeDay {
+  day: string
+  total: number
+  right: number
+}
+
+/** One direction's all-time practice tally. */
+export interface PracticeDirection {
+  direction: DirectionName
+  total: number
+  right: number
+}
+
+/** One word of the deck, as the words browser lists it. */
+export interface WordRow {
+  lemmaId: number
+  lemma: string
+  glossRu: string
+  glossEn: string
+  status: LemmaStatus
+  firstSeen?: string
+  /** Chance of recalling it right now — the strongest card's figure. */
+  retrievability: number
+  nextDue?: string
+  lapses: number
+  cards: number
+}
+
+export interface WordsResponse {
+  words: WordRow[]
+  total: number
+  page: number
+  pageSize: number
+}
+
+/** One word the learner set aside, as the trash screen lists it. */
+export interface TrashedNote {
+  noteId: number
+  hu: string
+  targetForm: string
   glossRu: string
   glossEn: string
   lemmaId?: number
+  /** The dictionary form — a sentence is not a word's name. */
+  lemma?: string
+  /** `course:<code>` or `manual`. Never printed raw: a unit code is not a name. */
+  source: string
+  trashedAt: string
+  /** Directions that come back with a restore — what it costs the day. */
+  cards: number
 }
 
-export interface QueueCounts {
-  due: number
-  new: number
-  learning: number
+export interface TrashListResponse {
+  notes: TrashedNote[]
   total: number
-  /** New cards held back by the daily limit — shown so the cap is visible. */
-  newCapped: number
 }
+
+/**
+ * The result of trashing or restoring one word.
+ *
+ * `scopes` is fresh Breakdowns, so the tab strip updates from the server rather
+ * than by subtracting one from a number it is holding — two numbers on one
+ * screen disagreeing is the failure ADR-021 exists to prevent.
+ */
+export interface TrashResponse {
+  noteId: number
+  cards: number
+  /** False when the word was already where the call would put it. */
+  changed: boolean
+  trashed: number
+  scopes: Breakdown[]
+}
+
+/** How the served queue is arranged: overdue first, or a day-stable shuffle. ADR-026. */
+export type ReviewOrder = 'due' | 'random'
 
 export interface QueueResponse {
   items: QueueItem[]
   counts: QueueCounts
+  /** What was actually served — echoed, never assumed from the request. */
+  scope: ReviewScope
+  /** Every pile, so the control can label the tab you are not standing on. */
+  scopes: Breakdown[]
+  /** The order actually applied, echoed for the same reason as `scope`. */
+  order?: ReviewOrder
 }
 
 export type ErrorClass =
@@ -243,6 +528,10 @@ export interface AnswerResponse {
   gradedFeatures: FeatureGrade[]
   diff?: Diff
   expected?: string
+  /** Correct by tolerance: the right word minus its diacritics. Never silent. */
+  acceptedWithAccents?: boolean
+  /** The card's memory AFTER this answer, so the interval change can be shown. */
+  memory?: Memory
 }
 
 export interface UndoResult {
@@ -271,6 +560,19 @@ export interface ExplainLine {
   labelEn?: string
   ruleRu?: string
   ruleEn?: string
+}
+
+/**
+ * One attested sentence using a lemma, for the word inspector.
+ *
+ * `form` is the surface shape the lemma takes in THIS sentence, which is the
+ * part worth pointing at: seeing `nagyon` among `nagy`'s examples is the lesson.
+ */
+export interface Example {
+  hu: string
+  ru?: string
+  en?: string
+  form?: string
 }
 
 /** The full decomposition of one form — [R4]'s explicit instruction in miniature. */
@@ -311,6 +613,48 @@ export interface FeatureMastery {
   medianMs: number
   /** Correct AND fast. Matters for motor skills like vowel harmony. */
   automated: boolean
+  /** `accuracy` rests on enough answers to report — `drill.gateWindow` of them.
+   *  Below this the figure is an estimate off three lucky answers, and the
+   *  progress screen says so instead of drawing a full bar. */
+  ready: boolean
+  /** Ready AND under `drill.masteryThreshold`: a measured weakness. */
+  weak: boolean
+}
+
+/**
+ * The translation sidecar's own account of itself.
+ *
+ * `configured` is a settings question, `reachable` a deployment one, and they
+ * send the learner to different remedies — which is why they are two fields and
+ * not one. `state` is what the service says once it answers at all.
+ */
+export interface MTStatus {
+  configured: boolean
+  reachable: boolean
+  /** 'loading' | 'ready' | 'failed'. Absent when we could not ask. */
+  state?: string
+  /** The service's own failure reason, passed through verbatim. */
+  detail?: string
+  model?: string
+  /** Zero means the service could not measure it — draw an indeterminate bar,
+   *  never "0%". */
+  downloadedBytes?: number
+  totalBytes?: number
+}
+
+/**
+ * A meaning the learner keeps for a word the pack does not have.
+ *
+ * `source` survives storage on purpose: a meaning a translation model produced
+ * stays labelled as the model's for as long as it exists, and never quietly
+ * becomes something a person appears to stand behind. [ADR-014]
+ */
+export interface UserGloss {
+  form: string
+  /** Empty when nothing has been saved for this word. */
+  gloss: string
+  source: 'manual' | 'machine' | ''
+  model?: string
 }
 
 export interface ForecastDay {
@@ -343,6 +687,8 @@ export interface GovernorVerdict {
 
 export type LemmaStatus = 'new' | 'learning' | 'known' | 'ignored'
 
+export type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
+
 export interface TextSummary {
   id: number
   title: string
@@ -354,6 +700,16 @@ export interface TextSummary {
   addedAt: string
   /** Set when this text is a listening material. */
   audioPath: string
+  /**
+   * Estimated CEFR band, '' while unestimated or when the estimator abstained.
+   * `levelSource` says WHO estimated — heuristic | llm | manual — and the UI
+   * always shows it: a machine estimate must never look like a fact (ADR-023).
+   */
+  level: CEFRLevel | ''
+  levelSource: 'heuristic' | 'llm' | 'manual' | ''
+  levelDetail?: string
+  /** How many of the learner's deck words were mined from this text. */
+  noteCount: number
 }
 
 export interface StoredToken {
@@ -456,6 +812,13 @@ export interface GateDecision {
   /** False while the estimate is too thin to act on. */
   ready: boolean
   demoted: boolean
+  /**
+   * What is worth finishing first. A RECOMMENDATION — the topic is practised
+   * either way. Prerequisites stopped being locks because a floor nobody can
+   * cross is a wall: see `drill.Decision.Advice`.
+   */
+  advice?: string
+  adviceArgs?: Record<string, string>
 }
 
 export interface TopicProgress {
@@ -597,6 +960,8 @@ export interface DrillAnswerRequest {
 
 export interface DrillAnswerResponse {
   correct: boolean
+  /** Correct by tolerance: the right form minus its diacritics. */
+  acceptedWithAccents?: boolean
   expected: string
   rating: number
   diff?: Diff
@@ -669,6 +1034,9 @@ export interface HvptAnswer {
   played: 'a' | 'b'
   accuracy: number
   total: number
+  /** Both members' clips from the trial's talker, for after-answer replay. */
+  audioA?: string
+  audioB?: string
 }
 
 export interface HvptContrast {
@@ -735,6 +1103,23 @@ export interface Overview {
   }
   streak: { current: number; best: number; todayMet: boolean }
   today: DailyLedger
+  /**
+   * Free practice, reported SEPARATELY from reviews because it means something
+   * different: it schedules nothing, so one number must not be mistaken for
+   * progress through the deck. See ADR-019.
+   */
+  practice: PracticeStats
+  /** Practice series for the Progress screen — still schedules nothing. */
+  practiceDays: PracticeDay[]
+  practiceByDirection: PracticeDirection[]
+  /** The recent daily ledger, newest first — the Today load sparkline. */
+  days: DailyLedger[]
+  /**
+   * The whole deck's Breakdown — the same numbers, in the same coordinate
+   * system, that the review tabs show (ADR-021). dueNow duplicates
+   * queue.dueNow for older callers.
+   */
+  queue: Breakdown
   dueNow: number
   dailyMinutes: number
   listeningHours: number
@@ -819,12 +1204,24 @@ export interface CourseResponse {
 }
 
 /** What taking a unit into work actually produced — including what it did not. */
+/**
+ * A course word that got no card — WITH its meaning.
+ *
+ * The bare Hungarian string was all this used to carry, so the panel named
+ * three words to the learner and told them nothing about any of them.
+ */
+export interface SkippedWord {
+  lemma: string
+  glossRu: string
+  glossEn: string
+}
+
 export interface EnrolResult {
   unitCode: string
   notesMade: number
   duplicate: number
   /** Words the pack has no attested sentence for, so no card was made. */
-  skipped: string[]
+  skipped: SkippedWord[]
 }
 
 // ─── The hand-off catalogue ─────────────────────────────────────────────────
@@ -840,4 +1237,134 @@ export interface Resource {
   blurbRu: string
   blurbEn: string
   free: boolean
+}
+
+// ── the grammar tutor (ADR-027) ────────────────────────────────────────────
+
+/** One turn of a tutor thread. An assistant turn names the model that wrote it. */
+export interface TutorMessage {
+  id: number
+  role: 'user' | 'assistant'
+  content: string
+  lang?: string
+  model?: string
+  promptVersion?: number
+  /**
+   * The lesson an assistant turn was grounded in — pinned or inferred (ADR-029)
+   * — with its name in the answer language; absent when the answer came from
+   * the reference alone. Printed under the answer: a choice the learner can
+   * see is a choice they can correct by pinning.
+   */
+  topic?: string
+  topicTitle?: string
+  /** Backticked Hungarian words the pack's dictionary does not carry. Never
+   *  null from the server since ADR-029's fix; the panel still guards it. */
+  unattested: string[]
+  /** The stream was cut off — a timeout, a stop, a lost connection or the
+   *  answer budget; the text is partial and the panel says so. */
+  interrupted: boolean
+  /** Why, when interrupted: budget, timeout, stop or connection; absent on
+   *  older rows, which the panel labels without a cause. */
+  cutReason?: 'budget' | 'timeout' | 'stop' | 'connection' | 'echo'
+  /** The review card a question was about, its phase and the prepared
+   *  template it came from (ADR-034); absent on an ordinary question. */
+  cardId?: number
+  cardPhase?: 'question' | 'answer'
+  template?: string
+  /**
+   * The context meter (ADR-031): what the server reported spending on this
+   * answer, in its own tokens, and the window the model ran with. Absent when
+   * not reported — the meter says so instead of printing 0.
+   */
+  promptTokens?: number
+  answerTokens?: number
+  contextTokens?: number
+  createdAt: string
+}
+
+export interface TutorSource {
+  source: string
+  url?: string
+  license: string
+}
+
+/**
+ * A review card a question is about (ADR-034). The server composes a prepared
+ * question from it — the client never assembles the facts — and refuses a
+ * template not offered on that card in that phase.
+ */
+export interface TutorCardRef {
+  cardId: number
+  phase: 'question' | 'answer'
+  template?: string
+  typed?: string
+}
+
+/** One prepared question the review card offers; `id` is the server's template id. */
+export interface TutorChip {
+  id: string
+  label: string
+}
+
+/** One conversation's header. `topic` is its pin, blank for a free chat;
+ *  `kind` is 'review' for a day's review chat, titled by the client from its date. */
+export interface TutorThreadHeader {
+  id: number
+  /** The first question — or, on a review chat, the WORD it is about. */
+  title: string
+  topic?: string
+  kind?: 'review'
+  /** The note a review chat is about: one chat per word per day (ADR-034). */
+  noteId?: number
+  titleRu?: string
+  titleEn?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface TutorThread {
+  available: boolean
+  /** An i18n key saying why the tutor is unavailable. */
+  reason?: string
+  model?: string
+  lang: string
+  /** Null before the first question — a new chat, or a lesson panel opened
+   *  before anything was asked there; `topic` is then the pin to create it with. */
+  thread: TutorThreadHeader | null
+  topic?: string
+  messages: TutorMessage[]
+  sources: TutorSource[]
+}
+
+/** One server-sent event of a streamed answer. */
+export interface TutorEvent {
+  /** On `asked`: the stored question's id, and its text when the server composed it. */
+  id?: number
+  question?: string
+  text?: string
+  message?: TutorMessage
+  error?: string
+}
+
+/**
+ * One row of the learner's chat list, most recently active first (ADR-029).
+ * `topic` is the pin with its names; `lastTopic` is the lesson the latest
+ * answer was grounded in, for a free chat's subtitle.
+ */
+export interface TutorSummary {
+  id: number
+  /** The first question — or, on a review chat, the WORD it is about. */
+  title: string
+  topic?: string
+  kind?: 'review'
+  noteId?: number
+  titleRu?: string
+  titleEn?: string
+  lastTopic?: string
+  lastTopicRu?: string
+  lastTopicEn?: string
+  messages: number
+  lastRole: 'user' | 'assistant' | ''
+  lastContent: string
+  updatedAt: string
 }

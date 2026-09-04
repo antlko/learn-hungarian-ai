@@ -15,7 +15,8 @@
     "library": "Library",
     "progress": "Progress",
     "users": "Accounts",
-    "settings": "Settings"
+    "settings": "Settings",
+    "tutor": "AI Teacher"
   },
   "common": {
     "save": "Save",
@@ -33,7 +34,12 @@
     "comingSoon": "Coming soon",
     "min": "min",
     "of": "of",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "close": "Close",
+    "collapseNav": "Collapse menu",
+    "expandNav": "Expand menu",
+    "menu": "Menu",
+    "closeMenu": "Close menu"
   },
   "setup": {
     "title": "First run",
@@ -53,7 +59,7 @@
       "subtitle": "What is already installed here, and the two things you can add later.",
       "readyTitle": "Ready to use",
       "ready": {
-        "vocabulary": "The starter language pack: frequent vocabulary with its forms, translations and real sentences from the corpus.",
+        "vocabulary": "The starter language pack: frequent vocabulary with its forms, translations and real examples — sentences written by native speakers, not by us.",
         "course": "The six-month course and the grammar curriculum underneath it.",
         "audio": "Recorded audio for the ear trainer's minimal pairs."
       },
@@ -113,7 +119,11 @@
     "obligationsMet": "today's obligations met",
     "obligationsPending": "obligations not yet met",
     "humanAttest": "it happened today",
-    "humanAttested": "attested for today"
+    "humanAttested": "attested for today",
+    "startNext": "Start: {loop}",
+    "queueLater": "returning today: {n}",
+    "load30": "Load, last 30 days",
+    "sets": "{sets} sets of {size}"
   },
   "plan": {
     "title": "Plan",
@@ -134,7 +144,9 @@
       "in": "in the deck",
       "out": "not in the deck",
       "unknown": "cannot be told from here",
-      "partialNotice": "Some of these are already in your deck, but the plan reports a count rather than naming them — so they are left unmarked instead of guessed at. Take the unit on and the list becomes exact."
+      "partialNotice": "Some of these are already in your deck, but the plan reports a count rather than naming them — so they are left unmarked instead of guessed at. Take the unit on and the list becomes exact.",
+      "noMaterial": "no real example",
+      "noMaterialNotice": "The language pack has no sentence for these words, and a card here is a sentence. We will not invent one: it would be Hungarian nobody has written. They stay part of the unit, and the full language pack may well have examples for them."
     },
     "enrol": "Take this unit on",
     "topUp": "Add what is still missing",
@@ -143,8 +155,8 @@
     "report": {
       "made": "Cards made: {n}",
       "duplicate": "Already in your deck, so not duplicated: {n}.",
-      "skipped": "Left without a card ({n}):",
-      "skippedWhy": "The corpus has no sentence for these, and a card here is a sentence. Inventing one would put Hungarian in front of you that nobody has written, so they were left out instead. They stay part of the unit, and a wider language pack may well have material for them.",
+      "skipped": "No card yet ({n}):",
+      "skippedWhy": "A card here is a sentence with a real example, and the language pack has no example for these words. We will not invent one: it would be Hungarian nobody has written. The translation stays with you and the words stay part of the unit — the full language pack may well have examples for them.",
       "none": "Nothing new to add: every word of this unit is already in your deck."
     },
     "syllabus": "The whole plan",
@@ -195,7 +207,9 @@
         "conversation": "Conversation",
         "exam": "Exam"
       },
-      "goalHint": "Your goal reweights the card directions: you get back what you train."
+      "goalHint": "Your goal reweights the card directions: you get back what you train.",
+      "accentTolerance": "Accept answers without diacritics",
+      "accentToleranceHint": "Type viszlat for viszlát and the answer counts, rated Hard, with the missing mark underlined: hat and hát are different words, and vowel length stays something to learn. The spelling direction is exempt — it exists precisely for the diacritics."
     },
     "drill": {
       "title": "Grammar drills",
@@ -211,7 +225,13 @@
       "notConfigured": "not configured",
       "unreachable": "no connection",
       "reachable": "connected",
-      "hint": "All of these are optional. The core app works completely without them."
+      "hint": "All optional, and the core of the app works with every one of them stopped. Speech comes from your own device by default and needs no configuration — the other three matter only if you are running the corresponding service yourself.",
+      "device": "Your device's voice",
+      "noEndpoint": "no endpoint needed",
+      "deviceInstead": "your device speaks",
+      "model": "Model",
+      "noModel": "name a model",
+      "unknownModel": "not served by this endpoint"
     },
     "clamped": "“{field}” was pulled back into range: {from} became {to}.",
     "curriculum": {
@@ -247,7 +267,32 @@
       },
       "glossFallback": "Fall back to the other language when a meaning is missing",
       "glossFallbackHint": "The pack has 8,620 Russian glosses against 45,917 English ones. With this on you see the English meaning marked as a substitute rather than an empty card; with it off, a word with no meaning in your language shows none."
-    }
+    },
+    "hvpt": {
+      "title": "Ear trainer",
+      "hint": "How many distinct voices a session needs before it will run, and how many trials it contains.",
+      "minTalkers": "Minimum talkers",
+      "trialsPerSession": "Trials per session",
+      "floorCaveat": "The research asks for five or more voices: talker variability is the active ingredient, and it is what transfers the skill to real speech. The current language pack ships three, so a floor of 5 means no session will ever start. You can lower the floor, but some of the effect goes with it, and the app will not pretend otherwise."
+    },
+    "mt": {
+      "title": "Local translator",
+      "notRunning": "The service is not answering. Most likely the container is not up — one command on the server, and everything after that is here:",
+      "downloading": "Downloading the model. This happens once.",
+      "downloadingSize": "about 2.4 GB, once",
+      "progress": "{done} of {total} GB · {pct}%",
+      "failed": "The model did not load.",
+      "ready": "Ready.",
+      "download": "Download the model",
+      "retry": "Try again",
+      "adminOnly": "Administrators only",
+      "hint": "The model lives inside the service and weighs about 2.4 GB. The app cannot start a container that was never deployed — but everything after that is set from here. Switch the translator off above and its buttons disappear across the app.",
+      "short": {
+        "loading": "downloading",
+        "failed": "load failed"
+      }
+    },
+    "adminOnly": "Only an administrator can change these settings."
   },
   "users": {
     "title": "Accounts",
@@ -284,14 +329,38 @@
     "tts": "Speech synthesis",
     "asr": "Speech recognition",
     "nlp": "Text analysis",
-    "llm": "Language model"
+    "llm": "Language model",
+    "mt": "Translation"
   },
   "errors": {
     "network-unreachable": "The server is not answering. Check that it is running.",
     "unexpected-response": "Unexpected response from the server.",
     "generic": "Something went wrong.",
     "notFound": "Page not found",
-    "notFoundBody": "There is no such page here."
+    "notFoundBody": "There is no such page here.",
+    "llmOff": "No language model is configured. Connect one in Settings → Services → LLM.",
+    "llmFailed": "The model did not answer usefully. The level estimate was left as it was.",
+    "levelManual": "The level was set by hand — the model does not overwrite it.",
+    "tutorBusy": "One question at a time — the tutor is still answering the previous one.",
+    "tutorCorpus": "The tutor's reference corpus did not load. The server log says why.",
+    "tutorFailed": "The model did not answer usefully. Nothing was changed.",
+    "llmNoModel": "No model is chosen. Name one in Settings → Services → Language model — the endpoint's own list is offered there.",
+    "tutorStopped": "The answer was stopped.",
+    "tutorNoMessage": "That question is no longer in the chat.",
+    "tutorNoCard": "No such card — the word may have been set aside.",
+    "tutorNoThread": "There is no such chat — it may have been deleted.",
+    "server": "The server answered with an error; the details are in its log.",
+    "forbidden": "Not allowed for this account.",
+    "sessionExpired": "Your session ended — sign in again.",
+    "invalidCredentials": "Wrong email or password.",
+    "emailTaken": "That email address is already in use.",
+    "wrongPassword": "The current password is not right.",
+    "tooManyAttempts": "Too many attempts — wait a moment.",
+    "inTrash": "This word is in the trash.",
+    "nothingToUndo": "Nothing to undo.",
+    "setupDone": "Setup has already been completed.",
+    "trialExpired": "This trial has expired — start a new session.",
+    "gone": "That is gone — it may have been removed."
   },
   "theme": {
     "toggle": "Toggle theme",
@@ -302,8 +371,26 @@
     "toggle": "Switch language"
   },
   "review": {
+    "tutor": {
+      "open": "Tutor",
+      "hint": "Ask the AI tutor about this card — before you answer it counts as a hint",
+      "title": "Tutor · this card",
+      "beforeAnswer": "Asking before you answer counts as a hint: the grade is capped at Hard. The card still asks you.",
+      "placeholder": "Ask about this card…",
+      "chips": {
+        "breakdown": "Break the whole sentence down",
+        "whyForm": "Why `{form}`?",
+        "whyNotMine": "Why not `{typed}`?",
+        "translateWord": "Translate `{lemma}` with two examples",
+        "spelling": "How `{form}` is spelled, and why",
+        "explainTask": "What is this card asking?",
+        "hintForm": "What is `{form}` made of? (hint)",
+        "hintWord": "A hint without the word (hint)",
+        "hintRule": "Which form is needed, and why? (hint)"
+      }
+    },
     "allDone": "Done for today",
-    "allDoneBody": "The queue is empty. Come back tomorrow — spacing only works if you keep to it.",
+    "allDoneBody": "The queue is empty and nothing returns today. Come back tomorrow — spacing only works if you keep to it.",
     "newCapped": "New cards still waiting: {n}. The daily limit is reached — that is a guard, not a fault: it is what stops the review avalanche three weeks from now.",
     "newCard": "new",
     "typeAnswer": "type the Hungarian",
@@ -316,20 +403,173 @@
     "correct": "needed:",
     "graded": "Grammatical features graded:",
     "glossFallback": "(English — no Russian translation available)",
-    "keysProductive": "Enter — check, then continue",
-    "keysReceptive": "Space — show · 1–4 — grade · h — hint",
     "directions": {
       "recognize": "recognise",
       "produce": "produce",
       "listen": "listening",
-      "cloze": "cloze",
+      "cloze": "form in a sentence",
       "spell": "spelling"
     },
     "ratings": {
+      "cappedHard": "counts as Hard",
       "again": "Again",
       "hard": "Hard",
       "good": "Good",
       "easy": "Easy"
+    },
+    "keysInspect": "click a word for its breakdown",
+    "paceDone": "That's the new material for today",
+    "paceDoneBody": "Everything due has been reviewed and today's ration of new words is used up. The rest is queued — that is the design.",
+    "paceWaiting": "Waiting their turn: {words} new words ({cards} new cards in total — each word has several directions: recognise, produce, fill the gap).",
+    "paceDays": "Started today: {today} of {perDay} cards. At this pace the queue clears in about {days} days.",
+    "paceWhy": "The limit is a guard, not a fault. Every new word comes back for review again and again; taking a hundred today means a queue three weeks from now that cannot be cleared. That is how people quit.",
+    "pacePace": "Change the pace",
+    "acceptedAccents": "Accepted without diacritics. The full spelling is “{expected}”: vowel length changes meaning in Hungarian.",
+    "putInForm": "Put into the right form:",
+    "typeAnswerWord": "one Hungarian word",
+    "cardType": "card type",
+    "directionHint": {
+      "recognize": "Recognition: you see the Hungarian word and recall what it means.",
+      "produce": "Production: you see the meaning and type the Hungarian word in its dictionary form.",
+      "listen": "Listening: you hear the word and recall what it means.",
+      "cloze": "Form in a sentence: you supply the missing word in the right form. These are the only cards that grade grammatical features.",
+      "spell": "Spelling: you type the word with every long vowel and umlaut."
+    },
+    "scope": {
+      "all": "All",
+      "course": "Plan",
+      "reader": "Texts",
+      "trash": "Trash"
+    },
+    "scopeLabel": "where the cards came from",
+    "scopeCount": "{due} due, {new} new",
+    "scopeHint": "Plan is the words from the course units. Texts is what you added yourself while reading. The daily new-card limit is one budget across both — it guards your total load, not each pile separately.",
+    "scopeEmpty": "This pile is empty today. There is something waiting in the other one.",
+    "produceDictionaryForm": "The dictionary form is wanted — the one a dictionary lists, not the one in the sentence. The form inside a sentence is what the “form in a sentence” card asks for.",
+    "practice": "Practice",
+    "practiceFrom": "words from:",
+    "practiceHint": "Free practice: random words, any time. It does not affect the schedule.",
+    "practiceNotice": "Practice. Answers here do not move the schedule and bring no word closer to “known” — this is extra practice, not review. Minutes and accuracy are counted.",
+    "practiceRoundDone": "Round finished",
+    "practiceRoundDoneBody": "Take another — the words do not run out. It still does not affect the schedule.",
+    "practiceAgain": "Another round",
+    "practiceEmpty": "This pile has no words yet. Add some from the Plan or while reading.",
+    "practiceStat": "Practice",
+    "practiceStatHint": "Random practice outside the schedule: it does not change when a word comes back.",
+    "allDoneForNow": "Done for now",
+    "allDoneForNowBody": "Everything answerable right now is answered. A few cards return later today — those are the short learning steps, by design.",
+    "dueSoon": "Returning today: {n}",
+    "dueSoonIn": "in {t}",
+    "dueSoonNow": "any moment…",
+    "dueSoonAuto": "The queue refreshes itself when the time comes.",
+    "buriedToday": "Held until tomorrow: {n} — other directions of words already answered today. Repeating them now would test nothing: the answer is still in memory.",
+    "newDeferred": "New words held until tomorrow: {n} — their other direction was already in play today.",
+    "summary": {
+      "answered": "Answered",
+      "accuracy": "Accuracy",
+      "newWords": "New words",
+      "minutes": "Minutes",
+      "missed": "Missed: {n}",
+      "missedBody": "Read them over now — the scheduler asks again when their step comes round.",
+      "missedBodyPractice": "Practice schedules nothing: these words return to review on their own schedule."
+    },
+    "textScope": "Only words from this text",
+    "textScopeLeave": "Remove the text filter",
+    "practiceSize": "Words per round:",
+    "practiceWeak": "Weak words",
+    "practiceWeakHint": "Leads with the words you are least likely to recall — judged by the same memory model that builds the schedule. The schedule itself does not move.",
+    "practiceWeakFallback": "nothing to rank yet — this round is random",
+    "practiceFromText": "This text",
+    "practiceEmptyTitle": "Nothing to practise yet",
+    "start": {
+      "subtitle": "What to take now: a pile on its schedule, or a practice round.",
+      "onSchedule": "On the schedule",
+      "begin": "Start",
+      "new": "+{n} new",
+      "empty": "nothing today",
+      "emptyBody": "Everything scheduled for today has been answered. Practice below is always open — it schedules nothing.",
+      "practiceBegin": "Start a round",
+      "choose": "Choose something else",
+      "elsewhere": "In the other piles: {due} due, {new} new."
+    },
+    "trash": {
+      "action": "Trash",
+      "hint": "Take this word out of review. Not a delete: it goes to the trash and can come back.",
+      "done": "«{word}» set aside — out of the queue.",
+      "restored": "«{word}» is back in the deck. It will not reappear in this session — the next one will serve it.",
+      "undo": "Undo",
+      "open": "Open the trash"
+    },
+    "order": {
+      "label": "order:",
+      "due": "overdue first",
+      "random": "shuffled",
+      "hint": "Overdue first serves the cards decaying fastest. Shuffled is a fixed random order for the day — a reload does not reshuffle it."
+    },
+    "setSize": "per set:",
+    "setSizeHint": "The day's queue is dealt in sets of this many cards. Nothing about the schedule changes — only how big a bite you take.",
+    "set": {
+      "label": "set {n} of {of}",
+      "progress": "{done} of {total} answered",
+      "done": "Set finished",
+      "doneBody": "Take a breath. The next set starts when you are ready — the queue is not going anywhere.",
+      "next": "Next set",
+      "stop": "Enough for today",
+      "left": "left in the queue: {n}",
+      "missedTitle": "Missed in this set — read them over",
+      "missedBody": "Each card returns when its learning step comes round: in one of the next sets, or later today. Nothing asks it early.",
+      "summary": {
+        "answered": "Answered",
+        "right": "Right",
+        "missed": "Missed",
+        "matured": "Settled",
+        "minutes": "Minutes"
+      },
+      "maturedList": "Settled in this set (an interval of 21 days or more): {words}",
+      "maturedHint": "“Settled” is Anki's word for a card whose next review is three weeks or more away. A convention, not a memory threshold — but a measured one."
+    },
+    "memory": {
+      "title": "This card's memory",
+      "stage": {
+        "new": "new",
+        "learning": "learning",
+        "young": "settling",
+        "mature": "settled",
+        "relearning": "relearning"
+      },
+      "stageHint": {
+        "new": "You have never answered this card.",
+        "learning": "In its first day: short steps, minutes apart, until it moves to days. Good is the next step; Easy goes straight to days.",
+        "young": "Learned on its first day and now settling: coming back within three weeks.",
+        "mature": "Settled: coming back after three weeks or more.",
+        "relearning": "Forgotten and being relearned in short steps."
+      },
+      "card": "this card: {right} of {total} right",
+      "word": "the word, all directions: {right} of {total} right",
+      "unseen": "first time",
+      "interval": "interval",
+      "intervalChange": "{from} → {to}",
+      "preview": "if graded",
+      "previewHint": "What each grade would schedule, from the same memory model. In the learning steps Good is the next step, minutes away; Easy graduates straight to days. Approximate: the exact day is decided when you answer.",
+      "ifRight": "answer right → back in ~{t}",
+      "help": {
+        "toggle": "what does this mean?",
+        "title": "What it takes for a word to stop coming back",
+        "next": "A right answer takes the card out of today's queue: it comes back in about {good}. A miss brings it back today, in about {again}, and shortens the interval after that. The figures are approximate: the exact day is decided when you answer.",
+        "nextUnscheduled": "This is free practice: it schedules nothing and does not move any interval. Only answers under Review change the schedule.",
+        "never": "A card never disappears — it comes back ever more rarely: minutes, days, weeks, months, years. That is what \"learned\" means here; there is no end after which the word is gone.",
+        "notScore": "\"{right} of {total} right\" is the log of your answers to this card, not points: nothing accumulates towards anything and nothing is lost. The memory model works the next interval out from the whole history, and there is no \"N in a row\" threshold.",
+        "notScoreUnseen": "The tally that appears here after your first answer is a log, not points: nothing accumulates towards anything and nothing is lost. The memory model works the next interval out from the whole history, and there is no \"N in a row\" threshold.",
+        "trash": "Already know the word and have no use for it in review? Trash it (the t key) and the whole word leaves the queue, in every direction. It is not a delete: the cards, their state and their history stay, and the word can be brought back."
+      }
+    },
+    "units": {
+      "min": "{n} min",
+      "h": "{n} h",
+      "d": "{n} d",
+      "wk": "{n} wk",
+      "mo": "{n} mo",
+      "yr": "{n} yr"
     }
   },
   "diff": {
@@ -342,9 +582,7 @@
     "generic": "The form is “{expected}”."
   },
   "reader": {
-    "lemmaCoverage": "by lemma",
-    "elementCoverage": "by element",
-    "thresholdCaveat": "The 95% and 98% lines were derived for English and are indicative only. “By element” is the stricter figure: a word counts only if both its lemma and every grammatical feature on it are known — you can know “ház” and still be stopped by “házaimban”.",
+    "thresholdCaveat": "The {minimal} and {unassisted} marks (“readable with help” and “comfortable”) were derived on English material. Nobody has checked them for Hungarian, so treat them as a reference point, not a grade.",
     "unresolved": "words unanalysed: {n}",
     "verdict": {
       "too_hard": "too hard",
@@ -359,18 +597,48 @@
     "markKnown": "Known",
     "ignore": "Ignore",
     "addCard": "Add card",
+    "autoSpeak": "Read along",
+    "autoSpeakHint": "Speak each word as you step onto it. Your device does the speaking, so this works with nothing deployed.",
+    "translateSentence": "Translate the sentence",
+    "translating": "Translating…",
     "paradigm": "Paradigm",
     "nPlusOne": "Sentences at your level (n+1)",
     "newElements": "new elements: {n}",
     "cardAdded": "Card added: {word}",
-    "keys": "j / k — move by word · K — known · i — ignore · a — add card",
     "certainty": {
       "uncertain": "This form has several readings; the more frequent one was chosen. Check it against the sense.",
-      "derived": "Derived automatically rather than found in the corpus — it may be wrong."
+      "derived": "Worked out automatically rather than looked up — it may be wrong."
     },
     "cardExists": "“{word}” is already in your cards",
     "reportWrong": "this analysis is wrong",
-    "reportedWrong": "reported as wrong — tap to retract"
+    "reportedWrong": "reported as wrong — tap to retract",
+    "knownWords": "Words you know",
+    "withGrammar": "…of those, with their grammar too",
+    "ofWords": "{have} of {total}",
+    "whatThisMeans": "What these two figures mean",
+    "coverageExplainWords": "The first figure is the share of this text’s words you have already marked as known or taken into your cards. It counts every word as it occurs, not distinct words: a frequent word moves it once for each time it appears.",
+    "coverageExplainGrammar": "The second is stricter. A word counts only if you know both the word itself and every grammatical feature on it. You can know “ház” and still be stopped by “házaimban”.",
+    "coverageExplainRaise": "The second figure is raised by grammar drills and cloze cards — they are the only ones that grade features. Plain reading and recognition cards do not move it. It can also fall on its own: a feature you have not practised for a while stops counting as learned.",
+    "noLemmaForStatus": "This word is not in the language pack, so there is nothing to attach a knowledge state to yet. You can still make a card from it.",
+    "translateWord": "Translate the word",
+    "ownGloss": "Your own meaning",
+    "ownGlossPlaceholder": "what this word means",
+    "ownGlossHint": "Kept in your dictionary, and goes on the back of the card.",
+    "withGrammarShort": "with grammar",
+    "saveToDictionary": "Save to my dictionary",
+    "yourDictionary": "your dictionary",
+    "forgetGloss": "Remove from my dictionary",
+    "machineNotOnCards": "This will not go on a card: the back of a card is what you are graded against, and nobody has read this line. Accept it as yours and it becomes part of the card.",
+    "acceptAsMine": "Accept as mine"
+  },
+  "translation": {
+    "fallback": "(in Russian — the pack has no English translation)",
+    "fallbackShort": "(ru)",
+    "toLocale": "Translate into English",
+    "machineShort": "machine translation, {model}",
+    "notConfigured": "No translator is set up. Settings → Services → Translation.",
+    "unreachable": "The translator is not answering. It may still be loading its model.",
+    "machine": "Machine translation, {model}. Nobody has checked this line — use it as a crib, not as the answer."
   },
   "library": {
     "addTitle": "Add a text",
@@ -388,7 +656,31 @@
     "added": "Added: {title}",
     "words": "words",
     "remove": "Delete",
-    "empty": "Nothing here yet. Paste something you genuinely want to read — difficulty is handled by selecting sentences, not by simplifying the text."
+    "empty": "Nothing here yet. Paste something you genuinely want to read — difficulty is handled by selecting sentences, not by simplifying the text.",
+    "removeConfirm": "Delete?",
+    "subtitle": "Read what genuinely interests you — words from your texts become cards.",
+    "search": "Search by title…",
+    "sortLabel": "Sort",
+    "sort": {
+      "recent": "Newest first",
+      "level": "By level",
+      "coverage": "By coverage",
+      "title": "By title"
+    },
+    "filterLevel": "Filter by level",
+    "allLevels": "All levels",
+    "noLevel": "Level undetermined",
+    "levelSource": {
+      "heuristic": "frequency estimate",
+      "llm": "model estimate",
+      "manual": "set by you"
+    },
+    "reviewFrom": "Review words: {n}",
+    "noWordsYet": "No deck words yet — add them while reading.",
+    "nothingFound": "Nothing found",
+    "nothingFoundBody": "No text matches the current search and filters.",
+    "clearFilters": "Clear filters",
+    "emptyTitle": "Nothing here yet"
   },
   "gate": {
     "phase": {
@@ -407,7 +699,6 @@
     "whyNumbers": "Here: blocked practice until {gate}% accuracy over the last {window} answers, then interleaved. Mastery needs {mastery}% over {masteryWindow} interleaved answers. A topic drops back if accuracy falls more than {hysteresis} points below the gate — the door swings both ways.",
     "whyCaveat": "The thresholds come from studies whose participants were not you, which is exactly why they are settings rather than rules. Raise or lower them in Settings.",
     "locked": {
-      "prereq": "Locked until “{topic}” is reliably coming out right.",
       "listening": "Word order and focus cannot be learned from rules — they need volume of heard Hungarian first. You have {heard} h of the {need} h this topic needs.",
       "checkpoint": "This level is closed by a failed checkpoint. Repair below the line, then retake it — advancing past a failed assessment is how plateaus are built."
     },
@@ -430,15 +721,16 @@
     "explained": {
       "ruleCardOnly": "This topic is taught by its explanation. We have not built exercises for it, so it does not hold up anything after it."
     },
-    "windowFull": "rolling average of the last {of}"
+    "windowFull": "rolling average of the last {of}",
+    "advice": {
+      "prereq": "The course order suggests “{topic}” first — advice, not a lock: this topic is open now."
+    }
   },
   "grammar": {
     "title": "Grammar",
     "allTopics": "All topics",
     "teachOrder": "step {n}",
-    "needsFirst": "Needs first:",
     "ruleCardOnly": "explanation only — no exercises yet",
-    "fallbacks": "dropped back {n}×",
     "notSeen": "not seen yet",
     "automated": "automatic",
     "notAWord": "not a Hungarian word",
@@ -452,6 +744,13 @@
       "cloze": "Fill the gap",
       "transform": "Produce the form",
       "mcq": "Which form?"
+    },
+    "lesson": {
+      "whatYouLearn": "How this works",
+      "invariant": "one variant — nothing to choose between",
+      "harmonyNote": "Which variant a word takes is decided by the vowels of its stem: that is vowel harmony. The rule lands immediately and takes months to automate, which is why the exercises measure speed as well as accuracy.",
+      "startDrills": "Start the exercises",
+      "startDrillsHint": "The explanation stays right here — scroll back up to it whenever you want."
     },
     "row": {
       "interior": "inside",
@@ -485,7 +784,10 @@
     },
     "recall": "recall",
     "hitRate": "right",
-    "keysTyped": "Enter — check · Enter again — next item"
+    "keysTyped": "Enter — check · Enter again — next item",
+    "betterFirst": "Better first:",
+    "teachOrderOf": "step {n} of {of}",
+    "levelTopics": "{level} topics"
   },
   "drill": {
     "prompt": {
@@ -499,7 +801,7 @@
     "unavailable": {
       "noGenerator": "We have not built exercises for this topic yet. Its explanation is real; the drills are not there.",
       "noPack": "No language pack is installed, so no exercises can be generated.",
-      "noMaterial": "The corpus in this language pack has no material for this topic, so we would have to invent the answers. We will not."
+      "noMaterial": "The language pack has no real examples for this topic, and we will not invent answers."
     },
     "remedy": {
       "volume": "understood but not yet automatic — it needs repetition, measured in speed",
@@ -523,16 +825,17 @@
     "sessionDone": "{correct}/{total} across {talkers} voices.",
     "neverDone": "No contrast is ever finished: perception gains decay, so every contrast keeps coming back on its own schedule. That is by design.",
     "another": "Another session",
-    "contrasts": "Contrasts"
+    "contrasts": "Contrasts",
+    "autoplayBlocked": "The browser refused to play audio without a click. Press 🔊 — and do not answer blind: a guess against silence poisons the contrast statistics."
   },
   "listen": {
     "title": "Listen",
     "add": "Add material",
-    "upload": "Upload",
-    "transcriptHint": "Paste the transcript (required)",
-    "whyTranscript": "The transcript is required because passes 2–3 and the comprehensibility pre-check are built on it. It goes through the same analysis as a reading text.",
+    "upload": "Add",
+    "transcriptHint": "Paste the Hungarian text (required)",
+    "whyTranscript": "The text is required: passes 2–3 and the comprehensibility check are built on it. It goes through the same analysis as a reading text.",
     "materials": "Materials",
-    "empty": "No listening materials yet. Upload audio with its transcript — a podcast episode, a news clip, anything you have the rights to listen to.",
+    "empty": "No materials yet. Paste any Hungarian text and your device's voice will read it. An audio file is welcome but not required.",
     "coverageWarn": "Element coverage is {pct}% — below ~90% this is decoding, not listening practice. Consider an easier text first; the thresholds are English-derived and indicative only.",
     "pass1": "Pass 1 · gist",
     "pass2": "Pass 2 · with transcript",
@@ -544,7 +847,16 @@
     "loopSetB": "Loop end",
     "loopClear": "Clear loop",
     "dictation": "Sentence {n}/{of} — type what you hear.",
-    "dictationPlaceholder": "type the sentence…"
+    "dictationPlaceholder": "type the sentence…",
+    "audioOptional": "An audio file, if you have one. Without it your device's own voice reads the text.",
+    "needTranscript": "Paste the text first.",
+    "sourceRecording": "recording",
+    "sourceDevice": "read by your device",
+    "deviceVoiceCaveat": "This is your system's speech synthesiser, not a person. The intonation is flatter and vowel length comes through less clearly than from a speaker. Good enough for passes 1–2 and for dictation; not a substitute for a real recording.",
+    "startReading": "Read aloud",
+    "stopReading": "Stop",
+    "repeatSentence": "Again",
+    "nextSentence": "Next"
   },
   "progress": {
     "title": "Progress",
@@ -555,7 +867,20 @@
     "locative": "The locative system",
     "heatmap": "Grammatical features",
     "noMastery": "Nothing graded yet. Cloze reviews and grammar drills feed this map.",
-    "weakest": "weakest"
+    "heatmapLead": "The share of correct answers for each kind of grammar. A figure appears once there are enough answers to trust it.",
+    "locativeLead": "Nine cells: “inside / on / beside” × “where / whither / whence”. Colour is the share of correct answers.",
+    "locativeLegend": "Grey means you have not met this form yet.",
+    "answers": "answers: {n}",
+    "notEnough": "not enough data",
+    "notEnoughHint": "a figure appears after {n} answers",
+    "neverMet": "not met",
+    "solid": "solid",
+    "shaky": "shaky",
+    "byFeature": "feature by feature",
+    "needsWork": "Needs work",
+    "noWeakYet": "No weak spots so far.",
+    "nothingMeasuredYet": "No feature has enough answers behind it yet, so none of these figures is worth trusting. That is normal early on.",
+    "practiceDays": "Practice by day"
   },
   "checkpoint": {
     "title": "Checkpoints",
@@ -592,6 +917,187 @@
       "missedDays": "Missed days: {n} of the last 30 did not meet the obligations. This is the most common cause of failure.",
       "inputTooHard": "Input too hard: average element coverage of what you read was {pct}% — below the ~90% floor, reading is decoding.",
       "noLivePractice": "No live practice attested in 30 days. The app cannot do this loop for you — that is exactly why it is on the Today screen."
+    },
+    "notYet": "not yet"
+  },
+  "speech": {
+    "play": "Speak",
+    "replay": "Play",
+    "off": "Speech is switched off — turn it on in Settings",
+    "noVoice": "This device has no Hungarian voice",
+    "unsupported": "This browser cannot synthesise speech",
+    "noVoiceHint": "No Hungarian voice is installed on this device, so there is nothing to speak with. On macOS add one under Accessibility → Spoken Content → System Voice → Manage Voices; on Windows under Time & Language → Speech.",
+    "unsupportedHint": "This browser does not support speech synthesis, so there will be no audio here.",
+    "title": "Speech",
+    "hint": "Hungarian is spoken by your own device — the server is not involved and there is nothing to configure. Quality depends on the voices installed on your system.",
+    "on": "On",
+    "voice": "Voice",
+    "voiceAuto": "automatic",
+    "preview": "Try it",
+    "voicesFound": "Hungarian voices on this device: {n}",
+    "compactHint": "Sounds robotic? That is the built-in “compact” voice — your system has a better one, it just needs downloading. macOS: Accessibility → Spoken Content → System Voice → Manage Voices, and pick the Hungarian entry marked Enhanced or Premium. Windows: Time & Language → Speech → Manage voices. It appears in the list above once installed. While the voice is a compact one the app reads slightly slower, which makes vowel length easier to hear."
+  },
+  "inspector": {
+    "dictionaryForm": "dictionary form:",
+    "thisForm": "what this form is made of",
+    "examples": "real examples",
+    "noExamples": "The language pack has no sentence using this word, and we will not invent one."
+  },
+  "feature": {
+    "family": {
+      "aspect": "Verb aspect",
+      "case": "Cases",
+      "definite": "Object definiteness",
+      "degree": "Degrees of comparison",
+      "mood": "Mood",
+      "number": "Number",
+      "person": "Person",
+      "possessedNumber": "Number of possessions",
+      "possessorNumber": "Number of possessors",
+      "possessorPerson": "Possessor person",
+      "skill": "Individual skills",
+      "tense": "Tense",
+      "verbForm": "Verb forms",
+      "voice": "Voice"
+    }
+  },
+  "keys": {
+    "title": "Keys",
+    "hide": "Hide the key hints",
+    "show": "Show the keys",
+    "reader": {
+      "move": "move by word",
+      "addCard": "add card",
+      "known": "known",
+      "ignore": "ignore",
+      "speak": "speak"
+    },
+    "review": {
+      "reveal": "reveal",
+      "next": "next",
+      "check": "check",
+      "rate": "rate",
+      "hint": "hint",
+      "undo": "undo",
+      "tutor": "ask the tutor",
+      "closeInspector": "close the panel",
+      "trash": "trash",
+      "nextSet": "next set"
+    }
+  },
+  "words": {
+    "title": "Words",
+    "subtitle": "The whole deck as a list: what holds, what wobbles, what comes up next.",
+    "open": "All words →",
+    "search": "Word or meaning…",
+    "statusLabel": "Status",
+    "sortLabel": "Sort",
+    "status": {
+      "all": "All",
+      "learning": "Learning",
+      "known": "Known",
+      "ignored": "Ignored",
+      "new": "New"
+    },
+    "sort": {
+      "added": "Recent first",
+      "word": "Alphabetical",
+      "retrievability": "Shakiest first",
+      "due": "By next review"
+    },
+    "total": "Words in total: {n}",
+    "memory": "Chance of recalling it now",
+    "unreviewed": "not reviewed yet",
+    "due": "review {d}",
+    "lapses": "forgotten: {n}",
+    "emptyTitle": "Nothing here yet",
+    "emptyBody": "Words appear when you take a course unit into work or add them while reading."
+  },
+  "trash": {
+    "title": "Trash",
+    "subtitle": "Words you have set aside. Nothing is gone — any of them can come back.",
+    "notice": "A word set aside leaves review: its schedule stops, the queue does not show it and no count includes it. Nothing is deleted — the card and its whole history are still here. You can practise these words, and doing so changes no schedule.",
+    "practise": "Practise these",
+    "restore": "Restore",
+    "restoreHint": "Put this word back into review ({n} cards)",
+    "since": "since {d}",
+    "fromCourse": "from the course",
+    "fromReading": "from reading",
+    "emptyTitle": "The trash is empty",
+    "emptyBody": "When a card turns out to be too hard or simply badly made, «Trash» on the review screen takes the word out of the queue — and this is where you find it again."
+  },
+  "tutor": {
+    "title": "Ask the tutor",
+    "lead": "A question about this rule — in your language. The tutor answers from the lesson above, the pack's own feature tables and a reference corpus of open grammars. This chat is pinned to this topic; the AI Teacher page takes any question.",
+    "off": "No language model is configured, so there is no tutor here yet. Point Settings → Services → Language model at any OpenAI-compatible endpoint — a local Ollama will do — and this panel comes alive.",
+    "offLink": "Open Settings",
+    "notice": "The explanation is the model's; the lesson above is the app's. Nothing said here becomes a card, a meaning or a grade — words come from the reader and the course.",
+    "placeholder": "Ask about this topic…",
+    "send": "Ask",
+    "thinking": "answering…",
+    "you": "you",
+    "model": "answer by {model}",
+    "unattested": "Not found in the dictionary: {words}. The model may have invented these — check before you trust them.",
+    "interrupted": "The answer was cut off here.",
+    "stop": "Stop",
+    "edit": "Edit question",
+    "editing": "Editing a question: the old answer and everything after it will be removed.",
+    "sourcesToggle": "Reference material",
+    "context": {
+      "known": "Model window {window} tokens: the last question and answer took {used}, about {free} free.",
+      "unknown": "Last question: {prompt} prompt tokens, answer {answer}. The model does not report its window.",
+      "full": "The model's window is full ({window} tokens): the head of the prompt may have been cut, so the model did not see the rules and the lesson. Raise the context in Ollama to 8k."
+    },
+    "cut": {
+      "budget": "The answer was cut off: it ran out of the length it was allowed.",
+      "timeout": "The answer was cut off: the model ran out of the time it was allowed.",
+      "stop": "The answer was stopped.",
+      "connection": "The answer was cut off: the connection to the model was lost.",
+      "echo": "The answer was cut: the model began repeating the prompt's own scaffolding."
+    },
+    "smallModel": "{model} is a small model: {size} billion parameters, going by its name. Models this size are often wrong about Hungarian — check its translations and breakdowns. The tutor was built for 7–8 billion, qwen3:8b for example.",
+    "sources": "Reference material: the pack's lesson, the pack's feature tables, and open grammars — {sources}.",
+    "suggest": {
+      "why": "Why this form and not the other one?",
+      "examples": "Give me three more examples with a front-vowel stem.",
+      "russian": "How does this compare with Russian?",
+      "english": "How does this compare with English?",
+      "mistake": "What is the most common mistake here?"
+    },
+    "empty": "Nothing asked yet. Try one of the questions below, or type your own.",
+    "openFull": "Open in AI Teacher",
+    "backToLesson": "Back to the lesson",
+    "history": {
+      "title": "Chats",
+      "reviewTitle": "Review · {date}",
+      "reviewPrefix": "Review",
+      "reviewSubtitle": "questions about this word",
+      "empty": "No chats yet.",
+      "emptyBody": "Ask anything — the chat will appear here.",
+      "unread": "no reply yet",
+      "you": "you: "
+    },
+    "keys": "Enter sends, Shift+Enter breaks the line, Esc stops the answer",
+    "placeholderFree": "Ask about Hungarian…",
+    "emptyFree": "Ask anything about Hungarian — the app finds the lesson for each question and names it under the answer.",
+    "newChat": "New chat",
+    "delete": "Delete chat",
+    "deleted": "Chat deleted.",
+    "retry": "Try again",
+    "loadFailed": "The conversation could not be loaded.",
+    "grounded": "from the lesson: {topic}",
+    "groundedNone": "from the reference, no lesson",
+    "suggestFree": {
+      "why": "Why házban and not házben?",
+      "plural": "How is the plural formed?",
+      "cases": "What is the difference between -ba and -ban?",
+      "harmony": "Explain vowel harmony with examples"
+    },
+    "pin": {
+      "label": "Topic of the new chat",
+      "any": "Any — found from the question",
+      "auto": "the lesson is found from each question",
+      "is": "topic: {topic}"
     }
   }
 }

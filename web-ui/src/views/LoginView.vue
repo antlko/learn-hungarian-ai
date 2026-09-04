@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
+import { describeError } from '@/lib/errors'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -9,14 +9,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Note from '@/components/common/Note.vue'
 import LocaleToggle from '@/components/common/LocaleToggle.vue'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
-import { ApiError } from '@/api'
 import { useAuthStore } from '@/stores/auth'
+import { Illustration } from '@/components/art'
 import { APP_NAME, APP_TAGLINE_KEY } from '@/lib/brand'
 
 const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
-const { t } = useI18n()
 
 const email = ref('')
 const password = ref('')
@@ -31,12 +30,7 @@ async function submit() {
     const next = typeof route.query.next === 'string' ? route.query.next : '/'
     router.push(next)
   } catch (e) {
-    error.value =
-      e instanceof ApiError
-        ? e.message === 'network-unreachable'
-          ? t('errors.network-unreachable')
-          : e.message
-        : t('errors.generic')
+    error.value = describeError(e)
   } finally {
     busy.value = false
   }
@@ -55,8 +49,9 @@ async function submit() {
     <Card variant="raised" class="animate-card-in w-full max-w-sm">
       <CardHeader class="gap-2">
         <div class="flex flex-col">
-          <span class="text-2xl font-semibold tracking-tight">{{ APP_NAME }}</span>
+          <span class="font-display text-2xl font-medium">{{ APP_NAME }}</span>
           <span class="text-xs text-muted-foreground">{{ $t(APP_TAGLINE_KEY) }}</span>
+          <Illustration name="vine" tone="accent" class="mt-2" />
         </div>
         <CardTitle class="text-base font-medium text-muted-foreground">
           {{ $t('login.title') }}

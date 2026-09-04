@@ -66,7 +66,7 @@ func TestSessionRefusedBelowTalkerFloor(t *testing.T) {
 	inv := testInventory(t, []string{"anna", "berta", "imre"})
 	sched := srs.NewScheduler(0.9)
 
-	_, err := inv.SessionPlan(nil, 10, 5, rand.New(rand.NewSource(1)), time.Now(), sched)
+	_, err := inv.SessionPlan(nil, 10, 5, 0.1, rand.New(rand.NewSource(1)), time.Now(), sched)
 	var floor *TalkerFloorError
 	if !errors.As(err, &floor) {
 		t.Fatalf("want TalkerFloorError, got %v", err)
@@ -76,7 +76,7 @@ func TestSessionRefusedBelowTalkerFloor(t *testing.T) {
 	}
 
 	// At an admin-lowered floor of 3, the same inventory trains.
-	trials, err := inv.SessionPlan(nil, 10, 3, rand.New(rand.NewSource(1)), time.Now(), sched)
+	trials, err := inv.SessionPlan(nil, 10, 3, 0.1, rand.New(rand.NewSource(1)), time.Now(), sched)
 	if err != nil || len(trials) != 10 {
 		t.Fatalf("plan at floor 3: %v (%d trials)", err, len(trials))
 	}
@@ -85,7 +85,7 @@ func TestSessionRefusedBelowTalkerFloor(t *testing.T) {
 // Talker variety is engineered, not hoped for: consecutive trials rotate voice.
 func TestSessionRotatesTalkers(t *testing.T) {
 	inv := testInventory(t, []string{"anna", "berta", "imre"})
-	trials, err := inv.SessionPlan(nil, 12, 3, rand.New(rand.NewSource(2)), time.Now(), srs.NewScheduler(0.9))
+	trials, err := inv.SessionPlan(nil, 12, 3, 0.1, rand.New(rand.NewSource(2)), time.Now(), srs.NewScheduler(0.9))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -107,7 +107,7 @@ func TestHalfRecordedPairIsNotServed(t *testing.T) {
 	if inv.Audible(3) {
 		t.Fatal("pair 3 has no audio in the fixture")
 	}
-	trials, err := inv.SessionPlan(nil, 40, 3, rand.New(rand.NewSource(3)), time.Now(), srs.NewScheduler(0.9))
+	trials, err := inv.SessionPlan(nil, 40, 3, 0.1, rand.New(rand.NewSource(3)), time.Now(), srs.NewScheduler(0.9))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -127,7 +127,7 @@ func TestHalfRecordedPairIsNotServed(t *testing.T) {
 // The played member is server-held: a trial as serialised carries no answer.
 func TestTrialAnswerStaysUnexported(t *testing.T) {
 	inv := testInventory(t, []string{"anna", "berta", "imre"})
-	trials, _ := inv.SessionPlan(nil, 1, 3, rand.New(rand.NewSource(4)), time.Now(), srs.NewScheduler(0.9))
+	trials, _ := inv.SessionPlan(nil, 1, 3, 0.1, rand.New(rand.NewSource(4)), time.Now(), srs.NewScheduler(0.9))
 	tr := trials[0]
 	if tr.Played() != "a" && tr.Played() != "b" {
 		t.Fatal("the trial must know its own answer")
@@ -157,5 +157,52 @@ func TestAdaptiveWeights(t *testing.T) {
 	}
 	if w["ö/ő"] <= 0 {
 		t.Error("no contrast is ever complete — the weight floor must be positive")
+	}
+}
+
+// The rate dial has to actually be connected to the plan: the config promised
+// `rateJitter: 0.10` from the first release while clipFor picked among a
+// talker's clips uniformly, running HALF of every session slowed.
+func TestRateJitterControlsTheSlowShare(t *testing.T) {
+	// Built directly rather than through testInventory, which renders only
+	// rate-1.0 clips — this test is about the choice between rates.
+	pair := Pair{ID: 1, A: "kor", B: "kór", Contrast: "o/ó"}
+	inv := &Inventory{
+		Pairs:      []Pair{pair},
+		ByContrast: map[string][]Pair{"o/ó": {pair}},
+		Talkers:    []string{"anna", "berta", "imre"},
+		Clips:      map[int64]map[string][]Clip{1: {}},
+	}
+	for _, member := range []string{"a", "b"} {
+		for _, talker := range inv.Talkers {
+			for _, rate := range []float64{1.0, 0.85} {
+				inv.Clips[1][member] = append(inv.Clips[1][member], Clip{
+					PairID: 1, Member: member, TalkerID: talker, Rate: rate, Path: "hvpt/x.ogg",
+				})
+			}
+		}
+	}
+	sched := srs.NewScheduler(0.9)
+
+	count := func(jitter float64, seed int64) (slow, total int) {
+		trials, err := inv.SessionPlan(nil, 200, 3, jitter, rand.New(rand.NewSource(seed)), time.Now(), sched)
+		if err != nil {
+			t.Fatalf("plan: %v", err)
+		}
+		for _, tr := range trials {
+			total++
+			if tr.Rate != 1.0 {
+				slow++
+			}
+		}
+		return slow, total
+	}
+
+	slow, total := count(0.1, 42)
+	if share := float64(slow) / float64(total); share > 0.25 {
+		t.Errorf("jitter 0.1 served %.0f%% slowed trials; the dial is not connected", share*100)
+	}
+	if slow, _ := count(0, 43); slow != 0 {
+		t.Errorf("jitter 0 must serve natural tempo only, got %d slowed", slow)
 	}
 }

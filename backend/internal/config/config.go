@@ -31,6 +31,14 @@ const (
 	DefaultDailyMinutes     = 90
 	DefaultGoal             = GoalConversation
 
+	// Free practice session sizes (ADR-019/ADR-024). Finite on purpose: an
+	// endless stream has no moment of having finished. The bounds clamp the
+	// query parameter, not a config field — round length is a per-session whim,
+	// not a setting to store.
+	DefaultPracticeSession = 20
+	MinPracticeSession     = 10
+	MaxPracticeSession     = 50
+
 	// Mining weights: see docs/ARCHITECTURE.md 5.1 and [R6].
 	DefaultKnownThreshold = 0.80
 	DefaultFeatureWeight  = 0.70
@@ -93,6 +101,19 @@ const (
 	ProviderOff    = "off"
 	ProviderLocal  = "local"
 	ProviderOpenAI = "openai"
+	// ProviderDevice is TTS spoken by the LEARNER'S OWN BROWSER, through the
+	// Web Speech API. It has no endpoint and nothing to deploy, which is the
+	// whole point: every desktop OS ships a Hungarian voice, and requiring a
+	// sidecar for the app to make any sound at all meant a fresh install had
+	// no audio anywhere — no 🔊 in the reader, no listening cards, and a
+	// settings screen reading "off" four times over.
+	//
+	// The server cannot verify it. `handleCapabilities` therefore reports it
+	// as configured and NOT reachable, and the client decides: it asks
+	// `speechSynthesis` for a Hungarian voice and says which one it found, or
+	// says the device has none. Never asserted, always checked where it can
+	// actually be checked.
+	ProviderDevice = "device"
 )
 
 // Config is the whole of config.yaml.
@@ -132,6 +153,10 @@ type Review struct {
 	// absence distinguishable from a deliberate false, which is the only correct
 	// way to give a bool a non-zero default here.
 	BurySiblings *bool `yaml:"burySiblings"`
+	// AccentTolerance accepts a typed answer that differs from the target only
+	// in diacritics — what a plain English keyboard cannot produce. A pointer
+	// because its default is TRUE.
+	AccentTolerance *bool `yaml:"accentTolerance"`
 }
 
 // BurySiblingsEnabled resolves the pointer, defaulting to true.
@@ -141,6 +166,18 @@ type Review struct {
 // memory, so it tests nothing.
 func (r Review) BurySiblingsEnabled() bool {
 	return r.BurySiblings == nil || *r.BurySiblings
+}
+
+// AccentToleranceEnabled resolves the pointer, defaulting to true.
+//
+// Vowel length and rounding are phonemic in Hungarian — hat and hát are
+// different words — so an accepted accentless answer is never a silent pass:
+// it rates Hard, the diff shows exactly which mark was dropped, and the error
+// class still routes to the ear trainer. What tolerance buys is that a learner
+// typing on a plain keyboard is not failed on hardware. The `spell` direction
+// is exempt: its whole purpose is the diacritics.
+func (r Review) AccentToleranceEnabled() bool {
+	return r.AccentTolerance == nil || *r.AccentTolerance
 }
 
 // Direction is one review direction. Five exist: recognize, produce, listen,
@@ -205,6 +242,11 @@ type Services struct {
 	ASR Service `yaml:"asr"`
 	NLP Service `yaml:"nlp"`
 	LLM Service `yaml:"llm"`
+	// MT is sentence translation for the reader — a dedicated translation
+	// model, not a chat model. It is deliberately NOT the `llm` slot: what it
+	// produces is a crib for a sentence the learner is looking at, and it is
+	// labelled as machine output wherever it appears. See ADR-014.
+	MT Service `yaml:"mt"`
 }
 
 type Service struct {
@@ -247,6 +289,10 @@ func (c *Config) normalize() {
 	}
 	if c.Review.Directions == nil {
 		c.Review.Directions = DefaultDirections()
+	}
+	if c.Review.AccentTolerance == nil {
+		t := true
+		c.Review.AccentTolerance = &t
 	}
 	if c.Review.BurySiblings == nil {
 		t := true
@@ -314,10 +360,17 @@ func (c *Config) normalize() {
 	}
 	// ExamDate has no default on purpose: an exam the learner did not book is
 	// not an exam.
-	for _, s := range []*Service{&c.Services.TTS, &c.Services.ASR, &c.Services.NLP, &c.Services.LLM} {
+	for _, s := range []*Service{&c.Services.ASR, &c.Services.NLP, &c.Services.LLM, &c.Services.MT} {
 		if s.Provider == "" {
 			s.Provider = ProviderOff
 		}
+	}
+	// TTS defaults to the device, not to off. It is the one optional service
+	// that needs no deployment, and speech is load-bearing for a language the
+	// learner has to hear: with it off, `srs.PlanFor` drops the listen and
+	// spell directions and the reader has nothing to play.
+	if c.Services.TTS.Provider == "" {
+		c.Services.TTS.Provider = ProviderDevice
 	}
 }
 
@@ -428,15 +481,35 @@ func (c *Config) Validate() (clamped []ErrClamped, err error) {
 	for name, s := range map[string]Service{
 		"tts": c.Services.TTS, "asr": c.Services.ASR,
 		"nlp": c.Services.NLP, "llm": c.Services.LLM,
+		"mt": c.Services.MT,
 	} {
 		switch s.Provider {
 		case ProviderOff:
-		case ProviderLocal, ProviderOpenAI:
+		case ProviderDevice:
+			// Only speech can come from the device, and it never has an
+			// endpoint — there is no server involved at all.
+			if name != "tts" {
+				return nil, fmt.Errorf("services.%s.provider: %q is only valid for tts", name, s.Provider)
+			}
+		case ProviderOpenAI:
+			// The translator speaks its own `/translate`, not the chat API, so
+			// accepting `openai` here would promise a protocol we do not talk.
+			// Point `mt` at services/mt; point `llm` at the OpenAI-compatible box.
+			if name == "mt" {
+				return nil, fmt.Errorf(
+					"services.mt.provider: want off or local, got %q — mt speaks its own /translate protocol", s.Provider)
+			}
+			if s.Endpoint == "" {
+				return nil, fmt.Errorf("services.%s: endpoint required when provider is %q", name, s.Provider)
+			}
+		case ProviderLocal:
 			if s.Endpoint == "" {
 				return nil, fmt.Errorf("services.%s: endpoint required when provider is %q", name, s.Provider)
 			}
 		default:
-			return nil, fmt.Errorf("services.%s.provider: want off, local or openai, got %q", name, s.Provider)
+			return nil, fmt.Errorf(
+				"services.%s.provider: want off, local or openai%s, got %q",
+				name, map[bool]string{true: ", device"}[name == "tts"], s.Provider)
 		}
 	}
 	return clamped, nil

@@ -14,20 +14,38 @@ SHELL := /bin/sh
 BACKEND_DIR  := backend
 WEB_DIR      := web-ui
 LANGPACK_DIR := langpack
-STARTER_DIR  ?= backend/internal/lang/starter
+# ABSOLUTE, because the starter recipe runs from inside langpack/. As a
+# relative path this resolved to langpack/backend/internal/lang/starter and
+# `make starter` silently wrote the embedded pack into a shadow directory that
+# nothing reads — so the binary went on shipping whatever was committed, which
+# is the exact failure CLAUDE.md warns about. The media tarball on the next
+# line is written from the repo root and was landing correctly, so the two
+# halves of one target disagreed about where the pack lives.
+STARTER_DIR  ?= $(CURDIR)/backend/internal/lang/starter
 VOICES_DIR   := $(LANGPACK_DIR)/voices
+MT_DIR        ?= $(CURDIR)/services/mt
+# Absolute, and outside the repo: the weights are 600 MB of build output that a
+# `git clean` has no business deciding about.
+MT_MODEL_DIR  ?= $(HOME)/.cache/tanulom-mt
 EMBED_DIR    := $(BACKEND_DIR)/internal/web/dist
 BIN          := bin/tanulom
 
 DATA_DIR      ?= $(CURDIR)/data
 PACK          ?= $(DATA_DIR)/langpack-hu-v1.sqlite
-PYTHON        ?= python3
+# The pipeline's interpreter: the project virtualenv when `make venv` (part of
+# `make deps`) has created it, else whatever python3 is on PATH. Piper lives in
+# the venv, so a system python renders nothing — `make audio` once reported
+# "rendered 0 clips" for exactly that reason.
+VENV          := $(LANGPACK_DIR)/.venv
+PYTHON        ?= $(if $(wildcard $(VENV)/bin/python),$(VENV)/bin/python,python3)
 # The ear trainer's three CC0 Hungarian talkers. Pinned to `main` because
 # rhasspy/piper-voices publishes no tags; the .json voice cards beside each
 # model are tracked, so a swapped model is visible in a diff.
 PIPER_BASE    ?= https://huggingface.co/rhasspy/piper-voices/resolve/main/hu/hu_HU
 VERSION       ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
-GO_TEST_FLAGS ?= -count=1
+# The race detector needs a C toolchain (macOS: Xcode command-line tools).
+# Without one: make test GO_TEST_FLAGS=-count=1
+GO_TEST_FLAGS ?= -race -count=1
 
 # The dev-only listen address. It is NOT a default and it is not read from
 # internal/config: it must equal the proxy target spelled literally in
@@ -104,7 +122,11 @@ run: build ## Build, then serve UI + API from the single binary against ./data
 ##@ Quality
 
 .PHONY: test
-test: test-backend test-frontend ## Everything CI gates on, backend then frontend
+test: test-backend test-frontend docs-check ## Everything CI gates on: backend, frontend, docs
+
+.PHONY: docs-check
+docs-check: ## Research citations resolve, notes state their code impact, locales match
+	@sh scripts/docs-check.sh
 
 .PHONY: test-backend
 test-backend: ensure-spa ## go vet + go build + go test ./...
@@ -140,6 +162,46 @@ langpack: ## Rebuild data/langpack-hu-v1.sqlite (hours, tens of GB of scratch sp
 	@mkdir -p '$(DATA_DIR)'
 	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.build --out '$(PACK)'
 
+.PHONY: refresh-curriculum
+.PHONY: refresh
+refresh: refresh-curriculum ## Alias for refresh-curriculum
+
+refresh-curriculum: ## Rewrite lessons/features/course in an existing pack (seconds, no downloads)
+	$(call need,$(PYTHON),$(PY_HINT))
+	@test -s '$(PACK)' || { echo 'need $(PACK) first — run: make langpack'; exit 1; }
+# The lessons, the feature inventory, the minimal pairs and the course are pure
+# Python literals: nothing about them needs Wiktionary or Tatoeba, so editing a
+# lesson must not cost a multi-hour `make langpack`. Stop the server first — the
+# app treats a pack as read-only and this is a build step writing to one.
+	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.refresh --pack '$(PACK)'
+
+.PHONY: subtitles
+subtitles: ## Add conversational sentences from OPUS to an existing pack (~40 min, no full rebuild)
+	$(call need,$(PYTHON),$(PY_HINT))
+	@test -s '$(PACK)' || { echo 'need $(PACK) first — run: make langpack'; exit 1; }
+# The sentence stage never calls HuSpaCy — it links tokens through the pack's
+# own wordform index — so adding sentences to a pack that already has a lexicon
+# costs minutes of I/O, not the hours a full `make langpack` does. Stop the
+# server first: the app treats a pack as read-only and this writes to one.
+	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.add_subtitles --pack '$(PACK)'
+
+.PHONY: verbs
+verbs: ## Backfill generated verb conjugations + corpus forms into an existing pack (seconds)
+	$(call need,$(PYTHON),$(PY_HINT))
+	@test -s '$(PACK)' || { echo 'need $(PACK) first — run: make langpack'; exit 1; }
+	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.verbs --pack '$(PACK)'
+
+.PHONY: tutor-kb
+tutor-kb: ## Regenerate the grammar tutor's reference corpus from its open sources (minutes)
+	$(call need,$(PYTHON),$(PY_HINT))
+# The tutor's `src-*.md` files (backend/internal/tutor/kb) are converted from
+# Wikipedia, Wiktionary and the public-domain FSI course; the `ref-*.md` files
+# beside them are written by hand and this never touches them. The pack is
+# optional and only restores the diacritics the FSI scan lost — pass PACK= if
+# yours lives elsewhere. Commit the result: the files are `//go:embed`ded.
+	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.tutor_kb \
+		--out '$(CURDIR)/backend/internal/tutor/kb' --pack '$(PACK)'
+
 .PHONY: starter
 starter: ## Rebuild the starter pack + audio that ship INSIDE the binary
 	$(call need,$(PYTHON),$(PY_HINT))
@@ -173,24 +235,54 @@ voices: ## Fetch the three Piper voice models the ear trainer renders with (180 
 	done
 	@printf '\n  voices in %s — now run: make audio\n\n' '$(VOICES_DIR)'
 
+.PHONY: mt
+mt: ## Run the local translator natively on :5003 (first run downloads ~2.4 GB)
+	$(call need,$(PYTHON),$(PY_HINT))
+# Its own venv, not the pipeline's: this needs ctranslate2 and transformers, and
+# the first run additionally needs torch to convert the model. Putting that in
+# the system interpreter is the kind of thing people only forgive once.
+#
+# MT_MODEL_DIR is ABSOLUTE and outside the repo. As a relative path it resolves
+# against wherever the process started and 600 MB of weights land somewhere
+# nobody expects — the same trap `make starter` documents two targets up.
+	@if [ ! -x '$(MT_DIR)/.venv/bin/python' ]; then \
+		printf '\n  creating %s/.venv — a few minutes, ~1 GB of wheels\n\n' '$(MT_DIR)'; \
+		'$(PYTHON)' -m venv '$(MT_DIR)/.venv' || exit 1; \
+		'$(MT_DIR)/.venv/bin/pip' install -q --upgrade pip || exit 1; \
+		'$(MT_DIR)/.venv/bin/pip' install -q \
+			-r '$(MT_DIR)/requirements.txt' \
+			-r '$(MT_DIR)/requirements-convert.txt' || exit 1; \
+	fi
+	@printf '\n  translator  http://localhost:5003\n  model dir   %s\n' '$(MT_MODEL_DIR)'
+	@printf '  Settings -> Services -> translation: provider local, endpoint http://localhost:5003\n\n'
+	cd '$(MT_DIR)' && MT_MODEL_DIR='$(MT_MODEL_DIR)' ./.venv/bin/python app.py
+
 .PHONY: audio
 audio: voices ## Render the ear-trainer clips into data/media (needs piper + ffmpeg)
 	$(call need,$(PYTHON),$(PY_HINT))
+	$(call need,ffmpeg,Install ffmpeg (macOS: brew install ffmpeg) — the clips are encoded to Opus with it)
+	@'$(PYTHON)' -c 'import piper' 2>/dev/null || { echo 'piper is not installed for $(PYTHON) — run: make deps'; exit 1; }
 	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.minimal_pairs \
 		--pack '$(PACK)' --media '$(DATA_DIR)/media' --voices-dir ./voices
 
 ##@ Housekeeping
 
 .PHONY: deps
-deps: ## Fetch Go modules, npm packages and the pipeline's Python requirements
+deps: venv ## Fetch Go modules, npm packages and the pipeline's Python requirements (into langpack/.venv)
 	$(call need,go,$(GO_HINT))
 	$(call need,npm,$(NODE_HINT))
-	$(call need,$(PYTHON),$(PY_HINT))
 	cd '$(BACKEND_DIR)' && go mod download
 	cd '$(WEB_DIR)' && npm ci
-	# Point PYTHON at a virtualenv to keep this out of the system interpreter:
-	#   make deps PYTHON=langpack/.venv/bin/python
-	'$(PYTHON)' -m pip install -r '$(LANGPACK_DIR)/requirements.txt'
+
+# The pipeline's own interpreter. Created once; `make deps` installs into it and
+# every pipeline target finds it through PYTHON above. Nothing here touches the
+# system Python. `make deps` after a requirements change re-installs.
+.PHONY: venv
+venv: $(VENV)/bin/python ## Create langpack/.venv and install the pipeline's requirements
+	'$(VENV)/bin/python' -m pip install --quiet -r '$(LANGPACK_DIR)/requirements.txt'
+$(VENV)/bin/python:
+	$(call need,python3,$(PY_HINT))
+	python3 -m venv '$(VENV)'
 
 .PHONY: clean
 clean: ## Delete build output. Never touches ./data — that is the learner's database
@@ -209,7 +301,7 @@ help: ## Show this help
 	@awk 'BEGIN { FS = ":.*##" } \
 		/^##@/ { printf "\n  \033[1m%s\033[0m\n", substr($$0, 5); next } \
 		/^[a-zA-Z0-9_.\/-]+:.*##/ { printf "    \033[36m%-14s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
-	@printf '\n  overrides: DATA_DIR PACK PYTHON VERSION DEV_ADDR GO_TEST_FLAGS\n\n'
+	@printf '\n  overrides: DATA_DIR PACK PYTHON VERSION DEV_ADDR GO_TEST_FLAGS MT_MODEL_DIR\n\n'
 
 # --- internal targets -------------------------------------------------------
 

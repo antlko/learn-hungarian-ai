@@ -1,9 +1,9 @@
 # tanulom — implementation plan
 
 > **Status:** Phases 0–7 complete, plus the post-v1.0 work in [§10](#10-after-the-plan--what-v10-turned-out-to-need)
-> (accounts, the guided course, the embedded starter pack, the Makefile, and the removal of
-> export/backup) · **Not shipped:** README screenshots, the `v1.0.0` tag, a verified
-> `docker build` · **Last updated:** 2026-08-22
+> (accounts, the guided course, the embedded starter pack, the Makefile, the removal of
+> export/backup, review sets with per-card memory, and the grammar tutor) · **Not shipped:** the `v1.0.0` tag and a verified
+> `docker build` · **Last updated:** 2026-09-04
 > This is the living plan. It is granular on purpose. Update it as phases complete — a phase
 > is not done until its checklist is ticked *and* its documentation is written. **A box is
 > ticked only when the named file exists and does what the line says**; a line whose file was
@@ -61,7 +61,7 @@ Everything distinctive about this app follows from taking that literally. See
 scaffolded and CI-ready. No app code.
 
 - [x] Repository scaffold (`backend/`, `web-ui/`, `services/`, `langpack/`, `docs/`, `.claude/`)
-- [x] `.claude/research/` — 18 notes (`00` source plan + `01`–`17`)
+- [x] `.claude/research/` — 20 notes (`00` source plan + `01`–`19`)
 - [x] `.claude/research/pdf/` — 8 open-access PDFs + provenance ledger
 - [x] `.claude/PLAN.md` (this file)
 - [x] `.claude/DECISIONS.md` — 7 ADRs
@@ -140,7 +140,7 @@ and every note contains a "What this changes in our code" section.
       alone (the `nlp`/`speech`/`llm` services are correctly excluded without a profile)
 - [x] **`docker build` verified.** The registry became reachable and the three-stage build runs
       clean: a **33 MB** distroless image, `nonroot:nonroot`, no shell. Run against an empty
-      volume it installs the starter pack and 384 Opus clips by itself and reports
+      volume it installs the starter pack and its Opus clips (342 since ADR-033) by itself and reports
       `packEdition: "starter"` — the whole out-of-the-box claim, exercised through the
       container rather than argued for. Setup, course enrolment (33 notes), a 40-trial ear
       session with audio served, and `házaimban → ház+a+i+m+ban` all confirmed inside it.
@@ -373,7 +373,8 @@ Full spec: [`../docs/LANGPACK.md`](../docs/LANGPACK.md).
       weighting = due + error-driven ([R7](research/07-hvpt.md))
 - [x] `internal/hvpt/pending.go` — the played member is server-held (ADR-008 for trials)
 - [x] **Audio rendered**: `pipeline/minimal_pairs.py --render` → 384 clips, 3 Piper voices
-      (anna/berta/imre, dataset CC0), 2 rates, into `media/hvpt/` + `pair_audio`
+      (anna/berta/imre, dataset CC0), 2 rates, into `media/hvpt/` + `pair_audio`; **342 since
+      [ADR-033](DECISIONS.md#adr-033)** (real-word pairs only, clips named by the word)
 - [x] `EarView.vue` — two big buttons, green/red, talker badge, running accuracy,
       distinct-talker count; the refusal screen carries have/need and the honest trade-off
 - [x] `ListenView.vue` — three-pass protocol as UI state ([R13](research/13-shadowing.md));
@@ -406,7 +407,7 @@ Full spec: [`../docs/LANGPACK.md`](../docs/LANGPACK.md).
       **removed**, see [§10.5](#105-export-and-backup-removed)
 - [x] Lemmas enter `learning` when a note is created (never overriding a learner's own
       known/ignored) — the curve and the checkpoints count real state
-- [ ] README screenshots — needs a human-quality pass; not automatable well here
+- [x] README screenshots — six screens from a scratch install, 1280×800, light, RU, in `docs/screenshots/` (2026-09-04)
 - [ ] tag `v1.0.0` — left to the maintainer: commits and tags are yours. The blocker named
       here (an unverified `docker build`) is gone — the image builds, runs and self-installs;
       see [§1](#phase-1). What must go into that commit is
@@ -548,12 +549,150 @@ never locked in", and the README used to promise it. No ADR records the reversal
 
 ---
 
+### 10.6 Review sets, and a card that shows its own memory
+
+A learner with 70 due cards was handed 70 cards. The observation was that it is exhausting, and
+that nothing on the card says how the word is doing. [R18](research/18-sessions-and-progress.md)
+and [ADR-026](DECISIONS.md#adr-026).
+
+- [x] `internal/srs/memory.go` — `Memory`: stage (Anki's young/mature at 21 days, called a
+      convention), retrievability from the library, interval and stability, tallies and the
+      last eight outcomes from `review_log`, and `Preview` for what each grade would schedule.
+      Attached to every queue item; on practice items without the preview. `memory_test.go`
+- [x] `internal/srs/queue.go` — `?order=due|random`; random is `shuffleDayStable`, a per-card
+      hash of (user, local day, card), applied after the day cap and before `spreadSentences`.
+      `queue_order_test.go` pins that it is a permutation and holds still for the day
+- [x] `review_log.answer` is finally written (the column existed since `00002`): what the
+      learner typed on a productive card, which the tutor quotes back
+- [x] `web-ui/src/lib/sets.ts` — per-device set size (10/15/20/30, default 15) and order;
+      `stores/review.ts` deals the head of the served queue as a set, fetches the list again
+      when a set finishes (a miss comes back through the server once its `nextDue` has elapsed —
+      the in-set retry and its countdown were removed on 2026-09-03), and accounts each set
+      (answered, right, missed — listed with their answers, matured, minutes)
+- [x] `ReviewView.vue` — set bar, size and order chips, `MemoryMeter.vue` (stage, marks, tally,
+      interval change; the recall percentage came off the card on 2026-09-03), interval hints
+      under the grades, «ответ верный → через ~3 дн» on typed cards, the verdict in the answer
+      box's place, `SetSummary.vue` between sets with `space` for the next one, `MissedList.vue`
+      on it and on the done screen; `setComplete` sound
+- [x] `TodayView.vue` prints the day in sets from the same size
+- [x] `ReviewStartView.vue` at `/review` — the piles with their Breakdowns, the set chips and
+      the practice block; the card moved to `/review/session` and starts from its query
+      (`?scope=`, `?practice=`); `ScopeTabs.vue` deleted ([ADR-028](DECISIONS.md#adr-028))
+
+### 10.7 The grammar tutor
+
+The grammar screen could state a rule and drill it, and could not answer a question about it.
+[R19](research/19-grounded-tutor.md) and [ADR-027](DECISIONS.md#adr-027); the design in
+[`../docs/TUTOR.md`](../docs/TUTOR.md).
+
+- [x] `internal/llm` — `Stream` beside `Chat`, OpenAI streaming wire format
+- [x] `internal/tutor` — the embedded corpus (`kb/`), section loader, keyword-and-topic
+      retrieval, the prompt with its budgets and the system texts in both languages, the
+      backtick dictionary check, the thread store; `tutor_test.go`
+- [x] `internal/tutor/kb/` — 21 generated files from Wikipedia, Wiktionary and the
+      public-domain FSI course (`langpack/pipeline/tutor_kb.py`, `make tutor-kb`), 14
+      hand-written reference notes, `LICENSES.md`
+- [x] `migrations/00015_tutor.sql`, `handlers_tutor.go` — `GET/POST/DELETE /api/tutor/:topic`,
+      the answer as server-sent events, one flight per learner; `handlers_tutor_test.go` pins
+      grounding, labelling, language fallback and that nothing reaches a note or a state space
+- [x] `TutorPanel.vue` under the lesson on the grammar screen, streaming, with the model named
+      under every answer and unattested words listed; `api/tutor.ts` reads the stream
+- [x] **The tutor is a chat** ([ADR-029](DECISIONS.md#adr-029), 2026-09-03): `tutor_thread`
+      (migration `00016`, existing threads migrated one-to-one), `tutor.InferTopic` finds the
+      lesson for a free chat's question and the answer prints it, prompt v2 (Latin orthography
+      always, examples always, the no-lesson case stated), `AiTeacherView.vue` as a chat list
+      with new/delete and the topic as an option; a failed thread load now says so instead of
+      rendering nothing, and the `done` event's `unattested` is never `null` — the actual cause
+      of the first learner's "blank until reload" panel
+- [x] `services.llm` requires a model name and the settings row verifies it against
+      `GET /v1/models`; local servers are sent `reasoning_effort: none` (2026-09-03)
+- [x] **Translation as explanation** ([ADR-030](DECISIONS.md#adr-030), 2026-09-03): prompt v3 —
+      the language rule names the explanation, not the material («ТОЛЬКО ПО-РУССКИ» had a 1.7B
+      model hand the Russian sentence back), a translation request answers with the sentence,
+      its literal rendering and a word-by-word breakdown; `max_tokens` 1,000 and a 150 s
+      timeout to fit it; a budget cut is marked `interrupted` (`llm.ErrTruncated`); a
+      backticked sentence is dictionary-checked word by word; the page names a model whose
+      tag says it is under 7B
+- [x] **A chat's controls** ([ADR-031](DECISIONS.md#adr-031), 2026-09-03): any text that
+      arrived is `done` + `interrupted`, `error` only when nothing arrived (a budget cut had
+      shown «ничего не изменилось» under a stored partial); `POST /api/tutor/:id/stop` cancels
+      the flight's context; `replace` on a question truncates and re-asks
+      (`Store.TruncateFrom`); the context meter — `stream_options.include_usage` +
+      Ollama's `/api/ps`, stored per answer (migration `00017`), a bar and a sentence under
+      the composer, a warning when the window was full; the page is the chat — no page
+      title, full viewport height, reading column, composer at the bottom with the notice,
+      the meter and the sources under it
+- [x] **The tutor from the review card** ([ADR-032](DECISIONS.md#adr-032), 2026-09-03):
+      «Спросить учителя», key `a`, answer phase only; `TutorAside.vue` in the inspector's side
+      column with the question pre-written from the card (`seed` on `TutorConversation`),
+      one chat per sitting, the composer's keys kept out of the card's handler
+- [x] **The tutor reads the card** ([ADR-034](DECISIONS.md#adr-034), 2026-09-04): `POST
+      /api/tutor/:id {card}` — nine server-composed templates (`internal/tutor/card.go`) with
+      answer shapes, a CARD block after the lesson (prompt v4), grounding from `targetFeats`,
+      both phases with the answer withheld before it and the question counted as a hint
+      (`usedHint`), the day's review chat (`kind = review`, migration `00018`), the button top
+      right, «засчитается как «Трудно»» on the capped grades, the question limit in characters
+- [x] **«Перевести» everywhere** ([ADR-035](DECISIONS.md#adr-035), 2026-09-04): one gloss
+      picker (`lib/gloss.ts`), the crib labels an other-language pack line and offers the
+      translator under it, keyed to the card; the word breakdown's examples go through the
+      same crib; list rows mark «(англ.)»
+- [x] **Second round of the first learner's feedback** (2026-09-03): the memory chips speak
+      Russian («закрепляю», not «молодая»); grade previews read from `preview.at`, not the
+      clock (the 10-minute step had shown «~7 мин»); the key strip and the milestone centre on
+      the page (`--rail`); the tutor log follows only while at the bottom; a prompt echo is cut
+      (`tutor.EchoAt`, `cutReason: echo`); the ear trainer plays words only
+      ([ADR-033](DECISIONS.md#adr-033)) — `unattested` gate, word-keyed clip names, audio rows
+      remapped on refresh, starter pack and media rebuilt
+- [ ] A Russian reference corpus beside the English one — the known asymmetry in TUTOR.md §7
+- [ ] Cyrillic-typed suffixes («ем») as an inference signal — today the prompt answers about
+      `-em` but the inference sees no suffix; a transliteration table for the 1:1 letters would
+      close it
+
+### The look, and the polish before the tag (2026-09-04, ADR-036 → ADR-038)
+
+The first learner's second verdict was on the look — «шаблонный, сгенеренный нейронкой» —
+and on what a release has to survive. Three ADRs:
+
+- **ADR-036 — two faces.** Literata Variable for page titles, the wordmark and every Hungarian
+  string, marked `lang="hu"` and set by one base rule in `assets/tailwind.css`; Inter stays the
+  instrument. Self-hosted subsets only (`assets/fonts.css`), the teal favicon with a serif «ő».
+  Fraunces was the first choice and has no Cyrillic — the Russian headings decided it.
+- **ADR-037 — five line drawings** in the manner of Kalocsa and Matyó embroidery,
+  `currentColor`, decorative, on the empty states, the done screen, the 404 and under the
+  wordmark at the two doors. Never a metric.
+- **ADR-038 — ready for a stranger.** `describeError` for every failure, a global handler, the
+  theme applied before the bundle, docs corrected (offline is *planned*), the locale and docs
+  checks runnable locally and inside `make test` with `-race`, the pipeline's venv found by the
+  Makefile, `make refresh`, the password floor from bootstrap.
+
+Still on the list: README screenshots, `CHANGELOG.md`, the tag.
+
+### Two more from the first learner (2026-09-04, ADR-034 amended, ADR-039)
+
+- **The review tutor is one chat per WORD, not per day** (ADR-034, amended). The panel opened
+  on the previous word's conversation and carried that answer into the model's window on every
+  later question. `tutor_thread.note_id` (migration `00019`), the word as the chat's name in
+  the rail, a generation counter in `useTutorThread` so a still-streaming answer cannot write
+  into the next word's log, and the standing honesty paragraph off that panel — the per-answer
+  labels are what defend it.
+- **ADR-039 — the card says what it takes for a word to stop coming back.** «что это значит?»
+  on the memory row: the stage's meaning, what a right answer and a miss schedule next, that a
+  card never ends but returns ever more rarely, that the tally is the log and not points, and
+  that «В корзину» is the one control that removes a word. No bar and no denominator — there
+  is no such number.
+
 ## 11. Phase 8–10 — v1.1 onward
 
 **Phase 8 · Speech (T4).** `services/tts` (Piper), `services/asr` (faster-whisper);
 `internal/speech` provider abstraction + content-addressed cache; recording UI;
 **explicit segmental feedback** naming the phoneme and enqueuing the HVPT contrast
 ([R8](research/08-capt-asr.md)); confidence gating because Hungarian WER ≈ 11%.
+
+**Landed ahead of these: sentence translation.** `services/mt` (NLLB-200-distilled-600M under
+CTranslate2), `internal/mt`, `POST /api/translate`, and the reader's `t` key. Not part of Phase 9
+and not the `llm` slot: a dedicated 600M translation model beats a 7–8B chat model at
+Hungarian→Russian, and its output is a labelled crib rather than content
+([ADR-014](DECISIONS.md#adr-014)).
 
 **Phase 9 · LLM tutor (T4 roleplay, T7).** `services/nlp` (HuSpaCy); `internal/llm`;
 `internal/corpus/attest.go` — **the attestation guardrail**; writing correction in

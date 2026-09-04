@@ -15,7 +15,11 @@ const chromeless = computed(() => route.meta.public === true || !auth.isAuthenti
 </script>
 
 <template>
-  <Toaster :theme="ui.theme" position="bottom-right" rich-colors />
+  <!-- Top-right, because the bottom is contested ground: the KeyBar is fixed
+       to it on the two keyboard-loop screens and the milestone overlay rises
+       there too. A toast that lands on the key strip covers the keys it is
+       trying not to interrupt. -->
+  <Toaster :theme="ui.theme" position="top-right" rich-colors />
 
   <div v-if="!auth.ready" class="grid min-h-dvh place-items-center text-muted-foreground">
     <span class="text-sm">{{ $t('common.loading') }}</span>

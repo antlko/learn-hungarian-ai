@@ -133,9 +133,17 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="mx-auto flex w-full max-w-4xl flex-col gap-6">
+  <!--
+    Two columns, once there is room: the unit you are on, and where it sits.
+    It was one narrow column with the whole syllabus BELOW the unit card, so
+    "where am I in this" was a scroll away from "what am I doing now" — and the
+    two answers only mean something together. The pattern is the reader's and
+    the review screen's: a flex row that stacks on narrow windows, with a
+    sticky rail that follows.
+  -->
+  <div class="mx-auto flex w-full max-w-6xl flex-col gap-6">
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <h1 class="text-3xl font-semibold tracking-tight">{{ $t('plan.title') }}</h1>
+      <h1 class="page-title">{{ $t('plan.title') }}</h1>
       <span v-if="plan" class="text-sm tabular-nums text-muted-foreground">
         {{ $t('plan.completedOf', { n: plan.completed, of: plan.total }) }}
       </span>
@@ -152,32 +160,50 @@ onMounted(async () => {
       <p v-if="noCourse" class="mt-1.5 text-xs">{{ $t('plan.noCourse') }}</p>
     </Note>
 
-    <template v-else-if="plan">
-      <HandOver v-if="plan.handedOver" :completed="plan.completed" />
+    <div v-else-if="plan" class="flex flex-col gap-6 lg:flex-row lg:items-start">
+      <div class="flex min-w-0 flex-1 flex-col gap-6">
+        <HandOver v-if="plan.handedOver" :completed="plan.completed" />
 
-      <UnitDetail
-        v-if="selectedState"
-        :state="selectedState"
-        :index="selectedIndex"
-        :total="plan.total"
-        :enrol="enrolResult"
-        :topic-titles="topicTitles"
-        :busy="busy"
-        @enrol="enrol"
-      />
+        <UnitDetail
+          v-if="selectedState"
+          :state="selectedState"
+          :index="selectedIndex"
+          :total="plan.total"
+          :enrol="enrolResult"
+          :topic-titles="topicTitles"
+          :busy="busy"
+          @enrol="enrol"
+        />
 
-      <!-- A failed enrolment belongs next to the unit it failed on, and must
-           not replace the plan: the syllabus below is still true. -->
-      <Note v-if="actionError" variant="error">{{ actionError }}</Note>
+        <!-- A failed enrolment belongs next to the unit it failed on, and must
+             not replace the plan: the syllabus beside it is still true. -->
+        <Note v-if="actionError" variant="error">{{ actionError }}</Note>
 
-      <EnrolReport v-if="enrolResult && enrolResult.unitCode === selected" :result="enrolResult" />
+        <EnrolReport v-if="enrolResult && enrolResult.unitCode === selected" :result="enrolResult" />
 
-      <section class="flex flex-col gap-3">
+        <!-- Reachable before the hand-off too: it is a catalogue, not a reward. -->
+        <RouterLink
+          v-if="!plan.handedOver"
+          :to="{ name: 'resources' }"
+          :class="cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'self-start')"
+        >
+          <Library class="size-4" aria-hidden="true" />
+          {{ $t('plan.browseResources') }}
+        </RouterLink>
+      </div>
+
+      <!--
+        The rail. `SyllabusList` was already column-shaped with no width
+        assumptions of its own, so this is a move rather than a rewrite.
+      -->
+      <section
+        class="flex w-full shrink-0 flex-col gap-3 lg:sticky lg:top-2 lg:max-h-[calc(100dvh-7rem)] lg:w-80 lg:overflow-y-auto"
+      >
         <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
           {{ $t('plan.syllabus') }}
         </h2>
 
-        <div class="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+        <div class="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
           <span class="flex items-center gap-1.5">
             <span class="size-2 rounded-full bg-known" aria-hidden="true" />
             {{ $t('plan.status.done') }}
@@ -193,22 +219,12 @@ onMounted(async () => {
         </div>
 
         <!-- Said once, plainly: later units are advice, not locks. -->
-        <p class="max-w-prose text-xs leading-relaxed text-muted-foreground">
+        <p class="text-xs leading-relaxed text-muted-foreground">
           {{ $t('plan.orderNotice') }}
         </p>
 
         <SyllabusList :units="plan.units" :selected="selected" @select="select" />
       </section>
-
-      <!-- Reachable before the hand-off too: it is a catalogue, not a reward. -->
-      <RouterLink
-        v-if="!plan.handedOver"
-        :to="{ name: 'resources' }"
-        :class="cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'self-start')"
-      >
-        <Library class="size-4" aria-hidden="true" />
-        {{ $t('plan.browseResources') }}
-      </RouterLink>
-    </template>
+    </div>
   </div>
 </template>

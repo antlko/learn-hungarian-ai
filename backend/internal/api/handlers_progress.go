@@ -17,9 +17,16 @@ func localDay(t time.Time) string { return t.Format("2006-01-02") }
 // recordInteraction folds a graded interaction into today's ledger. Failures
 // here are logged-and-swallowed by callers: the answer itself already
 // committed, and refusing it because the ledger hiccuped would lose real work.
+//
+// due_left is the ACTIONABLE count — what a queue built now would serve, after
+// burial. The raw card count it used to store included the siblings burial had
+// hidden until tomorrow, so a learner whose words carry more than one due card
+// could clear everything the app would ever show and still fail the streak's
+// "queue cleared" obligation, every day, forever. ADR-021.
 func (s *Server) recordInteraction(userID int64, kind string, durationMs int64) {
 	now := time.Now()
-	due, err := srs.NewStore(s.db.DB).DueCount(userID, now)
+	due, err := srs.NewStore(s.db.DB).ActionableDue(userID,
+		s.Config().Review.BurySiblingsEnabled(), now)
 	if err != nil {
 		return
 	}
@@ -42,8 +49,27 @@ type OverviewResponse struct {
 		// lines. They are targets, not judgements.
 		Targets map[string]int `json:"targets"`
 	} `json:"lemmas"`
-	Streak         stats.Streak       `json:"streak"`
-	Today          stats.Day          `json:"today"`
+	Streak stats.Streak `json:"streak"`
+	Today  stats.Day    `json:"today"`
+	// Practice is free-practice volume and accuracy, reported SEPARATELY from
+	// reviews because it means something different: it schedules nothing, so a
+	// learner reading one number must not mistake it for progress through the
+	// deck. See ADR-019.
+	Practice srs.PracticeStats `json:"practice"`
+	// PracticeDays and PracticeByDirection are the practice series for the
+	// Progress screen — volume AND accuracy, per day and per direction, still
+	// reported apart from reviews and still moving no schedule (ADR-019/024).
+	PracticeDays        []srs.PracticeDay       `json:"practiceDays"`
+	PracticeByDirection []srs.PracticeDirection `json:"practiceByDirection"`
+	// Days is the recent daily ledger, newest first — the load sparkline the
+	// Today screen draws. The rows were always loaded here for the streak and
+	// then thrown away; exposing them costs no query.
+	Days []stats.Day `json:"days"`
+	// Queue is the whole deck's Breakdown — the same numbers, in the same
+	// coordinate system, that the review screen's tabs show (ADR-021). DueNow
+	// duplicates Queue.DueNow so existing clients keep a number that is now
+	// honest instead of the raw unburied card count it used to be.
+	Queue          srs.Breakdown      `json:"queue"`
 	DueNow         int                `json:"dueNow"`
 	DailyMinutes   int                `json:"dailyMinutes"`
 	ListeningHours float64            `json:"listeningHours"`
@@ -73,6 +99,21 @@ func (s *Server) handleOverview(c fiber.Ctx) error {
 	var out OverviewResponse
 	out.DailyMinutes = cfg.Review.DailyMinutes
 	out.ExamDate = cfg.Curriculum.ExamDate
+	if out.Practice, err = srs.NewStore(s.db.DB).Practice(u.ID, now); err != nil {
+		return err
+	}
+	if out.PracticeDays, err = srs.NewStore(s.db.DB).PracticeDays(u.ID, 30, now); err != nil {
+		return err
+	}
+	if out.PracticeDays == nil {
+		out.PracticeDays = []srs.PracticeDay{}
+	}
+	if out.PracticeByDirection, err = srs.NewStore(s.db.DB).PracticeByDirection(u.ID); err != nil {
+		return err
+	}
+	if out.PracticeByDirection == nil {
+		out.PracticeByDirection = []srs.PracticeDirection{}
+	}
 
 	// Lemma counts and the cumulative curve from first_seen.
 	rows, err := s.db.Query(`
@@ -108,6 +149,14 @@ func (s *Server) handleOverview(c fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	// The last 30 rows, newest first — Days() already orders them that way.
+	out.Days = days
+	if len(out.Days) > 30 {
+		out.Days = out.Days[:30]
+	}
+	if out.Days == nil {
+		out.Days = []stats.Day{}
+	}
 	out.Streak = stats.ComputeStreak(days, today, cfg.Review.DailyMinutes)
 	for _, d := range days {
 		if d.Day == today {
@@ -116,7 +165,15 @@ func (s *Server) handleOverview(c fiber.Ctx) error {
 		}
 	}
 	out.Today.Day = today
-	out.DueNow, _ = srs.NewStore(s.db.DB).DueCount(u.ID, now)
+	if bds, err := srs.NewStore(s.db.DB).Breakdowns(u.ID,
+		cfg.Review.BurySiblingsEnabled(), now); err == nil {
+		for _, b := range bds {
+			if b.Scope == srs.ScopeAll {
+				out.Queue = b
+				out.DueNow = b.DueNow
+			}
+		}
+	}
 	out.ListeningHours = s.listeningHours(u.ID)
 
 	history, err := st.Checkpoints(u.ID)

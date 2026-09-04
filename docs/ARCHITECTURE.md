@@ -111,8 +111,8 @@ Two failures shaped this:
 - **An app that boots into "download a language pack" is a build step wearing a UI.** Every
   screen except Settings is dead, and the newcomer is asked to solve a distribution problem
   before reading a word of Hungarian. The starter pack — the whole curriculum and course, the
-  5,132 lemmas with their 502,480 forms and glosses (2,290 of them glossed in Russian, and all
-  853 course words), 12,000 sentences it can fully explain, every minimal pair — is 15.6 MB
+  5,059 lemmas with their 517,837 forms and glosses (2,259 of them glossed in Russian, and all
+  853 course words), 11,400 sentences it can fully explain, every minimal pair — is 15.6 MB
   gzipped in the binary, beside 513 KB of Opus clips, and is enough to work through the first
   months for real. The 252 MB full pack is an **upgrade** that widens the vocabulary, built with
   `make langpack`; it is offered, never required.
@@ -152,9 +152,12 @@ cmd/tanulom
               ├── drill ── curriculum, morph, srs, lang, db
               ├── hvpt ── drill, srs, lang, db
               ├── stats ── db
+              ├── mt ── config (optional sidecar; a nil client is "switched off")
+              ├── llm ── config (OpenAI-compatible chat, blocking and streamed)
+              ├── tutor ── llm, db (the embedded reference corpus, retrieval, topic inference, the prompt, threads)
               └── web (//go:embed all:dist)
 
-    reserved, empty until v1.1:  corpus · llm · speech · media
+    reserved, empty until v1.1:  corpus · speech · media
 ```
 
 `internal/mining` imports nothing from `internal/` at all: ingestion, coverage and the `n+1`
@@ -169,6 +172,14 @@ deck happens in `api` (`Server.inPlaySet`), because `lemma_state` keys on the pa
 across two separate databases.
 **Never:** `llm` importing anything that would let it write cards directly — generation goes
 through `corpus` attestation and then through the normal note-creation path.
+**Never:** `tutor` importing `srs`, `drill` or `course`, or anything under `internal/api`
+writing tutor output into `note`, `card`, `user_gloss` or either state space. The tutor
+explains; it mints nothing ([ADR-027](../.claude/DECISIONS.md#adr-027)), and
+`handlers_tutor_test.go` counts those tables before and after a question.
+**Never:** `mt` output reaching a note, a gloss or a graded answer. It is a display-only crib,
+labelled with the model that wrote it wherever it appears
+([ADR-014](../.claude/DECISIONS.md#adr-014)); the guardrail `corpus` provides for generated
+Hungarian cannot catch a translation that is merely wrong, so labelling is the whole defence.
 
 `internal/export` is **gone**, with the `.apkg`/CSV/backup endpoints it served. Data safety is a
 filesystem property here: the data directory is self-contained, so a backup is a `tar` of a
@@ -226,7 +237,7 @@ Unattested spans are marked *«не подтверждено корпусом» 
 [R10](../.claude/research/10-llm-tutors.md).
 
 The `ngram` index ships in both packs already — it is tiny and it is a guardrail — but
-`internal/corpus` is an empty directory until Phase 9 brings the LLM in. Nothing generates
+`internal/corpus` does not exist until Phase 9 brings the LLM in. Nothing generates
 Hungarian in v1.0, so there is nothing yet for it to guard.
 
 ### 5.5 The blocked → interleaved gate — `internal/drill/schedule.go`
@@ -394,7 +405,20 @@ GET /api/capabilities
 
 | I want to… | Go here |
 |---|---|
-| Change how intervals are computed | You don't. `internal/srs/scheduler.go` wraps FSRS unmodified — see [ADR-003](../.claude/DECISIONS.md#adr-003) |
+| Change how intervals are computed | You don't. `internal/srs/scheduler.go` wraps FSRS unmodified — see [ADR-003](../.claude/DECISIONS.md#adr-003). Storage must round-trip the WHOLE `CardState`, `remaining_steps` included: dropping a field re-breaks the learning steps ([ADR-020](../.claude/DECISIONS.md#adr-020)) |
+| Change what a review number means | `internal/srs/breakdown.go` — the ONE source every screen reads ([ADR-021](../.claude/DECISIONS.md#adr-021)). Never hand a screen a raw card count |
+| Split or filter the review queue | `internal/srs/scope.go` (the `Scope` filter), `queue.go`, `handlers_review.go` — and remember the daily new cap is GLOBAL. A per-text slice goes through `note_origin` and `text:<id>` ([ADR-022](../.claude/DECISIONS.md#adr-022)) |
+| Hide a word from the queue without deleting it | `internal/srs/trash.go` + `handlers_trash.go`. `Scope.filter()` already excludes `note.trashed_at` for every normal scope, and `srs.NotTrashed` is for the queries that build their own `WHERE`. Practice may draw from `scope=trash`; the review queue must not ([ADR-025](../.claude/DECISIONS.md#adr-025)) |
+| Change the ORDER cards are served in | `spreadSentences` in `internal/srs/queue.go`, applied after every trim so it changes the order and never the selection. A queue with no repeated sentence must come back untouched. The learner's `order=random` is `shuffleDayStable` — a per-card hash, stable for the day, applied after the cap and before the spread ([ADR-026](../.claude/DECISIONS.md#adr-026)) |
+| Change what a card says about its own memory | `internal/srs/memory.go` (`Memory`, `StageOf`, `AttachMemory`). Figures are computed by the library or read from `review_log`; add nothing that goes up on its own ([R18](../.claude/research/18-sessions-and-progress.md)) |
+| Change the size of a review set, or what ends one | `web-ui/src/lib/sets.ts` and `stores/review.ts`. Sets are the client's presentation of the served queue; the server, `Breakdowns` and the streak know nothing about them ([ADR-026](../.claude/DECISIONS.md#adr-026)) |
+| Change what the learner chooses before a sitting — pile, set size, order, a practice round's shape | `web-ui/src/views/ReviewStartView.vue` (`/review`). The card at `/review/session` takes its intent from the query (`?scope=`, `?practice=`) and starts nothing on its own ([ADR-028](../.claude/DECISIONS.md#adr-028)) |
+| Change what the grammar tutor is told, reads or may do | `internal/tutor` — `prompts/` (the system text), `prompt.go` (order and budgets), `retrieve.go`, `infer.go` (which lesson a free chat's question is about), `store.go` (threads), `kb/` (the corpus, `make tutor-kb` for the generated half); `handlers_tutor.go` gathers the input and builds the topic index. It must keep explaining and never minting — [`TUTOR.md`](TUTOR.md), [ADR-027](../.claude/DECISIONS.md#adr-027), [ADR-029](../.claude/DECISIONS.md#adr-029). The chat's controls are [ADR-031](../.claude/DECISIONS.md#adr-031): `POST /api/tutor/:id/stop` cancels the flight's context, `replace` on a question truncates and re-asks, and every answer stores the stream's `usage` plus the window Ollama reports on `/api/ps` (`prompt_tokens`, `answer_tokens`, `context_tokens`) for the context meter |
+| Add a way to answer a card that must not schedule | `internal/api/handlers_practice.go` + `internal/srs/practice.go` — and never `review_log`, which replay depends on |
+| Judge a text's difficulty | `internal/mining/level.go` (`EstimateLevel`, pure) + `levelInputs` in `handlers_texts.go`; the LLM second opinion and manual override in `handlers_level.go` ([ADR-023](../.claude/DECISIONS.md#adr-023)). The band table is the pack's `lemma.cefr` — do not fork a third one |
+| Browse the learner's words | `internal/api/handlers_words.go` — status from `lemma_state`, memory figures derived from the CARDS (lemma_state's FSRS columns are dormant) |
+| Call the configured language model | `internal/llm` (OpenAI-compatible chat, key via the `llmKey` secret; `Chat` for one completion, `Stream` for a streamed one). Prompts live versioned in `.claude/prompts/` — or, for the tutor, embedded from `internal/tutor/prompts/` with the note in `.claude/prompts/` beside it — never as ad-hoc Go strings |
+| Change what a typed answer is graded against | `expectedAnswer` in `internal/api/handlers_review.go`, and [R12] |
 | Change what gets scheduled | `internal/srs/directions.go`, `emit.go` |
 | Change how sentences are chosen | `internal/mining/score.go` + `mining:` in `config.yaml` |
 | Add a grammar topic | `langpack/pipeline/curriculum.py`, then rebuild the pack |
@@ -410,6 +434,11 @@ GET /api/capabilities
 | Add or drop a hand-off resource | `langpack/pipeline/resources.py`, then rebuild the pack |
 | Change what the binary ships with | `langpack/pipeline/starter.py` + `make starter`; the artefact is embedded by `internal/lang/starter.go` |
 | Add an API endpoint | `internal/api/handlers_*.go`, DTO in `dto.go`, mirror in `web-ui/src/types/`, document in [`API.md`](API.md) |
+| Change how sentences are translated | `services/mt/app.py` (the model) and `internal/mt` (the client). Add a target language in `internal/mt`'s `flores` map **and** the sidecar's `SUPPORTED_TARGETS` |
+| Change what the translator's status row says | `services/mt/app.py` (`_report`), `internal/mt`'s `Status`, `handlers_mt.go`, and the block in `SettingsView.vue`. The capability probe is deliberately **not** involved: it flattens a downloading service's 503 into "unreachable" ([ADR-015](../.claude/DECISIONS.md#adr-015)) |
+| Change the learner's own dictionary | `handlers_glosses.go` + migration `00009_user_gloss.sql`. `source` must survive the round trip: a machine gloss stays labelled and stays off cards until accepted ([ADR-014](../.claude/DECISIONS.md#adr-014)) |
+| Name a morphological feature | `langpack/pipeline/features.py`, then `make refresh-curriculum` **and** `make starter`. Never in the UI — a feature label is a fact about the language and versions with the pack. Only the FAMILY names (`Падежи`, `Время`) live in `vue-i18n`, because they name a category rather than a feature |
+| Add an optional service | a `Service` field in `internal/config`, a line in `clone.go`, the probe map in `handlers_capabilities.go`, `serviceField`, `settingsDTO`, `SERVICE_NAMES` in `SettingsView.vue`, and `capabilities.<name>` in **both** locales |
 | Change the schema | new `internal/db/migrations/NNNNN_name.sql`; never edit an applied one |
 | Add a language | out of scope for v1 — the pack schema is language-agnostic but the curriculum and minimal pairs are not |
 
@@ -420,7 +449,11 @@ GET /api/capabilities
 Vue 3 `<script setup>`, Pinia, vue-router, Tailwind v4, shadcn-vue (Reka UI), `@lucide/vue`
 (**not** `lucide-vue-next`), `vue-i18n`, `vite-plugin-pwa`.
 
-- Stores: `auth`, `settings`, `ui`, `capabilities`, `review`, `curriculum`, `milestone`.
+- Stores: `auth`, `settings`, `ui`, `capabilities`, `review`, `curriculum`, `milestone`,
+  `deck`, `features`, `speech`. The review store deals the served queue into **sets**
+  (`lib/sets.ts` holds the per-device size and order) and fetches the list again at every set
+  boundary — that refresh, not a client-side retry list, is how a missed card comes back once
+  the `nextDue` the server returned has elapsed.
   Everything else fetches through `src/api/index.ts` inside the view that needs it — a store
   exists where state outlives a screen, not as a reflex.
 - The grammar screen's keyboard map lives in `components/grammar/DrillItem.vue` on a **window**
@@ -429,6 +462,7 @@ Vue 3 `<script setup>`, Pinia, vue-router, Tailwind v4, shadcn-vue (Reka UI), `@
 - `src/types/` mirrors `backend/internal/api/dto.go` (camelCase). Keep them in sync when shapes
   change.
 - Router guards gate setup / login / role — **UX only**. The API enforces roles independently.
-- Offline: the review queue and its audio are precached, so Loop 1 works on the metro.
+- Offline: **planned, not shipped.** Nothing is precached in v1.0; the review queue needs the
+  server (UX.md §13).
 
 Screens, keyboard map and colour semantics: [`UX.md`](UX.md).

@@ -140,6 +140,16 @@ probed at runtime and surfaced with status and latency in Settings → Services.
 - **Constraint:** because Hungarian ASR WER ≈ 11% and LLM Hungarian is materially weaker than
   its English, both paths are gated — ASR feedback behind a confidence threshold, LLM output
   behind corpus attestation. Neither is ever presented as ground truth.
+- **Amended 2026-09-03 — a probe verifies the model, not just the socket.** "Surfaced with
+  status and latency" was read as `GET /health`, and for `llm` that reported «на связи» over an
+  endpoint that refused every request: the config named no model, the settings screen had no
+  field for one, and the first learner to plug in an Ollama got a tutor that only said «модель
+  не ответила». The `llm` slot now requires a model name (`llm.ErrNoModel`, reported to the
+  panel as `errors.llmNoModel`), the probe asks a reachable endpoint `GET /v1/models` and says
+  «укажите модель» / «такой модели нет на сервере» with the list offered in Settings, and a
+  `local` provider is sent `reasoning_effort: none` because a thinking model spends the
+  answer's token budget on hidden reasoning first. Status for a service is what has been
+  verified, and nothing more — the same rule ADR-012 set for device speech.
 
 ---
 
@@ -337,3 +347,1581 @@ true without any code.
 - Anki users cannot import their existing decks *out* of tanulom, and this is a real cost. If it
   is ever paid, the honest shape is a full JSON dump of both state spaces plus the review log —
   not an `.apkg`.
+
+---
+
+## ADR-012 — Hungarian speech comes from the learner's device by default
+
+**Status:** accepted · 2026-08-23 · **refines** [ADR-005](#adr-005)
+
+**Context.** ADR-005 made speech pluggable with "local is the documented default", and
+`services/tts/` in this repository is a README. The consequence, in the shipped product, was
+that a fresh install made no sound at all. `Services.TTS.Provider` defaulted to `off`, so
+`srs.PlanFor` dropped the `listen` and `spell` directions before a single card was created; the
+reader had no 🔊 anywhere despite docs/UX.md §5 drawing one; the listening screen refused to
+create a material without an uploaded audio file; and Settings showed four rows reading
+"Выключено" with no way to change that short of deploying a service that does not exist yet.
+
+A learner's first impression of the app was therefore an app with the sound switched off, and
+the only documented remedy was to go and run a Python sidecar.
+
+**Decision.** Add a fourth provider, `device`, valid for `tts` only, and make it the default.
+It means the Web Speech API in the learner's browser. It has no endpoint. Every desktop OS
+ships at least one Hungarian voice, and the API is available in every browser we target.
+
+**The honesty problem, and how it is resolved.** The server cannot verify device speech — it is
+not running in that browser and cannot know which voices are installed. So the two halves of
+the answer are given by the two parties that can actually give them:
+
+- `/api/capabilities` reports `tts` as `configured: true, reachable: false, detail: "device"`.
+  It states the configuration, which it knows, and declines the reachability claim, which it
+  does not.
+- The client asks `speechSynthesis`, and the Settings row names the voice it found — or says
+  the device has none, with the OS-specific instructions for installing one. Every 🔊 button
+  renders either way and carries its reason when disabled, per ADR-005's own rule that a
+  feature needing an unavailable service is disabled *visibly*.
+
+**Consequences.**
+- Audio exists throughout the app with nothing deployed: the reader (word and sentence, `s`),
+  the review card (`listen`/`spell` autoplay, replay everywhere else), the drill's correct
+  answer, and the listening screen reading a transcript aloud sentence by sentence.
+- `POST /api/listen/material` no longer requires an audio file. A transcript alone is a
+  material. The UI labels which materials are recordings and which are synthesised, and states
+  plainly that a synthesiser is worse input than a speaker — flatter intonation, and vowel
+  length, which is phonemic in Hungarian, comes through less clearly.
+- `normalize()` fills zero fields only, so an existing `config.yaml` that says `off` stays off.
+  That is the documented rule and it is not worked around; Settings is where it changes. The
+  client-side 🔊 controls do not consult the setting at all, because no server is involved in
+  them.
+- A real TTS sidecar remains supported and remains better. `device` is the floor, not the
+  ceiling.
+
+---
+
+## ADR-013 — Curriculum order is advice; only two things hard-lock
+
+**Status:** accepted · 2026-08-25 · **supersedes** Decision 1 of [ADR-009](#adr-009)
+
+**Context.** ADR-009 worried about exactly this failure mode — "both can wedge a learner
+permanently" — and answered it by meeting a prerequisite at `interleaved` rather than at
+`mastered`. That was not enough. A real learner arrived here:
+
+```
+vowel-harmony   blocked   accuracy 0.678 over 27 answers   (gate: 0.80)
+```
+
+`vowel-harmony` is the SECOND topic in the course, and the app's own lesson for it says the rule
+"takes twenty minutes to understand and about three months to automate: it is a motor skill".
+Every A1 topic sits behind it. So the learner could read every lesson and practise nothing —
+not the plural, not the accusative, not the locative grid — until a three-month motor skill
+crossed 80% rolling accuracy. They reported it as "I went through the grammar once, why is
+everything after it blocked", which is the correct reading.
+
+The gate was also self-undermining: a dip on one topic re-locked every topic downstream, taking
+away access the learner had already earned and work already in progress.
+
+**Decision.** An unmet prerequisite becomes **advice**. `drill.Decision` carries `Advice` and
+`AdviceArgs` naming the topic worth finishing first; the phase is computed from the topic's own
+counters and the topic is practised regardless.
+
+Two gates still lock, and neither is an ordering preference:
+
+- **A failed checkpoint** shuts the levels above it ([R14](research/14-motivation.md)). That is
+  a statement about a whole level's evidence, and finishing the topic below would not open it.
+- **The listening volume** word order needs ([R15](research/15-hungarian-difficulty.md)). "You
+  cannot reach this by rules" is a claim about the material, not about sequence.
+
+**This is what the course plan already said.** docs/API.md has always documented `ahead` as not
+`locked`: *"Nothing stops a learner jumping to month five, and calling it locked would be a lie
+about a restriction the app does not enforce. The order is advice."* The grammar DAG was
+enforcing the opposite. One of the two was wrong, and it was the one that wedged people.
+
+**What is NOT changed.** The blocked → interleaved gate inside a topic stands, hysteresis
+included — that is [R5](research/05-interleaving.md) and CLAUDE.md's invariant, and it decides
+how one topic's own items are MIXED. With this change it can no longer take anything away: a
+fallback means "practise this one contrast at a time again", not "your curriculum shrank".
+
+**Consequences.**
+- Measured on the reporting learner's deck: locked topics went from 24 of 28 to **1 of 28**, and
+  that one is the listening gate.
+- The demotion COUNTER is gone from the topic map. A tally of past fallbacks names no action and
+  reads as a scoreboard of failures; the number is still recorded in `topic_progress.fallbacks`.
+- `gate.locked.prereq` became `gate.advice.prereq` in both locales, and reads as a suggestion.
+- A learner can now walk into a topic they are not ready for. That is the point: the app says so
+  in the badge and lets them decide, which is the same respect the plan screen already showed.
+
+---
+
+## ADR-014 — Sentence translation is a labelled crib from a dedicated MT model
+
+**Status:** accepted · 2026-08-26 *(user decision)* · refines
+[ADR-005](#adr-005) · see [R10](research/10-llm-tutors.md), [R11](research/11-extensive-reading.md)
+
+**Context.** The reader answers "what is this word" thoroughly and "what does this sentence say"
+not at all. In practice the learner answered it themselves by copying the line into a chat
+assistant in another tab. That costs the reading loop — the thing [R11] says the whole screen
+exists to protect — and hands their reading material to a third party.
+
+The obvious home for it was the existing `llm` slot. That turns out to be the wrong tool.
+Hungarian is low-resource for general models, and a 7–8B chat model translating hu→ru is
+materially worse than **NLLB-200-distilled-600M**, a dedicated translation model that fits in
+~600 MB of int8 weights and answers in a fraction of a second on a CPU. The good general answer
+needs either a big local model or a cloud key; the good *translation* answer needs neither.
+
+**Decision.** A fifth service slot, `services.mt`, served by `services/mt` — NLLB-200 under
+CTranslate2, speaking its own `POST /translate` rather than the OpenAI chat API. `provider:
+openai` is **rejected** for `mt`, because accepting it would advertise a protocol we do not
+speak. Off by default; the reader is complete without it.
+
+**Why this does not breach the LLM guardrail.** CLAUDE.md's rule is that no LLM-generated
+**Hungarian** becomes a card without passing `internal/corpus/attest.go`. This generates Russian
+and English, and it generates nothing that is stored as content: the failure mode here is not "a
+sentence no Hungarian speaker has written" but "a translation that is quietly wrong". Attestation
+cannot catch that, so the defence is **labelling**, and labelling is therefore not optional:
+
+- Every row returned by `POST /api/translate` carries the `model` that produced it, and the UI
+  renders the model beside the text on every view, not in a tooltip.
+- A translation never becomes a note's gloss, a card's answer, or anything graded **on its own**.
+  It can be KEPT — `user_gloss`, migration 00009, the learner's own dictionary for words the pack
+  lacks — where it is stored with `source='machine'` and the model, and re-rendered with the
+  label on every view. It reaches a CARD only after the learner presses «Принять как своё»,
+  which re-saves it as `manual`. A card's back is what the `produce` direction grades you
+  against, so the line on it has to be one a person read and accepted rather than one the app
+  laundered on their behalf; the rail says that outright instead of silently withholding the
+  card. *(Amended 2026-08-26, when the reader gained the dictionary.)*
+- The cache (`translation_cache`, migration 00008) stores the model with the text, so the second
+  view can be labelled as honestly as the first.
+
+**Consequences.**
+- The reader gets a **«Перевести предложение» button in the word rail**, beside the word's own
+  translation, and it is **not drawn** when the capability is unreachable. It was a `t` keystroke
+  at the bottom of the key strip and went a release without being found, so the key was removed
+  and the control made visible; the result renders under the button that asked for it rather
+  than below the article, where on a narrow window it was off screen entirely.
+  *(Amended 2026-08-26.)*
+- A fully cached request is answered with the sidecar stopped. The learner already paid for those
+  sentences and nothing in serving them needs the model.
+- **Licence:** NLLB-200's weights are CC-BY-NC-4.0. Running it for your own learning is squarely
+  what that permits, and it is why the weights are not baked into the published image and why the
+  profile is opt-in. Everything tanulom itself ships stays redistributable.
+- **Cost:** a fifth capability dot, a Python sidecar we now maintain, and a ~2.4 GB first build.
+- A batch is all-or-nothing. A short response from the sidecar is an error, not a partial result:
+  silently dropping element three would pair sentence four's translation with sentence three.
+
+---
+
+## ADR-015 — The translation model is downloadable from Settings
+
+**Status:** accepted · 2026-08-26 · **refines** [ADR-014](#adr-014), **does not reverse**
+[ADR-010](#adr-010)
+
+**Context.** [ADR-014](#adr-014) put sentence translation behind an opt-in sidecar. That was the
+right call and it left a hole: **nothing about the sidecar was visible or steerable from the
+app.** `/api/capabilities` probes every optional service the same way — `GET /health`, anything
+under 500 is reachable — and for four of the five that is correct. For `mt` it is not, because
+this service has a long and entirely legitimate not-ready state: on first boot it downloads and
+converts 2.4 GB of weights and answers 503 for the several minutes that takes.
+
+Flattened through the probe, three different situations reached Settings as the same grey
+«нет связи»:
+
+| What is actually happening | What the learner saw | What they should do |
+|---|---|---|
+| the container was never deployed | нет связи | bring it up, once |
+| the model is downloading | нет связи | wait |
+| the download failed on a full disk | нет связи | free space, retry |
+
+The only way to tell them apart was to read container logs over SSH — on a self-hosted app whose
+whole point is that you run it yourself and mostly forget about it. And a failed download had no
+remedy short of restarting the container, because the loader ran once, at process start.
+
+**Is this the download button ADR-010 refused?** No, and the difference is the reason that ADR
+gave. ADR-010 rejected "download the pack from Settings" because *"'download one from Settings'
+is a promise about a host that does not exist"* — there was no URL, no release infrastructure,
+nobody operating a server to fetch from. For NLLB-200 that host **does** exist, is HuggingFace,
+and is not one we operate or promise anything about. Meanwhile [ADR-014](#adr-014) forbids the
+other distribution mode: the weights are CC-BY-NC-4.0 and must not ship in a published image.
+Download-on-demand is the only mode that satisfies both constraints, and the button is honest
+because the thing behind it is real.
+
+**Decision.**
+
+1. **The sidecar reports what it is doing.** `GET /health` keeps its 503-while-loading — the
+   probe must not call a service usable before it can serve — but its BODY now carries
+   `status` (loading / ready / failed), the failure `detail`, and `downloadedBytes` /
+   `totalBytes`.
+2. **`POST /warmup`** starts or retries the load, guarded so two calls cannot both convert. This
+   is what makes a failed download recoverable without a container restart.
+3. **`GET /api/mt/status`** (any authenticated user) passes that body through, and
+   **`POST /api/mt/warmup`** (admin, matching `PUT /api/settings`) proxies the retry. `mt` gets
+   its own routes rather than a special case inside the capability probe, which stays uniform.
+4. **Settings draws four states**, each with the remedy that fits it, and the generic services
+   row **defers to the detailed status** so one screen cannot hold two answers.
+
+**Progress is real or absent.** `totalBytes` comes from the HuggingFace file listing and
+`downloadedBytes` from the size of the cache's `blobs/` directory — real files only, because the
+`snapshots/` tree is symlinks to the same blobs and `stat()` follows them, which reported
+**9.9 GB downloaded of a 2.5 GB model** the first time it ran. Where either figure is
+unavailable the fields are omitted and the UI draws an indeterminate bar with "about 2.4 GB,
+once". An invented percentage is exactly the confident-wrong-number this project refuses
+everywhere else.
+
+**What this deliberately does NOT do: start the container.** The core is a distroless static
+binary with no shell and no Docker socket. Mounting the socket to gain that power would hand a
+web application root on the host, which is not a trade worth a button. So the boundary is stated
+rather than hidden: **you bring the container up once — `docker compose --profile mt up -d`, or
+`COMPOSE_PROFILES=mt` in `.env` so plain `up -d` includes it — and everything after that is in
+the UI.** The "not answering" state prints that command instead of a shrug.
+
+**Consequences.**
+- Turning the translator off is a `<Select>` in Settings, and every translate control disappears
+  app-wide because they all read one capability.
+- A named volume (`tanulom-mt:/models`) keeps converted weights across image rebuilds. Without
+  it every `docker compose build` threw away 2.4 GB and a learner who wanted a new app version
+  watched the translator "break" for ten minutes.
+- `make mt` runs the service natively, venv and all, for people not using Docker.
+- **Cost:** two more endpoints, a polling loop that runs only while loading, and a status shape
+  that four screens' worth of copy has to stay honest about.
+
+---
+
+## ADR-016 — The review queue is separable by where its material came from
+
+**Status:** accepted · 2026-08-27 *(user decision)*
+
+**Context.** A learner's deck has two origins that already differ in the database:
+`note.source` is `course:<unit-code>` for words enrolled from a course unit and `manual` for
+words added from a text in the reader. Downstream, nothing read it. One queue served both, so
+"finish today's course work" was impossible without also clearing every word ever clicked while
+reading — on a real deck, 79 course cards behind 88 reader ones.
+
+The two piles answer different questions. The course deck is a syllabus obligation the plan
+screen reports on and the checkpoints count. The reader deck is the learner's own mining, chosen
+for reasons the app does not know. Merging them is not neutral: it makes the syllabus
+unfinishable by anyone who also reads.
+
+**Decision.** `GET /api/review/queue?scope=all|course|reader`, defaulting to `all`. A segmented
+control «Всё · План · Тексты» on the review screen. No schema change — `note.source` already
+discriminates.
+
+Three constraints keep this a **filter over one scheduler**, not a second scheduler:
+
+- **One FSRS state space.** Scope selects rows; it never touches scheduling.
+- **One daily new-card budget, shared.** `newPerDay` and `introducedToday` stay global while
+  `due`/`new` become scope-relative. A per-scope cap was **rejected**: it would let a learner
+  take 20 course cards *and* 20 reader cards a day while the setting said 20 — arriving at the
+  review avalanche the cap exists to prevent, by using the feature exactly as intended. Pinned
+  by `srs.TestTheDailyNewCapIsSharedAcrossScopes`. The visible consequence is stated in copy
+  (`review.scopeHint`): after the day's new cards are spent in one pile, the other shows its
+  backlog and «Сегодня введено: 20 из 20».
+- **No stored preference.** The scope is a property of one request, echoed back in the response
+  so the client never assumes its request won. It is not persisted, and it is not on
+  `QueueItem` — a per-item copy of a per-request fact is how DTOs rot.
+
+**`reader` is the COMPLEMENT of `course`, not `source = 'manual'`.** A third source added later —
+an LLM tutor, an import — would otherwise be invisible under every tab while still being served
+under `all`, and `all == course + reader` would stop holding with nothing failing.
+`srs.TestAnUnfamiliarSourceCountsAsReader`.
+
+**Each tab carries TWO numbers, due and new.** The reader pile on the deck that prompted this
+sat at 0 due and 88 new. A tab reading «Тексты 0» over 88 waiting words is the screen lying, and
+a single merged figure would either hide the backlog or invent one.
+
+**Consequences.**
+- `internal/srs/scope.go` is new; `Store.Queue` takes a `Scope`. An unknown value is a 400 rather
+  than a silent widening to the whole deck — a typo that returns everything looks exactly like
+  the feature working.
+- Every scope is counted on every request, because the control must label the tab the learner is
+  not standing on.
+- **Unlegislated by the research notes.** No note covers queue partitioning; [R5] is about drill
+  topics, not the SRS queue. This is a product decision about learner autonomy, recorded here
+  rather than dressed up as a finding.
+
+---
+
+## ADR-017 — `produce` grades the dictionary form; the sentence is held by the note
+
+**Status:** accepted · 2026-08-27 *(user decision)* · see
+[R12](research/12-retrieval-direction.md), [R15](research/15-hungarian-difficulty.md)
+
+**Context.** A `produce` card prompts with the target word's gloss and grades the typed answer
+against `note.target_form` — the surface token that happened to occur in the corpus sentence the
+note was built from. So a card printed «день; солнце», the dictionary entry for `nap`, and
+demanded `napokra`: the sublative plural. Another printed «имя» and demanded `nevem`. Nothing on
+either card named a case or a possessor, and the placeholder promised «одно слово по-венгерски»
+while the server wanted a case form. On the deck that prompted this, 18 of 39 course notes and 14
+of 37 reader notes carried an inflected target. The learner could only fail, and could not tell
+why.
+
+**Decision.** `produce` grades the **dictionary form**, resolved from `note.lemma_id` through the
+pack. `cloze` and `spell` keep `note.target_form`.
+
+This **restores** the documented contract rather than departing from it. [R12]'s direction table
+already defines `produce` as *"RU/EN → HU (typed) — form recall"* and `cloze` as *"sentence with
+target form blanked — contextual production + morphology"*. The cue is the lemma's gloss;
+therefore the response is the lemma. The inflected form in context is the question `cloze`
+exists to ask, and it is the only direction that grades morphology.
+
+**The R15 exposure, argued rather than ignored.** [R15] says *"every card must be a sentence
+carrying a real suffix, from week one"*. That guarantee is held at **note level, not card level**:
+the note keeps its sentence, and its `cloze` card carries the suffix. This is only honest
+because of the second half of this ADR — before it, a note whose target had no analysable
+features got *no* cloze card, so the note genuinely carried no suffix anywhere. **The two halves
+must ship together.**
+
+**A cloze needs a SPAN, not features.** Features are what it can *additionally* grade. Requiring
+them denied the sentence exercise to 23 of 37 words mined from a text — the exact words the
+learner chose to keep — and to 21 course notes besides. A featureless cloze grades the card's own
+FSRS state and emits **nothing** into the morphological state space
+(`srs.RequiredFeatures` returns nil for empty feats, pinned by
+`srs.TestNoTargetFeaturesGradesNothing` and `api.TestAFeaturelessClozeGradesNoFeatures`), so the
+two state spaces stay exactly as separate as before.
+
+**Consequences.**
+- `expectedAnswer` in `handlers_review.go` is the one place that decides what a typed answer is
+  graded against. It falls back to `target_form` whenever the lemma cannot be resolved — no
+  `lemma_id`, no pack, a lemma the pack lacks. A card that grades the inflected form is wrong; a
+  card that grades nothing is broken.
+- **Existing notes are repaired, not migrated.** `Store.BackfillClozeCards` mints the missing
+  cloze card on the review screen — 44 notes on the deck that prompted this. A SQL migration was
+  **rejected**: migrations run inside `db.Open`, before any config is read, so one would mint
+  cloze cards for a learner who turned the direction off.
+- A backfilled cloze enters as `state = 0`, so it is subject to the daily cap and to sibling
+  burying. The 44 surface over several days rather than at once. That is correct, and is not the
+  backfill failing.
+- **Known consequence, accepted:** two notes sharing a lemma now produce two `produce` cards with
+  the same prompt and the same answer, and sibling burial is keyed on `note_id`. On the deck that
+  prompted this, 4 lemmas of 72 carry two notes. The second card is a legitimate second exposure
+  at a 5% collision rate; if reading pushes that up, burying gains a `(lemma_id, produce)` key.
+- **A note with no meaning at all had an empty produce prompt.** Note creation now backfills
+  `gloss_ru`/`gloss_en` from the pack's `lemma_gloss`, per field and never over a meaning the
+  learner wrote, and the review queue fills any that are still empty. This is pack data compiled
+  by people, not machine translation, so [ADR-014](#adr-014)'s labelling rule does not reach it.
+
+---
+
+## ADR-018 — A card may carry a machine crib, beside the Hungarian and labelled
+
+**Status:** accepted · 2026-08-27 *(user decision)* · **amends**
+[ADR-014](#adr-014)
+
+**Context.** [ADR-014](#adr-014) says a translation *"never becomes a note's gloss, a card's
+answer, or anything graded **on its own**"*, and CLAUDE.md quotes the first half of that
+sentence without the qualifier. A word mined from the reader has `sentence_id = NULL` — its
+sentence came from the learner's own text, and the pack has no human translation for it. So its
+`cloze` card showed a Hungarian sentence with a blank and nothing saying what the sentence meant,
+to a learner who had met it once at a third coverage.
+
+**Decision.** A cloze card may show the sentence's machine translation as **prompt context**,
+carrying the model's name beside the text.
+
+The line ADR-014 draws is between the **back** of a card and **context beside the front**:
+
+- **Forbidden, unchanged.** A machine translation as a note's gloss, as a card's answer, or as
+  anything graded. The `produce` direction grades you against a card's back, so that line has to
+  be one a person read and accepted — «Принять как своё», re-saved as `manual`.
+- **Permitted, labelled.** A crib printed beside the Hungarian on a cloze, where the graded
+  string is the **Hungarian target form** and the crib is what makes choosing it possible. It is
+  read, never answered.
+
+**The label is not optional and not a tooltip.** `sentenceModel` travels with every queue item
+and is **empty for a pack translation** — those were written by people and crediting a model
+would libel the translator and make the label meaningless where it matters.
+`api.TestAPackTranslationCarriesNoModel`.
+
+**Consequences.**
+- **The sidecar is never on the review path.** `attachCribs` reads `translation_cache` and
+  nothing else; the queue is byte-identical whether MT is running, off, or mid-download.
+  `api.TestTheQueueNeverCallsTheTranslator`. Filling the cache is a bounded background top-up,
+  one flight per learner, drained on shutdown.
+- With no crib the card is Hungarian plus its gloss and reports no failure — the same behaviour
+  as a cache miss, so there is one thing to reason about rather than two.
+- **The crib shows at question time on `cloze`,** not on reveal. That direction asks *which
+  form*, and a learner cannot choose a form for a sentence they cannot read. The blank is
+  Hungarian and the crib is not, so nothing is handed over; the required features stay
+  deliberately unnamed, as [ADR-014](#adr-014) and `docs/UX.md` require.
+- The crib's language follows `locale.ui`, never `locale.gloss` — the latter is allowed to be
+  `both`, which is not a translation target.
+
+---
+
+## ADR-019 — Free practice: retrieval that deliberately schedules nothing
+
+**Status:** accepted · 2026-08-27 *(user decision)* · see
+[R1](research/01-retrieval-practice.md), [R14](research/14-motivation.md),
+[ADR-003](#adr-003)
+
+**Context.** The review queue answers one question — *what do I owe today* — and when it is
+empty, or when the daily new-card cap has been spent, the app has nothing for a learner who
+simply wants to train. That is a real want and a defensible one: [R1] is unambiguous that extra
+retrieval helps. A learner asked for "a trainer that is always open, with words from the plan or
+from my texts, just to practise."
+
+The obvious implementation is the wrong one. Feeding those answers to FSRS tells the scheduler
+the learner recalled something at an interval they were never actually tested at, and the model
+has no way to distinguish that from a real review — this is the cramming problem, and it
+degrades the one thing the app is built around. Discounting the update instead ("count practice
+as half a review") means inventing scheduling maths of our own, which [ADR-003](#adr-003)
+forbids outright.
+
+**Decision.** Free practice is a **separate mode**, reachable at any time, that draws at random
+from a chosen pile and **schedules nothing**.
+
+A practice answer:
+
+- changes **no card state** — no due date, no stability, no difficulty, no reps;
+- writes **nothing to `morph_state`** — that is an FSRS state space too, so writing to it *is*
+  scheduling, and it is how a feature would get closer to mastered without being reviewed;
+- writes **nothing to `review_log`**.
+
+That last one is not a style choice. Undo is delete-and-replay over `review_log`, and replay
+must reproduce stored FSRS state bit for bit (`internal/srs/replay.go`). A row that never fed
+the scheduler cannot live in that log without breaking the property the whole undo mechanism
+rests on. Practice gets its own table, `practice_log` (migration `00010`).
+
+**What it does record**, because a mode that leaves no trace cannot be reviewed by the learner
+either: volume **and accuracy**, reported on the Progress screen as its own line, explicitly
+labelled as not affecting the schedule. Volume alone was rejected — a count that only ever goes
+up is the shape of a point economy, which is exactly what [R14] and
+[R16 §3](research/16-debunked.md) say does nothing for competence. Accuracy is the half with
+something measured behind it.
+
+**Minutes count; the streak does not move.** Practice is real work, so it accumulates into
+`daily_log.active_ms` the way listening does. It deliberately does **not** write `due_left`:
+the streak needs the real queue cleared *as well as* the minutes (`stats.Day.Met`), so however
+long a practice session runs it can never stand in for the day's obligation. `RecordPractice`
+therefore touches `active_ms` only — writing `due_left` would let a practice session refresh a
+stale zero and hand out a streak nobody earned.
+
+**Selection is random and unweighted.** Weighting toward lapsed or weak words would be more
+efficient per minute, and was rejected: this is the mode a learner opens to train rather than to
+be managed, and a hidden agenda about which words come up makes it something else. Siblings are
+buried *within* a round for the usual reason, but never across the day — practice is always
+available, and burying it against review answers would be the app rationing the one thing it
+does not schedule.
+
+**Consequences.**
+- `GET /api/practice/queue?scope=` and `POST /api/practice/answer`, on their own routes so the
+  distinction cannot blur. `PracticeAnswerResponse` carries no `nextDue` and no `gradedFeatures`
+  rather than zeroed ones — a `0` interval renders as a schedule that does not exist.
+- **The verdict is shared, not duplicated.** Both modes route through `gradeTyped` and
+  `expectedAnswer`: they differ in what they RECORD, never in what counts as correct. A second
+  copy would drift, and the first symptom would be a word the trainer marks right and the queue
+  marks wrong.
+- **The screen says so.** A standing notice while practising states that answers do not move the
+  schedule and bring no word closer to «знаю». The honesty rules require it: this is the one
+  screen where an identical-looking card means two different things.
+- Practice draws from cards in **any** state, new ones included. That does not bypass the daily
+  new-card governor, because nothing is introduced: the card stays `new` and will still be
+  scheduled properly later. The governor exists to bound future review load, and practice
+  creates none.
+- **Cost:** a second answer path to keep in step with the first, and a mode a learner could use
+  to avoid the queue. The second is accepted deliberately — the queue is an obligation, not a
+  cage, and [R14] is clear that autonomy is what keeps people coming back.
+
+## ADR-020 — Stored FSRS state is complete: `remaining_steps` survives the database
+
+**Status:** accepted · 2026-08-28 · see [ADR-003](#adr-003)
+
+**Context.** go-fsrs v4's `Card` carries `RemainingSteps` — the position inside the
+learning/relearning steps (`{1, 10}` min and `{10}` min by default). Our `CardState` and its
+`toFSRS`/`fromFSRS` mappings dropped it, and no table had a column for it. Every card, feature
+and HVPT contrast therefore re-entered the scheduler with 0 remaining steps, and in
+`learningState` that hits the `remaining <= 0 → graduate` branch: **«Снова» or «Трудно» on a
+card still in Learning or Relearning graduated it a day or more out instead of repeating the
+minutes-scale step.** Only Good→Good coincided with the correct schedule, which is why the
+replay property test never fired — replay folded through the same lossy mapping and agreed
+with the wrong answer.
+
+**Decision.** Persist the field (migration `00011`: `card`, `morph_state`,
+`hvpt_contrast_state`; `lemma_state` skipped — its FSRS block is never advanced), map it in
+`toFSRS`/`fromFSRS`, and repair stored state with a **one-time, marker-gated replay** of every
+log (`srs.ReconcileSteps`, `hvpt.ReconcileSteps`) at boot in `api.New` — not in the migration,
+because replay needs `desiredRetention` and the gate window, and migrations run inside
+`db.Open` before any config exists. Markers live in the new `app_meta` table (facts about the
+database file, unlike per-user `settings`). On failure the marker is not set, the server boots
+anyway, and the next start retries; replay is deterministic (fuzz is seeded from stored
+millisecond timestamps, and `RemainingSteps` does not enter the seed), so a re-run is a no-op.
+
+**Consequences.**
+- The replay invariant reads: stored state *including* `remaining_steps` reproduces bit for
+  bit. `replay_test.go` compares the field; `scheduler_steps_test.go` pins the storage
+  round-trip on the exact reported paths.
+- Reconciliation replays under the CURRENT desiredRetention/gate window — the same assumption
+  `UndoLast` has always made.
+- Visible effect of the repair: prematurely-graduated Learning cards replay back to Learning
+  with a past due date, so the queue can grow once, correctly.
+
+## ADR-021 — Review numbers speak one vocabulary: the Breakdown
+
+**Status:** accepted · 2026-08-28 · **amends** [ADR-016](#adr-016)'s consequences
+
+**Context.** Three surfaces described "the queue" in three coordinate systems. The tab strip
+counted raw due CARDS before burial; Today counted an unscoped, unburied `DueCount`; the
+session served one card per word. A learner with 26 due cards over 10 words was shown «26»,
+served 10, told «на сегодня всё» — and a refresh then produced five more, because FSRS-6
+learning steps (1/6/10 minutes) had matured and nothing on the wire could say so. Every number
+was true in its own units and the learner was right to trust none of them. Separately:
+`maxReviewsPerDay` was an SQL LIMIT per fetch, so a reload handed out a fresh batch; the
+done-screen's `newCapped` mixed a scoped count with the global budget; and `due_left` — the
+streak's "queue cleared" obligation — counted the very siblings burial had made unreachable,
+making the streak **unwinnable** for any learner whose words carry more than one due card.
+
+**Decision.** One computation, `srs.Breakdowns`, produces every learner-facing number, and
+everything in it is **post-burial and day-granular**:
+
+- `dueNow` — what a queue built now would serve: one card per word, graduated (state 2) cards
+  counted for the whole local day, learning steps only once elapsed. This is «к повторению»
+  everywhere: the tab strip, Today, and `daily_log.due_left` (via `ActionableDue`).
+- `dueLaterToday` + `nextDueAt` — learning steps maturing before local midnight: the cards
+  behind "refresh gave 5 more", now announced with a time instead of denied.
+- `buriedToday` — due cards hidden until tomorrow (siblings of answered words, and extra
+  directions of a word the session serves once). Counted where a screen can explain them,
+  never inside `dueNow`.
+- `all == course + reader` holds field by field; a text scope is a sub-slice of reader,
+  appended after the fixed three, and the global new budget is untouched (ADR-016).
+
+Serving a graduated card hours before its timestamp is queue POLICY, not scheduling maths:
+go-fsrs computes elapsed time from `last_review` at UTC-calendar-day granularity, so the
+library is indifferent (ADR-003 stands). Learning steps keep instant precision — the minutes
+are the mechanism.
+
+Also decided here: `maxReviewsPerDay` budgets **the day** (today's state-2 answers are
+subtracted; steps in flight are never trimmed); the done-screen's new-material figures are
+`newShownNotes / newDeferredNotes / newBacklogNotes` on one basis, so a sibling deferral can
+no longer masquerade as "the daily limit is reached"; and **the streak rule**: `due_left`
+stores `ActionableDue`, and `dueLaterToday` deliberately does not block the day — a 10-minute
+step at 23:55 is not a debt.
+
+**Consequences.**
+- `srs.ScopeCounts` and `srs.DueCount` are deleted; `QueueCounts` drops the lying fields
+  (`learning`, `newCapped`, `newNotes`, `newNotesCapped`). `queue_day_test.go` pins the served
+  session to `dueNow`, the buried accounting, the day cap and the deferral/budget split;
+  `TestClearingTheServedQueueMeetsTheDueObligation` pins the streak repair.
+- Timezone matters now that "today" is load-bearing: the binary embeds `time/tzdata` and
+  honours `TZ` (UTC otherwise) — env-only, documented in SELFHOSTING.
+- Cost: `«к повторению»` is stable across a day rather than creeping upward as graduation
+  hours pass, which means a card can be served hours "early" by the old clock. That is the
+  Anki model, and it is the one a learner can predict.
+
+## ADR-022 — Per-text review is a scope, and a note remembers its texts
+
+**Status:** accepted · 2026-08-28 · **extends** [ADR-016](#adr-016)
+
+**Context.** "Let me review the words from THIS article" was unanswerable: a reader-mined note
+recorded no text id — `note.sentence_id` is a PACK sentence id, NULL for reader notes — and the
+only trace was the verbatim `hu` string.
+
+**Decision.** A link table, `note_origin(note_id, text_id, added_at)` (migration `00012`), and
+a `text:<id>` scope. The client sends `textId` with `POST /api/notes`; the link is written on
+the CREATE branch **and on the DUPLICATE branch** — the same sentence re-added from a second
+text creates no new note (FindDuplicate keys on `(hu, target_form)`), and with a note *column*
+instead of a link table, text B's claim on the shared word would silently vanish. Deleting a
+text unlinks and never deletes notes.
+
+`ParseScope` accepts `text:<n>` with a strictly-parsed, canonicalised id, which is what lets
+`Scope.filter()` keep its documented no-bound-arguments contract by inlining the int64
+(pinned by `TestParseScopeRejectsMalformedTextIds`). The text scope is a **sub-slice of the
+reader pile, never a fourth one**: `all == course + reader` keeps holding, the UI draws it as
+a chip above the three tabs rather than beside them, and the daily new-card budget stays global
+(pinned by `TestTheDailyNewCapIsSharedWithTextScope`).
+
+**Backfill is best-effort and says so.** Old notes are linked at boot (marker
+`note_origin_backfilled`) by reconstructing each text's sentences with the CLIENT's join rule —
+space-joined tokens, whitespace stripped before `.,!?;:…` — which deliberately differs from the
+server's own sentence assembly around quotes and dashes. Exact matches link; misses stay
+unlinked and simply do not appear under the text's pile.
+
+## ADR-023 — Text level: heuristic first, LLM as labelled second opinion, manual always wins
+
+**Status:** accepted · 2026-08-28 · labelling rule from [ADR-014](#adr-014)
+
+**Context.** A growing library needs levels to sort by, and the learner should not have to
+guess whether an article is A2 or B2. The pack already knows enough for an honest estimate:
+`lemma.cefr` (frequency bands, `langpack/pipeline/frequency.py` — the ONE band table;
+`drill/generate.go`'s `bandFor` is a different dial for drill vocabulary and is deliberately
+not consulted), `grammar_topic.level` + `feature_ids`, and `text_token` already stores each
+token's lemma and features.
+
+**Decision.** Three writers, one pecking order, the source ALWAYS stored and shown
+(`text.level`, `level_source`, `level_detail`, migration `00013`):
+
+- **heuristic** — `mining.EstimateLevel`, computed at ingest and backfilled once on first open:
+  lexical level = smallest band covering ≥90% of resolved running words; grammar level =
+  highest topic level with ≥3 feature hits; verdict = the harder of the two, nudged one step by
+  mean sentence length; **abstains** (`level=""`) when under half the text resolves — «уровень
+  не определён» is a supported outcome, per the honesty rules.
+- **llm** — `POST /api/texts/:id/level`: the first consumer of the `services.llm` slot
+  (`internal/llm`, minimal OpenAI-compatible chat; prompt versioned in
+  `.claude/prompts/estimate-level.md`). Strict-enum JSON verdict; garbage → 502 and the stored
+  estimate is untouched; the model's name travels in `level_detail` because the label is the
+  entire defence. No Hungarian is generated, so corpus attestation is not implicated.
+- **manual** — `PUT /api/texts/:id/level`: the learner's word. Never overwritten by either
+  machine writer.
+
+**Consequences.** The library sorts and filters by level, each chip captioned with its source
+(«по частотам» / «оценка модели» / «вы указали»). Unlike coverage, a level is a fact about the
+text, not the learner — estimated once, not recomputed per open.
+
+## ADR-024 — Practice rounds have a shape: size, and an explicit weak-words mode
+
+**Status:** accepted · 2026-08-28 · **amends** [ADR-019](#adr-019)
+
+**Context.** ADR-019 fixed practice as random and unweighted, rejecting selection bias as "a
+hidden agenda about which words come up". The learner then asked for exactly two dials: round
+length («рандом на 30 слов») and training what is about to fall out of memory.
+
+**Decision.** `GET /api/practice/queue` gains `size` (clamped to 10–50, default 20 — constants
+in `internal/config`, not YAML: round length is a whim, not a setting) and `mode=random|weak`.
+**Weak mode does not contradict ADR-019's reasoning — it removes its trigger.** The rejected
+thing was a HIDDEN agenda; weak mode is the learner's explicit choice with the criterion
+printed on screen: lowest current retrievability first (`Scheduler.Retrievability`, the
+library's own forgetting curve — no scheduling maths of ours, ADR-003), weakest card per word.
+A deck with nothing reviewed has nothing to rank, so weak **falls back to random and the
+response echoes the mode actually served** — the screen never claims a criterion it did not
+apply. Random stays the default.
+
+Everything ADR-019 forbids stays forbidden: no card state, no morph_state, no review_log, no
+due_left. The ADR-019 pins run against `mode=weak` too.
+
+## ADR-025 — The trash: a word can be set aside, and set-aside words are practised, never scheduled
+
+**Status:** accepted · 2026-09-02 · **amends** [ADR-019](#adr-019)
+
+**Context.** The queue had no way to hear "no". A card the learner judged unusable — a sentence
+the miner cut badly, a gloss that says nothing, a construction three months above them — could
+only be failed forever or left to sit at the front of every session. Both answers train the
+learner to distrust the queue, and one of them poisons the second state space: repeatedly
+failing a card the learner never had a chance at writes `Again` into `morph_state` for features
+they were never really asked about.
+
+Suspending was already expressible — `card.suspended` has been in the schema since migration
+00002 — and nothing in the product ever set it. What was missing was not a column but a
+decision about what setting a word aside MEANS.
+
+**Decision.** A **note-level** trash, stored as `note.trashed_at` (migration 00014), with four
+properties:
+
+- **The word leaves, not the card.** The learner is setting aside a WORD; hiding only the
+  direction on screen would hand the same word back through a different door ten minutes later.
+  Deliberately not `card.suspended`: that stays a card-level mechanism, so a future per-direction
+  suspend cannot make "restore" ambiguous, and a timestamp gives the trash screen an order.
+- **Nothing is deleted.** The note, its cards, their FSRS state and every row in `review_log`
+  survive. Restore therefore returns the card with the state it left with — a word set aside for
+  a fortnight comes back OVERDUE, which is the truth about it. It also means undo
+  (delete-and-replay over that log, ADR-006) keeps working across a trashing.
+- **It leaves the SCHEDULER, not the app.** `scope=trash` is accepted by free practice and
+  **refused by `/api/review/queue`**. Practice schedules nothing (ADR-019), so a set-aside word
+  can still be looked at while nothing about it moves. A trash the scheduler drew from would be
+  a pile cards come back FROM, which is the opposite of what the button promised. This is the
+  one amendment to ADR-019: practice gains a pile that review does not have, and it is safe
+  precisely because practice records nothing.
+- **Re-adding restores.** `FindDuplicate` matches a trashed note, so without this the reader's
+  «добавить» reported success on a word that stayed invisible forever, and a re-enrolled course
+  unit could never restock itself. Pressing add is an unambiguous "I want this again".
+
+`Scope.filter()` carries the not-trashed clause for all three normal scopes, so the exclusion
+cannot be forgotten by a new query; the four places that build their own WHERE use the exported
+`srs.NotTrashed`. `all == course + reader` still holds — all three exclude the trash, and the
+tab strip's arithmetic is untouched. Trash and restore return fresh `Breakdown`s (ADR-021), so
+the strip updates from the server rather than by subtracting one from a number it is holding.
+
+**Consequences.** «В корзину» sits under the review card in both phases (`t`, dimmed while the
+answer box has focus, since `t` is a letter), with an undo banner rather than a confirmation
+dialog — the action is reversible, and a dialog taxes the common case to guard the rare one.
+`/trash` lists the words with a restore per row and «тренировать отложенные», which opens a
+practice round. Answering a card trashed since the queue was built is a 409, so a stale tab
+cannot schedule it. The trash carries no due dates and no counts of debt: it must be a place a
+word can be found, never a second deck the learner feels they owe something to.
+
+**Rejected:** deleting the note (loses the log that undo and any future FSRS optimiser read, and
+makes "restore" a re-add at state zero); resetting FSRS state on restore (invents a memory the
+learner does not have); downgrading `lemma_state` on trash (setting a card aside is not
+forgetting the word, and course-unit completion is derived from that table — ADR-007);
+a fourth review tab (breaks `all == course + reader`, and puts an obligation-shaped number on
+a pile that owes nothing).
+
+## ADR-026 — Review is dealt in sets, and a card shows its own memory
+
+**Status:** accepted · 2026-09-02 *(user decision)* · see
+[R18](research/18-sessions-and-progress.md), [R14](research/14-motivation.md),
+[ADR-003](#adr-003), [ADR-021](#adr-021), [ADR-024](#adr-024)
+
+**Context.** The queue served the day's work as one list. A learner with 70 due cards saw
+«1 / 70», and the honest observation was that it is exhausting: the finish line is out of
+sight, and the only feedback along the way is the card verdict. The same learner asked to see,
+while answering, how a word is doing — is this the first time, is it nearly known, does the
+app think I will remember it. Two asks, one boundary: nothing may touch the scheduler
+([ADR-003]), nothing may become a point economy ([R14], [R16 §3]), and every review number
+must keep speaking the Breakdown vocabulary ([ADR-021]).
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| Server-side `size` parameter, queue cut to N | Rejected — the whole queue is already fetched and bounded by the day cap; cutting it on the server adds API surface and a second place where "how much is left" is computed. Sets are presentation |
+| Client-side sets of a per-device size | **Accepted** — the server serves exactly the queue it served before; the client deals it out. `Breakdowns`, `QueueCounts` and the streak are untouched |
+| A stored `review.setSize` setting | Rejected — settings are admin-only and a set size is a whim, not policy; practice already made this call ([ADR-024]). Per device, `tanulom.review.setSize`, default 15 |
+| Mix new cards into the sets | Rejected — reviews are a debt already incurred and stay first; new cards still follow. Reconsidered when a learner asks |
+| Re-serve a failed card immediately | Rejected — a one-minute echo tests working memory. The card returns at the back of the set and only once the FSRS step it was given has **elapsed** |
+| Retry within the set until *three* correct recalls | Rejected — [R18 §1]'s three-correct criterion is for the very first learning session; every later sitting is "one correct", and FSRS's steps already carry the first day |
+| Random order by default | Rejected — the most overdue card is decaying fastest and belongs in set one. Random is an explicit, printed choice, day-seeded so a reload cannot reshuffle the remainder |
+
+**Decision.**
+
+- **Sets.** `stores/review.ts` deals the head of the served queue as a set of `setSize` cards.
+  A set is finished when every card in it has been answered once *(amended 2026-09-03 —
+  originally "answered correctly once", with misses re-served at the back of the set; see the
+  amendment below)*. Nothing answered in a set is re-served in it; a miss returns through the
+  server's queue once its step has elapsed, and the served list is fetched again at every set
+  boundary so that it can. Between sets the screen shows a set summary and the next set starts
+  on `space`; the auto-reload that tops the queue up when a learning step matures runs **only on
+  the done screen**, never under a set in progress.
+- **Order.** `GET /api/review/queue?order=due|random`. `due` is today's behaviour. `random`
+  shuffles the due list after the day cap is applied (the cap trims from the latest-due end and
+  needs due order), with a seed of `(userID, local day)`, then `spreadSentences` runs last as
+  always. The selected new cards are shuffled the same way; which cards are selected does not
+  change.
+- **Memory on the card.** `srs.Memory` travels with every queue item: `stage` (new · learning ·
+  young · mature · relearning — Anki's 21-day convention for young/mature, named as a
+  convention), `retrievability` from `Scheduler.Retrievability`, `stabilityDays`,
+  `intervalDays`, `reps`, `lapses`, `correct`/`total` for the card and for the word, the last
+  eight outcomes, and `preview` — what each grade would schedule, from `Scheduler.Preview`,
+  labelled approximate because interval fuzz is seeded at answer time. `AnswerResponse` carries
+  the card's `memory` after the answer, so the widget can show «3 дн → 8 дн». Practice shows
+  the same widget without `preview`: nothing there is scheduled. *(Amended 2026-09-03: the
+  review card no longer prints `retrievability`; see below.)*
+- **The set summary is measured only:** answered, right first time, came back, words that
+  reached *mature* in this set, minutes. A two-note `setComplete` cue; the descending fifth
+  stays reserved for the empty queue.
+- **Today** prints the day in sets beside `dueNow`, from the same per-device size.
+
+**Consequences.**
+- `internal/srs/memory.go` and `queue.go` (`order`), pinned by `memory_test.go` and
+  `queue_order_test.go`; `QueueItem` gains `memory`, `AnswerResponse` gains `memory`.
+- The review screen gains a set bar, a memory widget, per-grade interval hints under the
+  rating buttons, and a set-summary screen; `lib/sets.ts` holds the per-device size.
+- **Cost:** one extra `GET /api/review/queue` per set boundary. A reload mid-set loses only the
+  set summary's tallies; the cards themselves are wherever the server says they are.
+
+**Amendment — 2026-09-03** *(user decision)*. Two parts of the first version were removed after a
+day of use:
+
+- **The in-set retry is gone.** A miss went to the back of the set and was re-served once its
+  learning step had elapsed; when the set ran out first, the screen waited with a countdown. The
+  learner's report: «доступны через пару секунд» was not understood, and a session that stops to
+  count down is a session that ends — they would rather go to practice. The replacement keeps the
+  one thing the mechanic was protecting — nothing is asked early — by making the SERVER the only
+  way back: a set is always the head of the served list, and `stores/review.ts` fetches the list
+  again the moment a set finishes, before the summary shows. A missed card whose step has elapsed
+  is in the next set because the scheduler put it there; one still maturing shows under «сегодня
+  вернутся» on the done screen, which now reads fresh counts instead of the sitting's opening
+  snapshot. The miss is *listed* with its answer — on the set summary and again on the done
+  screen (`MissedList.vue`) — which is the "other way to recall it" the learner asked for. A set
+  is finished when every card in it has been answered once, right or wrong. The client keeps no
+  retry list, no retry clock and no waiting state. [R18 §1]'s one-correct-recall criterion is
+  now met within the sitting only when the sitting continues past the set of the miss; the note's
+  caveats say so.
+- **The chance of recall is off the card.** `MemoryMeter` printed «100% вероятность вспомнить
+  сейчас» beside five crosses on a card in its learning steps — correct by the model, which
+  computes it against an interval of minutes, and to a person a claim that they know a word they
+  have just failed five times. A figure that is right and reads as wrong, on the screen where it
+  is seen most, is worse than no figure. The stage badge, the marks, the tally and the interval
+  change stay; `retrievability` is still served and still shown in the words browser, where every
+  card has graduated and the number means what it says.
+
+The options table's "re-serve a failed card immediately — rejected" still stands: the card is
+not re-served *at all* inside the set now, and the scheduler's step is respected exactly as
+before — by not asking, rather than by waiting.
+- **Cost:** the set counter is a client number over a server list. It is derived from the
+  served queue and never displayed as an obligation; «к повторению» stays `dueNow`.
+
+## ADR-027 — A grammar tutor: the pack teaches, a grounded model explains, nothing it says becomes a card
+
+**Status:** accepted · 2026-09-02 *(user decision)* · see
+[R19](research/19-grounded-tutor.md), [R4](research/04-explicit-instruction.md),
+[R10](research/10-llm-tutors.md), [ADR-005](#adr-005), [ADR-014](#adr-014)
+
+**Context.** The grammar screen states the rule and drills it; it cannot answer a question.
+"Why -ban here and not -ben?", "how is this different from Russian?", "give me three more
+examples with a front-vowel stem" are the questions a teacher takes in ten seconds and the app
+took nowhere. The `services.llm` slot has existed since Phase 1 with one consumer (a text-level
+second opinion, [ADR-023]). The learner runs small local models, so the design has to assume a
+7–8B model on a CPU and Hungarian, where every model is at its weakest ([R19 §4]).
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| An open chat with a system prompt | Rejected — a weak model with no material in front of it invents suffixes, and a wrong Hungarian form presented confidently is worse than no answer |
+| Embeddings + vector index over a corpus | Rejected — an embedding model is a second model to deploy, the corpus is a few hundred titled sections, and the binary is static ([ADR-001]). Keyword-and-topic scoring over titled sections is enough and testable |
+| Reference corpus inside the language pack | Considered and not chosen for now — consistent with lessons living in the pack, but it would bump the pack schema, require `make starter` on every edit, and tie tutor improvements to pack releases. Embedded in the binary (`internal/tutor/kb`), with the pack's own lesson and feature tables read live. Revisit if a second language pack ever exists |
+| Let the tutor create cards or drills | Rejected — [R10]'s attestation guardrail is not built, and a card is what the learner is graded against. The tutor explains; the reader and the course make cards |
+| Non-streaming answer | Rejected — a local model takes seconds per sentence; an answer that appears all at once after twenty seconds reads as a hang |
+| Answer in the lesson's language only | Rejected — the learner asked for the interface language; the client sends its rendered locale, the server accepts `ru`/`en`, falls back to `locale.ui` |
+
+**Decision.** `internal/tutor` assembles one prompt per question from, in this order: the
+system rules (in the answer language), the pack's lesson for the open topic, the topic's feature
+labels and allomorph tables from the pack, the learner's own state on those features (accuracy,
+observations), the best three sections of the embedded reference corpus by topic-and-keyword
+score, the last six turns, and — last, per [R19 §3] — the question with the answer-language
+reminder. The whole prompt is held under a fixed character budget so it fits an 8k-context
+model. `internal/llm` gains a streaming call; the answer streams to the client as server-sent
+events and is stored in `tutor_message` (migration `00015`) per user and topic.
+
+**Honesty.** Every answer carries the model's name. The model is asked to put Hungarian
+words in backticks; each such word is looked up in the pack's `wordform` table and the ones the
+dictionary does not carry are listed under the answer, in the `uncertain` hue, as *not found in
+the dictionary* — the same treatment an uncertain analysis gets. A standing note on the panel
+says the explanation is the model's and the lesson above is the app's, and that nothing here
+becomes a card. With `llm` off the panel says how to enable it and offers nothing else.
+
+**The reference corpus** is CC BY-SA and public-domain material only, with its own
+`LICENSES.md`: the pack's own lesson prose is the primary source at runtime; the embedded
+files are Wikipedia's Hungarian grammar articles and Wiktionary's Hungarian appendices
+(CC BY-SA 4.0, converted from wikitext with attribution), the grammar notes of the US Foreign
+Service Institute's *Hungarian Basic Course* (1962, public domain), and reference sections
+written for this app. An 1882 grammar on Wikisource was evaluated and excluded: its orthography
+predates the reforms and would teach a weak model `cz`.
+
+**Consequences.**
+- `GET /api/tutor/:topic` (thread, availability, sources), `POST /api/tutor/:topic` (SSE
+  stream), `DELETE /api/tutor/:topic`. One in-flight question per learner; a question is at most
+  1,000 characters; a thread keeps its last 200 messages.
+- `TutorPanel.vue` under the lesson on the grammar screen, with three suggested questions per
+  topic so the first question is one click. Placed after the lesson and never before it — [R4]
+  is the order of that screen.
+- `.claude/prompts/tutor-system.md` documents the prompt, its versions and failure modes; the
+  text itself is embedded from `internal/tutor/prompts/` so Go and the note cannot drift.
+- **Cost:** a second LLM consumer to keep honest, an English-only reference corpus behind a
+  Russian answer (stated in `docs/TUTOR.md`), and a feature that is only as good as the model
+  the learner runs — which the panel says.
+
+---
+
+## ADR-028 — Review has a start screen; the choice of pile and shape leaves the card
+
+**Status:** accepted · 2026-09-03 *(user decision)* · **amends** [ADR-016](#adr-016),
+[ADR-024](#adr-024), [ADR-026](#adr-026) · see [UX §4](../docs/UX.md#4-review),
+[R18](research/18-sessions-and-progress.md)
+
+**Context.** The review screen is specified as *chrome-free — the card owns the viewport*
+(UX §4), and across three decisions it grew a control strip above the card: three pile tabs with
+two numbers each ([ADR-016]), «Тренировка ∞» with its own rows for pile, round length and the
+weak-words mode ([ADR-019], [ADR-024]), and the set size and order chips ([ADR-026]). Each landed
+there because that screen was the one that had the numbers. The learner's report, after a day
+with all of it on screen: `Всё 74 +72 · План 37 +32 · Тексты 37 +40 · Тренировка ∞` does not
+belong over a card that is answered two hundred times a day. Choosing what to take is a
+different moment from taking it, and they asked for a separate screen where the choice is made.
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| Keep the strip, fold it behind a disclosure | Rejected — hidden chrome on the card screen is still chrome on the card screen, and a control that is sometimes there is harder to learn than one that is always somewhere else |
+| A picker dialog over the card | Rejected — a modal interrupts the loop it sits on; the choice is a page you go to, not an interruption you dismiss |
+| A start screen at `/review`, the card at `/review/session` | **Accepted** |
+| Persist the chosen pile on the server | Rejected — [ADR-016]'s "no stored preference" stands. The choice is a property of one request and travels in the URL, so a reload is honest and a link can carry it |
+
+**Decision.**
+
+- **`/review` is the start screen** (`ReviewStartView.vue`): the three piles, each with `dueNow`
+  and `newNotes` from `Breakdowns` ([ADR-021]) and the day in sets ([ADR-026]); the set size and
+  order chips; and a practice block with the round's pile, length and «слабые слова». Nothing on
+  it starts a session by itself, and its numbers come from `GET /api/review/queue?scope=all` —
+  the same response the card screen reads — so the two screens cannot disagree and no endpoint
+  is added.
+- **`/review/session` is the card** (`ReviewView.vue`). Its intent travels in the query —
+  `?scope=all|course|reader|text:N` for review, `?practice=all|course|reader|trash|text:N` for a
+  round — the pattern the trash's «тренировать отложенные» established. The screen starts a
+  session on mount and on a query change, and nothing else may start one; the round's length
+  and mode are the store's, set on the start screen.
+- **The card screen still says what it is in.** The pile name — or «только слова из текста» —
+  sits in the progress row; a practice round prints «Тренировка · слова из: План», the
+  weak-words criterion when it was really applied, and the fallback echo when it was not.
+  [ADR-024]'s printed criterion stays on the screen where the cards are.
+- **Today's call to action goes straight to the session** over «Всё» — UX §3: a plan that makes
+  you choose has not planned anything. The sidebar row, the topbar chip and the memory loop card
+  go to the start screen. The library's, the reader's and the trash's buttons go straight to the
+  session with their query, because on those screens the choice has already been made.
+- **The done screen links back to the start screen**, and when another pile has work it says so
+  in one sentence («В других стопках: к повторению 37, новых 40») from the `Breakdown`s already
+  in the queue response — so emptying one pile still does not take a reload to discover the
+  other, which is what the tabs on that screen were for. Its «Тренировка» button starts a round
+  over the pile just finished, by navigating with `?practice=`.
+
+**Consequences.**
+- `ScopeTabs.vue` is deleted; `stores/review.ts` loses `setScope` and `ensureScopes` — the
+  strip they served no longer exists, and the store starts nothing on its own.
+- Changing the set size or order mid-sitting means going back to the start screen; the
+  re-deal-on-change watchers went with the chips. Accepted on purpose: [ADR-026] called the size
+  a whim chosen before a sitting, and [R18 §2] is about seeing the end of a sitting, whose length
+  is decided before it begins — which is where the dial now lives.
+- **Cost:** one more click from the sidebar to a card, and one queue fetch per visit to the start
+  screen. Today's «Начать» and every deep link stay one click.
+- Unlegislated by the research notes, as [ADR-016]'s split was. The principle it rests on is
+  UX §4's own: the card owns the viewport.
+
+---
+
+## ADR-029 — The tutor is a chat, and the app finds the lesson for it
+
+**Status:** accepted · 2026-09-03 *(user decision)* · see [R19](research/19-grounded-tutor.md),
+[R4](research/04-explicit-instruction.md), [ADR-027](#adr-027)
+
+**Context.** [ADR-027] shipped the tutor as one thread per learner per *curriculum topic*: a
+question could only be asked from under a lesson, or from a page that made the learner pick a
+topic first. The first learner's reaction, verbatim: «для меня это должен быть просто как
+AI-учитель и всё» — a chat with a new-chat button and a history of old chats, the way every
+chat product looks; a topic is something they *may* choose, not a gate they must pass. Two
+more things surfaced in the same session: the model wrote Hungarian suffixes in Cyrillic
+(«Ем — задний гласный») because the learner had typed them that way, and it explained without a
+single example — both prompt failures, both invisible to the lesson-first design because the
+lesson had always been the example.
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| Keep topic-per-thread and improve the picker | Rejected — it makes the learner know the curriculum's names to ask a question. Which lesson a question is about is the app's job to find, not the learner's to declare |
+| A free chat with no grounding | Rejected, still — [ADR-027]'s first row and [R19 §5]: a weak model with nothing in front of it invents suffixes. The retrieval and the lesson stay; only *who picks the lesson* changes |
+| Ask the model which topic the question is about | Rejected — a second model call per question on a CPU that already takes ten seconds for the first, and an unexplainable verdict. Lexical and morphological scoring over the pack's own titles, feature labels, allomorph shapes and lesson vocabulary is deterministic, fast, and its verdict can be printed |
+| One thread per learner, forever | Rejected — a chat that never starts over carries the wrong lesson into the next question; a new chat is how a learner says "different subject" |
+
+**Decision.**
+- **A thread is a conversation** (`tutor_thread`, migration `00016`), with a title from its
+  first question, an optional **pinned topic**, a new-chat button, a list, and delete. The
+  lesson panel pins its topic — a question asked under «Гармония гласных» stays about it — and
+  opens the most recent thread pinned there; «Открыть в AI-учителе» opens that same thread.
+- **Every question is grounded, and the grounding is chosen per question.** A pinned topic
+  wins. Otherwise `tutor.InferTopic` scores the question against every curriculum topic: the
+  pack's analyser reads each Hungarian word in it and the features it carries point at the
+  topic that teaches them (`házban` → `Case=Ine` → the locative grid); the topic's titles and
+  feature labels in both languages, its allomorph shapes (`-ban`, `-ek`) and its lesson
+  vocabulary score the rest. Below the threshold, the thread's **last grounding is sticky** —
+  «а ещё примеры?» stays on the lesson the previous answer used — and with nothing at all the
+  prompt says so in words and the reference corpus is retrieved by the question alone.
+- **The grounding is printed.** `tutor_message.topic_code` on an assistant turn is the lesson
+  that answer was built on, and the panel prints «по уроку: Гармония гласных» under it, or
+  «по справочнику, без урока» when there was none. A label the learner can disagree with is
+  the whole honesty of an inferred choice ([ADR-014]'s rule again).
+- **Prompt version 2.** Hungarian is always written in Latin Hungarian orthography in
+  backticks, never transliterated, even when the learner typed «ем»; every explanation carries
+  two or three whole-word examples with a translation; the no-lesson case is stated to the
+  model rather than left blank. `.claude/prompts/tutor-system.md` v2.
+
+**Consequences.**
+- `GET /api/tutor` lists threads; `POST /api/tutor {topic?}` opens one; `GET/POST/DELETE
+  /api/tutor/:id` read, ask, delete; `GET /api/tutor/topic/:code` resolves the lesson panel's
+  thread. The per-topic routes are gone. Existing threads are migrated one-to-one into pinned
+  threads, so nothing a learner asked is lost.
+- The learner's first question no longer needs a topic; the picker on the AI-teacher page is an
+  option on the new-chat button, not the gate to it.
+- `tutor` still imports nothing from `curriculum`: the index it scores is built by the handler
+  from the DAG and the pack, and the inference is a pure function with a test.
+- **Cost:** one more table, and a heuristic that can pick the wrong lesson. The label is the
+  mitigation, and pinning is the override.
+- `nothing it says becomes a card` is untouched: `handlers_tutor_test.go` still counts the
+  tables before and after a question.
+
+---
+
+## ADR-030 — The tutor translates into Hungarian on request: as an explanation, word by word, never as material
+
+**Status:** accepted · 2026-09-03 *(user decision)* · see [R19](research/19-grounded-tutor.md),
+[R4](research/04-explicit-instruction.md), [R10](research/10-llm-tutors.md), [ADR-014](#adr-014),
+[ADR-027](#adr-027), [ADR-029](#adr-029)
+
+**Context.** The first learner typed «напиши на венгерском "Я пришел в эту деревню и зашел в
+свой дом"» into the AI-teacher chat and got the Russian sentence back, unchanged, labelled
+«ответ модели qwen3:1.7b · по уроку: Локативная система». The same model, asked the same thing
+outside the app, produced `Eljöttem ebbe a faluba, és bementem a házamba.` with a word-by-word
+breakdown — and, when the learner offered their own attempt, a comparison explaining each
+difference. That breakdown is what the learner called "a tutor"; the echo is what they called
+«очень тупой учитель».
+
+The echo was the prompt's doing. Prompt v2 opened with «Отвечай ТОЛЬКО ПО-РУССКИ» and closed
+with «Отвечай по-русски.» — the first and last lines, exactly the two positions a small model
+follows most reliably ([R19 §3]). Asked for Hungarian, the model obeyed the language rule over
+the request. Nothing in the prompt said what a translation request should produce, and rule 4
+(«три–восемь предложений») forbade the breakdown even if it had tried.
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| Refuse translation requests: the tutor explains grammar, it is not a translator | Rejected — «как сказать …?» is the commonest question a learner has, and its answer *with the mechanism named per word* is explicit instruction at the moment of need ([R4]), which is the tutor's whole job. Refusing it sends the learner to a chat product with no lesson, no labels and no dictionary check |
+| Route Russian→Hungarian through `services/mt` | Rejected — NLLB-200 can generate Hungarian, but [ADR-014] made MT display-only for "what does this sentence say", it labels a sentence, not a word, and it explains nothing. A translation without the breakdown is exactly the answer the learner is not asking for |
+| Loosen the language rule only | Insufficient — a model that may write Hungarian still does not know that a translation answer has a *shape*. The shape is the pedagogy |
+| **Reword the language rule to speak of the explanation, and give translation requests an explicit shape and budget** | **Chosen** |
+
+**Decision.**
+- **The language rule names the explanation, never the material.** «Объясняй по-русски. Всё
+  венгерское — слово, форму, суффикс, целое предложение — пиши по-венгерски, латиницей». The
+  closing line says the same. `ONLY` does not appear; `tutor_test.go` pins its absence.
+- **A translation request has a shape** (prompt rule 4): the whole Hungarian sentence in
+  backticks; its literal rendering; then **word by word** — what each word or phrase means,
+  which suffix or preverb it carries and why that one (case, harmony class, definiteness,
+  person, number); and, when the learner offered a version of their own, a comparison that
+  explains every difference. A Russian sentence without the Hungarian is stated not to be an
+  answer. This is the one answer allowed to run past eight sentences — up to fifteen lines.
+- **The budget follows.** `MaxAnswerTokens` 700 → 1,000 and the stream timeout 90 → 150 s,
+  so a breakdown on a laptop CPU is not cut by a limit sized for eight sentences. **An answer
+  cut by the budget is marked**: `llm.Stream` reports `finish_reason: length` as
+  `llm.ErrTruncated`, and the handler stores it `interrupted`, the same flag a timeout sets —
+  an answer that stops mid-word without saying so reads as complete.
+- **The dictionary check reaches a whole sentence.** `tutor.Backticked` split only spans up to
+  80 characters; a translated sentence is longer. The cap is 200 — a backticked sentence is
+  checked word by word, so a stem the model invented inside it is listed under the answer.
+- **The page names a small model.** The panel prints «модель qwen3:1.7b — маленькая: 1,7 млрд
+  параметров, судя по названию; учитель рассчитан на 7–8 млрд» when the tag carries a size
+  under 7B. The size is read off the tag and the copy says so; a tag that names no size shows
+  nothing. `docs/TUTOR.md` has said since v1 that a 1–2B model is "fluent, labelled, and
+  frequently wrong"; the honesty rules say a known limitation is stated *in the product*.
+- Prompt **version 3**; `.claude/prompts/tutor-system.md` v3.
+
+**What does not change.** The line [ADR-027] drew: the translation is an explanation on the
+screen it was written on. There is still no code path from `tutor_message` to `note`, `card`,
+`user_gloss` or either state space, and `handlers_tutor_test.go` still counts those tables. The
+tutor's Hungarian is labelled (the model's name) and dictionary-checked (every backticked word);
+it is not corpus-attested, and that is why it becomes nothing.
+
+**Consequences.**
+- A learner can ask «как сказать …» and get the sentence and the reason for each form —
+  or, with a 1–2B model, a labelled attempt at one, under a line that says what the model is.
+- A translation answer costs up to 1,000 tokens: on a CPU, up to two minutes of streaming. The
+  stream keeps it visible.
+- **Cost:** a small model may still translate wrongly, fluently. The mitigations are the ones
+  the tutor already had — the model's name on the answer, the unattested list, the lesson
+  label — plus the size line. None of them makes a wrong sentence right; they make it visible.
+- **Measured** (2026-09-03, `docs/TUTOR.md` §9): `qwen3:1.7b` cannot translate the learner's
+  sentence with *no* prompt at all — `Ígép a városba és bejártam a házam` — thinking on or off;
+  with prompt v3 it wrote Hungarian, as v2 had not, but printed the lesson's example table
+  instead of a translation. The prompt was wrong and is fixed; the model is too small and the
+  page now says so. The breakdown itself is verified only against the stand-in in tests until
+  a 7–8B model is on the machine — the first learner has `qwen3:1.7b` only.
+
+---
+
+## ADR-031 — The chat has a chat's controls: stop, edit-and-resend, a context meter, and the whole screen
+
+**Status:** accepted · 2026-09-03 *(user decision)* · see [ADR-029](#adr-029), [ADR-030](#adr-030),
+[R19 §3](research/19-grounded-tutor.md)
+
+**Context.** The first learner's second round of feedback on the AI-teacher page, after
+installing `gemma3:4b`: an answer that ran out of budget was shown with the interrupted mark
+AND «Модель не ответила пригодным образом. Ничего не изменилось» under it — a cut is not a
+failure, and "nothing changed" was false, the partial answer was stored; there was no way to
+stop an answer that was going wrong; no way to fix a question except to type it again under
+the wrong answer; nothing said how much of the model's window the prompt took, on a machine
+where Ollama's window is a slider the app cannot see and a prompt longer than it is cut from
+the head silently (`docs/TUTOR.md` §9); and the chat itself was a small box under a large
+page title, two notices and a footnote — «окно чата очень маленькое, смотри на дизайн Клода
+или ChatGPT».
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| Cancel by closing the fetch on the client | Rejected — the server notices only on its next write, the partial answer is stored a moment later, and the client has no id for it. `POST /api/tutor/:id/stop` cancels the flight's context on the server; the stream then ends the ordinary way, `done` with `interrupted`, and the client keeps the same code path |
+| Edit as a branch, the way ChatGPT keeps both versions | Rejected — a thread is a conversation with one lesson found per question; a tree of them is a second UI for no pedagogical gain. Editing a question deletes it and everything after it and asks again; the UI offers it on the last question |
+| Ask the learner for the window size in Settings | Rejected — a figure typed by hand drifts from the slider the moment it is moved. Ollama's `/api/ps` reports the running model's `context_length`; the OpenAI stream reports `usage` when asked (`stream_options.include_usage`). Both measured on the learner's own server. A server that reports neither gets "the model does not report its window", never a guess |
+| Estimate tokens client-side | Rejected — the binary carries no tokenizer (ADR-027's budgets are in characters for that reason), and a wrong number here is the kind of precision that misleads |
+
+**Decision.**
+- **Any text that arrived is an answer.** The stream ends with `done` and the stored message
+  whenever the model wrote anything: `interrupted` marks a timeout, a stop, a lost connection
+  or a budget cut, and `cutReason` says which, so the label under the answer names what
+  happened («ответ остановлен», «закончился отведённый объём») instead of guessing at two. `error` is sent only when nothing arrived — `errors.tutorFailed`, or
+  `errors.tutorStopped` when the learner stopped it first.
+- **Stop.** `POST /api/tutor/:id/stop` cancels the learner's in-flight answer (the flight map
+  now holds a cancel function); idempotent, 204. The button replaces «Спросить» while an
+  answer streams; `Escape` does the same.
+- **Edit.** `POST /api/tutor/:id {question, replace: <id>}` deletes that question of the
+  learner's own and everything after it (`Store.TruncateFrom`), re-titles a thread whose
+  first question it was, and asks. 404 `errors.tutorNoMessage` for a turn that is not theirs
+  or not a question. The UI offers it on the last question; the composer says what will go.
+- **The context meter.** `llm.Stream` asks for usage and returns it; `llm.ContextLength` reads
+  `/api/ps` on a `local` server after the answer; both are stored on the assistant turn
+  (`prompt_tokens`, `answer_tokens`, `context_tokens`, migration `00017`) and printed under the
+  composer as a bar and a sentence: «Окно модели 8 192 токенов: последний вопрос и ответ
+  заняли 3 850, свободно ≈ 4 342». When prompt + answer reach the window, the line turns into a
+  warning that the head of the prompt — the rules and the lesson — may have been cut, and
+  names the fix. Zero from the server prints as "does not report", never as a number.
+- **The layout is the chat.** No page title (the top bar already names the page); the
+  conversation fills the viewport under the bar; the log scrolls, the composer sits at the
+  bottom with the notice, the meter and the sources under it; messages sit in a reading
+  column; an assistant turn is text, not a card; the openers live in the empty log.
+
+**Consequences.**
+- Two new request shapes, one new route, three columns; `handlers_tutor_test.go` pins the cut,
+  the stop, the edit and the figures.
+- The meter is only as good as the server: Ollama gives both figures, a hosted API gives
+  usage without a window, an old llama.cpp may give neither. The copy says which.
+- `nothing it says becomes a card` is untouched.
+
+---
+
+## ADR-032 — The tutor is one key away from the review card, after the answer
+
+**Status:** accepted · 2026-09-03 *(user decision)* · **superseded in part by [ADR-034](#adr-034)**
+(both phases; the server composes the question) · see [ADR-027](#adr-027), [ADR-029](#adr-029),
+[ADR-031](#adr-031), [R4](research/04-explicit-instruction.md)
+
+**Context.** The first learner, on the review card, after typing `tudom` where `ismer` was
+wanted: «добавь кнопку AI, типа я мог бы что-то спросить у учителя прям тут, не выходя из
+кассы». The moment a card is marked wrong is exactly the moment [R4]'s explicit instruction is
+worth having, and the AI-teacher page was three clicks and a retyped question away from it.
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| A link to the AI-teacher page | Rejected — it leaves the session, and the learner must describe the card again. The point is asking *about this card* |
+| Auto-ask the tutor on every wrong answer | Rejected — a second model call per miss on a machine where the model is the slowest thing; and an answer nobody asked for is noise under a card. The question is written for the learner, and they send it |
+| Offer the tutor in both phases | Rejected — before the answer, a model with the expected form in its prompt is a hint that bypasses grading. «Подсказка» is that, and it is recorded (`usedHint`); the tutor is not recorded and must not become a second door |
+| A chat per card | Rejected — twenty threads a session. One chat per sitting: the first question creates it, the next card's question lands in it, and it is listed on the AI-teacher page like any other |
+
+**Decision.**
+- **«Спросить учителя», key `a`, in the ANSWER phase only**, beside «В корзину». It opens the
+  tutor in the side column the word inspector uses (beside the card on a wide screen, under
+  it on a narrow one). `Esc` closes the panel; an `Esc` the composer keeps (to stop an answer
+  or back out of an edit) is not passed on to the card.
+- **The composer opens with the question written**, in the learner's language, from the
+  card: the direction, the cue, what they typed and what was wanted, the sentence and its
+  translation, the Hungarian in backticks so the lesson is found from it (ADR-029). Three
+  shapes: a wrong typed answer, a right one, and a card that was only shown. Filled, never
+  sent by itself.
+- **One chat per sitting.** `TutorAside.vue` keeps the thread id the first question created
+  and hands it back on the next card; the link on the panel opens the same chat on the
+  AI-teacher page.
+- **The card's keys stay out of the composer.** A key pressed in the tutor's textarea is the
+  composer's (`Enter` sends there, not «Проверить»); the review's handler returns on a
+  textarea target.
+
+**Consequences.**
+- No server change: the aside mounts `TutorConversation` with `fresh` and a new `seed`
+  prop; the thread is a free chat, grounded per question.
+- Nothing the tutor says touches the card: the verdict is already on the screen, and there
+  is still no code path from `tutor_message` to a state space.
+- **Cost:** a wider review layout while the panel is open, and a question template that has
+  to be kept honest as the card gains fields.
+
+---
+
+## ADR-033 — The ear trainer plays words: every minimal-pair member is in the dictionary
+
+**Status:** accepted · 2026-09-03 *(user decision)* · see [R7](research/07-hvpt.md),
+[ADR-010](#adr-010)
+
+**Context.** The first learner on the ear trainer: «как будто таких окончаний слов или слов
+нет». They were right. Twelve of the thirty-two pair members in `langpack/pipeline/minimal_pairs.py`
+were non-words — `hus`, `tur`, `tuz`, `fold`, `sak`, `szák`, `csél`, `hadj`, `ana`, `tuk`,
+`bűsz`, `szok` — glossed «(нет слова)» and presented in a 2AFC trial as the partner of a real
+word. The honesty rules refuse an unattested form as a drill answer everywhere else in the
+app; the ear trainer had been shipping them as stimuli, with a label a learner does not read
+while listening.
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| Keep non-words and label them louder | Rejected — a nonce form teaches a shape the language does not have, and the learner's ear cannot tell which member was the real one. Nonce stimuli are a laboratory convenience, not a course |
+| Drop every contrast that has no real pair | Rejected as the first move — real pairs exist for most: `tok`/`tök`, `sál`/`szál`, `csók`/`sók`, `zsír`/`szír`, `cikk`/`csikk`, `hagy`/`had`, `huzat`/`húzat`, `hurok`/`húrok`, `szurok`/`szűrök`, `szál`/`száll`. Two contrasts (`ny`/`n`, `ty`/`t`) have no attested pair the dictionary carries and are dropped rather than faked |
+| **Real words only, verified by the build against the pack's own `wordform` table** | **Chosen** |
+
+**Decision.**
+- **Every pair member is attested.** `minimal_pairs.unattested(conn)` runs in the full build
+  after the lexicon and in `refresh` before it writes; either refuses the pack and names the
+  form. `validate()` also refuses the «(нет слова)» marker itself. Thirty pairs across
+  sixteen contrasts, all checked against the 2-million-form dictionary.
+- **Clips are named by the word, not the pair id.** `refresh` reassigns ids in list order,
+  and a clip named `5_a_anna_100` was kept — file present, render skipped — for whatever pair
+  5 had become. `clip_name(word, voice, rate)` folds the diacritics for the file system and
+  keeps `kor` and `kór` apart with a hash; a word shared by two pairs (`szír`) is one clip.
+- **Audio rows follow their pair through a refresh.** Old ids are mapped to new by `(a, b)`
+  through negative temporaries; rows of a pair that is gone are dropped. `render` skips only a
+  clip whose row AND file exist.
+- The starter pack and its `media.tar.gz` are rebuilt from a refreshed copy of the full pack
+  and committed ([ADR-010]); the learner's own pack needs `make refresh audio` once.
+
+**Consequences.**
+- The trainer says nothing it did not before; it stops saying `bűsz`.
+- **Cost:** two palatal contrasts fewer, and one more reason the pack build needs the
+  dictionary before the pairs.
+
+---
+
+## ADR-034 — The tutor reads the card: prepared questions are composed by the server, and asking before the answer is a hint
+
+**Status:** accepted · 2026-09-04 *(user decision)* · see [R4](research/04-explicit-instruction.md),
+[R9](research/09-corrective-feedback.md), [R10](research/10-llm-tutors.md),
+[R19 §3](research/19-grounded-tutor.md), [ADR-017](#adr-017), [ADR-027](#adr-027),
+[ADR-032](#adr-032) (superseded in part). 
+
+**Context.** ADR-032 put the tutor one key away from the review card, after the answer, with
+a question the CLIENT composed from the card and filled into the composer. The first learner
+wanted more and different: the button top right, in both phases; **prepared questions** that
+depend on what the card asks — «разбери предложение», «почему эта форма, а не та», «переведи
+слово с примерами» — one click each, answered in a fixed shape; and their own questions too.
+Two things the client-composed seed could not do: it did not know the facts (the feature
+labels, the allomorphs, the pack's translation, the diff's class live on the server, and the
+client may not derive the expected answer — ADR-017), and it offered nothing before the
+answer, where [R9]'s *hint* step lives.
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| Keep composing the question on the client | Rejected — the client has no labels, no allomorphs, no diff class, and no right to the expected answer; every prepared question would be a paraphrase of what the screen shows |
+| Auto-ask on every wrong answer | Rejected — a second model call per miss, and an answer nobody asked for under every card |
+| Offer the tutor before the answer as a free extra | Rejected — a model with the expected form in its prompt is a hint that bypasses grading; «Подсказка» is recorded, and this must be too |
+| A server-side «was the tutor consulted» check on the grading path | Rejected — it would be the first read of a tutor table on the review path, and a tampered client can omit `usedHint` on «Подсказка» just as well |
+| **A structured request; the server composes and withholds; the client records the hint** | **Chosen** |
+
+**Decision.**
+- **`POST /api/tutor/:id {card: {cardId, phase, template?, typed?}, question?, lang}`.** With a
+  template, the server writes the visible question in the learner's language from the card
+  and the pack (`tutor.Compose`); without one, the learner's own text is asked with the card
+  as context. Either way a **«КАРТОЧКА» / "CARD" block** — the sentence with its translation
+  and label, the word and its dictionary form, the glosses, the graded features with the
+  pack's labels and allomorphs, what was typed against what was wanted and the diff's class —
+  goes into the prompt right after the lesson, and the grounding takes the card's own
+  `targetFeats` before any word of the question. Prompt version 4; the reference budget
+  yields room to the card so the total does not grow.
+- **Templates and phases.** Nine templates (`tutor.Templates`): `breakdown`, `whyForm`,
+  `whyNotMine`, `translateWord`, `spelling`, `explainTask` after the answer; `hintForm`
+  (recognize), `hintWord` (produce), `hintRule` (cloze) and `explainTask` before it.
+  `tutor.Allowed` refuses a template outside its phase with 400 — that is what stops a client
+  from asking «почему `házban`» before answering. The client chooses WHICH chips to show
+  from the direction, phase and outcome (UX.md §4); the server decides what may be asked.
+- **A prepared answer has a shape.** Each template appends numbered sections to the question
+  («1. Что такое `X` 2. Почему здесь `Y` 3. В чём разница — назови механизм 4. Два примера»)
+  and switches rule 7's check question off; `whyNotMine`'s section 3 follows the diff's
+  error class (harmony → the stem's class and three suffix variants; `stem` → two different
+  words; …). Free questions keep rule 7.
+- **Before the answer, a question is a hint.** The client sets `usedHint` the moment a
+  question about the card is sent in the question phase — the channel «Подсказка» uses —
+  and `srs.DeriveRating` caps the grade at Hard. The card is NOT revealed: the learner still
+  answers, and the answer is graded and logged. The panel says so before the first question;
+  «Хорошо» and «Легко» carry «засчитается как «Трудно»» and show the Hard preview. The
+  prompt's block **withholds the answer** in that phase — no expected form on a typed card, no
+  dictionary word or sentence on a produce card, no meaning on a receptive one, nothing
+  Hungarian on an audio card — says so first, where a budget cut cannot reach it, and rule 9
+  tells the model to explain the rule and not name it.
+- **One review chat per WORD per local day** *(amended 2026-09-04 — see below; originally one
+  per day)*. `POST /api/tutor {kind: "review", note}` finds that word's chat or creates it;
+  `GET /api/tutor/review?note=` finds it without creating; `tutor_thread.kind` /
+  `tutor_thread.note_id` (migrations `00018`, `00019`) and `tutor_message.card_id /
+  card_phase / template` record what was asked about which card — on the tutor's side only.
+  A review chat is named by its word, written at creation from `note.target_form`, never by
+  a question.
+- **The question limit is characters.** The composer counted characters, the server bytes,
+  and a Russian question of eight hundred letters was refused.
+
+**Consequences.**
+- `handlers_tutor_test.go` pins: the composed question and the CARD block, the grounding from
+  `targetFeats`, the withholding on a produce card, the refusal of a template outside its
+  phase, another learner's card, the day's chat, a thousand Cyrillic characters; and still
+  counts the five tables before and after a question — nothing the tutor says becomes a card.
+- **Cost:** a small model may name the form anyway in the question phase. It is a hint either
+  way: the cap is applied when the question is sent, before any answer arrives.
+- ADR-032's «answer phase only» and its client-composed seed are superseded; its side column
+  and one-chat-per-sitting stand.
+
+**Amendment, 2026-09-04 — the chat is per WORD, not per day** *(user report)*. One chat a day
+sounded like continuity and read as its opposite. The panel opened on whatever was asked
+last, so a learner looking at `Örülök` was shown a paragraph about `jöttél`; and because a
+thread is sent whole, every later question carried that answer into the model's window —
+8 192 tokens, of which one breakdown is ~1 500. The learner's words were «на новом слове
+учитель всё равно показывает старый чат, должен новый».
+
+- `tutor_thread.note_id` (migration `00019`) keys the chat on the NOTE, still within the
+  local day: the same word ten minutes later — its learning step — continues the
+  conversation, and the next word opens an empty one. The day boundary stays, so a chat
+  cannot grow across a week.
+- The word **names** the chat. `title` on a review thread is written at creation from the
+  note, and the rail reads «Повторение · `jöttél`» instead of a column of identical dates;
+  the Hungarian half is a `lang="hu"` span (ADR-036), not an interpolation. Threads from
+  before the migration have `note_id = 0` and no title, and keep the date.
+- The client cannot open the wrong chat by accident: `ReviewView` keeps the id **with** the
+  note it belongs to and reads it back only for that note, so no watcher ordering can leave
+  the previous word's id in the panel's props. `useTutorThread` carries a generation counter
+  for the same reason on the other side — an answer still streaming for the previous word
+  finishes on the server and is stored in the chat it was asked in, and stops writing to the
+  panel; without it the previous word's answer went on streaming into the next word's empty
+  log, under a «Стоп» button belonging to another conversation.
+- **The standing notice and the sources list leave the review panel.** «Объяснение
+  принадлежит модели… Справочный материал» is a paragraph of policy that is read once and is
+  chrome by the tenth card, in a column that has a sentence of room; it stays on the chat
+  screen and under the grammar lesson. Nothing per-answer moves: the model's name, the lesson
+  used, the unattested words, the small-model note and the context meter are on every answer
+  as before, and those are what the honesty rules actually require.
+
+---
+
+## ADR-035 — A translation in the wrong language says so, and the translator is offered wherever one is missing
+
+**Status:** accepted · 2026-09-04 *(user decision)* · see [ADR-014](#adr-014), [ADR-018](#adr-018)
+
+**Context.** The pack translates ~19,600 of its sentences into English and ~3,700 into
+Russian. A Russian-locale learner therefore met English under most cards — printed with no
+label, as if it were the pack's Russian — and the crib's «Перевести предложение» was drawn
+only when NO translation was in hand (`canAsk = !shown && caps.available('mt')`), so the case
+that needed the translator most never offered it. The word inspector's example sentences did
+the same with a third copy of the language-picking rule, and had no translate control at
+all. The learner's report: «нет кнопки перевести вообще». And the crib kept a fetched
+translation across cards — no key, no watcher — so one sentence's Russian could sit under the
+next.
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| Show only the locale's translation; blank otherwise | Rejected — an English line beats no line; it only has to say what it is |
+| Fetch the Russian for every English-only card in the queue | Rejected — the sidecar is never on the review path ([ADR-018]); a fetch is the learner's press |
+| Replace the human English with the machine Russian | Rejected — the human line is the one to trust; the machine's goes under it, labelled |
+| **Label the fallback, offer the translator under it, key the crib to the sentence, one picker everywhere** | **Chosen** |
+
+**Decision.**
+- **One picker.** `lib/gloss.ts` `pickGloss` decides the language and reports the fallback;
+  `pickGlossList` does it for a list, `glossLine` appends the short mark «(англ.)» for a
+  one-line row. The review card, the inspector, the reader's examples, the trash and the
+  words browser all go through it; no view keeps a `ru || en` of its own.
+- **The crib says the language.** `SentenceCrib` takes `isFallback` and prints
+  «(по-английски — русского перевода в пакете нет)» under a pack line in the other language.
+  A pack line still carries no model — a person wrote it.
+- **The translator is offered wherever the learner's language is missing**, including under
+  an English pack line, when `services.mt` is reachable: «Перевести на русский». The machine
+  line is printed BELOW the human one with the model beside it ([ADR-014]); both stay.
+- **The crib is keyed to the card** and resets its fetch when the sentence changes.
+- **The inspector uses the same component** (`size="inline"`) for its example sentences and
+  the same picker for the entry's glosses.
+- The question-phase rule is untouched: no sentence translation before the answer on
+  `recognize`, `listen` and `spell` — it is the answer; `cloze` keeps its crib ([ADR-018]).
+
+**Consequences.**
+- No server change; `POST /api/translate` and its cache already do the work, and the queue
+  still never calls the sidecar (`TestTheQueueNeverCallsTheTranslator`).
+- **Cost:** a second line under many cards. It is the honest one.
+
+---
+
+## ADR-036 — Two faces: a serif for the material and the headings, Inter for the instrument
+
+**Status:** accepted · 2026-09-04 *(user decision)* · see UX.md §14.2, [ADR-004](#adr-004)
+
+**Context.** The first learner's verdict on the look: «очень шаблонный, сгенерённый нейронкой»
+— one sans for everything, grey boxes, the icons everyone has. Asked what would help without
+turning the app bright, they chose typography: a serif with character for the headings and
+for the Hungarian text, which should be larger and warmer; the interface stays as it is.
+Fraunces was the first candidate and was dropped when checked: its subsets are Latin,
+Latin-Extended and Vietnamese — no Cyrillic — so every Russian heading would have fallen back
+to Inter and only the English locale would have got the serif. Literata (Google Fonts, OFL,
+variable, made for reading on screens) has Cyrillic and Latin-Extended, which is what a
+Russian heading and a Hungarian sentence need.
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| Fraunces for the Hungarian only, headings in Inter | Rejected by the user — the headings were the point |
+| Two serifs, Fraunces for Hungarian and Literata for headings | Rejected — two serifs beside each other argue, and ~120 KB more |
+| Load from Google Fonts | Rejected — the shell works with no network; fonts are bundled subsets |
+| Consolidate ten views onto `PageHeader` first | Deferred — ten header layouts differ (actions, intros, stats); the typography goes through one utility instead, and the consolidation stays on the polish list |
+| **Literata for both roles, self-hosted subsets, one lever per role** | **Chosen** |
+
+**Decision.**
+- **Tokens:** `--font-display` and `--font-hungarian` (both Literata Variable, serif fallbacks)
+  beside `--font-sans` (Inter) and `--font-mono` in `assets/tailwind.css`.
+- **Hungarian is marked, never classed.** `lang="hu"` on the element, and one base rule sets
+  the face, `1.0625em` and optical sizing; a nested `lang="hu"` inherits; `input`/`textarea`
+  keep Inter because their diff is set in mono beside them; utilities win, so `font-mono`
+  wells and every `text-*` size stay as authored.
+- **The page title is one utility**, `page-title` (display face, the 30px step, weight 500,
+  no tracking), used by `PageHeader.vue` and every view's `h1`; the wordmarks and the
+  reader's text title use `font-display`.
+- **Self-hosted subsets only** (`assets/fonts.css`): Inter latin, latin-ext, cyrillic,
+  cyrillic-ext; Literata latin, latin-ext, cyrillic. The bare `@fontsource-variable/inter`
+  import pulled Greek and Vietnamese too.
+- **The favicon** is the teal identity (`#00686b`, the light `--primary` as sRGB) with a
+  paper-white serif «ő»; the old one was the abandoned blue.
+
+**Consequences.**
+- The palette and its contrast comments are untouched; weight 500 in the serif is checked
+  in both palettes in the browser.
+- **Cost:** a second family in the bundle. The subset trim on Inter pays for most of it.
+
+## ADR-037 — Decorative line drawings: one colour, folk motifs, on empty screens and at the two doors
+
+**Date:** 2026-09-04 · **Status:** accepted
+
+**Context.** The first learner's verdict on the look was «очень шаблонный, сгенеренный
+нейронкой». Half of that is answered by the typography (ADR-036); the other half is that the
+app had no picture of its own anywhere — the only SVGs in the tree were the favicon and the
+lemma curve. Empty states were a grey icon over a sentence, the done screen a green tick, the
+404 a number. Every one of those is what a scaffold ships.
+
+The constraint is UX.md §14.5: nothing that reads as a reward. And §14.1: the palette is
+measured, and a second colour system on top of it is a second thing to keep in contrast.
+
+| Option | Verdict |
+|---|---|
+| A stock illustration set (unDraw, Humaaans, Storyset) | Rejected — the style is exactly the template the learner recognised, and each set brings its own palette |
+| Coloured blobs / gradients behind headings | Rejected — fights the measured palette; decoration on every screen is chrome, not character |
+| A mascot | Rejected — a face that reacts to your answers is [R16 §3] gamification with a smile |
+| Animated illustrations | Rejected — §14.3's motion budget is for feedback, not for décor |
+| Nothing; typography alone | Considered — but the empty states still say «here is where a list would be» in the voice of a framework |
+| **Five line drawings in the manner of Hungarian folk embroidery, one colour, decorative** | **Chosen** |
+
+**Decision.**
+- **Five motifs**, drawn as paths in `web-ui/src/components/art/`: a **tulip** (the plains'
+  motif), a **pair of birds** over a sprig, a **pomegranate rosette** (the round motif that
+  closes a Matyó border), a **sprig of wheat**, and a horizontal **vine** of leaves and buds
+  for a hem. Kalocsa and Matyó are where the shapes come from; nothing is traced.
+- **One colour, `currentColor`, 1.5 px, no fills.** The same file sits on either palette;
+  the wrapper sets the tone — `muted` (70 % of `--muted-foreground`) by default, `accent`
+  (50 % of `--primary`) where the drawing marks an arrival. Decorative contrast is 2–3:1 on
+  purpose: it must not compete with the sentence beside it.
+- **`aria-hidden`, `focusable="false"`, no animation, under 2 KB a motif.** The words next to
+  a drawing carry the meaning; the accessibility tree is unchanged.
+- **Where:** `Illustration.vue` (`name`, `size`, `tone`) and an `art` prop on `EmptyState`.
+  Placed on the library's two empty states, the trash, the words list, the tutor's history,
+  the review start screen when the whole deck rests, the review done screen, the 404, and
+  under the wordmark at login and setup. **Not** on a `Note` (its colour is the icon's), not on
+  a card, not on the Progress screen, and not in a header on every screen — a vine on every
+  page is chrome again.
+- **Never a metric.** No rings, no flames, no numbers, nothing that fills as you go — §14.5.
+  A drawing changes with the screen, never with the learner's figures.
+
+**Consequences.**
+- Decorative only: nothing to localise, nothing to test for behaviour. The a11y check is that
+  the tree is identical with the drawings present.
+- Both palettes are looked at in the browser before a motif ships; the tone classes are the
+  only place a value could drift.
+- **Cost:** a few kilobytes of inline SVG in the bundle, measured at the build.
+- Documented in UX.md §14.9; CLAUDE.md carries the one-line rule.
+
+## ADR-038 — Ready for a stranger: one voice for failures, a shell that does not flash, docs that describe what ships
+
+**Date:** 2026-09-04 · **Status:** accepted
+
+**Context.** The release checklist for `v1.0.0`, read as someone who has never seen the code
+would read it. What they would have met:
+
+- **Failures in three dialects.** The tutor and translator answer with i18n keys, the older
+  handlers with English prose (`invalid email or password`), and the client mints sentinels for
+  what never reached a handler (`network-unreachable`, `request-failed-503`). Sixteen call
+  sites turned those into text in four different idioms, and four of them printed the sentinel
+  raw. Nothing caught what nobody caught: an unhandled rejection was a silent screen.
+- **A dark install flashed light.** The theme was applied by the store after the bundle ran;
+  `index.html` shipped `class="light"` with no `theme-color`, no description.
+- **Docs describing a different product.** README and UX.md §13 described a PWA with offline
+  review and sync that does not exist; ARCHITECTURE.md said the queue was precached;
+  DEVELOPMENT.md's target table missed six targets and said the pack is built in CI.
+- **Checks that ran only in CI.** Locale parity and the research-citation checks lived inline
+  in `ci.yml`; `make test` ran without the race detector CI runs with. A learner could push a
+  broken locale and learn it from a red badge.
+- **A pipeline that found the wrong Python.** `PYTHON ?= python3`, a venv mentioned only in a
+  comment, `requirements.txt` listing pytest alone; `make refresh` did not exist. The first
+  learner's `make audio` reported `rendered 0` because the system interpreter has no Piper.
+- **A constant in two places.** `MIN_PASSWORD = 10` in two views, mirroring
+  `auth.MinPasswordLength` by hand.
+
+**Decision.**
+- **One function for every failure a learner sees:** `web-ui/src/lib/errors.ts`
+  `describeError`. Keys are looked up; the prose the handlers write for a learner is mapped to
+  a key by its exact wording (a rewording on the server surfaces as an English sentence, never
+  a crash); sentinels go by status (`0` → unreachable, 401 → session ended, 403 → not allowed,
+  429 → too many attempts, ≥ 500 → the server's log); a sentence never seen is shown as the
+  server wrote it, because a validation message beats «что-то пошло не так». The server's
+  wording is NOT changed: its tests match those strings, and the map is the cheaper side.
+- **A global handler** (`main.ts`): `app.config.errorHandler` and `unhandledrejection` both
+  log the stack and toast `describeError`, one toast per sentence per two seconds; a 401 that
+  reaches it clears the session and sends the learner to login with the way back.
+- **The shell before the app:** an inline script in `index.html` applies the stored theme (else
+  the OS preference) and the stored locale to `<html>` before the bundle loads, and sets
+  `theme-color` to the page background of that palette; `stores/ui.ts` keeps doing the same,
+  idempotently, and follows the toggle. A `description` for the tab and for link previews.
+- **Docs say what ships.** Offline is **planned** (UX.md §13, ARCHITECTURE.md, README);
+  the pack is built on a workstation; every `make` target is in the table; the upgrade path for
+  a learner's own pack is written down; the GHCR image is named as something a tag produces.
+- **The checks run locally:** `web-ui/scripts/check-locales.mjs` inside `npm run lint`,
+  `scripts/docs-check.sh` as `make docs-check` inside `make test`, and `ci.yml` calls those
+  scripts rather than carrying a second copy. `GO_TEST_FLAGS` defaults to `-race -count=1`.
+- **The pipeline owns its interpreter:** `make venv` (run by `make deps`) creates
+  `langpack/.venv`, `PYTHON` finds it on its own, `make audio` checks for ffmpeg and Piper
+  before rendering, `make refresh` exists, and `requirements.txt` lists what the targets import
+  (`requirements-build.txt` adds HuSpaCy for the full pack).
+- **Bootstrap carries the password floor** (`minPassword`); the two screens read it.
+
+**Consequences.**
+- The map in `errors.ts` is a list of the server's learner-facing sentences. A new handler
+  message either gets a key on the server (preferred, as the tutor does) or a row here.
+- `make test` needs a C toolchain for `-race`; `GO_TEST_FLAGS=-count=1` is the documented way
+  round it.
+- Offline stays a promise in the docs until its own ADR lands with the code.
+
+---
+
+## ADR-039 — The card says what it takes for a word to stop coming back
+
+**Status:** accepted · 2026-09-04 *(user report)* · see [R14](research/14-motivation.md),
+[R16 §3](research/16-debunked.md), [R18](research/18-session-shape.md),
+[ADR-019](#adr-019), [ADR-021](#adr-021), [ADR-025](#adr-025), [ADR-026](#adr-026)
+
+**Context.** The review card carries a memory row: a stage badge, the last outcomes as ticks
+and crosses, and «эта карточка: верно 3 из 11». Every figure on it is measured (ADR-026), and
+none of it answers the question the first learner actually asked — «не сильно понятно, что
+надо сделать, чтоб слово закончить учить… а что делать, чтоб оно исчезло? Прогресс слова,
+будет он в плюс или минус или как оно считается — всё не ясно.»
+
+Read cold, «верно 0 из 9» over eight crosses looks exactly like a score being lost, and a
+stage called «учу» looks like a level to leave. Neither is true: the tally is the review log,
+the stage is FSRS's own state, and nothing on the row is a threshold. The app was being
+honest and silent at the same time — which, for a learner deciding whether the last ten
+minutes were progress, is the same as being unclear.
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| A progress bar per word — «7 of 10 to learned» | Rejected — there is no such denominator. FSRS has no «N correct» threshold, and inventing one would be a score with a target, which is exactly what [R14] and [R16 §3] rule out |
+| Say it once, in onboarding | Rejected — the question arrives on card 200, not card 1, and nobody re-reads a tour |
+| Put it in the docs and the stage tooltip | Rejected — it IS in the stage tooltip, and the tooltip is why the learner asked. UX.md's own rule: a label that matters is not in a `title=` |
+| **A disclosure on the memory row, closed by default, remembered per device** | **Chosen** |
+
+**Decision.** «что это значит?» sits at the end of the memory row and opens five sentences,
+in `MemoryMeter.vue`, all of them things the app can stand behind:
+
+1. **The stage and what it means** — the badge's own `stageHint`, which until now only
+   existed as a `title=`.
+2. **What happens next**, from the scheduler's own preview: a right answer takes the card out
+   of today's queue and brings it back in ~X; a miss brings it back today in ~Y and shortens
+   what follows. The same figures the grade buttons carry, labelled approximate for the same
+   reason (fuzz is seeded at answer time). Shown only while the card is still asking — after
+   the answer the row beside it prints where the interval actually went — and replaced in
+   free practice by the sentence that matters there: **this schedules nothing** (ADR-019).
+   Never inferred from a missing preview, which would report a server hiccup to the learner
+   as «this changes nothing».
+3. **A card never ends.** It returns ever more rarely — minutes, days, weeks, months, years —
+   and that is what «выучено» means here. There is no state after which the word disappears,
+   and the app says so rather than letting the learner wait for one.
+4. **The tally is a log, not points.** Nothing accumulates and nothing burns; the next
+   interval is worked out from the whole history by the model, and there is no «N in a row».
+   The figures are quoted only once there are any — a first sight of a card reads «впервые»,
+   not «верно 0 из 0».
+5. **The one control that does remove a word: «В корзину»** (`t`) — the whole word, every
+   direction, and not a delete (ADR-025). This is the honest answer to «что делать, чтоб оно
+   исчезло», and it was previously discoverable only as a key on the strip.
+
+Closed by default, remembered in `localStorage` like the set size and the sound: a per-device
+whim, never a setting, and the server never hears of it.
+
+**Consequences.**
+- The panel adds no number, no target and no bar. It is the same class of object as the rest
+  of the row: measured facts and their plain-language meaning. [R14]'s line is where it was.
+- `review.memory.help.*` in both locales; the copy names «В корзину» and the `t` key, so a
+  change to either must change this text too.
+- The stage hints now appear on screen, not only in a tooltip, and are written to be read
+  that way.

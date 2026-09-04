@@ -192,7 +192,7 @@ func TestMasteryReportsAutomationSeparatelyFromAccuracy(t *testing.T) {
 		card = res.Card
 	}
 
-	got, err := e.Mastery(uid, 2500, now.Add(30*time.Hour))
+	got, err := e.Mastery(uid, 2500, 0.90, now.Add(30*time.Hour))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -253,7 +253,7 @@ func TestMasteryReportsNonZeroRetrievabilityAfterAReview(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	got, err := e.Mastery(uid, 2500, now.Add(time.Minute))
+	got, err := e.Mastery(uid, 2500, 0.90, now.Add(time.Minute))
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -33,6 +33,8 @@ known failure modes. Nothing is constructed ad hoc in Go string literals.
 | `correct-writing.md` | Prompt-then-reveal correction + generated drills | [R9](../research/09-corrective-feedback.md) |
 | `roleplay-system.md` | Budapest scenario partner, deliberately imperfect | [R10](../research/10-llm-tutors.md) |
 | `generate-drill.md` | Contrastive items targeting one weak feature | [R1](../research/01-retrieval-practice.md), [R5](../research/05-interleaving.md) |
+| `estimate-level.md` | A text's CEFR level as a labelled second opinion | [R6](../research/06-lexical-coverage.md) |
+| `tutor-system.md` | The grammar tutor: grounded in the pack's lesson and an embedded reference corpus, answers in the learner's language, mints nothing | [R19](../research/19-grounded-tutor.md), [R4](../research/04-explicit-instruction.md) |
 
 ## The hard rule
 

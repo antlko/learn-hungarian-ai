@@ -52,6 +52,20 @@ const meta = computed(() => {
 
 /** An unknown key renders as the key rather than as a blank — a silent gap in
  * the explanation is exactly the failure this badge exists to prevent. */
+/**
+ * The ordering recommendation, if the gate attached one.
+ *
+ * Separate from `reasonText`, which explains the PHASE. Advice and verdict are
+ * different claims: "you are practising this one contrast at a time because
+ * accuracy is 68%" versus "the course order suggests finishing harmony first".
+ * Conflating them is how a suggestion starts reading as a refusal.
+ */
+const adviceText = computed(() => {
+  const d = props.decision
+  if (!d.advice) return ''
+  return te(d.advice) ? t(d.advice, d.adviceArgs ?? {}) : ''
+})
+
 const reasonText = computed(() =>
   te(props.decision.reason)
     ? t(props.decision.reason, props.decision.args ?? {})
@@ -123,11 +137,24 @@ const showBar = computed(
         </p>
       </div>
 
-      <p v-if="!compact" class="text-xs text-muted-foreground">
-        <RouterLink to="/grammar?why=1" class="underline underline-offset-2 hover:text-foreground">
-          {{ $t('gate.why') }}
-        </RouterLink>
-      </p>
+      <!--
+        The ordering recommendation, when there is one. A line of advice, in
+        the muted colour of information rather than the red of a barrier: the
+        topic is open and practisable, and this says what would make it easier.
+      -->
+      <p v-if="adviceText" class="text-xs text-muted-foreground">{{ adviceText }}</p>
+
+      <!--
+        No "why?" link here.
+
+        The badge only ever renders non-compact on the Grammar screen, which
+        already has a working "why?" in its header — so this was a duplicate,
+        and a broken one: it navigated /grammar -> /grammar?why=1, the component
+        did not remount, `start()` never re-ran, and the panel never opened.
+        A control that does nothing is worse than no control, and two controls
+        for one thing is worse than one. The explanation itself stays where it
+        works.
+      -->
     </template>
   </div>
 </template>

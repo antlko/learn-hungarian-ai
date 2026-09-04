@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Note from '@/components/common/Note.vue'
 import DrillItemView from '@/components/grammar/DrillItem.vue'
 import { api } from '@/api'
+import { useCurriculumStore } from '@/stores/curriculum'
 import { useUiStore } from '@/stores/ui'
 import type { DrillAnswerResponse, DrillItem, PlacementResponse } from '@/types'
 
@@ -24,6 +25,7 @@ import type { DrillAnswerResponse, DrillItem, PlacementResponse } from '@/types'
  */
 const router = useRouter()
 const ui = useUiStore()
+const curriculum = useCurriculumStore()
 
 const state = ref<PlacementResponse | null>(null)
 const item = ref<DrillItem | null>(null)
@@ -46,6 +48,21 @@ const topicTitle = computed(() => {
   if (!t) return ''
   return ui.locale === 'ru' ? t.titleRu : t.titleEn
 })
+
+/**
+ * Topic titles for the verdict list.
+ *
+ * The seeds carry a `code` and nothing else, and the list printed it raw:
+ * `definite-conjugation`, `locative-grid`. That is our identifier for the
+ * topic, not its name — and this is the screen that tells a learner where the
+ * app has decided to start them, which is exactly where a slug is least
+ * readable. The DAG is already loaded and already carries both titles.
+ */
+const titleOf = (code: string) => {
+  const t = curriculum.topics.find((x) => x.code === code)
+  if (!t) return code
+  return ui.locale === 'ru' ? t.titleRu : t.titleEn
+}
 
 async function fetchNext() {
   error.value = ''
@@ -108,13 +125,16 @@ async function restart() {
   await fetchNext()
 }
 
-onMounted(fetchNext)
+onMounted(() => {
+  void curriculum.load()
+  void fetchNext()
+})
 </script>
 
 <template>
   <div class="mx-auto flex w-full max-w-2xl flex-col gap-6">
     <header class="flex flex-col gap-2">
-      <h1 class="text-3xl font-semibold tracking-tight">{{ $t('grammar.placement.title') }}</h1>
+      <h1 class="page-title">{{ $t('grammar.placement.title') }}</h1>
       <p class="max-w-prose text-sm leading-relaxed text-muted-foreground">
         {{ $t('grammar.placement.intro') }}
       </p>
@@ -182,7 +202,7 @@ onMounted(fetchNext)
             :key="s.code"
             class="flex items-center justify-between gap-3 border-b border-border-subtle py-1.5 text-sm last:border-0"
           >
-            <span class="font-mono text-xs">{{ s.code }}</span>
+            <span class="min-w-0 flex-1 truncate" :title="s.code">{{ titleOf(s.code) }}</span>
             <span class="text-muted-foreground">
               {{ $t(`gate.phase.${s.phase}`) }}
               <span v-if="s.observations > 0" class="font-mono tabular-nums text-foreground">

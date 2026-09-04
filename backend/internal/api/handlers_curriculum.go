@@ -125,6 +125,11 @@ type DecisionDTO struct {
 	// answers are not evidence, and the bar says so rather than implying it.
 	Ready   bool `json:"ready"`
 	Demoted bool `json:"demoted"`
+	// Advice names what is worth finishing first. A RECOMMENDATION: the topic
+	// is open and practisable either way. Prerequisites stopped being locks
+	// because a floor nobody can cross is a wall — see drill.Decision.Advice.
+	Advice     string            `json:"advice,omitempty"`
+	AdviceArgs map[string]string `json:"adviceArgs,omitempty"`
 }
 
 type ProgressDTO struct {
@@ -162,6 +167,7 @@ func topicDTO(st drill.TopicState) TopicDTO {
 			Current: st.Decision.Current, Target: st.Decision.Target,
 			Observations: st.Decision.Observations, Window: st.Decision.Window,
 			Ready: st.Decision.Ready, Demoted: st.Decision.Demoted,
+			Advice: string(st.Decision.Advice), AdviceArgs: st.Decision.AdviceArgs,
 		},
 		Progress: ProgressDTO{
 			BlockedAccuracy: st.Progress.BlockedAccuracy, BlockedTotal: st.Progress.BlockedTotal,
@@ -314,7 +320,7 @@ func (s *Server) handleTopic(c fiber.Ctx) error {
 		out.Blocking = unmetPrereqs(states, topic)
 	}
 
-	mastery, err := s.engine().Mastery(u.ID, s.Config().Drill.HarmonyLatencyMs, time.Now())
+	mastery, err := s.mastery(u.ID)
 	if err != nil {
 		return err
 	}

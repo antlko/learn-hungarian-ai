@@ -7,6 +7,7 @@ export type Theme = 'dark' | 'light'
 
 const THEME_KEY = 'tanulom.theme'
 const LOCALE_KEY = 'tanulom.locale'
+const SIDEBAR_KEY = 'tanulom.sidebar'
 
 /**
  * Presentation state that belongs to the browser, not the account: theme, the
@@ -23,13 +24,20 @@ export const useUiStore = defineStore('ui', () => {
   const theme = ref<Theme>(readTheme())
   const locale = ref<AppLocale>(readLocale())
   const sound = ref(isSoundEnabled())
-  const sidebarOpen = ref(true)
+  /** The sidebar: expanded or an icon rail. Persisted per device. */
+  const sidebarOpen = ref(readSidebar())
+  /** The off-canvas drawer below `md`. Transient, never persisted. */
+  const mobileNavOpen = ref(false)
 
   function readTheme(): Theme {
     const stored = localStorage.getItem(THEME_KEY)
     if (stored === 'dark' || stored === 'light') return stored
-    // Dark-first, but honour an explicit OS light preference.
-    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+    // Light-first, but honour an explicit OS dark preference.
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  }
+
+  function readSidebar(): boolean {
+    return localStorage.getItem(SIDEBAR_KEY) !== 'collapsed'
   }
 
   function readLocale(): AppLocale {
@@ -41,10 +49,19 @@ export const useUiStore = defineStore('ui', () => {
     const root = document.documentElement
     root.classList.toggle('dark', theme.value === 'dark')
     root.classList.toggle('light', theme.value === 'light')
+    // The browser chrome's colour, the two page backgrounds as sRGB
+    // (assets/tailwind.css); index.html sets the same before the app runs.
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', theme.value === 'dark' ? '#0a0e12' : '#fbfaf7')
   }
 
   function toggleTheme() {
     theme.value = theme.value === 'dark' ? 'light' : 'dark'
+  }
+
+  function toggleSidebar() {
+    sidebarOpen.value = !sidebarOpen.value
   }
 
   function setAppLocale(next: AppLocale) {
@@ -67,6 +84,8 @@ export const useUiStore = defineStore('ui', () => {
     applyTheme()
   })
 
+  watch(sidebarOpen, (open) => localStorage.setItem(SIDEBAR_KEY, open ? 'open' : 'collapsed'))
+
   watch(
     locale,
     (l) => {
@@ -78,5 +97,15 @@ export const useUiStore = defineStore('ui', () => {
 
   applyTheme()
 
-  return { theme, locale, sound, sidebarOpen, toggleTheme, setAppLocale, toggleSound }
+  return {
+    theme,
+    locale,
+    sound,
+    sidebarOpen,
+    mobileNavOpen,
+    toggleTheme,
+    toggleSidebar,
+    setAppLocale,
+    toggleSound,
+  }
 })

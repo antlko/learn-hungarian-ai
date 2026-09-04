@@ -1,0 +1,9 @@
+# Runtime. ctranslate2 carries its own inference engine, so torch is NOT needed
+# to serve — only to convert the model the first time (see Dockerfile).
+ctranslate2==4.5.0
+transformers==4.46.3
+sentencepiece==0.2.0
+protobuf==5.28.3
+fastapi==0.115.6
+uvicorn==0.34.0
+pydantic==2.10.4

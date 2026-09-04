@@ -151,11 +151,21 @@ def build(full: Path, out: Path, *, lemmas: int, sentences: int) -> None:
         dst.execute("CREATE TEMP TABLE course_sentence (id INTEGER)")
 
     dst.execute("CREATE TEMP TABLE keep_sentence AS SELECT id FROM course_sentence")
+    # REDISTRIBUTION BOUNDARY. The starter pack is compiled into a binary we
+    # publish; the full pack is built on the learner's own machine. Tatoeba is
+    # CC BY 2.0 FR and travels freely. OPUS OpenSubtitles is free for research
+    # and universally used, but it is not a licence to embed film dialogue in a
+    # distributed executable, so it stays out of this artefact.
+    #
+    # `source = 'tatoeba'` rather than `source != 'opensubtitles'`: an allow-list
+    # keeps a future source out by default, which is the safe direction for a
+    # test nobody will remember to update.
     dst.execute(
         """
         INSERT INTO keep_sentence
         SELECT s.id FROM full.sentence s
          WHERE s.id NOT IN (SELECT id FROM keep_sentence)
+           AND s.source = 'tatoeba'
            AND NOT EXISTS (
                  SELECT 1 FROM full.sentence_token t
                   WHERE t.sentence_id = s.id
@@ -164,6 +174,12 @@ def build(full: Path, out: Path, *, lemmas: int, sentences: int) -> None:
          LIMIT MAX(0, ? - (SELECT COUNT(*) FROM keep_sentence))
         """,
         (sentences,),
+    )
+    # The course-sentence set above is chosen before this filter, so drop any
+    # non-Tatoeba sentence that arrived through it.
+    dst.execute(
+        "DELETE FROM keep_sentence WHERE id IN "
+        "(SELECT id FROM full.sentence WHERE source <> 'tatoeba')"
     )
     dst.execute("CREATE INDEX temp.idx_keep ON keep_lemma(id)")
 

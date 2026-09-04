@@ -3,16 +3,19 @@ package api
 import (
 	"context"
 	"net/http"
+	"slices"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
 
 	"tanulom/internal/config"
+	"tanulom/internal/llm"
 )
 
-// Capability probing. Optional services (TTS, ASR, NLP, LLM) are probed so the UI
+// Capability probing. Optional services (TTS, ASR, NLP, LLM, MT) are probed so the UI
 // can show their state and disable dependent features with a visible reason.
 //
 // The invariant this supports: the core must remain fully usable with every
@@ -47,10 +50,13 @@ func (s *Server) handleCapabilities(c fiber.Ctx) error {
 		"asr": cfg.Services.ASR,
 		"nlp": cfg.Services.NLP,
 		"llm": cfg.Services.LLM,
+		"mt":  cfg.Services.MT,
 	}
 
-	ctx, cancel := context.WithTimeout(c.Context(), probeTimeout+time.Second)
+	// Two probes in sequence for llm (see probe), so the deadline covers both.
+	ctx, cancel := context.WithTimeout(c.Context(), 2*probeTimeout+time.Second)
 	defer cancel()
+	llmKey := s.llmKey()
 
 	out := make([]CapabilityDTO, 0, len(services))
 	var mu sync.Mutex
@@ -60,7 +66,11 @@ func (s *Server) handleCapabilities(c fiber.Ctx) error {
 		wg.Add(1)
 		go func(name string, svc config.Service) {
 			defer wg.Done()
-			dto := probe(ctx, name, svc)
+			key := ""
+			if name == "llm" {
+				key = llmKey
+			}
+			dto := probe(ctx, name, svc, key)
 			mu.Lock()
 			out = append(out, dto)
 			mu.Unlock()
@@ -73,11 +83,44 @@ func (s *Server) handleCapabilities(c fiber.Ctx) error {
 	return c.JSON(out)
 }
 
+// Details the llm row can carry beyond the shared ones. The client maps them
+// to copy; they are part of the API (docs/API.md).
+const (
+	// detailNoModel: the endpoint answers but the config names no model, so
+	// every request it gets will be refused. Models lists what it serves.
+	detailNoModel = "no model"
+	// detailUnknownModel: the endpoint lists its models and ours is not one.
+	detailUnknownModel = "unknown model"
+)
+
 // probe checks one service. An unconfigured service is not an error — it reports
 // configured=false and the UI simply hides the dependent features.
-func probe(ctx context.Context, name string, svc config.Service) CapabilityDTO {
+//
+// For llm, reachable is not enough: «на связи» on a row whose requests are
+// all refused is the state that stranded the first learner to plug in an
+// Ollama, with a blank model and a tutor saying only «модель не ответила».
+// So a reachable llm endpoint is also asked GET /v1/models — the list goes
+// out for the settings screen to offer, and Detail says when the configured
+// name is blank or not among them. An endpoint that does not serve the list
+// (some llama.cpp builds) is left at reachable: nothing has been verified,
+// and nothing is claimed beyond that.
+func probe(ctx context.Context, name string, svc config.Service, key string) CapabilityDTO {
 	dto := CapabilityDTO{Name: name, Provider: svc.Provider}
-	if svc.Provider == config.ProviderOff || svc.Endpoint == "" {
+	if svc.Provider == config.ProviderOff {
+		dto.Detail = "not configured"
+		return dto
+	}
+	// Device speech runs in the learner's browser. It is configured, and this
+	// process has no way to reach it or to know whether that browser has a
+	// Hungarian voice installed — so it says exactly that and lets the client,
+	// which CAN check, report what it found. Asserting reachability we have
+	// not tested is the one thing this endpoint must not do.
+	if svc.Provider == config.ProviderDevice {
+		dto.Configured = true
+		dto.Detail = "device"
+		return dto
+	}
+	if svc.Endpoint == "" {
 		dto.Detail = "not configured"
 		return dto
 	}
@@ -107,8 +150,28 @@ func probe(ctx context.Context, name string, svc config.Service) CapabilityDTO {
 		dto.Reachable = true
 	} else {
 		dto.Detail = "unhealthy"
+		return dto
+	}
+	if name == "llm" {
+		probeModels(ctx, svc, key, &dto)
 	}
 	return dto
+}
+
+// probeModels fills Models and the model-related Detail on a reachable llm row.
+func probeModels(ctx context.Context, svc config.Service, key string, dto *CapabilityDTO) {
+	reqCtx, cancel := context.WithTimeout(ctx, probeTimeout)
+	defer cancel()
+	models, err := llm.ListModels(reqCtx, svc, key)
+	if err == nil {
+		dto.Models = models
+	}
+	switch {
+	case strings.TrimSpace(svc.Model) == "":
+		dto.Detail = detailNoModel
+	case err == nil && len(models) > 0 && !slices.Contains(models, svc.Model):
+		dto.Detail = detailUnknownModel
+	}
 }
 
 // InvalidateCapabilityCache forces the next probe to run. Called after a settings

@@ -45,6 +45,11 @@ type CardState struct {
 	Lapses        uint64
 	State         int
 	LastReview    time.Time
+	// RemainingSteps is FSRS-6's position within the learning/relearning steps.
+	// It MUST round-trip through storage: dropped, the scheduler sees 0 on every
+	// load and Again/Hard on a Learning card graduates it a day out instead of
+	// repeating the minutes-scale step. Migration 00011, ADR-020.
+	RemainingSteps int
 }
 
 // IsNew reports whether the card has never been reviewed.
@@ -168,27 +173,29 @@ func toFSRS(c CardState, now time.Time) fsrs.Card {
 		due = now
 	}
 	return fsrs.Card{
-		Due:           due,
-		Stability:     c.Stability,
-		Difficulty:    c.Difficulty,
-		ScheduledDays: c.ScheduledDays,
-		Reps:          c.Reps,
-		Lapses:        c.Lapses,
-		State:         fsrs.State(c.State),
-		LastReview:    c.LastReview,
+		Due:            due,
+		Stability:      c.Stability,
+		Difficulty:     c.Difficulty,
+		ScheduledDays:  c.ScheduledDays,
+		Reps:           c.Reps,
+		Lapses:         c.Lapses,
+		State:          fsrs.State(c.State),
+		LastReview:     c.LastReview,
+		RemainingSteps: c.RemainingSteps,
 	}
 }
 
 func fromFSRS(c fsrs.Card) CardState {
 	return CardState{
-		Due:           c.Due,
-		Stability:     c.Stability,
-		Difficulty:    c.Difficulty,
-		ScheduledDays: c.ScheduledDays,
-		Reps:          c.Reps,
-		Lapses:        c.Lapses,
-		State:         int(c.State),
-		LastReview:    c.LastReview,
+		Due:            c.Due,
+		Stability:      c.Stability,
+		Difficulty:     c.Difficulty,
+		ScheduledDays:  c.ScheduledDays,
+		Reps:           c.Reps,
+		Lapses:         c.Lapses,
+		State:          int(c.State),
+		LastReview:     c.LastReview,
+		RemainingSteps: c.RemainingSteps,
 	}
 }
 

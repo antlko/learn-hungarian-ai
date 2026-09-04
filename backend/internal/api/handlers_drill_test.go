@@ -49,13 +49,19 @@ func TestCurriculumStartsAtTheFirstDrillableTopic(t *testing.T) {
 		t.Errorf("reason = %q, want the warm-up reason", acc.Decision.Reason)
 	}
 
-	// Downstream topics are locked, and say which topic is in the way.
+	// A downstream topic is OPEN and carries the ordering advice. It used to be
+	// locked; that wedged a learner behind `vowel-harmony`, a motor skill the
+	// app's own lesson says takes three months, and walled off all of A1.
 	loc, _ := topicByCode(got.Topics, "locative-grid")
-	if loc.Phase != string(drill.Locked) {
-		t.Errorf("locative-grid phase = %q, want locked", loc.Phase)
+	if loc.Phase == string(drill.Locked) {
+		t.Error("an unmet prerequisite must not lock a topic")
 	}
-	if loc.Decision.Args["topic"] != "accusative" {
-		t.Errorf("locked reason must name the blocker, got %v", loc.Decision.Args)
+	if loc.Decision.Advice != string(drill.ReasonPrereq) {
+		t.Errorf("advice = %q, want the prerequisite recommendation", loc.Decision.Advice)
+	}
+	if loc.Decision.AdviceArgs["topic"] != "accusative" {
+		t.Errorf("advice must name the topic worth finishing first, got %v",
+			loc.Decision.AdviceArgs)
 	}
 
 	// [R15]: word order carries an extra listening gate on top of its
@@ -99,8 +105,11 @@ func TestTopicDetailCarriesTheRuleCardInBothLocales(t *testing.T) {
 			t.Errorf("%s: the grid cell is what the 3x3 table renders from", f.ID)
 		}
 	}
-	if len(got.Blocking) == 0 {
-		t.Error("a locked topic must name what is blocking it")
+	// `Blocking` is now only populated by the HARD gates — a failed checkpoint
+	// and the listening volume. An ordering preference rides on the decision's
+	// advice instead, and this topic is open.
+	if got.Topic.Phase == string(drill.Locked) {
+		t.Error("a prerequisite is advice; it must not lock the topic")
 	}
 
 	resp, _ := c.do(http.MethodGet, "/api/curriculum/no-such-topic", nil)
@@ -225,18 +234,26 @@ func peekAnswer(t *testing.T, s *Server, itemID string) (string, string) {
 	return restored[0].ID, item.Expected()
 }
 
-func TestLockedTopicServesNoItemsButExplainsWhy(t *testing.T) {
+func TestOutOfOrderTopicIsPractisableAndSaysSo(t *testing.T) {
 	_, c := newPackedServer(t)
 
+	// A topic whose prerequisites are unmet serves items anyway. The order is
+	// advice — the same thing the course plan has always called it — because a
+	// competence floor a learner cannot cross is a wall, not a floor.
 	var batch DrillNextResponse
 	if resp := c.json(http.MethodGet, "/api/drill/next?topic=locative-grid", nil, &batch); resp.StatusCode != 200 {
 		t.Fatalf("status %d", resp.StatusCode)
 	}
-	if len(batch.Items) != 0 {
-		t.Error("a locked topic must not serve items")
+	if batch.Unavailable != "" {
+		t.Errorf("an out-of-order topic must be practisable, got unavailable=%q",
+			batch.Unavailable)
 	}
-	if batch.Unavailable != string(drill.ReasonPrereq) {
-		t.Errorf("unavailable = %q, want the prerequisite reason", batch.Unavailable)
+	if len(batch.Items) == 0 {
+		t.Error("no items served for an open topic")
+	}
+	if batch.Topic.Decision.Advice != string(drill.ReasonPrereq) {
+		t.Errorf("the recommendation must still be carried, got %q",
+			batch.Topic.Decision.Advice)
 	}
 
 	// An explanation-only topic is a different, equally honest message.

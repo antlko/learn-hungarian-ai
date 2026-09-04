@@ -1,11 +1,40 @@
 <!doctype html>
-<html lang="ru" class="dark">
+<html lang="ru" class="light">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="dark light" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="tanulom — a self-hosted Hungarian trainer that tracks words and grammatical features as two separate memories. Spaced repetition, a reader, a grammar tutor and ear training, on your own machine."
+    />
+    <!-- The two page backgrounds as sRGB, from the oklch tokens in assets/tailwind.css. -->
+    <meta name="theme-color" content="#fbfaf7" />
     <title>tanulom</title>
+    <!--
+      Before the app runs: the theme the learner chose (stores/ui.ts writes it under
+      tanulom.theme), else the OS preference, so a dark install never flashes a light
+      shell while the bundle loads. Same for the interface language on <html lang>.
+      stores/ui.ts applies the same rule again on mount, idempotently.
+    -->
+    <script>
+      ;(function () {
+        try {
+          var t = localStorage.getItem('tanulom.theme')
+          if (t !== 'dark' && t !== 'light') {
+            t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+          }
+          document.documentElement.className = t
+          var m = document.querySelector('meta[name="theme-color"]')
+          if (m) m.setAttribute('content', t === 'dark' ? '#0a0e12' : '#fbfaf7')
+          var l = localStorage.getItem('tanulom.locale')
+          if (l === 'ru' || l === 'en') document.documentElement.lang = l
+        } catch (e) {
+          /* storage may be unavailable; the app applies the theme itself */
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="app"></div>

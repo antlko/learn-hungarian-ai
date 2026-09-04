@@ -161,7 +161,11 @@ func (t Trial) WithPlayed(m string) Trial { t.played = m; return t }
 // The talker floor is checked FIRST and the whole session refused below it,
 // with the numbers in the error — the caller turns that into an honest screen,
 // not a degraded silent session. [R7]
-func (inv *Inventory) SessionPlan(states map[string]ContrastState, trials, minTalkers int, rnd *rand.Rand, now time.Time, sched *srs.Scheduler) ([]Trial, error) {
+// rateJitter is the share of trials served at a slowed rate. The config has
+// promised this dial since the first release (`hvpt.rateJitter: 0.10`) while
+// the plan ignored it and picked among a talker's clips uniformly — half of
+// every session ran slowed, and none of it was the learner's choice.
+func (inv *Inventory) SessionPlan(states map[string]ContrastState, trials, minTalkers int, rateJitter float64, rnd *rand.Rand, now time.Time, sched *srs.Scheduler) ([]Trial, error) {
 	if len(inv.Talkers) < minTalkers {
 		return nil, &TalkerFloorError{Have: len(inv.Talkers), Need: minTalkers}
 	}
@@ -189,7 +193,7 @@ func (inv *Inventory) SessionPlan(states map[string]ContrastState, trials, minTa
 		}
 		talker := inv.Talkers[talkerAt%len(inv.Talkers)]
 		talkerAt++
-		clip, ok := clipFor(inv.Clips[mp.ID][member], talker, rnd)
+		clip, ok := clipFor(inv.Clips[mp.ID][member], talker, rateJitter, rnd)
 		if !ok {
 			continue
 		}
@@ -201,6 +205,51 @@ func (inv *Inventory) SessionPlan(states map[string]ContrastState, trials, minTa
 	return out, nil
 }
 
+// MemberURLs returns both members' clip URLs for one pair, preferring the
+// given talker and rate so the comparison is apples to apples.
+//
+// This exists for the moment AFTER an answer: hearing tör and tőr back to back
+// from the same voice is the corrective feedback the trial itself cannot give
+// (docs/UX.md §7 has promised "both members replayable after the answer" from
+// the start). Before the answer nothing calls this — the played member staying
+// server-side is ADR-008 and stands.
+func (inv *Inventory) MemberURLs(pairID int64, talker string, rate float64) map[string]string {
+	out := map[string]string{}
+	for _, member := range []string{"a", "b"} {
+		clips := inv.Clips[pairID][member]
+		var best *Clip
+		for i := range clips {
+			c := &clips[i]
+			if best == nil {
+				best = c
+				continue
+			}
+			// Same talker beats other talkers; then closest rate wins.
+			bT, cT := best.TalkerID == talker, c.TalkerID == talker
+			if cT != bT {
+				if cT {
+					best = c
+				}
+				continue
+			}
+			if abs(c.Rate-rate) < abs(best.Rate-rate) {
+				best = c
+			}
+		}
+		if best != nil {
+			out[member] = "/media/" + best.Path
+		}
+	}
+	return out
+}
+
+func abs(f float64) float64 {
+	if f < 0 {
+		return -f
+	}
+	return f
+}
+
 // TalkerFloorError carries the numbers the refusal screen needs.
 type TalkerFloorError struct{ Have, Need int }
 
@@ -208,7 +257,7 @@ func (e *TalkerFloorError) Error() string {
 	return fmt.Sprintf("only %d distinct talkers available, %d required", e.Have, e.Need)
 }
 
-func clipFor(clips []Clip, talker string, rnd *rand.Rand) (Clip, bool) {
+func clipFor(clips []Clip, talker string, rateJitter float64, rnd *rand.Rand) (Clip, bool) {
 	var mine []Clip
 	for _, c := range clips {
 		if c.TalkerID == talker {
@@ -216,12 +265,25 @@ func clipFor(clips []Clip, talker string, rnd *rand.Rand) (Clip, bool) {
 		}
 	}
 	if len(mine) == 0 {
-		if len(clips) == 0 {
-			return Clip{}, false
-		}
-		return clips[rnd.Intn(len(clips))], true
+		mine = clips
 	}
-	return mine[rnd.Intn(len(mine))], true
+	if len(mine) == 0 {
+		return Clip{}, false
+	}
+	// Natural tempo is the default; a slowed clip appears with probability
+	// rateJitter. Slowed speech is a scaffold, and a scaffold present half the
+	// time is not a scaffold, it is the terrain.
+	slow := rnd.Float64() < rateJitter
+	var pool []Clip
+	for _, c := range mine {
+		if (c.Rate != 1.0) == slow {
+			pool = append(pool, c)
+		}
+	}
+	if len(pool) == 0 {
+		pool = mine
+	}
+	return pool[rnd.Intn(len(pool))], true
 }
 
 // contrastWeights implements the adaptive selection: a contrast is worth more

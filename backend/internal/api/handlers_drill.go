@@ -188,6 +188,7 @@ func (s *Server) handleDrillAnswer(c fiber.Ctx) error {
 	res, err := engine.Answer(drill.AnswerInput{
 		UserID: u.ID, Item: item, Answer: req.Answer,
 		UsedHint: req.UsedHint, DurationMs: req.DurationMs, Gate: gate,
+		AccentTolerance: s.Config().Review.AccentToleranceEnabled(),
 	}, time.Now())
 	if err != nil {
 		return err
@@ -218,7 +219,7 @@ func (s *Server) handleDrillAnswer(c fiber.Ctx) error {
 		graded[g.FeatureID] = true
 	}
 	if len(graded) > 0 {
-		mastery, err := s.engine().Mastery(u.ID, cfgHarmonyLatency(s), time.Now())
+		mastery, err := s.mastery(u.ID)
 		if err != nil {
 			return err
 		}
@@ -403,3 +404,15 @@ func (s *Server) handlePlacementAction(c fiber.Ctx) error {
 
 // cfgHarmonyLatency is the automaticity budget for motor skills. [R15]
 func cfgHarmonyLatency(s *Server) int { return s.Config().Drill.HarmonyLatencyMs }
+
+// mastery loads the feature heatmap with the thresholds config already defines.
+//
+// Every caller wants the same two: `drill.gateWindow` decides whether a rolling
+// accuracy rests on enough answers to report, and `drill.masteryThreshold`
+// decides whether it counts as held. Reading them here keeps the screen and the
+// scheduler quoting the same numbers.
+func (s *Server) mastery(userID int64) ([]srs.FeatureMastery, error) {
+	cfg := s.Config()
+	return s.engine().Mastery(userID, cfg.Drill.HarmonyLatencyMs, cfg.Drill.MasteryThreshold,
+		time.Now())
+}

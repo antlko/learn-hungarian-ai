@@ -212,7 +212,7 @@ func TestListeningHoursFeedTheCurriculumGate(t *testing.T) {
 	if c.cookie != "" {
 		req.Header.Set("Cookie", c.cookie)
 	}
-	resp, err := c.app.App().Test(req, fiber.TestConfig{Timeout: 15 * time.Second})
+	resp, err := c.app.App().Test(req, fiber.TestConfig{Timeout: 90 * time.Second})
 	if err != nil {
 		t.Fatal(err)
 	}

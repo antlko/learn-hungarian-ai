@@ -1,8 +1,11 @@
 # Build-time only. None of this ships in the application image — the Go binary
 # reads the emitted SQLite pack and needs no Python at runtime (ADR-002).
+#
+# Installed into langpack/.venv by `make deps` (or `make venv`); every pipeline
+# target runs through that interpreter. The stages that read Wiktionary and
+# Tatoeba use only the standard library (urllib, sqlite3, bz2, zipfile).
 pytest>=8.0
-
-# Added as the pipeline stages land:
-# huspacy>=0.13          # hu_core_news_lg: lemma 97.6%, POS 96.7%
-# requests>=2.32         # pinned+checksummed source downloads
-# tqdm>=4.66
+# `make audio` — the ear trainer's clips (python -m piper); ffmpeg encodes them.
+piper-tts>=1.2
+# `make langpack` — the morphological analysis behind the full pack:
+#   pip install -r requirements-build.txt

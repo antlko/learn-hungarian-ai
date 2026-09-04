@@ -48,7 +48,8 @@ func TestReplayReproducesLiveStateExactly(t *testing.T) {
 				replayed.Stability, replayed.Difficulty, live.Stability, live.Difficulty)
 		}
 		if replayed.Reps != live.Reps || replayed.Lapses != live.Lapses ||
-			replayed.State != live.State || replayed.ScheduledDays != live.ScheduledDays {
+			replayed.State != live.State || replayed.ScheduledDays != live.ScheduledDays ||
+			replayed.RemainingSteps != live.RemainingSteps {
 			t.Fatalf("trial %d: counters diverged: %+v vs %+v", trial, replayed, live)
 		}
 		if !replayed.LastReview.Equal(live.LastReview) {
@@ -125,7 +126,7 @@ func TestReplayAllButLastIsUndo(t *testing.T) {
 		t.Fatal(err)
 	}
 	if !undone.Due.Equal(beforeLast.Due) || undone.Stability != beforeLast.Stability ||
-		undone.Reps != beforeLast.Reps {
+		undone.Reps != beforeLast.Reps || undone.RemainingSteps != beforeLast.RemainingSteps {
 		t.Fatalf("undo-by-replay diverged: %+v vs %+v", undone, beforeLast)
 	}
 }

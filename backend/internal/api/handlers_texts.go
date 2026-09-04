@@ -1,6 +1,8 @@
 package api
 
 import (
+	"database/sql"
+	"log/slog"
 	"strconv"
 	"time"
 
@@ -64,12 +66,24 @@ func (s *Server) handleCreateText(c fiber.Ctx) error {
 		return err
 	}
 
-	id, err := mining.NewStore(s.db.DB).Create(u.ID, in, req.SourceURL, stored, cov)
+	store := mining.NewStore(s.db.DB)
+	id, err := store.Create(u.ID, in, req.SourceURL, stored, cov)
 	if err != nil {
 		return err
 	}
+
+	// The level estimate, at ingest, and honestly labelled: heuristic from the
+	// pack's own frequency bands and grammar topics. Unlike coverage it is a
+	// fact about the TEXT, not about the learner, so it is not recomputed on
+	// every open — only backfilled when missing, and never over a manual one.
+	est := mining.EstimateLevel(mining.AsTokenViews(stored), s.levelInputs())
+	if err := store.SetLevel(u.ID, id, est.Level, "heuristic", est.Detail()); err != nil {
+		slog.Warn("could not store level estimate", "text", id, "err", err)
+	}
+
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"id": id, "title": in.Title, "kind": in.Kind, "coverage": cov,
+		"level": est.Level, "levelSource": "heuristic",
 	})
 }
 
@@ -81,6 +95,30 @@ func (s *Server) handleListTexts(c fiber.Ctx) error {
 	texts, err := mining.NewStore(s.db.DB).List(u.ID, 200)
 	if err != nil {
 		return err
+	}
+	// How many words each text has in the deck — one grouped query, so the
+	// library can offer «повторить слова из этого текста» with its number.
+	counts := map[int64]int{}
+	rows, err := s.db.Query(`
+		SELECT o.text_id, COUNT(*)
+		  FROM note_origin o JOIN note n ON n.id = o.note_id
+		 WHERE n.user_id = ? AND n.trashed_at IS NULL
+		 GROUP BY o.text_id`, u.ID)
+	if err != nil {
+		return err
+	}
+	for rows.Next() {
+		var id int64
+		var n int
+		if err := rows.Scan(&id, &n); err != nil {
+			rows.Close()
+			return err
+		}
+		counts[id] = n
+	}
+	rows.Close()
+	for i := range texts {
+		texts[i].NoteCount = counts[texts[i].ID]
 	}
 	return c.JSON(fiber.Map{"texts": texts})
 }
@@ -118,6 +156,9 @@ func (s *Server) handleGetText(c fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	if err := s.repairSentences(store, id, text.Body, tokens); err != nil {
+		return err
+	}
 
 	cov, err := s.coverageFor(u.ID, mining.AsTokenViews(tokens))
 	if err != nil {
@@ -127,6 +168,16 @@ func (s *Server) handleGetText(c fiber.Ctx) error {
 	_ = store.UpdateCoverage(u.ID, id, cov)
 	_ = store.MarkRead(u.ID, id, time.Now())
 
+	// Texts that predate the estimator get their level on first open — ONCE.
+	// A text's level is a fact about the text, not a moving target like
+	// coverage, and a stored 'manual' verdict is never touched.
+	if text.LevelSource == "" {
+		est := mining.EstimateLevel(mining.AsTokenViews(tokens), s.levelInputs())
+		if err := store.SetLevel(u.ID, id, est.Level, "heuristic", est.Detail()); err == nil {
+			text.Level, text.LevelSource, text.LevelDetail = est.Level, "heuristic", est.Detail()
+		}
+	}
+
 	known, err := srs.NewStore(s.db.DB).KnownLemmaIDs(u.ID)
 	if err != nil {
 		return err
@@ -135,6 +186,7 @@ func (s *Server) handleGetText(c fiber.Ctx) error {
 	for lemmaID, status := range known {
 		knownStr[strconv.FormatInt(lemmaID, 10)] = status
 	}
+	text.NoteCount, _ = srs.NewStore(s.db.DB).TextNoteCount(u.ID, id)
 
 	return c.JSON(TextDetail{
 		Text: text, Tokens: tokens, Coverage: cov, Verdict: cov.Judge(),
@@ -250,8 +302,7 @@ func toStoredTokens(tokens []morph.AnalyzedToken, sentences []morph.Sentence) []
 // Loaded once per request rather than queried per token: a long article has
 // thousands of tokens and only a few dozen distinct features.
 func (s *Server) knownFeatureFn(userID int64, threshold float64) (func(string) bool, error) {
-	engine := s.engine()
-	mastery, err := engine.Mastery(userID, s.Config().Drill.HarmonyLatencyMs, time.Now())
+	mastery, err := s.mastery(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -297,6 +348,41 @@ func (s *Server) miningContext(userID int64) (mining.Context, mining.Params, err
 	return ctx, miningParams(cfg), nil
 }
 
+// levelInputs assembles the CEFR estimator's pack lookups (ADR-023).
+//
+// The band per lemma is the pack's own `lemma.cefr` — frequency.py's ONE band
+// table; drill/generate.go's bandFor is a different dial for a different job
+// and is deliberately not consulted here. The grammar map is built once from
+// the curriculum DAG: a feature taught by two topics belongs to the EARLIER
+// one, because meeting it in a text only proves the earlier topic's ground.
+func (s *Server) levelInputs() mining.LevelInputs {
+	byFeature := map[string]string{}
+	if s.dag != nil {
+		for _, t := range s.dag.Topics() {
+			for _, f := range t.FeatureIDs {
+				if cur, ok := byFeature[f]; !ok || mining.CEFRBefore(t.Level, cur) {
+					byFeature[f] = t.Level
+				}
+			}
+		}
+	}
+	cache := map[int64]string{}
+	return mining.LevelInputs{
+		CEFRForLemma: func(id int64) string {
+			if v, ok := cache[id]; ok {
+				return v
+			}
+			var cefr sql.NullString
+			if s.pack != nil {
+				_ = s.pack.DB().QueryRow(`SELECT cefr FROM lemma WHERE id = ?`, id).Scan(&cefr)
+			}
+			cache[id] = cefr.String
+			return cefr.String
+		},
+		TopicLevelFor: func(f string) string { return byFeature[f] },
+	}
+}
+
 // frequencyRankFn looks a lemma's rank up in the pack, with a small cache: the
 // scorer asks about the same handful of unknown lemmas repeatedly.
 func (s *Server) frequencyRankFn() func(int64) int {
@@ -336,4 +422,43 @@ func miningParams(cfg config.Config) mining.Params {
 			Duplicate: cfg.Mining.Weights.Duplicate,
 		},
 	}
+}
+
+// repairSentences brings a stored text's sentence boundaries up to date.
+//
+// Boundaries are computed once, at ingest, and a text added before a fix to the
+// splitter keeps the old ones — so a heading went on being welded to the
+// sentence below it, and every card mined from that text carried the join. The
+// reader is where the damage shows and where the body is already in hand, so
+// the repair happens here rather than asking the learner to re-add a library.
+//
+// Cheap enough to run on every open: this is pure string work — Tokenize and
+// SplitSentences never touch the pack — and after the first pass it writes
+// nothing. Best-effort by design: a text that cannot be repaired is still a
+// text worth reading, so a failure is logged rather than served as an error.
+func (s *Server) repairSentences(store *mining.Store, textID int64, body string, tokens []mining.StoredToken) error {
+	if body == "" || len(tokens) == 0 {
+		return nil
+	}
+	fresh := morph.Tokenize(body)
+	// A disagreement about the TOKENS is not something to paper over: the
+	// offsets stored beside them are what notes point at.
+	if len(fresh) != len(tokens) {
+		return nil
+	}
+	want := make([]int, len(fresh))
+	for si, sent := range morph.SplitSentences(body, fresh) {
+		for i := sent.Start; i < sent.End && i < len(want); i++ {
+			want[i] = si
+		}
+	}
+	n, err := store.ResplitSentences(textID, tokens, want)
+	if err != nil {
+		slog.Warn("could not repair sentence boundaries", "text", textID, "err", err)
+		return nil
+	}
+	if n > 0 {
+		slog.Info("repaired sentence boundaries", "text", textID, "tokens", n)
+	}
+	return nil
 }

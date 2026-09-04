@@ -59,6 +59,11 @@ retention.** The immediate effect is robust; durability is the weak point of the
    in isolation.
 6. **Failed phonemes from the Speak trainer enqueue HVPT trials** for the matching contrast —
    see [R8](08-capt-asr.md).
+7. **Both members of a pair are words** (2026-09-03, [ADR-033](../DECISIONS.md#adr-033)). The
+   inventory shipped a dozen nonce partners («(нет слова)») and the first learner heard them as
+   "words that don't exist" — which they were. The build refuses a member the pack's own
+   dictionary does not carry; contrasts with no attested pair (`ny`/`n`, `ty`/`t`) are dropped
+   rather than faked.
 
 ## Hungarian contrast inventory
 

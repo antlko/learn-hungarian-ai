@@ -47,6 +47,8 @@ In Vue, the same convention in a `<!-- -->` or `//` comment above the component 
 | R15 | [15-hungarian-difficulty.md](15-hungarian-difficulty.md) | What is actually hard about Hungarian, with error distributions | Medium |
 | R16 | [16-debunked.md](16-debunked.md) | Things we deliberately do NOT build | **High** |
 | R17 | [17-hungarian-nlp-stack.md](17-hungarian-nlp-stack.md) | The Hungarian NLP/speech resources this app is built on | n/a (engineering) |
+| R18 | [18-sessions-and-progress.md](18-sessions-and-progress.md) | Relearn to one correct recall per sitting; near goals sustain effort; measured progress is feedback, points are rewards | Medium |
+| R19 | [19-grounded-tutor.md](19-grounded-tutor.md) | A small model explains grammar acceptably only when grounded, short-context and labelled | Medium-Low |
 
 ## Confidence scale
 

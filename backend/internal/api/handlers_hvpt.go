@@ -61,7 +61,8 @@ func (s *Server) handleHVPTSession(c fiber.Ctx) error {
 	}
 
 	trials, err := s.hvptInv.SessionPlan(states, cfg.HVPT.TrialsPerSession,
-		cfg.HVPT.MinTalkers, rand.New(rand.NewSource(time.Now().UnixNano())),
+		cfg.HVPT.MinTalkers, cfg.HVPT.RateJitter,
+		rand.New(rand.NewSource(time.Now().UnixNano())),
 		time.Now(), s.engine().Scheduler())
 	var floor *hvpt.TalkerFloorError
 	if errors.As(err, &floor) {
@@ -93,11 +94,17 @@ type HVPTAnswerRequest struct {
 }
 
 // HVPTAnswerResponse reveals the played member AFTER the choice.
+//
+// AudioA/AudioB are both members' clips from the trial's own talker, so the
+// learner can hear the two words back to back — the comparison is the
+// corrective feedback, and it is only available once the answer is in.
 type HVPTAnswerResponse struct {
 	Correct  bool    `json:"correct"`
 	Played   string  `json:"played"`
 	Accuracy float64 `json:"accuracy"`
 	Total    int     `json:"total"`
+	AudioA   string  `json:"audioA,omitempty"`
+	AudioB   string  `json:"audioB,omitempty"`
 }
 
 func (s *Server) handleHVPTAnswer(c fiber.Ctx) error {
@@ -125,9 +132,11 @@ func (s *Server) handleHVPTAnswer(c fiber.Ctx) error {
 		return err
 	}
 	s.recordInteraction(u.ID, "trial", req.RtMs)
+	urls := s.hvptInv.MemberURLs(trial.Pair.ID, trial.TalkerID, trial.Rate)
 	return c.JSON(HVPTAnswerResponse{
 		Correct: correct, Played: trial.Played(),
 		Accuracy: cs.Accuracy, Total: cs.Total,
+		AudioA: urls["a"], AudioB: urls["b"],
 	})
 }
 

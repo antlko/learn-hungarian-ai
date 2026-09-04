@@ -11,6 +11,12 @@ import (
 	"syscall"
 	"time"
 
+	// The runtime image is distroless and ships no zoneinfo, so without this the
+	// TZ environment variable is silently ignored and every "today" — the daily
+	// new-card budget, sibling burial, the streak day — rolls at UTC midnight.
+	// Embedding the database makes TZ work everywhere the binary runs.
+	_ "time/tzdata"
+
 	"github.com/gofiber/fiber/v3"
 
 	"tanulom/internal/api"

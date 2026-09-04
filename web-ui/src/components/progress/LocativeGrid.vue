@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { FeatureMastery, MorphFeature } from '@/types'
+
+const { t } = useI18n()
 
 /**
  * The 3×3 locative grid, coloured by mastery.
@@ -15,26 +18,57 @@ const props = defineProps<{ features: MorphFeature[]; mastery: FeatureMastery[] 
 const rows = ['interior', 'surface', 'proximity'] as const
 const cols = ['where', 'whither', 'whence'] as const
 
+/**
+ * One cell.
+ *
+ * Three states, and the difference between them is the whole point: a suffix
+ * you have answered well, a suffix you have met but not enough times to draw a
+ * number from, and a suffix you have never met. The grid used to print an em
+ * dash for the last two alike, so seven of nine cells read as broken rather
+ * than as untouched — which was the true and much less alarming answer.
+ *
+ * The measure is the rolling accuracy, matching the heatmap beside it; it used
+ * to be FSRS retrievability, which says how recently you revised rather than
+ * how well you know it.
+ */
+interface Cell {
+  suffix: string
+  id: string
+  /** Null when the learner has never met this feature at all. */
+  mastery: FeatureMastery | null
+}
+
 const cells = computed(() => {
   const m = new Map(props.mastery.map((x) => [x.featureId, x]))
-  const out = new Map<string, { suffix: string; r: number | null; id: string }>()
+  const out = new Map<string, Cell>()
   for (const f of props.features) {
     if (!f.grid) continue
-    const state = m.get(f.id)
     out.set(f.grid, {
       suffix: Object.values(f.allomorphs).filter(Boolean)[0] ?? '',
-      r: state ? state.retrievability : null,
       id: f.id,
+      mastery: m.get(f.id) ?? null,
     })
   }
   return out
 })
 
-function tone(r: number | null) {
-  if (r === null) return 'border-border bg-muted/20 text-muted-foreground'
-  if (r >= 0.8) return 'border-known/40 bg-known/15 text-known'
-  if (r >= 0.5) return 'border-learning/40 bg-learning/15 text-learning'
-  return 'border-error/40 bg-error/15 text-error'
+const cell = (r: string, c: string): Cell | undefined => cells.value.get(`${r}/${c}`)
+
+function tone(x: Cell | undefined) {
+  if (!x?.mastery) return 'border-border bg-muted/20 text-muted-foreground'
+  // Not enough answers is a state of its own, and it is drawn as one: a dashed
+  // outline, no fill, no colour it has not earned.
+  if (!x.mastery.ready) return 'border-dashed border-border bg-transparent text-muted-foreground'
+  return x.mastery.weak
+    ? 'border-learning/40 bg-learning/15 text-learning'
+    : 'border-known/40 bg-known/15 text-known'
+}
+
+/** What the second line of a cell says. Never a percentage we cannot support. */
+function figure(x: Cell | undefined): string {
+  if (!x?.mastery) return t('progress.neverMet')
+  if (!x.mastery.ready) return t('progress.answers', { n: x.mastery.observations })
+  return `${Math.round(x.mastery.accuracy * 100)}%`
 }
 </script>
 
@@ -56,17 +90,13 @@ function tone(r: number | null) {
         <td v-for="c in cols" :key="c">
           <div
             class="rounded-md border px-2 py-2 text-center"
-            :class="tone(cells.get(`${r}/${c}`)?.r ?? null)"
-            :title="cells.get(`${r}/${c}`)?.id"
+            :class="tone(cell(r, c))"
+            :title="cell(r, c)?.id"
           >
-            <div class="font-mono" lang="hu">-{{ cells.get(`${r}/${c}`)?.suffix || '?' }}</div>
-            <div class="text-[10px] opacity-75">
-              {{
-                cells.get(`${r}/${c}`)?.r === null || cells.get(`${r}/${c}`) === undefined
-                  ? '—'
-                  : Math.round((cells.get(`${r}/${c}`)!.r as number) * 100) + '%'
-              }}
+            <div v-if="cell(r, c)?.suffix" class="font-mono" lang="hu">
+              -{{ cell(r, c)!.suffix }}
             </div>
+            <div class="text-[10px] opacity-75">{{ figure(cell(r, c)) }}</div>
           </div>
         </td>
       </tr>

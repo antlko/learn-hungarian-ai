@@ -125,6 +125,58 @@ func TestProgressLedgerStreakAndCheckpoints(t *testing.T) {
 	_ = stats.Specs
 }
 
+// The unwinnable-streak regression (ADR-021). due_left used to store the raw
+// due-card count, which included the siblings burial had hidden until
+// tomorrow: a learner whose words carry more than one due card could answer
+// everything the app would ever show and never satisfy Day.Met's
+// `DueLeft == 0`. Clearing the SERVED queue must drive the obligation to zero,
+// with the hidden sibling reported as buried rather than as unmet debt.
+func TestClearingTheServedQueueMeetsTheDueObligation(t *testing.T) {
+	_, c := newPackedServer(t)
+	created := noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
+
+	// Two directions of one word, both genuinely due since yesterday.
+	if _, err := c.app.db.Exec(`
+		UPDATE card SET state=2, due='2020-01-01T00:00:00.000Z', stability=5,
+		       difficulty=5, reps=2, last_review='2020-01-01T00:00:00.000Z'
+		 WHERE id IN (SELECT id FROM card WHERE note_id = ? LIMIT 2)`,
+		created.NoteID); err != nil {
+		t.Fatal(err)
+	}
+
+	var queue QueueResponse
+	c.json(http.MethodGet, "/api/review/queue", nil, &queue)
+	if queue.Counts.Due != 1 {
+		t.Fatalf("two due cards of one word must read as 1 to do, got %d", queue.Counts.Due)
+	}
+	served := 0
+	for _, it := range queue.Items {
+		if it.IsNew {
+			continue
+		}
+		served++
+		c.json(http.MethodPost, "/api/review/answer", AnswerRequest{
+			CardID: it.CardID, Rating: 3, DurationMs: 4000,
+		}, nil)
+	}
+	if served != 1 {
+		t.Fatalf("session served %d due cards, want 1 after burial", served)
+	}
+
+	var ov OverviewResponse
+	c.json(http.MethodGet, "/api/stats/overview", nil, &ov)
+	if ov.Today.DueLeft != 0 {
+		t.Errorf("due_left = %d after clearing the served queue — the streak is unwinnable again",
+			ov.Today.DueLeft)
+	}
+	if ov.Queue.DueNow != 0 {
+		t.Errorf("overview dueNow = %d, want 0", ov.Queue.DueNow)
+	}
+	if ov.Queue.BuriedToday != 1 {
+		t.Errorf("the hidden sibling must be reported as buried, got %d", ov.Queue.BuriedToday)
+	}
+}
+
 // seedLemmas marks n pack lemmas as learning via the knowledge endpoint's
 // bulk behaviour — direct SQL, because the fixture pack has only 7 lemmas.
 func seedLemmas(t *testing.T, c *client, n int) {

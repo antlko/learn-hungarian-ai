@@ -103,6 +103,19 @@ func fold(s string, table map[rune]rune) string {
 func stripLength(s string) string { return fold(s, lengthPairs) }
 func stripVowels(s string) string { return fold(s, qualityPairs) }
 
+// AccentOnly reports whether the answer equals the target up to vowel length
+// or rounding — the diacritics, i.e. exactly what a plain English keyboard
+// cannot type.
+//
+// This is the predicate behind the accent-tolerance setting. It lives here,
+// beside the folds that define it, so "accepted without accents" can never
+// drift from what the diff itself calls a length or quality error. Note what it
+// does NOT do: it accepts nothing itself. Whether an accent-only answer passes
+// is policy, decided by the caller from config — the diff only states the fact.
+func (d Diff) AccentOnly() bool {
+	return !d.Match && (d.Class == ErrVowelLength || d.Class == ErrVowelQuality)
+}
+
 // DiffForms compares a typed answer with the expected form.
 //
 // The analyzer is optional: without a language pack the diff still reports

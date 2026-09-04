@@ -27,3 +27,29 @@ export function pickGloss(
   const [primary, secondary] = locale === 'ru' ? [ru, en] : [en, ru]
   return { text: primary || secondary || '', isFallback: !primary && !!secondary }
 }
+
+/** A list of glosses, the same way: the locale's list, else the other one, labelled. */
+export function pickGlossList(
+  ru: string[] | null | undefined,
+  en: string[] | null | undefined,
+  locale: AppLocale,
+): { list: string[]; isFallback: boolean } {
+  const [primary, secondary] = locale === 'ru' ? [ru, en] : [en, ru]
+  if (primary?.length) return { list: primary, isFallback: false }
+  return { list: secondary ?? [], isFallback: !!secondary?.length }
+}
+
+/**
+ * A gloss for a one-line list row, with the short fallback mark appended when
+ * it is in the other language — «(англ.)» beside an English gloss on a Russian
+ * screen. The mark is text, not colour, so a row reads right in a list.
+ */
+export function glossLine(
+  ru: string | null | undefined,
+  en: string | null | undefined,
+  locale: AppLocale,
+  mark: string,
+): string {
+  const g = pickGloss(ru, en, locale)
+  return g.isFallback && g.text ? `${g.text} ${mark}` : g.text
+}

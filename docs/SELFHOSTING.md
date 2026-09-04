@@ -9,7 +9,7 @@ docker run -d --name tanulom \
   -p 8012:8012 \
   -v tanulom-data:/data \
   --restart unless-stopped \
-  ghcr.io/antlko/tanulom:latest
+  ghcr.io/antlko/learn-hungarian-ai:latest
 ```
 
 Open **http://localhost:8012** and create your account. **Nothing is downloaded**: the binary
@@ -17,10 +17,27 @@ carries a starter language pack and installs it into `/data` on first boot, audi
 252 MB full pack is an upgrade you build yourself with `make langpack` — offered, never
 required. See [ADR-010](../.claude/DECISIONS.md#adr-010).
 
+> **Until the first `v*` tag is pushed there is no image at that address.** `docker-publish.yml`
+> runs the CI gate against the tagged commit and then builds `amd64` and `arm64` into GHCR, so
+> a failing test publishes nothing; before the first tag, build it yourself from a clone —
+> `docker build -t tanulom .` — and use `tanulom` in place of the GHCR name above. The package
+> also has to be made public once in the GitHub UI, or pulls from another machine are refused.
+
+### The first run
+
+The first page is the setup wizard: it creates the administrator account (password floor of
+ten characters — a length, not a composition rule) and asks for the interface language and the
+gloss language. Everything lives under the one volume: `tanulom.db` (accounts, progress, review
+log), `config.yaml`, `langpack-hu-v1.sqlite` (the read-only pack; the starter edition is installed on
+first boot and Settings says which edition you have) and `media/` (the ear trainer's clips).
+Back up the volume and you have backed up everything; there is no separate export
+([ADR-011](../.claude/DECISIONS.md#adr-011)).
+
 ## Docker Compose, with optional services
 
 ```bash
 docker compose up -d                                   # core only
+docker compose --profile mt up -d                      # + sentence translation
 docker compose --profile speech up -d                  # + Piper TTS + Whisper ASR
 docker compose --profile nlp --profile speech up -d    # + HuSpaCy
 docker compose --profile llm up -d                     # + Ollama
@@ -29,12 +46,50 @@ docker compose --profile llm up -d                     # + Ollama
 | Profile | Adds | Rough footprint |
 |---|---|---|
 | *(none)* | SRS, reader, grammar, HVPT, listening, progress | ~40 MB image |
+| `mt` | Hungarian → Russian/English sentence translation in the reader | ~600 MB model, 200–400 MB resident |
 | `nlp` | context-aware analysis of arbitrary text | ~1.5 GB |
 | `speech` | card audio, dictation checking, pronunciation scoring | ~3 GB |
 | `llm` | local tutor and roleplay | ~5 GB+ depending on model |
 
+**Set the profiles once.** Typing `--profile mt` on every command is a thing you will forget on
+a redeploy, and forgetting it silently takes the translator away — the app then correctly
+reports it as unreachable, which reads like a fault. Copy `.env.example` to `.env` beside the
+compose file:
+
+```bash
+COMPOSE_PROFILES=mt
+```
+
+and plain `docker compose up -d` brings it up with everything else.
+
+### The translator, after that first command
+
+Everything else is in **Settings → Services**, and you should not need to come back here:
+
+- The row says which of four things is true — not configured, not answering, downloading the
+  model, or ready — instead of one flat «no connection» for the last three. A failed download
+  prints the service's own reason.
+- **Скачать модель / Download the model** starts the fetch, or retries one that died. No
+  container restart, no SSH.
+- The provider `<Select>` is the on/off switch; turning it off hides every translate control in
+  the app.
+
+The model (~2.4 GB to fetch, ~600 MB converted) lives in the `tanulom-mt` volume, so an image
+rebuild does not throw it away. What the app **cannot** do is start the container — it has no
+shell and no Docker socket, and giving a web app the socket would hand it root on your host.
+That is why the first command above is still a command. [ADR-015](../.claude/DECISIONS.md#adr-015)
+
+Not using Docker? `make mt` creates the venv and runs the service on `:5003` natively.
+
 **The core is complete without any of them.** Optional services are probed at runtime; features
 that need an unreachable one are visibly disabled with a reason, never silently missing.
+
+## Timezone
+
+Set `TZ` (any IANA name, e.g. `Europe/Budapest`) on the `tanulom` service. "Today" — the daily
+new-card budget, sibling burial, the streak day — rolls over at local midnight; without `TZ`
+the container runs on UTC, so for a learner at UTC+2 the day flips at 02:00. The binary embeds
+tzdata, so this works even though the distroless image ships no zoneinfo.
 
 Instead of the `llm` profile you can point at any OpenAI-compatible endpoint in
 Settings → Services. Keys are stored in SQLite, never in `config.yaml`.

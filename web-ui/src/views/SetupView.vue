@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
 import { ArrowLeft, Check } from '@lucide/vue'
+import { describeError } from '@/lib/errors'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,17 +11,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import Note from '@/components/common/Note.vue'
 import LocaleToggle from '@/components/common/LocaleToggle.vue'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
-import { ApiError } from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
+import { Illustration } from '@/components/art'
 import { APP_NAME, APP_TAGLINE_KEY } from '@/lib/brand'
 
-const MIN_PASSWORD = 10
 
 const auth = useAuthStore()
+/** The server's floor, reported by /api/bootstrap; it is the only enforcer. */
+const MIN_PASSWORD = computed(() => auth.bootstrap?.minPassword ?? 10)
 const ui = useUiStore()
 const router = useRouter()
-const { t } = useI18n()
 
 const email = ref('')
 const password = ref('')
@@ -63,7 +63,7 @@ async function submit() {
     // form for them actually lives, rather than being told to go and find it.
     router.push({ name: speech.value === 'now' ? 'settings' : 'today' })
   } catch (e) {
-    error.value = e instanceof ApiError ? translateError(e.message) : t('errors.generic')
+    error.value = describeError(e)
     // A rejected account is a step-1 problem; step 2 would hide the message.
     step.value = 1
   } finally {
@@ -72,12 +72,7 @@ async function submit() {
 }
 
 // Server messages are already human-readable; only our own sentinel codes need
-// mapping to a localised string.
-function translateError(message: string) {
-  const known = ['network-unreachable', 'unexpected-response']
-  return known.includes(message) ? t(`errors.${message}`) : message
-}
-</script>
+// mapping to a localised string.</script>
 
 <template>
   <div class="grid min-h-dvh place-items-center px-4 py-10">
@@ -90,8 +85,9 @@ function translateError(message: string) {
       <CardHeader class="gap-2">
         <div class="flex items-baseline justify-between gap-3">
           <div class="flex flex-col">
-            <span class="text-2xl font-semibold tracking-tight">{{ APP_NAME }}</span>
+            <span class="font-display text-2xl font-medium">{{ APP_NAME }}</span>
             <span class="text-xs text-muted-foreground">{{ $t(APP_TAGLINE_KEY) }}</span>
+            <Illustration name="vine" tone="accent" class="mt-2" />
           </div>
           <!-- Two steps, and which one you are on: a wizard that does not say
                how long it is reads as open-ended. -->

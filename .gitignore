@@ -45,6 +45,7 @@ langpack/voices/*.onnx
 # ── language pack build artefacts ─────────────────────────────
 langpack/cache/
 langpack/.venv/
+services/mt/.venv/
 langpack/build/
 /dist/
 __pycache__/
@@ -80,3 +81,6 @@ config.local.yaml
 # this file, the placeholder never got committed, and a fresh clone could not
 # `go build` at all. `web-ui/dist/` above already covers the SPA build.
 /dist/
+
+# The tutor corpus build downloads its sources here; the outputs are committed.
+langpack/cache/tutor/

@@ -21,11 +21,15 @@ The `Makefile` at the repo root drives both toolchains together. **Docker is not
 of it** — only for building the published image. `make` on its own prints every target:
 
 ```bash
-git clone https://github.com/antlko/tanulom.git
+git clone https://github.com/antlko/learn-hungarian-ai.git
 cd tanulom
-make deps    # go mod download + npm ci + the pipeline's Python requirements
+make deps    # go mod download + npm ci + the pipeline's requirements into langpack/.venv
 make dev     # backend and Vite together, in the foreground
 ```
+
+**After every `git pull`, `make build`** (or `make run`). The binary you are running embeds the
+SPA it was built with: a fix that is in the tree and not in `bin/tanulom` is invisible, and
+reads as "the button is still not there".
 
 | Target | What it does |
 |---|---|
@@ -34,15 +38,25 @@ make dev     # backend and Vite together, in the foreground
 | `make spa` | Builds the SPA and embeds it into `backend/internal/web/dist`. |
 | `make build` | `spa`, then the static `CGO_ENABLED=0` binary into `bin/tanulom`. |
 | `make run` | `build`, then serves UI + API from that one binary against `./data`. |
-| `make test` | Everything CI gates on: Go vet/build/test, then type-check, lint, SPA build. |
+| `make test` | Everything CI gates on: Go vet/build/test with `-race`, then type-check, lint (locale parity included), SPA build, then `docs-check`. |
+| `make docs-check` | Research citations resolve, every note states its code impact, both locales carry the same keys. `scripts/docs-check.sh`. |
 | `make test-backend` / `make test-frontend` | Either half. |
 | `make lint` / `make fmt` | gofmt + `go vet` + oxlint/eslint; or rewrite in place. |
 | `make langpack` | Rebuilds `data/langpack-hu-v1.sqlite` (see the caveats below). |
+| `make refresh-curriculum` (alias `make refresh`) | Rewrites the lessons, features, minimal pairs and course in an existing pack. Seconds, no downloads. Stop the server first. |
+| `make audio` | Renders the ear trainer's clips into `data/media/hvpt` with Piper (from the venv) and ffmpeg; `make voices` fetches the three CC0 talkers first. |
+| `make subtitles` / `make verbs` | Add the recurrence-filtered OpenSubtitles sentences / the generated indicative verb cells to an existing pack. |
+| `make tutor-kb` | Regenerates the tutor's reference corpus (`backend/internal/tutor/kb/src-*.md`). |
+| `make mt` | Runs the translation sidecar locally; weights under `MT_MODEL_DIR` (default `~/.cache/tanulom-mt`). |
+| `make venv` | Creates `langpack/.venv` and installs `langpack/requirements.txt`; `make deps` runs it. |
+| `make starter` | Re-embeds the starter pack into the Go tree. **Commit the result.** |
 | `make clean` | Removes build output. **Never touches `./data`.** |
 
-Overridable: `DATA_DIR`, `PACK`, `PYTHON`, `VERSION`, `DEV_ADDR`, `GO_TEST_FLAGS` — e.g.
-`make test GO_TEST_FLAGS='-race -count=1'` to match CI exactly, or
-`make deps PYTHON=langpack/.venv/bin/python` to keep pip out of the system interpreter.
+Overridable: `DATA_DIR`, `PACK`, `PYTHON`, `VERSION`, `DEV_ADDR`, `GO_TEST_FLAGS`, `MT_MODEL_DIR`.
+`GO_TEST_FLAGS` defaults to `-race -count=1`, what CI runs; the race detector needs a C toolchain
+(macOS: `xcode-select --install`), so on a machine without one use
+`make test GO_TEST_FLAGS=-count=1`. `PYTHON` finds `langpack/.venv` on its own once `make deps`
+has created it; nothing installs into the system interpreter.
 
 Open **http://localhost:5173** for `make dev`. Vite proxies `/api` and `/media` to the backend
 (see `web-ui/vite.config.ts`), so cookies and requests work end to end. Both sides hot-reload.
@@ -100,8 +114,51 @@ Both run in `.github/workflows/ci.yml` on every PR, and `make test` runs the sam
 
 You do **not** need to build the pack to develop, and there is nothing to fetch: the binary
 installs its embedded starter pack into the data directory on first boot. It is a real pack —
-5,132 lemmas, the whole 24-unit course, every minimal pair — so every screen works against it. To rebuild — see [`LANGPACK.md`](LANGPACK.md) — expect hours and tens
-of GB of scratch space; it runs in CI on tag, not on a laptop.
+5,059 lemmas, the whole 24-unit course, every minimal pair — so every screen works against it. To rebuild — see [`LANGPACK.md`](LANGPACK.md) — expect hours and tens
+of GB of scratch space; it is built on a workstation — CI does not build packs, it tests
+against the embedded starter.
+
+**Editing content does not cost a rebuild.** The lessons (`pipeline/lessons.py`), the feature
+inventory, the minimal pairs and the course are pure Python literals, so
+`make refresh-curriculum` rewrites those tables in an existing pack in seconds. Stop the server
+first — the app treats a pack as read-only and this is a build step writing to one — and then
+run `make starter` and commit, or the binary goes on shipping the old text.
+
+### Upgrading your own pack
+
+A pack you built earlier keeps its old lessons, pairs and clips until you refresh it. The ear
+trainer's pairs changed in ADR-033 (every member is now a real word), and the clips are named
+by word, so the old files are not reused. With the **server stopped**:
+
+```bash
+cp data/langpack-hu-v1.sqlite data/langpack-hu-v1.sqlite.bak-$(date +%Y%m%d)
+make refresh          # lessons, features, pairs, course — seconds; pair_audio rows follow the pairs
+rm -rf data/media/hvpt
+make audio            # Piper from the venv + ffmpeg; expect "rendered 342 clips (skipped 0)"
+```
+
+Then start the server and open «Слух»: three voices, no pair marked «(нет слова)». Your
+contrast progress keys on the contrast, not on the pair id, so nothing is lost. `make audio`
+is incremental — a clip that already exists is skipped — which is why the old directory is
+removed first: with it in place the target reports `rendered 0` and looks broken.
+
+## The embedded SPA has no modification times
+
+`//go:embed` reports the zero instant as every file's mtime, so any 304 based on
+`If-Modified-Since` answers "not modified" to every conditional request ever made. That is
+harmless for `/assets/*` — Vite fingerprints them, so a given name's bytes never change — and it
+was a real bug for `index.html`, the one file that is NOT fingerprinted and the file that names
+the current asset hashes.
+
+The symptom was a blank page after `make run`: a browser that had opened the app once kept its
+first `index.html` forever, that copy pointed at asset filenames the new build no longer
+contained, and nothing rendered until a hard reload. `Cache-Control: no-cache` was already set
+and did not help — no-cache means "revalidate", and revalidation was the broken half.
+
+`api.indexHandler` therefore serves `index.html` itself, with an **ETag over the bytes**, for
+both GET and HEAD. A missing `/assets/*` file is a 404 rather than the SPA shell, because HTML
+returned for a `.js` request dies in the parser and produces the same blank page for a different
+reason. Pinned by `spa_cache_test.go`.
 
 ## Optional sidecars
 
@@ -112,6 +169,22 @@ docker compose --profile nlp --profile speech up -d
 The app probes them at startup and via `GET /api/capabilities`. **Develop with them stopped at
 least some of the time** — the invariant that the core works alone is easy to break by accident
 and hard to notice.
+
+Speech is not one of them. `tts` defaults to the `device` provider — the browser's own Web
+Speech API — so the 🔊 controls, the `listen`/`spell` review directions and the listening
+screen's read-aloud all work with nothing running
+([ADR-012](../.claude/DECISIONS.md#adr-012)). A TTS sidecar is still supported and still
+better. To develop the no-voice path, disable Hungarian voices in the OS or switch the toggle
+off in **Settings → Speech**: the UI must show the reason, never a silent dead button.
+
+## The tutor's reference corpus
+
+`backend/internal/tutor/kb/` is embedded into the binary. The `src-*.md` files are generated —
+`make tutor-kb` fetches Wikipedia, Wiktionary and the public-domain FSI course into
+`langpack/cache/tutor/` and converts them; pass `PACK=` to point the diacritic restoration at a
+different pack. The `ref-*.md` files are written by hand. Commit the outputs: `//go:embed` on a
+missing file is a compile error. To try the tutor without a model, any OpenAI-compatible
+endpoint that streams `data:` events will do; `handlers_tutor_test.go` shows the minimum.
 
 ## Testing conventions
 
@@ -129,6 +202,13 @@ and hard to notice.
   exactly. If this fails, review history is not trustworthy.
 - **No frontend test framework is wired.** Verify UI changes by running the dev servers. Do not
   invent an `npm test` command.
+
+## Known noise
+
+A traceback mentioning `json_extensions` and a `.pth` file at every Python start is a broken
+namespace-package hook in the **system** Python 3.11, not in the project: the venv does not
+load it, and it is harmless. `pip uninstall json-extensions` in that interpreter, or deleting
+the `.pth`, silences it.
 
 ## Conventions that bite
 

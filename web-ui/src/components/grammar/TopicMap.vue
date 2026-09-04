@@ -41,8 +41,16 @@ const titleOf = (code: string) => {
 }
 
 /** The prerequisites a topic is actually waiting on, for the lock tooltip. */
+/**
+ * Topics worth finishing before this one — advice, not a barrier.
+ *
+ * No longer conditional on `locked`: an unmet prerequisite does not lock
+ * anything any more, so the recommendation has to be computed for topics the
+ * learner can already open and practise. That is the point — the order stays
+ * visible while the door stays open.
+ */
 function blockers(t: Topic): string[] {
-  if (t.phase !== 'locked') return []
+  if (t.phase === 'locked') return []
   const open = new Set(
     props.topics
       .filter((x) => ['explained', 'interleaved', 'mastered'].includes(x.phase))
@@ -79,7 +87,7 @@ function blockers(t: Topic): string[] {
             <PhaseBadge :phase="t.phase" :decision="t.decision" compact />
 
             <p v-if="blockers(t).length" class="text-xs text-muted-foreground">
-              {{ $t('grammar.needsFirst') }}
+              {{ $t('grammar.betterFirst') }}
               <span class="text-foreground">{{ blockers(t).map(titleOf).join(', ') }}</span>
             </p>
             <p
@@ -88,11 +96,12 @@ function blockers(t: Topic): string[] {
             >
               {{ $t('grammar.ruleCardOnly') }}
             </p>
+            <!-- Answered/attempted, and nothing else. The demotion COUNT used
+                 to sit here ("откатов: 3"); it is a scoreboard of failures that
+                 names no action, and dropping back is a normal event this app
+                 says is normal. The number is still recorded. -->
             <p v-else-if="t.progress.attempts > 0" class="font-mono text-xs text-muted-foreground">
               {{ t.progress.correct }}/{{ t.progress.attempts }}
-              <span v-if="t.progress.fallbacks > 0">
-                · {{ $t('grammar.fallbacks', { n: t.progress.fallbacks }) }}
-              </span>
             </p>
           </button>
         </li>

@@ -214,6 +214,31 @@ VERBAL: list[Feature] = [
             _h("t", "t"),
             "-t/-tt со связующей гласной. Форма зависит от типа основы.",
             "-t/-tt with a linking vowel. The exact form depends on the stem type.", 70),
+    # The VERB's person, as distinct from the possessor's `Person[psor]` above.
+    #
+    # Every conjugated form carries one, so a cloze answer grades it and it has
+    # always had a row in `morph_state` — but it had no row HERE, so the app
+    # could not name it. The progress heatmap printed `Person=1` at the learner
+    # under a heading promising there would be no such thing, and the fallback
+    # that made that possible is deliberate and correct: a feature with no label
+    # shows its id rather than a blank. The fix belongs in the inventory.
+    #
+    # No allomorph table: the personal endings depend on tense, mood and
+    # definiteness together, so a single row of suffixes would be a lie. The
+    # explanation carries the examples instead.
+    Feature("Person=1", "Person", "1", "1 лицо — я / мы", "1st person — I / we", _flat(""),
+            "Я или мы: megyek — иду, megyünk — идём. Окончание зависит и от времени, "
+            "и от наклонения, и от определённости.",
+            "I or we: megyek — I go, megyünk — we go. The ending depends on tense, mood "
+            "and definiteness together.", 14),
+    Feature("Person=2", "Person", "2", "2 лицо — ты / вы", "2nd person — you", _flat(""),
+            "Ты или вы: mész — идёшь, mentek — идёте. С вежливым ön глагол стоит в 3 лице.",
+            "You: mész — you go, mentek — you (pl.) go. With the polite ön the verb takes "
+            "the THIRD person.", 15),
+    Feature("Person=3", "Person", "3", "3 лицо — он / она / они", "3rd person — he / she / they",
+            _flat(""),
+            "Он, она, они — и вежливое обращение на ön/maga: megy — идёт, mennek — идут.",
+            "He, she, they — and the polite ön/maga: megy — goes, mennek — go.", 16),
     Feature("Definite=Ind", "Definite", "Ind", "неопределённое спряжение", "indefinite conjugation",
             _flat(""),
             "Объекта нет или он неопределённый: Látok egy házat — вижу (какой-то) дом.",

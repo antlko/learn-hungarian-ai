@@ -3,6 +3,9 @@ import { computed } from 'vue'
 import { CircleCheck } from '@lucide/vue'
 import { Card, CardContent } from '@/components/ui/card'
 import Note from '@/components/common/Note.vue'
+import SpeakButton from '@/components/common/SpeakButton.vue'
+import { pickGloss } from '@/lib/gloss'
+import { useUiStore } from '@/stores/ui'
 import type { EnrolResult } from '@/types'
 
 /**
@@ -13,8 +16,22 @@ import type { EnrolResult } from '@/types'
  * attested sentence for gets no card at all; hiding that would leave the learner
  * believing they are being taught vocabulary that is not in the deck. Same rule
  * as everywhere else — see the honesty rules in CLAUDE.md.
+ *
+ * **Each one carries its translation.** The list used to be bare Hungarian —
+ * `sziasztok, bemutatkozik, nagyon` — which names a word to the learner and
+ * then declines to say what it means. Refusing to invent an example sentence is
+ * a principle; withholding a gloss that is sitting in the pack beside the word
+ * is just an omission.
  */
 const props = defineProps<{ result: EnrolResult }>()
+const ui = useUiStore()
+
+const skipped = computed(() =>
+  props.result.skipped.map((w) => ({
+    lemma: w.lemma,
+    gloss: pickGloss(w.glossRu, w.glossEn, ui.locale),
+  })),
+)
 
 /** Re-taking a finished unit adds nothing; "0 cards made" is a worse way to say so. */
 const nothingToDo = computed(
@@ -44,7 +61,16 @@ const nothingToDo = computed(
         variant="limit"
         :title="$t('plan.report.skipped', { n: result.skipped.length })"
       >
-        <p class="font-medium text-foreground" lang="hu">{{ result.skipped.join(', ') }}</p>
+        <ul class="flex flex-col gap-0.5">
+          <li v-for="w in skipped" :key="w.lemma" class="flex flex-wrap items-baseline gap-x-2">
+            <span class="font-medium text-foreground" lang="hu">{{ w.lemma }}</span>
+            <span class="text-xs text-muted-foreground">{{ w.gloss.text }}</span>
+            <span v-if="w.gloss.isFallback" class="text-xs text-uncertain">
+              {{ $t('review.glossFallback') }}
+            </span>
+            <SpeakButton :text="w.lemma" class="-my-1.5" />
+          </li>
+        </ul>
         <p class="mt-1.5 text-xs leading-relaxed">{{ $t('plan.report.skippedWhy') }}</p>
       </Note>
     </CardContent>

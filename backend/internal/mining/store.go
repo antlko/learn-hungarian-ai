@@ -30,6 +30,16 @@ type Text struct {
 	// AudioPath is a /media-relative path when this text is a listening
 	// material. Empty for plain reading texts.
 	AudioPath string `json:"audioPath"`
+	// Level is the estimated CEFR band, "" while unestimated or when the
+	// estimator abstained. LevelSource says WHO estimated — 'heuristic', 'llm'
+	// or 'manual' — because the UI must label it (ADR-023, honesty rules).
+	// LevelDetail carries the working (JSON), model name included for 'llm'.
+	Level       string `json:"level"`
+	LevelSource string `json:"levelSource"`
+	LevelDetail string `json:"levelDetail,omitempty"`
+	// NoteCount is how many of the learner's notes were mined from this text —
+	// display data filled by the API layer from note_origin, not stored here.
+	NoteCount int `json:"noteCount"`
 }
 
 // StoredToken is one analysed token as persisted.
@@ -103,7 +113,8 @@ func (s *Store) List(userID int64, limit int) ([]Text, error) {
 	}
 	rows, err := s.db.Query(`
 		SELECT id, title, source_url, kind, word_count,
-		       lemma_coverage, element_coverage, added_at, audio_path
+		       lemma_coverage, element_coverage, added_at, audio_path,
+		       level, level_source
 		  FROM text WHERE user_id = ? ORDER BY added_at DESC LIMIT ?`, userID, limit)
 	if err != nil {
 		return nil, fmt.Errorf("list texts: %w", err)
@@ -115,7 +126,8 @@ func (s *Store) List(userID int64, limit int) ([]Text, error) {
 		var t Text
 		var added string
 		if err := rows.Scan(&t.ID, &t.Title, &t.SourceURL, &t.Kind, &t.WordCount,
-			&t.LemmaCoverage, &t.ElementCoverage, &added, &t.AudioPath); err != nil {
+			&t.LemmaCoverage, &t.ElementCoverage, &added, &t.AudioPath,
+			&t.Level, &t.LevelSource); err != nil {
 			return nil, err
 		}
 		t.AddedAt, _ = time.Parse(time.RFC3339, added)
@@ -130,10 +142,12 @@ func (s *Store) Get(userID, id int64) (Text, error) {
 	var added string
 	err := s.db.QueryRow(`
 		SELECT id, title, source_url, kind, body, audio_path, word_count,
-		       lemma_coverage, element_coverage, added_at
+		       lemma_coverage, element_coverage, added_at,
+		       level, level_source, level_detail
 		  FROM text WHERE id = ? AND user_id = ?`, id, userID,
 	).Scan(&t.ID, &t.Title, &t.SourceURL, &t.Kind, &t.Body, &t.AudioPath, &t.WordCount,
-		&t.LemmaCoverage, &t.ElementCoverage, &added)
+		&t.LemmaCoverage, &t.ElementCoverage, &added,
+		&t.Level, &t.LevelSource, &t.LevelDetail)
 	if errors.Is(err, sql.ErrNoRows) {
 		return Text{}, ErrNotFound
 	}
@@ -205,6 +219,22 @@ func (s *Store) UpdateCoverage(userID, id int64, cov Coverage) error {
 	return err
 }
 
+// SetLevel records a level estimate. The manual source always wins: a learner
+// who said «это B1» is not overruled by a recompute, so heuristic and llm
+// writers must check the stored source first (the handlers do). ADR-023.
+func (s *Store) SetLevel(userID, id int64, level, source, detail string) error {
+	res, err := s.db.Exec(`
+		UPDATE text SET level = ?, level_source = ?, level_detail = ?
+		 WHERE id = ? AND user_id = ?`, level, source, detail, id, userID)
+	if err != nil {
+		return fmt.Errorf("set text level: %w", err)
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return ErrNotFound
+	}
+	return nil
+}
+
 // AsTokenViews converts stored tokens for the scorer and coverage calculator.
 func AsTokenViews(tokens []StoredToken) []TokenView {
 	out := make([]TokenView, 0, len(tokens))
@@ -255,4 +285,56 @@ func boolInt(b bool) int {
 		return 1
 	}
 	return 0
+}
+
+// ResplitSentences repairs a stored text's sentence boundaries in place.
+//
+// `text_token.sent_idx` is frozen at ingest, so a text added before a fix to
+// the splitter keeps the old boundaries for ever — and every card mined from it
+// carries them. This repairs such a text where it is read, rather than asking
+// the learner to delete and re-add a library.
+//
+// Only sent_idx is touched, and only where it actually differs: tokenisation
+// itself is unchanged, so indices and byte offsets still line up with what is
+// stored, and recomputing those would risk orphaning offsets notes point at.
+// `tokens` is corrected in place so the response that triggered the repair
+// already carries the right answer.
+//
+// After the first pass this writes nothing, which is what makes it safe to call
+// on every read.
+func (s *Store) ResplitSentences(textID int64, tokens []StoredToken, want []int) (int, error) {
+	type fix struct{ idx, sent int }
+	var fixes []fix
+	for i := range tokens {
+		if i >= len(want) || tokens[i].SentIdx == want[i] {
+			continue
+		}
+		fixes = append(fixes, fix{tokens[i].Index, want[i]})
+		tokens[i].SentIdx = want[i]
+	}
+	if len(fixes) == 0 {
+		return 0, nil
+	}
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback() //nolint:errcheck // no-op after a successful commit
+
+	stmt, err := tx.Prepare(`UPDATE text_token SET sent_idx = ? WHERE text_id = ? AND idx = ?`)
+	if err != nil {
+		return 0, err
+	}
+	defer stmt.Close()
+
+	for _, f := range fixes {
+		if _, err := stmt.Exec(f.sent, textID, f.idx); err != nil {
+			return 0, fmt.Errorf("resplit sentences: %w", err)
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return 0, err
+	}
+	return len(fixes), nil
 }

@@ -10,7 +10,14 @@ permissions:
   packages: write
 
 jobs:
+  # The full CI gate -- backend, frontend, docs -- run against the tagged commit
+  # itself. A red build must not become a published `latest` that half the world
+  # then pulls.
+  ci:
+    uses: ./.github/workflows/ci.yml
+
   build-push:
+    needs: ci
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,8 +37,22 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}
+          # `latest=auto` (the default) sets `latest` from a `type=semver`
+          # match, and ONLY when the version is not a pre-release — so
+          # `v1.2.3` moves it and `v1.2.3-rc1` does not.
+          flavor: latest=auto
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
+            # These three are what makes `latest` work at all. The previous
+            # spelling was `type=raw,value=latest,enable={{is_default_branch}}`,
+            # which publishes NOTHING here: metadata-action strips only
+            # `refs/heads/`, so on `refs/tags/v1.0.0` it compares that whole ref
+            # against `main` and never matches. This workflow runs on tags only,
+            # so no `latest` was ever pushed — while docker-compose.yml pulls
+            # `:latest`. v1.2.3 -> `1.2.3`, `1.2`, `1`, plus `latest`.
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            # The tag as written, so `v1.2.3` is pullable with its leading `v`.
             type=ref,event=tag
             type=sha,format=short
 

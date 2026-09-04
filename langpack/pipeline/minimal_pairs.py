@@ -38,6 +38,14 @@ class MinimalPair:
 
 
 PAIRS: list[MinimalPair] = [
+    # Every member is a WORD the dictionary carries. The inventory once held a
+    # dozen non-words — `hus`, `tuz`, `fold`, `sak`, `csél`, `ana` … glossed
+    # «(нет слова)» — as the partner of a real word, and the first learner's
+    # verdict on the ear trainer was «как будто таких слов нет». They were
+    # right. A 2AFC trial presents both members as things the language says;
+    # one that is not teaches a form the language does not have, and the
+    # honesty rules do not allow it as a drill answer anywhere else. The build
+    # refuses a pair whose member is not in `wordform` (`unattested`).
     # --- vowel length: the highest-yield contrast set ------------------------
     MinimalPair("kor", "kór", "o/ó", "возраст, эпоха", "болезнь", "age, era", "disease", 1,
                 "A húszas évek kora volt.", "Ez egy ritka kór."),
@@ -52,35 +60,31 @@ PAIRS: list[MinimalPair] = [
     MinimalPair("kerek", "kerék", "e/é", "круглый", "колесо", "round", "wheel", 2),
     MinimalPair("ver", "vér", "e/é", "бьёт", "кровь", "beats", "blood", 2),
     MinimalPair("irt", "írt", "i/í", "истребляет", "написал", "exterminates", "wrote", 2),
-    MinimalPair("hus", "hús", "u/ú", "(нет слова)", "мясо", "(non-word)", "meat", 3),
-    MinimalPair("tur", "túr", "u/ú", "(нет слова)", "роет", "(non-word)", "digs", 3),
+    MinimalPair("huzat", "húzat", "u/ú", "сквозняк; чехол", "велит тянуть", "draught; cover",
+                "has (it) pulled", 3),
+    MinimalPair("hurok", "húrok", "u/ú", "петля", "струны", "loop, noose", "strings", 3),
     MinimalPair("fut", "fűt", "u/ű", "бежит", "топит, отапливает", "runs", "heats", 2),
-    MinimalPair("tuz", "tűz", "u/ű", "(нет слова)", "огонь", "(non-word)", "fire", 2),
+    MinimalPair("tud", "tűd", "u/ű", "знает", "твоя игла", "knows", "your needle", 3),
+    MinimalPair("szurok", "szűrök", "u/ű", "смола, дёготь", "фильтры; фильтрую", "pitch, tar",
+                "filters; I filter", 3),
     # sor/sör is the textbook real-word pair for this opposition; the previous
     # orul/örül differed in TWO vowels (o→ö AND u→ü) and trained an unattributable blend.
     MinimalPair("sor", "sör", "o/ö", "ряд, очередь", "пиво", "row, queue", "beer", 2),
-
-    # --- rounded front vowels: absent from both L1s --------------------------
-    MinimalPair("tud", "tűd", "u/ű", "знает", "твоя игла", "knows", "your needle", 3),
-    MinimalPair("busz", "bűsz", "u/ű", "автобус", "(нет слова)", "bus", "(non-word)", 4),
     MinimalPair("kor", "kör", "o/ö", "возраст", "круг", "age", "circle", 2),
-    MinimalPair("fold", "föld", "o/ö", "(нет слова)", "земля", "(non-word)", "earth", 2),
-
+    MinimalPair("tok", "tök", "o/ö", "футляр, чехол", "тыква", "case, sheath", "pumpkin", 2),
     # --- sibilants and affricates -------------------------------------------
-    MinimalPair("sok", "szok", "s/sz", "много", "(основа: привыкать)", "many", "(stem: get used to)", 2),
-    MinimalPair("sír", "szír", "s/sz", "плачет; могила", "сириец", "cries; grave", "Syrian", 2),
-    MinimalPair("csak", "sak", "cs/s", "только", "(нет слова)", "only", "(non-word)", 3),
-    MinimalPair("zsák", "szák", "zs/sz", "мешок", "(нет слова)", "sack", "(non-word)", 3),
-    MinimalPair("cél", "csél", "c/cs", "цель", "(нет слова)", "goal", "(non-word)", 3),
-
+    MinimalPair("sál", "szál", "s/sz", "шарф", "нить; штука", "scarf", "thread; a single piece", 2),
+    MinimalPair("sír", "szír", "s/sz", "плачет; могила", "сириец", "cries; grave", "Syrian", 3),
+    MinimalPair("csók", "sók", "cs/s", "поцелуй", "соли (мн.)", "kiss", "salts", 3),
+    MinimalPair("zsír", "szír", "zs/sz", "жир", "сириец", "fat", "Syrian", 3),
+    MinimalPair("cikk", "csikk", "c/cs", "статья", "окурок", "article", "cigarette butt", 3),
     # --- palatals: easier for a Russian ear, still trained --------------------
-    MinimalPair("hagy", "hadj", "gy/dj", "оставляет", "(нет слова)", "leaves", "(non-word)", 5),
-    MinimalPair("anya", "ana", "ny/n", "мать", "(нет слова)", "mother", "(non-word)", 5),
-    MinimalPair("tyúk", "tuk", "ty/t", "курица", "(нет слова)", "hen", "(non-word)", 5),
-
+    MinimalPair("hagy", "had", "gy/d", "оставляет", "войско", "leaves", "army", 5),
     # --- gemination ----------------------------------------------------------
     MinimalPair("hal", "hall", "l/ll", "рыба; умирает", "слышит", "fish; dies", "hears", 2,
                 "A hal úszik.", "Hallod ezt?"),
+    MinimalPair("szál", "száll", "l/ll", "нить; штука", "летит; садится (в транспорт)", "thread",
+                "flies; boards", 3),
     MinimalPair("megy", "meggy", "gy/ggy", "идёт", "вишня", "goes", "sour cherry", 2),
     MinimalPair("eset", "esett", "t/tt", "случай", "упал", "case", "fell", 3),
     MinimalPair("örül", "őrül", "ö/ő", "радуется", "сходит с ума", "rejoices", "goes mad", 2),
@@ -109,7 +113,40 @@ def validate() -> list[str]:
         ):
             if not value.strip():
                 problems.append(f"{p.a}/{p.b}: missing {field}")
+            # A member the language does not have is not a stimulus, whatever
+            # the contrast; the dictionary check below is the real gate, this
+            # catches the marker before a pack is even opened.
+            if "нет слова" in value or "non-word" in value:
+                problems.append(f"{p.a}/{p.b}: {field} says the member is not a word")
     return problems
+
+
+def unattested(conn) -> list[str]:
+    """Pair members the pack's own dictionary does not carry.
+
+    A drill's forms must be attested (CLAUDE.md); a 2AFC member is a form the
+    learner is told the language has. Run against a pack whose `wordform`
+    table is complete — the build, after the lexicon; `refresh`, before it
+    writes.
+    """
+    problems: list[str] = []
+    for p in PAIRS:
+        for word in (p.a, p.b):
+            row = conn.execute(
+                "SELECT 1 FROM wordform WHERE form = ? LIMIT 1", (word,)).fetchone()
+            if row is None:
+                problems.append(f"{p.a}/{p.b}: `{word}` is not in the dictionary")
+    return problems
+
+
+def unattested_in(pack_path) -> list[str]:
+    """`unattested`, over a pack on disk, opened read-only."""
+    import sqlite3
+    conn = sqlite3.connect(f"file:{pack_path}?mode=ro", uri=True)
+    try:
+        return unattested(conn)
+    finally:
+        conn.close()
 
 
 def contrasts() -> dict[str, list[MinimalPair]]:
@@ -140,8 +177,48 @@ _HAVE_FFMPEG = _shutil.which("ffmpeg") is not None
 _EXT = ".ogg" if _HAVE_FFMPEG else ".wav"
 
 VOICES = ("anna", "berta", "imre")
-RATES = (1.0, 0.85)  # 1.0 natural; 0.85 slightly slow — length_scale = 1/rate
+RATES = (1.0, 0.85)  # 1.0 natural; 0.85 slightly slow — length_scale scales by 1/rate
+
+# Citation-form rendering, because the first render was unusable and the ear
+# trainer ran at chance because of it.
+#
+# Piper's VITS models are trained on SENTENCES. Handed a bare three-letter word
+# they produce an out-of-distribution mumble: the original inventory came out
+# with a MEDIAN clip of 0.35 s and a minimum of 0.16 s, in which the kor/kór
+# vowel-length contrast — the thing the trainer exists to teach — is physically
+# not present. Learners reported hearing "different words entirely", and their
+# accuracy sat at chance, which is exactly what stimuli carrying no signal
+# produce.
+#
+# Two changes, both standard practice for single-word TTS stimuli:
+#
+#   * the word is rendered as a one-word SENTENCE ("kór.") — the final stop
+#     gives the model a prosodic frame and citation-form articulation instead
+#     of a clipped fragment;
+#   * CITATION_SCALE slows every render — HVPT stimuli are deliberately clear
+#     citation speech in the literature, not conversational tempo, and vowel
+#     length needs room to be audible at all.
+CITATION_SCALE = 1.7
+# Trailing silence so the Opus encode never clips the final consonant — öt/őt
+# is decided in the last hundred milliseconds.
+SENTENCE_SILENCE = "0.3"
 VOICE_LICENSE = "CC0 (OHF voice-datasets, per piper model card)"
+
+
+def clip_name(word: str, voice: str, rate: float) -> str:
+    """The clip's path under the media dir, keyed by the WORD.
+
+    Not by pair id: `refresh` reassigns ids in list order, and a clip named
+    `5_a_anna_100` was reused — file present, render skipped — for whatever
+    pair 5 had become. The diacritics are folded for the file system and the
+    hash keeps `kor` and `kór` apart.
+    """
+    import hashlib
+    import unicodedata
+    folded = "".join(
+        c for c in unicodedata.normalize("NFKD", word) if not unicodedata.combining(c))
+    digest = hashlib.sha1(word.encode("utf-8")).hexdigest()[:6]
+    return f"hvpt/{folded}-{digest}_{voice}_{int(rate * 100)}{_EXT}"
 
 
 def render(pack_path, media_dir, voices_dir, *, only_missing=True):
@@ -168,17 +245,21 @@ def render(pack_path, media_dir, voices_dir, *, only_missing=True):
                 if not model.exists():
                     raise SystemExit(f"voice model missing: {model}")
                 for rate in RATES:
-                    rel = f"hvpt/{pair_id}_{member}_{voice}_{int(rate*100)}{_EXT}"
+                    rel = clip_name(word, voice, rate)
                     dest = Path(media_dir) / rel
                     row = pack.execute(
-                        "SELECT 1 FROM pair_audio WHERE pair_id=? AND member=? "
+                        "SELECT path FROM pair_audio WHERE pair_id=? AND member=? "
                         "AND talker_id=? AND rate=?",
                         (pair_id, member, voice, rate)).fetchone()
                     # The clip on disk is the expensive artefact; the row is
-                    # free. Skip only the RENDER when the file is already there
-                    # and still upsert the row, so a pack rebuild — which starts
-                    # from an empty pair_audio — costs seconds instead of
-                    # re-synthesising the whole inventory.
+                    # free. A row whose file is still there (a refresh kept it)
+                    # is done; a file under this word's name with no row (a pack
+                    # rebuild starts from an empty pair_audio) gets its row back
+                    # without a render. Only a clip that exists nowhere is
+                    # synthesised.
+                    if only_missing and row and (Path(media_dir) / row[0]).exists():
+                        skipped += 1
+                        continue
                     if only_missing and dest.exists():
                         skipped += 1
                         pack.execute(
@@ -190,9 +271,9 @@ def render(pack_path, media_dir, voices_dir, *, only_missing=True):
                     subprocess.run(
                         [sys.executable, "-m", "piper",
                          "-m", str(model), "-f", str(wav),
-                         "--length-scale", str(round(1.0 / rate, 3)),
-                         "--sentence-silence", "0.1"],
-                        input=word.encode(), check=True, capture_output=True)
+                         "--length-scale", str(round(CITATION_SCALE / rate, 3)),
+                         "--sentence-silence", SENTENCE_SILENCE],
+                        input=(word + ".").encode(), check=True, capture_output=True)
                     # Transcode to Opus. A single spoken word is ~0.5 s, so the
                     # whole 384-clip inventory drops from ~7 MB of WAV to well
                     # under a megabyte — which is what makes it small enough to

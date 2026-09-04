@@ -1,7 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="7" fill="#1c1c1e"/>
-  <!-- "ő" — the double acute is the diacritic learners of Hungarian
-       most often drop, and the one the app's ear training targets first. -->
-  <text x="16" y="23" font-family="Inter, system-ui, sans-serif" font-size="21"
-        font-weight="600" fill="#7aa2f7" text-anchor="middle">ő</text>
+  <!-- The teal is the app's identity hue (198) — oklch(0.47 0.08 198), the light
+       palette's --primary, as sRGB — on which the paper-white «ő» sits at 5.4:1.
+       The glyph: the double acute is the diacritic learners of Hungarian most
+       often drop, and the one the ear trainer targets first. The serif stack is
+       the material's face (ADR-036); a tab renders with whatever the OS has, so
+       Georgia stands in when Literata is not installed there. -->
+  <rect width="32" height="32" rx="7" fill="#00686b"/>
+  <text x="16" y="23" font-family="Literata, Georgia, 'Times New Roman', serif" font-size="21"
+        font-weight="500" fill="#fbfaf7" text-anchor="middle">ő</text>
 </svg>

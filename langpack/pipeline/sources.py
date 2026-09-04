@@ -107,6 +107,28 @@ SOURCES: list[Source] = [
         # other way round.
         required=False,
     ),
+    # Conversational Hungarian, sentence-aligned. Two gigabytes between them,
+    # and the pack keeps a fraction of a percent — see pipeline/subtitles.py for
+    # the filtering, which is the whole value of the source.
+    #
+    # Optional: the pack builds without them and is simply thinner, which the
+    # manifest records. Not fetched by default in CI for the obvious reason.
+    Source(
+        key="opensubtitles_ru",
+        url="https://object.pouta.csc.fi/OPUS-OpenSubtitles/v2018/moses/hu-ru.txt.zip",
+        filename="OpenSubtitles-hu-ru.txt.zip",
+        licence="OPUS OpenSubtitles — free for research; cite Lison & Tiedemann 2016",
+        attribution="P. Lison and J. Tiedemann, OpenSubtitles2016 (OPUS), from opensubtitles.org",
+        required=False,
+    ),
+    Source(
+        key="opensubtitles_en",
+        url="https://object.pouta.csc.fi/OPUS-OpenSubtitles/v2018/moses/en-hu.txt.zip",
+        filename="OpenSubtitles-en-hu.txt.zip",
+        licence="OPUS OpenSubtitles — free for research; cite Lison & Tiedemann 2016",
+        attribution="P. Lison and J. Tiedemann, OpenSubtitles2016 (OPUS), from opensubtitles.org",
+        required=False,
+    ),
     Source(
         key="ud_treebank",
         url=(

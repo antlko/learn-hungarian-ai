@@ -41,8 +41,16 @@ var audioExts = map[string]string{
 	"audio/aac": ".m4a", "audio/webm": ".webm", "audio/flac": ".flac",
 }
 
-// handleListenUpload creates a listening material: multipart form with `audio`
-// (the file), `title` and `transcript`.
+// handleListenUpload creates a listening material: multipart form with
+// `transcript`, `title`, and OPTIONALLY `audio`.
+//
+// The audio file is optional on purpose. Requiring one meant the listening
+// loop could not start until the learner had gone and found a recording and
+// its matching transcript — which nobody does, so the screen stayed empty and
+// the whole loop was dead on a fresh install. Without a file the transcript is
+// still a full listening material: the learner's own browser reads it, the
+// same way it reads a word in the reader. That is worse input than a native
+// recording and the UI says so; it is enormously better than silence.
 func (s *Server) handleListenUpload(c fiber.Ctx) error {
 	u, err := mustUser(c)
 	if err != nil {
@@ -57,18 +65,20 @@ func (s *Server) handleListenUpload(c fiber.Ctx) error {
 		return badRequest("a transcript is required — the coverage pre-check and " +
 			"passes 2–3 are built on it")
 	}
-	fh, err := c.FormFile("audio")
-	if err != nil {
-		return badRequest("an audio file is required")
-	}
-	if fh.Size > maxAudioBytes {
-		return badRequest("audio is too large (%d MB, limit %d)", fh.Size>>20, maxAudioBytes>>20)
-	}
-	ext := audioExts[fh.Header.Get("Content-Type")]
-	if ext == "" {
-		ext = strings.ToLower(filepath.Ext(fh.Filename))
-		if len(ext) > 5 || ext == "" {
-			ext = ".mp3"
+	// No file is a valid material, not an error.
+	fh, _ := c.FormFile("audio")
+	var ext string
+	if fh != nil {
+		if fh.Size > maxAudioBytes {
+			return badRequest("audio is too large (%d MB, limit %d)",
+				fh.Size>>20, maxAudioBytes>>20)
+		}
+		ext = audioExts[fh.Header.Get("Content-Type")]
+		if ext == "" {
+			ext = strings.ToLower(filepath.Ext(fh.Filename))
+			if len(ext) > 5 || ext == "" {
+				ext = ".mp3"
+			}
 		}
 	}
 
@@ -93,31 +103,35 @@ func (s *Server) handleListenUpload(c fiber.Ctx) error {
 	}
 
 	// Audio lands under media/listen/<text id>.<ext>; the id makes the name
-	// collision-free and the delete path obvious.
-	rel := fmt.Sprintf("listen/%d%s", id, ext)
-	dst := filepath.Join(s.dataDir, "media", rel)
-	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
-		return err
-	}
-	src, err := fh.Open()
-	if err != nil {
-		return err
-	}
-	defer src.Close()
-	out, err := os.Create(dst)
-	if err != nil {
-		return err
-	}
-	if _, err := io.Copy(out, src); err != nil {
-		out.Close()
-		return err
-	}
-	if err := out.Close(); err != nil {
-		return err
-	}
-	if _, err := s.db.Exec(`UPDATE text SET audio_path = ? WHERE id = ? AND user_id = ?`,
-		rel, id, u.ID); err != nil {
-		return err
+	// collision-free and the delete path obvious. An empty audio_path is the
+	// signal that this material is read by the learner's device instead.
+	var rel string
+	if fh != nil {
+		rel = fmt.Sprintf("listen/%d%s", id, ext)
+		dst := filepath.Join(s.dataDir, "media", rel)
+		if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+			return err
+		}
+		src, err := fh.Open()
+		if err != nil {
+			return err
+		}
+		defer src.Close()
+		out, err := os.Create(dst)
+		if err != nil {
+			return err
+		}
+		if _, err := io.Copy(out, src); err != nil {
+			out.Close()
+			return err
+		}
+		if err := out.Close(); err != nil {
+			return err
+		}
+		if _, err := s.db.Exec(`UPDATE text SET audio_path = ? WHERE id = ? AND user_id = ?`,
+			rel, id, u.ID); err != nil {
+			return err
+		}
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{

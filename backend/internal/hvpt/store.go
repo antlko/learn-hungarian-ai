@@ -20,7 +20,7 @@ func NewStore(db *sql.DB) *Store { return &Store{db: db} }
 func (s *Store) States(userID int64) (map[string]ContrastState, error) {
 	rows, err := s.db.Query(`
 		SELECT contrast, due, stability, difficulty, scheduled_days, reps, lapses,
-		       state, last_review, recent_accuracy, recent_total
+		       state, last_review, recent_accuracy, recent_total, remaining_steps
 		  FROM hvpt_contrast_state WHERE user_id = ?`, userID)
 	if err != nil {
 		return nil, fmt.Errorf("load contrast states: %w", err)
@@ -32,7 +32,7 @@ func (s *Store) States(userID int64) (map[string]ContrastState, error) {
 		var due, last sql.NullString
 		if err := rows.Scan(&cs.Contrast, &due, &cs.State.Stability, &cs.State.Difficulty,
 			&cs.State.ScheduledDays, &cs.State.Reps, &cs.State.Lapses, &cs.State.State,
-			&last, &cs.Accuracy, &cs.Total); err != nil {
+			&last, &cs.Accuracy, &cs.Total, &cs.State.RemainingSteps); err != nil {
 			return nil, err
 		}
 		cs.State.Due = db.ParseTime(due)
@@ -81,16 +81,19 @@ func (s *Store) Answer(userID int64, t Trial, chosen string, rtMs int64,
 
 	if _, err := tx.Exec(`
 		INSERT INTO hvpt_contrast_state (user_id, contrast, due, stability, difficulty,
-		    scheduled_days, reps, lapses, state, last_review, recent_accuracy, recent_total)
-		VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+		    scheduled_days, reps, lapses, state, last_review, recent_accuracy, recent_total,
+		    remaining_steps)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
 		ON CONFLICT(user_id, contrast) DO UPDATE SET
 		  due=excluded.due, stability=excluded.stability, difficulty=excluded.difficulty,
 		  scheduled_days=excluded.scheduled_days, reps=excluded.reps,
 		  lapses=excluded.lapses, state=excluded.state, last_review=excluded.last_review,
-		  recent_accuracy=excluded.recent_accuracy, recent_total=excluded.recent_total`,
+		  recent_accuracy=excluded.recent_accuracy, recent_total=excluded.recent_total,
+		  remaining_steps=excluded.remaining_steps`,
 		userID, cs.Contrast, db.FmtTime(cs.State.Due), cs.State.Stability, cs.State.Difficulty,
 		cs.State.ScheduledDays, cs.State.Reps, cs.State.Lapses, cs.State.State,
-		db.FmtTime(cs.State.LastReview), cs.Accuracy, cs.Total); err != nil {
+		db.FmtTime(cs.State.LastReview), cs.Accuracy, cs.Total,
+		cs.State.RemainingSteps); err != nil {
 		return ContrastState{}, false, fmt.Errorf("save contrast state: %w", err)
 	}
 	c := 0

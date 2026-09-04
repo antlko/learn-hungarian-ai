@@ -7,8 +7,9 @@
   ─── Design tokens ────────────────────────────────────────────────────────────
   The full reasoning, with the measurement method, lives in docs/UX.md §14.
 
-  Dark-first: the light theme is the override, because the app is used in the
-  morning before work and at night, and a bright field is hostile in both.
+  Light-first: the dark theme is the override. Both palettes are complete and
+  measured; the default follows the OS with an explicit toggle on top, and a
+  fresh install opens on paper rather than on ink.
 
   Three rules govern every value below.
 
@@ -52,70 +53,7 @@
 */
 
 /*
-  DARK (default). Measured against --background #0a0e12 / --card #13181e:
-    foreground        17.80 / 16.42   muted-foreground   9.05 / 8.35 (7.02 on muted)
-    primary           10.16 / 9.38    primary-fg on primary       9.98
-    destructive        5.72 (its own fg) / 5.27 on card
-    border             3.31 / 3.05    input              4.00 / 3.70
-    ring vs background 10.16          border-subtle vs card       1.50
-    kn-known  9.28 / 8.56 / 7.20      kn-learning 10.25 / 9.46 / 7.95
-    kn-new    7.79 / 7.19 / 6.05      kn-ignored   6.25 / 5.76 / 4.85
-    kn-uncertain 8.00 / 7.38 / 6.20   kn-error     6.67 / 6.15 / 5.18
-  (third figure = against --muted, where chips and badges sit)
-*/
-:root {
-  --radius: 0.625rem;
-
-  --background: oklch(0.16 0.012 255);
-  --foreground: oklch(0.97 0.005 255);
-  --card: oklch(0.205 0.014 255);
-  --card-foreground: oklch(0.97 0.005 255);
-  --popover: oklch(0.235 0.014 255);
-  --popover-foreground: oklch(0.97 0.005 255);
-  --primary: oklch(0.78 0.12 198);
-  --primary-foreground: oklch(0.17 0.03 220);
-  --secondary: oklch(0.27 0.016 255);
-  --secondary-foreground: oklch(0.97 0.005 255);
-  --muted: oklch(0.27 0.016 255);
-  --muted-foreground: oklch(0.76 0.02 255);
-  --accent: oklch(0.3 0.03 205);
-  --accent-foreground: oklch(0.97 0.005 255);
-  --destructive: oklch(0.66 0.19 25);
-  --destructive-foreground: oklch(0.16 0.01 25);
-  --border: oklch(0.505 0.02 255);
-  --input: oklch(0.55 0.02 255);
-  --ring: oklch(0.78 0.12 198);
-
-  /*
-    `border` is the 3:1 tier and is the only one allowed to bound a control —
-    an outline button, an input, a tab. `border-subtle` is the decorative tier
-    for rules *inside* a surface (table row separators, the hairline under a
-    card header), where 3:1 turns the screen into a wireframe. WCAG 1.4.11 asks
-    3:1 of things that identify a component, not of every line we draw; the two
-    tiers make that distinction reviewable instead of implicit. A control must
-    never be identified by `border-subtle` alone.
-  */
-  --border-subtle: oklch(0.335 0.016 255);
-
-  /* Knowledge states — see docs/UX.md §11 */
-  --kn-known: oklch(0.75 0.16 150);
-  --kn-learning: oklch(0.8 0.14 80);
-  --kn-new: oklch(0.72 0.13 258);
-  --kn-ignored: oklch(0.66 0.02 255);
-  --kn-uncertain: oklch(0.74 0.14 305);
-  --kn-error: oklch(0.7 0.19 25);
-
-  /*
-    Elevation. Deep and nearly black, because on a 0.16-lightness ground a
-    shadow tuned for paper is invisible — the ambient layer has to be wide and
-    dark enough to read as distance rather than as dirt.
-  */
-  --elevation-raised:
-    0 1px 2px -1px oklch(0 0 0 / 55%), 0 10px 30px -12px oklch(0 0 0 / 75%);
-}
-
-/*
-  LIGHT. Measured against --background #fbfaf7 / --card #ffffff:
+  LIGHT (default). Measured against --background #fbfaf7 / --card #ffffff:
     foreground        16.58 / 17.31   muted-foreground   6.53 / 6.82 (5.98 on muted)
     primary            6.29 / 6.56    primary-fg on primary       6.38
     destructive        5.98 (its own fg) / 6.15 on card
@@ -124,6 +62,7 @@
     kn-known  5.28 / 5.51 / 4.83      kn-learning  5.16 / 5.39 / 4.73
     kn-new    5.39 / 5.62 / 4.94      kn-ignored   4.95 / 5.16 / 4.53
     kn-uncertain 5.73 / 5.98 / 5.25   kn-error     5.86 / 6.12 / 5.37
+  (third figure = against --muted, where chips and badges sit)
 
   `learning` is ochre here, not amber. Amber cannot reach 4.5:1 on paper at any
   chroma worth having — the hue is preserved, the lightness is not. Chromas are
@@ -131,7 +70,9 @@
   0.112): a value outside the gamut is silently clamped by the browser, which
   makes the number in this comment a measurement of something we did not ship.
 */
-.light {
+:root {
+  --radius: 0.625rem;
+
   --background: oklch(0.985 0.004 95);
   --foreground: oklch(0.22 0.015 255);
   --card: oklch(1 0 0);
@@ -151,8 +92,19 @@
   --border: oklch(0.655 0.014 255);
   --input: oklch(0.6 0.016 255);
   --ring: oklch(0.47 0.08 198);
+
+  /*
+    `border` is the 3:1 tier and is the only one allowed to bound a control —
+    an outline button, an input, a tab. `border-subtle` is the decorative tier
+    for rules *inside* a surface (table row separators, the hairline under a
+    card header), where 3:1 turns the screen into a wireframe. WCAG 1.4.11 asks
+    3:1 of things that identify a component, not of every line we draw; the two
+    tiers make that distinction reviewable instead of implicit. A control must
+    never be identified by `border-subtle` alone.
+  */
   --border-subtle: oklch(0.875 0.008 95);
 
+  /* Knowledge states — see docs/UX.md §11 */
   --kn-known: oklch(0.505 0.139 150);
   --kn-learning: oklch(0.53 0.112 75);
   --kn-new: oklch(0.52 0.17 258);
@@ -164,6 +116,55 @@
      shadow on warm paper greys the surface under it. */
   --elevation-raised:
     0 1px 2px -1px oklch(0.22 0.015 255 / 10%), 0 10px 30px -14px oklch(0.22 0.015 255 / 22%);
+}
+
+/*
+  DARK. Measured against --background #0a0e12 / --card #13181e:
+    foreground        17.80 / 16.42   muted-foreground   9.05 / 8.35 (7.02 on muted)
+    primary           10.16 / 9.38    primary-fg on primary       9.98
+    destructive        5.72 (its own fg) / 5.27 on card
+    border             3.31 / 3.05    input              4.00 / 3.70
+    ring vs background 10.16          border-subtle vs card       1.50
+    kn-known  9.28 / 8.56 / 7.20      kn-learning 10.25 / 9.46 / 7.95
+    kn-new    7.79 / 7.19 / 6.05      kn-ignored   6.25 / 5.76 / 4.85
+    kn-uncertain 8.00 / 7.38 / 6.20   kn-error     6.67 / 6.15 / 5.18
+*/
+.dark {
+  --background: oklch(0.16 0.012 255);
+  --foreground: oklch(0.97 0.005 255);
+  --card: oklch(0.205 0.014 255);
+  --card-foreground: oklch(0.97 0.005 255);
+  --popover: oklch(0.235 0.014 255);
+  --popover-foreground: oklch(0.97 0.005 255);
+  --primary: oklch(0.78 0.12 198);
+  --primary-foreground: oklch(0.17 0.03 220);
+  --secondary: oklch(0.27 0.016 255);
+  --secondary-foreground: oklch(0.97 0.005 255);
+  --muted: oklch(0.27 0.016 255);
+  --muted-foreground: oklch(0.76 0.02 255);
+  --accent: oklch(0.3 0.03 205);
+  --accent-foreground: oklch(0.97 0.005 255);
+  --destructive: oklch(0.66 0.19 25);
+  --destructive-foreground: oklch(0.16 0.01 25);
+  --border: oklch(0.505 0.02 255);
+  --input: oklch(0.55 0.02 255);
+  --ring: oklch(0.78 0.12 198);
+  --border-subtle: oklch(0.335 0.016 255);
+
+  --kn-known: oklch(0.75 0.16 150);
+  --kn-learning: oklch(0.8 0.14 80);
+  --kn-new: oklch(0.72 0.13 258);
+  --kn-ignored: oklch(0.66 0.02 255);
+  --kn-uncertain: oklch(0.74 0.14 305);
+  --kn-error: oklch(0.7 0.19 25);
+
+  /*
+    Elevation. Deep and nearly black, because on a 0.16-lightness ground a
+    shadow tuned for paper is invisible — the ambient layer has to be wide and
+    dark enough to read as distance rather than as dirt.
+  */
+  --elevation-raised:
+    0 1px 2px -1px oklch(0 0 0 / 55%), 0 10px 30px -12px oklch(0 0 0 / 75%);
 }
 
 /*
@@ -235,6 +236,20 @@
   --color-error: var(--kn-error);
 
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  /*
+    Two faces (ADR-036). Inter is the INSTRUMENT: buttons, labels, figures,
+    everything the learner operates. Literata is the MATERIAL and the
+    headings: the Hungarian sentence on the card, the text in the reader, the
+    page titles — a serif made for reading on screens, with Latin-Extended
+    (ő ű Ő Ű) and Cyrillic, so a Russian heading and a Hungarian sentence are
+    set in the same face. Fraunces was the first candidate and has no
+    Cyrillic: every Russian heading would have fallen back to Inter. Both
+    faces are self-hosted subsets (assets/fonts.css); nothing loads from the
+    network, which is what keeps the "works with every sidecar stopped" claim
+    true of the shell itself.
+  */
+  --font-display: 'Literata Variable', Georgia, 'Times New Roman', serif;
+  --font-hungarian: 'Literata Variable', Georgia, 'Times New Roman', serif;
   /*
     Morpheme splits, character diffs and paradigm tables are columns of text
     that only make sense when they line up: `ház·ban` above `ház·ben`. That is
@@ -455,6 +470,27 @@
 }
 
 @layer base {
+  /*
+    Hungarian is marked `lang="hu"` and set here, in ONE place (ADR-036): the
+    material's face, a touch larger than the interface around it, with the
+    serif's optical sizing on. Utilities win over this layer, so a `font-mono`
+    diff well, the ear trainer's mono options and every `text-*` size stay as
+    authored; a nested `lang="hu"` inherits rather than compounding; the
+    answer box stays in Inter, because its diff is set in mono beside it.
+  */
+  [lang='hu'] {
+    font-family: var(--font-hungarian);
+    font-size: 1.0625em;
+    font-optical-sizing: auto;
+  }
+  [lang='hu'] [lang='hu'] {
+    font-size: inherit;
+  }
+  input[lang='hu'],
+  textarea[lang='hu'] {
+    font-family: var(--font-sans);
+    font-size: inherit;
+  }
   * {
     @apply border-border;
   }
@@ -489,4 +525,20 @@
     transition-delay: 0ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/*
+  The page title, in one place (ADR-036): the display face at the 30px step,
+  medium weight — the serif carries its own contrast, so the semibold and the
+  negative tracking that Inter needed at this size are gone. Every view's h1
+  and `PageHeader.vue` use it; a view that hand-writes `text-3xl font-semibold`
+  is a view that missed the memo.
+*/
+@utility page-title {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  line-height: var(--text-3xl--line-height);
+  letter-spacing: 0;
+  font-weight: 500;
+  font-optical-sizing: auto;
 }

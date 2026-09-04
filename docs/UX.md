@@ -19,7 +19,11 @@ Screen by screen. Design principles first, because they explain the individual d
    LLM output and low-confidence ASR are all labelled. Never a confident-looking wrong answer.
 6. **Austerity where it is a drill.** The Ear trainer is two buttons on a blank field. It is
    not an experience; it is 10 minutes of forced-choice repetition.
-7. **Dark first**, both themes complete, `prefers-color-scheme` honoured, explicit toggle wins.
+7. **Light first**, both themes complete, `prefers-color-scheme` honoured, explicit toggle wins.
+   A fresh install opens on paper (`:root` carries the light palette; `.dark` is the override) —
+   flipped from dark-first when the first learner read the dark default as unfinished rather
+   than as a choice. Nothing in a component names a colour, so the flip lives entirely in
+   `index.html`, `stores/ui.ts` and the token file.
 
 ---
 
@@ -47,6 +51,70 @@ Screen by screen. Design principles first, because they explain the individual d
 **Capability dots** — filled = reachable, hollow = configured but unreachable, absent = off.
 Hovering gives endpoint and latency. Features that need an unreachable service are visibly
 disabled with a one-line reason, never silently missing.
+
+**The shell, as built.** The sidebar orders by the daily loops — Today, Plan, Review (with the
+`dueNow` badge), Read, Grammar, Listen, Ear — with the two unbuilt sections («Говорение»,
+«Письмо») at the BOTTOM under a visible «скоро» heading: a dead row between two working ones
+reads as breakage, and a `title`-only tooltip is invisible on touch. It **collapses to a 56px
+icon rail** (PanelLeft button at the foot, persisted per device in `tanulom.sidebar`, the badge
+becoming a dot on the icon; the «скоро» group is hidden entirely there — an icon that does
+nothing and cannot explain itself is worse than absence). Below `md` the rail is replaced by an
+off-canvas drawer behind a topbar hamburger; before that, the fixed 224px column simply ate 60%
+of a phone screen. The topbar carries the page's name on the left and, per the sketch above,
+the due chip and the streak flame — both from the deck store, which reads the same `Breakdown`
+as the review tabs, throttled and refreshed on navigation so the chrome can never contradict
+the screen beside it.
+
+**The right rail** is the shell's answer to "where am I in this". Four screens use it and the
+shape is the same everywhere: `flex flex-col gap-6 lg:flex-row lg:items-start`, a
+`min-w-0 flex-1` main column, and a `lg:w-80 lg:sticky lg:top-2` aside that follows the scroll
+and stacks underneath below `lg`.
+
+| Screen | Main column | Rail |
+|---|---|---|
+| Read | the text | the word's breakdown, its meaning, its translation |
+| Review | the card | the word breakdown (`WordInspector`) |
+| Plan | the unit you are on | **«Весь план»** — the 24 units by month |
+| Grammar | the lesson, then the drill | **the level's topics**, current one marked |
+
+The last two are new, and both were the same failure: the orienting answer existed but was
+somewhere else. Plan kept the whole syllabus BELOW the unit card, so "what am I doing now" and
+"where does it sit" were a scroll apart although they only mean anything together. Grammar had
+no list at all while a topic was open — «Все темы» was the only orientation, and it was a button
+that threw the topic away to show a map, so asking what was around this cost you the thing you
+were reading.
+
+**The key strip** (`components/common/KeyBar.vue`) is fixed to the bottom of the viewport on the
+two screens that are keyboard loops — the reader and the review card — and draws the keys AS
+KEYS.
+
+```
+        ┌───────────────────────────────────────────────────────────┐
+        │ ← → по словам  ↵ в карточки  ⎵ знаю  ⌫ игнорировать   ✕   │
+        │ s озвучить  t перевести                                   │
+        └───────────────────────────────────────────────────────────┘
+```
+
+Principle 1.2 says keyboard-first everywhere, and that was true of the code and not of the
+screen: each of those loops ended in one grey `text-xs` sentence below the fold. Sentence
+translation sat on `t` for a release and was reported as a missing feature. A shortcut nobody
+can see is a shortcut nobody uses.
+
+- **Built from the handler, not from a locale sentence**, so a key that is added, moved or gated
+  cannot go on being advertised. `t` is drawn only where a translator is reachable — and is no
+  longer `preventDefault`ed on installs without one.
+- **It reflects state.** The review strip's first cap says «показать» or «дальше» by phase and
+  `↵ проверить` on typed directions; `1`–`4` and `Esc` are drawn dim rather than removed, so the
+  row does not reflow under the hands between cards.
+- **Not a control surface.** `role="group"`, no tab stops, caps `aria-hidden` with the readable
+  label beside them — a screen reader gets "next word", not "arrow right arrow left". It
+  documents the keyboard; it is not a second way to press these keys.
+- **Dismissible and remembered per device**, because a permanent hint becomes furniture you stop
+  seeing. It collapses to a `⌃ Keys` pill, never to nothing.
+- It **wraps** rather than scrolling: `overflow-x-auto` hid the last item behind the edge with
+  nothing saying it was there, and «перевести» read as «перевест».
+- `<main>` carries the bottom padding for it (`AppShell.vue`), so the last line of a text is
+  never behind the strip.
 
 ---
 
@@ -79,13 +147,30 @@ The four loops from the brief, as the home screen.
 with a line explaining why: *"Приложение не может это засчитать за вас. Живой собеседник —
 единственная незаменимая часть."* ([R16](../.claude/research/16-debunked.md) §7.)
 
-One primary CTA routes to whatever is actually due. `space` from anywhere on this screen starts it.
+One primary CTA routes to whatever is actually due. `space` from anywhere on this screen starts
+it. **As built:** queue first — reviews are a debt already incurred — then input, then study.
+The button was specified here from the beginning and was missing from the screen, which left the
+home page as four cards of statistics and made the learner decide what to open. Deciding that is
+what the study plan is for. It goes straight to the card at `/review/session` over the whole
+deck, past the review start screen (§4.5), because it exists so the learner does not have to
+choose; the memory loop card goes to the start screen, where the choice is
+([ADR-028](../.claude/DECISIONS.md#adr-028)).
+
+**The queue figures here are the review screen's own** (`overview.queue`, the whole-deck
+Breakdown — ADR-021): «к повторению» is what the queue will serve now, with «вернутся сегодня:
+N» named separately when learning steps are still maturing, and the memory loop card carries
+`+новые` in words. This screen printing a raw card count over a burial-collapsed session is
+exactly how the app confused its first learner. The 30-day load strip from the sketch above is
+built: minutes as bar height, obligation-met days in green, straight off `daily_log`. First
+paint holds the layout with skeletons; errors carry a retry.
 
 ---
 
 ## 4. Review
 
-Chrome-free. The card owns the viewport.
+Chrome-free. The card owns the viewport. What to review — which pile, in what shape, or a
+practice round — is chosen on the **start screen** at `/review` (§4.5); the card lives at
+`/review/session` and takes its intent from the query.
 
 ```
                     ┌─────────────────────────────────┐
@@ -121,13 +206,438 @@ The **morpheme diff** is the point: the wrong suffix is highlighted, not the who
 `morph_state` entries this answer graded — making the second state space visible rather than
 mysterious.
 
-**Keyboard:** `space` reveal · `1`–`4` rate · `e` edit note · `s` suspend · `u` undo ·
-`*` mark leech · `Esc` exit. Answering is `Enter` for typed directions.
+**Keyboard:** `space` reveal (`Enter` on typed directions) · `1`–`4` rate · `h` hint ·
+`u` undo · `t` set the word aside (§4.3) · `a` the tutor about this card, in both phases —
+before the answer it is a hint ([ADR-034](../.claude/DECISIONS.md#adr-034)) · `Esc` close the side panel (the word breakdown,
+then the tutor) · `space` on a set summary starts the next set (§4.4). Drawn by the key strip
+(§2), which is where `u` and `Esc` reach a learner for the first time: both have been implemented
+since the screen was built and were advertised in neither of the two hint sentences the strip
+replaces. `t` is drawn dim while the answer box has focus, because it is a letter and goes into
+it — the same guard `h` and `u` sit behind, and the button under the card always works.
+
+**«Учитель», top right, in both phases** ([ADR-034](../.claude/DECISIONS.md#adr-034)). A
+ghost button beside the direction chips, key `a`. The tutor opens in the side column the word
+inspector uses, with **prepared questions about this card** as chips above the composer — one
+click sends a question the SERVER composes from the card and the pack, and the answer comes
+back in a fixed shape (numbered sections, no check question). Which chips, by direction ×
+phase × outcome:
+
+| card | before the answer | after: wrong | after: right |
+|---|---|---|---|
+| узнавание | «Из чего состоит `X`? (подсказка)», «Что спрашивает эта карточка?» | — | «Разбери предложение целиком», «Почему именно `X`?», «Переведи `X` и дай два примера» |
+| воспроизведение · форма в предложении | «Подскажи, не называя слова» / «Какая форма нужна и почему?», «Что спрашивает…» | «Почему не `typed`?», «Почему именно `X`?», «Разбери предложение», «Переведи…» | «Почему именно `X`?», «Разбери…», «Переведи…» (+ «Как пишется…» when accepted without diacritics) |
+| написание | «Что спрашивает…» | «Как пишется `X` и почему», «Разбери…», «Переведи…» | «Как пишется…», «Разбери…» |
+| на слух | «Что спрашивает…» | «Разбери…», «Почему именно `X`?», «Переведи…» | same |
+
+**Before the answer, a question is a hint.** The panel says so («Учитель до ответа —
+подсказка: оценка будет не выше «Трудно». Карточка всё равно спросит вас.»); the moment a
+question is sent the card is marked as hinted, exactly as «Подсказка» marks it, and «Хорошо» /
+«Легко» carry «засчитается как «Трудно»» with the Hard interval. The card is not revealed: the
+learner still answers. The server withholds the answer from the model in that phase and the
+hint chips ask for the rule, never the form. Free questions are typed in the same composer and
+travel with the card as context. **One chat per word** («Повторение · `jöttél`» on the
+AI-teacher page); the panel's link opens it there. The same word later the same day — its
+learning step — continues that conversation; the next word opens an empty panel. The standing
+honesty paragraph and the sources list are NOT drawn here: they are the chat screen's, and
+what defends an answer travels with the answer — the model's name, the lesson it used, the
+words the dictionary does not carry, the small-model note and the context meter ([ADR-034],
+amended). Keys pressed in the composer are the composer's; `Esc` closes the panel unless the
+composer kept it to stop an answer.
+
+**The card header names what it is asking.** It used to read `УЗНАВАНИЕ НОВАЯ` — two words
+uppercased by CSS, run together with nothing saying that the first is the direction and the
+second means you have not seen this card before. It read as one unparseable label. Now: the
+words «тип карточки», then two visually distinct chips, then a sentence under the progress bar
+saying what this direction asks of you («узнавание — видите венгерское слово, вспоминаете, что
+оно значит»), for all five directions. The chips keep the no-hit-target rule that put the
+direction there in the first place — `пропуск` reads in Russian as the imperative "skip", and as
+a bordered pill it was clicked as a skip button and did nothing.
 
 **Audio autoplays** on `listen` and `spell` directions. Never on `recognize` — it would give
-the answer away.
+the answer away. Those two directions also withhold the Hungarian entirely until the answer:
+the sound is the question, and printing the sentence turns a dictation into a copying exercise.
+Speech comes from the device by default ([ADR-012](../.claude/DECISIONS.md#adr-012)); a device
+with no Hungarian voice gets the reason on the card rather than a silent one.
+
+**The direction indicator is a LABEL, not a control.** It used to be a bordered pill in the
+top-right corner where a control belongs, and the Russian name of the `cloze` direction was
+«пропуск» — which reads as the imperative "skip". It was clicked as a skip button and did
+nothing, which is the worst outcome an affordance can have. It is now unboxed text, and the
+direction is named «форма в предложении».
+
+**A cloze names the word it wants.** `Jó ____, Timmy!` accepts reggelt, napot, estét and
+éjszakát — four real greetings — so a card showing only the gap is asking the learner to guess
+which one was meant. Cloze is the only direction that writes to the morphological state space,
+so that guess landed in the grammar heatmap as a case failure. The card therefore carries the
+target's DICTIONARY form and its meaning (*«Поставьте в нужную форму: éjszaka — ночь»*), and
+deliberately not the required features: naming the case would hand over the answer the card
+exists to ask for. The word is given; the form is the exercise.
+
+**A typed card says how much to type.** `produce` prompts with the target word's gloss, and one
+Hungarian word often glosses to a Russian phrase — `viszlát` is «пока, до встречи». Learners
+typed the phrase and were marked wrong for answering the question they were asked, so the
+placeholder names the scope («одно слово по-венгерски») rather than adding a line of chrome.
+
+**`produce` asks for the DICTIONARY form; `cloze` asks for the form in the sentence.** They are
+different questions and a note carries both. `produce` used to be graded against whatever
+inflected token the note's sentence happened to contain, so a card printed «день; солнце» — the
+entry for `nap` — and demanded `napokra`, a sublative plural nothing on the card had named, while
+the placeholder promised one word. The sentence and its suffix are not lost: they are the cloze
+card's question, on the direction that grades morphology.
+[ADR-017](../.claude/DECISIONS.md#adr-017).
+
+**The queue is two piles, and the learner picks.** «Всё · План · Тексты» on the start screen
+(§4.5) — until 2026-09-03 a segmented control above the progress row — draws course material and
+words mined from reading as separate stacks, because "finish today's course work" was otherwise
+impossible without also clearing every word ever clicked in a text. **Each pile carries two
+numbers, due and new.** The reader pile really can sit at 0 due and 88 new, and one merged figure
+would either hide that backlog or invent one. The daily new-card budget is shared across both,
+and the copy says so: switching piles buys no extra new material. The card names its pile in the
+progress row, and the done screen says what the other piles hold and links back to the start
+screen, so emptying one pile does not need a reload to discover the other.
+[ADR-016](../.claude/DECISIONS.md#adr-016), [ADR-028](../.claude/DECISIONS.md#adr-028).
+
+**A cloze over the learner's own sentence says what the sentence means.** A word added from the
+reader has no pack sentence behind it, so there is no human translation to show — the crib comes
+from the MT sidecar and is printed **beside the Hungarian, with the model named beneath it**,
+never in a tooltip. It appears at question time on `cloze` alone: that direction asks *which
+form*, and a learner cannot choose one for a sentence they cannot read. The blank is Hungarian
+and the crib is not, so nothing is handed over, and the required features stay unnamed as ever.
+With the translator off the card is Hungarian plus its gloss and says nothing about a failure.
+[ADR-018](../.claude/DECISIONS.md#adr-018).
+
+**The cloze blank is split by the server.** `note.target_start/target_end` are byte offsets into
+UTF-8 and do not cross the wire: the client used to slice `hu` with them as JavaScript string
+indices, and one accented letter before the target put the gap inside the following word.
+
+**Every word on the card is clickable, and the card says what the sentence means.** The card
+used to be an inert string with the TARGET WORD's dictionary gloss floating under it —
+`Jó hírt hoztunk.` above «хороший; добрый», which is the entry for `jó` and reads as a
+mistranslation of the sentence. Three things fixed that, and all three were already in the pack:
+
+- the target word is **underlined** in the sentence, so the gloss has a visible referent, and
+  the gloss line names the word it belongs to;
+- the **whole sentence's translation** is shown (`sentence_trans`, 19,641 EN / 3,746 RU rows the
+  review screen had never read), on reveal rather than on the question;
+- clicking any word opens the **inspector** (§4.1).
+
+### 4.1 The word inspector
+
+A panel beside the card — the same one the reader's rail is — answering three questions in the
+order a learner asks them: what does it mean (the dictionary entry), what SHAPE is it in (the
+morpheme breakdown of this exact form, every feature named from the pack's label table), and
+where would I meet it (attested sentences with their translations, `GET /api/lemma/:id/examples`).
+
+The middle one is the reason it exists. `hoztunk` is not a word to memorise, it is `hoz` + past
++ 1pl + indefinite, and a learner who can see that decomposes the next one themselves. Nothing
+in the panel is generated: an unresolvable form says so, and a word with no attested sentence
+says that too rather than being given an invented one.
+
+`Esc` closes it. It is available in the reader too, where the rail gained the same examples.
+
+### 4.2 The end of a session, and the daily new-card limit
+
+**Every number on this screen speaks the Breakdown vocabulary** (ADR-021): post-burial,
+day-granular, one coordinate system shared with the tab strip and Today. The first learner's
+session was «26 к повторению» over ten served items, «на сегодня всё», and five more cards on
+refresh — three numbers, three coordinate systems, all technically true.
+
+**Three endings, not two, and the third counts down.** Clearing what is answerable NOW is not
+the end of the day when learning steps are still maturing: «Пока всё» carries «Сегодня
+вернутся ещё: N — через M:SS», a live countdown to `nextDueAt`, and the queue **reloads
+itself** when the step lands (and on tab focus) — the session summary accumulating across the
+reload, because it is the same sitting. «Возвращайтесь завтра» is said only when nothing
+returns today. Under it, the hidden cards are named instead of silently counted: «отложено до
+завтра: K — другие стороны уже отвеченных слов», and a new word deferred because its sibling
+was answered today is reported as a DEFERRAL, never as the daily limit's doing — `pacedOut` is
+true only when the budget is genuinely spent with words genuinely behind it.
+
+**The session summary** is four measured figures — answered, accuracy, new words started,
+minutes — a competence signal in the [R14] sense, not a celebration.
+
+Two different endings, and they used to print as one. "Очередь пуста. Возвращайтесь завтра"
+directly above "новых карточек в очереди: 59" is a screen contradicting itself — the queue is
+not empty, the day's ration of NEW material is spent. Clearing the day's work and running into
+the cap now read differently, and the cap states its arithmetic:
+
+- **in words first, cards second.** A note is a word; a card is one direction of it and a note
+  spawns three to five. "59 new cards" said to someone who had taken up 27 words was accurate
+  and unusable — there was no way to get from one number to the other. The screen leads with
+  words and explains the multiplier.
+- **the pace, and what it implies.** Started today, out of the limit; how many days the backlog
+  takes at that rate. A limit without its arithmetic reads as a fault.
+- **where the dial is.** A link to Settings. Saying "come back tomorrow" while hiding the
+  control makes a setting look like a verdict.
+
+**The limit budgets what reaches the screen.** It used to select `newPerDay` cards and *then*
+bury siblings — and new cards come back ordered by note, so a note's three directions sit
+together: a limit of 20 selected 20 cards, collapsed them to about seven notes and showed seven.
+The learner met a third of the new material their own setting promised, every day, with nothing
+saying why. Buried first, then trimmed. `internal/srs/queue.go`, pinned by
+`queue_newlimit_test.go`.
+
+**The reveal always states the answer.** «Подсказка» sets the card to its answered state without
+submitting, so on a typed card there was no diff and no server verdict — and therefore nothing on
+screen saying what should have been typed. It was worse once `produce` began grading the
+dictionary form, because the sentence printed below carries the *inflected* one, so the answer
+appeared nowhere at all. The reveal now prints it plainly, suppressed only when the diff is
+already showing both lines or when the learner just typed it correctly.
+
+**The crib sits with the sentence it translates.** On `produce` the Hungarian appears only in the
+reveal, while its translation was rendering up beside the gloss — two halves of one sentence a
+whole card apart, with nothing saying they were the same sentence. And it is printed **once**:
+on the directions whose reveal carries the sentence, the crib above the answer box stays off in
+the answer phase, or the same machine translation stood on the card twice. Where no translation exists,
+the same slot offers to fetch one: a pack translates 19,641 of its sentences and not all, and a
+sentence the learner brought from their own reading has none until the sidecar has seen it, so
+"no translation" has to be an offer rather than a dead end. Nothing is fetched until asked — the
+queue itself still only ever reads the cache.
+
+**«Тренировка» is a mode beside the three piles, not a fourth one.** It draws at random from
+whichever pile you point it at, ignores due dates entirely, and is reachable from the start screen
+(§4.5) at any time and from the done screen the moment the queue is empty or its daily ration
+spent — which is when a learner asks for it. It shows `∞` rather than a count, because there is
+no obligation behind it to count. The round's shape is chosen on the start screen: the pile,
+**length (10/20/30)** and the **«слабые слова» mode**, which leads with the lowest-retrievability
+words, weakest card per word. The criterion is printed — an explicit learner choice, not the
+hidden agenda ADR-019 rejected — and the card's progress row repeats it as it was really applied:
+on a deck with nothing reviewed it falls back to random and says so (ADR-024). The done screen's
+«Тренировка» starts a round over the pile just reviewed, a text filter included, so the words
+just mined from an article can be drilled on the spot.
+
+**The per-text filter is a link, not a pile.** It arrives from the library card's or the reader's
+«Повторить слова: N» button as `/review/session?scope=text:<id>` — straight to the card, because
+on those screens the choice is already made — and the card's progress row reads «Только слова из
+текста». A sub-slice of «Тексты» (ADR-022), so the three-pile arithmetic keeps adding up; the
+start screen does not list texts, the library does.
+
+Answering there **schedules nothing**: no due date moves, no feature is graded, no word gets
+closer to «знаю». That is stated on screen, in a standing notice, for the whole session — this is
+the one screen where an identical-looking card means two different things, and inferring the
+difference from a due date that never moves is not something to ask of a learner. Practice
+volume and accuracy get their own line on Прогресс, under the lemma curve and never folded into
+the review count, with the same caveat repeated. Minutes count toward the daily target because
+they are real work; the streak still needs the real queue cleared.
+[ADR-019](../.claude/DECISIONS.md#adr-019).
+
+**Burial lasts the DAY, not the page load.** Answering one direction of a word takes that word's
+other directions off the table until tomorrow. Without it, a refresh served the same word again a
+second later — with the answer still on screen in the learner's memory, so it tested nothing —
+and because a reload also tops the session back up to the daily budget, the queue never shrank.
+It read as the app having lost every answer. The card actually answered does still return, ten
+minutes on: that is FSRS's learning step, not a sibling. `buryAnsweredSiblings`, pinned by
+`queue_bury_today_test.go`, and gated on `review.burySiblings` like the rest of burial.
 
 ---
+
+### 4.4 Sets — the day dealt out in bites, and a card that shows its own memory
+
+```
+   План · набор 2 из 5 · отвечено: 7 из 15                    тип карточки  ФОРМА В ПРЕДЛОЖЕНИИ
+   ▓▓▓▓�▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░░░░░░░░
+   [закрепляю]  ✓✓✗✓✓  эта карточка: верно 4 из 5
+   ┌─────────────────────────────────────────────┐
+   │  A ház___ lakom.                             │
+   │  …                                           │
+   │  ответ верный → вернётся через ~3 дн         │
+   └─────────────────────────────────────────────┘
+   [ Снова  ~1 мин ] [ Трудно  ~10 мин ] [ Хорошо  ~3 дн ] [ Легко  ~8 дн ]
+```
+
+**Seventy due cards were served as «1 / 70».** The first learner's word for it was
+*exhausting*, and the spacing literature has nothing to say in defence of a seventy-card
+sitting — what it does say ([R18](../.claude/research/18-sessions-and-progress.md)) is that a
+sitting relearns each item to **one correct recall**, that a **near, visible finish line** is
+one people reach, and that **measured progress is feedback** where points are rewards. So the
+queue the server serves — unchanged, every number on it unchanged
+([ADR-021](../.claude/DECISIONS.md#adr-021)) — is dealt out by the client in **sets**
+([ADR-026](../.claude/DECISIONS.md#adr-026)).
+
+- **Size and order are per-device chips on the start screen** (§4.5, ADR-028 — until
+  2026-09-03 they sat above the bar), like practice round length (ADR-024): 10 / 15 / 20 / 30,
+  default 15; «сначала просроченные» (the default — the most overdue card is decaying fastest)
+  or «вперемешку», a random order that is **stable for the day** so a reload cannot reshuffle
+  the remainder. Chosen before the sitting; changing one mid-sitting means going back to the
+  start screen. Practice rounds are one set and read neither.
+- **The bar is the set's**, not the day's: «набор 2 из 5 · отвечено: 7 из 15». A set is
+  finished when every card in it has been answered once. **Nothing answered in a set comes back
+  in it.** A miss returns through the server's queue once the learning step FSRS gave it has
+  elapsed: the store fetches the served list again the moment a set finishes, so a card missed
+  a few minutes ago is in the next set because the scheduler put it there, and one still
+  maturing is under «сегодня вернутся ещё» on the done screen. The first version re-served the
+  miss at the back of the set and waited with a countdown when the set ran out first; the
+  learner did not understand «вернутся через 0:41» and asked for it to go
+  ([ADR-026](../.claude/DECISIONS.md#adr-026), amended 2026-09-03). What a miss gets instead is
+  a line to read: the set summary and the done screen **list the missed words with their
+  answers**.
+- **The memory row** under the direction hint says what this card knows about itself: the
+  stage as a badge (новая · учу · молодая · закрепилась · заново — Anki's young/mature at 21
+  days, named as a convention in the tooltip), the last eight outcomes as marks, and «эта
+  карточка: 4 из 5». After the answer the badge and the marks move to the new state and
+  «интервал 3 дн → 8 дн» appears. Every figure is measured or computed by the library; nothing
+  on the row goes up on its own, which is the whole of the difference between this and a score
+  ([R14], [R16 §3]). The **chance of recalling it now** used to sit on this row and was taken
+  off (2026-09-03): on a card in its learning steps the model computes it against an interval
+  of minutes, so it read «100%» over five crosses — right by the model, and to the learner a
+  claim that they know a word they have just missed five times. It still stands in the words
+  browser, where every card has graduated and the number means what it says.
+- **«что это значит?» — what it takes for the word to stop coming back**
+  ([ADR-039](../.claude/DECISIONS.md#adr-039)). The row was measured, honest and silent about
+  the one question the first learner asked: «не сильно понятно, что надо сделать, чтоб слово
+  закончить учить… а что делать, чтоб оно исчезло?» Read cold, «верно 0 из 9» over eight
+  crosses looks like a score being lost. A disclosure at the end of the row — closed by
+  default, remembered per device — answers it in five sentences: the stage and what it means
+  (the hint that until now lived only in a `title=`); what a right answer and a miss schedule
+  next, from the same preview the grade buttons use, while the card is still asking — in free
+  practice, that **nothing here is scheduled** instead; that a card never ends but returns ever
+  more rarely, which is what «выучено» means; that the tally is the review log and not points,
+  with no «N in a row» threshold behind it; and that the one control which does remove a word
+  is **«В корзину»** (`t`) — the whole word, and not a delete (§4.7). No bar, no denominator
+  and no target: there is no such number, and inventing one is the thing [R14] and [R16 §3]
+  rule out.
+- **The verdict takes the answer box's place.** On a typed card the box is the question's; once
+  the answer is in, «вы: ala / нужно: aztán» renders exactly where the box was — the eye is
+  already there — followed by what the card additionally graded, and only then the sentence as
+  context, for the directions whose prompt did not already show it. The first layout printed
+  the sentence and its crib again above the diff, below a divider, and on a long card the
+  correct form was under the fold behind the key strip: every wrong answer meant scrolling to
+  find out what was wrong. The column is anchored at the top while a card is up, so the reveal
+  grows downward instead of re-centring the prompt.
+- **The grades carry their intervals** — «Хорошо ~3 дн», from `Scheduler.Preview`, marked
+  approximate because fuzz is seeded at answer time — and a typed card says «ответ верный →
+  вернётся через ~3 дн» under its box. Neither appears in practice, where nothing is scheduled.
+- **Between sets: a summary of measured facts** — answered, right, missed (listed with their
+  answers, to read over), «закрепилось» (the words whose interval crossed 21 days in this set,
+  named), minutes — with «Следующий набор» on `space` and «На сегодня хватит». No praise line,
+  no streak theatre; a two-note `setComplete` cue rather than the full stop, which still
+  belongs to the empty queue. The learning-step auto-reload does **not** fire on this screen:
+  the list was already fetched again when the set finished, which is how a matured miss is in
+  the next set.
+- **Today prints the day in sets** — «45 к повторению · 3 подхода по 15» — from the same
+  per-device size.
+
+**The crib says what language it is in, and offers the other** ([ADR-035](../.claude/DECISIONS.md#adr-035)).
+The pack translates most sentences into English and few into Russian; a Russian-locale
+learner used to get the English line unlabelled and no way to ask for Russian, because the
+translate button was drawn only when there was no line at all. Now an other-language pack line
+carries «(по-английски — русского перевода в пакете нет)», and «Перевести на русский» sits
+under it whenever the translator is reachable; the machine's line is printed below the human
+one with its model beside it, and both stay. The crib is keyed to the card, so a fetched
+translation cannot survive onto the next sentence. The word breakdown (§4.1) shows its example
+sentences through the same component, and every list row that shows a gloss in the other
+language marks it «(англ.)».
+
+**The stage chip speaks the learner's language, not Anki's.** «молодая» — a literal *young*,
+Anki's term for a card under 21 days — read as a mistranslation to the first learner, and it
+was one in spirit: nothing on the screen said what a card is young *at*. The chips are now a
+sentence in three tenses — «новая · учу · закрепляю · закрепилась · заново» (*new · learning ·
+settling · settled · relearning*) — and the tally under the marks says «верно 2 из 2» rather
+than a bare «2 из 2». The tooltip still names the 21-day convention, once. The chip describes
+the **card** — карточка, feminine — which is why it is «новая» and not «новое», and why the
+`isNew` chip in the header (`review.newCard`) is the same word; the tooltip says «эту карточку»
+so the noun is on the screen.
+
+**The grade previews are read from the instant they were computed.** They are made when the
+queue is served; measured against the clock instead, the 10-minute learning step read «~7 мин»
+on a card reached three minutes later, the 6-minute one «~3 мин», and the learner asked,
+reasonably, whether the maths was right. The maths was the library's and right; the display
+was ours and drifting. `preview.at` travels with the figures, and an interval is `due − at`.
+The gap the learner saw — «Хорошо ~10 мин» beside «Легко ~12 дн» — is real and by design:
+on the learning steps *Good* is the next step, minutes away, and *Easy* graduates the card
+straight to days from the model's initial stability for an easy answer. The tooltip says so.
+
+**The key strip sits under the card, not under the viewport.** Fixed strips (`KeyBar`, the
+milestone toast) centred on the window and so sat 112px right of the card they belonged to,
+half a sidebar off. The shell exposes the rail's width as `--rail`, and the strips start
+after it.
+
+### 4.5 The start screen — what to take, before taking it
+
+```
+┌─ Повторение ──────────────────────────────────────────────────────────────┐
+│  Что взять сейчас: стопку по расписанию или круг тренировки.              │
+│                                                                           │
+│  ╭─ По расписанию ─────────────────────────────────────────────────────╮  │
+│  │  Всё      к повторению: 74 · 5 подх. по 15 · +72 новых  [▸ Начать ⎵]│  │
+│  │  План     к повторению: 37 · 3 подх. по 15 · +32 новых  [ Начать ]  │  │
+│  │  Тексты   к повторению: 37 · 3 подх. по 15 · +40 новых  [ Начать ]  │  │
+│  │  ─────────────────────────────────────────────────────────────────  │  │
+│  │  в наборе: 10 [15] 20 30   порядок: [сначала просроченные] вперемешку│  │
+│  ╰─────────────────────────────────────────────────────────────────────╯  │
+│                                                                           │
+│  ╭─ Тренировка ∞ ──────────────────────────────────────────────────────╮  │
+│  │  Свободная тренировка: случайные слова, в любой момент.             │  │
+│  │  На расписание не влияет.                                           │  │
+│  │  слова из: [Всё] План Тексты   слов за круг: 10 [20] 30  Слабые слова│  │
+│  │  [ Начать круг ]                                                    │  │
+│  ╰─────────────────────────────────────────────────────────────────────╯  │
+└───────────────────────────────────────────────────────────────────────────┘
+```
+
+**The choice left the card on 2026-09-03.** Three decisions had each put a control strip above
+the card — the pile tabs (ADR-016), «Тренировка ∞» with its rows (ADR-019, ADR-024), the set
+chips (ADR-026) — and the learner's report was that
+`Всё 74 +72 · План 37 +32 · Тексты 37 +40 · Тренировка ∞` does not belong over a card answered
+two hundred times a day. Choosing what to take is a different moment from taking it
+([ADR-028](../.claude/DECISIONS.md#adr-028)).
+
+- **`/review` is the start screen; `/review/session` is the card.** Every «Начать» is a link
+  carrying the choice in the query — `?scope=course`, `?practice=reader` — and the card starts
+  what its URL asks for, on arrival and on a query change. Nothing else starts a session, so a
+  reload is honest and any screen can make the same choice with a link.
+- **The numbers are the card screen's own.** `GET /api/review/queue?scope=all` returns every
+  pile's `Breakdown` (ADR-021) — due now, new in words, learning steps returning today — and
+  the day in sets from the per-device size. Two numbers per pile, in Today's two colours, never
+  one.
+- **The raised object is the obligation.** The scheduled piles sit on the one raised card;
+  practice is quiet beneath it — always there, owing nothing — with its pile, length and
+  «слабые слова» chips, and the trash deliberately not among the piles (§4.3, ADR-025).
+- **`space` starts «Всё»**, as it starts the day on Today. Today's own «Начать: Память» goes
+  straight to the card, past this screen: that button exists so the learner does not have to
+  choose. The sidebar row, the topbar due chip and the memory loop card come here; the library,
+  the reader and the trash go straight to the card with their query.
+- **The card still says what it is in.** The progress row names the pile («План», «Только
+  слова из текста») and, in practice, the mode, the pile and the criterion really applied. The
+  done screen says what the other piles hold in one sentence and links back here; its
+  «Тренировка» starts a round over the pile just finished.
+
+### 4.3 «В корзину» — saying no to a card
+
+The queue had no way to hear "no". A card the learner judged unusable — a sentence the miner cut
+badly, a gloss that says nothing, a construction three months above them — could only be failed
+forever or left to sit at the front of every session. Both answers teach the learner to distrust
+the queue, and one of them poisons the heatmap: failing a card nobody could have answered writes
+«снова» into `morph_state` for features the card never really asked about.
+
+**A quiet control, below the ratings and away from them.** It is the rare action on a screen
+whose four grading buttons are pressed two hundred times a day, and it must never be within a
+slip of them. Offered in BOTH phases: a card can be judged unusable from the question alone, and
+making the learner reveal an answer they do not want first would be the app insisting on an
+interaction in order to accept a refusal.
+
+**No confirmation dialog — an undo instead.** Trashing is reversible, and a dialog taxes the
+common case to guard the rare one. What it owes instead is a way back that is visible without
+going and finding a screen, so the next card carries a banner: «"lassan" отложено — из очереди
+убрали», with «Вернуть». Restoring from there puts the word back in the DECK, not into the
+running session — the queue was built before it left — and the banner says which, rather than
+leaving the learner to wonder why the card did not reappear. It survives exactly one card: long
+enough to change your mind, short enough not to become chrome.
+
+**The counts update from the server, not from arithmetic here.** Trash and restore return fresh
+`Breakdown`s, so the tab strip and the text chip stay in the one vocabulary every review number
+speaks (ADR-021).
+
+**`/trash`** lists the set-aside words — dictionary form, meaning, the sentence they came out of,
+whether they came from the course or from reading, and when — with «Вернуть» per row and
+«Тренировать отложенные», which opens a practice round over them. Reached from the banner and
+from «Слова», never the sidebar: it is not part of any daily loop.
+
+Two things it must be at once, and they pull against each other. It has to be a place a word can
+be found again, or «убрать» is a delete wearing a softer word. And it must not become a second
+deck the learner feels they owe something to — so it carries no due dates, no counts of debt and
+no progress. The one line of copy at the top says exactly what a trashed word does and does not
+do, because a learner who thinks this is a delete will not use it. See
+[ADR-025](../.claude/DECISIONS.md#adr-025).
 
 ## 5. Read
 
@@ -148,13 +658,102 @@ the answer away.
 └───────────────────────────────────────────────────┴─┴──────────────────┴───┘
 ```
 
-- **Coverage meter** shows lemma and element coverage with the 95/98 lines drawn and labelled
-  *«пороги выведены для английского, ориентировочно»* ([R6](../.claude/research/06-lexical-coverage.md)).
+- **The author's line breaks survive.** The reader renders the text as paragraphs, splitting on
+  a blank line and keeping single newlines as line breaks. It used to emit one space between any
+  two non-adjacent tokens, which flattened a pasted article into an unbroken wall. The gap is
+  read out of the body by BYTE offset and decoded back, never guessed — offsets are UTF-8 bytes
+  and JavaScript counts UTF-16.
+- **The coverage panel says what it counts, in words.** It used to head both figures with
+  «покрытие» — a term out of the lexical-coverage literature and exactly the jargon this project
+  bans from learner-facing copy — print bare percentages with no denominator, stack the two in
+  one shared track so they could not be told apart, and bury the third quantity at the tail of a
+  caveat. `по леммам 14% · по элементам 14%` answered none of "14% of what", "why two", "what
+  moves either".
+
+  Now two named bars with counts — «Знакомых слов 111 из 785 · 14%» and «…из них с разобранной
+  грамматикой 110 из 785 · 14%» — «не разобрано слов: 21» as its own line, and a disclosure
+  carrying the mechanism. **The second figure needed explaining most**, because it is not
+  intuitive: a word counts only when every feature on it is at `mining.knownThreshold`
+  retrievability, and `morph_state` is written by exactly two things — cloze cards
+  (`srs.Direction.GradesFeatures`) and the grammar drills. Reading, `recognize` and `produce` do
+  not touch it, so a learner with hundreds of words in play and no drills behind them sees a low
+  second figure that no amount of reading moves, and there was no way to work that out from the
+  screen. It can also drift down on its own as retrievability decays. The 95/98 marks stay,
+  still labelled as English-derived ([R6](../.claude/research/06-lexical-coverage.md)), but under
+  the disclosure — they were crowding out the two sentences that answer the actual question. The
+  computation in `internal/mining/coverage.go` is unchanged.
+- **A word the pack does not have gets two ways out, and no dead buttons.** `aludtál` and
+  `Kinyitom` resolve to no lemma, and the rail went on drawing «Знаю», «Игнорировать» and
+  «В карточки» as live controls: the first two dropped the click on the floor (`setStatus` needs
+  a `lemmaId`), and the third built a card blank on its back. The status buttons are now
+  disabled with the reason — the rule `SpeakButton` already followed — and the rail offers
+  **«Перевести слово»** through the local translator and **«Своё значение»**, a meaning you type,
+  which needs no service.
+
+  Both render **in the same shape as the pack's own «Значение»** — heading, numbered line —
+  because to a learner they answer the same question, and a differently-shaped panel implied a
+  lesser kind of answer. Both can be **kept**: `user_gloss` (migration 00009) is the learner's
+  own dictionary, an overlay beside the read-only pack in the same way `morph_correction` is.
+
+  **A saved machine line stays a machine line.** `source` is stored and re-rendered on every
+  view, and such an entry does not reach a card: the back of a card is what the `produce`
+  direction grades you against, so it has to carry something a person read and accepted.
+  «Принять как своё» is that acceptance and re-saves the entry as `manual`. The rail says so
+  rather than silently withholding the card.
+- **The sentence's translation lives in the rail, under the button that asked for it**, not
+  below the article where it used to render — a long way from where the learner clicked, and off
+  screen entirely on a narrow window. The `t` key is **gone**: a keystroke at the bottom of the
+  key strip went a release without being found, and one visible button beats a shortcut plus a
+  line of documentation about it.
 - **Word detail rail** shows the breakdown of *this exact form*, not just the dictionary entry.
 - **`n+1` rail** surfaces sentences scoring in the sweet spot, with the unknown elements named.
-- **Keyboard:** `j`/`k` word · `n`/`p` sentence · `a` add card · `K` mark known · `i` ignore ·
-  `f` toggle rail · `/` search · `1`–`5` set knowledge level directly.
+- **Keyboard:** `←`/`→` word (`j`/`k` alias) · `Enter` add card · `Space` mark known ·
+  `Backspace`/`Delete` ignore · `s` speak the sentence. Drawn by the key strip (§2).
+  `K`/`i`/`a` remain as aliases; translation is a button in the rail, not a key — see above.
+  The three triage keys **advance**, so a page is walked end to end from the home row; a
+  modifier is never claimed (⌘← stays Back), auto-repeat moves but never triages, and with
+  nothing selected `Space` still scrolls the page.
+- **Audio is here, and it needs no server.** 🔊 on the selected word, on every `n+1` candidate,
+  and on the whole sentence under `s` — the device speaks it
+  ([ADR-012](../.claude/DECISIONS.md#adr-012)). **Read along** speaks each word as the selection
+  lands on it: a device preference in `localStorage`, off until switched on, debounced so a held
+  arrow key does not stutter the first syllable of every word it passes.
+- **Sentence translation, where the learner has deployed one.** `t` renders the selected
+  sentence into the UI language via `services/mt`, and the panel names the model that wrote it —
+  in the panel, not in a tooltip, because it is the only text on the screen that no person and no
+  corpus stands behind ([ADR-014](../.claude/DECISIONS.md#adr-014)). Without the service the
+  control is **not drawn at all** and `t` is not advertised in the key hint: the reader has to
+  read as complete on the default install, which is the one where this is off. Walking the cursor
+  out of the translated sentence drops the panel rather than captioning the next line with the
+  previous line's meaning.
 - An **"analysis is wrong"** link on the rail writes a `morph_correction` override.
+
+### 5.1 The library
+
+The shelf, built to stay usable as it grows: a two-column grid of cards — title, kind icon
+(paste/page/subtitles, 🎧 when audio is attached), date, word count, the two coverage bars with
+their reader names, and «Повторить слова: N» wherever the text has words in the deck (the
+per-text scope, ADR-022). Past three texts a toolbar appears: title search, sort
+(newest/level/coverage/title), level filter. The add form lives behind a header button and
+opens itself only on an empty shelf — a library whose front page is a data-entry form reads as
+a task, not a shelf.
+
+**The level chip always names its author.** `B1 · оценка по частотам` (the ingest heuristic:
+pack frequency bands ≥90% of running words, grammar-topic ceiling at ≥3 hits, a sentence-length
+nudge), `· оценка модели` (the `services.llm` second opinion), `· вы указали` (the learner —
+never overwritten by a machine). A text the estimator cannot resolve carries no chip at all:
+«уровень не определён» is a supported outcome, and the filter can select exactly those.
+ADR-023; the labelling rule is ADR-014's.
+
+### 5.2 Words — «что выучилось»
+
+`/words`, linked from the lemma total on Прогресс («Все слова →» — a total nobody can inspect
+is a claim). Every deck word as a row: dictionary form, gloss, status badge, a **memory bar**
+(the strongest card's retrievability right now, coloured by band — shown only once something
+was reviewed, because a bar over nothing would be an invented measurement), next review date,
+lapse count. Search goes through pack case-variants (never `COLLATE NOCASE`) and matches
+glosses too; sorts include «сначала шаткие», which is the browsing twin of practice's weak
+mode.
 
 ---
 
@@ -202,7 +801,10 @@ Deliberately austere. This is a drill.
               23/40      точность 78%      дикторов: 6
 ```
 
-- 2AFC, immediate green/red, both members replayable after the answer.
+- 2AFC, immediate green/red, both members replayable after the answer. **Both members are
+  words** ([ADR-033](../.claude/DECISIONS.md#adr-033)): the inventory once paired a real word
+  with a nonce one — `csak`/`sak`, `tuz`/`tűz` — and «как будто таких слов нет» was the
+  learner's exact reading of it. The build now refuses a member the dictionary does not carry.
 - **Talker badge** and a **distinct-talker count** for the session — because talker variability
   is the mechanism and we make it auditable ([R7](../.claude/research/07-hvpt.md)).
 - **No completion badge, ever.** Contrasts return on an FSRS schedule indefinitely.
@@ -217,8 +819,15 @@ zeros. The played member never reaches the client until after the choice.
 
 ### 7.1 Listen — the three passes as UI state
 
-A material = uploaded audio + its transcript (required: passes 2–3 and the coverage pre-check
-are built on it; it goes through the normal text ingest). The pass switcher is the learner's
+A material = a transcript, and **optionally** an uploaded audio file. The transcript is
+required — passes 2–3 and the coverage pre-check are built on it, and it goes through the
+normal text ingest. The audio file is not: requiring one meant the loop could not start until
+the learner had found a recording *and* a matching transcript, which nobody does, so on a fresh
+install this screen was an empty list above an upload form. Without a file the learner's own
+browser reads the transcript aloud, sentence by sentence, with the current sentence marked in
+pass 2 ([ADR-012](../.claude/DECISIONS.md#adr-012)). The list labels which materials are
+recordings and which are synthesised, and the player states plainly that a synthesiser is worse
+input than a speaker. The pass switcher is the learner's
 own claim, persisted server-side; the app never advances it. Pass 1 hides the transcript —
 that IS the pass. Pass 3 is per-sentence dictation with a character diff, which is where missed
 `á`/`ö` diacritics light up red. A/B loop, 0.5–1.5× with `preservesPitch`. Element coverage
@@ -251,6 +860,24 @@ The **phase badge is load-bearing UX**: a learner who does not know why the app 
 interleaving will assume it is broken. `[почему?]` links to a short explanation citing
 [R5](../.claude/research/05-interleaving.md).
 
+**The lesson leads, and the exercises are entered deliberately.** Opening a topic raises the
+LESSON and puts no exercise on screen at all; a button moves to the drills, which then take the
+raised surface while the lesson stays above as a reference. This is [R4] applied rather than
+cited: the screen used to raise the drill card and put it first, so opening a topic asked
+`név + Case=Sup — какой вариант?` of someone who had not been told what a superessive was.
+
+The lesson is assembled from three things the pack already carried and the app was not showing:
+`grammar_topic.explain_md_*` as prose, `morph_feature.label_*` + `explain_*` for what each
+feature IS, and `morph_feature.allomorphs` laid out by harmony class — which is literally what
+the allomorph drill then asks about. `TopicLesson.vue`.
+
+**Feature ids are never shown alone.** `Case=Sbl` is an identity, not a label. Every surface
+that names a feature — the drill prompt, the graded-feature chips after an answer, the reader's
+`n+1` rail and word detail — resolves it through the pack's own label table
+(`stores/features.ts`), in the UI locale, with the raw id kept small beside it where two screens
+need to be connected. A feature the pack does not know still renders as its id: honest and
+debuggable.
+
 **As built.** The badge always carries three things: the phase, the reason for it in plain
 language, and a bar showing the distance to the next transition. The reason is an i18n key with
 arguments, computed by the same pure function that set the phase — so the explanation on screen
@@ -264,10 +891,14 @@ behind it — the alphabet, politeness, preverb detachment. It says so plainly (
 объяснение — упражнений пока нет"*) and does not gate what comes after it.
 
 **Topic map.** `TopicMap.vue` renders the DAG grouped by CEFR level, in the pack's teach order.
-Locks are visible and name the specific blocker (*"Сначала нужно: винительный падеж"*), because
-a learner who can see what to finish can plan; one who just finds a topic greyed out cannot.
-Fallbacks are shown as a count — dropping back is normal, and a silent demotion would read as
-the app changing its mind at random.
+The order is shown as a recommendation (*"Лучше сначала: винительный падеж"*) and every topic is
+open: prerequisites stopped being locks in [ADR-013](../.claude/DECISIONS.md#adr-013), because
+gating all of A1 behind 80% accuracy on a three-month motor skill is a wall, not a floor. The
+two hard locks that remain — a failed checkpoint and the listening volume — still show a lock
+icon and name themselves.
+
+The demotion COUNT is deliberately not shown. Dropping back is normal, the phase badge announces
+it when it happens, and a running tally of past fallbacks names no action a learner can take.
 
 **Six exercise shapes**, `allomorph | case | conjugation | cloze | transform | mcq`. Choice
 items are answered with `1`–`4` or the mouse; `cloze` and `transform` are typed. **The expected
@@ -277,6 +908,116 @@ Hungarian word is marked, because *"-házben is not a word"* is a better correct
 cross.
 
 **Keyboard:** `1`–`4` choose · `Enter` check, then `Enter` again for the next item.
+
+### 8.2 The tutor — a question about the rule, answered in your language
+
+```
+┌─ Спросить репетитора ─────────────────────────────────────────────────────┐
+│  Объяснение принадлежит модели; урок выше — приложению. Ничто из          │
+│  сказанного здесь не становится карточкой.                                │
+│  ┌────────────────────────────────────────────────────────────────────┐   │
+│  │                       вы: Почему házban, а не házben?              │   │
+│  │  Здесь работает гармония гласных. В `ház` единственный гласный —   │   │
+│  │  `á`, задний, поэтому инессив берёт `-ban`: `házban` …             │   │
+│  │  ответ модели qwen3:8b                                             │   │
+│  │  Нет в словаре: házben — модель могла их выдумать.                 │   │
+│  └────────────────────────────────────────────────────────────────────┘   │
+│  [ Почему именно эта форма? ] [ Ещё три примера… ] [ Чем это отличается…] │
+│  ┌ Спросите об этой теме…                                    ┐ [Спросить] │
+└───────────────────────────────────────────────────────────────────────────┘
+```
+
+**Placed after the lesson, never before it.** [R4] is the order of this screen; the tutor
+does not reorder it, and a question is asked about a rule that has been read. The panel is a
+`quiet` card between the lesson and the drills ([ADR-027](../.claude/DECISIONS.md#adr-027),
+[R19](../.claude/research/19-grounded-tutor.md)).
+
+- **The answer streams.** A local model on a CPU writes a sentence at a time; an answer that
+  landed whole after twenty seconds read as a hang. The thread scrolls inside the panel — the
+  lesson above stays where the learner left it.
+- **Every answer names the model** («ответ модели qwen3:8b») — the label is the defence
+  ([ADR-014](../.claude/DECISIONS.md#adr-014)) — and every backticked Hungarian word the pack's
+  dictionary does not carry is listed under it in the `uncertain` hue: «Нет в словаре: házben».
+  An answer cut off — by the answer budget («закончился отведённый объём»), the timeout, a
+  stop («ответ остановлен»), a lost connection, or the model reciting the prompt's own headings
+  («модель начала повторять служебный текст», `tutor.EchoAt`) — is kept and marked with its
+  reason, and it is an answer, never an error: `error` only means nothing arrived
+  ([ADR-031](../.claude/DECISIONS.md#adr-031)).
+- **A standing note** under the composer says whose words these are and that nothing here
+  becomes a card; the sources sit behind «Справочный материал» beside it.
+- **Four openers** in the empty log so the first question is one click; a composer after that
+  (`Enter` sends, `Shift+Enter` breaks the line, `Escape` stops or backs out of an edit) that
+  grows with its text. The panel is the learner's latest chat pinned to this topic — it
+  survives a reload, and «Открыть в AI-учителе» opens the same chat on its page; «Удалить чат»
+  removes it.
+- **«Стоп»** replaces «Спросить» while an answer streams; what arrived is kept and marked.
+  **«Изменить вопрос»** on the last question puts its text back in the composer, says the old
+  answer and everything after it will go, and asks again — a chat, not a tree of them.
+- **The context meter** under the composer: a thin bar and «Окно модели 8 192 токенов:
+  последний вопрос и ответ заняли 3 850, свободно ≈ 4 342», from the server's own figures
+  (usage on the stream, the window from Ollama's `/api/ps`). Prompt + answer reaching the
+  window turns it into a warning — the head of the prompt, the rules and the lesson, was cut
+  without a word — and names the fix. A server that reports no window gets the bare figures
+  and «размер окна модель не сообщает»; nothing is ever printed as 0.
+- **With no model configured** the panel says so and links to Settings — never a dead panel.
+  **The panel froze mid-answer, blank until a reload, on every answer with no backticked
+  word** — the commonest kind from a small model: the `done` event carried
+  `"unattested": null`, the render threw on `.length`, and the stored copy read back after a
+  reload as `[]` was why reloading "fixed" it. The list is never null now, the panel guards it
+  anyway, and a thread that fails to load says so and offers a retry instead of rendering
+  nothing (the error used to live inside the block that needs a thread to exist).
+- The footnote names the reference material the tutor reads: the pack's lesson, its feature
+  tables, and the open grammars in `internal/tutor/kb` ([`TUTOR.md`](TUTOR.md)).
+
+### 8.3 The AI teacher — a chat, with the lesson found for it
+
+```
+┌ AI-учитель ──────────────────────────────────────────────────────────────────┐
+│ [ + Новый чат ]        │ Почему házban, а не házben?          [🗑 Удалить чат]│
+│ ТЕМА НОВОГО ЧАТА       │ тема определяется по каждому вопросу                 │
+│ [Любая — определять…▾] │ ──────────────────────────────────────────────────── │
+│ ЧАТЫ                   │                       ( Почему házban, а не házben? )│
+│ ▸ Почему házban, а…  🗑│                                     ✎ Изменить вопрос│
+│   по уроку: Локативн…  │ В `ház` гласный задний, поэтому инессив берёт `-ban`:│
+│ ▸ Гармония гласных     │ `házban` — «в доме», `kertben` — «в саду» …          │
+│   тема: Гармония глас… │ ответ модели qwen3:8b · по уроку: Локативная система │
+│                        │                                                      │
+│                        │ ┌ Спросите о венгерском…                 ┐ [Спросить]│
+│                        │ ▓▓▓▓▓▓▓▓▓░░░░░░░░░░░                                 │
+│                        │ Окно модели 8 192 токенов: последний вопрос и ответ  │
+│                        │ заняли 3 850, свободно ≈ 4 342.                      │
+│                        │ Объяснение принадлежит модели… Справочный материал   │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+**The screen is the chat** ([ADR-031](../.claude/DECISIONS.md#adr-031)). No page title — the
+top bar already says «AI-учитель» — and the conversation takes the viewport under it: the log
+scrolls inside, the composer sits at the bottom, and under the composer, where every chat
+product puts its "may be wrong" line, sit the honesty notice, the context meter and the
+sources. Messages sit in a reading column; a question is a bubble, an answer is text. The
+first learner's words: «окно чата очень маленькое, смотри на дизайн Клода или ChatGPT» — the
+chat had been a box under a 3xl title, two notices and a footnote.
+
+The page is a chat the way every chat looks ([ADR-029](../.claude/DECISIONS.md#adr-029)) — the
+first learner's words for what it should be were «просто как AI-учитель и всё», with a new-chat
+button and old chats to come back to, like the Ollama app they had just installed. What makes
+it this app's chat and not a generic one:
+
+- **A topic is an option on the new chat, never the gate to it.** Left on «любая», the server
+  finds the lesson for each question — from the Hungarian words the learner quoted, from the
+  topic's own words — and the answer says which: «по уроку: Локативная система» under it, or
+  «по справочнику, без урока». The lesson panel pins its own topic, and its «Открыть в
+  AI-учителе» lands on that same chat here.
+- **The list is chats, titled by their first question**, most recent first, with the pin or the
+  last lesson used as a subtitle and a delete control on each row. A review chat is titled by
+  the WORD it is about — «Повторение · `jöttél`», the Hungarian half in its own face — with a
+  repeat icon and «вопросы об этом слове» under it ([ADR-034](../.claude/DECISIONS.md#adr-034)).
+  A new chat is not stored
+  until its first question, so «Новый чат» pressed and abandoned leaves nothing behind.
+- **The URL is the chat**: `?thread=ID` reopens it; `?topic=code` from a lesson resolves to the
+  latest chat pinned there or to a new chat pinned to it.
+- Everything the panel prints, this page prints: the honesty line, the model's name, the
+  grounding, the unattested words, the sources footnote.
 
 ### 8.1 Placement
 
@@ -294,6 +1035,23 @@ failed topics. The verdict is shown **before** it is applied, per topic, with th
 answers behind each decision, and the screen states plainly that nothing is marked mastered:
 three items cannot show that.
 
+### 8.1 Knowing where you are
+
+**The step has a denominator.** `grammar.teachOrder` was «шаг {n}» — a bare ordinal — so
+"A1 · шаг 20" left a learner unable to tell 20-of-28 from 20-of-40. It now counts within the
+LEVEL, which is the unit the rail shows and the one a learner thinks in: «A1 · шаг 2 из 10».
+
+**The rail lists the level's topics** with each one's `PhaseBadge`, the current row marked
+`aria-current`, and a click moving between them without closing anything.
+
+**The URL is the source of truth.** `start()` had always READ `?topic=` and nothing ever wrote
+it, so the address bar described a topic you were no longer on, a reload put you somewhere else,
+a shared link was a lie, and Back did not undo «Все темы» because nothing had been pushed. Now:
+changing MODE — map to topic, topic to map — **pushes**, so Back returns you; moving BETWEEN
+topics in the rail **replaces**, so browsing ten does not cost ten Back presses to leave; and a
+`watch` on `route.query.topic` drives the screen, because pushes nothing listens to are worse
+than no pushes at all.
+
 ---
 
 ## 9. Progress — the signature screen
@@ -305,14 +1063,19 @@ three items cannot show that.
 │  ▁▂▃▄▅▆▇                               B1 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄  3500        │
 │                                        A2 ┄┄┄┄┄┄┄┄●  2000                │
 │                                                                           │
-│  ── Локативная система ──────────────  ── Признаки ──────────────────     │
-│           где     куда    откуда        Case      ████████░░ 71%          │
-│  внутри   ██ -ban ██ -ba  ▓▓ -ból       Mood      ███░░░░░░░ 32%          │
-│  на пов.  ██ -n   ▓▓ -ra  ░░ -ról       Definite  ██████░░░░ 58%          │
-│  рядом    ▓▓ -nál ░░ -hoz ░░ -tól       Poss.     ███████░░░ 66%          │
-│                                          VerbForm ████░░░░░░ 41%          │
-│  ▲ слабое место: -ról/-ről (делатив)                                      │
-│    и условное наклонение (Mood=Cnd, retrievability 0.41)                  │
+│  ── Локативная система ─────────────  ── Грамматические признаки ─────    │
+│           где     куда    откуда       надёжно·4  шатко·2  мало данных·9  │
+│  внутри   -ban    -ba     -ból                                            │
+│            93%     88%     71%         ▸ Падежи        ответов: 61   71%  │
+│  на пов.  -n      -ra     -ról           ████████████████░░░░░░░░         │
+│            91%     64%     отв: 4      ▸ Наклонение    ответов: 24   92%  │
+│  рядом    -nál    -hoz    -tól           ██████████████████████░░         │
+│            отв: 2  не было  не было    ▸ Число         ответов: 4         │
+│                                          мало данных                      │
+│  Цвет — доля верных ответов.                                              │
+│  Пунктир — ответов пока мало.          ▲ Требует внимания:                │
+│  Серое — форма не встречалась.           делатив — с чего 64%,            │
+│                                          условное наклонение 71%          │
 └───────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -321,8 +1084,34 @@ other tool tracks features separately. This screen is the product's argument for
 
 **As built.** The lemma curve is cumulative from `lemma_state.first_seen`, with the A1–B2
 month-milestone targets as dashed reference lines labelled as reference points, not judgements.
-The heatmap groups features by key (Case, Mood, …), weakest first, with a "слабое место" line
-naming the two weakest well-evidenced features. The checkpoint panel shows the NEXT assessment
+
+**The heatmap measures ACCURACY, not retrievability, and says so when it has measured
+nothing.** Retrievability is the probability of recalling something *right now*: it is ~1.0 for
+anything reviewed recently, so a learner a few days in met nine families at 100%, read the
+screen as broken, and was right to. It also tracks the calendar rather than the learner — a
+week away would have looked like the grammar collapsing, though nothing was forgotten and no
+answer was given. The bar is the rolling accuracy, drawn only once the server's `ready` flag
+— `srs.GateReady` against `drill.gateWindow`, the same line the interleaving gate draws — says
+the figure rests on evidence; below it a row states its answer count and the words
+«мало данных» rather than inventing a percentage. Colour has two earned states and one
+unearned: held, `weak` (the server's verdict against `drill.masteryThreshold`), and unmeasured.
+Nothing on this screen re-derives either threshold: `(*Server).mastery` reads both from config
+once, so the screen and the scheduler cannot quote different numbers.
+
+**Families are named, and open.** «Падежи», «Определённость объекта» — never `Case` or
+`Number[psor]` — and each expands to the individual features under it, by the label the pack
+ships in both locales. A feature id survives only in a `title`, for debugging. The
+«Требует внимания» line names weak features the same way; it previously printed
+`Mood=Ind, Number=Sing` beneath a column of 100% bars, so the card contradicted itself in two
+adjacent elements.
+
+**The locative grid distinguishes "not measured" from "not met".** Both used to render as an
+em dash, so seven untouched cells read as breakage. A met-but-unmeasured cell is dashed and
+carries its answer count; a never-met cell says «не было» in words.
+
+**A criterion not yet reached is not a failure.** It shows an empty circle and a progress bar,
+not the ✗ the history list uses for a genuinely failed checkpoint. The checkpoint panel shows
+the NEXT assessment
 with live evidence before it is taken — the measured criterion labelled "измерено приложением",
 the human-verified ones labelled "ваше собственное подтверждение — приложение проверить это не
 может". A failure prints the three-failure-mode diagnostic with the numbers that triggered each
@@ -347,9 +1136,58 @@ statement that the lemma targets come from the brief and are estimates.
 Sections, in order: **Review** (desired retention, new-card limit with the governor curve,
 direction weighting by goal) · **Grammar drills** (the competence gate, exposed on purpose) ·
 **Curriculum** (the exam date) · **Language** (UI locale, gloss language, fallback behaviour) ·
+**Ear trainer** (the talker floor and trials per session — the control the HVPT refusal screen
+has always told people to come here and change, and which did not exist) ·
 **Services** (TTS/ASR/NLP/LLM provider, endpoint, key, test button, latency) ·
-**About** (version, pack version and edition) · **Sound**, which sits outside the settings
-payload because it is a device preference, not an account one.
+**About** (version, pack version and edition) · **Speech** and **Sound**, which sit outside the
+settings payload because they are device preferences, not account ones.
+
+**Save is admin-gated on every card, not some of them.** `PUT /api/settings` is admin-only, but
+only HVPT and Services said so; Review, Curriculum and Language drew an enabled button that
+answered with a bare 403. All five are now disabled for a learner, with one line at the foot of
+the screen saying why — gating without a reason reads as a broken control.
+
+**The `tts` row no longer contradicts the Speech card.** With `tts.provider: off` it said
+«не настроено» while the card a few hundred pixels below named a working voice, because the two
+are about different things: the row is a TTS *service*, and Hungarian speech comes from the
+browser's own synthesiser ([ADR-012](../.claude/DECISIONS.md#adr-012)). Where the device has a
+voice, the row now says «говорит устройство» — one screen, one answer.
+
+**The `llm` row verifies the model, not just the socket, and the row grew a Model field.**
+A fresh Ollama lands with the endpoint filled and the model blank, and Ollama refuses a request
+that names no model — so the tutor failed with «модель не ответила пригодным образом» while this
+row said «на связи», and nothing on the screen pointed at the cause. The probe now asks a
+reachable language-model endpoint what it serves (`GET /v1/models`); the row reads «укажите
+модель» while the field is blank and «такой модели нет на сервере» for a name the endpoint did
+not list, and the field offers the list as a datalist — type-ahead, because not every server
+answers the route and a name the row cannot verify is still allowed. The tutor panel says the
+same thing (`errors.llmNoModel`) with its link to this screen.
+
+**Services** gained a **translator block**, because the generic row cannot describe this one.
+Every optional service is probed the same way — `GET /health`, under 500 is reachable — and for
+`mt` that flattens three different situations into one grey «нет связи»: never deployed, model
+downloading, download died. It has a long and legitimate not-ready state (2.4 GB of weights, and
+503 for the minutes that takes). The block draws four states with the remedy that fits each: the
+one command that deploys it, a real progress bar, the service's **own** failure text, or
+"ready". «Скачать модель» retries a dead download without a container restart, and the row above
+it defers to this status so one screen cannot hold two answers. It stops at starting the
+container — the core has no shell and no Docker socket, and that boundary is printed rather than
+papered over. [ADR-015](../.claude/DECISIONS.md#adr-015)
+
+**Speech** names the voice, offers the picker whenever the device has **any** Hungarian voice —
+the old `> 1` guard meant a stock macOS, which ships exactly one, never drew the control at all
+— and answers the complaint the card actually gets. "It sounds robotic" is almost never the
+browser: every desktop ships a small *compact* voice per language and hides the good one behind
+a download, and `Tünde` and `Tünde (Enhanced)` then sit side by side in the list with the
+compact one usually first, so picking by list order picked the worst voice installed.
+`pickVoice` now prefers a quality build over list order, the card prints the OS-specific path to
+install one, and until there is one the app reads at 0.9× — a compact voice smears the joins
+between units, and the joins are where Hungarian vowel length lives.
+
+**Speech** also reports what this machine can actually do: the voice in use, or the reason there is
+none with the OS-specific fix. Which voices exist is a fact about the device, so the answer
+cannot live in an account — and the server, which cannot see the browser, does not claim it
+([ADR-012](../.claude/DECISIONS.md#adr-012)).
 
 There is **no Data section and no Profile section**. Data went with the export
 ([ADR-011](../.claude/DECISIONS.md#adr-011)) — the pack version and edition it used to carry
@@ -398,13 +1236,14 @@ otherwise find the reader unusable.
 
 ---
 
-## 13. Offline (PWA)
+## 13. Offline (planned)
 
-The review queue and its audio are precached, so Loop 1 works on the metro — which is exactly
-where the brief expects it to happen. Answers queue locally and sync on reconnect; conflicts
-resolve last-write-wins per card, since a single learner cannot genuinely conflict with
-themselves. Reading, grammar and HVPT need the server in v1.0; offline support for them is a
-v1.2 consideration.
+**Not shipped in v1.0.** There is no service worker, nothing is precached, and every screen
+needs the server; the README and ARCHITECTURE.md said otherwise for a while and no longer do
+(ADR-038). What the brief asks for — the review queue and its audio on the metro, answers
+queued locally and synced on reconnect, last-write-wins per card since one learner cannot
+conflict with themselves — is the next phase after the release, with its own ADR when it
+lands. Reading, grammar and the ear trainer would stay online in that phase too.
 
 ---
 
@@ -426,7 +1265,9 @@ the Oklab matrices, gamma-encoded to sRGB, clamped as a browser would clamp it, 
 through WCAG 2.1 relative luminance and `(L₁+0.05)/(L₂+0.05)`. Ratios below are therefore
 measurements of what is actually rendered, not of an out-of-gamut intention. **Text and any
 colour carrying state ≥ 4.5:1. Boundaries ≥ 3:1.** The same figures are repeated in a comment
-beside each token block so a reader never has to open this file to check one.
+beside each token block so a reader never has to open this file to check one. Since the
+light-first flip (§1.7), `:root` in `tailwind.css` carries the LIGHT values and `.dark` the
+override — the measurements themselves are unchanged, only which block is the default.
 
 Dark — against `--background` #0a0e12 / `--card` #13181e / `--muted` #21272e:
 
@@ -522,6 +1363,24 @@ display sizes to answer Inter's optical looseness when scaled up, and slightly *
 12px** so that ő and ű — which Hungarian uses constantly — keep their double acutes clear of
 the following glyph.
 
+**Two faces** ([ADR-036](../.claude/DECISIONS.md#adr-036)). **Inter** is the instrument —
+buttons, labels, figures, everything the learner operates. **Literata** (OFL, variable, made
+for reading on screens; Latin-Extended and Cyrillic, so a Russian heading and a Hungarian
+sentence share one face) is the *material* and the *headings*: the sentence on the card, the
+text in the reader, the page titles. The first learner's word for one sans over everything was
+«шаблонный», and the fix they asked for was character where the language is. Fraunces was
+tried first and has no Cyrillic. Both faces are bundled subsets (`assets/fonts.css`): Inter
+latin, latin-ext, cyrillic, cyrillic-ext; Literata latin, latin-ext, cyrillic — nothing loads
+from the network.
+
+Hungarian is **marked, never classed**: `lang="hu"` on the element, and one base rule in
+`tailwind.css` sets the serif at `1.0625em` with optical sizing; a nested `lang="hu"` inherits
+rather than compounding, and the answer box stays in Inter because its diff is set in mono
+beside it. The page title is one utility, `page-title` — the display face at the 30px step,
+weight 500, no tracking (the serif carries its own contrast; the semibold and the negative
+tracking were Inter's) — used by `PageHeader.vue` and every view's `h1`; the wordmarks and the
+reader's text title use `font-display`. The favicon is a paper-white serif «ő» on the teal.
+
 `--font-mono` is a system stack (no bytes added to the binary) and is the face for morpheme
 splits, character diffs and paradigm tables: `ház·ban` above `ház·ben` only makes its point
 when the columns line up.
@@ -541,6 +1400,12 @@ Rules:
   times; anything longer is a tax collected 200 times.
 - **Transform and opacity only.** Both are compositor-only, so an animation can never contend
   with the keystroke that started it. Never animate width, height, top or left.
+  **One documented exception: chrome.** The sidebar's collapse transitions `width` (200ms, with
+  the labels fading). The rule above exists for the answer loop, where an animation runs two
+  hundred times a day against a keystroke; collapsing the rail is a rare, learner-initiated
+  layout change, and moving the whole shell by transform would detach it from the document flow
+  it exists to reshape. The global reduced-motion rule still flattens it. Content never gets
+  this exemption.
 - **Motion never delays input.** The next card is interactive on the frame it mounts; the
   animation decorates a state that has already changed. Anything overlaying content sets
   `pointer-events: none`.
@@ -555,7 +1420,7 @@ Rules:
 
 ### 14.4 Sound
 
-Four sounds — `correct`, `wrong`, `milestone`, `sessionComplete` — **synthesised at runtime**
+Five sounds — `correct`, `wrong`, `milestone`, `sessionComplete`, `setComplete` — **synthesised at runtime**
 from oscillators and gain envelopes in `lib/sound.ts`. No audio files ship: nothing to licence,
 nothing to download, nothing to embed in the single static binary, and no CDN for a self-hosted
 install to depend on.
@@ -572,6 +1437,8 @@ Design, all of it a consequence of repetition:
 - **Quiet — peak 0.07 of full scale — and `wrong` is quieter than `correct`, not louder.**
 - **One consonant set** (D5/A5/D6, plus G4→E♭4 for `wrong`), so two sounds landing close
   together are a chord and not a clash. `sessionComplete` is a descending fifth: a full stop.
+  `setComplete` is D5 rising to A5, quieter and shorter — a comma, for a set finished with more
+  to follow ([R18]).
 - The `AudioContext` is created lazily on the **first user gesture** (browsers block it
   otherwise) and `resume()`d whenever it is found suspended.
 - A module-level flag persisted in `localStorage` (`tanulom.sound`), **default on**, surfaced
@@ -588,9 +1455,12 @@ the motivational mechanics and refuses the substitution
 ([R16](../.claude/research/16-debunked.md) §3).
 
 **Built:** immediate feedback on every retrieval (the sounds, the colour, the morpheme diff);
-visible *real* capability growth (the lemma curve, the feature heatmap); and a milestone moment
-when something genuinely real happens — a curriculum unit finished, a grammar topic reaching
-`mastered`, a checkpoint passed.
+visible *real* capability growth (the lemma curve, the feature heatmap, and — per card — the
+memory row of §4.4: recall chance, stage, history, the interval a grade would give, every figure
+computed by the scheduler's own library); a set summary of measured facts between sets; and a
+milestone moment when something genuinely real happens — a curriculum unit finished, a grammar
+topic reaching `mastered`, a checkpoint passed. [R18 §4] draws the line: a number that
+*measures* something is informational feedback; a number that only ever goes up is a reward.
 
 **Deliberately not built, and this absence is a decision, not an oversight:** XP, points,
 scores, levels, ranks, tiers, leagues, leaderboards, gems, coins or any invented currency,
@@ -682,3 +1552,31 @@ The three milestones are fired where the fact behind them becomes provable: a un
 topic in `views/GrammarView.vue` (on the phase transition, carrying the gate's own reason
 string), a checkpoint in `views/ProgressView.vue` (carrying the measured lemma criterion, never
 the self-attested half). `Milestone.vue` is mounted once in `AppShell.vue`.
+
+### 14.9 Illustrations
+
+The app draws five things, and only five ([ADR-037](../.claude/DECISIONS.md#adr-037)): the
+line motifs of Hungarian folk embroidery, in one colour, without fills.
+
+| Motif | Component | Where it sits |
+|---|---|---|
+| Tulip on its stem | `art/Tulip.vue` | tutor history when empty; review start when the whole deck rests |
+| Pair of birds over a sprig | `art/BirdPair.vue` | the library's two empty states (no texts; a filter that found nothing) |
+| Pomegranate rosette | `art/Rosette.vue` | the review done screen (accent tone); the 404 |
+| Sprig of wheat | `art/Sprig.vue` | the trash and the words list when empty |
+| Vine of leaves and buds | `art/Vine.vue` | under the wordmark at login and setup (accent tone) |
+
+**Rules.** `currentColor`, 1.5 px strokes, round caps, no animation, under 2 KB a motif,
+`aria-hidden` — the sentence beside a drawing carries the meaning. The default tone is 70 % of
+`--muted-foreground`; `accent` is 50 % of `--primary` and marks an arrival (the done screen,
+the doors). Decorative contrast sits at 2–3:1 by design: a drawing that competes with the
+text is the wrong drawing. A drawing never depicts a figure — no rings, flames or counters
+(§14.5) — and never appears on a `Note`, on a card, on the Progress screen, or in the header
+of a screen. `Illustration.vue` (`name`, `size` sm/md/lg, `tone`) is the one way to place one;
+`EmptyState` takes `art` in place of `icon`.
+
+**What nobody caught** goes to the handler in `main.ts` (ADR-038): the stack to the console,
+one toast in the learner's language through `lib/errors.ts`, the same sentence at most once
+per two seconds, and a 401 that got that far clears the session and opens the login form with
+the way back. Screens still catch their own failures and say them in place — the handler is
+the floor, not the pattern.

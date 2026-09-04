@@ -18,9 +18,13 @@ import (
 // gives the same answers for real text: Hungarian words appear lowercase, at the
 // start of a sentence, or shouted.
 
-// caseVariants returns the spellings of a form worth looking up, deduplicated
+// CaseVariants returns the spellings of a form worth looking up, deduplicated
 // and in most-likely-first order.
-func caseVariants(form string) []string {
+//
+// Exported because the same trap exists outside this package: the course's
+// sentence search reads `sentence_token.form`, which is BINARY-collated too, so
+// a sentence-initial `Nagyon` has to be asked for by name rather than folded.
+func CaseVariants(form string) []string {
 	out := []string{form}
 	seen := map[string]bool{form: true}
 	add := func(s string) {
@@ -43,12 +47,19 @@ func caseVariants(form string) []string {
 	return out
 }
 
-// placeholders renders "?,?,?" for an IN clause of n values, and the values as
-// a []any ready to splat into Query.
-func placeholders(values []string) (string, []any) {
+// caseVariants is the in-package spelling of CaseVariants.
+func caseVariants(form string) []string { return CaseVariants(form) }
+
+// Placeholders renders "?,?,?" for an IN clause of n values, and the values as
+// a []any ready to splat into Query. Exported alongside CaseVariants, which is
+// useless without it.
+func Placeholders(values []string) (string, []any) {
 	args := make([]any, len(values))
 	for i, v := range values {
 		args[i] = v
 	}
 	return strings.TrimSuffix(strings.Repeat("?,", len(values)), ","), args
 }
+
+// placeholders is the in-package spelling of Placeholders.
+func placeholders(values []string) (string, []any) { return Placeholders(values) }

@@ -143,7 +143,7 @@ func (l ListeningGate) Met() bool { return l.HeardHours >= l.NeedHours }
 type Reason string
 
 const (
-	ReasonPrereq        Reason = "gate.locked.prereq"
+	ReasonPrereq        Reason = "gate.advice.prereq"
 	ReasonListening     Reason = "gate.locked.listening"
 	ReasonWarmup        Reason = "gate.blocked.warmup"
 	ReasonBelowGate     Reason = "gate.blocked.accuracy"
@@ -182,13 +182,46 @@ type Decision struct {
 	// Demoted marks a fall back down the ladder, which the UI announces rather
 	// than silently applying.
 	Demoted bool `json:"demoted"`
+	// Advice names the topics worth finishing first. It is a RECOMMENDATION and
+	// nothing more: the topic is practised anyway.
+	//
+	// It used to be a lock. That wedged exactly the learner it was meant to
+	// help: `vowel-harmony` is the second topic in the course and the app's own
+	// lesson says it "takes twenty minutes to understand and three months to
+	// automate" — so gating all of A1 behind 80% rolling accuracy on it left a
+	// learner at 68% unable to touch the plural, the accusative or anything
+	// else, for months. A competence floor that cannot be crossed is a wall.
+	//
+	// The order is still real and still shown; it is advice, which is what the
+	// course plan has always called it (docs/API.md, "`ahead` is not
+	// `locked`"). The gate that remains is about how THIS topic's own items are
+	// mixed — see Phase — plus the two hard blocks that outrank everything: a
+	// failed checkpoint and the listening volume word order genuinely needs.
+	Advice     Reason            `json:"advice,omitempty"`
+	AdviceArgs map[string]string `json:"adviceArgs,omitempty"`
 }
 
 // Changed reports whether the phase moved.
 func (d Decision) Changed() bool { return d.Phase != d.From }
 
-// Evaluate applies the gate. It is a pure function: same counters, same verdict.
+// Evaluate applies the gate, then attaches any ordering advice.
+//
+// Still a pure function: same counters, same verdict. The advice is decoration
+// on the decision, never an input to it — which is the whole point of the
+// change that made prerequisites advisory.
 func Evaluate(p Progress, g Gate, cfg GateConfig) Decision {
+	d := evaluate(p, g, cfg)
+	if len(g.UnmetPrereqs) > 0 {
+		d.Advice = ReasonPrereq
+		d.AdviceArgs = map[string]string{
+			"topic":     g.UnmetPrereqs[0],
+			"remaining": itoa(len(g.UnmetPrereqs)),
+		}
+	}
+	return d
+}
+
+func evaluate(p Progress, g Gate, cfg GateConfig) Decision {
 	cfg = cfg.normalized()
 	from := p.Phase
 	if !from.Valid() {
@@ -200,23 +233,14 @@ func Evaluate(p Progress, g Gate, cfg GateConfig) Decision {
 	//    prerequisites regressed is locked no matter how good its own numbers
 	//    used to be.
 	//
-	//    The checkpoint block comes before even the prerequisites, because it
-	//    is the deeper fact: when a level is shut by a failed assessment,
-	//    "finish past-tense first" would be misleading advice — finishing it
-	//    would not open anything. The правило отката names itself. [R14]
+	//    Prerequisites are NOT among them any more: an unmet prerequisite is
+	//    attached as advice at the end of this function and the topic is
+	//    practised regardless. Only two things still hard-lock — a failed
+	//    checkpoint, which is the deeper fact about a whole level, and the
+	//    listening volume word order cannot be reached without. [R14], [R15]
 	if g.CheckpointBlocked {
 		d.Phase = Locked
 		d.Reason = ReasonCheckpoint
-		d.Demoted = from != Locked
-		return d
-	}
-	if len(g.UnmetPrereqs) > 0 {
-		d.Phase = Locked
-		d.Reason = ReasonPrereq
-		d.Args = map[string]string{
-			"topic":     g.UnmetPrereqs[0],
-			"remaining": itoa(len(g.UnmetPrereqs)),
-		}
 		d.Demoted = from != Locked
 		return d
 	}

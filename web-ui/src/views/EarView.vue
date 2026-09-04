@@ -37,6 +37,15 @@ const sessionCorrect = ref(0)
 const sessionAnswered = ref(0)
 const sessionTalkers = ref(new Set<string>())
 const audio = ref<HTMLAudioElement | null>(null)
+/**
+ * True when the browser refused to start playback without a user gesture.
+ *
+ * That refusal used to be swallowed by the catch below, and the cost was the
+ * worst possible one for this screen: the FIRST trial of a session played
+ * nothing, said nothing, and the learner answered a 2AFC on silence. Silence
+ * must be labelled, exactly like every other absent capability. ADR-005.
+ */
+const blocked = ref(false)
 let shownAt = 0
 
 const trial = computed<HvptTrial | null>(() => session.value?.trials[index.value] ?? null)
@@ -74,12 +83,24 @@ async function load() {
 function play() {
   const t = trial.value
   if (!t) return
-  audio.value?.pause()
-  audio.value = new Audio(t.audioUrl)
-  void audio.value.play().catch(() => {
-    /* autoplay may need a gesture; the replay key covers it */
-  })
+  playUrl(t.audioUrl)
   shownAt = performance.now()
+}
+
+function playUrl(url: string) {
+  audio.value?.pause()
+  audio.value = new Audio(url)
+  void audio.value
+    .play()
+    .then(() => {
+      blocked.value = false
+    })
+    .catch(() => {
+      // Autoplay needs a gesture the learner has not made yet. Say so — an
+      // unlabelled silent trial reads as a broken trainer, and answers given
+      // to silence poison the contrast statistics.
+      blocked.value = true
+    })
 }
 
 async function choose(member: 'a' | 'b') {
@@ -162,7 +183,7 @@ onUnmounted(() => {
 <template>
   <div class="mx-auto flex w-full max-w-2xl flex-col gap-6">
     <header class="flex flex-wrap items-center justify-between gap-3">
-      <h1 class="text-3xl font-semibold tracking-tight">{{ $t('ear.title') }}</h1>
+      <h1 class="page-title">{{ $t('ear.title') }}</h1>
       <p
         v-if="session && !session.refused"
         class="font-mono text-xs tabular-nums text-muted-foreground"
@@ -202,6 +223,12 @@ onUnmounted(() => {
         <p class="font-mono text-xs text-muted-foreground">
           {{ trial.talkerId }}<span v-if="trial.rate !== 1"> · {{ trial.rate }}×</span>
         </p>
+
+        <!-- The browser refused to autoplay. Answering silence is worse than
+             a lost second, so the state is loud and the fix is one click. -->
+        <Note v-if="blocked" variant="limit" bare class="text-xs">
+          {{ $t('ear.autoplayBlocked') }}
+        </Note>
 
         <div :key="flashKey" :class="['flex w-full items-stretch justify-center gap-4', flashClass]">
           <button
@@ -244,6 +271,22 @@ onUnmounted(() => {
               {{ result.played === 'a' ? trial.pair.a : trial.pair.b }}
             </span>
           </p>
+          <!--
+            Both members, back to back, same voice. THIS is the corrective
+            feedback — a red cross teaches nothing about what tőr sounds like,
+            hearing it against tör just might. Promised by docs/UX.md §7 and
+            only possible after the answer (ADR-008 holds before it).
+          -->
+          <div v-if="result.audioA && result.audioB" class="flex items-center gap-2">
+            <Button size="sm" variant="outline" @click="playUrl(result.audioA!)">
+              <Volume2 class="size-3.5" aria-hidden="true" />
+              <span class="font-mono" lang="hu">{{ trial.pair.a }}</span>
+            </Button>
+            <Button size="sm" variant="outline" @click="playUrl(result.audioB!)">
+              <Volume2 class="size-3.5" aria-hidden="true" />
+              <span class="font-mono" lang="hu">{{ trial.pair.b }}</span>
+            </Button>
+          </div>
           <Button size="sm" variant="secondary" @click="next">{{ $t('review.next') }}</Button>
         </div>
         <p class="text-xs text-muted-foreground">{{ $t('ear.keys') }}</p>

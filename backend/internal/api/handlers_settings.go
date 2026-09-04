@@ -12,6 +12,10 @@ import (
 // is exposed, as SettingsDTO.Secrets.
 var secretKeys = []string{"ttsKey", "asrKey", "nlpKey", "llmKey"}
 
+// Note the absence of an "mtKey": the translator is a local sidecar on a
+// private network with no authentication, the same as the other services in
+// docker-compose. If it ever grows one, it goes here and nowhere near YAML.
+
 // secretPresence reports which secrets are stored, without their values.
 func (s *Server) secretPresence(userID int64) (map[string]bool, error) {
 	stored, err := s.db.Settings(userID)
@@ -92,6 +96,8 @@ func (s *Server) handleUpdateSettings(c fiber.Ctx) error {
 			cfg.Review.Goal = v.Goal
 			b := v.BurySiblings
 			cfg.Review.BurySiblings = &b
+			at := v.AccentTolerance
+			cfg.Review.AccentTolerance = &at
 			if v.Directions != nil {
 				dirs := make(map[string]config.Direction, len(v.Directions))
 				for k, d := range v.Directions {
@@ -167,6 +173,8 @@ func serviceField(cfg *config.Config, name string) *config.Service {
 		return &cfg.Services.NLP
 	case "llm":
 		return &cfg.Services.LLM
+	case "mt":
+		return &cfg.Services.MT
 	default:
 		return nil
 	}

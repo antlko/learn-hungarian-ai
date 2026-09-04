@@ -3,8 +3,10 @@ import { computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import SpeakButton from '@/components/common/SpeakButton.vue'
 import { useAnswerFeedback } from '@/composables/useAnswerFeedback'
 import { pickGloss } from '@/lib/gloss'
+import { useFeaturesStore } from '@/stores/features'
 import { useUiStore } from '@/stores/ui'
 import type { DrillAnswerResponse, DrillItem } from '@/types'
 
@@ -33,6 +35,7 @@ const emit = defineEmits<{ choose: [value: string]; submit: []; next: [] }>()
 
 const { t, te } = useI18n()
 const ui = useUiStore()
+const catalogue = useFeaturesStore()
 const { flashKey, flashClass, signal, clear } = useAnswerFeedback()
 
 /*
@@ -53,17 +56,41 @@ const gloss = computed(() => pickGloss(props.item.glossRu, props.item.glossEn, u
 
 const isTyped = computed(() => props.item.kind === 'cloze' || props.item.kind === 'transform')
 
+/**
+ * The question, with every id resolved to something a learner can read.
+ *
+ * Feature ids come from the PACK's label table, not from `vue-i18n`: they are
+ * facts about Hungarian that ship and version with the pack, and the locale
+ * files never had a `feature.*` section at all — so `te('feature.Case=Sup')`
+ * was false for every feature that has ever existed and the prompt rendered
+ * `név + Case=Sup — какой вариант?`. Grid cells and object types are UI copy
+ * and stay in the locale, where they already are.
+ *
+ * A feature the pack does not know still renders as its raw id: honest and
+ * debuggable, and better than an empty slot in a sentence.
+ */
 const promptText = computed(() => {
   const args: Record<string, string> = { ...props.item.promptArgs, gloss: gloss.value.text }
-  // Feature ids and grid cells get their own translations; anything the locale
-  // does not know renders as the raw id, which is honest and debuggable.
-  for (const key of ['feature', 'row', 'column', 'harmony', 'object'] as const) {
+  if (args.feature) args.feature = catalogue.label(args.feature)
+  for (const key of ['row', 'column', 'harmony', 'object'] as const) {
     const raw = args[key]
     if (!raw) continue
-    const k = key === 'feature' ? `feature.${raw}` : `grammar.${key}.${raw}`
+    const k = `grammar.${key}.${raw}`
     args[key] = te(k) ? t(k) : raw
   }
   return te(props.item.promptKey) ? t(props.item.promptKey, args) : props.item.promptKey
+})
+
+/**
+ * The rule behind this exercise, in one line, from the pack.
+ *
+ * Shown only once the item is answered. Before that it would be the answer;
+ * after it, it is the correction — which is where explicit instruction earns
+ * its keep. [R4], [R9]
+ */
+const featureNote = computed(() => {
+  const id = props.item.promptArgs?.feature
+  return id ? catalogue.explain(id) : ''
 })
 
 /** The frame split around the blank, so the gap can be styled. */
@@ -126,7 +153,10 @@ function onKey(e: KeyboardEvent) {
   }
 }
 
-onMounted(() => window.addEventListener('keydown', onKey))
+onMounted(() => {
+  void catalogue.ensure()
+  window.addEventListener('keydown', onKey)
+})
 onUnmounted(() => window.removeEventListener('keydown', onKey))
 </script>
 
@@ -151,16 +181,27 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       exists.
     -->
     <div :key="flashKey" :class="['flex flex-col gap-5', flashClass]">
-      <p v-if="item.frame" class="text-2xl leading-relaxed" lang="hu">
-        {{ framePieces.before }}
-        <span
-          class="rounded px-2 py-0.5 transition-colors"
-          :class="result ? 'bg-known/15 text-known' : 'bg-muted text-muted-foreground'"
-          >{{ result ? result.expected : '___' }}</span
-        >
-        {{ framePieces.after }}
-      </p>
-      <p v-else-if="item.lemma" class="text-3xl font-medium" lang="hu">{{ item.lemma }}</p>
+      <div v-if="item.frame" class="flex items-start gap-2">
+        <p class="text-2xl leading-relaxed" lang="hu">
+          {{ framePieces.before }}
+          <span
+            class="rounded px-2 py-0.5 transition-colors"
+            :class="result ? 'bg-known/15 text-known' : 'bg-muted text-muted-foreground'"
+            >{{ result ? result.expected : '___' }}</span
+          >
+          {{ framePieces.after }}
+        </p>
+        <!-- Only once the gap is filled: reading the sentence out with the
+             answer in it, before the answer, would be the answer. -->
+        <SpeakButton
+          v-if="result"
+          :text="framePieces.before + result.expected + framePieces.after"
+        />
+      </div>
+      <div v-else-if="item.lemma" class="flex items-center gap-2">
+        <p class="text-3xl font-medium" lang="hu">{{ item.lemma }}</p>
+        <SpeakButton :text="item.lemma" />
+      </div>
 
       <!-- Choice items: minimally different options, so the learner has to make
            the distinction rather than recognise the odd one out. [R5] -->
@@ -215,9 +256,24 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       </form>
     </div>
 
-    <p v-if="result && !result.correct && !isTyped" class="text-sm">
+    <p v-if="result && !result.correct && !isTyped" class="flex items-center gap-1.5 text-sm">
       <span class="text-muted-foreground">{{ $t('review.right') }}</span>
-      <span class="ml-1.5 font-mono" lang="hu">{{ result.expected }}</span>
+      <span class="font-mono" lang="hu">{{ result.expected }}</span>
+      <!-- A wrong allomorph is very often a wrong SOUND. Hearing the right one
+           beside the red cross is the correction the ear needs. [R7], [R9] -->
+      <SpeakButton :text="result.expected" />
+    </p>
+
+    <!--
+      The rule behind the item, after the attempt. Before it, it would be the
+      answer; after it, it is the correction — and a correction that restates
+      the rule is the one that transfers. [R4], [R9]
+    -->
+    <p
+      v-if="result && featureNote"
+      class="max-w-prose border-l-2 border-l-border-subtle pl-3 text-sm leading-relaxed text-muted-foreground"
+    >
+      {{ featureNote }}
     </p>
   </div>
 </template>

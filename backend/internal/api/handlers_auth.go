@@ -34,6 +34,7 @@ func (s *Server) handleBootstrap(c fiber.Ctx) error {
 		PackEdition: edition,
 		Locales:     []string{"ru", "en"},
 		Version:     Version,
+		MinPassword: auth.MinPasswordLength,
 	})
 }
 

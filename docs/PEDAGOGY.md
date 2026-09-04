@@ -71,6 +71,14 @@ Building the app is not studying. The app should say so, and it does.
 | A vowel-length error routes to the ear, not to more typing | `internal/drill/from_error.go` | [R8](../.claude/research/08-capt-asr.md), [R15](../.claude/research/15-hungarian-difficulty.md) |
 | Drill answers are real retrievals and enter the morphological state space | `internal/srs/review.go` `GradeFeatures` | [R1](../.claude/research/01-retrieval-practice.md) |
 | Loop 4 un-completable by the app | `TodayView.vue` | [R16](../.claude/research/16-debunked.md) §7 |
+| The day's queue dealt in sets; a miss returns at the set's end once its step has elapsed | `stores/review.ts`, `lib/sets.ts` | [R18](../.claude/research/18-sessions-and-progress.md) §1–§2 |
+| A card shows its measured memory — recall chance, stage, history, what each grade schedules — and never a score | `internal/srs/memory.go`, `MemoryMeter.vue` | [R18](../.claude/research/18-sessions-and-progress.md) §4–§5, [R14](../.claude/research/14-motivation.md) |
+| The set summary is informational feedback: measured figures, no praise | `SetSummary.vue` | [R18](../.claude/research/18-sessions-and-progress.md) §4 |
+| «что это значит?» explains what makes a word stop coming back — the stage, what each answer schedules, that the tally is a log, and that «В корзину» is the one control that removes a word — with no completion bar, because there is no denominator | `MemoryMeter.vue` | [R18](../.claude/research/18-sessions-and-progress.md) §4–§5, [R14](../.claude/research/14-motivation.md), [R16 §3](../.claude/research/16-debunked.md) |
+| The grammar tutor explains from the lesson, grounded, short-context, labelled; mints nothing | `internal/tutor`, `TutorPanel.vue` | [R19](../.claude/research/19-grounded-tutor.md), [R4](../.claude/research/04-explicit-instruction.md), [R10](../.claude/research/10-llm-tutors.md) |
+| The tutor sits after the lesson, never before it | `GrammarView.vue` | [R4](../.claude/research/04-explicit-instruction.md) |
+| The tutor translates into Hungarian on request as explanation — the sentence, then word by word, then the learner's own attempt compared ([ADR-030](../.claude/DECISIONS.md#adr-030)) | `internal/tutor/prompts/`, rule 4 | [R4](../.claude/research/04-explicit-instruction.md), [R19](../.claude/research/19-grounded-tutor.md) |
+| The tutor is one key away from the review card, with the question about the card already written ([ADR-032](../.claude/DECISIONS.md#adr-032)) | `components/review/TutorAside.vue` | [R4](../.claude/research/04-explicit-instruction.md) |
 
 ---
 
@@ -204,6 +212,16 @@ The hand-off is the design, not a limitation. [R11](../.claude/research/11-exten
 is about volume of self-chosen input; a course that never ends produces a learner who can only
 read material made for them. `internal/course` implements the prescribing half and knows how to
 stop.
+
+### 2.9 Sets are a usability decision the evidence permits, not one it demands
+
+No study compares a 15-card sitting with a 70-card one on retention. What
+[R18](../.claude/research/18-sessions-and-progress.md) supports is narrower: relearning each item
+to one correct recall per sitting (Rawson & Dunlosky), a near and visible goal sustaining
+effort (goal-gradient, endowed progress — consumer studies, about persistence), and measured
+progress being feedback where points are rewards (Deci, Koestner & Ryan; Hattie). The set size
+is therefore a per-device dial with a default of 15, not a setting with a citation behind the
+number, and the note says so.
 
 ## 3. What we do not build, and why
 

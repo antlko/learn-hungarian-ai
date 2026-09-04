@@ -1,11 +1,13 @@
 import { http, ApiError } from './http'
 import type {
+  Example,
   ChangePasswordRequest,
   CreateUserRequest,
   UpdateUserRequest,
   User,
   AnalyzeResponse,
   Breakdown,
+  QueueScope,
   CheckpointVerdict,
   Overview,
   CoverageVerdict,
@@ -30,15 +32,24 @@ import type {
   Coverage,
   LemmaDetail,
   LemmaStatus,
+  PracticeQueueResponse,
+  WordsResponse,
+  PracticeAnswerResponse,
   ScoredSentence,
   TextDetail,
   TextSummary,
+  TrashListResponse,
+  TrashResponse,
+  MTStatus,
+  UserGloss,
+  Translation,
   FeatureMastery,
   Forecast,
   GovernorVerdict,
   Me,
   MorphFeature,
   QueueResponse,
+  ReviewOrder,
   Settings,
   UpdateSettingsRequest,
   UpdateSettingsResponse,
@@ -77,6 +88,11 @@ async function patch<T>(path: string, body: unknown): Promise<T> {
     throw new ApiError(res.status, message)
   }
   return payload as T
+}
+
+/** `?scope=…`, or nothing at all — never `?scope=undefined`. */
+function scopeQuery(scope?: QueueScope) {
+  return scope ? `?scope=${encodeURIComponent(scope)}` : ''
 }
 
 /** Typed API surface. One function per endpoint in docs/API.md. */
@@ -125,11 +141,51 @@ export const api = {
   features: () => http.get<MorphFeature[]>('/api/features'),
 
   // ── review ────────────────────────────────────────────────────────────
-  queue: () => http.get<QueueResponse>('/api/review/queue'),
+  queue: (scope: QueueScope = 'all', order: ReviewOrder = 'due') =>
+    http.get<QueueResponse>(`/api/review/queue?scope=${scope}&order=${order}`),
 
   answer: (body: AnswerRequest) => http.post<AnswerResponse>('/api/review/answer', body),
 
+  practiceQueue: (scope: QueueScope = 'all', size = 20, mode: 'random' | 'weak' = 'random') =>
+    http.get<PracticeQueueResponse>(`/api/practice/queue?scope=${scope}&size=${size}&mode=${mode}`),
+
+  words: (params: {
+    status?: string
+    q?: string
+    sort?: string
+    page?: number
+    pageSize?: number
+  }) => {
+    const qs = new URLSearchParams()
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== undefined && v !== '') qs.set(k, String(v))
+    }
+    return http.get<WordsResponse>(`/api/words?${qs.toString()}`)
+  },
+
+  practiceAnswer: (body: AnswerRequest) =>
+    http.post<PracticeAnswerResponse>('/api/practice/answer', body),
+
   undo: () => http.post<UndoResult>('/api/review/undo'),
+
+  // ── the trash ─────────────────────────────────────────────────────────
+  /**
+   * Set a word aside. Not a delete: the note, its cards and their FSRS state
+   * survive, so a restore is a restore. It leaves the SCHEDULER — free practice
+   * still reaches it through `scope: 'trash'`. ADR-025.
+   */
+  /**
+   * `scope` is the pile the caller is looking at. It changes nothing about what
+   * is trashed — it decides which breakdowns come back, so a text-scoped
+   * session gets its own chip's number and not just the fixed three.
+   */
+  trashNote: (noteId: number, scope?: QueueScope) =>
+    http.post<TrashResponse>(`/api/notes/${noteId}/trash${scopeQuery(scope)}`),
+
+  restoreNote: (noteId: number, scope?: QueueScope) =>
+    http.post<TrashResponse>(`/api/notes/${noteId}/restore${scopeQuery(scope)}`),
+
+  trash: () => http.get<TrashListResponse>('/api/trash'),
 
   forecast: (newPerDay?: number) =>
     http.get<{ forecast: Forecast; verdict?: GovernorVerdict }>(
@@ -144,15 +200,24 @@ export const api = {
     glossRu?: string
     glossEn?: string
     lemmaId?: number
+    /** The library text this word was mined from — what makes «повторить
+     *  слова из этого текста» findable later (note_origin, ADR-022). */
+    textId?: number
   }) =>
     http.post<{
       noteId: number
       directions: string[]
       targetFeats: string[]
       duplicate: boolean
+      /**
+       * The lemma's status AFTER the call. The reader recolours the word from
+       * this rather than guessing: `known` and `ignored` are declarations that
+       * minting a card must never override, and that rule lives on the server.
+       */
+      lemmaStatus?: LemmaStatus
     }>('/api/notes', body),
 
-  mastery: () => http.get<{ features: FeatureMastery[] }>('/api/stats/mastery'),
+  mastery: () => http.get<{ features: FeatureMastery[]; window: number }>('/api/stats/mastery'),
 
   overview: () => http.get<Overview>('/api/stats/overview'),
 
@@ -203,6 +268,10 @@ export const api = {
 
   lemma: (id: number) => http.get<LemmaDetail>(`/api/lemma/${id}`),
 
+  /** Attested sentences using this lemma, with whatever translations exist. */
+  lemmaExamples: (id: number, limit = 3) =>
+    http.get<{ examples: Example[] }>(`/api/lemma/${id}/examples?limit=${limit}`),
+
   // ── ear trainer ───────────────────────────────────────────────────────
   hvptSession: () => http.get<HvptSession>('/api/hvpt/session'),
 
@@ -226,6 +295,42 @@ export const api = {
 
   setKnown: (lemmaId: number, status: LemmaStatus) =>
     http.post<void>('/api/knowledge/lemma', { lemmaId, status }),
+
+  /**
+   * Machine-translate Hungarian sentences. 503 when `services.mt` is off or the
+   * sidecar is not answering — a genuine failure path, which is why callers
+   * check the capability before offering the control at all.
+   */
+  translate: (texts: string[], target: string) =>
+    http.post<{ translations: Translation[] }>('/api/translate', { texts, target }),
+
+  /**
+   * What the translation sidecar is doing, in its own words.
+   *
+   * Distinct from `/api/capabilities`, which flattens every 5xx to
+   * `reachable: false` — and a translator downloading its model answers 503 by
+   * design, so through the probe "downloading" and "not deployed" are the same
+   * grey row. This one carries `state`, the failure `detail` and the byte
+   * counts, so Settings can tell them apart.
+   */
+  /**
+   * The learner's own dictionary entry for a surface form, or an empty one.
+   *
+   * A miss is an empty entry rather than a 404: almost every word is a miss,
+   * and a 404 would put a special case in every caller.
+   */
+  gloss: (form: string) => http.get<UserGloss>(`/api/glosses/${encodeURIComponent(form)}`),
+
+  saveGloss: (form: string, body: { gloss: string; source: 'manual' | 'machine'; model?: string }) =>
+    http.put<UserGloss>(`/api/glosses/${encodeURIComponent(form)}`, body),
+
+  deleteGloss: (form: string) => http.del(`/api/glosses/${encodeURIComponent(form)}`),
+
+  mtStatus: () => http.get<MTStatus>('/api/mt/status'),
+
+  /** Fetch the model, or retry after a failed download. Admin-only. */
+  mtWarmup: () => http.post<MTStatus>('/api/mt/warmup', {}),
 }
 
 export { ApiError } from './http'
+export { tutorApi, TutorError } from './tutor'
