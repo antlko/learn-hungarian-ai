@@ -192,7 +192,7 @@ docker compose up -d
 reads it automatically. Copied from [`.env.example`](.env.example), it holds one line:
 
 ```bash
-COMPOSE_PROFILES=mt      # comma-separated: mt, llm  (nlp, speech: not implemented — see §5)
+COMPOSE_PROFILES=mt,llm      # comma-separated (nlp, speech: not implemented — see §5)
 ```
 
 Set it once rather than typing `--profile mt` on every command. Forgetting the flag on a
@@ -295,7 +295,7 @@ service, gives it a volume so pulled models survive a recreate, and sets the con
 tutor needs:
 
 ```bash
-# 1. bring Ollama up (add `llm` to COMPOSE_PROFILES in .env to make this permanent)
+# 1. bring Ollama up (already in COMPOSE_PROFILES if you copied .env.example)
 docker compose --profile llm up -d
 
 # 2. pull a model — THIS IS THE STEP NOBODY DOES FOR YOU. ~5 GB.

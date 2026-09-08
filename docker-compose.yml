@@ -12,7 +12,7 @@
 #   docker compose --profile mt up -d                    + sentence translation
 #
 # Tired of typing the flag? Put the profiles you want in a `.env` beside this
-# file — `COMPOSE_PROFILES=mt` — and plain `docker compose up -d` brings them
+# file — `COMPOSE_PROFILES=mt,llm` — and plain `docker compose up -d` brings them
 # up with everything else. See .env.example.
 #
 # NOTE (v0.1): the `nlp` and `speech` services are NOT IMPLEMENTED YET — those
@@ -90,12 +90,14 @@ services:
     container_name: tanulom-mt
     expose:
       - '5003'
-    volumes:
-      # The converted weights survive an image rebuild. Without this, every
-      # `docker compose build` throws away 2.4 GB and downloads it again — and
-      # the service spends its first minutes back at 503 while a learner who
-      # only wanted a new app version watches the translator "break".
-      - tanulom-mt:/models
+    # NO volume on /models, deliberately. services/mt/Dockerfile converts the
+    # weights at BUILD time and bakes them in, so a volume there cannot save a
+    # download -- the layer cache already does that -- and it costs 635 MB of
+    # duplication. Worse, it SHADOWS the image: the weights would come from the
+    # volume while `model` on every response comes from the MT_MODEL env var of
+    # the new image, so rebuilding with a different model would label every
+    # translation with a name that did not produce it. Labelling is the entire
+    # defence for machine translation here [ADR-014]; do not reintroduce this.
     restart: unless-stopped
 
   # --- optional: local language model ---------------------------------------
@@ -122,7 +124,6 @@ services:
 
 volumes:
   tanulom-data:
-  tanulom-mt:
   tanulom-voices:
   tanulom-models:
   tanulom-ollama:

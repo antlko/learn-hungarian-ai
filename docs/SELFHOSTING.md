@@ -57,7 +57,7 @@ reports it as unreachable, which reads like a fault. Copy `.env.example` to `.en
 compose file:
 
 ```bash
-COMPOSE_PROFILES=mt
+COMPOSE_PROFILES=mt,llm
 ```
 
 and plain `docker compose up -d` brings it up with everything else.
@@ -74,8 +74,10 @@ Everything else is in **Settings → Services**, and you should not need to come
 - The provider `<Select>` is the on/off switch; turning it off hides every translate control in
   the app.
 
-The model (~2.4 GB to fetch, ~600 MB converted) lives in the `tanulom-mt` volume, so an image
-rebuild does not throw it away. What the app **cannot** do is start the container — it has no
+The model (~2.4 GB to fetch, ~600 MB converted) is baked into the `mt` image at build time, so
+the container starts ready and a rebuild reuses the layer cache rather than fetching it again —
+there is deliberately no volume on `/models` ([ADR-015](../.claude/DECISIONS.md#adr-015)). What
+the app **cannot** do is start the container — it has no
 shell and no Docker socket, and giving a web app the socket would hand it root on your host.
 That is why the first command above is still a command. [ADR-015](../.claude/DECISIONS.md#adr-015)
 

@@ -576,9 +576,13 @@ the UI.** The "not answering" state prints that command instead of a shrug.
 **Consequences.**
 - Turning the translator off is a `<Select>` in Settings, and every translate control disappears
   app-wide because they all read one capability.
-- A named volume (`tanulom-mt:/models`) keeps converted weights across image rebuilds. Without
-  it every `docker compose build` threw away 2.4 GB and a learner who wanted a new app version
-  watched the translator "break" for ten minutes.
+- The weights are converted at BUILD time and baked into the image, so the container starts
+  ready and an image rebuild reuses the layer cache rather than re-fetching 2.4 GB. There is
+  **no volume on `/models`**: one was carried here from an earlier design that downloaded at
+  runtime, and against a build-time conversion it only duplicated 635 MB and shadowed the image
+  — weights served from the volume, `model` on every response read from the new image's
+  `MT_MODEL`, so a rebuilt model would have labelled its output with a name that did not produce
+  it. Labelling is the whole defence for machine translation ([ADR-014](#adr-014)).
 - `make mt` runs the service natively, venv and all, for people not using Docker.
 - **Cost:** two more endpoints, a polling loop that runs only while loading, and a status shape
   that four screens' worth of copy has to stay honest about.
