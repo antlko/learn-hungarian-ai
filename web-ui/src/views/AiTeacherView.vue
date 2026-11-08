@@ -4,7 +4,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
 import { Plus, Repeat, Trash2 } from '@lucide/vue'
 import { describeError } from '@/lib/errors'
-import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Select } from '@/components/ui/select'
 import EmptyState from '@/components/common/EmptyState.vue'
@@ -13,7 +14,7 @@ import { tutorApi } from '@/api'
 import { useCurriculumStore } from '@/stores/curriculum'
 import { useUiStore } from '@/stores/ui'
 import { useI18n } from 'vue-i18n'
-import type { Topic, TutorSummary } from '@/types'
+import type { Topic, TutorKind, TutorSummary } from '@/types'
 
 /**
  * The AI-Teacher page: a chat with the tutor, the way a chat looks — a
@@ -43,6 +44,24 @@ const threads = ref<TutorSummary[]>([])
 // True from the start: «Пока нет чатов» must not flash before the list has loaded.
 const threadsLoading = ref(true)
 
+/**
+ * The tab strip over the chat list.
+ *
+ * A review chat is created once per WORD per local day (`tutor_thread.note_id`,
+ * ADR-034), so a month of reviewing buries every real conversation under
+ * «Повторение · jelenteni». They are not the same kind of thing and they do not
+ * belong in one list: a topic chat is something you return to, a review chat is
+ * a question you asked about one card once.
+ *
+ * `chat` is the ordinary kind — free or pinned to a grammar topic. Its stored
+ * value is '', which a query string cannot carry, hence the name.
+ */
+const TABS: TutorKind[] = ['chat', 'review', 'word']
+const tab = ref<TutorKind>('chat')
+const counts = ref<Partial<Record<TutorKind, number>>>({})
+const clearing = ref(false)
+const confirmClear = ref(false)
+
 /** The open chat's id from the URL, or null for a new chat. */
 const selectedId = computed(() => {
   const raw = route.query.thread
@@ -55,12 +74,45 @@ const newTopic = ref('')
 async function loadThreads() {
   threadsLoading.value = true
   try {
-    threads.value = await tutorApi.list()
+    const res = await tutorApi.list(tab.value)
+    threads.value = res.threads
+    // Always every kind, not just the open tab: a tab has to carry the number
+    // on the tab you are NOT looking at, which is the only reason tabs beat
+    // one long list here.
+    counts.value = res.counts
   } catch {
     // The list is chrome; a failed fetch costs the rail, not the chat.
     threads.value = []
   } finally {
     threadsLoading.value = false
+  }
+}
+
+function switchTab(k: TutorKind) {
+  if (k === tab.value) return
+  tab.value = k
+  confirmClear.value = false
+  void loadThreads()
+}
+
+/**
+ * Clear the open tab. Confirmed by count first — «удалить все» over a number
+ * nobody has seen is not a question anyone can answer — and there is no undo,
+ * so the confirm says that too.
+ */
+async function clearTab() {
+  if (clearing.value) return
+  clearing.value = true
+  try {
+    await tutorApi.removeAll(tab.value)
+    confirmClear.value = false
+    // The open chat may have been one of them; back to a new chat.
+    if (selectedId.value) void router.replace({ query: { ...route.query, thread: undefined } })
+    await loadThreads()
+  } catch (e) {
+    toast.error(describeError(e))
+  } finally {
+    clearing.value = false
   }
 }
 
@@ -235,10 +287,91 @@ onMounted(async () => {
           <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
             {{ $t('tutor.history.title') }}
           </h2>
+
+          <!--
+            The tabs. Review chats are one per word per day, so a month of
+            reviewing buried every real conversation under «Повторение · …».
+            They are different kinds of thing — a topic chat is something you
+            come back to, a review chat is one question about one card — and
+            one list could not hold both.
+          -->
+          <div class="flex items-center gap-1" role="tablist">
+            <button
+              v-for="k in TABS"
+              :key="k"
+              type="button"
+              role="tab"
+              :aria-selected="k === tab"
+              :class="
+                cn(
+                  buttonVariants({ variant: k === tab ? 'secondary' : 'ghost', size: 'sm' }),
+                  'h-7 gap-1.5 px-2 text-[11px]',
+                )
+              "
+              @click="switchTab(k)"
+            >
+              {{ $t(`tutor.history.tabs.${k}`) }}
+              <span v-if="counts[k]" class="font-mono tabular-nums opacity-60">
+                {{ counts[k] }}
+              </span>
+            </button>
+          </div>
+
+          <!--
+            Clear the tab. Behind a confirm that names the count: «удалить
+            все» over a number nobody has seen is not a question anyone can
+            answer, and there is no undo.
+          -->
+          <div v-if="threads.length" class="flex flex-col gap-1.5">
+            <Button
+              v-if="!confirmClear"
+              variant="ghost"
+              size="sm"
+              class="h-6 self-start px-1.5 text-[11px] text-muted-foreground hover:text-destructive"
+              @click="confirmClear = true"
+            >
+              <Trash2 class="size-3" aria-hidden="true" />
+              {{ $t('tutor.history.deleteAll') }}
+            </Button>
+            <div
+              v-else
+              class="flex flex-col gap-2 rounded-md border border-destructive/40 bg-destructive/5 p-2.5"
+            >
+              <p class="text-[11px] leading-relaxed">
+                {{
+                  $t('tutor.history.deleteAllConfirm', {
+                    n: counts[tab] ?? threads.length,
+                    tab: $t(`tutor.history.tabs.${tab}`).toLocaleLowerCase(),
+                  })
+                }}
+              </p>
+              <div class="flex gap-1.5">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  class="h-6 px-2 text-[11px]"
+                  :disabled="clearing"
+                  @click="clearTab"
+                >
+                  {{ clearing ? $t('common.loading') : $t('tutor.history.deleteAllGo') }}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  class="h-6 px-2 text-[11px]"
+                  :disabled="clearing"
+                  @click="confirmClear = false"
+                >
+                  {{ $t('common.cancel') }}
+                </Button>
+              </div>
+            </div>
+          </div>
+
           <EmptyState
             v-if="!threads.length && !threadsLoading"
             art="tulip"
-            :title="$t('tutor.history.empty')"
+            :title="$t(`tutor.history.emptyTabs.${tab}`)"
             :body="$t('tutor.history.emptyBody')"
           />
           <ul v-else class="flex flex-col gap-1">

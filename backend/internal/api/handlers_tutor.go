@@ -121,6 +121,10 @@ type TutorCreateRequest struct {
 	Topic string `json:"topic"`
 	Kind  string `json:"kind,omitempty"`
 	Note  int64  `json:"note,omitempty"`
+	// Word is the surface form a `word` chat is about — the one the learner
+	// clicked in a text. Lowercased server-side by `glossKey`, the same
+	// normalisation `user_gloss` uses, so «Ház» and «ház» are one chat.
+	Word string `json:"word,omitempty"`
 }
 
 // TutorSummaryDTO is one row of the learner's chat list, most recently active
@@ -242,12 +246,25 @@ func (s *Server) handleTutorList(c fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	rows, err := tutor.NewStore(s.db.DB).Threads(u.ID)
+	store := tutor.NewStore(s.db.DB)
+	rows, err := store.Threads(u.ID)
 	if err != nil {
 		return err
 	}
+	// `?kind=` selects one tab's worth. Filtered here rather than in SQL
+	// because `Threads` already carries the joined last-message summary that
+	// the list renders, and a second query shape for it would be a second
+	// thing to keep in step.
+	//
+	// The empty kind is the ordinary chat — free or topic-pinned — and it is
+	// addressed as `chat`, because `?kind=` with an empty value is
+	// indistinguishable from `?kind=` absent.
+	want := c.Query("kind")
 	out := make([]TutorSummaryDTO, 0, len(rows))
 	for _, r := range rows {
+		if want != "" && kindKey(r.Kind) != want {
+			continue
+		}
 		dto := TutorSummaryDTO{
 			ID: r.ID, Title: r.Title, Topic: r.TopicCode, Kind: r.Kind, NoteID: r.NoteID, LastTopic: r.LastTopic,
 			Messages: r.Messages, LastRole: r.LastRole, LastContent: r.LastContent,
@@ -257,7 +274,72 @@ func (s *Server) handleTutorList(c fiber.Ctx) error {
 		dto.LastTopicRU, dto.LastTopicEN = s.topicTitles(r.LastTopic)
 		out = append(out, dto)
 	}
-	return c.JSON(out)
+
+	counts, err := store.CountThreadsByKind(u.ID)
+	if err != nil {
+		return err
+	}
+	return c.JSON(TutorListResponse{Threads: out, Counts: counts})
+}
+
+// kindKey names a thread's tab. `tutor_thread.kind` is ” for an ordinary
+// chat, and ” is not addressable in a query string.
+func kindKey(kind string) string {
+	if kind == "" {
+		return "chat"
+	}
+	return kind
+}
+
+// TutorListResponse is the thread list plus how many of each kind exist.
+//
+// The counts are for ALL kinds regardless of the filter: a tab strip has to
+// show the number on the tab you are not looking at, which is the only reason
+// tabs beat one long list here.
+type TutorListResponse struct {
+	Threads []TutorSummaryDTO `json:"threads"`
+	Counts  map[string]int    `json:"counts"`
+}
+
+// handleTutorDeleteAll clears every chat, or every chat of one kind.
+//
+// A review thread is created once per word per local day, so a month of
+// reviewing leaves hundreds — and deleting them one at a time was the only
+// option. The client confirms with the count first; the server does not
+// second-guess a confirmed request, but it will not accept a kind it does not
+// recognise, because a typo that silently deleted everything would be the
+// worst possible reading of `?kind=revieww`.
+func (s *Server) handleTutorDeleteAll(c fiber.Ctx) error {
+	u, err := mustUser(c)
+	if err != nil {
+		return err
+	}
+	kind := c.Query("kind")
+	switch kind {
+	case "", "chat", "review", "word":
+	default:
+		return badRequest("unknown chat kind %q", kind)
+	}
+	// Two different empties meet here, so the mapping is spelled out: `kind`
+	// absent means EVERY kind, while `kind=chat` means the one whose stored
+	// value happens to be ''. Both arrive at DeleteThreads as "", and the
+	// difference is which rows that "" is allowed to match — so `chat` cannot
+	// go through the same path as "all".
+	store := tutor.NewStore(s.db.DB)
+	var n int64
+	switch kind {
+	case "":
+		n, err = store.DeleteThreads(u.ID, "")
+	case "chat":
+		n, err = store.DeleteThreadsOfChatKind(u.ID)
+	default:
+		n, err = store.DeleteThreads(u.ID, kind)
+	}
+	if err != nil {
+		return err
+	}
+	slog.InfoContext(c.Context(), "tutor threads deleted", "user", u.ID, "kind", kind, "count", n)
+	return c.JSON(fiber.Map{"deleted": n})
 }
 
 // handleTutorCreate opens a new chat, pinned when a topic is given.
@@ -308,11 +390,36 @@ func (s *Server) handleTutorCreate(c fiber.Ctx) error {
 			}
 		}
 		req.Topic = ""
+	case tutor.KindWord:
+		// The inspector's chat about one form, for the local day: found or
+		// created, exactly like the review chat, but keyed on the word. No
+		// pin — the lesson is inferred per question, as in a free chat.
+		if req.Word == "" {
+			return badRequest("a word is required for a word chat")
+		}
+		form, err := glossKey(req.Word)
+		if err != nil {
+			return err
+		}
+		req.Word = form
+		if th, ok, err := store.LatestWordThread(u.ID, form, startOfDay(now)); err != nil {
+			return err
+		} else if ok {
+			msgs, err := store.Messages(th.ID)
+			if err != nil {
+				return err
+			}
+			return c.JSON(s.threadResponse(lang, &th, "", msgs))
+		}
+		// The form names the chat, so the «Слова» tab can tell one from
+		// another at a glance.
+		title = form
+		req.Topic = ""
 	default:
 		return badRequest("unknown thread kind %q", req.Kind)
 	}
 	th, err := store.CreateThread(u.ID, tutor.NewThread{
-		Topic: req.Topic, Kind: req.Kind, Title: title, NoteID: req.Note,
+		Topic: req.Topic, Kind: req.Kind, Title: title, NoteID: req.Note, Word: req.Word,
 	}, now)
 	if err != nil {
 		return err
@@ -342,6 +449,37 @@ func (s *Server) handleTutorReviewToday(c fiber.Ctx) error {
 	lang := s.answerLang(c.Query("lang"))
 	store := tutor.NewStore(s.db.DB)
 	th, ok, err := store.LatestThreadOfKind(u.ID, tutor.KindReview, note, startOfDay(time.Now()))
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return c.JSON(s.threadResponse(lang, nil, "", nil))
+	}
+	msgs, err := store.Messages(th.ID)
+	if err != nil {
+		return err
+	}
+	return c.JSON(s.threadResponse(lang, &th, "", msgs))
+}
+
+// handleTutorWordToday is today's chat about one form, from the inspector.
+//
+// The same contract as the review chat's — one per key per local day, found
+// and not created here — but keyed on the FORM. An inspector chat exists
+// precisely for the words a card does not cover, including the ones the pack
+// cannot resolve at all, so there is no note id to hang it on. ADR-042.
+func (s *Server) handleTutorWordToday(c fiber.Ctx) error {
+	u, err := mustUser(c)
+	if err != nil {
+		return err
+	}
+	form, err := glossKey(c.Params("form"))
+	if err != nil {
+		return err
+	}
+	lang := s.answerLang(c.Query("lang"))
+	store := tutor.NewStore(s.db.DB)
+	th, ok, err := store.LatestWordThread(u.ID, form, startOfDay(time.Now()))
 	if err != nil {
 		return err
 	}
@@ -672,6 +810,18 @@ func (s *Server) handleTutorAsk(c fiber.Ctx) error {
 		psCtx, psCancel := context.WithTimeout(s.bgCtx, 3*time.Second)
 		stored.ContextTokens = llm.ContextLength(psCtx, svc, model)
 		psCancel()
+
+		// Logged because the context meter is only as honest as these three
+		// numbers, and when it looked frozen there was no way to tell WHICH of
+		// them had stopped arriving: the provider's usage block, or Ollama's
+		// /api/ps window. A zero here is now visible in the log rather than
+		// inferred from a stale figure on screen. ADR-031.
+		if stored.PromptTokens == 0 || stored.ContextTokens == 0 {
+			slog.InfoContext(ctx, "tutor answer reported partial usage",
+				"user", userID, "thread", threadID, "model", model,
+				"prompt_tokens", stored.PromptTokens, "answer_tokens", stored.AnswerTokens,
+				"context_tokens", stored.ContextTokens)
+		}
 
 		id, err := store.Append(threadID, stored, time.Now())
 		if err != nil {

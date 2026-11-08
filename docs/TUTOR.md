@@ -7,8 +7,12 @@ this before touching `internal/tutor`, the prompt, or the reference corpus.
 [ADR-029](../.claude/DECISIONS.md#adr-029) (a chat; the lesson found per question),
 [ADR-030](../.claude/DECISIONS.md#adr-030) (translation as explanation),
 [ADR-031](../.claude/DECISIONS.md#adr-031) (stop, edit, the context meter, the screen),
-[ADR-034](../.claude/DECISIONS.md#adr-034) (the tutor reads the card; a question before the
-answer is a hint). **Evidence:**
+[ADR-034](../.claude/DECISIONS.md#adr-034) (the tutor reads the card),
+[ADR-046](../.claude/DECISIONS.md#adr-046) (asking never changes a word's schedule),
+[ADR-042](../.claude/DECISIONS.md#adr-042) (a chat about one word, and the dictionary entry that
+is NOT a tutor route),
+[ADR-045](../.claude/DECISIONS.md#adr-045) (chats by tab, cleared by the tabful; the context
+meter describes the answer on screen). **Evidence:**
 [R19](../.claude/research/19-grounded-tutor.md), with [R4](../.claude/research/04-explicit-instruction.md)
 for why explanation on demand is worth having and [R10](../.claude/research/10-llm-tutors.md)
 for why it is not trusted.
@@ -160,15 +164,35 @@ typed with `morph.DiffForms`, and hands the model a CARD block (§4, 2b). With a
 writes the visible question and the answer's shape; `tutor.Allowed` refuses a template
 outside its phase with 400. **Before the answer the answer is withheld** — the typed card's
 form, the produce card's word and sentence, the receptive card's meaning, the audio card's
-Hungarian — and the block says so in its first line; the client records the question as a
-hint (`usedHint`) the moment it is sent, so the grade is capped at Hard whatever the model
-says. The grounding takes the card's `targetFeats` before the question's words. The day's
+Hungarian — and the block says so in its first line. **Asking costs the card nothing**
+([ADR-046]): the client records no hint, sends nothing about the tutor with the answer, and
+«Подсказка» remains the only thing that caps a grade. The withholding above and `tutor.Allowed`
+are the whole guardrail, and the panel now says so where it used to state a price. The grounding takes the card's `targetFeats` before the question's words. The day's
 review chat (`kind = review`, one per WORD per local day, keyed on `tutor_thread.note_id`;
 `GET /api/tutor/review?note=` finds it without creating it) collects the questions about that
 word; the AI-teacher page lists it as «Повторение · `jöttél`», named from `note.target_form` at
 creation. The next word opens an empty chat — a panel that showed the previous word's answer,
 and carried it into the model's window on every later question, is what the note id fixes
 ([ADR-034], amended). Threads created before migration `00019` have no word and keep the date.
+
+**A third kind, `word`** ([ADR-042], migration `00021`): the chat the word inspector opens, one
+per surface FORM per local day, keyed on `tutor_thread.word` and found by
+`GET /api/tutor/word/:form`. Keyed on the form rather than a note because the words worth asking
+about are very often the ones the pack cannot resolve at all — there is no note and sometimes no
+lemma to hang it on. It is the same conversation component, so the model label, the grounding
+line, the unattested warning and the honesty notice come with it rather than in a second copy.
+
+**The three kinds are separate tabs on the AI-teacher page** ([ADR-045]), with per-kind counts,
+and each tab can be cleared in one confirmed action (`DELETE /api/tutor?kind=`). A review chat is
+one per word per day, so a month of reviewing had buried every real conversation under
+«Повторение · …» and deleting them one at a time was the only way out. An unrecognised `kind` is
+refused rather than silently meaning "all".
+
+**The dictionary entry is NOT a tutor route** ([ADR-042]). `handlers_ai_entry.go` is a separate
+handler on purpose: the tutor mints nothing and `handlers_tutor_test.go` counts the tables to
+prove it, so routing an entry — which *can* reach `user_gloss`, on an explicit save, as
+`machine` — through the tutor would delete that guarantee. It reuses the tutor's attestation
+helpers and nothing else.
 
 **A chat's controls** ([ADR-031]): «Стоп» replaces «Спросить» while an answer streams
 (`Escape` too) — `POST /api/tutor/:id/stop` cancels the flight's context on the server, and the

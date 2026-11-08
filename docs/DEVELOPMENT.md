@@ -200,6 +200,16 @@ endpoint that streams `data:` events will do; `handlers_tutor_test.go` shows the
   have it, or import-and-call (the repo's Python needs no extra deps for these).
 - **Property test:** replaying a `review_log` through FSRS must reproduce stored card state
   exactly. If this fails, review history is not trustworthy.
+- **CI is amd64; your laptop is probably arm64, and FSRS does not agree across the two.** Go
+  fuses multiply-adds on arm64 only, so go-fsrs's interval fuzz draws a different number from
+  the same seed on each, and stability and difficulty differ in their last bit
+  (ARCHITECTURE.md §5.7). A test that passes here and fails in CI on a due date or a
+  scheduled-days count is pinning a fuzzed day; assert something structural instead. Reproduce
+  the CI result on an Apple Silicon Mac with Rosetta installed:
+
+  ```bash
+  cd backend && GOARCH=amd64 go test ./internal/srs/ -run TestReconcileRepairsLossyHistory -count=1
+  ```
 - **No frontend test framework is wired.** Verify UI changes by running the dev servers. Do not
   invent an `npm test` command.
 

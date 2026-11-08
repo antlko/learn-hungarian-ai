@@ -150,14 +150,13 @@ export const useReviewStore = defineStore('review', () => {
   const index = ref(0)
   const phase = ref<Phase>('question')
   const typed = ref('')
-  const usedHint = ref(false)
   /**
-   * The tutor was asked about this card BEFORE the answer (ADR-034). It is a
-   * hint: the same `usedHint` «Подсказка» sets travels with the answer and
-   * caps the grade at Hard — but the card is not revealed, the learner still
-   * answers, and the answer is graded.
+   * The answer was SHOWN before it was graded — «Подсказка», and only that.
+   * The tutor does not set it: asking a question never changes what a word's
+   * answer schedules (ADR-046), and there is no longer any channel from the
+   * tutor panel to this ref for a later change to quietly reconnect.
    */
-  const tutorConsulted = ref(false)
+  const usedHint = ref(false)
   const result = ref<AnswerResponse | null>(null)
   const loading = ref(false)
   const submitting = ref(false)
@@ -272,16 +271,8 @@ export const useReviewStore = defineStore('review', () => {
     phase.value = 'question'
     typed.value = ''
     usedHint.value = false
-    tutorConsulted.value = false
     result.value = null
     shownAt = performance.now()
-  }
-
-  /** A question to the tutor before the answer counts as a hint (ADR-034). */
-  function consultTutor() {
-    if (phase.value !== 'question') return
-    usedHint.value = true
-    tutorConsulted.value = true
   }
 
   /** Reveal the answer. For receptive cards this is the whole interaction. */
@@ -500,15 +491,15 @@ export const useReviewStore = defineStore('review', () => {
    * from one place, and a client that did its own arithmetic is how two figures
    * on one screen start disagreeing.
    */
-  const trashing = ref(false)
+  const marking = ref(false)
 
-  async function trashCurrent() {
+  async function knowCurrent() {
     const card = current.value
-    if (!card || trashing.value || summaryOpen.value) return
-    trashing.value = true
+    if (!card || marking.value || summaryOpen.value) return
+    marking.value = true
     error.value = ''
     try {
-      const res = await api.trashNote(card.noteId, scope.value)
+      const res = await api.knowNote(card.noteId, scope.value)
       if (res.scopes?.length) scopes.value = res.scopes
       // Undo reverts the last ANSWER; this was not one, and offering to step
       // back would revert something else entirely.
@@ -518,25 +509,25 @@ export const useReviewStore = defineStore('review', () => {
       // us leave, so the set shrinks rather than the pointer moving.
       queue.value = queue.value.filter((it, i) => i < at || it.noteId !== card.noteId)
       resetCard()
-      // Trashing the set's last card ends the set the way answering it would.
+      // Marking the set's last card known ends the set the way answering it would.
       if (inSets.value && base.value.length > 0 && pos.value >= base.value.length) void finishSet()
       return res
     } catch (e) {
       error.value = describeError(e)
     } finally {
-      trashing.value = false
+      marking.value = false
     }
   }
 
   /**
-   * Put a word back, from the banner the trash button leaves behind.
+   * Put a word back, from the banner «Знаю» leaves behind.
    *
    * Deliberately does NOT reload the queue. The card is already gone from this
    * session's array, and rebuilding the queue would restart the sitting from
    * card one to re-insert a word the learner has just seen — the restore puts
    * it back in the DECK, and the next session serves it. The banner says so.
    */
-  async function restoreTrashed(noteId: number) {
+  async function restoreKnown(noteId: number) {
     error.value = ''
     try {
       const res = await api.restoreNote(noteId, scope.value)
@@ -596,17 +587,15 @@ export const useReviewStore = defineStore('review', () => {
     loadPractice,
     canUndo,
     undo,
-    trashing,
-    trashCurrent,
-    restoreTrashed,
+    marking,
+    knowCurrent,
+    restoreKnown,
     queue,
     counts,
     index,
     phase,
     typed,
     usedHint,
-    tutorConsulted,
-    consultTutor,
     result,
     loading,
     refreshing,

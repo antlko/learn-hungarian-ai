@@ -855,6 +855,15 @@ millisecond timestamps, and `RemainingSteps` does not enter the seed), so a re-r
   `UndoLast` has always made.
 - Visible effect of the repair: prematurely-graduated Learning cards replay back to Learning
   with a past due date, so the queue can grow once, correctly.
+- **Amended 2026-09-08 — "deterministic" means on one CPU architecture.** go-fsrs draws its
+  fuzz from a floating-point generator and Go fuses multiply-adds on arm64 but not on amd64, so
+  the same log replays to a different fuzzed due date on each, with stability and difficulty a
+  bit apart. The marker keeps this repair from running again after a `data/` move between
+  architectures; an undo on the new host lands inside the fuzz range of the stored date.
+  `TestReconcileRepairsLossyHistory` had pinned a fuzzed day — its lossy chain and the truth
+  both graduated on a final Good and differed only by that coin — and failed on CI's amd64 while
+  passing on the arm64 laptop. Its chain now ends on a lapse, a difference in state and lapse
+  count that no fuzz can hide. ARCHITECTURE.md §5.7.
 
 ## ADR-021 — Review numbers speak one vocabulary: the Breakdown
 
@@ -1558,7 +1567,9 @@ while listening.
 
 ## ADR-034 — The tutor reads the card: prepared questions are composed by the server, and asking before the answer is a hint
 
-**Status:** accepted · 2026-09-04 *(user decision)* · see [R4](research/04-explicit-instruction.md),
+**Status:** accepted · 2026-09-04 *(user decision)* · **the hint half is superseded by
+[ADR-046](#adr-046)** — asking the tutor no longer caps a grade; everything else stands ·
+see [R4](research/04-explicit-instruction.md),
 [R9](research/09-corrective-feedback.md), [R10](research/10-llm-tutors.md),
 [R19 §3](research/19-grounded-tutor.md), [ADR-017](#adr-017), [ADR-027](#adr-027),
 [ADR-032](#adr-032) (superseded in part). 
@@ -1604,7 +1615,8 @@ answer, where [R9]'s *hint* step lives.
   and switches rule 7's check question off; `whyNotMine`'s section 3 follows the diff's
   error class (harmony → the stem's class and three suffix variants; `stem` → two different
   words; …). Free questions keep rule 7.
-- **Before the answer, a question is a hint.** The client sets `usedHint` the moment a
+- **Before the answer, a question is a hint** *(reversed by [ADR-046](#adr-046), 2026-09-22 —
+  the cap is gone; the withholding below is what remains)*. The client sets `usedHint` the moment a
   question about the card is sent in the question phase — the channel «Подсказка» uses —
   and `srs.DeriveRating` caps the grade at Hard. The card is NOT revealed: the learner still
   answers, and the answer is graded and logged. The panel says so before the first question;
@@ -1629,7 +1641,8 @@ answer, where [R9]'s *hint* step lives.
   phase, another learner's card, the day's chat, a thousand Cyrillic characters; and still
   counts the five tables before and after a question — nothing the tutor says becomes a card.
 - **Cost:** a small model may name the form anyway in the question phase. It is a hint either
-  way: the cap is applied when the question is sent, before any answer arrives.
+  way: the cap is applied when the question is sent, before any answer arrives. *(ADR-046
+  removed the cap; the cost stands, unpriced and stated.)*
 - ADR-032's «answer phase only» and its client-composed seed are superseded; its side column
   and one-chat-per-sitting stand.
 
@@ -1929,3 +1942,333 @@ whim, never a setting, and the server never hears of it.
   change to either must change this text too.
 - The stage hints now appear on screen, not only in a tooltip, and are written to be read
   that way.
+
+---
+
+## ADR-040 — Export is back, as a full dump of everything
+
+**Status:** accepted · 2026-09-22 *(user request)* · **supersedes in part**
+[ADR-011](#adr-011) · see [R16 §4](research/16-debunked.md), [ADR-003](#adr-003)
+
+**Context.** ADR-011 removed `internal/export` and said the app has no export. Its reasoning
+was sound and is unchanged: an `.apkg` carries one card with one interval, so the
+morphological state space — the whole thesis — cannot cross it, and handing a learner a
+vocabulary list while calling it their progress is worse than handing them nothing.
+
+What ADR-011 also said, in the same breath, is what this builds: *"If it is ever paid, the
+honest shape is a full JSON dump of both state spaces plus the review log — not an `.apkg`."*
+The learner asked for exactly that, in order to self-host: «должен иметь возможность сделать
+фулл экспорт своего профиля со всеми словами, опытом (базой)… статистика и вообще все все
+должно экспортится тоже».
+
+The data directory answer ADR-011 offered — `tar` the volume — is true and is not enough. It
+moves an installation, not a profile: it cannot take one learner out of a multi-user database,
+and it asks someone to stop a container and copy a file to change machines.
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| Keep ADR-011: the data directory is the answer | Rejected — it moves an installation, not a profile, and cannot separate one learner from a shared database |
+| `.apkg` again | Rejected, for ADR-011's reasons, unchanged |
+| A hand-maintained JSON schema with an explicit column list per table | Rejected — a migration that adds a column and forgets this file makes exports silently incomplete, which is precisely the failure the format exists to avoid |
+| **A full dump with columns DISCOVERED via `PRAGMA table_info`, import replaces** | **Chosen** |
+
+**Decision.** `internal/profile` + `GET /api/profile/export` + `POST /api/profile/import`.
+
+- **Columns are discovered, never listed.** A new column rides along the day it is added; an
+  export written by an older binary still imports, its missing columns taking schema defaults.
+- **A table manifest with a coverage test.** `TestManifestCoversEveryUserTable` fails when a
+  migration adds a table that is neither exported nor excluded with a stated reason. That test
+  is the only thing standing between "we added a table" and "exports quietly stopped being
+  complete".
+- **Surrogate ids are remapped, not preserved.** `note.id` is global; on the destination
+  another learner may hold id 5. Every rowid alias is re-assigned and the four referenced
+  tables carry an old→new map. `review_log.id` taught this: referenced by nothing, so it
+  carried no remap, so it collided the moment the destination had review logs of its own.
+- **Import REPLACES, in one transaction.** Merging two FSRS histories means deciding which
+  `review_log` wins for a card on both sides, and there is no answer that does not invent a
+  learner's past. The confirm names by count what will be erased.
+- **Secrets do not travel.** `settings` rows with `secret = 1` are omitted, and both the export
+  screen and the import report say so. "Secrets never leave the server" stands; a file is how
+  they would.
+- **The integrity check is the replay property.** Every card's log is replayed through
+  `internal/srs/replay.go` and compared to the state that arrived with it. Same architecture
+  and a mismatch is corruption: fail and roll back. A different `goarch` and a mismatch is
+  expected — go-fsrs's fuzz is floating point and Go fuses multiply-adds on arm64 only — so it
+  is a warning that names the reason. No interchange format could make this check.
+
+**Consequences.**
+- CLAUDE.md's honesty rule «The app has no export» is rewritten rather than deleted: what the
+  app has is stated precisely, including what it leaves out.
+- ADR-011's `.apkg` refusal is untouched. This is not that format and never becomes it.
+- The import blocks the app while it runs (`db.Open` sets `SetMaxOpenConns(1)`), and the UI
+  says so rather than appearing to hang.
+- Round-trip verified across two installs: every card's stability, difficulty, reps, state and
+  fuzzed due date identical, `morph_state` included, and the exported password working on the
+  destination.
+
+---
+
+## ADR-041 — «В корзину» becomes «Знаю», and marks the word
+
+**Status:** accepted · 2026-09-22 *(user request)* · **amends** [ADR-025](#adr-025)
+
+**Context.** ADR-025 built a trash: a word set aside, with its note, cards, FSRS state and
+every `review_log` row intact — which is what makes restore return the card overdue and keeps
+undo working across it. The machinery is right. The name was not: the learner's actual use for
+it is «слова должны помечаться как уже выученные», and «В корзину» says the opposite of that.
+
+Worse, binning the cards was only half of what they meant. A word they already know is a fact
+about the WORD: the reader went on highlighting it as unfamiliar in its n+1 scoring and the plan
+went on counting it as missing, while the learner had just said they know it.
+
+**Decision.** One button, «Знаю», over ADR-025's machinery unchanged. It additionally sets
+`lemma_state.status = 'known'`; restore reverts it to `learning`, the state a word has from
+being added at all — not `new`, which would claim it had never been seen.
+
+**Consequences.**
+- `POST /api/notes/:id/know` is the name the client uses; `/trash` and `/restore` are the same
+  handlers under the names they shipped with, so a stale tab and the stored tests keep working.
+  The `trash` SCOPE value stays on the wire — it is ADR-025's contract and renaming it would
+  break every stored reference.
+- The screen is «Знаю», not «Корзина», and its copy states the second half: the reader stops
+  highlighting the word.
+- A note whose lemma the pack cannot resolve is still set aside; it simply has no word-level
+  fact to record, and failing the request over that would be saying less, not more.
+- Everything ADR-025 guarantees is still guaranteed: not a delete, restore returns the card
+  overdue, undo replays across it, `all == course + reader` still excludes it.
+
+---
+
+## ADR-042 — The model may write a dictionary entry, and may not write material
+
+**Status:** accepted · 2026-09-22 *(user request)* · see
+[R10](research/10-llm-tutors.md), [ADR-014](#adr-014), [ADR-027](#adr-027),
+[ADR-035](#adr-035)
+
+**Context.** The pack is finite and the reader is not. A learner who clicked `bejelentkezve` in
+a pasted text got «В языковом пакете этого нет.» and nothing else — no meaning, no breakdown, no
+way on, on precisely the word they stopped for. They asked for the model to fill it: «должна
+быть возможность добавлять слова в словарь с помощью нейронки… должно добавлять такое же
+описание как на nincs скриншоте».
+
+The tension is real. [R10] is why every guardrail in this app exists: Hungarian is where models
+are weakest, and a confident wrong entry is worse than a dead end because the learner has no way
+to check it.
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| Let the tutor do it | Rejected — the tutor mints nothing, and a test counts `note`/`card`/`user_gloss` and both state spaces before and after a question. Routing this through it would delete that guarantee |
+| Generate the entry AND the example sentences as material | Rejected — a card's Hungarian must be attested, `internal/corpus` does not exist, and this is exactly the rule Phase 9 exists to enforce |
+| Free-text prose from the model, rendered as-is | Rejected — unparseable output cannot be checked word by word, and the check is the whole defence |
+| **A separate handler, JSON in, displayed and labelled, saved only in two explicit steps** | **Chosen** |
+
+**Decision.** `POST /api/words/:form/entry` in `handlers_ai_entry.go` — deliberately NOT a
+tutor route. Prompt: `.claude/prompts/word-entry.md`.
+
+- **Offered only where the pack has nothing.** The pack's own entry is richer than anything a
+  model should be trusted to produce; this fills a dead end rather than competing.
+- **Every Hungarian token is looked up**, through the same `tutor.Backticked` /
+  `tutor.Unattested` / `wordExists` path the tutor's answers use, and the misses are listed
+  under the entry. Tokens the model forgot to backtick are checked too — otherwise a model that
+  drops the backticks silently turns the guardrail off, which is the one failure a learner could
+  not possibly notice. The asked-about form is excluded: the learner knows the pack lacks it.
+- **Two explicit steps to a card.** Saving stores `user_gloss` as `source='machine'` with the
+  model; only «Принять как своё» re-saves it as `manual`, and only a `manual` gloss is a card's
+  back. ADR-014 and ADR-035 unchanged.
+- **The examples are illustration and say so.** Not attested, never notes, and the panel states
+  it where they are rather than in a doc.
+- **The model's own "I don't know" is passed through.** An honest dead end beats an invention.
+
+**Consequences.**
+- A second, smaller thing rides with it: a chat about one WORD, one per form per local day
+  (`tutor_thread.word`, migration 00021), so «ещё примеры» is answerable in the moment. It uses
+  the existing conversation component, so the model label, the grounding line and the honesty
+  notice come for free rather than in a second copy.
+- `handlers_tutor_test.go`'s mints-nothing test still passes, because this is not that path.
+- A small model's sloppy JSON is read leniently — fences stripped, outermost object taken — and
+  what still cannot be read comes back as prose, labelled, rather than being discarded.
+
+---
+
+## ADR-043 — Grammar lands on the lesson the first time and on the exercise after that
+
+**Status:** accepted · 2026-09-22 *(user report)* · see [R4](research/04-explicit-instruction.md),
+[R5](research/05-interleaving.md)
+
+**Context.** The learner's report: «Упражнения в грамматике прям вообще внизу, аи репетитор
+вверху, еще выше описание грамматики. Ну бред же. Должно быть что то типо как повторение слов.
+Типо главная таска.»
+
+They are right about the page. The exercise is the task and it was the third card down, reached
+by scrolling past the whole lesson and the tutor panel.
+
+They are also asking for something [R4] forbids. «Grammar teaches before it tests» is the
+strongest finding in the research set, and a screen that leads with the exercise contradicts it.
+
+**Decision.** The landing state is conditional, not flipped.
+
+- First visit to a topic → the **lesson**, expanded, no exercise on screen. [R4] holds exactly.
+- Once the learner has pressed «К упражнениям» for that topic, or the topic has ANSWERED
+  drills → the **exercise** leads and the lesson is one disclosure away.
+
+**The trap this avoids.** The obvious signal — "phase is past `explained`" — is wrong.
+`drill/schedule.go` says *"a newly opened topic always starts blocked"*: `blocked` is the
+DEFAULT for anything drillable ([R5]'s initial-blocked-practice finding) and says nothing about
+whether the learner has read anything. Using it would have put an exercise in front of every
+first-time topic — the [R4] violation the whole arrangement exists to avoid. The real evidence
+is `topic_progress.attempts > 0`, a lifetime counter the EMAs deliberately do not forget, plus a
+per-device record of the button press to cover the gap before the first answer.
+
+**Consequences.**
+- «Все темы» moves out of the lesson's `CardHeader`, where it was a ghost button and the only
+  route back to the topic map in the whole SPA, into the page furniture as an outline button.
+- The tutor becomes a side column toggled by a button, as the review card's is — not a step
+  between reading and practising that everyone walked through.
+- The `?topic=` / `?why=1` URL contract is unchanged and covered.
+- docs/PEDAGOGY.md records this as the seventh documented divergence-that-is-not: the finding is
+  honoured, the layout around it changed.
+
+---
+
+## ADR-044 — Reading counts toward the day, and the day says where it went
+
+**Status:** accepted · 2026-09-22 *(user report)* · see [R14](research/14-motivation.md),
+[ADR-021](#adr-021)
+
+**Context.** «это время также должно учитывать чтение, слушание, и так далее.» The reader was
+the one loop that reported NOTHING: an hour with a text moved no counter, so «21 / 90 мин» sat
+still. That is not a display bug — `daily_log.active_ms` is one half of what the streak requires
+(`stats.Day.Met`), so reading was literally not counted as study.
+
+And the figure it feeds is a sum, which is the one thing a learner cannot act on: «21 минута»
+does not say whether the reading counted.
+
+**Decision.** Reading reports time, on the same terms listening does, and the day is drawn split
+by what it was spent on.
+
+- `POST /api/reading/progress`, clamped to 60 s per report — the same bound listening has.
+- A second counting **only** while the tab is visible AND the learner interacted within the idle
+  window. A wall clock would be dishonest: a tab left open overnight is not ten hours of
+  Hungarian, and [R14] is explicit that a streak kept that way measures nothing.
+- `daily_log.read_s` beside `listen_s` (migration 00020), because the total alone cannot say
+  where an hour went.
+- **The streak's definition is unchanged.** Queue cleared AND minutes met, both halves, as
+  before. What changed is that the minutes now include work that was always work.
+
+**Consequences.**
+- Both halves exist on purpose: the client is honest about what it reports, and the server's
+  clamp means it does not have to be trusted. A stuck timer mints a minute, not a night.
+- The activity chart draws three measured series — cards, reading, listening. `due_left` is NOT
+  a line on it: cards-remaining and minutes-spent are different scales, and one axis for both
+  invites the comparison that is meaningless. The queue half of the obligation is a status row.
+- Where a day failed, the tooltip and the streak popover name WHICH half failed. They fail
+  independently, and "not met" on a day whose queue was clear pointed at the wrong thing.
+- The chart's three series use their own validated categorical steps, not the knowledge-state
+  colours: `primary` measures chroma 0.072 and reads grey as a fill, and `kn-known` is doing
+  status duty here. Light and dark each pass the categorical checks against their own surface.
+
+---
+
+## ADR-045 — Chats are cleared by the tabful, and the context meter describes the answer on screen
+
+**Status:** accepted · 2026-09-22 *(user report)* · **amends** [ADR-031](#adr-031) ·
+see [ADR-034](#adr-034)
+
+**Context.** Two reports about the tutor page.
+
+«у эай учителя должна быть возможность также удалять чаты… Также группы повторения там должны
+быть отдельной вкладкой чтоб не миксовать.» A review chat is one per word per local day
+(ADR-034), so a month of reviewing leaves hundreds of «Повторение · jelenteni» rows on top of
+every real conversation, and `DELETE /api/tutor/:id` was the only way out — one at a time.
+
+«Окно модели 8 192 токенов… Показывается только первый раз, потом уже не увеличивается и ничего
+не меняется если я начну чатиться.» The meter walked backwards through the thread to the last
+answer that carried figures, on the reasoning that a stopped stream reports none and an old
+reading beats «заняли 0». The cost was worse than the problem: once any answer came back without
+usage, the panel kept showing the FIRST answer's numbers and looked frozen — and a learner
+watching a figure sit still through three more questions cannot tell stale from stuck.
+
+**Decision.**
+
+- **Tabs, by kind.** «Чаты» / «Повторение» / «Слова», with per-kind counts, because a tab has to
+  carry the number on the tab you are not looking at. `chat` is the wire name for the ordinary
+  kind, whose stored value is `''` and which a query string cannot carry.
+- **`DELETE /api/tutor?kind=`** clears one tab, or everything when the kind is absent. Confirmed
+  by count first. `DeleteThreads(user, "")` (every kind) and `DeleteThreadsOfChatKind` (the `''`
+  rows) are separate methods on purpose: confusing them would wipe a learner's whole tutor
+  history while meaning to clear one tab. An unrecognised kind is refused rather than silently
+  meaning "all".
+- **The meter reads the LATEST answer only.** When that answer reported nothing it says so —
+  «Расход на последний ответ модель не сообщила» — and the bar is absent. A stale reading is
+  indistinguishable from a stuck one, so it is never shown.
+- **The server logs partial usage**, naming which of the three figures went missing: the
+  provider's usage block, or Ollama's `/api/ps` window. When the meter looked frozen there was
+  no way to tell.
+
+**Consequences.**
+- `GET /api/tutor` returns `{threads, counts}` rather than a bare array. The stored tests
+  asserted the old shape and were updated with it.
+- The window-full warning no longer fires on a zeroed reading, which would have claimed the
+  prompt was cut when nothing was known about it.
+- ADR-031's meter stands; what changed is that it now describes the answer it is under.
+
+---
+
+## ADR-046 — Asking the tutor never changes a word's schedule
+
+**Status:** accepted · 2026-09-22 *(user decision)* · **supersedes in part**
+[ADR-034](#adr-034) (a question before the answer is a hint) · see
+[R4](research/04-explicit-instruction.md), [R9](research/09-corrective-feedback.md),
+[R14](research/14-motivation.md), [ADR-017](#adr-017), [ADR-042](#adr-042)
+
+**Context.** ADR-034 priced the tutor: a question sent before the answer set `usedHint`, the
+same channel «Подсказка» uses, so `srs.DeriveRating` capped the grade at Hard and the word came
+back sooner than the learner's own answer warranted. The learner's verdict: «аи учитель не
+должен мешать прогрессу слова никогда! типо удлинять его запоминание!»
+
+They are right, and the reasoning ADR-034 gave does not survive the panel being used. The cap
+was defensive: a model with the expected form in its prompt would be a hint that bypasses
+grading. But the prompt **withholds the answer** in that phase and `tutor.Allowed` refuses the
+templates that would name it — that is the guardrail, and it is a real one. What the cap
+actually taxed was reading an explanation before answering, which is [R4]'s explicit
+instruction and [R9]'s prompted retrieval: the two things the panel exists for. A price on
+asking teaches the learner not to ask, and a grade that was lowered by something other than
+their answer is the kind of invented number [R14] rules out everywhere else in this app.
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| Keep the cap | Rejected — it taxes the behaviour the panel exists to make cheap, and the learner asked for it to stop |
+| Cap only the answer-naming chips | Rejected — those chips do not exist in the question phase: `tutor.Allowed` already refuses them. There is nothing left to price |
+| Record the question and show it on the card without capping | Rejected — a mark that changes nothing is decoration, and one more thing on a card that already carries five labels |
+| **No channel at all from the tutor to the graded answer** | **Chosen** |
+
+**Decision.**
+- **The tutor does not reach the answer.** `consultTutor` and the `asked` event that fed it are
+  **deleted** — from the store, from `ReviewView`, from `TutorAside` and from
+  `TutorConversation`. `usedHint` is set by «Подсказка» and by nothing else, so a later change
+  cannot quietly reconnect a wire that is not there.
+- **The guardrail is unchanged and is now what the panel says.** Before the answer the server
+  still withholds it — the typed card's form, the produce card's word and sentence, the
+  receptive card's meaning, the audio card's Hungarian — and `tutor.Allowed` still refuses
+  `whyForm`, `breakdown`, `translateWord` and `spelling` in that phase with 400.
+- **The copy states the new fact**, where the old one stated the price: «До ответа учитель не
+  получает правильный ответ и не называет его. На расписание слова вопрос не влияет: карточка
+  всё равно спросит вас, и оценка будет ваша.»
+- **«Подсказка» is untouched.** It reveals the graded string, so it caps at Hard, and «Хорошо» /
+  «Легко» still say «засчитается как «Трудно»».
+
+**Consequences.**
+- One fewer reason not to ask, on the screen where [R4] says asking is worth the most.
+- **Cost:** a small model may name the form anyway, and that answer is now unpriced. It was
+  already only a cap rather than a refusal, a learner with a grammar beside the keyboard has
+  always been able to do the same, and the honest position is that this app grades what you
+  typed and does not police how you arrived at it.
+- The review path still reads no tutor table, and `handlers_tutor_test.go` still counts the five
+  tables before and after a question. The separation ADR-034 built survives; what is gone is the
+  one wire that ran the other way.

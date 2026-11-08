@@ -251,6 +251,20 @@ export interface Memory {
   history: boolean[]
   /** Absent in free practice, where nothing is scheduled. */
   preview?: MemoryPreview
+  /**
+   * Where the card stands on FSRS's minute-scale learning steps ({1, 10}
+   * minutes by default, {10} when relearning). Both 0 once it is scheduled in
+   * days. `stepsLeft` is the scheduler's own `RemainingSteps`, not a count the
+   * app keeps.
+   */
+  stepsLeft: number
+  stepsTotal: number
+  /**
+   * Whether a «Хорошо» from here would take the card off the minute steps and
+   * onto days — asked of the scheduler, not guessed from the interval. False
+   * in free practice, where nothing is scheduled at all.
+   */
+  graduatesOnGood: boolean
 }
 
 export interface QueueItem {
@@ -1063,6 +1077,13 @@ export interface DailyLedger {
   drills: number
   trials: number
   listenS: number
+  /**
+   * Seconds spent in the reader. Added by migration 00020 — before it, reading
+   * reported no time at all and an hour with a text left the day's minutes
+   * unmoved. Optional on the type so a response from an older server still
+   * parses. ADR-044.
+   */
+  readS?: number
   activeMs: number
   dueLeft: number
   human: boolean
@@ -1177,6 +1198,16 @@ export interface UnitState {
    * flag — which is why the word list only marks state where it can prove it.
    */
   wordsInPlay: number
+  /**
+   * The subset of `wordsInPlay` whose notes THIS unit created
+   * (`note.source = 'course:<code>'`).
+   *
+   * `wordsInPlay` counts a lemma wherever it came from, which is right — but
+   * it was the only progress a plan row showed, so a word added from the
+   * reader raised a later month's fraction and the screen read as "you have
+   * started month 2". The difference is what the row now explains.
+   */
+  fromHere?: number
   /** The unit's words with no card yet — named, so the UI never infers them. */
   notInPlay: string[]
 }
@@ -1351,6 +1382,55 @@ export interface TutorEvent {
  * `topic` is the pin with its names; `lastTopic` is the lesson the latest
  * answer was grounded in, for a free chat's subtitle.
  */
+/**
+ * Which tab a chat belongs to.
+ *
+ * `chat` is the ordinary kind — free or pinned to a grammar topic. Its stored
+ * value is the empty string, which a query string cannot carry, so the wire
+ * name is `chat`. `review` is one per word per local day from the review card;
+ * `word` is the same idea from the word inspector.
+ */
+export type TutorKind = 'chat' | 'review' | 'word'
+
+/**
+ * A dictionary entry written by the language model, for a word the pack does
+ * not have. Mirrors `api.AIEntryResponse`. ADR-042.
+ *
+ * Everything here is DISPLAYED and labelled with `model`. It reaches
+ * `user_gloss` only on an explicit save (as `machine`), and a card's back only
+ * after «Принять как своё» re-saves it as `manual` — ADR-014/ADR-035.
+ * `examples` are illustration, never material: they are not attested and never
+ * become notes.
+ */
+export interface AIEntry {
+  form: string
+  model: string
+  /** The model's own admission. An honest dead end, passed through. */
+  unknown?: boolean
+  lemma?: string
+  pos?: string
+  meanings?: string[]
+  morphemes?: string[]
+  examples?: { hu: string; tr: string }[]
+  /** The model's text when it did not come back in the expected shape. */
+  raw?: string
+  /** Hungarian in this entry that the pack's dictionary has never seen. */
+  unattested: string[]
+}
+
+/** Whether an AI entry can be offered at all, and by which model. */
+export interface AIEntryStatus {
+  available: boolean
+  reason?: string
+  model?: string
+}
+
+/** The chat list plus per-kind counts, for the tab strip. */
+export interface TutorListResponse {
+  threads: TutorSummary[]
+  counts: Partial<Record<TutorKind, number>>
+}
+
 export interface TutorSummary {
   id: number
   /** The first question — or, on a review chat, the WORD it is about. */
@@ -1367,4 +1447,39 @@ export interface TutorSummary {
   lastRole: 'user' | 'assistant' | ''
   lastContent: string
   updatedAt: string
+}
+
+/**
+ * What a profile import is about to replace, counted in the learner's own
+ * units rather than in table names. Mirrors `api.ProfileSizeResponse`.
+ */
+export interface ProfileSize {
+  notes: number
+  cards: number
+  reviews: number
+  texts: number
+  words: number
+  threads: number
+  days: number
+}
+
+/**
+ * What an import actually did. Mirrors `api.ImportReport`.
+ *
+ * `replayOk` is the integrity check no interchange format could make: every
+ * card's review log was replayed through the scheduler and produced the state
+ * that arrived with it. `replayWarning` is the one expected way for that to
+ * come out unequal — a profile that crossed between CPU architectures, where
+ * FSRS's interval fuzz redraws. `skippedColumns` names anything the file
+ * carried that this schema has no home for; it is shown, never swallowed.
+ */
+export interface ImportReport {
+  tables: Record<string, number>
+  totalRows: number
+  mediaFiles: number
+  skippedColumns?: string[]
+  replayOk: boolean
+  replayChecked: number
+  replayWarning?: string
+  secretsOmitted: boolean
 }

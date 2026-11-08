@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { setLocale, type AppLocale } from '@/i18n'
 import { isSoundEnabled, play, setSoundEnabled } from '@/lib/sound'
@@ -24,8 +24,31 @@ export const useUiStore = defineStore('ui', () => {
   const theme = ref<Theme>(readTheme())
   const locale = ref<AppLocale>(readLocale())
   const sound = ref(isSoundEnabled())
-  /** The sidebar: expanded or an icon rail. Persisted per device. */
+  /**
+   * The sidebar's PINNED state: expanded, or an icon rail. Persisted per
+   * device, and the only thing the collapse arrow changes.
+   */
   const sidebarOpen = ref(readSidebar())
+  /**
+   * The rail under the pointer (or holding keyboard focus). Transient, never
+   * persisted — it is a gesture, not a preference.
+   *
+   * A collapsed rail expands while you are on it and folds back when you
+   * leave, so the nav costs 3.5rem of page and reads in full whenever you
+   * actually look at it.
+   */
+  const navHovered = ref(false)
+  /**
+   * Whether the rail is showing its labels right now — pinned open, or open
+   * because the pointer is there.
+   *
+   * The two are deliberately separate values. `sidebarOpen` is what the page
+   * LAYOUT is built from (and what `--rail` carries, which the key bar and the
+   * milestone strip centre themselves on); this one is only what the rail
+   * itself draws. Feeding the layout from the hover state would slide the key
+   * bar sideways every time the mouse crossed the nav.
+   */
+  const railExpanded = computed(() => sidebarOpen.value || navHovered.value)
   /** The off-canvas drawer below `md`. Transient, never persisted. */
   const mobileNavOpen = ref(false)
 
@@ -36,8 +59,16 @@ export const useUiStore = defineStore('ui', () => {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   }
 
+  /**
+   * Collapsed unless the learner pinned it open.
+   *
+   * The default flipped when the rail learned to open under the pointer: a
+   * nav that is one mouse-move away does not need to hold 224px of every
+   * screen permanently. An explicit `open` still wins — pinning is a choice
+   * and this only decides what a device that has never chosen does.
+   */
   function readSidebar(): boolean {
-    return localStorage.getItem(SIDEBAR_KEY) !== 'collapsed'
+    return localStorage.getItem(SIDEBAR_KEY) === 'open'
   }
 
   function readLocale(): AppLocale {
@@ -102,6 +133,8 @@ export const useUiStore = defineStore('ui', () => {
     locale,
     sound,
     sidebarOpen,
+    navHovered,
+    railExpanded,
     mobileNavOpen,
     toggleTheme,
     toggleSidebar,

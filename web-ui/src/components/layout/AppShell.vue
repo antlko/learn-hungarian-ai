@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { ChevronLeft, ChevronRight } from '@lucide/vue'
 import AppSidebar from './AppSidebar.vue'
 import AppTopbar from './AppTopbar.vue'
 import MilestoneOverlay from '@/components/common/Milestone.vue'
@@ -18,6 +17,54 @@ const deck = useDeckStore()
  * the reader and the review card draw.
  */
 const hasKeyBar = computed(() => route.name === 'review' || route.name === 'read')
+
+/**
+ * The rail opens under the pointer and folds back when it leaves.
+ *
+ * Three things this has to get right, and each of them is a bug if it does not:
+ *
+ *  - **It overlays, it does not push.** Widening a rail that is part of the
+ *    flex row reflows the whole page on every hover — the reading measure
+ *    changes mid-sentence and text jumps under the cursor. So the wrapper keeps
+ *    the PINNED width and the expanded rail floats over the content.
+ *  - **Only where hover exists.** `pointerenter` fires on a tap, so on a touch
+ *    tablet wide enough to show the rail a single tap would pop the nav open.
+ *  - **A close delay, no open delay.** Opening must feel immediate; closing
+ *    waits a moment so a diagonal sweep past the rail does not flicker it.
+ *
+ * The listeners sit on the RAIL, not on this wrapper. The wrapper is 56px wide
+ * when collapsed and the open rail is 224px, so a wrapper-mounted
+ * `pointerleave` fired the moment the cursor moved onto the panel it had just
+ * opened — it folded, the cursor came back, it opened again. `pointerleave`
+ * counts descendants, so the rail (with the collapse arrow inside it) is the
+ * one element that covers everything the pointer can be on.
+ *
+ * Keyboard focus counts as being there too: tabbing into a collapsed rail
+ * would otherwise land on an unlabelled icon.
+ */
+const canHover =
+  typeof window !== 'undefined' && window.matchMedia?.('(hover: hover)').matches !== false
+
+let foldTimer: ReturnType<typeof setTimeout> | undefined
+
+function unfold() {
+  if (!canHover) return
+  clearTimeout(foldTimer)
+  ui.navHovered = true
+}
+
+function fold() {
+  clearTimeout(foldTimer)
+  foldTimer = setTimeout(() => (ui.navHovered = false), 120)
+}
+
+/** Focus is not a pointer: it opens with no delay and closes immediately. */
+function unfoldForFocus() {
+  clearTimeout(foldTimer)
+  ui.navHovered = true
+}
+
+onUnmounted(() => clearTimeout(foldTimer))
 
 onMounted(() => void deck.refresh(true))
 watch(
@@ -46,29 +93,31 @@ watch(
     :style="{ '--rail': ui.sidebarOpen ? '14rem' : '3.5rem' }"
   >
     <!--
-      The rail is desktop chrome; below md the drawer replaces it. Wrapped in
-      a `relative` box only so the collapse toggle below has something to
-      anchor to — the box itself carries no width or styling of its own, and
-      it resizes exactly as the rail does (w-14 collapsed, w-56 open).
+      The rail is desktop chrome; below md the drawer replaces it.
+
+      This box owns the width the PAGE is laid out against — the pinned one.
+      The rail floats inside it and carries the hover listeners itself, so
+      opening on hover changes what is drawn and not what the page is measured
+      from.
     -->
-    <div class="relative hidden md:flex">
-      <AppSidebar />
+    <div
+      class="relative hidden shrink-0 md:block"
+      :class="ui.sidebarOpen ? 'w-56' : 'w-14'"
+    >
       <!--
-        The collapse control: a small arrow sitting ON the border between the
-        rail and the page, not a full menu row at the bottom of the sidebar.
-        `right: -0.75rem` centres it on that border regardless of the rail's
-        current width, so it never has to move independently of the rail's
-        own resize transition.
+        Absolutely positioned inside a wrapper that carries the PINNED width,
+        so the expanded rail floats over the page instead of pushing it. The
+        shadow appears only while it is floating — a pinned rail is part of the
+        furniture and should not look lifted.
       -->
-      <button
-        type="button"
-        class="absolute top-16 -right-3 z-10 flex size-6 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-raised transition-colors hover:bg-accent hover:text-foreground"
-        :aria-label="ui.sidebarOpen ? $t('common.collapseNav') : $t('common.expandNav')"
-        :title="ui.sidebarOpen ? $t('common.collapseNav') : $t('common.expandNav')"
-        @click="ui.toggleSidebar()"
-      >
-        <component :is="ui.sidebarOpen ? ChevronLeft : ChevronRight" class="size-3.5" aria-hidden="true" />
-      </button>
+      <AppSidebar
+        class="absolute inset-y-0 left-0 z-30 bg-background"
+        :class="!ui.sidebarOpen && ui.railExpanded ? 'shadow-raised' : ''"
+        @pointerenter="unfold"
+        @pointerleave="fold"
+        @focusin="unfoldForFocus"
+        @focusout="fold"
+      />
     </div>
 
     <div class="flex min-w-0 flex-1 flex-col">

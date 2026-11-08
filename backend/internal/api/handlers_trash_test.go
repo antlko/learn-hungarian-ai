@@ -181,3 +181,88 @@ func TestTrashingAnUnknownNoteIs404(t *testing.T) {
 		t.Errorf("note id 0 returned %d, want 400", resp.StatusCode)
 	}
 }
+
+// ── «Знаю» marks the word, not just the cards (ADR-041) ─────────────────────
+
+// noteLemma is the lemma a note resolved to, or 0. Not on CreateNoteResponse,
+// which reports the lemma's STATUS rather than its id.
+func noteLemma(t *testing.T, s *Server, noteID int64) int64 {
+	t.Helper()
+	var id *int64
+	if err := s.db.QueryRow(`SELECT lemma_id FROM note WHERE id = ?`, noteID).Scan(&id); err != nil {
+		t.Fatalf("read note lemma: %v", err)
+	}
+	if id == nil {
+		return 0
+	}
+	return *id
+}
+
+// lemmaStatus reads what the deck believes about a word. Not exposed by an
+// endpoint, so the test reads it where it lives.
+func lemmaStatus(t *testing.T, s *Server, userID, lemmaID int64) string {
+	t.Helper()
+	var st string
+	err := s.db.QueryRow(
+		`SELECT status FROM lemma_state WHERE user_id = ? AND lemma_id = ?`,
+		userID, lemmaID).Scan(&st)
+	if err != nil {
+		return ""
+	}
+	return st
+}
+
+// Pressing «Знаю» says something about the WORD. Setting the cards aside is
+// only half of it: without the lemma mark the reader goes on treating the word
+// as unknown in its n+1 scoring and the plan goes on counting it as missing,
+// while the learner has just said they know it.
+func TestKnowingAWordMarksItsLemmaKnownAndRestorePutsItBack(t *testing.T) {
+	s, c := newPackedServer(t)
+
+	n := noteOn(t, c, map[string]any{"hu": "Nagy a ház.", "targetForm": "ház"})
+	lemma := noteLemma(t, s, n.NoteID)
+	if lemma == 0 {
+		t.Skip("this pack did not resolve the fixture word to a lemma")
+	}
+	if got := lemmaStatus(t, s, 1, lemma); got != "learning" {
+		t.Fatalf("a freshly added word should be learning, got %q", got)
+	}
+
+	var out TrashResponse
+	resp := c.json(http.MethodPost, "/api/notes/"+itoa(n.NoteID)+"/know", nil, &out)
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("POST /know: %d", resp.StatusCode)
+	}
+	if !out.Changed {
+		t.Fatal("the note was not set aside")
+	}
+	if got := lemmaStatus(t, s, 1, lemma); got != "known" {
+		t.Errorf("lemma status after «Знаю» = %q, want known", got)
+	}
+
+	// And back again: `learning`, the state a word has from being added at
+	// all — not `new`, which would claim it had never been seen.
+	resp = c.json(http.MethodPost, "/api/notes/"+itoa(n.NoteID)+"/restore", nil, &out)
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("POST /restore: %d", resp.StatusCode)
+	}
+	if got := lemmaStatus(t, s, 1, lemma); got != "learning" {
+		t.Errorf("lemma status after restore = %q, want learning", got)
+	}
+}
+
+// The old path is the same handler under its old name, so a tab that has not
+// reloaded keeps working — and gets the new behaviour too.
+func TestTheTrashPathStillWorksAndAlsoMarksTheWord(t *testing.T) {
+	s, c := newPackedServer(t)
+
+	n := noteOn(t, c, map[string]any{"hu": "Nagy a ház.", "targetForm": "ház"})
+	lemma := noteLemma(t, s, n.NoteID)
+	if lemma == 0 {
+		t.Skip("this pack did not resolve the fixture word to a lemma")
+	}
+	trashNote(t, c, n.NoteID)
+	if got := lemmaStatus(t, s, 1, lemma); got != "known" {
+		t.Errorf("lemma status after /trash = %q, want known", got)
+	}
+}

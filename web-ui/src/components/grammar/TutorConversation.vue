@@ -43,9 +43,10 @@ import type { TutorCardRef, TutorChip } from '@/types'
  * changing `note` opens the next word's chat, empty. `chips` are prepared
  * questions about `card` — the review card in front of the learner — sent
  * with one click and composed by the server; a free question typed while a
- * `card` is set travels with the card as context. `asked` fires the moment
- * a question about a card is sent, with the card's phase, so the view can
- * count a question before the answer as a hint.
+ * `card` is set travels with the card as context. With no `card` — the word
+ * inspector — a chip is sent as the ordinary question its label already is.
+ * **Nothing here reports back to the card's grading**: asking the tutor never
+ * changes what the word's answer schedules (ADR-046).
  */
 const props = withDefaults(
   defineProps<{
@@ -53,9 +54,11 @@ const props = withDefaults(
     topic?: string
     fresh?: boolean
     compact?: boolean
-    kind?: 'review'
+    kind?: 'review' | 'word'
     /** The note a review chat is about — one chat per word per day. */
     note?: number
+    /** The form a `word` chat is about — the inspector's. ADR-042. */
+    word?: string
     chips?: TutorChip[]
     card?: TutorCardRef | null
     placeholder?: string
@@ -76,7 +79,6 @@ const emit = defineEmits<{
   created: [id: number]
   deleted: []
   answered: []
-  asked: [phase: 'question' | 'answer']
 }>()
 
 const { t, te } = useI18n()
@@ -87,6 +89,7 @@ const source = computed<TutorSource>(() => ({
   fresh: props.fresh,
   kind: props.kind,
   note: props.note,
+  word: props.word,
 }))
 const {
   thread,
@@ -141,6 +144,10 @@ const fmt = (n: number) => n.toLocaleString(ui.locale === 'ru' ? 'ru-RU' : 'en-G
 const contextLine = computed(() => {
   const u = usage.value
   if (!u) return ''
+  // The model reported nothing for THIS answer. Said out loud rather than
+  // filled in with the previous answer's numbers, which is how the meter came
+  // to look frozen: a stale reading is indistinguishable from a stuck one.
+  if (!u.reported) return t('tutor.context.none')
   if (u.window) {
     return t('tutor.context.known', { window: fmt(u.window), used: fmt(u.used), free: fmt(u.free) })
   }
@@ -198,16 +205,22 @@ async function submit(text?: string) {
   await nextTick()
   grow()
   await scrollToEnd(true)
-  if (props.card) emit('asked', props.card.phase)
   await ask(q, props.card ? { card: { ...props.card } } : undefined)
   emit('answered')
 }
 
-/** A prepared question about the card: one click, the server writes it. */
+/** A prepared question: one click. */
 async function sendChip(chip: TutorChip) {
-  if (asking.value || !props.card) return
+  if (asking.value) return
+  // No card — the word inspector's chips (ADR-042). There is nothing for the
+  // server to compose from, and the chip's own wording IS the question, so it
+  // is sent as one. Without this branch the chips were drawn, hovered, and
+  // simply did nothing.
+  if (!props.card) {
+    await submit(chip.label)
+    return
+  }
   await scrollToEnd(true)
-  emit('asked', props.card.phase)
   await ask('', { card: { ...props.card, template: chip.id }, label: chip.label })
   emit('answered')
 }
@@ -285,7 +298,13 @@ defineExpose({ thread, messages, asking, remove, del })
                unless the card's own chips are the openers. -->
           <div v-if="!messages.length && !draft" class="flex flex-col items-center gap-3 py-8 text-center">
             <p class="max-w-md text-sm text-muted-foreground">
-              {{ chips.length ? $t('review.tutor.placeholder') : pinnedTopic ? $t('tutor.empty') : $t('tutor.emptyFree') }}
+              {{
+                chips.length
+                  ? (placeholder ?? $t('review.tutor.placeholder'))
+                  : pinnedTopic
+                    ? $t('tutor.empty')
+                    : $t('tutor.emptyFree')
+              }}
             </p>
             <div v-if="!chips.length" class="flex flex-wrap justify-center gap-1.5">
               <button
@@ -358,7 +377,7 @@ defineExpose({ thread, messages, asking, remove, del })
           {{ $t('tutor.smallModel', smallModel) }}
         </Note>
         <!-- The window was full: the head of the prompt was cut without a word. ADR-031 -->
-        <Note v-if="usage?.full" variant="limit" bare class="text-xs">
+        <Note v-if="usage?.reported && usage.full" variant="limit" bare class="text-xs">
           {{ $t('tutor.context.full', { window: fmt(usage.window) }) }}
         </Note>
         <Note v-if="error" variant="error" bare class="text-xs">{{ error }}</Note>
@@ -418,7 +437,7 @@ defineExpose({ thread, messages, asking, remove, del })
              answer. A bar only when the server reported the window. ADR-031 -->
         <div v-if="usage" class="flex flex-col gap-1">
           <Progress
-            v-if="usage.window"
+            v-if="usage.reported && usage.window"
             :value="usage.pct"
             size="h-1"
             :tone="usage.full ? 'bg-uncertain' : 'bg-primary/60'"

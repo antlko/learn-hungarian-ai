@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useActiveTime } from '@/composables/useActiveTime'
 import { useRoute } from 'vue-router'
 import { toast } from 'vue-sonner'
 import { useI18n } from 'vue-i18n'
@@ -440,6 +441,18 @@ function onKey(e: KeyboardEvent) {
       break
   }
 }
+
+/**
+ * Reading counts toward the day's minutes (ADR-044).
+ *
+ * `enabled` keeps the clock off while the screen is showing a spinner or an
+ * error rather than a text: time spent waiting for a load is not reading, and
+ * crediting it would be the same overclaim the wall clock would be.
+ */
+useActiveTime({
+  report: (seconds) => api.readingProgress(seconds),
+  enabled: () => !loading.value && !error.value && !!detail.value,
+})
 
 onMounted(() => {
   void load()

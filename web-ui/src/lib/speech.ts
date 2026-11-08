@@ -91,6 +91,19 @@ export function pickVoice(preferredName?: string): SpeechSynthesisVoice | null {
   return voices.find(isHighQuality) ?? voices.find((v) => v.localService) ?? voices[0]
 }
 
+/**
+ * What is actually handed to the engine.
+ *
+ * A single capital letter is ANNOUNCED rather than read: the voice says
+ * «nagy A» — "capital A" — which is what the reader's most common one-letter
+ * word, the definite article `A` at the head of a sentence, came out as. The
+ * lower-case letter is the same sound in Hungarian and is read as the word,
+ * so the case is dropped for a one-letter utterance and for nothing else.
+ */
+export function spokenForm(text: string): string {
+  return /^\p{Lu}[.,!?;:…]?$/u.test(text) ? text.toLocaleLowerCase('hu') : text
+}
+
 export interface SpeakOptions {
   /** 0.5–1.5. Slower is for hearing a suffix, not a different reading speed. */
   rate?: number
@@ -125,7 +138,7 @@ export function speak(text: string, opts: SpeakOptions = {}): boolean {
   if (!voice) return false
 
   window.speechSynthesis.cancel()
-  const utter = new SpeechSynthesisUtterance(trimmed)
+  const utter = new SpeechSynthesisUtterance(spokenForm(trimmed))
   utter.voice = voice
   utter.lang = voice.lang
   utter.rate = Math.min(1.5, Math.max(0.5, opts.rate ?? 1))

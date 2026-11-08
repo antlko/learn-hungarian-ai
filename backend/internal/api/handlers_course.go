@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
@@ -115,8 +116,98 @@ func (s *Server) handleCourse(c fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	plan := s.syllabus.Resolve(progress, func(lemma string) bool { return inPlay[lemma] })
+	// Which unit each in-play word actually came FROM, so the plan can stop
+	// claiming a month the learner never started. See fromUnitSet.
+	fromUnit, err := s.fromUnitSet(u.ID)
+	if err != nil {
+		return err
+	}
+	plan := s.syllabus.Resolve(progress,
+		func(lemma string) bool { return inPlay[lemma] },
+		func(unitCode, lemma string) bool { return fromUnit[unitCode+"\x00"+lemma] },
+	)
 	return c.JSON(CourseResponse{Plan: plan, Enrolled: progress})
+}
+
+// fromUnitSet reports which (unit, lemma) pairs this learner has a note for
+// that THIS unit created.
+//
+// The plan's `wordsInPlay` counts a lemma wherever it came from, which is
+// correct — a word in the deck is in the deck, and a unit whose words are all
+// there IS done however they got there. But it was the ONLY progress a row
+// showed, so a word added from the reader raised month 2's fraction and the
+// screen read as "you have started month 2". This is the second number that
+// lets the row say the true thing instead.
+//
+// `note.source` is `course:<unit code>` for a word the course added
+// (handleEnrolUnit) and anything else otherwise — the same predicate
+// `srs.Scope` already splits the course and reader piles on. Trashed notes
+// count: a word the learner marked «Знаю» was still added by this unit.
+func (s *Server) fromUnitSet(userID int64) (map[string]bool, error) {
+	out := map[string]bool{}
+	if s.pack == nil {
+		return out, nil
+	}
+	// lemma_id -> the units whose notes carry it. Two steps, because the lemma
+	// TEXT lives in the read-only pack and the notes live here.
+	type pair struct {
+		lemmaID int64
+		unit    string
+	}
+	rows, err := s.db.Query(`
+		SELECT DISTINCT lemma_id, source FROM note
+		 WHERE user_id = ? AND lemma_id IS NOT NULL AND source LIKE 'course:%'`, userID)
+	if err != nil {
+		return out, err
+	}
+	defer rows.Close()
+
+	var pairs []pair
+	ids := map[int64]bool{}
+	for rows.Next() {
+		var p pair
+		var source string
+		if err := rows.Scan(&p.lemmaID, &source); err != nil {
+			return out, err
+		}
+		p.unit = strings.TrimPrefix(source, "course:")
+		pairs = append(pairs, p)
+		ids[p.lemmaID] = true
+	}
+	if err := rows.Err(); err != nil {
+		return out, err
+	}
+	if len(pairs) == 0 {
+		return out, nil
+	}
+
+	// One pack query for every lemma id at once, as inPlaySet does.
+	args := make([]any, 0, len(ids))
+	for id := range ids {
+		args = append(args, id)
+	}
+	lq := `SELECT id, lemma FROM lemma WHERE id IN (?` + repeatComma(len(args)-1) + `)`
+	lrows, err := s.pack.DB().Query(lq, args...)
+	if err != nil {
+		// A pack that cannot answer costs the extra label, never the screen.
+		return out, nil
+	}
+	defer lrows.Close()
+	names := map[int64]string{}
+	for lrows.Next() {
+		var id int64
+		var lemma string
+		if err := lrows.Scan(&id, &lemma); err != nil {
+			return out, nil
+		}
+		names[id] = lemma
+	}
+	for _, p := range pairs {
+		if lemma := names[p.lemmaID]; lemma != "" {
+			out[p.unit+"\x00"+lemma] = true
+		}
+	}
+	return out, nil
 }
 
 func (s *Server) courseProgress(userID int64) (map[string]course.Progress, error) {

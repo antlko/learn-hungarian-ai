@@ -2,7 +2,7 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
-import { ArrowLeft, GraduationCap, Info, PencilRuler } from '@lucide/vue'
+import { ArrowLeft, BookOpen, ChevronDown, GraduationCap, Info, PencilRuler } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Note from '@/components/common/Note.vue'
@@ -53,10 +53,85 @@ const selected = ref('')
 /**
  * Whether the learner has moved from reading to practising.
  *
- * Resets on every topic change: arriving at a new rule and finding an exercise
- * already waiting is the thing this state exists to prevent.
+ * The landing state is a DECISION, not a constant — and it is the one place
+ * this screen has to hold two things at once:
+ *
+ *   [R4] «Grammar teaches before it tests» is the strongest finding in the
+ *   research set, so a topic seen for the FIRST time must open on its lesson
+ *   with no exercise on screen. That is not negotiable.
+ *
+ *   But a learner who has already read a rule and is working through its
+ *   drills should not have to scroll past the explanation and the tutor every
+ *   time. The exercise is the task; on a return visit it leads.
+ *
+ * So: lesson first until the learner has pressed «К упражнениям» for this
+ * topic, or until the gate has moved the topic past `explained` — which it
+ * only does on answered drills, i.e. on evidence that the lesson was read.
+ * After that, the drill leads and the lesson is one click away. ADR-043.
  */
 const practising = ref(false)
+
+/**
+ * Topics the learner has practised on this device.
+ *
+ * Per-device and in localStorage, like the set size and the sound: it decides
+ * a layout, not a schedule, and the server has no business knowing it. A
+ * browser that refuses storage simply lands on the lesson every time, which is
+ * the safe direction to fail in.
+ */
+const PRACTISED_KEY = 'tanulom.grammar.practised'
+
+function practisedSet(): Set<string> {
+  try {
+    const raw = localStorage.getItem(PRACTISED_KEY)
+    return new Set(raw ? (JSON.parse(raw) as string[]) : [])
+  } catch {
+    return new Set()
+  }
+}
+
+function rememberPractised(code: string) {
+  try {
+    const set = practisedSet()
+    set.add(code)
+    localStorage.setItem(PRACTISED_KEY, JSON.stringify([...set]))
+  } catch {
+    // Private mode: the choice holds for this session only.
+  }
+}
+
+/**
+ * Whether this topic's drills should lead.
+ *
+ * `explained` and `locked` never do: `explained` means we have no generator
+ * for the topic at all, so there is nothing to lead WITH, and the lesson is
+ * the whole screen.
+ */
+function drillsLead(t?: Topic | null): boolean {
+  if (!t) return false
+  // `explained` has no drill generator behind it at all and `locked` has not
+  // been opened, so in both the lesson IS the screen.
+  if (t.phase === 'explained' || t.phase === 'locked') return false
+
+  // NOT the phase on its own. `blocked` is the DEFAULT for a drillable topic —
+  // drill/schedule.go: "a newly opened topic always starts blocked", which is
+  // [R5]'s initial-blocked-practice finding and says nothing about whether the
+  // learner has read anything. Treating it as evidence would have put an
+  // exercise in front of every first-time topic, which is exactly the [R4]
+  // violation this whole arrangement exists to avoid.
+  //
+  // The real evidence is an ANSWERED drill (`progress.attempts`, a lifetime
+  // counter that the EMAs deliberately do not forget), or the learner having
+  // pressed «К упражнениям» here before — which covers the gap between that
+  // press and the first answer.
+  return t.progress.attempts > 0 || practisedSet().has(t.code)
+}
+
+/** The lesson panel, open or shut. Open whenever the drill is not leading. */
+const lessonOpen = ref(true)
+
+/** The tutor's side column. Off by default — it is a question, not a step. */
+const tutorOpen = ref(false)
 
 const topic = computed(() => store.activeTopic)
 const title = computed(() =>
@@ -111,7 +186,12 @@ watch(
 async function open(code: string, history: 'push' | 'replace' = 'push') {
   const wasOpen = !!selected.value
   selected.value = code
+  // Reset to the safe state first; the phase is not known until the topic
+  // loads, and a stale `true` from the previous topic would put an exercise
+  // in front of a rule nobody has read.
   practising.value = false
+  lessonOpen.value = true
+  tutorOpen.value = false
   if (route.query.topic !== code) {
     const query = { ...route.query, topic: code }
     // Lateral moves never push, and neither does the first open on mount.
@@ -120,10 +200,17 @@ async function open(code: string, history: 'push' | 'replace' = 'push') {
   }
   await store.openTopic(code)
   await store.loadDrills(code)
+  // Now the topic is loaded: one already under way opens on its exercise.
+  if (drillsLead(store.activeTopic) && store.item) {
+    practising.value = true
+    lessonOpen.value = false
+  }
 }
 
 function closeTopic() {
   practising.value = false
+  lessonOpen.value = true
+  tutorOpen.value = false
   store.activeTopic = null
   selected.value = ''
   if (route.query.topic) {
@@ -149,6 +236,8 @@ watch(
     if (want) void open(want, 'replace')
     else {
       practising.value = false
+      lessonOpen.value = true
+      tutorOpen.value = false
       store.activeTopic = null
       selected.value = ''
     }
@@ -193,6 +282,10 @@ const levelTopics = computed(() => {
  */
 async function beginPractice() {
   practising.value = true
+  lessonOpen.value = false
+  // Remembered, so the next visit to this topic opens on the exercise. [R4]
+  // is satisfied by the FIRST visit having landed on the lesson.
+  if (selected.value) rememberPractised(selected.value)
   await nextTick()
   document.querySelector('[data-drill-card]')?.scrollIntoView({
     block: 'start',
@@ -299,52 +392,91 @@ watch(
       <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
         <div class="flex min-w-0 flex-1 flex-col gap-6">
       <!--
-        The LESSON leads. [R4] is the whole argument of this screen and the
-        screen used to contradict it: the drill card was raised and first, so
-        opening a topic put `név + Case=Sup — какой вариант?` in front of a
-        learner who had not been told what a superessive is, let alone that its
-        suffix has three shapes. Explanation, then practice, in that order, with
-        an explicit step between them.
+        ── the chrome strip ─────────────────────────────────────────────
+        Where you are, and the two ways out of it, above the task rather than
+        buried in a card header. «Все темы» used to be a ghost/sm button inside
+        the lesson's CardHeader — the ONLY route back to the topic map in the
+        whole SPA, and invisible. It is an outline button in the page furniture
+        now.
       -->
-      <Card :variant="practising ? 'quiet' : 'raised'">
-        <CardHeader class="flex flex-col gap-3">
-          <div class="flex flex-wrap items-start justify-between gap-3">
-            <div class="flex flex-col gap-1">
-              <CardTitle class="text-lg">{{ title }}</CardTitle>
-              <span class="text-xs text-muted-foreground">
-                {{ topic.level }}
-                <template v-if="position">
-                  · {{ $t('grammar.teachOrderOf', { n: position.n, of: position.of }) }}
-                </template>
-                <template v-else>
-                  · {{ $t('grammar.teachOrder', { n: topic.teachOrder }) }}
-                </template>
-              </span>
-            </div>
-            <Button variant="ghost" size="sm" @click="closeTopic">
-              <ArrowLeft class="size-4" aria-hidden="true" />
-              {{ $t('grammar.allTopics') }}
-            </Button>
-          </div>
-          <PhaseBadge :phase="topic.phase" :decision="topic.decision" />
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <Button variant="outline" size="sm" @click="closeTopic">
+          <ArrowLeft class="size-4" aria-hidden="true" />
+          {{ $t('grammar.allTopics') }}
+        </Button>
+
+        <div class="flex min-w-0 flex-col">
+          <h2 class="truncate text-sm font-medium">{{ title }}</h2>
+          <span class="text-[11px] text-muted-foreground">
+            {{ topic.level }}
+            <template v-if="position">
+              · {{ $t('grammar.teachOrderOf', { n: position.n, of: position.of }) }}
+            </template>
+            <template v-else>· {{ $t('grammar.teachOrder', { n: topic.teachOrder }) }}</template>
+          </span>
+        </div>
+
+        <PhaseBadge :phase="topic.phase" :decision="topic.decision" compact class="shrink-0" />
+
+        <!-- The batch counter travels with the task, not inside its card. -->
+        <span
+          v-if="practising && store.item"
+          class="font-mono text-xs tabular-nums text-muted-foreground"
+        >
+          {{ store.index + 1 }}/{{ store.items.length }}
+        </span>
+
+        <!-- The tutor is a question about the rule, so it is a panel you open
+             and not a step you pass through. Same shape as the review card's,
+             same key. ADR-027 -->
+        <Button
+          variant="ghost"
+          size="sm"
+          class="ml-auto"
+          :aria-pressed="tutorOpen"
+          @click="tutorOpen = !tutorOpen"
+        >
+          <GraduationCap class="size-4" aria-hidden="true" />
+          {{ $t('tutor.title') }}
+        </Button>
+      </div>
+
+      <!--
+        ── the lesson, collapsible ──────────────────────────────────────
+        Still the landing state on a topic's first visit — [R4] is the
+        strongest finding in the set and is not traded away for a layout. What
+        changed is that a topic already under way no longer makes the learner
+        scroll past the whole explanation to reach the exercise they came for.
+      -->
+      <Card :variant="lessonOpen ? 'raised' : 'quiet'">
+        <CardHeader :class="lessonOpen ? 'pb-3' : 'py-3'">
+          <button
+            type="button"
+            class="flex w-full cursor-pointer items-center gap-2 text-left"
+            :aria-expanded="lessonOpen"
+            @click="lessonOpen = !lessonOpen"
+          >
+            <BookOpen class="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <CardTitle class="text-sm">{{ $t('grammar.lesson.title') }}</CardTitle>
+            <ChevronDown
+              class="ml-auto size-4 shrink-0 text-muted-foreground transition-transform"
+              :class="lessonOpen ? 'rotate-180' : ''"
+              aria-hidden="true"
+            />
+          </button>
         </CardHeader>
 
-        <CardContent class="flex flex-col gap-6">
+        <CardContent v-if="lessonOpen" class="flex flex-col gap-6">
           <TopicLesson v-if="store.detail" :detail="store.detail" />
 
           <!--
-            The step from reading to practising, and the point of the whole
-            reorder. It is a button rather than an automatic scroll because
-            "I have read this" is the learner's call, and because a screen that
-            starts a timed retrieval attempt on its own is testing reading
-            speed.
+            The step from reading to practising. A button rather than an
+            automatic scroll because "I have read this" is the learner's call,
+            and because a screen that starts a timed retrieval attempt on its
+            own is measuring reading speed.
           -->
           <div v-if="!practising" class="flex flex-col gap-2 border-t border-border-subtle pt-5">
-            <Button
-              v-if="store.item"
-              class="self-start"
-              @click="beginPractice"
-            >
+            <Button v-if="store.item" class="self-start" @click="beginPractice">
               <PencilRuler class="size-4" aria-hidden="true" />
               {{ $t('grammar.lesson.startDrills') }}
             </Button>
@@ -373,22 +505,17 @@ watch(
       </Card>
 
       <!--
-        The tutor, AFTER the lesson and before the exercises: a question about
-        the rule just read, answered in the learner's language from the lesson
-        itself, the pack's feature tables and a corpus of open grammars.
-        Nothing it says becomes a card. ADR-027, [R19]
+        ── the exercise: the task ────────────────────────────────────────
+        The main object on the screen once the learner is practising, rather
+        than the third card down under the lesson and the tutor. The counter
+        moved to the chrome strip, where it describes the session rather than
+        this one item.
       -->
-      <TutorPanel :topic="topic.code" :title="title" />
-
-      <!-- ── the exercises, once they have been asked for ────────────────── -->
       <Card v-if="practising && store.item" data-drill-card variant="raised">
-        <CardHeader class="flex flex-row items-center justify-between gap-3 pb-4">
+        <CardHeader class="pb-4">
           <CardTitle class="text-sm font-medium text-muted-foreground">
             {{ $t(`grammar.kind.${store.item.kind}`) }}
           </CardTitle>
-          <span class="font-mono text-xs tabular-nums text-muted-foreground">
-            {{ store.index + 1 }}/{{ store.items.length }}
-          </span>
         </CardHeader>
         <CardContent class="flex flex-col gap-5 pb-6">
           <DrillItemView
@@ -430,13 +557,26 @@ watch(
         map at rail width, always on, current row marked.
       -->
       <aside
-        v-if="levelTopics.length > 1"
-        class="flex w-full shrink-0 flex-col gap-2 lg:sticky lg:top-2 lg:max-h-[calc(100dvh-7rem)] lg:w-72 lg:overflow-y-auto"
+        v-if="levelTopics.length > 1 || tutorOpen"
+        class="flex w-full shrink-0 flex-col gap-4 lg:sticky lg:top-2 lg:max-h-[calc(100dvh-7rem)] lg:overflow-y-auto"
+        :class="tutorOpen ? 'lg:w-96' : 'lg:w-72'"
       >
-        <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+        <!--
+          The tutor, when asked for. In the side column rather than between the
+          lesson and the exercise: a question about the rule is something you
+          reach for, and putting it in the path from reading to practising made
+          it a step everyone walked through. Same placement and same behaviour
+          as the review card's panel. ADR-027, [R19]
+        -->
+        <TutorPanel v-if="tutorOpen" :topic="topic.code" :title="title" />
+
+        <h2
+          v-if="levelTopics.length > 1"
+          class="text-xs font-semibold tracking-widest text-muted-foreground uppercase"
+        >
           {{ $t('grammar.levelTopics', { level: topic.level }) }}
         </h2>
-        <ul class="flex flex-col gap-1">
+        <ul v-if="levelTopics.length > 1" class="flex flex-col gap-1">
           <li v-for="(x, i) in levelTopics" :key="x.code">
             <button
               type="button"

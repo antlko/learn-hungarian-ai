@@ -26,7 +26,7 @@ const PHRASES: Record<string, string> = {
   'session expired': 'errors.sessionExpired',
   'authentication required': 'errors.sessionExpired',
   'administrator access required': 'errors.forbidden',
-  'this word is in the trash': 'errors.inTrash',
+  'this word is in the trash': 'errors.known',
   'nothing to undo': 'errors.nothingToUndo',
   'setup has already been completed': 'errors.setupDone',
   'this trial has expired — fetch a new session': 'errors.trialExpired',

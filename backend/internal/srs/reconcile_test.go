@@ -33,7 +33,14 @@ func TestReconcileRepairsLossyHistory(t *testing.T) {
 	cardID := oneCardNote(t, e, uid, t0)
 
 	// Good puts the card on its 10-minute step; the legacy fold then wrongly
-	// graduates it on the Again that follows. Two more answers on top.
+	// graduates it on the Again that follows, and the Good after that schedules
+	// it days out where the truth is still on a minutes step. The lapse a day
+	// later keeps the two apart STRUCTURALLY: the lossy card is a Review card
+	// entering Relearning with a lapse, the true one a Learning card back on its
+	// first step. A final Good instead graduated both — same stability, same
+	// difficulty — and left them one fuzzed day apart, a coin go-fsrs's generator
+	// tosses differently on arm64 and amd64 (Go fuses multiply-adds on the first
+	// only), so the test passed on the laptop and failed in CI.
 	chain := []struct {
 		r   Rating
 		gap time.Duration
@@ -41,7 +48,7 @@ func TestReconcileRepairsLossyHistory(t *testing.T) {
 		{Good, 0},
 		{Again, 10 * time.Minute},
 		{Good, time.Minute},
-		{Good, 24 * time.Hour},
+		{Again, 24 * time.Hour},
 	}
 	state := NewCardState(t0)
 	now := t0
@@ -52,14 +59,15 @@ func TestReconcileRepairsLossyHistory(t *testing.T) {
 		steps = append(steps, ReplayStep{Rating: st.r, ReviewTime: now, Correct: st.r != Again})
 	}
 
-	// The lossy fold and the true replay must actually disagree, or this test
-	// pins nothing.
+	// The lossy fold and the true replay must disagree on something no fuzz can
+	// hide, or this test pins nothing — and a fuzzed due date is not that
+	// something.
 	truth, err := e.scheduler.ReplayCard(steps)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if sameCardState(state, truth) {
-		t.Fatal("setup failed: the lossy chain coincides with the true replay")
+	if state.State == truth.State {
+		t.Fatalf("setup failed: the lossy chain and the true replay must differ structurally, not by a fuzzed day:\nlossy %+v\ntruth %+v", state, truth)
 	}
 
 	// A feature written the same lossy way.

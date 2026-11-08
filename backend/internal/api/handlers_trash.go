@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log/slog"
 	"strconv"
 	"time"
 
@@ -94,6 +95,34 @@ func (s *Server) moveTrash(c fiber.Ctx, trash bool) error {
 	}
 	if err != nil {
 		return err
+	}
+
+	// «Знаю» is a claim about the WORD, not only about these cards (ADR-041).
+	//
+	// Setting the note aside stops it being scheduled; marking its lemma
+	// `known` is the other half, and it is the half the learner actually
+	// meant. Without it the reader would go on offering the word as unknown
+	// in its n+1 scoring and the plan would go on counting it as missing,
+	// while the learner had just said they know it.
+	//
+	// Restore puts it back to `learning`, which is the state a word gets from
+	// being added at all — not `new`, which would claim it had never been
+	// seen.
+	//
+	// Only when the note resolves to a lemma. A note the pack cannot resolve
+	// is still set aside; it simply has no word-level fact to record, and
+	// failing the whole request over that would be worse than saying less.
+	if changed {
+		if n, nerr := store.Note(u.ID, noteID); nerr == nil && n.LemmaID != nil {
+			status := "learning"
+			if trash {
+				status = "known"
+			}
+			if serr := store.SetLemmaStatus(u.ID, *n.LemmaID, status); serr != nil {
+				slog.ErrorContext(c.Context(), "could not update lemma status",
+					"user", u.ID, "note", noteID, "status", status, "error", serr)
+			}
+		}
 	}
 	cards, err := store.CardCount(noteID)
 	if err != nil {

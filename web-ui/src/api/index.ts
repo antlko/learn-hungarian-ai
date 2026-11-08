@@ -41,6 +41,10 @@ import type {
   TrashListResponse,
   TrashResponse,
   MTStatus,
+  AIEntry,
+  AIEntryStatus,
+  ImportReport,
+  ProfileSize,
   UserGloss,
   Translation,
   FeatureMastery,
@@ -168,7 +172,7 @@ export const api = {
 
   undo: () => http.post<UndoResult>('/api/review/undo'),
 
-  // ── the trash ─────────────────────────────────────────────────────────
+  // ── «Знаю» ────────────────────────────────────────────────────────────
   /**
    * Set a word aside. Not a delete: the note, its cards and their FSRS state
    * survive, so a restore is a restore. It leaves the SCHEDULER — free practice
@@ -179,13 +183,13 @@ export const api = {
    * is trashed — it decides which breakdowns come back, so a text-scoped
    * session gets its own chip's number and not just the fixed three.
    */
-  trashNote: (noteId: number, scope?: QueueScope) =>
-    http.post<TrashResponse>(`/api/notes/${noteId}/trash${scopeQuery(scope)}`),
+  knowNote: (noteId: number, scope?: QueueScope) =>
+    http.post<TrashResponse>(`/api/notes/${noteId}/know${scopeQuery(scope)}`),
 
   restoreNote: (noteId: number, scope?: QueueScope) =>
     http.post<TrashResponse>(`/api/notes/${noteId}/restore${scopeQuery(scope)}`),
 
-  trash: () => http.get<TrashListResponse>('/api/trash'),
+  known: () => http.get<TrashListResponse>('/api/trash'),
 
   forecast: (newPerDay?: number) =>
     http.get<{ forecast: Forecast; verdict?: GovernorVerdict }>(
@@ -219,7 +223,13 @@ export const api = {
 
   mastery: () => http.get<{ features: FeatureMastery[]; window: number }>('/api/stats/mastery'),
 
-  overview: () => http.get<Overview>('/api/stats/overview'),
+  /**
+   * The whole Today/Progress payload. `days` is the window the activity chart
+   * asked for — 30, 90 or 365; the server clamps anything else to 30. The
+   * STREAK is always computed over the full ledger, never over this window.
+   */
+  overview: (days?: number) =>
+    http.get<Overview>(`/api/stats/overview${days && days !== 30 ? `?days=${days}` : ''}`),
 
   takeCheckpoint: (body: { code: string; attested: string[]; notes?: string }) =>
     http.post<CheckpointVerdict>('/api/checkpoints', body),
@@ -325,6 +335,55 @@ export const api = {
     http.put<UserGloss>(`/api/glosses/${encodeURIComponent(form)}`, body),
 
   deleteGloss: (form: string) => http.del(`/api/glosses/${encodeURIComponent(form)}`),
+
+  /**
+   * What an import is about to replace, in the learner's own units.
+   *
+   * The confirm dialog must name what it is erasing, and "24 tables" is not a
+   * thing anybody has. See ADR-040.
+   */
+  profileSize: () => http.get<ProfileSize>('/api/profile/size'),
+
+  /**
+   * Download the whole profile.
+   *
+   * Deliberately NOT through `http`: the response is a zip, not JSON, and it
+   * can be tens of megabytes. The browser's own download machinery handles it
+   * better than anything we would write, so the link is simply followed.
+   */
+  profileExportUrl: () => '/api/profile/export',
+
+  profileImport: (file: File) => {
+    const form = new FormData()
+    form.append('profile', file)
+    return http.postForm<ImportReport>('/api/profile/import', form)
+  },
+
+  /**
+   * Time spent with a text, for the daily ledger.
+   *
+   * The reader was the one loop that reported nothing, so an hour with a text
+   * left «21 / 90 мин» unmoved and the day unmet. The server clamps each
+   * report to 60 s and echoes what it actually credited. ADR-044.
+   */
+  readingProgress: (seconds: number) =>
+    http.post<{ seconds: number; activeMs: number }>('/api/reading/progress', { seconds }),
+
+  /**
+   * Whether a model can write a dictionary entry, and which one. Asked BEFORE
+   * the button is offered: offering it and then failing is the pattern ADR-001
+   * exists to avoid.
+   */
+  aiEntryStatus: () => http.get<AIEntryStatus>('/api/words/ai-entry/status'),
+
+  /**
+   * A dictionary entry from the model, for a word the pack does not have.
+   *
+   * Displayed and labelled. It writes nothing — saving is a separate, explicit
+   * `saveGloss` with `source: 'machine'`. ADR-042.
+   */
+  aiEntry: (form: string, lang: string) =>
+    http.post<AIEntry>(`/api/words/${encodeURIComponent(form)}/entry?lang=${lang}`, {}),
 
   mtStatus: () => http.get<MTStatus>('/api/mt/status'),
 

@@ -297,13 +297,32 @@ features at all. Saying "we have not built exercises for this" is a supported ou
 ### 5.7 Replay — `internal/srs/replay.go`
 
 The review log is complete so that replaying it reproduces stored FSRS state **bit for bit**
-(fuzz is seeded from review time + reps, so even fuzzed due dates replay). Two things stand on
-that property:
+(fuzz is seeded from review time, reps and difficulty × stability, so even fuzzed due dates
+replay). Two things stand on that property:
 
 - **Undo** is "delete the last log row and replay the rest" — in both state spaces, in one
   transaction. No stored-previous-state bookkeeping that can drift.
 - The **property test** (`replay_test.go`, 200 randomised trials) that catches any change —
   including an FSRS upgrade — breaking the correspondence.
+
+**Bit for bit is a property of one binary on one CPU architecture.** go-fsrs draws its interval
+fuzz from a floating-point generator, and Go fuses multiply-adds on arm64 but not on amd64, so
+the same seed draws a different fuzz on each; stability and difficulty differ in their last bit
+as well. Nothing is lost by moving `data/` between an amd64 and an arm64 host — the log is the
+truth — but an undo there replays to a due date inside the fuzz range of the stored one rather
+than onto it, and the one-time repair of [ADR-020](../.claude/DECISIONS.md#adr-020) is
+marker-gated, so it does not run again after such a move. For tests: a setup that differs only
+by a fuzzed day passes on an arm64 laptop and fails on CI's amd64 runner (`reconcile_test.go`
+did exactly that) — pin structural differences, and reproduce CI with `GOARCH=amd64 go test`
+under Rosetta.
+
+**A second consumer, since [ADR-040](../.claude/DECISIONS.md#adr-040):** the profile import uses
+this property as its integrity check. Every imported card's log is replayed and compared to the
+state that arrived with it — a mismatch on the same architecture means the file is damaged and
+the transaction rolls back. Across two architectures the fuzz redraws, so `internal/profile`
+compares the structural fields exactly and allows stability to differ, reporting a warning that
+names the reason. No interchange format could make this check; it is the one thing a full dump
+buys over a copied SQLite file.
 
 ### 5.8 The ear trainer — `internal/hvpt`
 
@@ -322,6 +341,18 @@ Loop 4's attestation is stored in the same row and deliberately ignored by the s
 signal for the checkpoint diagnostic only. Checkpoints gate the curriculum: a failed
 assessment locks its CEFR level and above (resolved in `drill.Resolve`, reason
 `gate.locked.checkpoint`) until a retake passes.
+
+**Reading reports time too, since [ADR-044](../.claude/DECISIONS.md#adr-044).** It was the one
+loop that wrote nothing, so `active_ms` — one half of `Day.Met` — never moved for an hour with a
+text, and the day went unmet while the learner had been working. `POST /api/reading/progress`
+adds to `active_ms` and to the new `read_s` column (migration 00020), clamped to
+`maxReportSeconds` (60) exactly as listening is. The client is the half that decides what counts:
+`composables/useActiveTime.ts` banks a second only while the document is visible AND the learner
+interacted inside the idle window, so a tab left open overnight earns nothing. Both halves exist
+on purpose — the client is honest, and the clamp means it does not have to be trusted.
+
+`read_s` sits beside `listen_s` rather than being folded into the total because the total is the
+one figure a learner cannot act on: «21 минута» does not say whether the reading counted.
 
 ### 5.10 Morpheme-aware diff — `internal/morph/diff.go`
 
@@ -417,6 +448,8 @@ GET /api/capabilities
 | Add a way to answer a card that must not schedule | `internal/api/handlers_practice.go` + `internal/srs/practice.go` — and never `review_log`, which replay depends on |
 | Judge a text's difficulty | `internal/mining/level.go` (`EstimateLevel`, pure) + `levelInputs` in `handlers_texts.go`; the LLM second opinion and manual override in `handlers_level.go` ([ADR-023](../.claude/DECISIONS.md#adr-023)). The band table is the pack's `lemma.cefr` — do not fork a third one |
 | Browse the learner's words | `internal/api/handlers_words.go` — status from `lemma_state`, memory figures derived from the CARDS (lemma_state's FSRS columns are dormant) |
+| Export or import a whole profile | `internal/profile` — the table manifest (with its coverage test), column discovery via `PRAGMA table_info`, id remapping, and the replay check; `handlers_profile.go` streams and spools. Import REPLACES, in one transaction, for the acting user only. Secrets are omitted. [ADR-040](../.claude/DECISIONS.md#adr-040) |
+| Ask a model for a dictionary entry | `handlers_ai_entry.go` — deliberately NOT a tutor route, because the tutor mints nothing and a test proves it. The prompt is `.claude/prompts/word-entry.md`; the guardrail is `tutor.Backticked`/`Unattested`/`wordExists`, applied to unbackticked tokens too. [ADR-042](../.claude/DECISIONS.md#adr-042) |
 | Call the configured language model | `internal/llm` (OpenAI-compatible chat, key via the `llmKey` secret; `Chat` for one completion, `Stream` for a streamed one). Prompts live versioned in `.claude/prompts/` — or, for the tutor, embedded from `internal/tutor/prompts/` with the note in `.claude/prompts/` beside it — never as ad-hoc Go strings |
 | Change what a typed answer is graded against | `expectedAnswer` in `internal/api/handlers_review.go`, and [R12] |
 | Change what gets scheduled | `internal/srs/directions.go`, `emit.go` |

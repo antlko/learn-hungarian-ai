@@ -35,7 +35,7 @@ func TestUnitIsDoneWhenItsWordsAreInTheDeck(t *testing.T) {
 		unit("u2", 1, 102, "bolt", "kenyér"),
 	)
 
-	plan := s.Resolve(nil, inPlay("szia", "kösz"))
+	plan := s.Resolve(nil, inPlay("szia", "kösz"), nil)
 	if plan.Units[0].Status != StatusDone {
 		t.Errorf("u1 status = %q, want done", plan.Units[0].Status)
 	}
@@ -48,7 +48,7 @@ func TestUnitIsDoneWhenItsWordsAreInTheDeck(t *testing.T) {
 
 	// Partially in play is NOT done: a unit whose progress bar rounds up would
 	// tell the learner they know words they have never seen.
-	partial := s.Resolve(nil, inPlay("szia"))
+	partial := s.Resolve(nil, inPlay("szia"), nil)
 	if partial.Units[0].Status == StatusDone {
 		t.Error("one word of two must not complete a unit")
 	}
@@ -65,7 +65,7 @@ func TestLaterUnitsAreAheadNotLocked(t *testing.T) {
 		unit("u2", 1, 102, "b"),
 		unit("u3", 2, 201, "c"),
 	)
-	plan := s.Resolve(nil, inPlay())
+	plan := s.Resolve(nil, inPlay(), nil)
 	want := []Status{StatusCurrent, StatusAhead, StatusAhead}
 	for i, st := range plan.Units {
 		if st.Status != want[i] {
@@ -79,12 +79,12 @@ func TestLaterUnitsAreAheadNotLocked(t *testing.T) {
 func TestHandoverWhenEveryUnitIsDone(t *testing.T) {
 	s := syllabus(unit("u1", 1, 101, "a"), unit("u2", 1, 102, "b"))
 
-	mid := s.Resolve(nil, inPlay("a"))
+	mid := s.Resolve(nil, inPlay("a"), nil)
 	if mid.HandedOver {
 		t.Error("handed over with a unit outstanding")
 	}
 
-	done := s.Resolve(nil, inPlay("a", "b"))
+	done := s.Resolve(nil, inPlay("a", "b"), nil)
 	if !done.HandedOver {
 		t.Fatal("every unit done must hand over")
 	}
@@ -103,7 +103,7 @@ func TestEmptySyllabusDoesNotClaimCompletion(t *testing.T) {
 	if !s.Empty() {
 		t.Fatal("Empty")
 	}
-	plan := s.Resolve(nil, inPlay())
+	plan := s.Resolve(nil, inPlay(), nil)
 	if plan.HandedOver {
 		t.Error("an empty syllabus must not report the course as finished")
 	}
@@ -116,6 +116,7 @@ func TestEnrolmentIsSeparateFromCompletion(t *testing.T) {
 	plan := s.Resolve(
 		map[string]Progress{"u1": {UnitCode: "u1", Enrolled: true, NotesMade: 2}},
 		inPlay(),
+		nil,
 	)
 	if !plan.Units[0].Enrolled {
 		t.Error("enrolment not reflected")
@@ -144,7 +145,7 @@ func TestSplitList(t *testing.T) {
 // word is worse than greying out none.
 func TestPlanNamesTheWordsNotYetInTheDeck(t *testing.T) {
 	s := syllabus(unit("u1", 1, 101, "szia", "kösz", "viszlát"))
-	plan := s.Resolve(nil, inPlay("kösz"))
+	plan := s.Resolve(nil, inPlay("kösz"), nil)
 
 	st := plan.Units[0]
 	if st.WordsInPlay != 1 {
@@ -156,7 +157,7 @@ func TestPlanNamesTheWordsNotYetInTheDeck(t *testing.T) {
 
 	// A finished unit names nothing — and the field is an empty slice rather
 	// than nil so the JSON is [] and the client needs no null check.
-	done := s.Resolve(nil, inPlay("szia", "kösz", "viszlát"))
+	done := s.Resolve(nil, inPlay("szia", "kösz", "viszlát"), nil)
 	if len(done.Units[0].NotInPlay) != 0 {
 		t.Errorf("a done unit still names %v", done.Units[0].NotInPlay)
 	}

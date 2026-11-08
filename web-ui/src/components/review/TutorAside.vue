@@ -16,8 +16,9 @@ import type { TutorCardRef, TutorChip } from '@/types'
  * link opens this one there. The chips are prepared questions about THIS card,
  * chosen by the view from the card's direction, phase and outcome; the
  * server composes the question from the card and the pack. Before the answer
- * the panel says what asking costs: the grade is capped at Hard, like
- * «Подсказка».
+ * the panel says what asking does NOT cost: the model is not given the answer
+ * in that phase, and asking changes nothing about the word's schedule
+ * (ADR-046). The card still asks you.
  */
 defineProps<{
   chips: TutorChip[]
@@ -27,7 +28,7 @@ defineProps<{
   note: number
   threadId?: number
 }>()
-defineEmits<{ created: [id: number]; deleted: []; close: []; asked: [phase: 'question' | 'answer'] }>()
+defineEmits<{ created: [id: number]; deleted: []; close: [] }>()
 </script>
 
 <template>
@@ -56,7 +57,7 @@ defineEmits<{ created: [id: number]; deleted: []; close: []; asked: [phase: 'que
         </Button>
       </div>
     </div>
-    <!-- The cost of asking early, stated before the first question. -->
+    <!-- What asking early does and does not do, before the first question. -->
     <Note v-if="phase === 'question'" variant="limit" bare class="text-xs">
       {{ $t('review.tutor.beforeAnswer') }}
     </Note>
@@ -68,7 +69,6 @@ defineEmits<{ created: [id: number]; deleted: []; close: []; asked: [phase: 'que
       :card="card"
       :placeholder="$t('review.tutor.placeholder')"
       compact
-      @asked="$emit('asked', $event)"
       @created="$emit('created', $event)"
       @deleted="$emit('deleted')"
     />

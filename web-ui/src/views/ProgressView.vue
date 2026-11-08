@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Note from '@/components/common/Note.vue'
 import LocativeGrid from '@/components/progress/LocativeGrid.vue'
+import ActivityChart from '@/components/progress/ActivityChart.vue'
 import { api } from '@/api'
 import { useFeaturesStore } from '@/stores/features'
 import { useMilestoneStore } from '@/stores/milestone'
@@ -27,6 +28,7 @@ const milestone = useMilestoneStore()
 const catalogue = useFeaturesStore()
 
 const overview = ref<Overview | null>(null)
+
 const mastery = ref<FeatureMastery[]>([])
 /** `drill.gateWindow`, as the server reports it: how many answers a figure
  *  needs before it is worth showing. Quoted, never re-hardcoded here. */
@@ -407,6 +409,19 @@ function fmtDiag(key: string, value: number): string {
 
       <div class="grid gap-6 lg:grid-cols-2">
         <!-- ── locative grid ───────────────────────────────────────────── -->
+        <!--
+          ── activity by day ──────────────────────────────────────────────
+          This screen loaded `overview.days` for the streak and then threw the
+          rows away; the only picture of them was a flat strip on Today. Here
+          they get the range switch, because "what did the last year look like"
+          is a Progress question and not a Today one.
+        -->
+        <Card variant="quiet">
+          <CardContent class="py-5">
+            <ActivityChart :days="overview.days" :daily-minutes="overview.dailyMinutes" />
+          </CardContent>
+        </Card>
+
         <Card variant="quiet">
           <CardHeader class="pb-3">
             <CardTitle class="text-base">{{ $t('progress.locative') }}</CardTitle>

@@ -60,7 +60,45 @@ icon rail** (PanelLeft button at the foot, persisted per device in `tanulom.side
 becoming a dot on the icon; the «скоро» group is hidden entirely there — an icon that does
 nothing and cannot explain itself is worse than absence). Below `md` the rail is replaced by an
 off-canvas drawer behind a topbar hamburger; before that, the fixed 224px column simply ate 60%
-of a phone screen. The topbar carries the page's name on the left and, per the sketch above,
+of a phone screen.
+
+**The rail is collapsed by default** — a nav one mouse-move away does not need to hold 224px of
+every screen — and **opens under the pointer**, folding back ~120 ms after it leaves. The collapse
+arrow therefore pins rather than merely closes: pinned open it never moves, pinned closed it is a
+56px rail that reads in full whenever you actually look at it. Three details are load-bearing:
+
+- **It overlays; it does not push.** The wrapper keeps the pinned width and the expanded rail
+  floats over the page. Widening a rail that is part of the flex row would reflow everything on
+  every hover — the reading measure changing mid-sentence, text jumping under the cursor.
+  `--rail` stays the PINNED width for the same reason: the key bar and the milestone strip centre
+  themselves on it, and a hover must not slide them. Measured: `main`'s left edge and the key
+  bar's are unchanged at 56px whether the rail is folded or open.
+- **The hover target is the rail, not a fixed-width wrapper.** It shipped on the wrapper once,
+  and the wrapper is 56px while the open rail is 224px — so `pointerleave` fired the instant the
+  cursor moved onto the panel it had just opened. It folded, the cursor came back, it opened
+  again. `pointerleave` counts descendants, so the rail with the collapse arrow inside it is the
+  one element that covers everywhere the pointer can legitimately be.
+- **Only where hover exists** (`(hover: hover)`), because `pointerenter` fires on a tap and a
+  touch tablet wide enough to show the rail would otherwise pop the nav open on a single tap.
+- **No open delay, a close delay.** Opening has to feel immediate; folding waits so a diagonal
+  sweep past the rail does not flicker it. Keyboard focus counts as being there, or tabbing into
+  a collapsed rail would land on an unlabelled icon.
+
+- **The icons sit on the rail's centreline.** A row's padding is asymmetric when expanded
+  (`pl-4` sets the text's left margin, `pr-3` keeps the badge off the edge) and symmetric
+  (`px-3`) when collapsed. Carrying the asymmetry into the rail put every icon 4px right of
+  centre — the nav's `px-2` leaves a 40px row, and a 16px icon after `pl-4` centres at 24
+  against the row's own 20. Padding is in the transition, so the correction rides the expand
+  rather than snapping at one end of it.
+- **Nothing inside pops.** The wordmark cross-fades between `t` and the full name, the «скоро»
+  group and the due badge fade rather than being `v-if`-ed in and out. A hard swap snapped the
+  header from one glyph to two lines the instant the hover registered, which read as the whole
+  panel juddering even while its width was interpolating perfectly.
+
+The width transition is the documented §14.3 exception (150 ms, `cubic-bezier(0.2, 0, 0, 1)`),
+and the global `prefers-reduced-motion` rule flattens it like everything else — no per-component
+check. **That means a learner whose OS has "reduce motion" on gets an instant rail, on purpose**,
+and no amount of tuning the duration will change that for them. The topbar carries the page's name on the left and, per the sketch above,
 the due chip and the streak flame — both from the deck store, which reads the same `Breakdown`
 as the review tabs, throttled and refreshed on navigation so the chrome can never contradict
 the screen beside it.
@@ -207,8 +245,8 @@ The **morpheme diff** is the point: the wrong suffix is highlighted, not the who
 mysterious.
 
 **Keyboard:** `space` reveal (`Enter` on typed directions) · `1`–`4` rate · `h` hint ·
-`u` undo · `t` set the word aside (§4.3) · `a` the tutor about this card, in both phases —
-before the answer it is a hint ([ADR-034](../.claude/DECISIONS.md#adr-034)) · `Esc` close the side panel (the word breakdown,
+`u` undo · `t` set the word aside (§4.3) · `a` the tutor about this card, in both phases and
+free ([ADR-046](../.claude/DECISIONS.md#adr-046)) · `Esc` close the side panel (the word breakdown,
 then the tutor) · `space` on a set summary starts the next set (§4.4). Drawn by the key strip
 (§2), which is where `u` and `Esc` reach a learner for the first time: both have been implemented
 since the screen was built and were advertised in neither of the two hint sentences the strip
@@ -229,12 +267,14 @@ phase × outcome:
 | написание | «Что спрашивает…» | «Как пишется `X` и почему», «Разбери…», «Переведи…» | «Как пишется…», «Разбери…» |
 | на слух | «Что спрашивает…» | «Разбери…», «Почему именно `X`?», «Переведи…» | same |
 
-**Before the answer, a question is a hint.** The panel says so («Учитель до ответа —
-подсказка: оценка будет не выше «Трудно». Карточка всё равно спросит вас.»); the moment a
-question is sent the card is marked as hinted, exactly as «Подсказка» marks it, and «Хорошо» /
-«Легко» carry «засчитается как «Трудно»» with the Hard interval. The card is not revealed: the
-learner still answers. The server withholds the answer from the model in that phase and the
-hint chips ask for the rule, never the form. Free questions are typed in the same composer and
+**Before the answer, asking costs the card nothing** ([ADR-046](../.claude/DECISIONS.md#adr-046)).
+Until 2026-09-22 a question in the question phase set `usedHint` and capped the grade at Hard,
+like «Подсказка»; it no longer does, and no signal from the panel reaches the answer at all.
+What defends the grade is unchanged and is what the panel now says: the server withholds the
+answer from the model in that phase and the hint chips ask for the rule, never the form —
+«До ответа учитель не получает правильный ответ и не называет его. На расписание слова вопрос
+не влияет: карточка всё равно спросит вас, и оценка будет ваша.» «Подсказка», which does show
+the graded string, still caps at Hard and still says so on «Хорошо» / «Легко». Free questions are typed in the same composer and
 travel with the card as context. **One chat per word** («Повторение · `jöttél`» on the
 AI-teacher page); the panel's link opens it there. The same word later the same day — its
 learning step — continues that conversation; the next word opens an empty panel. The standing
@@ -601,7 +641,7 @@ two hundred times a day. Choosing what to take is a different moment from taking
   done screen says what the other piles hold in one sentence and links back here; its
   «Тренировка» starts a round over the pile just finished.
 
-### 4.3 «В корзину» — saying no to a card
+### 4.3 «Знаю» — taking a word out because you know it
 
 The queue had no way to hear "no". A card the learner judged unusable — a sentence the miner cut
 badly, a gloss that says nothing, a construction three months above them — could only be failed
@@ -700,6 +740,13 @@ do, because a learner who thinks this is a delete will not use it. See
   direction grades you against, so it has to carry something a person read and accepted.
   «Принять как своё» is that acceptance and re-saves the entry as `manual`. The rail says so
   rather than silently withholding the card.
+
+  **Every word card reads it** — the reader's rail AND the review card's word inspector, through
+  one component (`SavedGloss.vue`). The inspector once did not, so a meaning kept from the AI
+  entry vanished the next time the same word was clicked. A badge beside «Значение» says whose
+  line it is: «ваш словарь» (manual) or «машинное · <model>» (machine). While a meaning is kept,
+  the AI entry's «Спросить» is not offered again — it would sit over the answer as if there
+  were none.
 - **The sentence's translation lives in the rail, under the button that asked for it**, not
   below the article where it used to render — a long way from where the learner clicked, and off
   screen entirely on a narrow window. The `t` key is **gone**: a keystroke at the bottom of the
@@ -717,7 +764,10 @@ do, because a learner who thinks this is a delete will not use it. See
   and on the whole sentence under `s` — the device speaks it
   ([ADR-012](../.claude/DECISIONS.md#adr-012)). **Read along** speaks each word as the selection
   lands on it: a device preference in `localStorage`, off until switched on, debounced so a held
-  arrow key does not stutter the first syllable of every word it passes.
+  arrow key does not stutter the first syllable of every word it passes. **A one-letter word is
+  spoken lower-case**: every engine announces a capital letter rather than reading it, so the
+  definite article `A` at the head of a sentence came out as «nagy A» — "capital A"
+  (`lib/speech.ts`).
 - **Sentence translation, where the learner has deployed one.** `t` renders the selected
   sentence into the UI language via `services/mt`, and the panel names the model that wrote it —
   in the panel, not in a tooltip, because it is the only text on the screen that no person and no
@@ -1200,6 +1250,79 @@ stated minutes can sustain renders the 90-day projection first, and requires an 
 override.
 
 ---
+
+## 10.1 Settings → Данные — moving a profile
+
+[ADR-040](../.claude/DECISIONS.md#adr-040). One card, outside the admin-gated block: a profile
+belongs to the learner, so every account has this and it survives a settings load failure.
+
+**Export** is a plain link, not a fetch — the browser's own download machinery handles an
+unbounded zip better than anything we would write around it. Beside it, the counts of what the
+profile contains, in the learner's units: «слов: 412 · карточек: 1236 · ответов: 5104».
+
+**Import** is the most destructive thing a learner can ask for, so the confirm names by count
+what it will erase and says there is no undo. It also says the app will stop responding while it
+runs, because SQLite here is single-writer and a big profile is a few seconds of a frozen UI —
+an unexplained freeze reads as a crash.
+
+The **report** afterwards states the rows, the media files, and the integrity check: «Журнал
+ответов проверен: 20 карточек переиграны заново и сошлись с сохранённым состоянием.» And that
+the API keys did not travel, which is the one thing the learner has to act on.
+
+## 10.2 Activity by day — where the hours went
+
+[ADR-044](../.claude/DECISIONS.md#adr-044). Replaces the flat 30-bar strip on Today, which drew
+`active_ms` as one undifferentiated height and so could not answer the only question anyone has
+about it.
+
+**The axis is a calendar, not a list of rows.** `daily_log` only has rows for days something
+happened on, so mapping the response straight to bars drew N bars for N rows and spread them
+evenly across a month: a fortnight of study rendered as a solid block against an empty left
+margin while the axis still claimed a full month. The chart silently closed up the very gaps it
+existed to show. Every day in the window now gets a slot, and a day with nothing on it gets a
+2px mark on the baseline — an absent bar is indistinguishable from a bar too short to see, and
+the tooltip says «занятий не было» rather than three zeroes.
+
+**Opens on 7 days**, switchable to 30 and 90 without a round trip: the server sends 90 rows by
+default and the chart slices them, because refetching to change a window made the switch feel
+like a page load. A day with no row reports neither half of the obligation as met — a missing
+row is not a cleared queue, and «очередь пуста» about a day nobody opened the app would be
+inventing a fact.
+
+Three **stacked** series, all minutes, all measured: cards (reviews, free practice, drills),
+reading, listening. The dashed line is the learner's own `dailyMinutes` — on the same axis
+because it IS minutes, a threshold and not a second measure.
+
+**There is no second y-axis and `due_left` is not a line on it.** Cards-remaining and
+minutes-spent are different scales, and one axis for both invites exactly the comparison that
+means nothing. The queue half of the day's obligation is the thin status row under the bars:
+met / not met, a state.
+
+Three things keep it a record rather than a score: nothing accumulates across the window, the
+only target is the one the learner set, and where a day failed the tooltip names **which half**
+failed — they fail independently, and «не выполнена» on a day whose queue was clear pointed at
+the wrong thing.
+
+The series use their own validated categorical steps rather than the knowledge-state colours.
+`primary` measures chroma 0.072 and reads grey as a fill; `kn-known` is doing status duty here
+for "the day counted". Light and dark are each stepped and validated against their own surface —
+see the comment in `assets/tailwind.css`, which carries the validator command.
+
+## 10.3 The streak, openable
+
+[ADR-044](../.claude/DECISIONS.md#adr-044). The flame was a number with a tooltip, and a learner
+could not tell what a day required, why today had not counted, or how the week had gone.
+
+It opens on: the week Mon→Sun as seven cells (filled where the day counted, ringed on today,
+empty for days that have not happened); the count; and **both halves of today's obligation,
+separately** — «Очередь: осталось 21» / «Минуты: 1 из 90».
+
+**No freeze and no repair.** Duolingo's week strip is a legible display of a rule and is worth
+borrowing; its freeze is a purchasable forgiveness item, which is the point economy
+[R14](../.claude/research/14-motivation.md) rules out. A missed day is missed.
+
+The five dots beside it are **not** progress — they are optional-service status, and they now
+carry a label saying so, because the first learner read them as a week.
 
 ## 11. Colour semantics
 

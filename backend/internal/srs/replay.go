@@ -16,9 +16,20 @@ import (
 //   - The property test in replay_test.go, which catches any change that breaks
 //     the correspondence — including an FSRS upgrade that alters scheduling.
 //
-// Determinism note: interval fuzz is seeded from (review time, reps, stability),
-// so replaying with the exact stored timestamps reproduces even the fuzzed due
-// dates. This is why review_time is stored to the millisecond.
+// Determinism note: interval fuzz is seeded from (review time, reps,
+// difficulty × stability), so replaying with the exact stored timestamps
+// reproduces even the fuzzed due dates. This is why review_time is stored to
+// the millisecond.
+//
+// Bit for bit holds PER ARCHITECTURE. go-fsrs draws the fuzz from a
+// floating-point generator (Alea), and Go fuses multiply-adds on arm64 but not
+// on amd64, so the same seed draws a different number on each — the generator
+// is a chaotic map, and one ulp becomes a different draw — while stability and
+// difficulty differ in their last bit. A data directory moved between an amd64
+// and an arm64 host still replays, but an undo there lands a fuzzed due date
+// within the fuzz range of the stored one, not on it. A test must therefore
+// never pin a fuzzed day: a difference that lives only in the fuzz passes on
+// one CPU and fails on the other (reconcile_test.go, which failed only in CI).
 
 // ReplayStep is one recorded answer, the minimum needed to re-derive state.
 type ReplayStep struct {

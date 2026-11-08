@@ -39,7 +39,8 @@
     "collapseNav": "Collapse menu",
     "expandNav": "Expand menu",
     "menu": "Menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "collapseNavHint": "Collapse the menu — it will open on hover"
   },
   "setup": {
     "title": "First run",
@@ -123,7 +124,19 @@
     "startNext": "Start: {loop}",
     "queueLater": "returning today: {n}",
     "load30": "Load, last 30 days",
-    "sets": "{sets} sets of {size}"
+    "sets": "{sets} sets of {size}",
+    "streak": {
+      "title": "Streak: {n} days",
+      "best": "best: {n}",
+      "rule": "A day counts when the queue is clear AND the minutes are met — both.",
+      "queue": "Queue",
+      "queueDone": "clear",
+      "queueLeft": "{n} left",
+      "minutes": "Minutes",
+      "minutesOf": "{done} of {goal}",
+      "noFreeze": "There are no freezes and no paid repairs here: the streak shows obligations met, not obligations bought. A missed day is simply missed.",
+      "future": "not yet"
+    }
   },
   "plan": {
     "title": "Plan",
@@ -133,7 +146,10 @@
     "status": {
       "done": "done",
       "current": "now",
-      "ahead": "ahead"
+      "ahead": "ahead",
+      "started": "started",
+      "notStarted": "not started",
+      "next": "next up"
     },
     "aheadNotice": "This one sits further down the plan. Nothing stops you taking it now — the order is advice and the app does not enforce it.",
     "orderNotice": "“Ahead” is not “locked”. A unit counts as done when every one of its words is in your review deck, and you may start anywhere you like.",
@@ -169,7 +185,8 @@
       "why": "The app stops prescribing vocabulary on purpose. What carries you from here is volume of reading and listening, and it has to be material you chose: a course that never ends produces a learner who can only read what was made for them.",
       "next": "The machinery stays. The review deck, sentence collection, the grammar drills and the ear trainer all keep working exactly as before — what changes is where the material comes from.",
       "toResources": "Open the catalogue"
-    }
+    },
+    "fromElsewhere": "{n} of these were already in the deck — from reading or another unit"
   },
   "resources": {
     "title": "Where to go next",
@@ -193,6 +210,7 @@
       "review": "Review",
       "services": "Services",
       "language": "Language",
+      "data": "Data",
       "about": "About"
     },
     "review": {
@@ -292,6 +310,35 @@
         "failed": "load failed"
       }
     },
+    "data": {
+      "hint": "Your whole profile in one file: both spaced-repetition state spaces, the review log, words, texts, analyses and tutor chats. To move it to your own server — or just to keep a copy.",
+      "export": "Download profile",
+      "exportHint": "You get a .zip: profile.json with every table, and a media folder with your materials' audio.",
+      "secrets": "Service API keys are not in the file and do not travel — enter them again on the new install. They are left out precisely because the file leaves the server.",
+      "import": "Upload profile",
+      "importHint": "Replaces the current profile with the file's contents. Other accounts on this server are untouched.",
+      "importing": "Importing…",
+      "imported": "Profile imported.",
+      "confirmTitle": "Replace your profile with “{file}”?",
+      "confirmBody": "This is not a merge. Everything in your profile right now is erased and replaced by the file's contents. There is no undo. You currently have:",
+      "confirmBlocking": "The import runs as one transaction: the app does not respond until it finishes. If anything goes wrong, exactly what you had is what remains.",
+      "confirmGo": "Yes, replace it",
+      "unit": {
+        "words": "words: {n}",
+        "cards": "cards: {n}",
+        "reviews": "answers: {n}",
+        "texts": "texts: {n}",
+        "threads": "chats: {n}",
+        "days": "days logged: {n}"
+      },
+      "report": {
+        "title": "Rows imported: {rows}",
+        "media": "audio files: {n}",
+        "replay": "The review log was verified: {n} cards were replayed from scratch and matched the state that arrived with them. No interchange format could make that check.",
+        "skipped": "The file carries fields this version has no home for: {cols}. They were not imported — said plainly rather than swallowed.",
+        "reloading": "The page is about to reload: everything on screen belongs to the old profile."
+      }
+    },
     "adminOnly": "Only an administrator can change these settings."
   },
   "users": {
@@ -330,7 +377,8 @@
     "asr": "Speech recognition",
     "nlp": "Text analysis",
     "llm": "Language model",
-    "mt": "Translation"
+    "mt": "Translation",
+    "groupLabel": "Status of the optional services (speech, recognition, analysis, model, translation) — not your progress."
   },
   "errors": {
     "network-unreachable": "The server is not answering. Check that it is running.",
@@ -356,11 +404,11 @@
     "emailTaken": "That email address is already in use.",
     "wrongPassword": "The current password is not right.",
     "tooManyAttempts": "Too many attempts — wait a moment.",
-    "inTrash": "This word is in the trash.",
     "nothingToUndo": "Nothing to undo.",
     "setupDone": "Setup has already been completed.",
     "trialExpired": "This trial has expired — start a new session.",
-    "gone": "That is gone — it may have been removed."
+    "gone": "That is gone — it may have been removed.",
+    "known": "This word is marked known — it is no longer asked."
   },
   "theme": {
     "toggle": "Toggle theme",
@@ -373,9 +421,9 @@
   "review": {
     "tutor": {
       "open": "Tutor",
-      "hint": "Ask the AI tutor about this card — before you answer it counts as a hint",
+      "hint": "Ask the AI tutor about this card — it does not affect the word's schedule",
       "title": "Tutor · this card",
-      "beforeAnswer": "Asking before you answer counts as a hint: the grade is capped at Hard. The card still asks you.",
+      "beforeAnswer": "Before you answer the tutor is not given the answer and will not name it. Asking changes nothing about the word's schedule: the card still asks you, and the grade is yours.",
       "placeholder": "Ask about this card…",
       "chips": {
         "breakdown": "Break the whole sentence down",
@@ -490,15 +538,10 @@
       "emptyBody": "Everything scheduled for today has been answered. Practice below is always open — it schedules nothing.",
       "practiceBegin": "Start a round",
       "choose": "Choose something else",
-      "elsewhere": "In the other piles: {due} due, {new} new."
-    },
-    "trash": {
-      "action": "Trash",
-      "hint": "Take this word out of review. Not a delete: it goes to the trash and can come back.",
-      "done": "«{word}» set aside — out of the queue.",
-      "restored": "«{word}» is back in the deck. It will not reappear in this session — the next one will serve it.",
-      "undo": "Undo",
-      "open": "Open the trash"
+      "elsewhere": "In the other piles: {due} due, {new} new.",
+      "newToday": "new today: {n}",
+      "newWaiting": "{n} more waiting",
+      "session": "session: {sets} sets of {size}"
     },
     "order": {
       "label": "order:",
@@ -537,6 +580,17 @@
         "mature": "settled",
         "relearning": "relearning"
       },
+      "ladder": {
+        "new": "New word",
+        "learning": "Learning — steps in minutes",
+        "young": "On day-scale intervals",
+        "mature": "Settled — 21 days or more"
+      },
+      "stepOf": "learning step {n} of {total}",
+      "graduatesNext": "one more right answer and this moves to days",
+      "graduatesNow": "this answer moves it onto day-scale intervals",
+      "stillStep": "still a learning step, not the real interval yet",
+      "onDays": "already on day-scale intervals — from here they only grow",
       "stageHint": {
         "new": "You have never answered this card.",
         "learning": "In its first day: short steps, minutes apart, until it moves to days. Good is the next step; Easy goes straight to days.",
@@ -555,12 +609,13 @@
       "help": {
         "toggle": "what does this mean?",
         "title": "What it takes for a word to stop coming back",
+        "ladder": "The bar above is where this word stands: new → short minute-scale steps (usually two: 1 and 10 minutes) → day-scale intervals → 21 days or more. The last segment is not a finish line — the interval just keeps growing. The bar can move back, too: a miss returns the card to the bottom of the steps.",
         "next": "A right answer takes the card out of today's queue: it comes back in about {good}. A miss brings it back today, in about {again}, and shortens the interval after that. The figures are approximate: the exact day is decided when you answer.",
         "nextUnscheduled": "This is free practice: it schedules nothing and does not move any interval. Only answers under Review change the schedule.",
         "never": "A card never disappears — it comes back ever more rarely: minutes, days, weeks, months, years. That is what \"learned\" means here; there is no end after which the word is gone.",
         "notScore": "\"{right} of {total} right\" is the log of your answers to this card, not points: nothing accumulates towards anything and nothing is lost. The memory model works the next interval out from the whole history, and there is no \"N in a row\" threshold.",
         "notScoreUnseen": "The tally that appears here after your first answer is a log, not points: nothing accumulates towards anything and nothing is lost. The memory model works the next interval out from the whole history, and there is no \"N in a row\" threshold.",
-        "trash": "Already know the word and have no use for it in review? Trash it (the t key) and the whole word leaves the queue, in every direction. It is not a delete: the cards, their state and their history stay, and the word can be brought back."
+        "know": "Already know the word and see no reason to keep reviewing it? «Know it» (key t) takes the whole word out of the queue, in every direction, and marks it known. Not a delete: the cards, their state and their history all stay, and you can put it back."
       }
     },
     "units": {
@@ -570,6 +625,14 @@
       "wk": "{n} wk",
       "mo": "{n} mo",
       "yr": "{n} yr"
+    },
+    "know": {
+      "action": "Know it",
+      "hint": "You already know this word: take it out of review and mark it known. Not a delete — you can put it back at any time.",
+      "done": "«{word}» — marked known and taken out of the queue.",
+      "restored": "«{word}» is back in the deck. It will not reappear in this session — it comes in the next one.",
+      "undo": "Put back",
+      "open": "Open known words"
     }
   },
   "diff": {
@@ -626,6 +689,7 @@
     "ownGlossHint": "Kept in your dictionary, and goes on the back of the card.",
     "withGrammarShort": "with grammar",
     "saveToDictionary": "Save to my dictionary",
+    "savedBadgeMachine": "machine · {model}",
     "yourDictionary": "your dictionary",
     "forgetGloss": "Remove from my dictionary",
     "machineNotOnCards": "This will not go on a card: the back of a card is what you are graded against, and nobody has read this line. Accept it as yours and it becomes part of the card.",
@@ -750,7 +814,8 @@
       "invariant": "one variant — nothing to choose between",
       "harmonyNote": "Which variant a word takes is decided by the vowels of its stem: that is vowel harmony. The rule lands immediately and takes months to automate, which is why the exercises measure speed as well as accuracy.",
       "startDrills": "Start the exercises",
-      "startDrillsHint": "The explanation stays right here — scroll back up to it whenever you want."
+      "startDrillsHint": "The explanation stays right here — scroll back up to it whenever you want.",
+      "title": "Explanation"
     },
     "row": {
       "interior": "inside",
@@ -826,7 +891,15 @@
     "neverDone": "No contrast is ever finished: perception gains decay, so every contrast keeps coming back on its own schedule. That is by design.",
     "another": "Another session",
     "contrasts": "Contrasts",
-    "autoplayBlocked": "The browser refused to play audio without a click. Press 🔊 — and do not answer blind: a guess against silence poisons the contrast statistics."
+    "autoplayBlocked": "The browser refused to play audio without a click. Press the sound button above — and do not answer blind: a guess against silence poisons the contrast statistics.",
+    "intro": {
+      "title": "Ear trainer",
+      "what": "You hear one word from a pair that sounds nearly identical, and choose which one it was. `tör` and `tőr`, for instance, differ only in vowel length — obvious in writing, not at all obvious by ear at first. The point is to learn to hear the difference rather than infer it from meaning.",
+      "why": "The same word arrives in different voices, and not for variety's sake: it is the change of talker that carries the skill over to real speech. Train on one voice and you learn to understand that voice, not the language.",
+      "shape": "trials in this round: {trials}",
+      "voices": "This language pack has three synthetic voices. The research asks for five or more real ones — so some of the effect is lost here, and the app does not pretend otherwise. The audio is synthesised: individual words may sound unnatural.",
+      "start": "Start the round"
+    }
   },
   "listen": {
     "title": "Listen",
@@ -856,7 +929,13 @@
     "startReading": "Read aloud",
     "stopReading": "Stop",
     "repeatSentence": "Again",
-    "nextSentence": "Next"
+    "nextSentence": "Next",
+    "intro": {
+      "title": "How this works",
+      "what": "Listening is not «play it once and understand everything». The same material is worked through three times, and each pass has a different job.",
+      "passes": "1) Audio only, no text: get used to the pace and to where words end. 2) Audio with the transcript: check what you heard against what was said. 3) Sentence dictation: confirm it was hearing and not guesswork.",
+      "caveat": "With no recording, your device's own voice reads the text — the quality depends on the voices installed on your system, and individual words may sound unnatural. A transcript is required: the coverage check and passes 2 and 3 are all built on it."
+    }
   },
   "progress": {
     "title": "Progress",
@@ -880,7 +959,30 @@
     "needsWork": "Needs work",
     "noWeakYet": "No weak spots so far.",
     "nothingMeasuredYet": "No feature has enough answers behind it yet, so none of these figures is worth trusting. That is normal early on.",
-    "practiceDays": "Practice by day"
+    "practiceDays": "Practice by day",
+    "chart": {
+      "title": "Activity by day",
+      "range": "{n} days",
+      "asTable": "As a table",
+      "asChart": "As a chart",
+      "empty": "Nothing to show yet — the data appears as soon as you start working.",
+      "day": "Day",
+      "total": "Total",
+      "norm": "Goal",
+      "normMet": "the day's goal was met",
+      "met": "goal met",
+      "unmet": "not met",
+      "alt": "Bar chart: minutes of study per day over {n} days, split by kind. There is an «As a table» button beside it with the same numbers as text.",
+      "series": {
+        "cards": "Cards and exercises",
+        "reading": "Reading",
+        "listening": "Listening"
+      },
+      "unmetQueue": "goal not met — {n} still in the queue",
+      "unmetMinutes": "goal not met — {done} of {goal} min",
+      "unmetBoth": "goal not met — {done} of {goal} min, and {n} still in the queue",
+      "nothing": "nothing that day"
+    }
   },
   "checkpoint": {
     "title": "Checkpoints",
@@ -941,7 +1043,22 @@
     "dictionaryForm": "dictionary form:",
     "thisForm": "what this form is made of",
     "examples": "real examples",
-    "noExamples": "The language pack has no sentence using this word, and we will not invent one."
+    "noExamples": "The language pack has no sentence using this word, and we will not invent one.",
+    "ai": {
+      "ask": "Ask the model",
+      "asking": "Asking…",
+      "caveat": "The entry will be written by {model}. It is not a dictionary: check it. Nothing reaches a card on its own.",
+      "unknown": "{model} does not know this word either. An honest dead end — but not an invented entry.",
+      "examplesTitle": "Examples from the model",
+      "examplesCaveat": "These are the model's examples, not real ones from the pack: they are unchecked against the corpus and never become cards.",
+      "byModel": "written by {model}",
+      "save": "Save this meaning",
+      "savedHint": "Saved as a machine meaning. To put it on a card's back, accept it as your own in the dictionary.",
+      "askAbout": "Ask about this word",
+      "askPlaceholder": "Ask about this word…",
+      "chipExamples": "Give me three more examples with «{word}»",
+      "chipExplain": "Break «{word}» into its parts"
+    }
   },
   "feature": {
     "family": {
@@ -981,8 +1098,8 @@
       "undo": "undo",
       "tutor": "ask the tutor",
       "closeInspector": "close the panel",
-      "trash": "trash",
-      "nextSet": "next set"
+      "nextSet": "next set",
+      "know": "know it"
     }
   },
   "words": {
@@ -1013,19 +1130,6 @@
     "emptyTitle": "Nothing here yet",
     "emptyBody": "Words appear when you take a course unit into work or add them while reading."
   },
-  "trash": {
-    "title": "Trash",
-    "subtitle": "Words you have set aside. Nothing is gone — any of them can come back.",
-    "notice": "A word set aside leaves review: its schedule stops, the queue does not show it and no count includes it. Nothing is deleted — the card and its whole history are still here. You can practise these words, and doing so changes no schedule.",
-    "practise": "Practise these",
-    "restore": "Restore",
-    "restoreHint": "Put this word back into review ({n} cards)",
-    "since": "since {d}",
-    "fromCourse": "from the course",
-    "fromReading": "from reading",
-    "emptyTitle": "The trash is empty",
-    "emptyBody": "When a card turns out to be too hard or simply badly made, «Trash» on the review screen takes the word out of the queue — and this is where you find it again."
-  },
   "tutor": {
     "title": "Ask the tutor",
     "lead": "A question about this rule — in your language. The tutor answers from the lesson above, the pack's own feature tables and a reference corpus of open grammars. This chat is pinned to this topic; the AI Teacher page takes any question.",
@@ -1046,7 +1150,8 @@
     "context": {
       "known": "Model window {window} tokens: the last question and answer took {used}, about {free} free.",
       "unknown": "Last question: {prompt} prompt tokens, answer {answer}. The model does not report its window.",
-      "full": "The model's window is full ({window} tokens): the head of the prompt may have been cut, so the model did not see the rules and the lesson. Raise the context in Ollama to 8k."
+      "full": "The model's window is full ({window} tokens): the head of the prompt may have been cut, so the model did not see the rules and the lesson. Raise the context in Ollama to 8k.",
+      "none": "The model reported no usage for the last answer — the previous figures are not shown in its place."
     },
     "cut": {
       "budget": "The answer was cut off: it ran out of the length it was allowed.",
@@ -1075,7 +1180,20 @@
       "empty": "No chats yet.",
       "emptyBody": "Ask anything — the chat will appear here.",
       "unread": "no reply yet",
-      "you": "you: "
+      "you": "you: ",
+      "tabs": {
+        "chat": "Chats",
+        "review": "Review",
+        "word": "Words"
+      },
+      "deleteAll": "Delete everything in this tab",
+      "deleteAllConfirm": "Delete every chat in «{tab}» — that is {n}? There is no undo.",
+      "deleteAllGo": "Yes, delete them",
+      "emptyTabs": {
+        "chat": "No chats yet.",
+        "review": "Questions asked over a card during review will appear here.",
+        "word": "Questions about particular words — from the word inspector — will appear here."
+      }
     },
     "keys": "Enter sends, Shift+Enter breaks the line, Esc stops the answer",
     "placeholderFree": "Ask about Hungarian…",
@@ -1099,5 +1217,18 @@
       "auto": "the lesson is found from each question",
       "is": "topic: {topic}"
     }
+  },
+  "known": {
+    "title": "Known",
+    "subtitle": "Words you have marked as already known. Nothing is deleted — you can put any of them back into review.",
+    "notice": "A marked word leaves review: no intervals run, the queue does not show it and it is in no counter. Nothing is deleted — the card and its whole history are still here, and the word itself is marked known, so the reader stops highlighting it as unfamiliar. You can still practise these words, and it changes no schedule.",
+    "practise": "Practise known words",
+    "restore": "Put back into review",
+    "restoreHint": "Put this word back into review ({n} cards)",
+    "since": "since {d}",
+    "fromCourse": "from the course",
+    "fromReading": "from reading",
+    "emptyTitle": "Nothing here yet",
+    "emptyBody": "Met a word you already know? Review has a «Know it» button — the word leaves the queue and is marked known, and you will find it here."
   }
 }

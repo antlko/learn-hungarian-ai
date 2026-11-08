@@ -132,19 +132,50 @@ func (s *Scheduler) Review(cur CardState, rating Rating, now time.Time) (CardSta
 	return next, log, nil
 }
 
-// Preview returns what each rating would schedule, for the "1d / 3d / 8d / 20d"
-// hints under the answer buttons.
-func (s *Scheduler) Preview(cur CardState, now time.Time) (map[Rating]time.Time, error) {
-	out := make(map[Rating]time.Time, 4)
+// PreviewNext returns the whole state each rating would produce, without
+// storing anything.
+//
+// Preview reads it for the due dates, and Memory reads it to answer "would
+// this answer take the card off the minutes scale". Both go through here so
+// the two can never disagree about what the scheduler would actually do —
+// the alternative is a second copy of FSRS's step logic in our code, which
+// ADR-003 exists to forbid.
+func (s *Scheduler) PreviewNext(cur CardState, now time.Time) (map[Rating]CardState, error) {
+	out := make(map[Rating]CardState, 4)
 	for _, r := range []Rating{Again, Hard, Good, Easy} {
 		next, _, err := s.Review(cur, r, now)
 		if err != nil {
 			return nil, err
 		}
-		out[r] = next.Due
+		out[r] = next
 	}
 	return out, nil
 }
+
+// Preview returns what each rating would schedule, for the "1d / 3d / 8d / 20d"
+// hints under the answer buttons.
+func (s *Scheduler) Preview(cur CardState, now time.Time) (map[Rating]time.Time, error) {
+	states, err := s.PreviewNext(cur, now)
+	if err != nil {
+		return nil, err
+	}
+	out := make(map[Rating]time.Time, 4)
+	for r, st := range states {
+		out[r] = st.Due
+	}
+	return out, nil
+}
+
+// LearningSteps and RelearningSteps are the minute-scale delays a card walks
+// before it starts being scheduled in days — FSRS-6's defaults, {1, 10} and
+// {10}.
+//
+// Exposed so the UI can say how many are left rather than printing a bare
+// «вернётся через ~10 мин» and leaving the learner to guess what ends it.
+// Read off the library's own parameters: restating the numbers here is how
+// the screen and the scheduler drift apart.
+func (s *Scheduler) LearningSteps() []float64   { return s.params.LearningSteps }
+func (s *Scheduler) RelearningSteps() []float64 { return s.params.RelearningSteps }
 
 // LogEntry is one row of review_log.
 type LogEntry struct {

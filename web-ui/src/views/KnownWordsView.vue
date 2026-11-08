@@ -15,20 +15,25 @@ import { useUiStore } from '@/stores/ui'
 import type { TrashListResponse } from '@/types'
 
 /**
- * The trash: words the learner set aside.
+ * «Знаю»: the words the learner has taken out of review because they already
+ * know them. ADR-041, over the machinery ADR-025 built.
  *
  * Two things it must be, and they pull in opposite directions. It has to be a
- * place a word can be found again — otherwise «убрать» is a delete wearing a
+ * place a word can be found again — otherwise the button is a delete wearing a
  * softer word — and it must not become a second deck the learner feels they owe
  * something to. So: no counts of debt, no due dates, no progress. One line per
  * word, one button to bring it back, and one way to train them without any of
  * it touching the scheduler.
  *
- * That last one is the point people miss about a trash. A word set aside for
- * being too hard is still a word worth looking at now and then; what it must
- * not do is generate obligations. Free practice is exactly that shape already —
- * it schedules nothing (ADR-019) — so «тренировать» here opens a practice round
- * over `scope: 'trash'` and changes nothing about any card in it. ADR-025.
+ * That last one is the point people miss. A word you know well enough to stop
+ * reviewing is still a word worth looking at now and then; what it must not do
+ * is generate obligations. Free practice is exactly that shape already — it
+ * schedules nothing (ADR-019) — so «тренировать» here opens a practice round
+ * and changes nothing about any card in it.
+ *
+ * The scope VALUE is still `trash`: that is the server's wire contract from
+ * ADR-025 and renaming it would break every stored reference for a word. Only
+ * what the learner reads changed.
  */
 const { t } = useI18n()
 const ui = useUiStore()
@@ -41,7 +46,7 @@ const busy = ref<number | null>(null)
 async function load() {
   error.value = ''
   try {
-    data.value = await api.trash()
+    data.value = await api.known()
   } catch (e) {
     error.value = describeError(e)
   }
@@ -70,13 +75,13 @@ async function restore(noteId: number) {
 }
 
 /**
- * Train the trash. A practice round, never a review one: the server refuses
+ * Practise them. A practice round, never a review one: the server refuses
  * `scope=trash` on the review queue, and this is the honest way in.
  *
  * The intent travels in the QUERY, not by starting the round here. The review
  * screen loads its queue on mount, so a round started before the navigation was
  * overwritten a moment later by an ordinary review session — the button looked
- * like it had simply ignored the trash. Same shape as `?scope=text:<id>`, and
+ * like it had simply ignored the list. Same shape as `?scope=text:<id>`, and
  * straight to the card rather than the start screen: the choice is made here.
  */
 function practise() {
@@ -93,7 +98,7 @@ function gloss(n: { glossRu: string; glossEn: string }) {
  * showing it is always the screen where it is least readable.
  */
 function origin(source: string) {
-  return source.startsWith('course:') ? t('trash.fromCourse') : t('trash.fromReading')
+  return source.startsWith('course:') ? t('known.fromCourse') : t('known.fromReading')
 }
 
 const day = (iso: string) => (iso ? iso.slice(0, 10) : '')
@@ -103,19 +108,19 @@ const notes = computed(() => data.value?.notes ?? [])
 
 <template>
   <div class="mx-auto flex w-full max-w-3xl flex-col gap-6">
-    <PageHeader :title="$t('trash.title')" :subtitle="$t('trash.subtitle')">
+    <PageHeader :title="$t('known.title')" :subtitle="$t('known.subtitle')">
       <template #actions>
         <Button v-if="notes.length" variant="outline" size="sm" class="gap-1.5" @click="practise">
           <Dumbbell class="size-4" aria-hidden="true" />
-          {{ $t('trash.practise') }}
+          {{ $t('known.practise') }}
         </Button>
       </template>
     </PageHeader>
 
-    <!-- What the trash IS, said once at the top rather than implied. A learner
+    <!-- What this list IS, said once at the top rather than implied. A learner
          who thinks this is a delete will not use it; one who thinks it is a
          second queue will feel they owe it something. -->
-    <Note variant="info" class="text-xs">{{ $t('trash.notice') }}</Note>
+    <Note variant="info" class="text-xs">{{ $t('known.notice') }}</Note>
 
     <Note v-if="error" variant="error">
       <p>{{ error }}</p>
@@ -143,7 +148,7 @@ const notes = computed(() => data.value?.notes ?? [])
 
           <div class="shrink-0 text-right text-xs tabular-nums text-muted-foreground">
             <p>{{ origin(n.source) }}</p>
-            <p>{{ $t('trash.since', { d: day(n.trashedAt) }) }}</p>
+            <p>{{ $t('known.since', { d: day(n.trashedAt) }) }}</p>
           </div>
 
           <Button
@@ -151,11 +156,11 @@ const notes = computed(() => data.value?.notes ?? [])
             size="sm"
             class="shrink-0 gap-1.5"
             :disabled="busy === n.noteId"
-            :title="$t('trash.restoreHint', { n: n.cards })"
+            :title="$t('known.restoreHint', { n: n.cards })"
             @click="restore(n.noteId)"
           >
             <Undo2 class="size-3.5" aria-hidden="true" />
-            {{ $t('trash.restore') }}
+            {{ $t('known.restore') }}
           </Button>
         </div>
       </div>
@@ -163,8 +168,8 @@ const notes = computed(() => data.value?.notes ?? [])
       <EmptyState
         v-else
         art="sprig"
-        :title="$t('trash.emptyTitle')"
-        :body="$t('trash.emptyBody')"
+        :title="$t('known.emptyTitle')"
+        :body="$t('known.emptyBody')"
       />
     </template>
   </div>

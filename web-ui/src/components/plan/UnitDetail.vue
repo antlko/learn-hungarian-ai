@@ -42,13 +42,38 @@ const situation = computed(() =>
   ui.locale === 'ru' ? unit.value.situationRu : unit.value.situationEn,
 )
 
-const statusTone = computed(
-  () =>
-    ({
-      done: 'bg-known/15 text-known',
-      current: 'bg-primary/15 text-primary',
-      ahead: 'bg-muted text-muted-foreground',
-    })[props.state.status],
+/**
+ * The status chip. Same rule as the dot in SyllabusList: `done` stays derived
+ * from the deck, and everything else follows ENROLMENT rather than coverage —
+ * a unit the learner has never opened must not be labelled as the one they are
+ * working on because the reader happened to add three of its words.
+ */
+const statusLabel = computed(() => {
+  if (props.state.status === 'done') return 'plan.status.done'
+  if (props.state.enrolled) return 'plan.status.started'
+  // `current` is the first unit whose words are not all in the deck — it is
+  // ADVICE about what to take next, not a claim that the learner is in it.
+  // Labelled «сейчас» it read as "you are on month 2" to someone who had
+  // finished month 1 and opened nothing since.
+  if (props.state.status === 'current') return 'plan.status.next'
+  return 'plan.status.notStarted'
+})
+const statusTone = computed(() => {
+  if (props.state.status === 'done') return 'bg-known/15 text-known'
+  if (props.state.enrolled) return 'bg-primary/15 text-primary'
+  return 'bg-muted text-muted-foreground'
+})
+
+/**
+ * Words already in the deck that this unit did not put there.
+ *
+ * Stated out loud, because the fraction on its own is the thing that read as
+ * "you have started this month". A word met while reading genuinely counts —
+ * it just was not this unit's doing, and the learner is entitled to know which
+ * is which.
+ */
+const fromElsewhere = computed(() =>
+  Math.max(0, props.state.wordsInPlay - (props.state.fromHere ?? 0)),
 )
 
 type DeckState = 'in' | 'out' | 'noMaterial'
@@ -86,7 +111,7 @@ const gloss = (w: CourseWord) => pickGloss(w.glossRu, w.glossEn, ui.locale)
         <span aria-hidden="true">·</span>
         <span class="tabular-nums">{{ $t('plan.unitOf', { n: index, of: total }) }}</span>
         <span class="rounded-full px-2 py-0.5" :class="statusTone">
-          {{ $t(`plan.status.${state.status}`) }}
+          {{ $t(statusLabel) }}
         </span>
       </div>
 
@@ -100,6 +125,16 @@ const gloss = (w: CourseWord) => pickGloss(w.glossRu, w.glossEn, ui.locale)
            so it is stated as information and not as a barrier. -->
       <Note v-if="state.status === 'ahead'" variant="limit" class="mt-1 text-xs">
         {{ $t('plan.aheadNotice') }}
+      </Note>
+
+      <!-- Why the count is not zero on a unit nobody has opened. -->
+      <Note
+        v-if="fromElsewhere > 0 && !state.enrolled && state.status !== 'done'"
+        variant="info"
+        bare
+        class="mt-1 text-xs"
+      >
+        {{ $t('plan.fromElsewhere', { n: fromElsewhere }) }}
       </Note>
     </CardHeader>
 

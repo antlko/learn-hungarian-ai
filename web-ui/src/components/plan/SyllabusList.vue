@@ -31,10 +31,35 @@ const months = computed(() => {
   return groups
 })
 
-const dots: Record<UnitState['status'], string> = {
-  done: 'bg-known',
-  current: 'bg-primary',
-  ahead: 'bg-muted-foreground/30',
+/**
+ * The dot. It answers "where am I", and it must not answer it wrongly.
+ *
+ * `done` keeps its own colour and stays derived from the deck: a unit whose
+ * words are all in play IS done, however they got there, and that is the
+ * invariant the whole plan screen rests on.
+ *
+ * Everything else follows **enrolment**, not coverage. Coverage alone painted
+ * a month-2 unit as the current one because the reader had happened to add
+ * three of its words — the learner had never opened it. Starting a unit is
+ * something a person does, and only that reads as started.
+ */
+function dotClass(u: UnitState) {
+  if (u.status === 'done') return 'bg-known'
+  if (u.enrolled) return 'bg-primary'
+  if (u.status === 'current') return 'bg-primary/40'
+  return 'bg-muted-foreground/30'
+}
+
+/**
+ * The fraction, and why it is not zero.
+ *
+ * «12/40» on a unit nobody has started is a true number that reads as a false
+ * claim. `fromHere` is the part this unit actually added, so the row can say
+ * the rest came from somewhere else.
+ */
+function elsewhere(u: UnitState) {
+  const n = u.wordsInPlay - (u.fromHere ?? 0)
+  return n > 0 ? n : 0
 }
 
 const title = (u: UnitState) => (ui.locale === 'ru' ? u.unit.titleRu : u.unit.titleEn)
@@ -60,11 +85,28 @@ const title = (u: UnitState) => (ui.locale === 'ru' ? u.unit.titleRu : u.unit.ti
             :aria-current="u.unit.code === selected ? 'true' : undefined"
             @click="emit('select', u.unit.code)"
           >
-            <span class="size-2 shrink-0 rounded-full" :class="dots[u.status]" aria-hidden="true" />
+            <span class="size-2 shrink-0 rounded-full" :class="dotClass(u)" aria-hidden="true" />
             <!-- The dot is colour alone; a screen reader gets the word instead. -->
-            <span class="sr-only">{{ $t(`plan.status.${u.status}`) }}</span>
+            <span class="sr-only">
+              {{
+                u.status === 'done'
+                  ? $t('plan.status.done')
+                  : u.enrolled
+                    ? $t('plan.status.started')
+                    : u.status === 'current'
+                      ? $t('plan.status.next')
+                      : $t('plan.status.notStarted')
+              }}
+            </span>
             <span class="min-w-0 flex-1 truncate">{{ title(u) }}</span>
-            <span class="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
+            <span
+              class="shrink-0 font-mono text-xs tabular-nums text-muted-foreground"
+              :title="
+                elsewhere(u) > 0 && u.status !== 'done'
+                  ? $t('plan.fromElsewhere', { n: elsewhere(u) })
+                  : undefined
+              "
+            >
               {{ u.wordsInPlay }}/{{ u.wordsTotal }}
             </span>
           </button>

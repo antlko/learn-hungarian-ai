@@ -142,10 +142,92 @@ const next = computed(() => {
   const at = p.at ? new Date(p.at).getTime() : Date.now()
   return { good: label(untilInterval(p.good, at)), again: label(untilInterval(p.again, at)) }
 })
+
+/**
+ * The ladder: where this word is on the way from "never seen" to "comes back
+ * a month from now".
+ *
+ * Four rungs, because the scheduler has four states worth distinguishing and
+ * the learner asked what «вернётся через ~10 мин» was a step towards. This is
+ * a POSITION, not a score: it can go back down (a miss returns a card to the
+ * bottom of the steps), it has no end, and nothing about it accumulates.
+ * That is what keeps it on the right side of [R14] / [R16 §3] — it draws the
+ * stage the server already reports, it does not invent a number.
+ *
+ * `mature` is the last rung and it is not a finish line: the copy under it
+ * says so, and `help.never` says it again.
+ */
+const RUNGS = ['new', 'learning', 'young', 'mature'] as const
+
+const rungIndex = computed(() => {
+  switch (shown.value.stage) {
+    case 'new':
+      return 0
+    // Relearning is the learning rung: the card is back on the minute-scale
+    // steps, which is exactly what that rung means. Drawing a fifth rung for
+    // it would suggest a place further along than where the card is.
+    case 'learning':
+    case 'relearning':
+      return 1
+    case 'young':
+      return 2
+    case 'mature':
+      return 3
+  }
+  return 0
+})
+
+/**
+ * «шаг 2 из 2» — which minute-scale step the card is on, and whether the next
+ * correct answer ends them.
+ *
+ * `stepsLeft` counts DOWN from `stepsTotal`, so the step a learner is looking
+ * at is `total - left + 1`. Absent once the card is scheduled in days.
+ */
+const step = computed(() => {
+  const m = shown.value
+  if (!m.stepsTotal || !m.stepsLeft) return null
+  return { n: m.stepsTotal - m.stepsLeft + 1, total: m.stepsTotal }
+})
+
+/**
+ * Whether to promise a graduation. Read off the card that is still being
+ * asked — never `shown`, which after an answer describes a decision already
+ * taken — and only when something is actually scheduled.
+ */
+const graduating = computed(
+  () => props.scheduled && !props.after && props.memory.graduatesOnGood,
+)
 </script>
 
 <template>
   <div class="flex flex-col gap-1.5">
+    <!--
+      The ladder. Decorative for a screen reader — the badge below names the
+      stage in words, and two renderings of one fact is noise there.
+    -->
+    <div class="flex items-center gap-1.5" aria-hidden="true">
+      <span
+        v-for="(rung, i) in RUNGS"
+        :key="rung"
+        class="h-1 flex-1 rounded-full transition-colors"
+        :class="
+          i < rungIndex
+            ? 'bg-known/50'
+            : i === rungIndex
+              ? shown.stage === 'relearning'
+                ? 'bg-error'
+                : 'bg-primary'
+              : 'bg-border'
+        "
+      />
+    </div>
+    <p class="flex flex-wrap items-center gap-x-2 text-[11px] text-muted-foreground">
+      <span class="text-foreground">{{ $t(`review.memory.ladder.${RUNGS[rungIndex]}`) }}</span>
+      <span v-if="step">· {{ $t('review.memory.stepOf', step) }}</span>
+      <span v-if="graduating" class="text-known">· {{ $t('review.memory.graduatesNext') }}</span>
+    </p>
+
     <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
       <!-- Keyed on the stage so a change animates in rather than swapping silently. -->
       <Badge :key="shown.stage" :tone="stageTone" class="animate-tick-up">
@@ -206,6 +288,7 @@ const next = computed(() => {
         <span class="text-foreground">{{ $t(`review.memory.stage.${shown.stage}`) }}</span
         >&nbsp;— {{ $t(`review.memory.stageHint.${shown.stage}`) }}
       </p>
+      <p>{{ $t('review.memory.help.ladder') }}</p>
       <p v-if="!scheduled">{{ $t('review.memory.help.nextUnscheduled') }}</p>
       <p v-else-if="next">{{ $t('review.memory.help.next', next) }}</p>
       <p>{{ $t('review.memory.help.never') }}</p>
@@ -213,7 +296,7 @@ const next = computed(() => {
         {{ $t('review.memory.help.notScore', { right: shown.correct, total: shown.total }) }}
       </p>
       <p v-else>{{ $t('review.memory.help.notScoreUnseen') }}</p>
-      <p>{{ $t('review.memory.help.trash') }}</p>
+      <p>{{ $t('review.memory.help.know') }}</p>
     </div>
   </div>
 </template>

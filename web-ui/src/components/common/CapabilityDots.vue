@@ -22,7 +22,18 @@ function dotClass(configured: boolean, reachable: boolean) {
 </script>
 
 <template>
-  <div v-if="caps.list.length" class="flex items-center gap-1.5" role="status">
+  <!--
+    Labelled as a group, because unlabelled it does not read as service status
+    at all: the first learner took these five dots for a week of progress and
+    asked what they measured. They measure nothing about the learner.
+  -->
+  <div
+    v-if="caps.list.length"
+    class="flex items-center gap-1.5"
+    role="status"
+    :aria-label="$t('capabilities.groupLabel')"
+    :title="$t('capabilities.groupLabel')"
+  >
     <span
       v-for="c in caps.list"
       :key="c.name"

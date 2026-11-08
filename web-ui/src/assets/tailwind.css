@@ -104,6 +104,30 @@
   */
   --border-subtle: oklch(0.875 0.008 95);
 
+  /*
+    Chart series — three, for the activity chart's "where did the hour go".
+
+    Deliberately NOT the knowledge-state colours, and not `primary` either,
+    for two measurable reasons:
+
+      * `primary` at oklch(0.47 0.08 198) has a measured chroma of 0.072. Below
+        the 0.1 floor a fill reads as grey rather than as a series, and a
+        three-colour chart whose first colour looks like the axis is not a
+        chart. Re-stepped to chroma 0.12 at the same hue, so it still belongs
+        to the palette.
+      * `kn-known` / `kn-error` are STATUS colours here — this chart uses green
+        for "the day's obligation was met" — and a status colour reused as
+        "series 3" makes both meanings unreadable.
+
+    All three pass the categorical checks against the card surface: lightness
+    band, chroma floor, CVD separation (worst adjacent ΔE 14.7 deutan), the
+    normal-vision floor and 3:1 contrast. Re-run before changing a value:
+      node scripts/validate_palette.js "#00908d,#916100,#8048b6" --mode light --surface "#ffffff"
+  */
+  --ch-cards: oklch(0.58 0.12 192);
+  --ch-reading: oklch(0.53 0.112 75);
+  --ch-listening: oklch(0.52 0.17 305);
+
   /* Knowledge states — see docs/UX.md §11 */
   --kn-known: oklch(0.505 0.139 150);
   --kn-learning: oklch(0.53 0.112 75);
@@ -150,6 +174,16 @@
   --input: oklch(0.55 0.02 255);
   --ring: oklch(0.78 0.12 198);
   --border-subtle: oklch(0.335 0.016 255);
+
+  /*
+    Dark is SELECTED, not flipped: its own steps, validated against the dark
+    card surface (#13181e). The dark band is L 0.48–0.67, narrower than
+    light's, so the light values would fail it outright.
+      node scripts/validate_palette.js "#00a3a8,#be8700,#9e66d7" --mode dark --surface "#13181e"
+  */
+  --ch-cards: oklch(0.64 0.13 198);
+  --ch-reading: oklch(0.66 0.14 80);
+  --ch-listening: oklch(0.62 0.17 305);
 
   --kn-known: oklch(0.75 0.16 150);
   --kn-learning: oklch(0.8 0.14 80);
@@ -227,6 +261,10 @@
   --color-ring: var(--ring);
 
   --shadow-raised: var(--elevation-raised);
+
+  --color-ch-cards: var(--ch-cards);
+  --color-ch-reading: var(--ch-reading);
+  --color-ch-listening: var(--ch-listening);
 
   --color-known: var(--kn-known);
   --color-learning: var(--kn-learning);

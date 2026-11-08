@@ -2,9 +2,11 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
-import { BookmarkPlus, Check, EyeOff, Languages, Plus, Trash2 } from '@lucide/vue'
+import { BookmarkPlus, Check, EyeOff, Languages, Plus } from '@lucide/vue'
 import { describeError } from '@/lib/errors'
 import { Button } from '@/components/ui/button'
+import AiWordPanel from '@/components/common/AiWordPanel.vue'
+import SavedGloss from '@/components/common/SavedGloss.vue'
 import { Input } from '@/components/ui/input'
 import Note from '@/components/common/Note.vue'
 import SpeakButton from '@/components/common/SpeakButton.vue'
@@ -130,17 +132,6 @@ async function saveGloss(text: string, source: 'manual' | 'machine', model = '')
     toast.error(describeError(e))
   } finally {
     saving.value = false
-  }
-}
-
-async function forgetGloss() {
-  const tk = props.token
-  if (!tk || !saved.value) return
-  try {
-    await api.deleteGloss(tk.form)
-    if (props.token?.index === tk.index) saved.value = null
-  } catch (e) {
-    toast.error(describeError(e))
   }
 }
 
@@ -278,44 +269,7 @@ const statusDisabledReason = computed(() =>
         answer. What differs is the label: a machine line says so, names the
         model, and goes on saying so after it is saved. [ADR-014]
       -->
-      <div v-if="saved" class="flex flex-col gap-1">
-        <p class="flex items-baseline gap-2 text-xs text-muted-foreground">
-          {{ $t('reader.meaning') }}
-          <span class="text-[10px]">{{ $t('reader.yourDictionary') }}</span>
-          <button
-            type="button"
-            class="ml-auto cursor-pointer text-[10px] text-muted-foreground hover:text-error"
-            :title="$t('reader.forgetGloss')"
-            @click="forgetGloss"
-          >
-            <Trash2 class="size-3" aria-hidden="true" />
-          </button>
-        </p>
-        <ol class="list-inside list-decimal text-sm leading-relaxed">
-          <li>{{ saved.gloss }}</li>
-        </ol>
-        <template v-if="saved.source === 'machine'">
-          <p class="text-[10px] leading-relaxed text-uncertain">
-            {{ $t('translation.machine', { model: (saved.model ?? '').split('/').pop() }) }}
-          </p>
-          <!-- The card's back is graded against, so a machine line does not get
-               there on its own. One person-shaped click is what makes it a
-               claim somebody stands behind. -->
-          <p class="text-[10px] leading-relaxed text-muted-foreground">
-            {{ $t('reader.machineNotOnCards') }}
-          </p>
-          <Button
-            size="sm"
-            variant="outline"
-            class="mt-1 self-start"
-            :disabled="saving"
-            @click="saveGloss(saved.gloss, 'manual')"
-          >
-            <Check class="size-3.5" aria-hidden="true" />
-            {{ $t('reader.acceptAsMine') }}
-          </Button>
-        </template>
-      </div>
+      <SavedGloss v-if="saved" :form="token.form" :gloss="saved" @change="saved = $event" />
 
       <div v-if="unknownToPack && !saved" class="flex flex-col gap-2">
         <Button
@@ -518,6 +472,25 @@ const statusDisabledReason = computed(() =>
           </tbody>
         </table>
       </details>
+
+      <!--
+        The model's help on this word. ADR-042.
+
+        The AI ENTRY is offered only where the pack has nothing — the panel's
+        own entry above is better than anything a model should be trusted to
+        produce, so this fills a dead end rather than competing. «В языковом
+        пакете этого нет.» with no way forward, on the very word the learner
+        stopped for, was the complaint.
+
+        The QUESTION is offered either way: «ещё примеры», «объясни», in the
+        moment, without leaving the text.
+      -->
+      <AiWordPanel
+        :word="token.form"
+        :has-pack-entry="!unknownToPack"
+        :has-saved="!!saved"
+        @saved="saved = $event"
+      />
     </template>
   </aside>
 </template>

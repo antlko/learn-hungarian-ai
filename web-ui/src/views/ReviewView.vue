@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Check, Clock, GraduationCap, MoonStar, Trash2, Undo2 } from '@lucide/vue'
+import { Check, CircleCheck, Clock, GraduationCap, MoonStar, Undo2 } from '@lucide/vue'
 import { onBeforeRouteUpdate, useRoute, useRouter, type LocationQuery } from 'vue-router'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -230,37 +230,37 @@ const typePlaceholder = computed(() => {
 /**
  * The word just set aside, and the way back.
  *
- * Trashing is reversible, so it asks no confirmation — a dialog on a reversible
+ * «Знаю» is reversible, so it asks no confirmation — a dialog on a reversible
  * action is a tax on the common case. What it owes instead is a way back that
  * is visible without going and finding a screen, which is what this banner is.
  * It survives exactly one card: long enough to change your mind, short enough
  * not to become chrome.
  *
  * Restoring from here puts the word back in the DECK, not into this session —
- * see store.restoreTrashed. The banner says which, rather than leaving the
+ * see store.restoreKnown. The banner says which, rather than leaving the
  * learner to wonder why the card did not reappear.
  */
-const trashed = ref<{ noteId: number; label: string; restored: boolean } | null>(null)
+const marked = ref<{ noteId: number; label: string; restored: boolean } | null>(null)
 
 /** The name to call the word by: its dictionary form, never the sentence. */
 function cardLabel(item: { lemma?: string; targetForm: string; hu: string }) {
   return item.lemma || item.targetForm || item.hu
 }
 
-async function trashCurrent() {
+async function knowCurrent() {
   const card = store.current
-  if (!card || store.trashing) return
+  if (!card || store.marking) return
   const label = cardLabel(card)
   clear()
-  const res = await store.trashCurrent()
-  if (res) trashed.value = { noteId: card.noteId, label, restored: false }
+  const res = await store.knowCurrent()
+  if (res) marked.value = { noteId: card.noteId, label, restored: false }
 }
 
-async function untrash() {
-  const t = trashed.value
+async function undoKnow() {
+  const t = marked.value
   if (!t || t.restored) return
-  const res = await store.restoreTrashed(t.noteId)
-  if (res) trashed.value = { ...t, restored: true }
+  const res = await store.restoreKnown(t.noteId)
+  if (res) marked.value = { ...t, restored: true }
 }
 
 /**
@@ -278,9 +278,10 @@ function inspect(word: string) {
 /**
  * The tutor beside the card (ADR-034, amended 2026-09-04): open or not, and
  * the chat about THIS WORD once its first question has created one. Offered
- * in BOTH phases: before the answer a question is a hint, recorded through
- * `usedHint` the moment it is sent, and the server withholds the answer from
- * the model.
+ * in BOTH phases, and **it never touches the card's schedule** (ADR-046):
+ * before the answer the server withholds the answer from the model and
+ * `tutor.Allowed` refuses the templates that would name it, so asking is not
+ * a hint and nothing about asking reaches the answer that is sent.
  *
  * The id is kept WITH the note it belongs to and read back only for that
  * note, so the panel cannot open on the previous word's conversation — which
@@ -357,13 +358,8 @@ const tutorChips = computed<TutorChip[]>(() => {
   }
 })
 
-/** A question sent before the answer is a hint — recorded now, not when the answer lands. */
-function onTutorAsked(phase: 'question' | 'answer') {
-  if (phase === 'question') store.consultTutor()
-}
-
 type RatingKey = 'again' | 'hard' | 'good' | 'easy'
-/** Good and Easy are capped at Hard once a hint was used (ADR-034); the buttons say so. */
+/** Good and Easy are capped at Hard once «Подсказка» showed the answer; the buttons say so. */
 function capped(key: RatingKey) {
   return store.usedHint && (key === 'good' || key === 'easy')
 }
@@ -534,6 +530,35 @@ function previewLabel(key: 'again' | 'hard' | 'good' | 'easy'): string {
 }
 
 /**
+ * What «~10 мин» is a step TOWARDS, in one clause under the answer box.
+ *
+ * Three cases, and the app says the true one rather than a reassuring one:
+ * the next right answer takes the card onto day-scale intervals; the card is
+ * still walking the minute steps and this is which; or it is already on days
+ * and the interval simply grows. Everything here is read off `memory` — the
+ * scheduler's own position — so the sentence cannot drift from the schedule.
+ */
+const graduationNote = computed(() => {
+  const m = store.current?.memory
+  if (!m || store.mode !== 'review') return ''
+  // `graduatesNow`, not the ladder's `graduatesNext`: this sentence is about
+  // the answer being offered right now, and «ещё один верный ответ» beside a
+  // preview that already reads «~1 дн» points at an answer that is not the
+  // one in front of the learner. The ladder, which is about position, keeps
+  // the "one more" wording.
+  if (m.graduatesOnGood) return t('review.memory.graduatesNow')
+  // Deliberately NOT the step number here. This sentence is about what the
+  // answer SCHEDULES, and the step number describes where the card is now —
+  // printing them together read as «~10 мин = шаг 1 из 2» when a right answer
+  // actually moves it to step 2. The numbered position belongs on the ladder
+  // above, which is about position; working out the step a Good would land on
+  // would mean reimplementing FSRS's step logic in the client.
+  if (m.stepsTotal && m.stepsLeft) return t('review.memory.stillStep')
+  if (m.stage === 'young' || m.stage === 'mature') return t('review.memory.onDays')
+  return ''
+})
+
+/**
  * The next set: the head of the list the store fetched when the last one
  * finished, so anything that matured in the meantime is already in it.
  */
@@ -600,7 +625,7 @@ watch(
 
 function advance() {
   clear()
-  trashed.value = null
+  marked.value = null
   store.next()
 }
 
@@ -653,7 +678,7 @@ const keyHints = computed<KeyHint[]>(() => {
     // that types «t» into the answer would be worse than no strip.
     {
       keys: ['t'],
-      label: t('keys.review.trash'),
+      label: t('keys.review.know'),
       muted: store.isProductive && store.phase === 'question',
     },
     { keys: ['a'], label: t('keys.review.tutor'), muted: !store.current },
@@ -733,7 +758,7 @@ function onKey(e: KeyboardEvent) {
   // where Hungarian gets typed, and `t` is a letter in it.
   if (!typing && e.key === 't') {
     e.preventDefault()
-    void trashCurrent()
+    void knowCurrent()
     return
   }
   if (!store.isProductive && store.phase === 'answer' && ['1', '2', '3', '4'].includes(e.key)) {
@@ -748,14 +773,16 @@ function onKey(e: KeyboardEvent) {
  * The intent travels in the QUERY, never in a store call made before
  * navigating: this screen loads a queue on arrival, so a round started on
  * another screen was overwritten a moment later by an ordinary review session
- * — the trash's «тренировать отложенные» looked as though it had been ignored.
+ * — «тренировать известные» looked as though it had been ignored.
  * The start screen (ADR-028), the library's and the reader's «повторить слова»
- * and the trash all navigate here carrying their choice.
+ * and the known-words screen all navigate here carrying their choice.
  *
  * Validated the way the server validates it, and an unknown scope is a bare
  * review over the whole deck rather than a request the server would 400.
- * Practice, never review, for the trash: a trashed word must not be
- * scheduled, and the server refuses `scope=trash` on the review queue too.
+ * Practice, never review, for a known word: it must not be scheduled, and
+ * the server refuses `scope=trash` on the review queue too. The scope VALUE
+ * stays `trash` — it is the server's wire contract from ADR-025, and only the
+ * learner-facing name changed.
  */
 const REVIEW_SCOPE = /^(all|course|reader|text:\d+)$/
 const PRACTICE_SCOPE = /^(all|course|reader|trash|text:\d+)$/
@@ -1015,7 +1042,7 @@ const ratingKeys = [
       </Note>
 
       <!-- The word just set aside, and the way back. No confirmation dialog
-           precedes this — trashing is reversible, and a dialog on a reversible
+           precedes this — «Знаю» is reversible, and a dialog on a reversible
            action taxes the common case to guard the rare one. What it owes
            instead is an undo that is visible without hunting for a screen.
 
@@ -1023,31 +1050,31 @@ const ratingKeys = [
            the card does not reappear in THIS session (the queue was built
            before it left), and a banner that simply disappeared would look
            like the restore had failed. -->
-      <Note v-if="trashed" variant="info" class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+      <Note v-if="marked" variant="info" class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
         <span class="flex-1">
           {{
-            trashed.restored
-              ? $t('review.trash.restored', { word: trashed.label })
-              : $t('review.trash.done', { word: trashed.label })
+            marked.restored
+              ? $t('review.know.restored', { word: marked.label })
+              : $t('review.know.done', { word: marked.label })
           }}
         </span>
         <Button
-          v-if="!trashed.restored"
+          v-if="!marked.restored"
           variant="ghost"
           size="sm"
           class="h-7 shrink-0 gap-1.5 px-2 text-xs"
-          @click="untrash"
+          @click="undoKnow"
         >
           <Undo2 class="size-3.5" aria-hidden="true" />
-          {{ $t('review.trash.undo') }}
+          {{ $t('review.know.undo') }}
         </Button>
         <RouterLink
           v-else
-          to="/trash"
+          to="/known"
           :class="buttonVariants({ variant: 'ghost', size: 'sm' })"
           class="h-7 shrink-0 px-2 text-xs"
         >
-          {{ $t('review.trash.open') }}
+          {{ $t('review.know.open') }}
         </RouterLink>
       </Note>
 
@@ -1313,6 +1340,15 @@ const ratingKeys = [
             :title="$t('review.memory.previewHint')"
           >
             {{ $t('review.memory.ifRight', { t: previewLabel(effective('good')) }) }}
+            <!--
+              «через ~10 мин» on its own is a number with no meaning attached;
+              the learner who reported this could not tell what it was a step
+              towards. The second clause says what the scheduler is actually
+              doing — either "this is a learning step and one more right answer
+              ends them", or "this card is already on days". Both come from
+              the server (srs.Memory), never derived here.
+            -->
+            <span v-if="graduationNote" class="text-known">— {{ graduationNote }}</span>
           </p>
         </form>
 
@@ -1445,8 +1481,9 @@ const ratingKeys = [
             @click="grade(r.n)"
           >
             <span>{{ $t(`review.ratings.${r.key}`) }}</span>
-            <!-- After a hint — «Подсказка» or the tutor before the answer —
-                 the server caps the grade at Hard (ADR-034); the button says so. -->
+            <!-- After «Подсказка» — the only thing that shows the answer
+                 before it is graded — the server caps the grade at Hard; the
+                 button says so. The tutor does not do this (ADR-046). -->
             <span v-if="capped(r.key)" class="text-[10px] leading-tight text-uncertain">
               {{ $t('review.ratings.cappedHard') }}
             </span>
@@ -1481,12 +1518,12 @@ const ratingKeys = [
           variant="ghost"
           size="sm"
           class="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-          :disabled="store.trashing"
-          :title="$t('review.trash.hint')"
-          @click="trashCurrent"
+          :disabled="store.marking"
+          :title="$t('review.know.hint')"
+          @click="knowCurrent"
         >
-          <Trash2 class="size-3.5" aria-hidden="true" />
-          {{ $t('review.trash.action') }}
+          <CircleCheck class="size-3.5" aria-hidden="true" />
+          {{ $t('review.know.action') }}
           <span class="font-mono text-[10px] opacity-60">t</span>
         </Button>
       </div>
@@ -1512,7 +1549,6 @@ const ratingKeys = [
         :note="store.current.noteId"
         :phase="store.phase"
         :thread-id="tutorThreadId"
-        @asked="onTutorAsked"
         @created="onTutorCreated"
         @deleted="tutorThread = null"
         @close="tutorOpen = false"

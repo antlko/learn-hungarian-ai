@@ -140,10 +140,33 @@ server {
 Serve over HTTPS: the session cookie is marked `Secure` behind TLS, and **microphone access
 requires a secure context** — the Speak trainer will not work over plain HTTP on a remote host.
 
+## Moving one learner: Settings → Данные
+
+**Settings has a Data panel, and it moves a PROFILE — not an install.** This is the path to use
+when you are changing machines or moving off someone else's instance onto your own
+([ADR-040](../.claude/DECISIONS.md#adr-040)).
+
+- **Export** gives you a `.zip`: `profile.json` with every table that belongs to you — both FSRS
+  state spaces, the review log, your texts and their analyses, your glosses, the daily ledger,
+  your tutor chats — plus `media/` for audio you uploaded.
+- **Import** replaces the profile of the account you are logged in as, in one transaction. Other
+  accounts on the destination are untouched.
+- It verifies itself. Every card's review log is replayed through the scheduler and compared to
+  the state that arrived with it; a mismatch on the same CPU architecture fails and rolls back.
+  Moving between an arm64 and an amd64 host produces a *warning* instead, because FSRS's interval
+  fuzz redraws — everything is there and scheduling is unaffected.
+- **API keys do not travel.** `settings` rows marked secret are left out of the file on purpose.
+  Enter them again on the new install: Settings → Сервисы.
+- The import blocks the app while it runs. SQLite here is single-writer by design, so a big
+  profile is a few seconds of an unresponsive UI rather than a background job.
+
+This is not an `.apkg` and never becomes one. That format carries one card with one interval, so
+the morphological half of what the app knows cannot cross it — ADR-011's refusal stands.
+
 ## Backup and restore
 
-**There is no backup, restore or export API, and no Data panel in Settings.** Backup is a
-filesystem operation, because the data directory is the whole install: `tanulom.db` (every
+**Backup is still a filesystem operation, and it is a different job from the export above:** the
+export moves one learner, a backup preserves the install. The data directory is the whole thing: `tanulom.db` (every
 user's notes, cards, review log, both state spaces, API keys), `config.yaml`, `media/` and the
 language pack. Copy the directory and you have copied the install; put it back and it is back.
 

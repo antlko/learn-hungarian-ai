@@ -321,6 +321,13 @@ func (s *Server) buildApp() *fiber.App {
 	// Language and morphology.
 	api.Post("/analyze", s.requireAuth, s.handleAnalyze)
 	// The learner's own dictionary, for the words the pack does not carry.
+	// A dictionary entry from the language model, for a word the pack does
+	// not have. Displayed and labelled; it reaches a gloss only on an explicit
+	// save and a card only after «Принять как своё». NOT a tutor route — the
+	// tutor mints nothing and that separation is enforced by a test.
+	// ADR-042, .claude/prompts/word-entry.md
+	api.Get("/words/ai-entry/status", s.requireAuth, s.handleAIEntryStatus)
+	api.Post("/words/:form/entry", s.requireAuth, s.handleAIEntry)
 	api.Get("/glosses/:form", s.requireAuth, s.handleGetGloss)
 	api.Put("/glosses/:form", s.requireAuth, s.handlePutGloss)
 	api.Delete("/glosses/:form", s.requireAuth, s.handleDeleteGloss)
@@ -342,14 +349,35 @@ func (s *Server) buildApp() *fiber.App {
 	api.Post("/practice/answer", s.requireAuth, s.handlePracticeAnswer)
 	api.Get("/review/forecast", s.requireAuth, s.handleForecast)
 	api.Post("/notes", s.requireAuth, s.handleCreateNote)
-	// The trash: a word the learner set aside. Not a delete — see
-	// handlers_trash.go and ADR-025.
+	// «Знаю»: a word the learner has taken out of the queue because they
+	// already know it. Not a delete — the note, its cards, their FSRS state
+	// and every review_log row survive, which is what makes restore return the
+	// card overdue and keeps undo working across it. See handlers_trash.go,
+	// ADR-025 and ADR-041.
+	//
+	// `/know` is the name the client uses; `/trash` is the same handler under
+	// the name it shipped with, kept so an older tab and the stored tests do
+	// not break on a rename.
 	api.Get("/trash", s.requireAuth, s.handleTrashList)
+	api.Post("/notes/:id/know", s.requireAuth, s.handleTrashNote)
 	api.Post("/notes/:id/trash", s.requireAuth, s.handleTrashNote)
 	api.Post("/notes/:id/restore", s.requireAuth, s.handleRestoreNote)
 	api.Get("/stats/mastery", s.requireAuth, s.handleMastery)
 	// The words browser: «что выучилось» as a readable, searchable list.
 	api.Get("/words", s.requireAuth, s.handleWords)
+
+	// The learner's own data, whole: export it, or replace this profile with
+	// one exported elsewhere. ADR-040 — and see internal/profile for why the
+	// shape is a full dump rather than the `.apkg` ADR-011 removed. Both act
+	// on the ACTING user; there is no route that reads another account.
+	api.Get("/profile/export", s.requireAuth, s.handleProfileExport)
+	api.Get("/profile/size", s.requireAuth, s.handleProfileSize)
+	api.Post("/profile/import", s.requireAuth, s.handleProfileImport)
+
+	// Reading time in the daily ledger. The reader was the one loop that
+	// reported nothing, so an hour with a text left «21 / 90 мин» unmoved and
+	// the day unmet. ADR-044, handlers_reading.go.
+	api.Post("/reading/progress", s.requireAuth, s.handleReadingProgress)
 
 	// Progress.
 	api.Get("/stats/overview", s.requireAuth, s.handleOverview)
@@ -367,11 +395,18 @@ func (s *Server) buildApp() *fiber.App {
 	// topic, the lesson is found per question, answers stream as server-sent
 	// events, and nothing it says becomes a card. ADR-027, ADR-029.
 	api.Get("/tutor", s.requireAuth, s.handleTutorList)
+	// Clear a whole tab. A review thread is one per word per day, so a month
+	// of reviewing leaves hundreds and one-at-a-time was the only way out.
+	api.Delete("/tutor", s.requireAuth, s.handleTutorDeleteAll)
 	api.Post("/tutor", s.requireAuth, s.handleTutorCreate)
 	// The lesson panel's route is registered before the id route: Fiber
 	// matches in order, and "topic" is not a thread id.
 	api.Get("/tutor/new", s.requireAuth, s.handleTutorNew)
 	api.Get("/tutor/review", s.requireAuth, s.handleTutorReviewToday)
+	// Today's chat about one WORD, from the inspector. Keyed on the form
+	// rather than a note, because the words worth asking about are often the
+	// ones the pack cannot resolve. ADR-042.
+	api.Get("/tutor/word/:form", s.requireAuth, s.handleTutorWordToday)
 	api.Get("/tutor/topic/:code", s.requireAuth, s.handleTutorForTopic)
 	api.Get("/tutor/:id", s.requireAuth, s.handleTutorThread)
 	api.Post("/tutor/:id", s.requireAuth, s.handleTutorAsk)

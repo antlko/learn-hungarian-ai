@@ -208,9 +208,17 @@ onMounted(async () => {
             <span class="size-2 rounded-full bg-known" aria-hidden="true" />
             {{ $t('plan.status.done') }}
           </span>
+          <!-- Four states, because the dots draw four. «начат» is something
+               the learner DID (enrolment); «следующий» is the app's advice
+               about what to take next, and says so rather than «сейчас»,
+               which read as a claim about where they already are. -->
           <span class="flex items-center gap-1.5">
             <span class="size-2 rounded-full bg-primary" aria-hidden="true" />
-            {{ $t('plan.status.current') }}
+            {{ $t('plan.status.started') }}
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="size-2 rounded-full bg-primary/40" aria-hidden="true" />
+            {{ $t('plan.status.next') }}
           </span>
           <span class="flex items-center gap-1.5">
             <span class="size-2 rounded-full bg-muted-foreground/40" aria-hidden="true" />

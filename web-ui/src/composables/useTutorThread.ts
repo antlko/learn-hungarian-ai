@@ -17,9 +17,15 @@ export interface TutorSource {
    * 'review': the chat about ONE WORD for the local day (ADR-034) — found on
    * open by `note`, created by the first question and named by the word.
    */
-  kind?: 'review'
+  kind?: 'review' | 'word'
   /** The note a review chat is about. Changing it opens that word's chat. */
   note?: number
+  /**
+   * The surface form a `word` chat is about — the inspector's. Keyed on the
+   * form rather than a note because the words worth asking about are often
+   * the ones the pack cannot resolve, so there is no note to key on. ADR-042.
+   */
+  word?: string
   /**
    * A chat not started yet. With `topic`, the first question creates a NEW
    * thread pinned to it — as opposed to `topic` alone, which is the lesson
@@ -43,7 +49,7 @@ export interface TutorSource {
  * thread, so the page can put its id in the URL and the rail.
  */
 export function useTutorThread(source: Ref<TutorSource>, onCreated?: (id: number) => void) {
-  const { t, te } = useI18n()
+  const { t } = useI18n()
   const ui = useUiStore()
 
   const thread = ref<TutorThread | null>(null)
@@ -89,26 +95,44 @@ export function useTutorThread(source: Ref<TutorSource>, onCreated?: (id: number
    * prompt, the rules and the lesson, was cut without a word.
    */
   const usage = computed(() => {
+    // The LATEST answer, not the latest one that happens to carry figures.
+    //
+    // This used to walk backwards until it found a message with
+    // `promptTokens`, on the reasoning that a stopped stream reports none and
+    // an older reading beats «заняли 0». The cost was worse than the problem:
+    // once any answer came back without usage — a stop, a broken stream, or a
+    // provider that simply does not report it — the panel kept showing the
+    // FIRST answer's numbers and looked frozen. A learner watching «заняли
+    // 2 958» sit still through three more questions has no way to tell the
+    // meter is describing a conversation four turns old.
+    //
+    // So it describes the answer on screen or it says it cannot. `reported`
+    // is that distinction, and the line above the composer reads off it.
+    let last: TutorMessage | null = null
     for (let i = messages.value.length - 1; i >= 0; i--) {
       const m = messages.value[i]!
-      // A stopped or broken stream reports no usage; the last answer that
-      // has figures is the honest reading, not «заняли 0».
-      if (m.role !== 'assistant' || !m.promptTokens) continue
-      const prompt = m.promptTokens ?? 0
-      const answer = m.answerTokens ?? 0
-      const window = m.contextTokens ?? 0
-      const used = prompt + answer
-      return {
-        prompt,
-        answer,
-        window,
-        used,
-        free: window ? Math.max(0, window - used) : 0,
-        pct: window ? Math.min(100, (used / window) * 100) : 0,
-        full: window > 0 && used >= window - 16,
-      }
+      if (m.role !== 'assistant') continue
+      last = m
+      break
     }
-    return null
+    if (!last) return null
+
+    const prompt = last.promptTokens ?? 0
+    const answer = last.answerTokens ?? 0
+    const window = last.contextTokens ?? 0
+    const used = prompt + answer
+    return {
+      reported: prompt > 0,
+      prompt,
+      answer,
+      window,
+      used,
+      free: window ? Math.max(0, window - used) : 0,
+      pct: window ? Math.min(100, (used / window) * 100) : 0,
+      // Only meaningful when the figures are real; a zeroed reading must not
+      // claim the window was full.
+      full: prompt > 0 && window > 0 && used >= window - 16,
+    }
   })
   /** The lesson every question here is grounded in; blank for a free chat. */
   const pinnedTopic = computed(() => thread.value?.thread?.topic || thread.value?.topic || '')
@@ -177,6 +201,7 @@ export function useTutorThread(source: Ref<TutorSource>, onCreated?: (id: number
       if (src.id) loaded = await tutorApi.thread(src.id, ui.locale)
       else if (src.topic && !src.fresh) loaded = await tutorApi.forTopic(src.topic, ui.locale)
       else if (src.kind === 'review') loaded = await tutorApi.reviewNote(ui.locale, src.note ?? 0)
+      else if (src.kind === 'word') loaded = await tutorApi.wordToday(ui.locale, src.word ?? '')
       else {
         loaded = await tutorApi.fresh(ui.locale)
         loaded.topic = src.topic ?? ''
@@ -253,6 +278,7 @@ export function useTutorThread(source: Ref<TutorSource>, onCreated?: (id: number
           ui.locale,
           source.value.kind,
           source.value.note,
+          source.value.word,
         )
         th.thread = created.thread
         // Only the panel this flight still owns hears about the new id.

@@ -63,6 +63,21 @@ const glossB = computed(() =>
  * came back in English rather than letting the learner assume otherwise. */
 const glossFallback = computed(() => glossA.value.isFallback || glossB.value.isFallback)
 
+/**
+ * Whether the learner has started this session.
+ *
+ * The screen used to open PLAYING: `onMounted` → `load()` → `play()`, so a
+ * learner arrived mid-trial with no idea what was being trained, and the very
+ * first thing the app did was make a noise they had not asked for. Worse, a
+ * browser that refused the un-gestured playback left them answering a 2AFC on
+ * silence — the `blocked` flag exists because of exactly that.
+ *
+ * So the session is now begun deliberately. Autoplay INSIDE a running session
+ * stays: that is the exercise, and the first play is then downstream of a real
+ * click, which is also what browsers want.
+ */
+const started = ref(false)
+
 async function load() {
   loading.value = true
   error.value = ''
@@ -72,11 +87,29 @@ async function load() {
     session.value = await api.hvptSession()
     const c = await api.hvptContrasts()
     contrasts.value = c.contrasts
-    if (session.value.trials.length) play()
   } catch (e) {
     error.value = (e as Error).message
   } finally {
     loading.value = false
+  }
+}
+
+/** Begin. The click is the gesture the first `play()` needs. */
+function begin() {
+  if (!session.value?.trials.length) return
+  started.value = true
+  play()
+}
+
+/**
+ * A fresh session after one finishes, without going back to the intro: the
+ * learner has just read it.
+ */
+async function again() {
+  await load()
+  if (session.value?.trials.length) {
+    started.value = true
+    play()
   }
 }
 
@@ -140,7 +173,7 @@ function next() {
 }
 
 function onKey(e: KeyboardEvent) {
-  if (!trial.value) return
+  if (!started.value || !trial.value) return
   switch (e.key) {
     case 'ArrowLeft':
       e.preventDefault()
@@ -207,6 +240,51 @@ onUnmounted(() => {
       </p>
       <p class="mt-2 text-xs">{{ $t('ear.refusedHint') }}</p>
     </Note>
+
+    <!--
+      The start screen. [R7] — .claude/research/07-hvpt.md
+
+      Everything the learner needs BEFORE the first sound: what is being
+      trained, why the same word arrives in different voices, and what this
+      cannot promise. The caveats are up front rather than discovered: three
+      synthetic voices is below what the research asks for, and no contrast is
+      ever finished because the effect decays. A screen that started playing
+      and mentioned none of this was asking for trust it had not earned.
+    -->
+    <Card v-else-if="!started && session && !session.refused" variant="raised">
+      <CardHeader>
+        <CardTitle class="flex items-center gap-2 text-base">
+          <Ear class="size-4" aria-hidden="true" />
+          {{ $t('ear.intro.title') }}
+        </CardTitle>
+      </CardHeader>
+      <CardContent class="flex flex-col gap-4">
+        <p class="text-sm leading-relaxed">{{ $t('ear.intro.what') }}</p>
+        <p class="text-sm leading-relaxed text-muted-foreground">
+          {{ $t('ear.intro.why') }}
+        </p>
+
+        <!-- What this session actually is, in numbers, before it runs. -->
+        <p class="font-mono text-xs tabular-nums text-muted-foreground">
+          {{ $t('ear.intro.shape', { trials: session.trials.length }) }}
+        </p>
+
+        <!-- The standing limits. Not a warning banner — a statement, in the
+             same tone the rest of the app uses for what it cannot do. -->
+        <Note variant="limit" class="text-xs">
+          <p>{{ $t('ear.intro.voices') }}</p>
+          <p class="mt-2">{{ $t('ear.neverDone') }}</p>
+        </Note>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <Button @click="begin">
+            <Volume2 class="size-4" aria-hidden="true" />
+            {{ $t('ear.intro.start') }}
+          </Button>
+          <p class="text-xs text-muted-foreground">{{ $t('ear.keys') }}</p>
+        </div>
+      </CardContent>
+    </Card>
 
     <!-- One trial. -->
     <Card v-else-if="trial" variant="raised">
@@ -309,7 +387,10 @@ onUnmounted(() => {
         <p class="max-w-md text-center text-xs leading-relaxed text-muted-foreground">
           {{ $t('ear.neverDone') }}
         </p>
-        <Button class="mt-1" @click="load">{{ $t('ear.another') }}</Button>
+        <!-- Straight into another session, not back to the intro: the
+             learner has just read it, and the click is the gesture the first
+             play needs. -->
+        <Button class="mt-1" @click="again">{{ $t('ear.another') }}</Button>
       </CardContent>
     </Card>
 

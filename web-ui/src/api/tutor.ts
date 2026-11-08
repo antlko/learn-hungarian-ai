@@ -1,5 +1,12 @@
 import { http, ApiError } from './http'
-import type { TutorCardRef, TutorEvent, TutorMessage, TutorSummary, TutorThread } from '@/types'
+import type {
+  TutorCardRef,
+  TutorEvent,
+  TutorKind,
+  TutorListResponse,
+  TutorMessage,
+  TutorThread,
+} from '@/types'
 
 /**
  * The grammar tutor's calls (ADR-027, ADR-029). A thread is a conversation:
@@ -20,19 +27,42 @@ import type { TutorCardRef, TutorEvent, TutorMessage, TutorSummary, TutorThread 
  */
 export const tutorApi = {
   /** The learner's chats, most recently active first. */
-  list: () => http.get<TutorSummary[]>('/api/tutor'),
+  /**
+   * The chat list, and how many of each kind exist.
+   *
+   * `kind` selects one tab; the counts always cover every kind, because a tab
+   * strip has to show the number on the tab you are not looking at. `chat` is
+   * the ordinary kind — its stored value is '', which a query string cannot
+   * carry.
+   */
+  list: (kind?: TutorKind) =>
+    http.get<TutorListResponse>(`/api/tutor${kind ? `?kind=${kind}` : ''}`),
+
+  /**
+   * Clear a whole tab, or everything. A review thread is one per word per day,
+   * so a month of reviewing leaves hundreds and deleting them one at a time
+   * was the only way out.
+   */
+  removeAll: (kind?: TutorKind) =>
+    http.del<{ deleted: number }>(`/api/tutor${kind ? `?kind=${kind}` : ''}`),
 
   /** Opens a chat — pinned when `topic` is non-blank. `kind: 'review'` asks
    *  for the chat about `note` instead — one per word per day (ADR-034):
    *  found when it exists, else created and named by the word. */
-  create: (topic: string, lang: string, kind?: 'review', note?: number) =>
-    http.post<TutorThread>(`/api/tutor?lang=${lang}`, { topic, kind, note }),
+  create: (topic: string, lang: string, kind?: 'review' | 'word', note?: number, word?: string) =>
+    http.post<TutorThread>(`/api/tutor?lang=${lang}`, { topic, kind, note, word }),
 
   /** The day's chat about one word, or `thread: null` — never created by
    *  looking. The panel opens on it without minting an empty conversation for
    *  a learner who asks nothing. */
   reviewNote: (lang: string, note: number) =>
     http.get<TutorThread>(`/api/tutor/review?lang=${lang}&note=${note}`),
+
+  /** The day's chat about one WORD, or `thread: null`. Keyed on the form
+   *  rather than a note, because the words worth asking about are often the
+   *  ones the pack cannot resolve at all. ADR-042. */
+  wordToday: (lang: string, form: string) =>
+    http.get<TutorThread>(`/api/tutor/word/${encodeURIComponent(form)}?lang=${lang}`),
 
   thread: (id: number, lang: string) => http.get<TutorThread>(`/api/tutor/${id}?lang=${lang}`),
 

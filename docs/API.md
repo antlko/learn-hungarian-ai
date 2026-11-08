@@ -152,6 +152,7 @@ an override, never as the dictionary. An empty correction (just the form) is a v
 | `GET` | `/api/review/forecast` | ✅ | 90-day projection for the governor |
 | `POST` | `/api/notes` | ✅ | creates a note; the server locates the target span, reads its features off the live analysis, backfills a missing gloss from the pack, and spawns one card per planned direction. Returns `lemmaStatus`, the lemma's state after the call, and `restored: true` when the duplicate it matched was in the trash and has been put back |
 | `POST` | `/api/notes/:id/trash` | ✅ | sets a word aside: every direction of it leaves the queue and every count. Not a delete — nothing is removed and `review_log` is untouched. 404 on a note that is not the caller's; a second call is `changed: false`, not an error |
+| `POST` | `/api/notes/:id/know` | ✅ | the same handler under the name the client uses. «Знаю» additionally marks the note's lemma `known`; `/restore` reverts it to `learning` ([ADR-041](../.claude/DECISIONS.md#adr-041)). `/trash` is kept so a stale tab keeps working |
 | `POST` | `/api/notes/:id/restore` | ✅ | puts it back with the FSRS state it left with — a word set aside for a fortnight returns overdue |
 | `GET` | `/api/trash` | ✅ | the set-aside words, most recent first: dictionary form, gloss, the sentence, origin, `trashedAt` and how many cards a restore brings back |
 
@@ -579,7 +580,7 @@ sentence by sentence. That is worse input than a native recording and the UI lab
 
 | Method | Path | Status | Notes |
 |---|---|---|---|
-| `GET` | `/api/stats/overview` | ✅ | lemma counts + cumulative curve, streak, today's ledger, listening hours, checkpoint history + the next spec with live evidence, blocked levels, exam date. Also: `queue` — the whole deck's `Breakdown`, the SAME numbers the review tabs show ([ADR-021](../.claude/DECISIONS.md#adr-021); `dueNow` duplicates `queue.dueNow` for older clients); `days` — the last 30 ledger rows, newest first (the Today load strip); `practiceDays` + `practiceByDirection` — practice series, still scheduling nothing |
+| `GET` | `/api/stats/overview` | ✅ | lemma counts + cumulative curve, streak, today's ledger, listening hours, checkpoint history + the next spec with live evidence, blocked levels, exam date. Also: `queue` — the whole deck's `Breakdown`, the SAME numbers the review tabs show ([ADR-021](../.claude/DECISIONS.md#adr-021); `dueNow` duplicates `queue.dueNow` for older clients); `days` — the ledger, newest first, `?days=7\|30\|90\|365`, **default 90** — the chart offers 7/30/90 and switches between them client-side, so the response has to carry the widest of them; anything unrecognised gets the default rather than an error. The STREAK is always computed over the full ledger, never over this window; each row carries `readS` beside `listenS` so the activity chart can say where an hour went ([ADR-044](../.claude/DECISIONS.md#adr-044)); `practiceDays` + `practiceByDirection` — practice series, still scheduling nothing |
 | `GET` | `/api/stats/mastery` | ✅ | per-feature mastery |
 | `POST` | `/api/checkpoints` | ✅ | `{code, attested[], notes}` → verdict. Measured criteria the server computes; attested criteria are the learner's claims, stored as such. A failure returns the diagnostic against the three documented failure modes and **locks curriculum levels** at/above the checkpoint's gate (`gate.locked.checkpoint`) until a retake passes |
 | `POST` | `/api/today/human` | ✅ | Loop 4 attestation. Recorded, shown, **ignored by the streak** — the app cannot verify a conversation and does not pretend to |
@@ -600,15 +601,44 @@ day: a 10-minute step at 23:55 is not a debt ([ADR-021](../.claude/DECISIONS.md#
 > [SELFHOSTING.md](SELFHOSTING.md#backup-and-restore). Do not re-document these endpoints
 > without re-implementing them.
 
+## Profile export & import
+
+Added by [ADR-040](../.claude/DECISIONS.md#adr-040), which supersedes ADR-011's *"the app has no
+export"* in the shape ADR-011 itself named as honest. **Not** an `.apkg`: that refusal stands.
+
+| Method | Path | Status | Notes |
+| --- | --- | --- | --- |
+| `GET` | `/api/profile/export` | ✅ | streams `tanulom-profile-<date>.zip`: `profile.json` (every user-scoped table — both FSRS state spaces, the review log, texts and their tokens, glosses, the daily ledger, tutor threads) plus `media/` for the learner's own audio. Columns are **discovered** via `PRAGMA table_info`, so a migration cannot silently drop one. `settings` rows with `secret = 1` are **omitted**, and the screen says so. Acting user only — there is no route that reads another account |
+| `GET` | `/api/profile/size` | ✅ | `{notes, cards, reviews, texts, words, threads, days}` — what an import is about to replace, in the learner's own units, for the confirm dialog |
+| `POST` | `/api/profile/import` | ✅ | multipart `profile=<zip>` → the report: `{tables, totalRows, mediaFiles, skippedColumns?, replayOk, replayChecked, replayWarning?, secretsOmitted}`. **REPLACES**, in one transaction, for the acting user only. 400 on a `formatVersion` newer than this binary's, on an archive that is not a profile, and on a failed integrity check. That check is the **replay property**: every card's log is replayed through `internal/srs/replay.go` and compared to the state it arrived with — a mismatch on the same architecture is corruption and rolls back, while one across two architectures is a *warning* naming the fuzz/FMA reason (ARCHITECTURE.md §5.7). Surrogate ids are re-assigned and every reference rewritten |
+
+## Reading time
+
+| Method | Path | Status | Notes |
+| --- | --- | --- | --- |
+| `POST` | `/api/reading/progress` | ✅ | `{seconds}` → `{seconds, activeMs}` — what was actually credited, echoed because the clamp means the two can differ. Clamped to 60 s per report, the same bound listening has. The reader was the one loop that reported nothing, so an hour with a text left the day's minutes unmoved and the streak unmet ([ADR-044](../.claude/DECISIONS.md#adr-044)). Zero is accepted and credits nothing — an idle tick is the normal case |
+
+## A dictionary entry from the model
+
+[ADR-042](../.claude/DECISIONS.md#adr-042). Deliberately **not** a tutor route: the tutor mints
+nothing and a test counts the tables to prove it.
+
+| Method | Path | Status | Notes |
+| --- | --- | --- | --- |
+| `GET` | `/api/words/ai-entry/status` | ✅ | `{available, reason?, model?}` — asked BEFORE the button is offered, so an unavailable model is a missing button and not a failed press |
+| `POST` | `/api/words/:form/entry` | ✅ | `?lang=` → `{form, model, unknown?, lemma?, pos?, meanings?, morphemes?, examples?, raw?, unattested}`. Offered only where the pack has nothing. `unattested` lists the Hungarian the dictionary has never seen — every token is checked, **including the ones the model forgot to backtick**, and the asked-about form is excluded. `raw` carries the model's text when it did not answer in the schema, shown as prose rather than discarded. `unknown` is the model's own admission, passed through. **Writes nothing**: the meaning reaches `user_gloss` only via `PUT /api/glosses/:form` with `source: "machine"`, and a card's back only after «Принять как своё» re-saves it `manual`. 503 with the tutor's own key when no model is configured; 502 `errors.llmFailed` when the call fails |
+
 ## The grammar tutor
 
 A thread is a conversation with an optional pinned topic ([ADR-029](../.claude/DECISIONS.md#adr-029)).
 
 | Method | Path | Status | Notes |
 |---|---|---|---|
-| `GET` | `/api/tutor` | ✅ | the learner's chats, most recently active first: `[{id, title, topic?, kind?, noteId?, titleRu?, titleEn?, lastTopic?, lastTopicRu?, lastTopicEn?, messages, lastRole, lastContent, updatedAt}]` |
-| `POST` | `/api/tutor` | ✅ | `?lang=` · `{topic?, kind?}` → **201** with the thread response; 404 on an unknown topic. `kind: "review"` with `note` asks for the review chat about that WORD for the local day: **200** with it when it exists, 201 when created and named by the word ([ADR-034](../.claude/DECISIONS.md#adr-034)); 400 on any other kind, 404 on a note that is not the learner's |
+| `GET` | `/api/tutor` | ✅ | `?kind=chat\|review\|word` (absent = every kind) → `{threads: [{id, title, topic?, kind?, noteId?, titleRu?, titleEn?, lastTopic?, lastTopicRu?, lastTopicEn?, messages, lastRole, lastContent, updatedAt}], counts: {chat?, review?, word?}}`, most recently active first. `counts` always covers EVERY kind regardless of the filter — a tab strip has to carry the number on the tab you are not looking at. `chat` is the wire name for the ordinary kind, whose stored value is `''` and which a query string cannot carry ([ADR-045](../.claude/DECISIONS.md#adr-045)) |
+| `DELETE` | `/api/tutor` | ✅ | `?kind=` clears one tab, absent clears every chat → `{deleted}`. An unrecognised kind is **400**, never silently "all". A review chat is one per word per local day, so a month of reviewing leaves hundreds and one-at-a-time was the only way out ([ADR-045](../.claude/DECISIONS.md#adr-045)) |
+| `POST` | `/api/tutor` | ✅ | `?lang=` · `{topic?, kind?}` → **201** with the thread response; 404 on an unknown topic. `kind: "review"` with `note` asks for the review chat about that WORD for the local day: **200** with it when it exists, 201 when created and named by the word ([ADR-034](../.claude/DECISIONS.md#adr-034)). `kind: "word"` with `word` does the same keyed on a surface form, lowercased server-side the way `user_gloss` keys it ([ADR-042](../.claude/DECISIONS.md#adr-042)); 400 without a word. 400 on any other kind, 404 on a note that is not the learner's |
 | `GET` | `/api/tutor/review` | ✅ | `?lang=&note=` → that word's chat for the local day with its messages, or the thread response with `thread: null` — never created by asking. Without `note`, the day's newest review chat |
+| `GET` | `/api/tutor/word/:form` | ✅ | `?lang=` → the day's chat about that FORM with its messages, or `thread: null` — never created by asking. Keyed on the form rather than a note, because the words worth asking about are often the ones the pack cannot resolve at all ([ADR-042](../.claude/DECISIONS.md#adr-042)) |
 | `GET` | `/api/tutor/new` | ✅ | `?lang=` → the thread response with `thread: null` — availability and sources for a chat not started yet |
 | `GET` | `/api/tutor/topic/:code` | ✅ | `?lang=` → the latest thread pinned to a lesson, or `thread: null` with `topic` set; 404 on an unknown topic |
 | `GET` | `/api/tutor/:id` | ✅ | `?lang=ru\|en` → `{available, reason?, model?, lang, thread: {id, title, topic?, kind?, noteId?, titleRu?, titleEn?, createdAt, updatedAt} \| null, topic?, messages, sources}`. 404 `errors.tutorNoThread` (another learner's, or none). `available: false` with `reason: "errors.llmOff"` when `services.llm` is off, or `"errors.llmNoModel"` when it is on but names no model — the panel says which and links to Settings |

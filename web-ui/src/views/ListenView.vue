@@ -392,6 +392,21 @@ onUnmounted(() => {
     </header>
     <Note v-if="error" variant="error">{{ error }}</Note>
 
+    <!--
+      What this screen trains, before anything plays.
+
+      Unlike the ear trainer this one never auto-played, but `listen.pass1Hint`
+      was its only explanation and it appears halfway down, inside pass 1. The
+      three-pass protocol is the whole method here and it was documented only
+      in the script's docblock — visible to us and to nobody who uses the app.
+    -->
+    <Note v-if="!detail" variant="info" class="text-xs">
+      <p class="mb-2 font-medium">{{ $t('listen.intro.title') }}</p>
+      <p>{{ $t('listen.intro.what') }}</p>
+      <p class="mt-2">{{ $t('listen.intro.passes') }}</p>
+      <p class="mt-2">{{ $t('listen.intro.caveat') }}</p>
+    </Note>
+
     <!-- ── player ──────────────────────────────────────────────────────── -->
     <template v-if="detail && listen">
       <Card variant="raised">

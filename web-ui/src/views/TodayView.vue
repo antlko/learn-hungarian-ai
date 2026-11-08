@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   BookOpen,
   BrainCircuit,
@@ -15,9 +16,9 @@ import { Card, CardContent, cardVariants } from '@/components/ui/card'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import Note from '@/components/common/Note.vue'
+import ActivityChart from '@/components/progress/ActivityChart.vue'
 import { cn } from '@/lib/utils'
 import { api } from '@/api'
-import { setSize, setsFor } from '@/lib/sets'
 import { useAuthStore } from '@/stores/auth'
 import type { Overview } from '@/types'
 
@@ -38,6 +39,7 @@ import type { Overview } from '@/types'
  * somewhere else. Loop 1 is wider than the other two whenever the queue has
  * work in it, because on a day with cards due nothing else comes first. [R14]
  */
+const { t } = useI18n()
 const auth = useAuthStore()
 const router = useRouter()
 
@@ -51,30 +53,37 @@ const minutesPct = computed(() =>
 )
 
 /**
+ * Today's minutes, split by what they were spent on — the same three series
+ * the activity chart draws, in a sentence.
+ *
+ * `cards` is the remainder of `active_ms`: reviews, free practice and grammar
+ * drills are its only other writers, so the remainder is exactly those. Parts
+ * that round to zero are left out rather than printed as «чтение 0», which is
+ * noise in a line whose whole job is to be scannable.
+ */
+const minuteSplit = computed(() => {
+  const d = overview.value?.today
+  if (!d || d.activeMs <= 0) return ''
+  const listening = Math.round(d.listenS / 60)
+  const reading = Math.round((d.readS ?? 0) / 60)
+  const cards = Math.max(0, minutesToday.value - listening - reading)
+  const parts: string[] = []
+  const add = (n: number, key: string) => {
+    if (n > 0) parts.push(`${t(`progress.chart.series.${key}`).toLocaleLowerCase()} ${n}`)
+  }
+  add(cards, 'cards')
+  add(reading, 'reading')
+  add(listening, 'listening')
+  return parts.join(' · ')
+})
+
+/**
  * The deck's Breakdown — the SAME numbers the review screen's tabs show
  * (ADR-021). This screen used to print a raw unburied card count («к
  * повторению: 26») over a queue that would serve ten items; whatever is shown
  * here must be a number the queue will honour.
  */
 const q = computed(() => overview.value?.queue)
-
-/**
- * The 30-day load strip UX.md §3 sketched from the start: minutes per day,
- * oldest to newest, green where the day's obligations were met. Effort made
- * visible without a single invented number.
- */
-const loadDays = computed(() => {
-  const days = overview.value?.days
-  if (!days || days.length < 2) return []
-  const list = [...days].reverse()
-  const peak = Math.max(...list.map((d) => d.activeMs), 1)
-  return list.map((d) => ({
-    day: d.day,
-    minutes: Math.round(d.activeMs / 60000),
-    height: Math.max(8, Math.round((d.activeMs / peak) * 100)),
-    met: d.dueLeft === 0 && d.activeMs >= dailyMinutes.value * 60000,
-  }))
-})
 
 const loops = computed(() => {
   const t = overview.value?.today
@@ -256,6 +265,15 @@ onMounted(load)
             <span class="text-lg tabular-nums text-muted-foreground">/ {{ dailyMinutes }}</span>
             <span class="text-sm text-muted-foreground">{{ $t('common.min') }}</span>
           </p>
+          <!--
+            Where today's minutes came from. The figure above is the sum, and
+            a sum is the one thing a learner cannot act on: «21 минута» does
+            not say whether the reading counted. Only the non-zero parts are
+            named. ADR-044.
+          -->
+          <p v-if="minuteSplit" class="text-[11px] text-muted-foreground">
+            {{ minuteSplit }}
+          </p>
 
           <div class="flex flex-col items-end gap-0.5">
             <span
@@ -271,12 +289,18 @@ onMounted(load)
             <!-- Learning steps returning later today are named, not folded into
                  the figure above: «к повторению» must equal what the queue will
                  serve right now, or the number teaches distrust. ADR-021 -->
-            <!-- The day in sets, from the same per-device size the review
-                 screen deals by: a number the learner can see the end of is
-                 one they start. [R18 §2], ADR-026 -->
-            <span v-if="overview.dueNow > setSize" class="text-xs text-muted-foreground">
-              {{ $t('today.sets', { sets: setsFor(overview.dueNow), size: setSize }) }}
-            </span>
+            <!--
+              The day in sets is NOT shown here any more.
+
+              It was computed from `dueNow` alone, but a session also serves
+              new cards out of the global daily budget — so «3 подх. по 30»
+              stood next to «+119 новых» and described a session that would not
+              run. The exact figure needs the queue the session will actually
+              be dealt from (`items.length`), which this screen does not fetch;
+              the start screen does, one click away, and states it there.
+              Removing a number beats keeping one that contradicts the screen
+              it links to. ADR-026.
+            -->
             <span v-if="(q?.dueLaterToday ?? 0) > 0" class="text-xs text-learning">
               {{ $t('today.queueLater', { n: q?.dueLaterToday }) }}
             </span>
@@ -362,20 +386,13 @@ onMounted(load)
         </CardContent>
       </RouterLink>
 
-      <!-- The 30-day load strip: minutes as height, met days in green. Effort
-           made visible; nothing invented. docs/UX.md §3 -->
-      <div v-if="loadDays.length" class="flex flex-col gap-1.5 sm:col-span-2">
-        <p class="text-[11px] text-muted-foreground">{{ $t('today.load30') }}</p>
-        <div class="flex h-10 items-end gap-0.5">
-          <div
-            v-for="d in loadDays"
-            :key="d.day"
-            class="min-w-1 flex-1 rounded-sm"
-            :class="d.met ? 'bg-known/60' : 'bg-primary/25'"
-            :style="{ height: `${d.height}%` }"
-            :title="`${d.day} · ${d.minutes} ${$t('common.min')}`"
-          />
-        </div>
+      <!--
+        Where the days went. The strip this replaces drew `active_ms` as one
+        undifferentiated height, which could not answer the only question a
+        learner has about it — «куда ушло время». docs/UX.md §3
+      -->
+      <div v-if="overview?.days?.length" class="sm:col-span-2">
+        <ActivityChart :days="overview.days" :daily-minutes="dailyMinutes" />
       </div>
 
       <!--

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { BrainCircuit, Flame, LogOut, Menu } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import CapabilityDots from '@/components/common/CapabilityDots.vue'
+import StreakBar from '@/components/common/StreakBar.vue'
 import LocaleToggle from '@/components/common/LocaleToggle.vue'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -15,6 +16,26 @@ const router = useRouter()
 const route = useRoute()
 const ui = useUiStore()
 const deck = useDeckStore()
+
+/**
+ * The streak panel. Closed on navigation, and on a click anywhere else: a
+ * popover in the chrome that survives a route change follows the learner
+ * around.
+ */
+const streakOpen = ref(false)
+const minutesToday = computed(() => Math.round(deck.todayActiveMs / 60000))
+const minutesMet = computed(() => minutesToday.value >= deck.dailyMinutes)
+
+function closeStreak(e: MouseEvent) {
+  const t = e.target as HTMLElement | null
+  if (!t?.closest('[data-streak]')) streakOpen.value = false
+}
+watch(streakOpen, (open) => {
+  if (open) document.addEventListener('click', closeStreak, { capture: true })
+  else document.removeEventListener('click', closeStreak, { capture: true })
+})
+watch(() => route.fullPath, () => (streakOpen.value = false))
+onUnmounted(() => document.removeEventListener('click', closeStreak, { capture: true }))
 
 /**
  * The page's name, so the topbar answers "where am I" — before this the only
@@ -35,7 +56,7 @@ const TITLE_KEYS: Record<string, string> = {
   ear: 'nav.ear',
   progress: 'nav.progress',
   words: 'words.title',
-  trash: 'trash.title',
+  known: 'known.title',
   users: 'nav.users',
   settings: 'nav.settings',
 }
@@ -78,18 +99,68 @@ async function signOut() {
         <BrainCircuit class="size-3.5" aria-hidden="true" />
         {{ deck.dueNow }}
       </RouterLink>
-      <span
-        v-if="deck.loaded && deck.streak > 0"
-        class="flex items-center gap-1 px-1.5 text-xs font-semibold tabular-nums"
-        :title="$t('today.streakHint')"
-      >
-        <Flame
-          class="size-3.5"
-          :class="deck.todayMet ? 'text-known' : 'text-muted-foreground'"
-          aria-hidden="true"
-        />
-        {{ deck.streak }}
-      </span>
+      <!--
+        The streak, openable. A bare number could not say what a day requires,
+        why today has not counted yet, or how the week went — so it now says
+        all three, from the same rule the server applies (stats.Day.Met).
+      -->
+      <div v-if="deck.loaded && deck.streak > 0" class="relative" data-streak>
+        <button
+          type="button"
+          class="flex cursor-pointer items-center gap-1 rounded-full px-1.5 py-0.5 text-xs font-semibold tabular-nums transition-colors hover:bg-accent"
+          :aria-expanded="streakOpen"
+          :title="$t('today.streakHint')"
+          @click="streakOpen = !streakOpen"
+        >
+          <Flame
+            class="size-3.5"
+            :class="deck.todayMet ? 'text-known' : 'text-muted-foreground'"
+            aria-hidden="true"
+          />
+          {{ deck.streak }}
+        </button>
+
+        <div
+          v-if="streakOpen"
+          class="absolute top-full right-0 z-50 mt-2 flex w-72 flex-col gap-2.5 rounded-xl border bg-popover p-3.5 text-xs shadow-raised"
+        >
+          <p class="flex items-baseline justify-between">
+            <span class="font-medium">{{ $t('today.streak.title', { n: deck.streak }) }}</span>
+            <span v-if="deck.best > deck.streak" class="text-[11px] text-muted-foreground">
+              {{ $t('today.streak.best', { n: deck.best }) }}
+            </span>
+          </p>
+
+          <StreakBar :days="deck.days" :daily-minutes="deck.dailyMinutes" />
+
+          <!-- The rule, and today measured against both of its halves. They
+               fail independently, and "not met" without saying which half is
+               what made this opaque. -->
+          <div class="flex flex-col gap-1 border-t border-border-subtle pt-2">
+            <p class="text-muted-foreground">{{ $t('today.streak.rule') }}</p>
+            <p class="flex items-center justify-between gap-2">
+              <span>{{ $t('today.streak.queue') }}</span>
+              <span :class="deck.todayDueLeft === 0 ? 'text-known' : 'text-learning'">
+                {{
+                  deck.todayDueLeft === 0
+                    ? $t('today.streak.queueDone')
+                    : $t('today.streak.queueLeft', { n: deck.todayDueLeft })
+                }}
+              </span>
+            </p>
+            <p class="flex items-center justify-between gap-2">
+              <span>{{ $t('today.streak.minutes') }}</span>
+              <span :class="minutesMet ? 'text-known' : 'text-learning'">
+                {{ $t('today.streak.minutesOf', { done: minutesToday, goal: deck.dailyMinutes }) }}
+              </span>
+            </p>
+          </div>
+
+          <p class="text-[11px] leading-relaxed text-muted-foreground">
+            {{ $t('today.streak.noFreeze') }}
+          </p>
+        </div>
+      </div>
 
       <div class="mx-2 hidden h-4 w-px bg-border-subtle sm:block" />
       <CapabilityDots class="hidden sm:flex" />

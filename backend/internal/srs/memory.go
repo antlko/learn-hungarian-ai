@@ -92,6 +92,46 @@ type Memory struct {
 	History []bool `json:"history"`
 	// Preview is absent where nothing is scheduled — free practice.
 	Preview *Preview `json:"preview,omitempty"`
+
+	// The learning ladder, so «вернётся через ~10 мин» can say what it means.
+	//
+	// A card in Learning or Relearning is walking FSRS's minute-scale steps
+	// ({1, 10} and {10} by default). StepsTotal is how many that state has and
+	// StepsLeft is how many remain — which is `CardState.RemainingSteps`, the
+	// scheduler's own position, not a count we keep. Both are 0 once the card
+	// is scheduled in days, and the UI switches to interval language there.
+	//
+	// GraduatesOnGood is the answer to the question the learner actually
+	// asked — "when does this start coming back in days" — and it is asked of
+	// the SCHEDULER (Scheduler.PreviewNext), never derived from the numbers
+	// here. There is no "N correct in a row" threshold in FSRS and the UI must
+	// not invent one; this is the real, and much smaller, thing that is true.
+	StepsLeft  int `json:"stepsLeft"`
+	StepsTotal int `json:"stepsTotal"`
+	// GraduatesOnGood is meaningful only alongside Preview: it is computed
+	// from the same dry run, so it is absent for free practice too.
+	GraduatesOnGood bool `json:"graduatesOnGood"`
+}
+
+// stepsFor returns how many minute-scale steps the card's state has, and how
+// many are left. Zero for anything already scheduled in days.
+func stepsFor(st CardState, sched *Scheduler) (left, total int) {
+	switch st.State {
+	case 1:
+		total = len(sched.LearningSteps())
+	case 3:
+		total = len(sched.RelearningSteps())
+	default:
+		return 0, 0
+	}
+	left = st.RemainingSteps
+	if left < 0 {
+		left = 0
+	}
+	if left > total {
+		left = total
+	}
+	return left, total
 }
 
 // historyLength bounds the row of marks the card draws.
@@ -109,9 +149,18 @@ func MemoryFor(st CardState, sched *Scheduler, now time.Time, withPreview bool) 
 		Lapses:         st.Lapses,
 		History:        []bool{},
 	}
+	m.StepsLeft, m.StepsTotal = stepsFor(st, sched)
 	if withPreview {
-		if p, err := sched.Preview(st, now); err == nil {
-			m.Preview = &Preview{At: now, Again: p[Again], Hard: p[Hard], Good: p[Good], Easy: p[Easy]}
+		if next, err := sched.PreviewNext(st, now); err == nil {
+			m.Preview = &Preview{
+				At:    now,
+				Again: next[Again].Due, Hard: next[Hard].Due,
+				Good: next[Good].Due, Easy: next[Easy].Due,
+			}
+			// State 2 is Review: off the minute-scale steps and onto days.
+			// Asked of the scheduler rather than worked out from the interval,
+			// because "more than a day" is a guess and this is a fact.
+			m.GraduatesOnGood = st.State != 2 && next[Good].State == 2
 		}
 	}
 	return m

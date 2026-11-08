@@ -5,6 +5,82 @@ the project uses [semantic versioning](https://semver.org/). Every design decisi
 is an ADR in [`.claude/DECISIONS.md`](.claude/DECISIONS.md), and every pedagogical claim traces to a
 note in [`.claude/research/`](.claude/research/README.md).
 
+## [Unreleased]
+
+The first month of real use, answered. Fourteen reports from the learner using it daily.
+
+### Added
+- **Full profile export and import** (ADR-040, superseding ADR-011's "no export" in the shape
+  ADR-011 itself called honest). A zip carrying every user-scoped table — both FSRS state
+  spaces, the review log, texts and their analyses, glosses, the daily ledger, tutor chats —
+  plus your own audio. Columns are *discovered*, so a migration cannot silently drop one; a
+  coverage test fails when a new table is neither exported nor excluded with a reason; and the
+  import verifies itself by replaying every card's log against the state it arrived with.
+  Secrets are left out and both screens say so. Still never an `.apkg`.
+- **The card says what «~10 мин» is a step towards** (ADR-039 extended). A four-rung ladder and
+  «ещё один верный ответ — и слово уйдёт на дни», from the scheduler's own `RemainingSteps` and
+  `PreviewNext` — not a «N correct» threshold, because FSRS has none.
+- **An activity chart** (ADR-044): minutes per day split into cards, reading and listening, with
+  the daily target as a reference line, a met/unmet status row, a table view and 30/90/365
+  ranges. Mounted on Today and on Progress, which previously loaded the rows and discarded them.
+- **Reading counts toward the day** (ADR-044). It was the one loop reporting nothing, so an hour
+  with a text left the day unmet. Clamped, and counted only while the tab is visible and the
+  learner is interacting.
+- **The streak explains itself** (ADR-044): the week Mon→Sun, and both halves of today's
+  obligation stated separately. No freeze, no repair — those are a point economy.
+- **A dictionary entry from the model** for a word the pack lacks (ADR-042), labelled, checked
+  word by word against the dictionary, and never material. Plus a chat about one word, one per
+  form per day.
+- **Tutor chat tabs and bulk delete** (ADR-045): «Чаты» / «Повторение» / «Слова» with counts, and
+  a confirmed clear-this-tab. A review chat is one per word per day, so a month of reviewing had
+  buried every real conversation.
+- **A start screen for the ear trainer**: what it trains, why the voices change, and what it
+  cannot promise — before anything plays.
+
+### Changed
+- **«В корзину» is now «Знаю»** (ADR-041), and it marks the word known as well as taking it out
+  of review. Restore reverts both halves. The machinery is ADR-025's, unchanged.
+- **Grammar leads with the exercise on a return visit** (ADR-043). The first visit still opens on
+  the lesson — [R4] is not traded away — but a topic with answered drills no longer makes you
+  scroll past the whole explanation. «Все темы» became a visible button instead of a ghost one.
+- The review start screen's set count is computed over the list the session will actually serve,
+  and "new" is split into today's and the backlog. «2 подх. по 30» beside «+119 новых» described
+  a session that would not run.
+- The plan no longer paints a month as started because the reader happened to add its words: the
+  dot follows enrolment, and the row says «из них N уже были в колоде».
+- **Asking the AI tutor no longer costs the card anything** (ADR-046, reversing the hint half of
+  ADR-034). A question before the answer used to set `usedHint` and cap the grade at Hard, so
+  reading an explanation shortened the word's interval. The guardrail that made the cap
+  unnecessary was there all along — the model is not given the answer in that phase and the
+  answer-naming templates are refused — and the panel now says that instead of stating a price.
+  «Подсказка» still caps, because it shows the graded string.
+
+### Fixed
+- **A meaning kept from the AI entry vanished on the next click.** The review card's word
+  inspector never read `user_gloss`; only the reader's rail did. Both now render it through one
+  `SavedGloss` component, with a badge naming whose line it is («ваш словарь» /
+  «машинное · <model>»), and the AI entry is not re-offered over a meaning already kept.
+- The tutor's context meter no longer freezes. It read the last answer that *had* figures, so one
+  answer without usage left it showing the first answer's numbers forever; it now describes the
+  answer on screen or says it cannot (ADR-045).
+- «Слух» no longer starts playing audio on arrival — and no longer leaves a learner answering a
+  2AFC on silence when the browser refuses an un-gestured play.
+- `review_log.id` collided on import into a database that already had review logs; rowid aliases
+  are now discovered and re-assigned rather than carried.
+- The week strip started on Sunday because Vue casts an absent Boolean prop to `false`.
+- «Нажмите 🔊» rendered as a blank gap: the app bundles font subsets and loads nothing from the
+  network, so emoji have no glyph.
+- The model's dictionary entry rendered as raw fenced JSON when the model wrapped its values in
+  backticks — ``"lemma": `"feltehetek"``, which no parser takes. The entry is decoded again with
+  the ticks removed (they are stripped from every field anyway), the prompt says where they
+  belong, and the prose fallback no longer shows the ``` fence.
+- The prepared questions in the word panel («Дай ещё три примера…», «Разбери … по частям») did
+  nothing when clicked: they are chips without a review card, and the handler returned early on
+  exactly that. They are now sent as the questions their labels already are.
+- A one-letter word was announced rather than read: the definite article `A` at the head of a
+  sentence came out of the voice as «nagy A» — "capital A". One-letter utterances are spoken
+  lower-case.
+
 ## [1.0.0] — unreleased
 
 The first release: a self-hosted Hungarian trainer that tracks **two memories** — the words a

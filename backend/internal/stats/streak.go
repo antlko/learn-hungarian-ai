@@ -22,11 +22,15 @@ import (
 
 // Day is one day's ledger.
 type Day struct {
-	Day      string  `json:"day"`
-	Reviews  int     `json:"reviews"`
-	Drills   int     `json:"drills"`
-	Trials   int     `json:"trials"`
-	ListenS  float64 `json:"listenS"`
+	Day     string  `json:"day"`
+	Reviews int     `json:"reviews"`
+	Drills  int     `json:"drills"`
+	Trials  int     `json:"trials"`
+	ListenS float64 `json:"listenS"`
+	// ReadS is time spent in the reader, reported the same clamped way
+	// listening is. Carried separately from ActiveMs so the statistics screen
+	// can say where an hour went rather than only how long it was.
+	ReadS    float64 `json:"readS"`
 	ActiveMs int64   `json:"activeMs"`
 	DueLeft  int     `json:"dueLeft"`
 	Human    bool    `json:"human"`
@@ -80,6 +84,25 @@ func (s *Store) RecordListening(userID int64, day string, seconds float64) error
 	return err
 }
 
+// RecordReading folds seconds spent with a text into today's row.
+//
+// Reading counts toward the minutes obligation for the same reason listening
+// does: it is real work, and the app that told a learner otherwise was simply
+// wrong about their day. Clamped by the caller, exactly like listening — see
+// handlers_texts.go — because the only thing standing between "read for a
+// minute" and "left the tab open" is that clamp.
+func (s *Store) RecordReading(userID int64, day string, seconds float64) error {
+	_, err := s.db.Exec(`
+		INSERT INTO daily_log (user_id, day, read_s, active_ms, updated_at)
+		VALUES (?,?,?,?,?)
+		ON CONFLICT(user_id, day) DO UPDATE SET
+		  read_s = read_s + excluded.read_s,
+		  active_ms = active_ms + excluded.active_ms,
+		  updated_at = excluded.updated_at`,
+		userID, day, seconds, int64(seconds*1000), db.FmtTime(time.Now()))
+	return err
+}
+
 // AttestHuman records the learner's claim that live practice happened today.
 // The app cannot verify this and the streak ignores it — it exists for the
 // checkpoint diagnostic. See [R14] and the Loop 4 honesty rule.
@@ -102,7 +125,7 @@ func (s *Store) Days(userID int64, limit int) ([]Day, error) {
 		limit = 400
 	}
 	rows, err := s.db.Query(`
-		SELECT day, reviews, drills, trials, listen_s, active_ms, due_left, human
+		SELECT day, reviews, drills, trials, listen_s, read_s, active_ms, due_left, human
 		  FROM daily_log WHERE user_id = ? ORDER BY day DESC LIMIT ?`, userID, limit)
 	if err != nil {
 		return nil, fmt.Errorf("load daily log: %w", err)
@@ -113,7 +136,7 @@ func (s *Store) Days(userID int64, limit int) ([]Day, error) {
 		var d Day
 		var human int
 		if err := rows.Scan(&d.Day, &d.Reviews, &d.Drills, &d.Trials,
-			&d.ListenS, &d.ActiveMs, &d.DueLeft, &human); err != nil {
+			&d.ListenS, &d.ReadS, &d.ActiveMs, &d.DueLeft, &human); err != nil {
 			return nil, err
 		}
 		d.Human = human == 1

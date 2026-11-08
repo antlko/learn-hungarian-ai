@@ -45,6 +45,9 @@ type Thread struct {
 	// (ADR-034): one per WORD per local day, found or created when the review
 	// card first asks about that note.
 	Kind string `json:"kind,omitempty"`
+	// Word is the surface form an inspector chat is about, lowercased; blank
+	// for every other kind. Migration 00021.
+	Word string `json:"word,omitempty"`
 	// NoteID is the note a review chat is about; zero for every other kind,
 	// and for review threads created before migration 00019. A pointer the
 	// tutor reads — nothing on the review path reads it back.
@@ -55,6 +58,15 @@ type Thread struct {
 
 // KindReview marks a review chat — one per word per day.
 const KindReview = "review"
+
+// KindWord marks a chat about one word, opened from the word inspector.
+//
+// Separate from KindReview because it is keyed differently: a review chat
+// hangs off `note_id` (the card being answered), while an inspector chat hangs
+// off the FORM the learner clicked, which frequently has no note and sometimes
+// no lemma — the words most worth asking about are the ones the pack lacks.
+// Migration 00021.
+const KindWord = "word"
 
 // Message is one turn of a thread.
 type Message struct {
@@ -142,15 +154,16 @@ type NewThread struct {
 	Kind   string
 	Title  string
 	NoteID int64
+	Word   string
 }
 
 // CreateThread opens an empty thread.
 func (s *Store) CreateThread(userID int64, n NewThread, now time.Time) (Thread, error) {
 	stamp := db.FmtTime(now)
 	res, err := s.db.Exec(`
-		INSERT INTO tutor_thread (user_id, topic_code, kind, title, note_id, created_at, updated_at)
-		VALUES (?,?,?,?,?,?,?)`,
-		userID, n.Topic, n.Kind, n.Title, n.NoteID, stamp, stamp)
+		INSERT INTO tutor_thread (user_id, topic_code, kind, title, note_id, word, created_at, updated_at)
+		VALUES (?,?,?,?,?,?,?,?)`,
+		userID, n.Topic, n.Kind, n.Title, n.NoteID, n.Word, stamp, stamp)
 	if err != nil {
 		return Thread{}, fmt.Errorf("create tutor thread: %w", err)
 	}
@@ -182,10 +195,28 @@ func (s *Store) LatestThreadOfKind(userID int64, kind string, noteID int64, sinc
 	return t, err == nil, err
 }
 
+// LatestWordThread finds today's chat about one form, if there is one.
+//
+// Mirrors LatestThreadOfKind's contract — one per key per local day, found or
+// created — but keyed on the form rather than on a note id, for the reason
+// KindWord exists.
+func (s *Store) LatestWordThread(userID int64, word string, since time.Time) (Thread, bool, error) {
+	t, err := scanThread(s.db.QueryRow(
+		`SELECT `+threadCols+` FROM tutor_thread
+		  WHERE user_id = ? AND kind = ? AND word = ? AND created_at >= ?
+		  ORDER BY created_at DESC, id DESC LIMIT 1`,
+		userID, KindWord, word, db.FmtTime(since)))
+	if errors.Is(err, ErrNoThread) {
+		return Thread{}, false, nil
+	}
+	return t, err == nil, err
+}
+
 func scanThread(row interface{ Scan(...any) error }) (Thread, error) {
 	var t Thread
 	var created, updated string
-	if err := row.Scan(&t.ID, &t.UserID, &t.Title, &t.TopicCode, &t.Kind, &t.NoteID, &created, &updated); err != nil {
+	if err := row.Scan(&t.ID, &t.UserID, &t.Title, &t.TopicCode, &t.Kind, &t.NoteID, &t.Word,
+		&created, &updated); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return Thread{}, ErrNoThread
 		}
@@ -196,7 +227,7 @@ func scanThread(row interface{ Scan(...any) error }) (Thread, error) {
 	return t, nil
 }
 
-const threadCols = `id, user_id, title, topic_code, kind, note_id, created_at, updated_at`
+const threadCols = `id, user_id, title, topic_code, kind, note_id, COALESCE(word, ''), created_at, updated_at`
 
 // GetThread loads one of the learner's threads.
 func (s *Store) GetThread(userID, id int64) (Thread, error) {
@@ -402,6 +433,83 @@ func (s *Store) DeleteThread(userID, id int64) error {
 		return fmt.Errorf("delete tutor thread: %w", err)
 	}
 	return nil
+}
+
+// DeleteThreads removes every thread this learner has, or every thread of one
+// KIND. It returns how many went.
+//
+// A per-thread delete was the only way to clear anything, and a review thread
+// is created once per word per day — so a month of reviewing leaves hundreds
+// of them and «удалить чат» one at a time is not a feature, it is a punishment.
+//
+// `kind` is matched exactly and "" means all kinds. The messages go first, by
+// the same two statements DeleteThread uses: `tutor_message.thread_id` is a
+// plain INTEGER with no foreign key (migration 00016), so nothing cascades and
+// leaving them would orphan every row.
+func (s *Store) DeleteThreads(userID int64, kind string) (int64, error) {
+	where := `user_id = ?`
+	args := []any{userID}
+	if kind != "" {
+		where += ` AND kind = ?`
+		args = append(args, kind)
+	}
+	if _, err := s.db.Exec(
+		`DELETE FROM tutor_message WHERE thread_id IN (SELECT id FROM tutor_thread WHERE `+where+`)`,
+		args...,
+	); err != nil {
+		return 0, fmt.Errorf("delete tutor messages: %w", err)
+	}
+	res, err := s.db.Exec(`DELETE FROM tutor_thread WHERE `+where, args...)
+	if err != nil {
+		return 0, fmt.Errorf("delete tutor threads: %w", err)
+	}
+	n, _ := res.RowsAffected()
+	return n, nil
+}
+
+// DeleteThreadsOfChatKind removes the ordinary chats — the ones whose stored
+// `kind` is ”.
+//
+// A separate method rather than `DeleteThreads(userID, "")`, because that call
+// means "every kind" and the two must not be one code path: a caller that
+// confused them would clear a learner's entire tutor history while meaning to
+// clear one tab.
+func (s *Store) DeleteThreadsOfChatKind(userID int64) (int64, error) {
+	if _, err := s.db.Exec(`
+		DELETE FROM tutor_message
+		 WHERE thread_id IN (SELECT id FROM tutor_thread WHERE user_id = ? AND kind = '')`,
+		userID); err != nil {
+		return 0, fmt.Errorf("delete tutor messages: %w", err)
+	}
+	res, err := s.db.Exec(`DELETE FROM tutor_thread WHERE user_id = ? AND kind = ''`, userID)
+	if err != nil {
+		return 0, fmt.Errorf("delete tutor threads: %w", err)
+	}
+	n, _ := res.RowsAffected()
+	return n, nil
+}
+
+// CountThreadsByKind is what the tabs need: how many chats of each kind, so a
+// tab can carry its number and the delete-all confirm can name what it will
+// take. The empty kind — a free or topic-pinned chat — keys as "chat".
+func (s *Store) CountThreadsByKind(userID int64) (map[string]int, error) {
+	rows, err := s.db.Query(`
+		SELECT CASE WHEN kind = '' THEN 'chat' ELSE kind END AS k, COUNT(*)
+		  FROM tutor_thread WHERE user_id = ? GROUP BY k`, userID)
+	if err != nil {
+		return nil, fmt.Errorf("count tutor threads: %w", err)
+	}
+	defer rows.Close()
+	out := map[string]int{}
+	for rows.Next() {
+		var k string
+		var n int
+		if err := rows.Scan(&k, &n); err != nil {
+			return nil, err
+		}
+		out[k] = n
+	}
+	return out, rows.Err()
 }
 
 func orEmpty(s []string) []string {

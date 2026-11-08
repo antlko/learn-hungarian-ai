@@ -103,7 +103,7 @@ const day = (iso?: string) => (iso ? iso.slice(0, 10) : '')
         <!-- The way to the set-aside words. Here rather than in the sidebar:
              the trash is not part of any daily loop, and it belongs beside the
              list of everything else in the deck. -->
-        <RouterLink to="/trash" :class="buttonVariants({ variant: 'ghost', size: 'sm' })" class="gap-1.5">
+        <RouterLink to="/known" :class="buttonVariants({ variant: 'ghost', size: 'sm' })" class="gap-1.5">
           <Trash2 class="size-4" aria-hidden="true" />
           {{ $t('trash.title') }}
         </RouterLink>

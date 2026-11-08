@@ -46,7 +46,7 @@ const routes: RouteRecordRaw[] = [
   // The words the learner set aside. Reached from the review card's banner and
   // from the deck browser — not sidebar-level: it is somewhere you go when you
   // want a word back, not part of any daily loop.
-  { path: '/trash', name: 'trash', component: () => import('@/views/TrashView.vue') },
+  { path: '/known', name: 'known', component: () => import('@/views/KnownWordsView.vue') },
   { path: '/listen', name: 'listen', component: () => import('@/views/ListenView.vue') },
   {
     path: '/grammar/placement',

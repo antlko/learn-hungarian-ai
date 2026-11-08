@@ -13,7 +13,7 @@ import { api } from '@/api'
 import { reviewOrder, SET_SIZES, setSize, setsFor } from '@/lib/sets'
 import { cn } from '@/lib/utils'
 import { useReviewStore } from '@/stores/review'
-import type { Breakdown, ReviewScope } from '@/types'
+import type { Breakdown, QueueCounts, ReviewScope } from '@/types'
 
 /**
  * The start screen: what to take, before taking it.
@@ -53,12 +53,37 @@ if (route.query.scope || route.query.practice) {
   void router.replace({ path: '/review/session', query: route.query })
 }
 
+/**
+ * What each pile will ACTUALLY serve, and what it will introduce today.
+ *
+ * One queue build per pile, rather than one for `all` and arithmetic for the
+ * rest. The old screen computed «2 подх. по 30» from `dueNow` alone while
+ * printing «+119 новых» beside it, so the number of sets described a session
+ * that would not run — the queue also serves new cards out of the global daily
+ * budget. `items.length` is not an estimate of what the session serves: it is
+ * the list the session serves.
+ *
+ * Three requests on a screen the learner reaches once per sitting is a fair
+ * price for two figures that agree with each other.
+ */
+const served = ref<Partial<Record<ReviewScope, number>>>({})
+const counts = ref<Partial<Record<ReviewScope, QueueCounts>>>({})
+
 async function load() {
   loading.value = true
   error.value = ''
   try {
-    const res = await api.queue('all')
-    scopes.value = res.scopes ?? []
+    const res = await Promise.all(piles.map((p) => api.queue(p)))
+    // The breakdowns are the same in every response; the first is enough.
+    scopes.value = res[0]?.scopes ?? []
+    const nextServed: Partial<Record<ReviewScope, number>> = {}
+    const nextCounts: Partial<Record<ReviewScope, QueueCounts>> = {}
+    piles.forEach((p, i) => {
+      nextServed[p] = res[i]?.items.length ?? 0
+      nextCounts[p] = res[i]?.counts
+    })
+    served.value = nextServed
+    counts.value = nextCounts
   } catch (e) {
     error.value = describeError(e)
   } finally {
@@ -199,11 +224,38 @@ const chipOff = 'hover:bg-accent hover:text-foreground'
                   <span :class="countFor(s).dueNow ? 'text-learning' : ''">
                     {{ $t('today.queueDue', { n: countFor(s).dueNow }) }}
                   </span>
-                  <span v-if="countFor(s).dueNow > setSize">
-                    · {{ $t('today.sets', { sets: setsFor(countFor(s).dueNow), size: setSize }) }}
+                  <!-- Today's new words and the rest of the backlog are two
+                       different facts, and folding them into «+119 новых» is
+                       half of what made this line unreadable. `newShownNotes`
+                       is what this build will introduce; `newBacklogNotes` is
+                       what the daily limit is holding back. -->
+                  <span v-if="counts[s]?.newShownNotes" class="text-new">
+                    · {{ $t('review.start.newToday', { n: counts[s]!.newShownNotes }) }}
                   </span>
-                  <span v-if="countFor(s).newNotes" class="text-new">
+                  <span v-if="counts[s]?.newBacklogNotes">
+                    · {{ $t('review.start.newWaiting', { n: counts[s]!.newBacklogNotes }) }}
+                  </span>
+                  <span
+                    v-else-if="!counts[s]?.newShownNotes && countFor(s).newNotes"
+                    class="text-new"
+                  >
                     · {{ $t('review.start.new', { n: countFor(s).newNotes }) }}
+                  </span>
+                  <!--
+                    The session's shape, LAST and named as the session's.
+
+                    It counts the list the queue will actually deal out, which
+                    is neither «к повторению» nor that plus «сегодня новых»: a
+                    due word contributes one card, while a new word brings
+                    every direction it has. Put next to the due figure and
+                    unlabelled, the sets number read as arithmetic that did not
+                    add up — «2 подх. по 30» beside «+119 новых». Labelled and
+                    placed last, it is the one figure that says how long this
+                    is going to take. ADR-026.
+                  -->
+                  <span v-if="(served[s] ?? 0) > setSize" class="text-foreground">
+                    ·
+                    {{ $t('review.start.session', { sets: setsFor(served[s] ?? 0), size: setSize }) }}
                   </span>
                 </template>
                 <span v-else>{{ $t('review.start.empty') }}</span>

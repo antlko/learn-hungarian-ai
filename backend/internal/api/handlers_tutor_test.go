@@ -348,8 +348,9 @@ func TestTutorInfersTheLessonForAFreeChat(t *testing.T) {
 		t.Errorf("the no-lesson case is stated and no features are sent:\n%s", p)
 	}
 
-	var list []TutorSummaryDTO
-	c.json(http.MethodGet, "/api/tutor", nil, &list)
+	var listRes TutorListResponse
+	c.json(http.MethodGet, "/api/tutor", nil, &listRes)
+	list := listRes.Threads
 	if len(list) != 2 || list[0].ID != fresh || list[1].ID != id {
 		t.Fatalf("most recently active first, got %+v", list)
 	}
@@ -438,10 +439,11 @@ func TestTutorFailureHasItsOwnErrorKeyDistinctFromLevelEstimate(t *testing.T) {
 // state space reads.
 func TestTutorListIsTheLearnersHistory(t *testing.T) {
 	srv, c := newPackedServer(t)
-	var empty []TutorSummaryDTO
-	if resp := c.json(http.MethodGet, "/api/tutor", nil, &empty); resp.StatusCode != http.StatusOK {
+	var emptyRes TutorListResponse
+	if resp := c.json(http.MethodGet, "/api/tutor", nil, &emptyRes); resp.StatusCode != http.StatusOK {
 		t.Fatalf("empty history: %d", resp.StatusCode)
 	}
+	empty := emptyRes.Threads
 	if len(empty) != 0 {
 		t.Fatalf("a fresh account has no tutor history, got %+v", empty)
 	}
@@ -454,10 +456,11 @@ func TestTutorListIsTheLearnersHistory(t *testing.T) {
 		ask(t, c, ids[topic], "q about "+topic, "")
 	}
 
-	var list []TutorSummaryDTO
-	if resp := c.json(http.MethodGet, "/api/tutor", nil, &list); resp.StatusCode != http.StatusOK {
+	var listRes TutorListResponse
+	if resp := c.json(http.MethodGet, "/api/tutor", nil, &listRes); resp.StatusCode != http.StatusOK {
 		t.Fatalf("list: %d", resp.StatusCode)
 	}
+	list := listRes.Threads
 	if len(list) != 2 || list[0].Topic != "accusative" || list[1].Topic != "locative-grid" {
 		t.Fatalf("want both threads, most recent first, got %+v", list)
 	}
@@ -476,8 +479,9 @@ func TestTutorListIsTheLearnersHistory(t *testing.T) {
 	other := &client{t: t, app: srv}
 	c.json(http.MethodPost, "/api/users", CreateUserRequest{Email: "b@example.com", Password: goodPassword, Role: "learner"}, nil)
 	other.json(http.MethodPost, "/api/login", LoginRequest{Email: "b@example.com", Password: goodPassword}, nil)
-	var theirs []TutorSummaryDTO
-	other.json(http.MethodGet, "/api/tutor", nil, &theirs)
+	var theirsRes TutorListResponse
+	other.json(http.MethodGet, "/api/tutor", nil, &theirsRes)
+	theirs := theirsRes.Threads
 	if len(theirs) != 0 {
 		t.Errorf("threads are per learner, got %+v", theirs)
 	}
@@ -830,8 +834,9 @@ func TestTutorReviewThreadIsOnePerWord(t *testing.T) {
 	if thread.Thread.Title != "házban" {
 		t.Errorf("a question never renames a review chat; got %q", thread.Thread.Title)
 	}
-	var list []TutorSummaryDTO
-	c.json(http.MethodGet, "/api/tutor", nil, &list)
+	var listRes TutorListResponse
+	c.json(http.MethodGet, "/api/tutor", nil, &listRes)
+	list := listRes.Threads
 	if len(list) != 2 || list[0].Kind != "review" {
 		t.Errorf("the list carries the kind: %+v", list)
 	}

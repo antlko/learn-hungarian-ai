@@ -203,8 +203,8 @@ func (s *Server) handleListenProgress(c fiber.Ctx) error {
 	if req.SecondsHeard < 0 {
 		req.SecondsHeard = 0
 	}
-	if req.SecondsHeard > 60 {
-		req.SecondsHeard = 60
+	if req.SecondsHeard > maxReportSeconds {
+		req.SecondsHeard = maxReportSeconds
 	}
 
 	var owned int

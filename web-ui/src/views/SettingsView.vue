@@ -11,6 +11,7 @@ import { Select } from '@/components/ui/select'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { api } from '@/api'
 import Note from '@/components/common/Note.vue'
+import DataPanel from '@/components/settings/DataPanel.vue'
 import { useSettingsStore } from '@/stores/settings'
 import { useCapabilitiesStore } from '@/stores/capabilities'
 import { useSpeechStore } from '@/stores/speech'
@@ -680,6 +681,13 @@ function previewVoice() {
         </CardContent>
       </Card>
     </template>
+
+    <!--
+      The learner's own data, whole. OUTSIDE the settings block on purpose: a
+      profile belongs to the learner, not to the admin, so this card is there
+      for every account and survives a settings load failure. ADR-040.
+    -->
+    <DataPanel />
 
     <!--
       Speech, and Sound below it, are DEVICE preferences in localStorage rather

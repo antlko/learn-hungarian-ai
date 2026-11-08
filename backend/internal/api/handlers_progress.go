@@ -86,6 +86,32 @@ type NextCheckpointDTO struct {
 	Evidence stats.Evidence       `json:"evidence"`
 }
 
+// dayWindow reads `?days=`, clamped to the three ranges the chart offers.
+//
+// An arbitrary number is not accepted: the chart's three buttons are the whole
+// vocabulary, and a client asking for 10 000 days would be asking the server
+// to render something no screen has. Anything unrecognised is 30.
+func dayWindow(raw string) int {
+	switch raw {
+	case "7":
+		return 7
+	case "30":
+		return 30
+	case "365":
+		return 365
+	default:
+		// 90 by default, which is the widest window the chart offers.
+		//
+		// The client switches 7/30/90 WITHOUT a round trip — ninety rows of
+		// eight small fields is nothing on the wire, and refetching to change
+		// a chart's window made the switch feel like a page load. Asking for
+		// less is still honoured; asking for something unrecognised gets the
+		// default rather than an error, because a stale client should get a
+		// chart and not a failure.
+		return 90
+	}
+}
+
 func (s *Server) handleOverview(c fiber.Ctx) error {
 	u, err := mustUser(c)
 	if err != nil {
@@ -149,10 +175,17 @@ func (s *Server) handleOverview(c fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	// The last 30 rows, newest first — Days() already orders them that way.
+	// The window the statistics screen asked for, newest first — Days()
+	// already orders them that way. 90 by default: the chart offers 7/30/90
+	// and switches between them client-side, so the response has to carry
+	// the widest of them.
+	//
+	// The STREAK is always computed over the full 400 rows below, never over
+	// this window: a learner looking at 30 days must not see their streak
+	// truncated to 30 by the act of looking.
 	out.Days = days
-	if len(out.Days) > 30 {
-		out.Days = out.Days[:30]
+	if n := dayWindow(c.Query("days")); len(out.Days) > n {
+		out.Days = out.Days[:n]
 	}
 	if out.Days == nil {
 		out.Days = []stats.Day{}

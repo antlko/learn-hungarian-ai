@@ -163,7 +163,7 @@ impact, and `ru.json` / `en.json` carry the same keys. A convention with a check
   hidden agenda stays rejected, the criterion is printed, weak falls back to random on a virgin
   deck and the response echoes what was actually served
   ([ADR-024](.claude/DECISIONS.md#adr-024)).
-- **The trash is practised, never scheduled.** «В корзину» sets a WORD aside — `note.trashed_at`,
+- **«Знаю» is practised, never scheduled.** The button sets a WORD aside — `note.trashed_at`,
   every direction of it, because hiding one card hands the same word back through another door.
   It is not a delete: the note, its cards, their FSRS state and every `review_log` row survive,
   which is what makes restore return the card *overdue* rather than new, and what keeps undo
@@ -175,7 +175,11 @@ impact, and `ru.json` / `en.json` carry the same keys. A convention with a check
   trashed word (reader, or re-enrolling its unit) RESTORES it — `FindDuplicate` matches trashed
   notes, so without that «добавить» reported success on a word that stayed invisible forever.
   `all == course + reader` still holds: all three exclude the trash.
-  [ADR-025](.claude/DECISIONS.md#adr-025).
+  [ADR-025](.claude/DECISIONS.md#adr-025). It ALSO marks the lemma `known`, and restore reverts
+  it to `learning` ([ADR-041](.claude/DECISIONS.md#adr-041)): a word the learner says they know
+  is a fact about the WORD, and without it the reader went on offering it as unknown in its n+1
+  scoring. The learner-facing name is «Знаю» everywhere; the `trash` SCOPE VALUE stays on the
+  wire, because it is ADR-025's contract and renaming it would break every stored reference.
 - **A session never asks about one sentence twice in a row.** Ten words mined from a paragraph
   are ten notes over three sentences, created in one batch — so note order hands them out in a
   run, and due order does the same a day later. `srs.spreadSentences` deals the queue out by
@@ -218,7 +222,13 @@ impact, and `ru.json` / `en.json` carry the same keys. A convention with a check
   learner reads as the app claiming they know a word they just missed five times. **Do not put it
   back on the card**; it stands in the words browser, where every card has graduated. Anything
   that would make this a score — XP,
-  combos, a number that only rises — belongs to [R16 §3] and is not added here. «что это значит?»
+  combos, a number that only rises — belongs to [R16 §3] and is not added here.
+  **The card DOES say what «~10 мин» is a step towards.** `srs.Memory` carries `stepsLeft` /
+  `stepsTotal` (go-fsrs's own `RemainingSteps` against its `LearningSteps`, `{1, 10}` by default)
+  and `graduatesOnGood`, asked of `Scheduler.PreviewNext` rather than guessed from the interval.
+  The four-rung ladder draws the stage the server already reports; it is a POSITION, not a score
+  — it can go back down, it has no end, and nothing on it accumulates. There is still no
+  «N правильных подряд» threshold, because FSRS has none, and the copy says so. «что это значит?»
   explains what makes a word stop coming back — the stage, what each answer schedules, that the
   tally is a log with no «N in a row» threshold, and that «В корзину» is the one control that
   removes a word. **No completion bar: there is no denominator, and inventing one is the score
@@ -239,9 +249,12 @@ impact, and `ru.json` / `en.json` carry the same keys. A convention with a check
   with `ReviewView` keeping the thread id WITH its note and `useTutorThread` carrying a
   generation counter — neither is optional, or the panel serves the previous word's conversation.
   The review card's tutor reads the card **from the server** (`POST /api/tutor/:id {card}`): the
-  client never assembles the facts, may not derive the expected answer, and sets `usedHint` the
-  moment a question is sent in the question phase, where `tutor.Allowed` refuses the templates
-  that would name the answer. Nothing on the review path reads a tutor table, and the standing
+  client never assembles the facts and may not derive the expected answer. **Asking never
+  changes a word's schedule** ([ADR-046](.claude/DECISIONS.md#adr-046)): before the answer the
+  prompt withholds it and `tutor.Allowed` refuses the templates that would name it, so a
+  question is not a hint — there is no `asked` event and no `consultTutor`, and «Подсказка» is
+  the only thing that sets `usedHint`. A price on asking taxes exactly the reading [R4] and
+  [R9] say is worth the most; do not reintroduce one. Nothing on the review path reads a tutor table, and the standing
   honesty paragraph and the sources list stay OFF that panel — what defends an answer travels
   with the answer.
   `internal/tutor/kb` is CC BY-SA + public domain with its own `LICENSES.md`; `src-*.md` are
@@ -286,6 +299,11 @@ impact, and `ru.json` / `en.json` carry the same keys. A convention with a check
 - **The review log replays to stored state bit-for-bit** — fuzz is seeded, so this includes due
   dates. Undo is delete-and-replay on that property (`internal/srs/replay.go`); do not add
   stored-previous-state bookkeeping beside it, and keep `review_time` at millisecond precision.
+  **Bit-for-bit holds on ONE CPU architecture**: go-fsrs's fuzz generator is floating-point and
+  Go fuses multiply-adds on arm64 only, so the same seed draws a different fuzz on CI's amd64
+  than on an arm64 laptop. A test whose setup differs only by a fuzzed day passes here and fails
+  there (`reconcile_test.go` did) — pin structural differences (state, steps, lapses) and
+  reproduce CI with `GOARCH=amd64 go test` under Rosetta. ARCHITECTURE.md §5.7.
   Stored state includes `remaining_steps` — go-fsrs's position within the learning steps.
   Dropping it from any load/save path silently re-graduates «Снова» on a learning card to
   tomorrow instead of one minute; migration 00011 and the boot-time reconciliation exist
@@ -299,9 +317,17 @@ impact, and `ru.json` / `en.json` carry the same keys. A convention with a check
   Do not reintroduce a raw card count on any screen — «26 к повторению» over a 10-item session
   is exactly how this app confused its first learner. The streak needs `dueNow == 0`, not the
   later-today steps: a 10-minute step at 23:55 must not break a day.
-- **Hours and streaks accumulate; they are never claimed.** Listening progress is clamped to
-  60 s per report; the streak counts obligations met (queue cleared + stated minutes), and
-  Loop 4's attestation is recorded but deliberately ignored by it. [R14]
+- **Hours and streaks accumulate; they are never claimed.** Listening AND reading progress are
+  clamped to 60 s per report (`maxReportSeconds`, shared); the streak counts obligations met
+  (queue cleared + stated minutes), and Loop 4's attestation is recorded but deliberately
+  ignored by it. [R14] **Reading reports time too** — it was the one loop that reported nothing,
+  so an hour with a text left the day unmet ([ADR-044](.claude/DECISIONS.md#adr-044)). A second
+  counts only while the tab is VISIBLE and the learner interacted recently
+  (`composables/useActiveTime.ts`); the server's clamp means the client does not have to be
+  trusted. The streak's definition is unchanged — what changed is that the minutes now include
+  work that was always work. `daily_log.read_s` sits beside `listen_s` so the chart can say
+  where an hour went, and where a day failed the UI names WHICH half failed: they fail
+  independently, and «не выполнена» on a day whose queue was clear pointed at the wrong thing.
 - **A pack is always present — never write a "no pack" dead end again.** The binary embeds a
   starter pack (`internal/lang/starter.go`) and `lang.EnsurePack` installs it on first boot;
   `lang.Detect` **verifies that a candidate opens** rather than trusting the filename, because a
@@ -321,6 +347,12 @@ impact, and `ru.json` / `en.json` carry the same keys. A convention with a check
   `course_progress` records enrolment only — do not add a `completed` flag, an endpoint that
   sets one, or a client-side override. The moment completion is storable, the plan screen can
   disagree with the deck, and "done" stops meaning "learned".
+  **But the SCREEN must not turn that derivation into a claim about the learner.** `Resolve`
+  calls the first non-done unit `current`, which is advice about what to take next; labelled
+  «сейчас» it told someone who had finished month 1 and opened nothing since that they were in
+  month 2. The chip says «следующий», the dot follows ENROLMENT (something the learner did) and
+  the legend draws all four states: пройден · начат · следующий · впереди. Same rule as
+  `fromHere`: keep the derivation, fix what the UI claims about it.
 - **No XP, no levels, no leagues, no leaderboards, no gems, no lootboxes.** Gamification's
   effect on *competence* is null, and extrinsic point economies are the part most likely to
   crowd out the real goal — [R14](.claude/research/14-motivation.md),
@@ -332,6 +364,16 @@ impact, and `ru.json` / `en.json` carry the same keys. A convention with a check
   the guardrail lands with the LLM in Phase 9; `internal/corpus` does not exist yet and nothing
   generates Hungarian *as material* yet. The tutor's Hungarian is explanation, labelled
   and dictionary-checked, and stays on the screen it was written on.
+  **The AI dictionary entry is the same kind of thing and a DIFFERENT code path**
+  ([ADR-042](.claude/DECISIONS.md#adr-042)). `handlers_ai_entry.go` is deliberately not a tutor
+  route: the tutor mints nothing and a test counts the tables to prove it, so routing this
+  through it would delete that guarantee. The entry is offered ONLY where the pack has nothing —
+  the pack's own is better — every Hungarian token in it goes through
+  `tutor.Backticked`/`Unattested`/`wordExists` **including the ones the model forgot to
+  backtick** (otherwise a model that drops them turns the guardrail off silently), and it reaches
+  `user_gloss` only as `machine` on an explicit save and a card's back only after «Принять как
+  своё» re-saves it `manual`. Its example sentences are illustration, say so on the panel, and
+  never become notes. Prompt: `.claude/prompts/word-entry.md`.
 - **Machine translation is display-only, and always says who wrote it.** `services/mt` (NLLB-200)
   generates Russian and English, not Hungarian, so `corpus` attestation cannot help — a wrong
   translation is perfectly well-formed. **Labelling is the entire defence**: `model` travels with
@@ -389,7 +431,13 @@ impact, and `ru.json` / `en.json` carry the same keys. A convention with a check
   and they version with the pack, so ADR-004 does not apply to them.
 - **Grammar teaches before it tests.** `GrammarView` opens a topic on the LESSON with no
   exercise on screen; a button moves to the drills. [R4] is the strongest finding in the set and
-  a screen that leads with the exercise is contradicting it. Lesson prose lives in
+  a screen that leads with the exercise is contradicting it. **On a RETURN visit the exercise
+  leads** ([ADR-043](.claude/DECISIONS.md#adr-043)) — the FIRST visit is what [R4] governs, and
+  making a learner scroll past the whole lesson every time was the complaint. The evidence for
+  "already read it" is `topic_progress.attempts > 0` plus a per-device record of the
+  «К упражнениям» press. **Never the PHASE**: `drill/schedule.go` starts every drillable topic
+  at `blocked` ([R5]), so treating that as evidence puts an exercise in front of every
+  first-time topic. Lesson prose lives in
   `langpack/pipeline/lessons.py`, and `curriculum.validate` enforces a floor on its length
   because every one of them was once a fifty-character blurb.
 - **Pedagogical code cites its note:** `// [R5] ... see .claude/research/05-interleaving.md`.
@@ -460,10 +508,16 @@ This project's credibility rests on not overclaiming. These are product requirem
 - **The guided course ends, and says so.** Twenty-four units, then `handedOver` and a catalogue
   of real Hungarian. Do not extend it into an endless drip — a course that never ends produces a
   learner who can only read material made for them [R11].
-- **The app has no export.** `internal/export` and `/api/export/*` were removed; lock-in is
-  answered by the data directory being the learner's, not by a file format. Do not document
-  endpoints that do not exist. [ADR-011](.claude/DECISIONS.md#adr-011) supersedes
-  [R16 §4](.claude/research/16-debunked.md)'s "keep `.apkg` export first-class": the format
-  cannot carry the morph state space, so exporting one would hand the learner a vocabulary
-  list and call it their progress.
+- **The export is a FULL dump, and never an `.apkg`.** `internal/profile` +
+  `/api/profile/{export,import,size}` carry every user-scoped table — both state spaces, the
+  review log, texts, glosses, the daily ledger, tutor threads — plus `media/`, as a zip.
+  ADR-011's refusal of `.apkg` stands unchanged and this is not that format
+  ([ADR-040](.claude/DECISIONS.md#adr-040)). Three things make it safe to keep:
+  **columns are discovered** via `PRAGMA table_info` rather than listed, so a migration cannot
+  silently drop one; a **manifest coverage test** fails when a new table is neither exported nor
+  excluded with a reason; and the import's integrity check is the **replay property** — every
+  card's log is replayed and compared to the state it arrived with, failing on the same
+  architecture and warning across two. **Secrets are omitted** (`settings` rows with
+  `secret = 1`) and both screens say so. Import **replaces**, in one transaction, for the acting
+  user only: merging two FSRS histories means inventing a learner's past.
 - **The app cannot replace a teacher.** Loop 4 is un-completable by the app, on purpose.

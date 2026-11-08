@@ -157,6 +157,18 @@ type UnitState struct {
 	// nothing. A unit is forty words; naming them is cheap and lets the word
 	// list show per-word state as fact rather than inference.
 	NotInPlay []string `json:"notInPlay"`
+	// FromHere is the subset of WordsInPlay whose notes this unit created.
+	//
+	// WordsInPlay counts a lemma wherever it came from — and that is correct,
+	// because a word in the deck is in the deck. But it made the plan screen
+	// LIE: a word added from the reader raised month 2's fraction, and the
+	// fraction was the only progress a row showed, so the screen reported a
+	// month the learner had never started. The two numbers apart let the row
+	// say the true thing instead: "12 of 40, and 9 of those you already met
+	// while reading".
+	//
+	// Derived, never stored. Unit completion stays a fact about the deck.
+	FromHere int `json:"fromHere"`
 }
 
 // Plan is the whole syllabus resolved for one learner.
@@ -177,7 +189,8 @@ type Plan struct {
 // `inPlay` reports whether a lemma is in the learner's lemma_state as learning
 // or known. That — not a button — is what makes a unit done: the criterion is
 // a fact about the review deck, so the plan cannot drift from the deck.
-func (s *Syllabus) Resolve(progress map[string]Progress, inPlay func(lemma string) bool) Plan {
+func (s *Syllabus) Resolve(progress map[string]Progress, inPlay func(lemma string) bool,
+	fromUnit func(unitCode, lemma string) bool) Plan {
 	plan := Plan{Total: len(s.Units), Units: make([]UnitState, 0, len(s.Units))}
 	currentFound := false
 
@@ -190,6 +203,9 @@ func (s *Syllabus) Resolve(progress map[string]Progress, inPlay func(lemma strin
 		for _, w := range u.Words {
 			if inPlay(w.Lemma) {
 				st.WordsInPlay++
+				if fromUnit != nil && fromUnit(u.Code, w.Lemma) {
+					st.FromHere++
+				}
 				continue
 			}
 			st.NotInPlay = append(st.NotInPlay, w.Lemma)

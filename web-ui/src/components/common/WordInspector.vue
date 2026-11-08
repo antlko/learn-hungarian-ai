@@ -5,11 +5,13 @@ import { Button } from '@/components/ui/button'
 import Note from '@/components/common/Note.vue'
 import SpeakButton from '@/components/common/SpeakButton.vue'
 import SentenceCrib from '@/components/review/SentenceCrib.vue'
+import AiWordPanel from '@/components/common/AiWordPanel.vue'
+import SavedGloss from '@/components/common/SavedGloss.vue'
 import { pickGloss, pickGlossList } from '@/lib/gloss'
 import { api } from '@/api'
 import { useFeaturesStore } from '@/stores/features'
 import { useUiStore } from '@/stores/ui'
-import type { Breakdown, Example, LemmaDetail } from '@/types'
+import type { Breakdown, Example, LemmaDetail, UserGloss } from '@/types'
 
 /**
  * Everything knowable about one word, in a panel beside whatever you clicked.
@@ -38,6 +40,8 @@ const catalogue = useFeaturesStore()
 const breakdown = ref<Breakdown | null>(null)
 const lemma = ref<LemmaDetail | null>(null)
 const examples = ref<Example[]>([])
+/** The learner's own meaning for this form — typed, or kept from the AI entry. */
+const saved = ref<UserGloss | null>(null)
 const loading = ref(false)
 const failed = ref(false)
 
@@ -54,8 +58,19 @@ watch(
     breakdown.value = null
     lemma.value = null
     examples.value = []
+    saved.value = null
     failed.value = false
     if (!word) return
+
+    // The learner's own dictionary, for any word. Without this a meaning kept
+    // from the AI entry vanished on the next click: the save worked, and this
+    // panel simply never looked.
+    void api
+      .gloss(word)
+      .then((g) => {
+        if (props.word === word && g.gloss) saved.value = g
+      })
+      .catch(() => {})
 
     loading.value = true
     void catalogue.ensure()
@@ -121,10 +136,21 @@ const uncertain = computed(
 
     <p v-if="loading" class="text-sm text-muted-foreground">{{ $t('common.loading') }}</p>
 
-    <!-- A word the pack cannot analyse is a gap in the pack, said plainly. -->
-    <Note v-else-if="failed || !analysis?.lemmaId" variant="limit" bare class="text-xs">
-      {{ $t('reader.noAnalysis') }}
-    </Note>
+    <!--
+      A word the pack cannot analyse is a gap in the pack, said plainly — and
+      no longer a dead end: the model can write an entry, labelled as its own
+      and checked word by word against the dictionary. ADR-042.
+    -->
+    <template v-else-if="failed || !analysis?.lemmaId">
+      <Note variant="limit" bare class="text-xs">{{ $t('reader.noAnalysis') }}</Note>
+      <SavedGloss v-if="saved" :form="word" :gloss="saved" @change="saved = $event" />
+      <AiWordPanel
+        :word="word"
+        :has-pack-entry="false"
+        :has-saved="!!saved"
+        @saved="saved = $event"
+      />
+    </template>
 
     <template v-else>
       <!-- 1 · the dictionary entry -->
@@ -141,6 +167,9 @@ const uncertain = computed(
           {{ $t('review.glossFallback') }}
         </p>
       </div>
+
+      <!-- A meaning the learner kept for this form, beside the pack's own. -->
+      <SavedGloss v-if="saved" :form="word" :gloss="saved" @change="saved = $event" />
 
       <!-- An analysis we are not sure of says so, here as everywhere. ADR-002 -->
       <Note v-if="uncertain" variant="limit" bare class="text-[11px]">
@@ -209,6 +238,15 @@ const uncertain = computed(
         {{ $t('reader.frequency', { rank: lemma.freqRank }) }}
         <span v-if="lemma.cefr" class="ml-1 font-mono">{{ lemma.cefr }}</span>
       </p>
+
+      <!--
+        A question about THIS word, on a word the pack does have too. The
+        entry above is looked up and complete; what a learner still wants is
+        «ещё примеры» and «объясни», in the moment, without leaving the panel.
+        `hasPackEntry` keeps the AI ENTRY off this branch — the pack's own is
+        better and the model must not compete with it. ADR-042.
+      -->
+      <AiWordPanel :word="word" :has-pack-entry="true" />
     </template>
   </aside>
 </template>
