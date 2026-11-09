@@ -61,7 +61,7 @@ Fallback ladder:
 1. exact `wordform` hit → done;
 2. unknown form → suffix-stripper built from `morph_feature` allomorph tables;
 3. ambiguous form → frequency prior, and the analysis is flagged `Uncertain` in the API and UI;
-4. `nlp` sidecar running → HuSpaCy disambiguates in context (`vár` = castle vs. waits).
+4. `nlp` sidecar running → HuSpaCy disambiguates in context (`vár` = castle vs. waits) — real since [ADR-054](#adr-054); it only selects among the pack's own readings.
 
 **Consequences.**
 - Analysis is O(1) and works fully offline with zero dependencies.
@@ -2272,3 +2272,592 @@ their answer is the kind of invented number [R14] rules out everywhere else in t
 - The review path still reads no tutor table, and `handlers_tutor_test.go` still counts the five
   tables before and after a question. The separation ADR-034 built survives; what is gone is the
   one wire that ran the other way.
+
+---
+
+## ADR-047 — The estimated level and text coverage are competence signals
+
+**Status:** accepted · 2026-11-08 *(polish pass; owner-facing, reversible in code)* · see
+[R6](research/06-lexical-coverage.md), [R11](research/11-extensive-reading.md),
+[R14](research/14-motivation.md), [R16 §3](research/16-debunked.md)
+
+**Context.** The app had no answer to "what level am I?" or "how much of real text do I
+understand?" — only a lemma count and checkpoints. The motivational surface was limited to
+measured competence signals (CLAUDE.md), and an invented "score" would be exactly what R14 and
+R16 §3 rule out.
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| A points/score number that rises with activity | Rejected — extrinsic, cumulative, measures effort not competence [R14] |
+| Stored level that only advances | Rejected — a number that cannot go down is the score R16 §3 describes |
+| A CEFR label from an in-app test | Rejected — we cannot verify an exam; claiming one is an honesty failure |
+| **Per-request estimate from the deck, with its method printed** | **Chosen** |
+
+**Decision.**
+- `stats.EstimateLevel` (pure) computes a label («A2.2»), per-band shares and a **text coverage**
+  (Σ`freq_pm` of counted lemmas ÷ Σ`freq_pm` of ranked pack lemmas). A lemma counts when
+  `known`, or graduated (state Review) with retrievability ≥ `mining.knownThreshold`. Learning-
+  step words do not count, so both figures can go down.
+- A band is reached at share ≥ 0.80 AND half its drillable topics interleaved/mastered AND not
+  blocked by a failed checkpoint. Sublevel splits the working band's progress in thirds; vocab
+  done but grammar missing stays at `.3`. Confidence is `low` under 100 counted lemmas, else
+  `estimate` — never "high".
+- Every surface shows the fixed method sentence (`level.method.v1`): estimate from vocabulary and
+  grammar; bands come from word frequency, not an exam; may be off by a sublevel or two. Never
+  named "score" or "points". Computed per request, not stored; band sizes cached per boot.
+- It joins the permitted motivational surface (CLAUDE.md).
+
+**Consequences.**
+- A learner can see their level fall after a lapse — by design, and the copy says so.
+- **Cost:** the CEFR bands are a frequency estimate and the 0.80 share is our threshold, not a
+  literature figure; Hungarian lemma coverage overstates comprehension [R6]. Hence "estimate".
+- Per-request cost: curriculum resolution (read-only — the endpoint never writes `topic_progress`)
+  plus one pass over the learner's Review-state cards and chunked pack lookups; the counted set
+  is cached per user for 30 s and dropped when a card is answered.
+- Suspended cards (`c.suspended = 0` filter) and trashed ones do not make a lemma count; only a
+  `known` declaration or an active graduated card does.
+
+---
+
+## ADR-048 — "Next" follows enrolment, and a roadmap replaces the Plan screen
+
+**Status:** accepted · 2026-11-08 *(polish pass)* · supersedes in part the `current`-unit rule of
+the course screen · see [ADR-013](#adr-013), [R11](research/11-extensive-reading.md)
+
+**Context.** `course.Resolve` called the first non-done unit `current`. Words added from the
+reader complete units by being in the deck, so mining a word could finish unit 2 and make "next"
+jump away from unit 1, which the learner had started. The owner saw "a new word from a text
+switches topics".
+
+**Decision.**
+- `plan.current` (JSON name kept for compatibility; learner-facing «следующий») = the first unit
+  that is enrolled and not done; else the first unit neither enrolled nor done. `done` stays
+  derived from the deck (no stored completion flag); reader words still make a unit done.
+- `inPlaySet` returns its errors and chunks its `IN` clause — it used to turn a pack error into an
+  empty set, which reset every unit.
+- **Decision recorded now, UI later:** a roadmap on Today replaces the Plan screen (unit nodes by
+  month, checkpoint milestones, states пройден · начат · следующий · впереди; a unit finished
+  mostly through reading says so; reader words get their own card, never nodes; nothing locks per
+  [ADR-013](#adr-013); `/plan` redirects to `/`). No frontend change ships in this ADR's batch.
+
+**Consequences.**
+- Nothing about the order of units becomes a lock; it is still advice.
+- A learner who enrols on a late unit is "next" there until they finish it, then returns to the
+  first untouched unit.
+
+## ADR-049 — The full pack can be installed from Settings, from a pinned checksum, and activates on restart
+
+**Status:** accepted · 2026-11-08 *(polish pass)* · amends [ADR-010](#adr-010) (which refused a
+download step) · see [ADR-002](#adr-002)
+
+**Context.** ADR-010 put a starter pack in the binary so the app is never a build step wearing a UI;
+the full pack stayed "build it yourself with `make langpack`". Owners asked to upgrade without a
+toolchain. The refusal in ADR-010 was of a download the app *depends on*; an opt-in upgrade whose
+absence changes nothing is a different thing, provided it cannot corrupt what exists.
+
+**Decision.**
+- An admin can install the full pack from Settings. `internal/lang.Installer` runs one job at a time:
+  stream `langpack.url` to `<data>/langpack-hu-v1.sqlite.part`, SHA-256 over the **compressed**
+  stream against `langpack.sha256`, gunzip (capped at 2 GiB) to a second temp file, open read-only,
+  check schema and tables, run the id-compatibility check, then **park** it atomically as
+  `langpack-hu-v1.sqlite.new` (+ a small `.new.json` marker: sha256, time). The live file is never
+  replaced inside a running process: `database/sql` opens new pool connections by path, so a rename
+  would make the running app silently read the new pack.
+- **No pinned checksum, no download**: empty `sha256` (the default until a pack is published) answers
+  `errors.packNotPublished` before any request. The URL is config, https only (http for loopback),
+  admin-edited through `updateConfig`, and never taken from an install request.
+- **Id-compatibility is the safety net**: every `lemma_id` (`lemma_state`, `note`, `text_token`) and
+  `sentence_id` (`note`) in the learner database must map to the same `(lemma, upos)` / Hungarian text
+  in the new pack as in the loaded one; otherwise `errors.packIncompatible` and nothing changes.
+  `lemma.id` is sequential in Wiktionary-dump order, so a pack built from another dump would
+  silently re-point every note. A test walks the learner schema so a new pointer column cannot be
+  missed.
+- **Activation is a restart, applied at boot.** `lang.ApplyPending` runs in `Server.loadPack` before
+  anything opens the pack: it deletes stale `.part`/`.unpacked` files, re-opens the parked pack,
+  re-runs the id check against the *current* live pack and the user DB as they are then (notes may
+  have been added since the install), and renames it over the live file; if the check fails the
+  parked file is deleted, the live pack stays, and `GET /api/admin/pack/install` reports
+  `failed` + `errors.packIncompatible` for that process. `POST /api/admin/restart` sends the process SIGTERM (the existing graceful
+  shutdown). The image sets `TANULOM_SUPERVISED=1` and is meant to run under a restart policy; when
+  unset the endpoint still stops gracefully and returns `supervised:false` so the UI says "start it
+  again yourself".
+- The published pack is built with `--subtitle-sentences 0` (`make langpack-release`) because the
+  OpenSubtitles licence does not cover redistribution.
+
+**Ids, verified by construction.** `starter.py` copies `lemma`, `sentence`, `wordform` etc. with
+`INSERT ... SELECT * FROM full.<table> WHERE id IN (keep)`, so every starter lemma/sentence id is
+the full pack's id: the starter is a strict subset. A full pack built from the same Wiktionary
+dump therefore agrees with the starter; one built from a different dump may not, and the id check
+(at install and again at boot) refuses it. No automated test builds a tiny full→starter pair
+(starter.py needs the curated course/curriculum tables); that is not covered.
+
+**Accepted as-is.** Redirects to private address ranges are allowed: the URL is admin-config and the
+body must match the pinned sha256. Logged URLs are credential-redacted.
+
+**Rejected.** Mounting the Docker socket to restart/start sidecars (host-root for a web app, in a
+distroless image); hot-swapping the pack (every cached analyser, DAG and inventory hangs off it);
+trusting a checksum served beside the file (a compromised host serves both).
+
+**Consequences.** A failed or interrupted install never changes the app: temp files are removed, the
+live pack is untouched, a full disk is its own message. Until a release asset exists and its digest
+is pinned, the button honestly says the pack has not been published.
+
+## ADR-050 — The course grows; themed side units are optional and never decide the path
+
+**Context.** The guided course had 24 units and 853 words. Month files carried 30-40 hand-argued
+words a unit, and a learner who finished them still could not name the colours, the body, the
+months or the weather: vocabulary that belongs to a *family*, not to one errand. Padding the
+errand units with those words would blur what each unit buys; adding a twenty-fifth unit would
+turn the course into the endless drip [R11] warns against.
+
+**Decision.**
+1. The twenty-four core units stay twenty-four (`course.CORE_UNITS`; `validate` refuses any
+   other count) and **grow to about 1 400 words** (15-60 per unit, the existing validator
+   bounds). The growth lives in `langpack/pipeline/course_growth.py`, appended after each
+   unit's original words, chosen from high-frequency lemmas ([R6](research/06-lexical-coverage.md))
+   that fit the unit's errand.
+2. **Twelve themed side units** (numbers, the clock, days and months, colours, the body, weather,
+   food, clothes, home, travel, moods, hobbies; ~45 words each) live in `course_themes.py` with
+   `course_unit.track = 'theme'` (default `'core'`). They sort after month 6 (`ord` 701-712,
+   `month` 6) and are *optional, finite and ordered*.
+3. **Only the core path decides anything.** `Syllabus.Resolve` skips theme units when choosing
+   `current` and excludes them from `total`, `completed` and `handedOver`; they still get their own
+   derived `done`/`ahead` status and `enrolled` flag. Completion stays derived from the deck, so
+   no stored flag exists to disagree with it.
+4. A word is taught in exactly one unit, core winning over theme (`_dedup`; a test fails if a new
+   word would be dropped silently). Every word must exist in the pack with the stated part of
+   speech, have hand-written ru + en glosses, and **at least 90% of words must have a real
+   sentence in the starter pack** (`course.unclozeable`, `tests/test_course.py`). No sentence is
+   written for the course: Hungarian sentences stay ones a person wrote.
+
+**Rejected.** More core units (the course would no longer end); a stored `completed` flag on
+theme units (ADR-048's rule); letting theme enrolment move `current` (a learner who took the
+colours would be told month 2 was "next" no longer); machine-generated glosses or sentences
+(unattested material is labelled, not shipped as the course).
+
+**Consequences.**
+- `/api/course` units carry `track` (`core` | `theme`); `plan.total` is still 24.
+- A pack built before this column reads every unit as core (`Load` falls back); `make refresh`
+  adds the column to an older pack (`ALTER TABLE`) because the app opens packs read-only.
+- Course glosses are promoted over the dictionary's at full build (`apply_course_glosses`), not by
+  `refresh`; after `make refresh` the new words' course glosses are the ones on cards, the
+  dictionary view still shows the imported first sense.
+- The starter grows by about 2 MB gzipped.
+
+## ADR-051 — A miss on a new card keeps FSRS's learning steps; the app explains them instead
+
+**Status:** accepted · 2026-11-08 *(polish pass)* · see [ADR-003](#adr-003), [ADR-020](#adr-020),
+[ADR-039](#adr-039), [R14](research/14-motivation.md)
+
+**Context.** A learner answering «Снова» on a new card sees it come back in about a minute, and
+again in ten, and read it as the app demanding "no mistake in a row" before a word may leave. That
+feels punishing and made the owner doubt the method. FSRS has no "N correct in a row" rule: the
+`{1, 10}` minute steps are go-fsrs's learning steps, after which the card graduates to a
+stability-based interval of days.
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| Shorten or drop learning steps, or graduate a new card on its first correct answer | Rejected — changes scheduling maths ([ADR-003](#adr-003)) and, worse, changes how stored state replays |
+| Hide the steps from the card | Rejected — the card then answers "why is this back?" with silence |
+| **Keep the steps unchanged; explain them** | **Chosen** |
+
+**Decision.** FSRS parameters and learning steps are unchanged. Undo is delete-and-replay over
+`review_log`, and profile import verifies by replaying every card's log against its stored state;
+both depend on the scheduler reproducing history bit for bit ([ADR-020](#adr-020)). Any change to the
+steps would make every stored log replay to a different state. The interface explains instead: the
+«Как это работает» dialog on the review start screen and card says what the steps are, that a
+graduated card is scheduled in days, that there is no threshold of consecutive correct answers,
+and that a miss is listed with its answer and returns after its step. The card's step ladder
+([ADR-039](#adr-039)) and the missed list ([ADR-026](#adr-026)) already show the position; the
+dialog names it.
+
+**Consequences.**
+- No migration, no replay change, nothing to reconcile at boot.
+- A learner who still finds a one-minute return too harsh has no setting for it; if the first
+  real learners need one, that is a new ADR with its own replay story, not a tweak here.
+- The explanation is copy, so it is pinned only by the locale parity check, not by a test.
+
+## ADR-052 — Settings → Components: one place for the pack and the sidecars, with no Docker access
+
+**Status:** accepted · 2026-11-08 *(polish pass)* · builds on [ADR-049](#adr-049) and
+[ADR-015](#adr-015); the nlp half is [ADR-054](#adr-054)
+
+**Context.** The owner could not tell what the translator (MT) and the analyser (HuSpaCy) were,
+whether the Makefile's long pack build mattered, or why the settings rows said "not
+implemented". Services were a list of endpoint fields in Settings → Services, which says nothing
+about what is missing or what it costs.
+
+**Options considered.**
+
+| Option | Verdict |
+|---|---|
+| Mount the Docker socket so the app can start and stop sidecars | Rejected — a web app with the socket is root on the host, in a distroless image |
+| Leave Services as endpoint fields and explain in the README only | Rejected — the reason to turn a component on must be on the screen where it is turned on |
+| **An admin Components screen: what it is, what you lose without it, state, progress, the command** | **Chosen** |
+
+**Decision.** `GET /api/admin/components` returns one entry per component (`pack`, `mt`, `nlp`,
+`tts`, `asr`, `llm`) with a state (`off`, `device`, `unreachable`, `ready`, plus `loading`,
+`downloading` and progress where the sidecar reports it), a documented RAM hint (never presented as
+measured), the compose profile and whether this repository builds it at all. The screen
+(`ComponentsPanel`) shows each with its cost in words and a state chip that carries text, not
+colour alone. The app can do what needs no host access: install the full pack
+([ADR-049](#adr-049)), ask a running sidecar to fetch its model (`mt` and `nlp` warm-up), and
+restart itself (`POST /api/admin/restart`). **Starting a container stays the operator's command**,
+printed on the card. A sidecar that does not exist (`tts`, `asr`) is labelled «не создан», never
+shown as "coming soon" with an enabled switch.
+
+**Consequences.**
+- Everything here is admin-only and enforced by the API, not only by the route guard.
+- Restart works only under a restart policy; the response says `supervised: false` otherwise and
+  the screen says to start the container by hand.
+- The full-pack figures shown on the card live in `lib/packFacts.ts` and are labelled «по
+  документации»; they can lag the pack (the starter was rebuilt with more sentences after they were
+  written). Counting them at runtime from the loaded pack would remove the drift.
+
+## ADR-053 — Grammar topics use the roadmap node vocabulary; plain phase names; gate numbers shown
+
+**Context.** The Grammar screen read as arbitrary and opaque: a grid of cards, a duplicated rail
+on the topic page, and phase names («blocked», «interleaved») that are the gate's vocabulary, not
+a learner's.
+
+**Decision.** Topics are drawn as the Today roadmap draws units — a disc on a rail, one per topic,
+grouped by CEFR level, each state with its own shape, icon and word. Phase names are plain:
+«только правило» · «ещё не начато» · «тренируем по одному» · «вперемешку» · «освоено». «Ещё не
+начато» is display-only (`lib/grammarStage.ts`: `blocked` with zero attempts) — the server's phase
+and the gate are unchanged. The topic page has two tabs, Урок | Упражнения; ADR-043's evidence
+(`topic_progress.attempts > 0` or the per-device «К упражнениям» press, never the phase) still
+chooses which opens first. The exercises tab prints the gate in numbers taken from the server's
+`decision` and `gate` (accuracy ≈72%, need 80%, answers 14 of at least 20) with one sentence on
+why practice is one pattern at a time first ([R5]); no threshold is restated in the client.
+
+**Consequences.**
+- `locked` is shown only for the server's `locked` phase; nothing else is disabled (ADR-013).
+- A topic without drills says so calmly and links to the tutor and the reader's texts.
+- Accuracy appears as counted answers («верно 17 из 20»), never a bare percentage.
+- No backend change: `decision.{current,target,observations,window}` and `gate.*` already existed.
+
+## ADR-054 — The HuSpaCy sidecar is opt-in and only selects among attested analyses
+
+**Status:** accepted · 2026-11 · *implements step 4 of [ADR-002](#adr-002)'s ladder*
+
+**Context.** ADR-002 left "an `nlp` sidecar disambiguates in context" as a sentence. The pack
+already holds several candidate readings for an ambiguous form (`vár` NOUN/VERB); the core picks
+the more frequent and flags it `uncertain`. HuSpaCy `hu_core_news_md` 3.8.1 (CC BY-SA 4.0, ~127 MB,
+published ~2.4 GB RAM, unmeasured in a container) can read the sentence.
+
+**Decision.** `services/nlp` is an opt-in profile; the model is not baked in but fetched on
+`POST /warmup` into a volume. The core calls `/analyze` **once per text ingest** (never per
+token), only when the text contains an `uncertain` word, with a total timeout, and passes the
+result to `morph.ApplyContextHints`, which may only **re-choose among `Lookup(form)`'s own
+candidates** by (lemma, upos) at the overlapping byte span. A hint without a matching candidate
+changes nothing; `certain`, `derived`, `unknown`, `corrected` words are never touched. The choice
+is exposed as `analysis.via = "context"` (Certainty stays `uncertain`); the UI string is
+`reader.viaContext`. Any sidecar error returns today's result untouched.
+
+**Rejected.** Letting the sidecar's lemma/feats stand when the pack has no such reading (a
+second source of truth, unattested output becoming cards); per-token calls (latency); making the
+sidecar the default (RAM, and the core must be complete without it).
+
+**Consequences.**
+- Forms the pack does not know are still `derived`/`unknown`: the sidecar does not analyse them
+  for the learner (a deliberate narrowing of the earlier README promise).
+- `via` is not persisted in `text_token`; it is present on `/api/analyze` and at ingest (the
+  stored lemma is the chosen one).
+- Model licence CC BY-SA 4.0 is noted in `services/nlp/README.md`.
+
+---
+
+## ADR-055 — The curriculum grows: questions, numerals, pronouns, postpositions, time and date
+
+**Status:** accepted · 2026-11-08 · **extends** [ADR-050](#adr-050) (the course grows) to the grammar spine
+
+**Context.** The 28-topic DAG taught case, tense and mood but had no home for four things a
+learner needs in the first weeks: how to ask and say no, how to count, who `ő` and `ez` are, and
+how to say "under the table" and "at half past three". They were scattered as asides (the
+singular after a numeral lives in `plural`, the accusative of pronouns in `accusative`) or absent
+(question words, `nem`/`sem`, postpositions, the clock, the date). The tutor and the course
+(whose theme units already name numbers, the clock, days and months) had nothing in the grammar
+to point at. A feature audit also showed `Person=1/2/3` — the verb's person, graded in every
+conjugated cloze — taught by no topic (`tests/test_features.py` was red).
+
+**Decision.** Five topics, each with a ≥ 800-character lesson in both locales, every Hungarian
+form looked up in the pack before it was allowed to stay:
+
+| code | level | order | prerequisites | features |
+|---|---|---|---|---|
+| `questions-negation` | A1 | 55 | `present-indefinite` | — |
+| `numerals` | A1 | 65 | `plural` | — |
+| `pronouns-demonstratives` | A1 | 75 | `accusative` | `Person=1`, `Person=2`, `Person=3` |
+| `postpositions` | A2 | 115 | `locative-grid`, `possessive` | — |
+| `time-and-date` | A2 | 125 | `numerals`, `postpositions` | — |
+
+1. **All five are `explained`.** None carries a feature with a suffix exponent, and
+   `Generator.KindsFor` derives generators from features, so they resolve to
+   `drill.unavailable.noGenerator` with no code change. Thirteen of thirty-three topics now
+   produce drills (was thirteen of twenty-eight; measured on the full pack).
+2. **No new feature ids.** `NumType=*` would be a heatmap cell nothing could ever grade; the
+   ordinal's `-adik/-edik` would additionally have made the allomorph generator offer a drill on
+   an unattested form. The lessons carry the rule instead. `Person=*` is placed on the pronoun
+   topic because it is where the learner first meets the persons as a set.
+3. **Adjectives are not a topic.** Attributive invariance and predicative agreement already sit in
+   `plural` and `comparison`; a topic that restated them would not be a gap filled.
+4. **Prerequisites are advice, not a lock** ([ADR-013](#adr-013)); only the DAG's order changes.
+
+**Also fixed here.** The ear-trainer pair `szurok`/`szűrök` was tagged `u/ű` but differs in two
+vowels (`u→ű` and `o→ö`) — the flaw [ADR-033](#adr-033) retired `orul`/`örül` for, and
+`tests/test_minimal_pairs.py` caught it. It is **removed, not replaced**: `u/ű` stays trained by
+`fut`/`fűt` and `tud`/`tűd`, and a replacement without rendered clips would be a trial with no
+stimulus. 29 pairs, the same 18 contrasts; its 12 audio rows are dropped.
+
+**Rejected.** A `Number` or `NumType` feature for numerals (above); generating drills for the new
+topics from `Skill=*` markers (offers what cannot be built); a sixth topic for adjectives (3).
+
+**Consequences.**
+- `hu-v1` and the starter carry 33 topics; counts in CLAUDE.md, `docs/LANGPACK.md`,
+  `docs/TUTOR.md` follow. The starter grows by about 9 KB gzipped.
+- A learner's stored `topic_progress` is unaffected: rows are keyed by topic code and new topics
+  start where every undrillable topic starts, in `explained`.
+
+## ADR-056 — Reading sets are existing pack sentences, imported by an explicit click
+
+**Status:** accepted · 2026-11-08 · builds on [ADR-050](#adr-050) (course units) and [ADR-023](#adr-023) (text level)
+
+**Context.** The reader asks the learner to bring a text; a beginner has none at the right level,
+and the gap between the course's words and "read the news" is where extensive reading stalls
+([R11](research/11-extensive-reading.md), [R6](research/06-lexical-coverage.md)). The pack already
+holds thousands of human-written, translated, tagged sentences.
+
+**Decision.** (1) The pipeline stage `reading_sets` picks 20-30 existing Tatoeba sentences per
+course unit (36 sets) under a CEFR band from `lemma.cefr`, each sentence in at most one set; no
+text is generated, so nothing needs `internal/corpus` attestation. (2) The API lists them and
+imports one on an explicit POST: the body is the set's sentences, one per paragraph, ingested by
+the same path as a paste (`Server.ingestText`) with `source_url = "set:<code>"`; idempotent per
+learner. (3) Importing creates no note and no card — mining stays the learner's act.
+
+**Alternatives rejected.** Generating a graded passage with the LLM (breaks "a sentence in the
+pack is one a person wrote"); a `set_import` table (the text row already records it); copying the
+full pack's sets into the starter (can name sentences the starter lacks — it recomputes instead).
+
+**Consequences.** Level is an estimate from frequency. Starter sentences are 3-4 tokens, so its sets
+read as lists of short lines; a full pack gives longer ones. A pack older than this ADR serves an
+empty list until `make refresh-curriculum`. The text model has no per-sentence translation slot, so
+the translation is not carried into the imported text.
+
+## ADR-057 — Course grows to three finite tiers; learned counts are derived
+
+**Status:** accepted · 2026-11-09 · extends [ADR-050](#adr-050) · relies on [ADR-047](#adr-047),
+[ADR-048](#adr-048) · [R11](research/11-extensive-reading.md), [R6](research/06-lexical-coverage.md)
+
+**Context.** The owner asked that the roadmap stop saying «Месяц 1…6» (the learner picks their own
+pace), that the six-month list be called the BASIC level with an intermediate and an advanced level
+behind it, and that the main screen show how many words are learned and how many remain. They also
+reported that a unit right after enrolment read «пройден»: `done` is derived from "every word is in
+the deck" (ADR-048 and the CLAUDE.md invariant), which is true the moment a unit is enrolled, so the
+label claimed something about the learner that had not happened.
+
+**Decision.**
+1. **Three finite tiers.** `course_unit.tier` is `basic` (the existing 24 units, months 1-6),
+   `intermediate` (20 new core units, months 7-12, `ord` 701-720) or `advanced` (20, months 13-18,
+   `ord` 801-820); default `basic` for a pack that predates the column; theme units are `basic` and
+   sort last (`ord` 1001-1012). The pipeline validator now demands **exactly 24 + 20 + 20** core
+   units (`course.TIER_UNITS`), consecutive in `ord`. The course still ENDS: after the last unit of
+   the advanced tier `handedOver` is true. A fourth tier is the endless drip [R11] rejects.
+2. **`month` becomes internal.** It orders units and places checkpoints (`m1/m3/m6/m12/m18`, already
+   in `stats.Specs`, now all reachable); the UI shows the tier, never a month number.
+3. **Resolution runs over all core units in order.** `current`, `total`, `completed`, `handedOver`
+   are computed over basic → intermediate → advanced; theme units still never count. Next follows
+   enrolment, order is advice ([ADR-013](#adr-013), ADR-048) — a tier does not lock the next.
+4. **`learned` is derived, with the level estimate's own rule.** `UnitState.Learned` counts a unit's
+   words that are *counted lemmas*: `known`, or a graduated Review-state card whose retrievability
+   is at least `mining.knownThreshold`, suspended and trashed excluded — the function and 30-second
+   cache `/api/stats/level` already uses (`Server.countedLemmas`), not a second copy of the rule.
+   `GET /api/course` also returns `totals` `{words, inDeck, learned, perTier}` over the core words.
+   `status` keeps its meaning (done = in the deck); the screen shows learned/total and does not call
+   `done` «пройден». Nothing is stored; the number can go down as memories decay.
+5. **Content rules unchanged.** Every word exists in the pack with the stated part of speech; ru + en
+   glosses are hand-written (a word with an uncertain gloss was left out); no Hungarian sentence is
+   written for the course; a word is in one unit across all tiers; at least 90% of words per tier
+   have a Tatoeba sentence in the starter. Reading sets (ADR-056) are built for the basic tier and
+   the themes only.
+
+**Rejected.** Extending the basic tier to 64 units (blurs the "six months" milestone the checkpoints
+are placed on); an unbounded tier list (the endless drip); a stored `learned`/`completed` counter
+(ADR-048: the plan could then disagree with the deck); a second implementation of "counted" for the
+course (the two screens would drift); renaming `done` on the wire (a breaking change for no gain —
+the label is the UI's to fix).
+
+**Consequences.**
+- Words: basic 1 399, intermediate 1 012, advanced 695 (3 106 core) + 539 theme; clozeable share in the
+  starter 96.8% / 100% / 100%. The advanced tier is the smallest because unused frequency-list
+  candidates with an attested sentence ran out of themes they could honestly fill; it can grow later
+  by adding lines, not units.
+- The starter grows ~4.2 MB gzipped (19.9 → 24.1 MB): 1 264 lemmas, 2 558 sentences.
+- `/api/course` units carry `tier` and `learned`; the response carries `totals`.
+
+
+## ADR-058 — Soft gate by settled share
+
+**Status:** accepted · 2026-11-09 · relies on [ADR-013](#adr-013) (order is advice),
+[ADR-057](#adr-057) (derived `learned`), `srs.MatureDays`
+
+**Context.** The owner asked that the NEXT unit on the Today path look closed until the learner has
+"settled" most of the previous one: «запомнились и ушли на повтор через месяц-два». Without it a
+learner enrols unit after unit while the earlier words are still on their learning steps.
+
+**Decision.**
+1. A word is **settled** when its lemma is `known`, or its strongest non-suspended, non-trashed
+   card is `mature` — Review state with an interval of at least `srs.MatureDays` (21 days, Anki's
+   convention, the Words list's split). `UnitState.settled` counts a unit's settled words that are
+   in the deck; `totals.settled` / `perTier.*.settled` sum the core units. Same card scan and 30 s
+   per-user cache as `learned` (`Server.countedAndSettled`); no FSRS maths repeated.
+2. **`course.UnlockShare = 0.70`.** `GET /api/course` returns `unlock: {share, settledDays}` so the
+   client hard-codes neither.
+3. **It is a drawing, not a lock.** The path draws the unit after one with `settled < 70%` of its
+   words as CLOSED, with a notice; opening it anyway is always one tap. Nothing is stored (no
+   `unlocked` flag), no endpoint refuses enrolling or practising it, `plan.current` and
+   `handedOver` are unchanged.
+
+**Why not a hard lock.** ADR-013: locking on order wedged a learner behind `vowel-harmony` with all
+of A1 shut behind it. A gate on "remembered for 21 days" is slower still, and a learner who knows
+Hungarian already, or who learns from the reader, must never wait on a clock.
+
+**Rejected.** A stored or server-enforced lock (the wedge); gating on retrievability or on the
+learning stage `young` (a word seen yesterday is not settled); a client-side constant (drifts).
+
+**Consequences.** Pace: a 60-word unit introduced over three days takes weeks to settle, so the
+closed look will be the normal state for a keen learner — the one-tap override and the theme units
+and reader words exist for exactly that. `settled` can go down (a lapse returns a card to
+relearning). The figure is a subset of `wordsInPlay`, so a unit not yet enrolled shows 0 unless its
+words came from elsewhere.
+
+## ADR-059 — Lively redesign: palette A, derived progress rings, two-tone illustrations, soft unit gate presentation
+
+**Status:** accepted · 2026-11-09 · amends [ADR-037](#adr-037) (drawings), UX.md §14.1/3/5/7/9 and §2;
+presents [ADR-058](#adr-058); leaves [ADR-013](#adr-013) and the no-XP rule intact.
+
+**Context.** The owner found the app grey and dry and asked for «more lively and colourful»:
+soft coloured cards, progress rings, small illustrations, an activity bar chart, a statistics
+column, animation in every workflow — and that the next unit look CLOSED until ≥70% of the
+previous unit's words are settled, with a ring going red → blue → green and a prompt at ≥70%.
+
+**Decision.**
+1. **Palette A «Kalocsa & Balaton»**, light and a derived dark, four tints (cream, mist, blush,
+   sage), `--paprika` for graphics only, a dedicated ring ramp (ember → blue → teal-green), radius
+   0.875rem. Every pair used is checked by `scripts/validate_palette.py` (`make palette-check`,
+   inside `make docs-check`); old token names are kept.
+2. **Rings, narrowly.** `ProgressRing` exists for a *derived share with a counted denominator and a
+   numeric label* — a unit's settled words. No streak/XP/activity ring. Colour is never the only
+   channel (percent text, state word for screen readers, a check at settled). Its stroke animates
+   `stroke-dashoffset` — a named exception to "transform and opacity only".
+3. **Two-tone decorative illustrations** (six Budapest/Balaton pieces) in the listed empty/rest
+   places; never on a graded card, a Note, or beside a metric.
+4. **Soft gate presentation.** A unit after one with <70% settled is drawn closed (grey, lock),
+   with a notice and a one-tap «open anyway». Nothing refuses; ADR-013/058 stand. At ≥70% on the
+   current unit a friendly prompt offers the next section.
+5. **Layout.** Shell container `max-w-5xl`; `.page-narrow` for single-column pages; route fade,
+   staggered arrival, shimmer, halo and count-up, all off under `prefers-reduced-motion`.
+
+**Why.** Delight without a points economy: every coloured thing here carries a measured fact or
+is plainly decoration. [R14]/[R16 §3] stay binding — competence signals only.
+
+**Consequences.** Contrast is now tested, not asserted (a script reads the shipped tokens).
+`accent` stays the light mist surface; paprika is a separate token so existing hover tints do not
+turn red. Wider shell means every single-column page must opt into `.page-narrow`. A ring can go
+down; the copy must not call it progress-that-only-rises. New illustrations add ~4 KB to the
+bundle. Rejected: confetti, level badges, a ring for streaks/time, a hard lock.
+
+## ADR-060 — Answer options for review cards
+
+**Status:** accepted · 2026-11-09 · relies on [ADR-017](#adr-017), [ADR-019](#adr-019) ·
+[R12](research/12-retrieval-direction.md), [R1](research/01-retrieval-practice.md)
+
+**Context.** Typing Hungarian with accents is awkward on a phone; the owner asked for
+Duolingo-style «pick the right one of up to 5» on `cloze` and `produce`, including words mined
+from reading.
+
+**Decision.** The queue ships `QueueItem.Options` (3-5 shuffled strings including `expected`),
+built in `internal/api/options.go` from attested forms: same-lemma forms for cloze (via
+`morph.FormsOf`), same-POS neighbour lemmas without a shared gloss for produce. Seeded by
+(card, day). Fewer than three buildable options means none, and the client types. A tap is sent as
+the ordinary `typed` answer with `via: "choice"`; the existing `gradeTyped` grades it. `via` is
+validated, never stored, ignores `usedHint`, and cannot yield Easy (no median duration is passed on
+this path, so a correct answer is Good). Reader and custom notes use the same builder.
+
+**Why.** Recognition is weaker than recall (R12), so typing stays the default and the client offers
+options on touch. No new grading path means practice, review and replay cannot drift.
+
+**Consequences.** Options reveal nothing new (`expected` is already on the wire). Distractors can
+be thin for rare lemmas, which then get none. One extra pack query per option-bearing card per
+queue build. Rejected: a rating bonus for choice, storing `via` in `review_log`, a distinct endpoint.
+
+---
+
+## ADR-061 — Managed components: embedded Python sidecars supervised by the binary
+
+**Status:** accepted · 2026-11-09 · extends [ADR-052](#adr-052) (Components screen) and
+[ADR-054](#adr-054) (HuSpaCy opt-in), amends [ADR-015](#adr-015)'s "the app cannot start the sidecar"
+
+**Context.** ADR-015/052 drew the honest line at "you bring the container up once": the release
+image is distroless (no shell, no Python) and the app has no Docker socket. The owner's next
+question was whether pressing «Install» in Settings could do the whole thing inside the one
+container, with no restart and no host-port bookkeeping. The `mt` and `nlp` services are plain
+Python/uvicorn apps configured by env, so the binary can run them *itself* wherever Python exists
+— a native run, or a `full` image variant.
+
+**Decision.** New package `internal/components`. It embeds the two service sources (`go:embed`;
+`services/<id>/` stays the truth and `make sync-components` + a drift test keep the copy honest) and,
+on an admin's click, builds `<data>/components/<id>.installing/` (venv, pinned pip install, model
+preparation), renames it into place and runs `venv/bin/python src/app.py` as a supervised child on
+`127.0.0.1:<ephemeral port>`. New config provider `managed` (mt/nlp only) with no stored endpoint:
+`api.resolveService` is the one resolver the clients, the probe and the Components rows share.
+Children get an allowlisted environment, their own process group, a ring-buffer + rotating log,
+restart with backoff (5 crashes / 10 min → `failed`) and SIGTERM→SIGKILL on stop/shutdown. Boot
+autostart is a goroutine; shutdown stops children before the DB closes. Routes
+`POST /api/admin/components/:id/{install,start,stop,uninstall}` (admin, single-flight, 202/409/404),
+and `managed{…}` on the existing list. Install sets `provider=managed` via `updateConfig`; Uninstall
+resets it; leaving `managed` in Settings stops the child.
+
+**Why.** It removes the only manual step without giving the app a Docker socket (which would be
+root on the host), keeps one container and one volume, and keeps the core independent: nothing
+changes with the components absent.
+
+**Rejected.** Talking to the Docker socket (root-equivalent); baking Python and the models into the
+default image (size, and the distroless guarantee); downloading and executing code named by a request
+or by config (an admin session would become remote code execution — only embedded sources run);
+a stored endpoint (an ephemeral port would go stale and could clash); embedding the LLM (multi-GB,
+GPU libraries).
+
+**Consequences.**
+- Needs `python3` ≥ 3.10 + venv + network; the default distroless image reports it unavailable and
+  the `full` image variant (`--target full`) carries Python.
+- A venv is renamed after creation; its scripts' shebangs point at the old path, which is why the
+  service is always started as `venv/bin/python app.py` and pip is never run after the rename.
+- Install time, sizes and RAM are documented estimates; **no real install had been run when this
+  was written** — only the fake-runner tests and the `/bin/sh` runner test exist.
+- `Stop` lasts until the app restarts (autostart follows the provider, which stays `managed`).
+- torch (mt, conversion only) is installed per OS: macOS/other from PyPI (`torch==2.5.1`, CPU/MPS);
+  Linux the wheel alone from the PyTorch CPU index with `--no-deps`, its dependencies from PyPI —
+  never resolved against the PyTorch-only index (first real install failed there building
+  `typing_extensions` from sdist). All installs use `--only-binary=:all:`, so a missing wheel is a
+  clear error. pip's cache lives in `<id>/cache/pip`, kept across a failed attempt and freed on success.
+- **Trust.** An admin who presses Install makes the server run `pip install` of PINNED, public
+  packages (PyPI; the PyTorch CPU index only for torch itself on Linux) and then run code from
+  them as the app's own OS user. That is the same trust as installing the app. What bounds it:
+  only embedded sources and constants reach a command line (no URL, path or argument from a
+  request); wheels only (`--only-binary`), so no package build scripts run; children get an
+  allowlisted environment (no secrets), loopback-only listening, their own process group, and
+  never the database. It is NOT a sandbox: a compromised pinned package would run with the app's
+  file access. Hash-pinned requirements would tighten this and are not done.
+- **Orphans.** A child is killed with the app on every graceful exit. On a hard kill: Linux sets
+  `Pdeathsig=SIGKILL`; macOS has no equivalent, so a SIGKILLed server leaves its child running until
+  the next start, when `reapStale` reads `<id>/run.pid` and kills the group if the pid's command
+  line still names this component's venv. Installs are manager-wide single-flight; a child that
+  stays up but never answers `/health` for 5 minutes is killed and marked `failed`
+  (`errors.componentStartFailed`) rather than restarted.
+- Not implemented on Windows (the manager reports unavailable).
+- ADR-015's statement that the app cannot start the translator is true only of the default image
+  and of Compose; with Python available it can, and says so.

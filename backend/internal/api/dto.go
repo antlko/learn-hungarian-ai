@@ -65,7 +65,16 @@ type SettingsDTO struct {
 	HVPT       HVPTDTO               `json:"hvpt"`
 	Curriculum CurriculumDTO         `json:"curriculum"`
 	Services   map[string]ServiceDTO `json:"services"`
+	LangPack   LangPackDTO           `json:"langpack"`
 	Secrets    map[string]bool       `json:"secrets"`
+}
+
+// LangPackDTO is where the optional full pack is downloaded from. Admin-edited
+// only (PUT /api/settings is admin-only); the install endpoint never takes a
+// URL from its request. An empty sha256 means nothing is published. ADR-049.
+type LangPackDTO struct {
+	URL    string `json:"url"`
+	SHA256 string `json:"sha256"`
 }
 
 type LocaleDTO struct {
@@ -141,6 +150,7 @@ type UpdateSettingsRequest struct {
 	HVPT       *HVPTDTO              `json:"hvpt,omitempty"`
 	Curriculum *CurriculumDTO        `json:"curriculum,omitempty"`
 	Services   map[string]ServiceDTO `json:"services,omitempty"`
+	LangPack   *LangPackDTO          `json:"langpack,omitempty"`
 	Secrets    map[string]string     `json:"secrets,omitempty"` // blank value = keep stored
 }
 

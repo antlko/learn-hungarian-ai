@@ -67,15 +67,30 @@ func (s *Server) listeningHours(userID int64) float64 {
 // resolveCurriculum computes every topic's phase for a learner and persists any
 // phase the resolution moved.
 func (s *Server) resolveCurriculum(userID int64) ([]drill.TopicState, error) {
+	states, stored, err := s.computeCurriculum(userID)
+	if err != nil {
+		return nil, err
+	}
+	if err := drill.Persist(drill.NewStore(s.db.DB), userID, states, stored, time.Now()); err != nil {
+		return nil, err
+	}
+	return states, nil
+}
+
+// computeCurriculum is resolveCurriculum without the write: the phases, and
+// the stored progress they were resolved from. Read-only callers (the level
+// estimate, hit on every page load) use it so a GET never writes
+// topic_progress.
+func (s *Server) computeCurriculum(userID int64) ([]drill.TopicState, map[string]drill.Progress, error) {
 	store := drill.NewStore(s.db.DB)
 	stored, err := store.AllProgress(userID)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	cfg := s.Config()
 	history, err := stats.NewStore(s.db.DB).Checkpoints(userID)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	states := drill.Resolve(s.dag, drill.ResolveInput{
 		Progress:           stored,
@@ -85,10 +100,7 @@ func (s *Server) resolveCurriculum(userID int64) ([]drill.TopicState, error) {
 		BlockedLevels:      stats.BlockedLevels(history),
 		Kinds:              s.drills.Availability,
 	})
-	if err := drill.Persist(store, userID, states, stored, time.Now()); err != nil {
-		return nil, err
-	}
-	return states, nil
+	return states, stored, nil
 }
 
 // TopicDTO is one topic as the UI needs it.

@@ -33,6 +33,8 @@ import shutil
 import sqlite3
 from pathlib import Path
 
+from . import reading_sets
+
 # Tuned against the real pack: 4000 lemmas covers the frequency band the first
 # six months of the course lives in, and keeps the gzipped artefact small enough
 # that nobody thinks twice about it being in the repo.
@@ -214,6 +216,15 @@ def build(full: Path, out: Path, *, lemmas: int, sentences: int) -> None:
             "WHERE sentence_id IN (SELECT id FROM keep_sentence)"
         )
 
+    # Reading sets are chosen from what the STARTER holds, not copied from the
+    # full pack: a full-pack set can name a sentence this file does not carry.
+    # Same stage, same rules, so the two editions' sets are each self-contained.
+    if "course_unit" in have and "course_word" in have:
+        reading_sets.build(dst)
+        problems = reading_sets.validate(dst)
+        if problems:
+            raise SystemExit("reading sets invalid in the starter:\n  " + "\n  ".join(problems))
+
     # The starter says what it is, so the UI can offer the upgrade honestly.
     dst.execute(
         "INSERT OR REPLACE INTO pack_meta (key, value) VALUES ('edition', 'starter')"
@@ -238,13 +249,15 @@ def build(full: Path, out: Path, *, lemmas: int, sentences: int) -> None:
     dst.execute("VACUUM")
     dst.commit()
 
+    have_out = {r[0] for r in dst.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     counts = {
         t: dst.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
         for t in (
             "lemma", "wordform", "sentence", "sentence_token", "minimal_pair",
             "ngram", "course_unit", "course_word", "resource",
+            "reading_set", "reading_set_sentence",
         )
-        if t in have
+        if t in have_out
     }
     dst.close()
 

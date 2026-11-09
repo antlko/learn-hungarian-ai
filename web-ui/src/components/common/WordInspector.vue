@@ -31,7 +31,7 @@ import type { Breakdown, Example, LemmaDetail, UserGloss } from '@/types'
  * Everything shown here is looked up, never generated. An unresolvable form
  * says so; a form with no examples in the pack says that too.
  */
-const props = defineProps<{ word: string }>()
+const props = defineProps<{ word: string; embedded?: boolean }>()
 const emit = defineEmits<{ close: [] }>()
 
 const ui = useUiStore()
@@ -122,14 +122,15 @@ const uncertain = computed(
 
 <template>
   <aside
-    class="flex w-full shrink-0 flex-col gap-4 overflow-y-auto rounded-xl border border-border-subtle bg-card p-5 lg:w-80"
+    class="flex w-full shrink-0 flex-col gap-4"
+    :class="embedded ? '' : 'overflow-y-auto rounded-xl border border-border-subtle bg-card p-5 lg:w-80'"
   >
     <div class="flex items-start justify-between gap-2">
       <div class="flex items-center gap-1">
         <p class="text-xl font-medium" lang="hu">{{ word }}</p>
         <SpeakButton :text="word" />
       </div>
-      <Button variant="ghost" size="icon" :aria-label="$t('common.close')" @click="emit('close')">
+      <Button v-if="!embedded" variant="ghost" size="icon" :aria-label="$t('common.close')" @click="emit('close')">
         <X class="size-4" aria-hidden="true" />
       </Button>
     </div>
@@ -174,6 +175,9 @@ const uncertain = computed(
       <!-- An analysis we are not sure of says so, here as everywhere. ADR-002 -->
       <Note v-if="uncertain" variant="limit" bare class="text-[11px]">
         {{ $t(`reader.certainty.${analysis.certainty}`) }}
+        <span v-if="analysis.via === 'context'" class="mt-1 block" data-testid="via-context">
+          {{ $t('reader.viaContext') }}
+        </span>
       </Note>
 
       <!-- 2 · the shape THIS form is in -->

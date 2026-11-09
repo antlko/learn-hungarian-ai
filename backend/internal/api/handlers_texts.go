@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log/slog"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
@@ -42,6 +43,12 @@ func (s *Server) handleCreateText(c fiber.Ctx) error {
 		return err
 	}
 
+	// "set:<code>" is how an imported reading set is recorded (ADR-056). A paste
+	// may not claim it, or it would fake an import and block the real one.
+	if strings.HasPrefix(strings.ToLower(strings.TrimSpace(req.SourceURL)), setSourcePrefix) {
+		return fiber.NewError(fiber.StatusBadRequest, "errors.badSourceUrl")
+	}
+
 	var in mining.Ingested
 	switch req.Kind {
 	case "srt":
@@ -55,21 +62,39 @@ func (s *Server) handleCreateText(c fiber.Ctx) error {
 		return badRequest("%s", err.Error())
 	}
 
-	tokens, sentences, err := s.analyzer.AnalyzeText(in.Body)
+	id, cov, est, err := s.ingestText(c, u.ID, in, req.SourceURL)
 	if err != nil {
 		return err
 	}
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"id": id, "title": in.Title, "kind": in.Kind, "coverage": cov,
+		"level": est.Level, "levelSource": "heuristic",
+	})
+}
+
+// ingestText analyses an ingested body and stores it as the learner's text. It
+// is the ONE ingestion path: a pasted text and a ready-made reading set both go
+// through here, so a set is read, covered and levelled exactly like a paste.
+func (s *Server) ingestText(c fiber.Ctx, userID int64, in mining.Ingested, sourceURL string) (int64, mining.Coverage, mining.LevelEstimate, error) {
+	var noCov mining.Coverage
+	var noEst mining.LevelEstimate
+	tokens, sentences, err := s.analyzer.AnalyzeText(in.Body)
+	if err != nil {
+		return 0, noCov, noEst, err
+	}
+	s.applyNLPHints(c.Context(), ingestHintsTimeout, in.Body, tokens)
 	stored := toStoredTokens(tokens, sentences)
 
-	cov, err := s.coverageFor(u.ID, mining.AsTokenViews(stored))
+	cov, err := s.coverageFor(userID, mining.AsTokenViews(stored))
 	if err != nil {
-		return err
+		return 0, noCov, noEst, err
 	}
 
 	store := mining.NewStore(s.db.DB)
-	id, err := store.Create(u.ID, in, req.SourceURL, stored, cov)
+	id, err := store.Create(userID, in, sourceURL, stored, cov)
 	if err != nil {
-		return err
+		return 0, noCov, noEst, err
 	}
 
 	// The level estimate, at ingest, and honestly labelled: heuristic from the
@@ -77,14 +102,10 @@ func (s *Server) handleCreateText(c fiber.Ctx) error {
 	// fact about the TEXT, not about the learner, so it is not recomputed on
 	// every open — only backfilled when missing, and never over a manual one.
 	est := mining.EstimateLevel(mining.AsTokenViews(stored), s.levelInputs())
-	if err := store.SetLevel(u.ID, id, est.Level, "heuristic", est.Detail()); err != nil {
+	if err := store.SetLevel(userID, id, est.Level, "heuristic", est.Detail()); err != nil {
 		slog.Warn("could not store level estimate", "text", id, "err", err)
 	}
-
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"id": id, "title": in.Title, "kind": in.Kind, "coverage": cov,
-		"level": est.Level, "levelSource": "heuristic",
-	})
+	return id, cov, est, nil
 }
 
 func (s *Server) handleListTexts(c fiber.Ctx) error {

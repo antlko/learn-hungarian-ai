@@ -15,7 +15,7 @@ import (
 // Small on purpose: the real pack is ~260 MB and is a build artefact. This one
 // carries a four-topic curriculum, the locative grid and one verb whose two
 // conjugations differ — which is everything the grammar screen needs.
-func writeTestPack(t *testing.T, dataDir string) {
+func writeTestPack(t testing.TB, dataDir string) {
 	t.Helper()
 	db, err := sql.Open("sqlite", filepath.Join(dataDir, "langpack-hu-v1.sqlite"))
 	if err != nil {

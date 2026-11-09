@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import InfoTip from '@/components/common/InfoTip.vue'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { Ear, Volume2 } from '@lucide/vue'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Note from '@/components/common/Note.vue'
+import { Illustration } from '@/components/art'
 import { useAnswerFeedback } from '@/composables/useAnswerFeedback'
 import { api } from '@/api'
 import { pickGloss } from '@/lib/gloss'
@@ -197,9 +199,9 @@ function onKey(e: KeyboardEvent) {
 
 function optionClass(member: 'a' | 'b') {
   const r = result.value
-  if (!r) return ''
-  if (r.played === member) return 'border-known bg-known/10 text-known'
-  if (!r.correct) return 'border-error bg-error/10 text-error'
+  if (!r) return 'bg-tint-mist/60 hover:bg-tint-mist'
+  if (r.played === member) return 'border-known bg-tint-sage text-foreground'
+  if (!r.correct) return 'border-tint-blush-edge bg-tint-blush text-foreground'
   return ''
 }
 
@@ -214,7 +216,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="mx-auto flex w-full max-w-2xl flex-col gap-6">
+  <div class="page-narrow flex w-full min-w-0 flex-col gap-6">
     <header class="flex flex-wrap items-center justify-between gap-3">
       <h1 class="page-title">{{ $t('ear.title') }}</h1>
       <p
@@ -251,7 +253,7 @@ onUnmounted(() => {
       ever finished because the effect decays. A screen that started playing
       and mentioned none of this was asking for trust it had not earned.
     -->
-    <Card v-else-if="!started && session && !session.refused" variant="raised">
+    <Card v-else-if="!started && session && !session.refused" variant="raised" class="animate-card-in">
       <CardHeader>
         <CardTitle class="flex items-center gap-2 text-base">
           <Ear class="size-4" aria-hidden="true" />
@@ -259,9 +261,10 @@ onUnmounted(() => {
         </CardTitle>
       </CardHeader>
       <CardContent class="flex flex-col gap-4">
-        <p class="text-sm leading-relaxed">{{ $t('ear.intro.what') }}</p>
-        <p class="text-sm leading-relaxed text-muted-foreground">
-          {{ $t('ear.intro.why') }}
+        <Illustration name="balaton" size="md" class="self-center" />
+        <p class="text-sm leading-relaxed">
+          {{ $t('ear.intro.what') }}
+          <InfoTip>{{ $t('ear.intro.why') }}</InfoTip>
         </p>
 
         <!-- What this session actually is, in numbers, before it runs. -->
@@ -272,8 +275,10 @@ onUnmounted(() => {
         <!-- The standing limits. Not a warning banner — a statement, in the
              same tone the rest of the app uses for what it cannot do. -->
         <Note variant="limit" class="text-xs">
-          <p>{{ $t('ear.intro.voices') }}</p>
-          <p class="mt-2">{{ $t('ear.neverDone') }}</p>
+          <p>
+            {{ $t('ear.intro.voices') }}
+            <InfoTip>{{ $t('ear.neverDone') }}</InfoTip>
+          </p>
         </Note>
 
         <div class="flex flex-wrap items-center gap-3">
@@ -384,9 +389,7 @@ onUnmounted(() => {
             })
           }}
         </p>
-        <p class="max-w-md text-center text-xs leading-relaxed text-muted-foreground">
-          {{ $t('ear.neverDone') }}
-        </p>
+        <InfoTip>{{ $t('ear.neverDone') }}</InfoTip>
         <!-- Straight into another session, not back to the intro: the
              learner has just read it, and the click is the gesture the first
              play needs. -->
@@ -406,13 +409,13 @@ onUnmounted(() => {
           <li
             v-for="ct in contrasts"
             :key="ct.contrast"
-            class="flex items-center justify-between rounded-md border border-border-subtle px-2.5 py-1.5 font-mono text-xs"
+            class="flex items-center justify-between rounded-lg border px-2.5 py-2 font-mono text-xs"
+            :class="!ct.seen ? 'border-border-subtle' : ct.accuracy >= 0.8 ? 'border-tint-sage-edge bg-tint-sage' : 'border-tint-cream-edge bg-tint-cream'"
           >
             <span lang="hu">{{ ct.contrast }}</span>
             <span
               v-if="ct.seen"
-              class="tabular-nums"
-              :class="ct.accuracy >= 0.8 ? 'text-known' : 'text-learning'"
+              class="tabular-nums text-foreground"
             >
               {{ Math.round(ct.accuracy * 100) }}%
               <span v-if="ct.due" class="text-uncertain">•</span>

@@ -53,76 +53,94 @@
 */
 
 /*
-  LIGHT (default). Measured against --background #fbfaf7 / --card #ffffff:
-    foreground        16.58 / 17.31   muted-foreground   6.53 / 6.82 (5.98 on muted)
-    primary            6.29 / 6.56    primary-fg on primary       6.38
-    destructive        5.98 (its own fg) / 6.15 on card
-    border             3.04 / 3.17    input              3.78 / 3.94
-    ring vs background  6.29          border-subtle vs card       1.46
-    kn-known  5.28 / 5.51 / 4.83      kn-learning  5.16 / 5.39 / 4.73
-    kn-new    5.39 / 5.62 / 4.94      kn-ignored   4.95 / 5.16 / 4.53
-    kn-uncertain 5.73 / 5.98 / 5.25   kn-error     5.86 / 6.12 / 5.37
-  (third figure = against --muted, where chips and badges sit)
+  LIGHT (default) — palette A, «Kalocsa & Balaton» (ADR-059): warm paper, ink-blue
+  text, a teal-blue primary, four soft tints for coloured cards, and paprika
+  red kept for GRAPHICS ONLY (illustrations, the ring's low end), never as text.
+  Ratios are measured by `scripts/validate_palette.py` (`make palette-check`),
+  which reads THIS block, so the numbers below cannot drift from what ships.
 
-  `learning` is ochre here, not amber. Amber cannot reach 4.5:1 on paper at any
-  chroma worth having — the hue is preserved, the lightness is not. Chromas are
-  also capped at the sRGB gamut boundary (primary 0.08, known 0.139, learning
-  0.112): a value outside the gamut is silently clamped by the browser, which
-  makes the number in this comment a measurement of something we did not ship.
+  Measured (WCAG 2.1) against --background #fbf7ef / --card #ffffff:
+    foreground       13.72 / 14.66  (11.26 blush · 11.87 sage · 11.99 mist · 12.88 cream)
+    muted-foreground  6.54 /  6.99  (5.94 on muted, 5.36 on blush)
+    primary           7.00 /  7.48  (6.12 mist, 6.57 cream); primary-fg on primary 7.48
+    success           6.45 on card, 5.22 on sage    warn  5.65 card, 4.96 cream
+    destructive       6.54 card, 5.02 blush         border 3.17 / 3.38
+    paprika (graphic) 5.52 card, 4.24 blush         ring ramp 5.52 · 5.25 · 4.29 (3.47 on sage)
+  Minimum over every pair the script checks: text 4.58, graphics 3.17.
+  `learning` is ochre, not amber: amber cannot reach 4.5:1 on paper at any
+  chroma worth having. Chromas of the oklch() values are capped at the sRGB
+  gamut boundary, because the browser clamps what lies outside and the number
+  would then measure something we did not ship.
 */
 :root {
-  --radius: 0.625rem;
+  /* 0.875rem: lg 14px, xl 18px, md (tiles) 12px, sm 10px. */
+  --radius: 0.875rem;
 
-  --background: oklch(0.985 0.004 95);
-  --foreground: oklch(0.22 0.015 255);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.015 255);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.015 255);
-  --primary: oklch(0.47 0.08 198);
-  --primary-foreground: oklch(0.99 0.004 95);
-  --secondary: oklch(0.955 0.006 95);
-  --secondary-foreground: oklch(0.25 0.015 255);
-  --muted: oklch(0.955 0.006 95);
-  --muted-foreground: oklch(0.47 0.015 255);
-  --accent: oklch(0.94 0.01 198);
-  --accent-foreground: oklch(0.3 0.06 198);
-  --destructive: oklch(0.52 0.21 25);
-  --destructive-foreground: oklch(0.99 0.004 95);
-  --border: oklch(0.655 0.014 255);
-  --input: oklch(0.6 0.016 255);
-  --ring: oklch(0.47 0.08 198);
+  --background: #fbf7ef;
+  --foreground: #1e2a32;
+  --card: #ffffff;
+  --card-foreground: #1e2a32;
+  --popover: #ffffff;
+  --popover-foreground: #1e2a32;
+  --primary: #1d5c6e;
+  --primary-foreground: #ffffff;
+  --secondary: #f3ecdd;
+  --secondary-foreground: #1e2a32;
+  --muted: #f3ecdd;
+  --muted-foreground: #4f5b62;
+  --accent: #dcebef;
+  --accent-foreground: #14424f;
+  --destructive: #b3261e;
+  --destructive-foreground: #ffffff;
+  --border: #878d8a;
+  --input: #7c8380;
+  --ring: #1d5c6e;
+
+  /*
+    Soft coloured cards: a tint fill and a 1px edge one step darker, no shadow.
+    Body text on them is `foreground`; `primary`, `success` and `warn` text are
+    checked on the tints they are allowed on (see the script's pair list) —
+    `warn` text is NOT allowed on blush or sage, use ink there.
+  */
+  --tint-cream: #fbefd9;
+  --tint-mist: #dcebef;
+  --tint-blush: #f7dcd2;
+  --tint-sage: #ddebdd;
+  --tint-cream-edge: #ecd9b4;
+  --tint-mist-edge: #bcd5dc;
+  --tint-blush-edge: #ebbfb0;
+  --tint-sage-edge: #bcd6bd;
+
+  /* Paprika: graphics only (illustration strokes, the ring's low end). */
+  --paprika: #b8402a;
+  /* Two-tone illustrations: fill is the primary at ~15% over the surface. */
+  --art-fill: #cfe3e8;
+
+  /* Real success / caution. `destructive` stays for real failure. */
+  --success: #236b43;
+  --warn: #8a5f00;
+  --info: #1d5c6e;
+
+  /* Progress-ring ramp (ADR-059): ember → blue → teal-green, interpolated by
+     the settled share in components/visual/ProgressRing.vue. Not the knowledge
+     scale and not `destructive`: an empty ring is not an error. */
+  --ring-start: #b8402a;
+  --ring-mid: #2a6fb0;
+  --ring-end: #1b8a6b;
 
   /*
     `border` is the 3:1 tier and is the only one allowed to bound a control —
     an outline button, an input, a tab. `border-subtle` is the decorative tier
-    for rules *inside* a surface (table row separators, the hairline under a
-    card header), where 3:1 turns the screen into a wireframe. WCAG 1.4.11 asks
-    3:1 of things that identify a component, not of every line we draw; the two
-    tiers make that distinction reviewable instead of implicit. A control must
-    never be identified by `border-subtle` alone.
+    for rules *inside* a surface, where 3:1 turns the screen into a wireframe.
+    A control must never be identified by `border-subtle` alone.
   */
-  --border-subtle: oklch(0.875 0.008 95);
+  --border-subtle: #e6ddca;
 
   /*
     Chart series — three, for the activity chart's "where did the hour go".
-
-    Deliberately NOT the knowledge-state colours, and not `primary` either,
-    for two measurable reasons:
-
-      * `primary` at oklch(0.47 0.08 198) has a measured chroma of 0.072. Below
-        the 0.1 floor a fill reads as grey rather than as a series, and a
-        three-colour chart whose first colour looks like the axis is not a
-        chart. Re-stepped to chroma 0.12 at the same hue, so it still belongs
-        to the palette.
-      * `kn-known` / `kn-error` are STATUS colours here — this chart uses green
-        for "the day's obligation was met" — and a status colour reused as
-        "series 3" makes both meanings unreadable.
-
-    All three pass the categorical checks against the card surface: lightness
-    band, chroma floor, CVD separation (worst adjacent ΔE 14.7 deutan), the
-    normal-vision floor and 3:1 contrast. Re-run before changing a value:
-      node scripts/validate_palette.js "#00908d,#916100,#8048b6" --mode light --surface "#ffffff"
+    Deliberately NOT the knowledge-state colours (status here) and not `primary`
+    (chroma too low to read as a series). Re-stepped values, checked as graphics
+    against the card.
   */
   --ch-cards: oklch(0.58 0.12 192);
   --ch-reading: oklch(0.53 0.112 75);
@@ -132,55 +150,71 @@
   --kn-known: oklch(0.505 0.139 150);
   --kn-learning: oklch(0.53 0.112 75);
   --kn-new: oklch(0.52 0.17 258);
-  --kn-ignored: oklch(0.535 0.02 255);
+  --kn-ignored: oklch(0.51 0.02 255);
   --kn-uncertain: oklch(0.52 0.17 305);
   --kn-error: oklch(0.52 0.2 25);
 
-  /* Tinted with the ink-blue of `foreground`, not with black: a neutral-black
-     shadow on warm paper greys the surface under it. */
+  /* Tinted with the ink-blue of `foreground`, not with black. */
   --elevation-raised:
-    0 1px 2px -1px oklch(0.22 0.015 255 / 10%), 0 10px 30px -14px oklch(0.22 0.015 255 / 22%);
+    0 1px 2px -1px rgb(30 42 50 / 10%), 0 10px 30px -14px rgb(30 42 50 / 22%);
 }
 
 /*
-  DARK. Measured against --background #0a0e12 / --card #13181e:
-    foreground        17.80 / 16.42   muted-foreground   9.05 / 8.35 (7.02 on muted)
-    primary           10.16 / 9.38    primary-fg on primary       9.98
-    destructive        5.72 (its own fg) / 5.27 on card
-    border             3.31 / 3.05    input              4.00 / 3.70
-    ring vs background 10.16          border-subtle vs card       1.50
-    kn-known  9.28 / 8.56 / 7.20      kn-learning 10.25 / 9.46 / 7.95
-    kn-new    7.79 / 7.19 / 6.05      kn-ignored   6.25 / 5.76 / 4.85
-    kn-uncertain 8.00 / 7.38 / 6.20   kn-error     6.67 / 6.15 / 5.18
+  DARK — derived, not flipped: own steps, validated pair by pair by the same
+  script. Surfaces keep the ink-blue trace; tints are deep, low-chroma versions
+  of the same four hues.
+
+  Measured against --background #0c1116 / --card #13181e:
+    foreground       16.05 / 15.10  (11.71 mist … 12.98 blush)
+    muted-foreground 10.31 /  9.70  (7.89 on muted)
+    primary           9.67 /  9.09  (7.05 mist, 7.68 cream); primary-fg on primary 7.68
+    success           9.39 card     warn 9.20 card     destructive 6.68 card, 5.74 blush
+    border            3.23 / 3.04   paprika 6.70 card  ring ramp 6.70 · 6.61 · 8.85
+  Minimum over every pair the script checks: text 4.67, graphics 3.04.
 */
 .dark {
-  --background: oklch(0.16 0.012 255);
-  --foreground: oklch(0.97 0.005 255);
-  --card: oklch(0.205 0.014 255);
-  --card-foreground: oklch(0.97 0.005 255);
-  --popover: oklch(0.235 0.014 255);
-  --popover-foreground: oklch(0.97 0.005 255);
-  --primary: oklch(0.78 0.12 198);
-  --primary-foreground: oklch(0.17 0.03 220);
-  --secondary: oklch(0.27 0.016 255);
-  --secondary-foreground: oklch(0.97 0.005 255);
-  --muted: oklch(0.27 0.016 255);
-  --muted-foreground: oklch(0.76 0.02 255);
-  --accent: oklch(0.3 0.03 205);
-  --accent-foreground: oklch(0.97 0.005 255);
-  --destructive: oklch(0.66 0.19 25);
+  --background: #0c1116;
+  --foreground: #f4ebdd;
+  --card: #13181e;
+  --card-foreground: #f4ebdd;
+  --popover: #1a2028;
+  --popover-foreground: #f4ebdd;
+  --primary: #7cc4d4;
+  --primary-foreground: #0b2a33;
+  --secondary: #222a33;
+  --secondary-foreground: #f4ebdd;
+  --muted: #222a33;
+  --muted-foreground: #b9c0c6;
+  --accent: #1f3a42;
+  --accent-foreground: #f4ebdd;
+  --destructive: oklch(0.72 0.17 25);
   --destructive-foreground: oklch(0.16 0.01 25);
   --border: oklch(0.505 0.02 255);
   --input: oklch(0.55 0.02 255);
-  --ring: oklch(0.78 0.12 198);
-  --border-subtle: oklch(0.335 0.016 255);
+  --ring: #7cc4d4;
+  --border-subtle: #2a323b;
 
-  /*
-    Dark is SELECTED, not flipped: its own steps, validated against the dark
-    card surface (#13181e). The dark band is L 0.48–0.67, narrower than
-    light's, so the light values would fail it outright.
-      node scripts/validate_palette.js "#00a3a8,#be8700,#9e66d7" --mode dark --surface "#13181e"
-  */
+  --tint-cream: #2b2619;
+  --tint-mist: #16303a;
+  --tint-blush: #34201c;
+  --tint-sage: #1b2e22;
+  --tint-cream-edge: #43391f;
+  --tint-mist-edge: #244652;
+  --tint-blush-edge: #4f302a;
+  --tint-sage-edge: #2b4733;
+
+  --paprika: #e8836a;
+  --art-fill: #1d3a44;
+
+  --success: #6fcf97;
+  --warn: #e3b34f;
+  --info: #7cc4d4;
+
+  --ring-start: #e8836a;
+  --ring-mid: #5da2e6;
+  --ring-end: #4fcba5;
+
+  /* Dark is SELECTED, not flipped: the dark band is L 0.48–0.67. */
   --ch-cards: oklch(0.64 0.13 198);
   --ch-reading: oklch(0.66 0.14 80);
   --ch-listening: oklch(0.62 0.17 305);
@@ -192,13 +226,9 @@
   --kn-uncertain: oklch(0.74 0.14 305);
   --kn-error: oklch(0.7 0.19 25);
 
-  /*
-    Elevation. Deep and nearly black, because on a 0.16-lightness ground a
-    shadow tuned for paper is invisible — the ambient layer has to be wide and
-    dark enough to read as distance rather than as dirt.
-  */
+  /* A shadow tuned for paper is invisible on ink: wide, dark, nearly black. */
   --elevation-raised:
-    0 1px 2px -1px oklch(0 0 0 / 55%), 0 10px 30px -12px oklch(0 0 0 / 75%);
+    0 1px 2px -1px rgb(0 0 0 / 55%), 0 10px 30px -12px rgb(0 0 0 / 75%);
 }
 
 /*
@@ -259,6 +289,22 @@
   --color-border-subtle: var(--border-subtle);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
+  --color-tint-cream: var(--tint-cream);
+  --color-tint-mist: var(--tint-mist);
+  --color-tint-blush: var(--tint-blush);
+  --color-tint-sage: var(--tint-sage);
+  --color-tint-cream-edge: var(--tint-cream-edge);
+  --color-tint-mist-edge: var(--tint-mist-edge);
+  --color-tint-blush-edge: var(--tint-blush-edge);
+  --color-tint-sage-edge: var(--tint-sage-edge);
+  --color-paprika: var(--paprika);
+  --color-success: var(--success);
+  --color-warn: var(--warn);
+  --color-info: var(--info);
+  --color-ring-start: var(--ring-start);
+  --color-ring-mid: var(--ring-mid);
+  --color-ring-end: var(--ring-end);
 
   --shadow-raised: var(--elevation-raised);
 
@@ -352,6 +398,11 @@
   · Amplitudes are small — 4px of shake, 6px of rise, 1% of scale. This is an
     instrument acknowledging an answer, not an app congratulating you.
 
+  Documented exception (ADR-059, UX.md §14.3): the progress ring animates
+  `stroke-dashoffset` (700ms) — an SVG paint property with no transform
+  equivalent for an arc. Later additions (route fade, halo, bar grow, shimmer,
+  count-up ≤600ms) are transform/opacity only.
+
   Every one of them is switched off by the single `prefers-reduced-motion` rule
   at the bottom of this file. Do not add a per-component reduced-motion check —
   the guarantee has to be global to be a guarantee.
@@ -364,6 +415,15 @@
   --animate-tick-up: tick-up 240ms cubic-bezier(0.2, 0, 0, 1);
   --animate-phase-change: phase-change 260ms cubic-bezier(0.2, 0, 0, 1);
   --animate-milestone: milestone 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-route-in: route-in 160ms cubic-bezier(0.2, 0, 0, 1) backwards;
+  --animate-halo: halo 2.4s ease-in-out infinite;
+  --animate-bar-grow: bar-grow 480ms cubic-bezier(0.2, 0, 0, 1) both;
+  --animate-check-draw: check-draw 240ms cubic-bezier(0.2, 0, 0, 1) both;
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast: 160ms;
+  --duration-base: 240ms;
+  --duration-ring: 700ms;
 
   /* A confirmation, not a celebration: one small settle, no bounce. */
   @keyframes answer-correct {
@@ -579,4 +639,124 @@
   letter-spacing: 0;
   font-weight: 500;
   font-optical-sizing: auto;
+}
+
+/*
+  The ONE narrow column (UX.md §2). The shell container is max-w-5xl for every
+  route; a single reading / form column opts into this at its root so a
+  settings form is not 1024px wide. Dashboards leave it off.
+*/
+@utility page-narrow {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--container-3xl);
+}
+
+/*
+  Grid arrival: `--i` (0-based) × 40ms, capped at 6 so the last card never waits
+  longer than the animation itself. Same `card-in` movement as everywhere else;
+  the global reduced-motion rule zeroes the delay.
+*/
+@utility card-in {
+  /* `backwards` for the same reason as route-fade: no retained transform. */
+  animation: card-in 160ms cubic-bezier(0.2, 0, 0, 1) backwards;
+  animation-delay: calc(min(var(--i, 0), 6) * 40ms);
+}
+
+/* Route change wrapper (components/visual/RouteFade.vue). */
+@utility route-fade {
+  /* `backwards`, NOT `both`: with fill-mode forwards the wrapper keeps
+     `transform: matrix(1,0,0,1,0,0)` after the animation ends, and ANY transform
+     (even the identity) makes it the containing block of its `position: fixed`
+     descendants — the review/unit action bars then scrolled with the page and
+     slid behind the tab bar. Nothing may be retained once the animation is over. */
+  animation: route-in 160ms cubic-bezier(0.2, 0, 0, 1) backwards;
+}
+
+/*
+  Skeleton shimmer: a highlight sliding across on translateX of a pseudo-element
+  — compositor-only, unlike animating background-position. Replaces the old
+  `animate-pulse` on the Skeleton primitive.
+*/
+@utility shimmer {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--card) 70%, transparent), transparent);
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+}
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Route change: fade + 6px rise. */
+@keyframes route-in {
+  from {
+    transform: translate3d(0, 6px, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+/*
+  The current node's halo. Opacity and transform on a pseudo-element only.
+  The last keyframe equals the static state (invisible, unscaled), so the
+  reduced-motion collapse — one iteration in 0.01ms — lands on a still page.
+*/
+@keyframes halo {
+  0% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  35% {
+    transform: scale(1.0);
+    opacity: 0.45;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes check-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* A pseudo-element halo behind a node: `class="halo"` on a `relative` box. */
+@utility halo {
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    border: 2px solid var(--primary);
+    pointer-events: none;
+    animation: halo 2.4s ease-in-out infinite;
+    opacity: 0;
+  }
 }

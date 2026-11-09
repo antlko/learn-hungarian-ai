@@ -16,9 +16,9 @@ import (
 //
 // Everything else in this app is a mechanism — a scheduler, a miner, a gate.
 // This is the only screen that tells the learner what to LEARN, in what order,
-// and why, for the first six months. After that it stops and hands over to the
-// resource catalogue, which is the point rather than a limitation: see
-// internal/course.
+// and why, through three finite tiers (basic, intermediate, advanced). After
+// that it stops and hands over to the resource catalogue, which is the point
+// rather than a limitation: see internal/course.
 
 func (s *Server) requireCourse() error {
 	if err := s.requirePack(); err != nil {
@@ -56,28 +56,44 @@ func (s *Server) inPlaySet(userID int64) (map[string]bool, error) {
 		return nil, err
 	}
 
+	return s.lemmaNames(ids)
+}
+
+// lemmaNames maps pack lemma ids to the set of their lemma texts.
+func (s *Server) lemmaNames(ids []int64) (map[string]bool, error) {
 	out := map[string]bool{}
 	if len(ids) == 0 || s.pack == nil {
 		return out, nil
 	}
-	// One query, not one per lemma: a learner at B1 has thousands of these.
-	q := `SELECT lemma FROM lemma WHERE id IN (?` +
-		repeatComma(len(ids)-1) + `)`
-	args := make([]any, len(ids))
-	for i, id := range ids {
-		args[i] = id
-	}
-	lrows, err := s.pack.DB().Query(q, args...)
-	if err != nil {
-		return out, nil
-	}
-	defer lrows.Close()
-	for lrows.Next() {
-		var lemma string
-		if err := lrows.Scan(&lemma); err != nil {
-			return out, nil
+	// Chunked, not one query per lemma and not one giant IN: a learner at B1
+	// has thousands of these and SQLite bounds the variables in a statement.
+	// Errors are returned — an empty set here would read as «nothing is in
+	// play» and silently reset every unit on the plan to untouched.
+	const chunk = 500
+	for start := 0; start < len(ids); start += chunk {
+		part := ids[start:min(start+chunk, len(ids))]
+		args := make([]any, len(part))
+		for i, id := range part {
+			args[i] = id
 		}
-		out[lemma] = true
+		lrows, err := s.pack.DB().Query(`SELECT lemma FROM lemma WHERE id IN (?`+
+			repeatComma(len(part)-1)+`)`, args...)
+		if err != nil {
+			return nil, err
+		}
+		for lrows.Next() {
+			var lemma string
+			if err := lrows.Scan(&lemma); err != nil {
+				lrows.Close()
+				return nil, err
+			}
+			out[lemma] = true
+		}
+		err = lrows.Err()
+		lrows.Close()
+		if err != nil {
+			return nil, err
+		}
 	}
 	return out, nil
 }
@@ -98,6 +114,38 @@ type CourseResponse struct {
 	Plan course.Plan `json:"plan"`
 	// Progress rows for units the learner has enrolled, keyed by unit code.
 	Enrolled map[string]course.Progress `json:"enrolled"`
+	// Totals tallies the CORE course words — in all, and per tier — by what is
+	// in the deck and what is learned (ADR-057). Derived on request.
+	Totals course.Totals `json:"totals"`
+	// Unlock is the soft gate's rule, sent so the client never hard-codes it
+	// (ADR-058). Advice only: nothing server-side refuses a "closed" unit.
+	Unlock course.Unlock `json:"unlock"`
+}
+
+// learnedLemmaSet is the course's notion of "learned": the lemmas the level
+// estimate counts (known, or graduated and still remembered — see
+// countedLemmas), by lemma text. It shares that function's short per-user
+// cache, so the plan screen and the level screen cannot disagree for long.
+func (s *Server) learnedLemmaSet(userID int64) (learned, settled map[string]bool, err error) {
+	counted, settledIDs, err := s.countedAndSettled(userID, time.Now())
+	if err != nil {
+		return nil, nil, err
+	}
+	if learned, err = s.lemmaNames(idList(counted)); err != nil {
+		return nil, nil, err
+	}
+	if settled, err = s.lemmaNames(idList(settledIDs)); err != nil {
+		return nil, nil, err
+	}
+	return learned, settled, nil
+}
+
+func idList(m map[int64]bool) []int64 {
+	ids := make([]int64, 0, len(m))
+	for id := range m {
+		ids = append(ids, id)
+	}
+	return ids
 }
 
 func (s *Server) handleCourse(c fiber.Ctx) error {
@@ -122,11 +170,18 @@ func (s *Server) handleCourse(c fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	plan := s.syllabus.Resolve(progress,
+	learned, settled, err := s.learnedLemmaSet(u.ID)
+	if err != nil {
+		return err
+	}
+	plan := s.syllabus.ResolveCounted(progress,
 		func(lemma string) bool { return inPlay[lemma] },
 		func(unitCode, lemma string) bool { return fromUnit[unitCode+"\x00"+lemma] },
+		func(lemma string) bool { return learned[lemma] },
+		func(lemma string) bool { return settled[lemma] },
 	)
-	return c.JSON(CourseResponse{Plan: plan, Enrolled: progress})
+	return c.JSON(CourseResponse{Plan: plan, Enrolled: progress, Totals: plan.Totals(),
+		Unlock: course.Unlock{Share: course.UnlockShare, SettledDays: srs.MatureDays}})
 }
 
 // fromUnitSet reports which (unit, lemma) pairs this learner has a note for
@@ -181,7 +236,7 @@ func (s *Server) fromUnitSet(userID int64) (map[string]bool, error) {
 		return out, nil
 	}
 
-	// One pack query for every lemma id at once, as inPlaySet does.
+	// One pack query for every lemma id at once, in chunks, as inPlaySet does.
 	args := make([]any, 0, len(ids))
 	for id := range ids {
 		args = append(args, id)

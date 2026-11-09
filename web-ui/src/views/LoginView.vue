@@ -11,7 +11,7 @@ import LocaleToggle from '@/components/common/LocaleToggle.vue'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
 import { useAuthStore } from '@/stores/auth'
 import { Illustration } from '@/components/art'
-import { APP_NAME, APP_TAGLINE_KEY } from '@/lib/brand'
+import BrandWordmark from '@/components/brand/BrandWordmark.vue'
 
 const auth = useAuthStore()
 const route = useRoute()
@@ -38,7 +38,7 @@ async function submit() {
 </script>
 
 <template>
-  <div class="grid min-h-dvh place-items-center px-4">
+  <div class="relative grid min-h-dvh place-items-center bg-tint-cream/40 px-4 py-10">
     <div class="absolute right-4 top-4 flex gap-1">
       <LocaleToggle />
       <ThemeToggle />
@@ -46,19 +46,20 @@ async function submit() {
 
     <!-- Nothing else is on this screen, so the panel is the object: raised,
          and the only thing with any weight on the page. -->
-    <Card variant="raised" class="animate-card-in w-full max-w-sm">
-      <CardHeader class="gap-2">
-        <div class="flex flex-col">
-          <span class="font-display text-2xl font-medium">{{ APP_NAME }}</span>
-          <span class="text-xs text-muted-foreground">{{ $t(APP_TAGLINE_KEY) }}</span>
-          <Illustration name="vine" tone="accent" class="mt-2" />
-        </div>
+    <div class="flex w-full max-w-sm flex-col items-center gap-6">
+    <!-- A calm door: the string of paprika (decorative, ADR-059) over the wordmark. -->
+    <div class="flex flex-col items-center gap-2">
+      <Illustration name="paprika" size="md" />
+      <BrandWordmark :size="56" />
+    </div>
+    <Card variant="raised" class="animate-card-in w-full">
+      <CardHeader class="gap-2 pb-2">
         <CardTitle class="text-base font-medium text-muted-foreground">
           {{ $t('login.title') }}
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form class="flex flex-col gap-4" @submit.prevent="submit">
+        <form class="flex flex-col gap-5" @submit.prevent="submit">
           <div class="flex flex-col gap-1.5">
             <Label for="email">{{ $t('common.email') }}</Label>
             <Input
@@ -90,5 +91,6 @@ async function submit() {
         </form>
       </CardContent>
     </Card>
+    </div>
   </div>
 </template>

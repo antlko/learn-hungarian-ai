@@ -97,6 +97,65 @@ found, and disables the 🔊 controls with a reason when there is none
 (`stores/speech.ts`, `lib/speech.ts`). Asserting a reachability we have not tested is the one
 thing this endpoint must not do.
 
+## Admin: full pack, restart, components
+
+All four routes are **admin-only** (learner 403, anonymous 401) — [ADR-049](../.claude/DECISIONS.md#adr-049).
+None accepts a URL: `langpack.url` / `langpack.sha256` live in `config.yaml` and
+`GET/PUT /api/settings` (`settings.langpack: {url, sha256}`; `http` accepted only for localhost).
+
+| Method | Path | Notes |
+|---|---|---|
+| `POST` | `/api/admin/pack/install` | starts the single install job → **202** with the status below. **409** `errors.packInstallBusy` while one runs; **422** `errors.packNotPublished` when `langpack.sha256` is empty |
+| `GET` | `/api/admin/pack/install` | `{state, bytes, total, errorKey, restartRequired}` |
+| `POST` | `/api/admin/restart` | → **202** `{supervised: bool}`; ~400 ms later the process gets SIGTERM (graceful shutdown). `supervised` is true iff `TANULOM_SUPERVISED=1`. **409** while an install runs |
+| `GET` | `/api/admin/components` | `[{id, configured, reachable, state, progress, model, ramHint, composeProfile, built, managed?}]` — `managed` on `mt` and `nlp` only, below |
+| `POST` | `/api/admin/components/:id/install` | `:id` is `mt` or `nlp` (anything else **404** `errors.componentUnknown`). **202** with the `managed` object; the job runs in the background and the card polls `GET /api/admin/components`. **409** `errors.componentBusy` (a job runs) / `errors.componentInstalled`; **422** `errors.componentNoPython` / `errors.componentReadOnly`; **507** `errors.diskFull` (preflight, nothing written) |
+| `POST` | `/api/admin/components/:id/start` | **202**; **409** `errors.componentNotInstalled` / `errors.componentBusy`. Idempotent while running |
+| `POST` | `/api/admin/components/:id/stop` | **202**; SIGTERM then SIGKILL after 5 s. Idempotent. **409** `errors.componentBusy` during an install |
+| `POST` | `/api/admin/components/:id/uninstall` | **202**; stops the child, deletes `<data>/components/<id>/`, and sets `services.<id>.provider` to `off` iff it was `managed`. **409** `errors.componentBusy` during an install |
+
+All four are admin-only (403 for a learner, 401 signed out) and take no body: nothing a client sends
+can reach a command line ([ADR-061](../.claude/DECISIONS.md#adr-061)).
+
+```jsonc
+// `managed` on the mt / nlp rows of GET /api/admin/components (and the 202 body above)
+{ "available": true,            // python3>=3.10 with venv+pip found AND the data dir is writable
+  "unavailableKey": "errors.componentNoPython",  // | errors.componentReadOnly — only when available=false
+  "pythonVersion": "3.12.1",
+  "state": "running",           // absent | installing | installed | starting | running | failed | stopped
+  "step": "component.step.pip", // installing only: component.step.venv|pip|model|start
+  "progress": 0.42,             // 0..1 over the whole install, never decreases within a job
+  "port": 41873,                // 127.0.0.1 only, in memory; absent unless starting/running
+  "errorKey": "errors.componentNetwork",   // | errors.componentInstallFailed | errors.diskFull | errors.componentStartFailed | errors.componentCrashed
+  "errorDetail": "short redacted tail of the failing command",
+  "log": ["…last ≤40 lines, paths outside the data dir reduced to their last element…"],
+  "diskNeed": "≈6 GB (estimate)", "ramNeed": "≈2–3 GB (estimate, not measured)" }
+```
+
+On success of an install the server sets `services.<id>.provider = "managed"` itself; the settings
+DTO then carries `provider: "managed", endpoint: ""`. A `managed` service whose child is not running
+probes as `configured: true, reachable: false` (`detail: "not running"`).
+
+```jsonc
+// GET /api/admin/pack/install
+{ "state": "downloading",   // idle | downloading | verifying | ready | failed
+  "bytes": 52428800, "total": 262144000,   // compressed bytes; total 0 when the server sent no length
+  "errorKey": "",            // on failed: errors.packNotPublished | packChecksum | packDownloadFailed |
+                             //   packCorrupt | packIncompatible | packOlder | diskFull
+  "restartRequired": false } // true once state is "ready"
+```
+
+`ready` means the verified pack is parked as `langpack-hu-v1.sqlite.new`; the live pack is untouched
+and **the next boot applies it** (repeating the id check; a refusal shows here as `failed` +
+`errors.packIncompatible`). On any
+failure the live pack is untouched and the temporary files are gone. `components[].id` is one of
+`pack | mt | nlp | tts | asr | llm`; `state` for `pack` is `starter | full | installing |
+restartRequired | missing`, for the rest `off | device | unreachable | ready` (mt passes its own
+`loading | ready | failed`); `progress` is 0..1 (0 when nothing is in flight); `built` is false for
+a sidecar this repository does not ship yet (`tts`, `asr`; `nlp` is built — its state, `loading` while the model downloads, with `progress`, comes from the sidecar's `/health`); `ramHint` is a documented
+figure or blank, never measured here. Reachability comes from the same probe as
+`/api/capabilities`.
+
 ## Language & morphology
 
 | Method | Path | Status | Notes |
@@ -141,13 +200,22 @@ an override, never as the dictionary. An empty correction (just the form) is a v
 
 `certainty` ∈ `certain | uncertain | derived` — surfaced in the UI, never hidden.
 
+`analysis.via` (optional, `"context"`): the reading of an `uncertain` word was chosen by the opt-in
+HuSpaCy sidecar from the pack's own candidates ([ADR-054](../.claude/DECISIONS.md#adr-054)); the
+UI says «по контексту (HuSpaCy)» (`reader.viaContext`). Absent when no sidecar is configured or
+reachable. `certainty` stays `uncertain`.
+
+`POST /api/admin/nlp/warmup` (admin) asks the sidecar to download/load its model and returns the
+`nlp` component row (`state: loading|ready|failed`, `progress`); 503 with
+`errors.nlpNotConfigured` / `errors.nlpUnreachable` otherwise. Poll `GET /api/admin/components`.
+
 ## Review (SRS)
 
 | Method | Path | Status | Notes |
 |---|---|---|---|
 | `GET` | `/api/review/queue` | ✅ | today's queue; `?scope=all\|course\|reader\|text:<id>` (default `all`; an unknown value is a 400). **`scope=trash` is a 400 here** — the trash is practised, never scheduled ([ADR-025](../.claude/DECISIONS.md#adr-025)). `?order=due\|random` (default `due`) arranges the same cards: `random` is stable for the day and never changes which cards are served ([ADR-026](../.claude/DECISIONS.md#adr-026)); the response echoes `order` |
-| `GET` | `/api/words` | ✅ | the words browser: `?status=&q=&sort=&page=&pageSize=` → one row per deck word with status, strongest-card retrievability, next due and lapses. Search resolves through pack case-variants, never `COLLATE NOCASE` |
-| `POST` | `/api/review/answer` | ✅ | `{cardId, rating, typed?, durationMs}` → next card + graded features, plus `memory`: the card's figures AFTER the answer, so the screen can show «3 дн → 8 дн» ([ADR-026](../.claude/DECISIONS.md#adr-026)). `expected` is the **dictionary form** on `produce` and the **surface form** on `cloze`/`spell` — see below. With `review.accentTolerance` (default on), a typed answer wrong only in diacritics is accepted at **Hard** and flagged `acceptedWithAccents: true` — never silently; `spell` is exempt |
+| `GET` | `/api/words` | ✅ | the words browser: `?status=&stage=&q=&sort=&page=&pageSize=` → one row per deck word with status, strongest-card retrievability, next due and lapses. Each row also carries `stage` (`learning`\|`relearning`\|`young`\|`mature`\|`known` — `known` is the learner's «Знаю», otherwise `srs.StageOf` the strongest card; young/mature split at a 21-day interval), `intervalDays`, `reps`, `stepsLeft`, `stepsTotal` (the strongest card's `srs.Memory` figures). `?stage=` filters on it (400 on an unknown value); pagination stays in Go. Search resolves through pack case-variants, never `COLLATE NOCASE` |
+| `POST` | `/api/review/answer` | ✅ | `{cardId, rating, typed?, via?, durationMs}` → next card + graded features, plus `memory`: the card's figures AFTER the answer, so the screen can show «3 дн → 8 дн» ([ADR-026](../.claude/DECISIONS.md#adr-026)). `expected` is the **dictionary form** on `produce` and the **surface form** on `cloze`/`spell` — see below. With `review.accentTolerance` (default on), a typed answer wrong only in diacritics is accepted at **Hard** and flagged `acceptedWithAccents: true` — never silently; `spell` is exempt |
 | `POST` | `/api/review/undo` | ✅ | reverts the last answer including its feature reviews. Delete-and-replay: the log is the truth, state is recomputed from it (bit-exact — the property test in `internal/srs/replay_test.go` covers fuzzed due dates too). 409 when there is nothing to undo |
 | `GET` | `/api/review/forecast` | ✅ | 90-day projection for the governor |
 | `POST` | `/api/notes` | ✅ | creates a note; the server locates the target span, reads its features off the live analysis, backfills a missing gloss from the pack, and spawns one card per planned direction. Returns `lemmaStatus`, the lemma's state after the call, and `restored: true` when the duplicate it matched was in the trash and has been put back |
@@ -242,6 +310,22 @@ grades the dictionary form and `cloze` the form in the sentence, and a second co
 is how the hint comes to show one word while the grader wants another. Server and client share
 one `expectedFor`. [ADR-017](../.claude/DECISIONS.md#adr-017).
 
+**`options` (optional) — tap-to-answer candidates for `cloze` and `produce` cards.**
+`"options": ["házban","házat","házba","ház"]`: 3-5 strings, shuffled, containing `expected`
+exactly once; omitted when fewer than three can be built (the client types). The rest are
+real: for `cloze`, other **attested** forms of the same lemma (the two closest in suffix, then a
+seeded draw; topped up with same-POS neighbours if the lemma has too few forms); for `produce`,
+same-POS lemmas near in frequency rank and length, never one with the same first-sense gloss.
+No option is accepted by the grader as the answer (case/diacritics-insensitive equal).
+Deterministic per (card, local day). Built for the review queue and `/api/practice/queue`,
+including reader-mined and custom notes (it needs only the note's lemma and target form).
+**Grading does not change**: the client submits the chosen string as `typed`, optionally with
+`via: "choice"` (`"typed"` default, anything else → 400; `choice` only for `cloze`/`produce`).
+`via` is not stored; on `choice` a `usedHint` flag is ignored, and a correct choice rates
+exactly what a correct typed answer without a hint does (Good — never Easy, never a recognition
+bonus). Accepted by `/api/review/answer` and `/api/practice/answer`.
+[ADR-060](../.claude/DECISIONS.md#adr-060).
+
 **`QueueCounts` describes the session that was built, in the Breakdown vocabulary.** `due` is
 the served scope's `dueNow`; `dueLaterToday`/`nextDueAt` are the learning steps the done screen
 counts down to; the fate of every new word this build considered comes on ONE basis —
@@ -251,7 +335,7 @@ limit's doing) / `newBacklogNotes` (held back by the budget alone) — with the 
 trimmed the build. A note spawns three to five cards, so the word figures lead: "59 new cards
 waiting" told a learner with 27 new words nothing they could act on.
 | `GET` | `/api/practice/queue` | ✅ | free practice from `?scope=` (text scope **and `trash`** included), ignoring due dates and the daily cap. `?size=` (10–50, clamped, default 20) and `?mode=random\|weak` — weak leads with the lowest-retrievability words and falls back to random on a virgin deck; the response's `mode` echoes what was actually served ([ADR-024](../.claude/DECISIONS.md#adr-024)). Also returns `pool` |
-| `POST` | `/api/practice/answer` | ✅ | `{cardId, rating?, typed?, durationMs}` → `{correct, expected?, diff?}`. **Schedules nothing** — see below |
+| `POST` | `/api/practice/answer` | ✅ | `{cardId, rating?, typed?, via?, durationMs}` → `{correct, expected?, diff?}`. **Schedules nothing** — see below |
 | `GET/PUT/DELETE` | `/api/notes/:id` | ⏳ | editing and deletion |
 
 **The trash is practised, never scheduled.** `POST /api/notes/:id/trash` takes a word out of the
@@ -280,6 +364,24 @@ stayed invisible. See [ADR-025](../.claude/DECISIONS.md#adr-025).
 | `POST` | `/api/translate` | ✅ | machine translation of sentences — **503 unless `services.mt` is up**  Callers: the reader's word rail, the review card's crib and the word breakdown's example sentences — each offers it only when the learner's language is missing and `mt` is reachable ([ADR-035](../.claude/DECISIONS.md#adr-035)); the review queue itself never calls it |
 | `GET` | `/api/mt/status` | ✅ | what the translation sidecar is doing, in its own words |
 | `POST` | `/api/mt/warmup` | ✅ | admin — fetch the model, or retry a failed download |
+
+### `GET /api/library/sets` · `POST /api/library/sets/:code/import`
+
+Ready-made reading sets, «Живые примеры» ([ADR-056](../.claude/DECISIONS.md#adr-056)). Signed-in.
+
+`GET` → a bare array (never `null`), core units first by order, then themes:
+`[{code, level, track, title, titleRu, titleEn, theme, sentences, imported, textId?}]`.
+`title`/`theme` follow `?lang=ru|en`, else the configured UI locale; `textId` is present only when
+`imported`. A pack without the tables answers `200 []` — not an error.
+
+`POST …/import` → `{textId, created}`. Builds the text from the set's pack sentences, one per
+paragraph (a blank line always ends a sentence), and stores it through the same ingestion path as
+`POST /api/texts` (`kind: paste`, title = the set title in the UI locale, `source_url = "set:<code>"`
+— a marker, not a link). `201 created:true` the first time; `200 created:false` with the existing
+`textId` thereafter (per learner; deleting the text allows a fresh import). `404` unknown code,
+`503 errors.packMissing` when the pack has no sets table. It creates **no** note, card or state:
+mining words stays the learner's act in the reader. The pack's Russian translation is not stored
+with the text — the text model has no per-sentence translation slot.
 
 ### `GET/PUT/DELETE /api/glosses/:form`
 
@@ -371,12 +473,12 @@ answer — it is a crib for a line the learner is looking at ([ADR-014](../.clau
 The grammar DAG fixes the order *rules* arrive in and says nothing about words; the miner finds
 good sentences but only once there is a vocabulary to score them against. Between them sits the
 question every beginner actually asks, and "mine your own sentences" is not an answer to it. So
-the pack ships an ordered six-month syllabus — `course_unit` + `course_word` — and these three
+the pack ships an ordered syllabus in three finite tiers — `course_unit` + `course_word` — and these three
 endpoints serve it, then hand over.
 
 | Method | Path | Status | Notes |
 |---|---|---|---|
-| `GET` | `/api/course` | ✅ | the syllabus resolved against this learner's deck: `{plan, enrolled}`. 503 when there is no pack, or when the pack carries no course |
+| `GET` | `/api/course` | ✅ | the syllabus resolved against this learner's deck: `{plan, enrolled, totals, unlock}`. `plan.current` is the unit to take NEXT and follows enrolment ([ADR-048](../.claude/DECISIONS.md#adr-048)): the first unit enrolled and not done, else the first neither enrolled nor done; reader words can finish a unit but never move it. 503 when there is no pack, or when the pack carries no course. Each `units[].unit` has a `track` (`"core"` or `"theme"`; `"core"` for a pack built before the column existed) and a `tier` (`"basic"` | `"intermediate"` | `"advanced"`; `"basic"` for an older pack and for every theme unit; [ADR-057](../.claude/DECISIONS.md#adr-057)). `unit.month` (1-18) is an internal ordering/checkpoint field, not a learner-facing label. Each `units[]` also has `learned`: how many of the unit's words are *counted lemmas* (the `/api/stats/level` rule). `wordsInPlay` says a word is in the deck; `learned` says it has been learned. `totals` tallies the core words, in all and per tier: `{words, inDeck, learned, settled, perTier: {basic|intermediate|advanced: {words, inDeck, learned, settled}}}`; themes are excluded. Each `units[]` also has `settled` ([ADR-058](../.claude/DECISIONS.md#adr-058)): how many of the unit's words are *settled* — lemma `known`, or a non-suspended, non-trashed card at stage `mature` (interval >= 21 days). `unlock: {share: 0.7, settledDays: 21}` is the soft gate's rule so the client never hard-codes it: a unit after one with `settled < share * wordsTotal` is DRAWN closed. It is advice; no endpoint refuses enrolling or practising such a unit. Theme units are optional side branches ([ADR-050](../.claude/DECISIONS.md#adr-050)): they carry their own `status` (`done`/`ahead`) and `enrolled`, but never become `current`, and `total`/`completed`/`handedOver` count the 64 core units only (all three tiers; `handedOver` only after the last tier's last unit is done) |
 | `POST` | `/api/course/:code/enrol` | ✅ | takes a unit up: one sentence note per word, into the review deck. `{unitCode, notesMade, duplicate, skipped[]}`. 404 unknown unit; 400 when every review direction is disabled |
 | `GET` | `/api/resources` | ✅ | `{resources: [{kind, title, url, level, blurbRu, blurbEn, free}]}` — the hand-off catalogue, read from the pack. 503 without a pack; a pack predating the table yields `{"resources": []}` rather than an error |
 
@@ -384,15 +486,20 @@ endpoints serve it, then hand over.
 { "plan": {
     "units": [{
       "unit": {"code": "m2-u3", "month": 2, "ord": 7,
-               "titleRu": "…", "titleEn": "At the doctor",
+               "tier": "basic", "titleRu": "…", "titleEn": "At the doctor",
                "goalRu": "…", "goalEn": "I can register at a GP and describe a symptom",
                "situationRu": "…", "situationEn": "orvosi rendelő",
                "topicCodes": ["locative-grid", "past-tense"],
                "words": [{"lemma": "orvos", "upos": "NOUN", "glossRu": "…",
                           "glossEn": "doctor", "note": ""}]},
-      "status": "current", "enrolled": true, "wordsTotal": 34, "wordsInPlay": 12
+      "status": "current", "enrolled": true, "wordsTotal": 34, "wordsInPlay": 12, "learned": 3, "settled": 1
     }],
-    "current": "m2-u3", "handedOver": false, "completed": 6, "total": 24 },
+    "current": "m2-u3", "handedOver": false, "completed": 6, "total": 64 },
+  "unlock": {"share": 0.7, "settledDays": 21},
+  "totals": {"words": 3106, "inDeck": 140, "learned": 31, "settled": 9,
+             "perTier": {"basic":        {"words": 1399, "inDeck": 140, "learned": 31},
+                         "intermediate": {"words": 1012, "inDeck": 0,   "learned": 0},
+                         "advanced":     {"words": 695,  "inDeck": 0,   "learned": 0}}},
   "enrolled": {"m2-u3": {"unitCode": "m2-u3", "enrolled": true,
                          "notesMade": 31, "skipped": 3}} }
 ```
@@ -400,7 +507,8 @@ endpoints serve it, then hand over.
 **A unit is `done` when its words are in the review deck — a fact, not a button.**
 `status` ∈ `done | current | ahead`, and `done` means every word of the unit is in that
 learner's `lemma_state` as `learning` or `known` (`course.Resolve`, joined to the deck in
-`Server.inPlaySet`). There is no completion flag anywhere in the schema — `course_progress`
+`Server.inPlaySet`). **That is "in the deck", not "learned"**: a unit is `done` the moment it is
+enrolled, so the UI shows `learned`/`wordsTotal` instead and does not call `done` «пройден». There is no completion flag anywhere in the schema — `course_progress`
 records enrolment and nothing else — so the plan screen cannot drift from the deck, and marking
 a unit finished without learning it is not a thing the API can express.
 
@@ -581,7 +689,10 @@ sentence by sentence. That is worse input than a native recording and the UI lab
 | Method | Path | Status | Notes |
 |---|---|---|---|
 | `GET` | `/api/stats/overview` | ✅ | lemma counts + cumulative curve, streak, today's ledger, listening hours, checkpoint history + the next spec with live evidence, blocked levels, exam date. Also: `queue` — the whole deck's `Breakdown`, the SAME numbers the review tabs show ([ADR-021](../.claude/DECISIONS.md#adr-021); `dueNow` duplicates `queue.dueNow` for older clients); `days` — the ledger, newest first, `?days=7\|30\|90\|365`, **default 90** — the chart offers 7/30/90 and switches between them client-side, so the response has to carry the widest of them; anything unrecognised gets the default rather than an error. The STREAK is always computed over the full ledger, never over this window; each row carries `readS` beside `listenS` so the activity chart can say where an hour went ([ADR-044](../.claude/DECISIONS.md#adr-044)); `practiceDays` + `practiceByDirection` — practice series, still scheduling nothing |
-| `GET` | `/api/stats/mastery` | ✅ | per-feature mastery |
+| `GET` | `/api/stats/mastery` | ✅ | per-feature mastery; each row adds `topics: [code]` — the grammar topics that teach the feature (`[]` if none), so a heatmap cell can link to its lesson |
+| `GET` | `/api/stats/level` | ✅ | the **estimated level** and text coverage ([ADR-047](../.claude/DECISIONS.md#adr-047)), computed per request, never stored: `{label:"A2.2", band, sublevel, confidence:"low"\|"estimate", coverage:0.71, countedLemmas, bands:[{band,counted,total,share,target:0.8,grammarReady,grammarDrillable,reached}], cappedBy:"m3"\|"", methodKey:"level.method.v1"}`. See ARCHITECTURE §5.12 for the model. `label` is `C1+` once every measured band is reached |
+| `GET` | `/api/stats/deck` | ✅ | the learner's WORDS (lemmas) by stage, the Words list's own rule (`known` status outranks; else the strongest card's stage): `{total, stages:{learning,relearning,young,mature,known}, new}`. `new` = in the deck with no reviewed card yet (the list shows these as learning, «ещё не повторялось») and is NOT also counted in `stages.learning`, which means "answered at least once and in its learning steps". `total` = sum of all six = the Words list total for `status=all` (an ignored word with no card has no stage and is in neither). Trashed/suspended cards excluded. A word count, never a due count (those come from `srs.Breakdowns`). Cached 30 s with the level scan, dropped by `recordInteraction` |
+| `GET` | `/api/stats/level/band/:band` | ✅ | `?limit=50` (1–200) → `{words:[{lemmaId,lemma,glossRu,glossEn,freqRank}]}`: the highest-frequency lemmas of band `A1`–`C1` the learner does not yet count. Homonyms are collapsed by lemma text (case-insensitive): the best-ranked row, preferring one with a gloss in `?lang=` (default the UI locale); `limit` counts distinct lemmas. Read-only — adds no note. 400 on an unknown band |
 | `POST` | `/api/checkpoints` | ✅ | `{code, attested[], notes}` → verdict. Measured criteria the server computes; attested criteria are the learner's claims, stored as such. A failure returns the diagnostic against the three documented failure modes and **locks curriculum levels** at/above the checkpoint's gate (`gate.locked.checkpoint`) until a retake passes |
 | `POST` | `/api/today/human` | ✅ | Loop 4 attestation. Recorded, shown, **ignored by the streak** — the app cannot verify a conversation and does not pretend to |
 

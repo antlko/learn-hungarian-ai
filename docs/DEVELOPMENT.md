@@ -47,6 +47,7 @@ reads as "the button is still not there".
 | `make audio` | Renders the ear trainer's clips into `data/media/hvpt` with Piper (from the venv) and ffmpeg; `make voices` fetches the three CC0 talkers first. |
 | `make subtitles` / `make verbs` | Add the recurrence-filtered OpenSubtitles sentences / the generated indicative verb cells to an existing pack. |
 | `make tutor-kb` | Regenerates the tutor's reference corpus (`backend/internal/tutor/kb/src-*.md`). |
+| `make sync-components` | Copies `services/{mt,nlp}` sources into `backend/internal/components/src/` (what the binary embeds for managed components, [ADR-061](../.claude/DECISIONS.md#adr-061)); run it after editing a service, `TestEmbeddedSourcesMatchServices` fails otherwise. |
 | `make mt` | Runs the translation sidecar locally; weights under `MT_MODEL_DIR` (default `~/.cache/tanulom-mt`). |
 | `make venv` | Creates `langpack/.venv` and installs `langpack/requirements.txt`; `make deps` runs it. |
 | `make starter` | Re-embeds the starter pack into the Go tree. **Commit the result.** |
@@ -114,7 +115,7 @@ Both run in `.github/workflows/ci.yml` on every PR, and `make test` runs the sam
 
 You do **not** need to build the pack to develop, and there is nothing to fetch: the binary
 installs its embedded starter pack into the data directory on first boot. It is a real pack —
-5,059 lemmas, the whole 24-unit course, every minimal pair — so every screen works against it. To rebuild — see [`LANGPACK.md`](LANGPACK.md) — expect hours and tens
+5,725 lemmas, the whole 24-unit course, every minimal pair — so every screen works against it. To rebuild — see [`LANGPACK.md`](LANGPACK.md) — expect hours and tens
 of GB of scratch space; it is built on a workstation — CI does not build packs, it tests
 against the embedded starter.
 
@@ -240,3 +241,19 @@ the `.pth`, silences it.
 - **Pedagogical code cites its note:**
   `// [R5] blocked-first ... see .claude/research/05-interleaving.md`
 - **Behaviour change → doc change in the same commit.** `docs/` is the contract.
+
+## Performance budget
+
+Measure with `cd web-ui && npm run build` (vite prints raw and gzip size per chunk) and the total
+with `find dist -name '*.js' | xargs cat | wc -c`.
+
+- **Locales load on demand.** `src/i18n.ts` starts with no messages; `main.ts` awaits
+  `setLocale(<active>)` before mounting, so only the learner's language (ru ~33 kB gzip, en ~26 kB)
+  is downloaded. Switching language fetches the other one first, then flips. The runtime
+  `fallbackLocale` therefore only works in dev; key parity is guaranteed by `npm run lint:locales`.
+- **`vendor` chunk** (vue, vue-router, pinia, vue-i18n) is split in `vite.config.ts` so an app
+  release does not invalidate the framework in the browser cache.
+- Numbers after B11: entry `index` ~34 kB raw / ~11 kB gzip, `vendor` ~197 kB raw / ~72 kB gzip,
+  total JS ~848 kB raw across both locales (a session loads only one).
+- **Rule: no new heavy dependency without measuring** the before/after of the entry chunk and
+  total bytes. Route views stay lazy; do not statically import a view or `reka-ui` (unused).

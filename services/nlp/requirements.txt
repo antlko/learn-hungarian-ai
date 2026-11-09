@@ -1,0 +1,7 @@
+# spaCy is pinned to the 3.8 line because hu_core_news_md 3.8.1 declares
+# spacy>=3.8.0,<3.9.0 (HuggingFace meta.json). The model itself is NOT here:
+# it is downloaded on POST /warmup into the /models volume.
+spacy==3.8.7
+fastapi==0.115.6
+uvicorn==0.34.0
+pydantic==2.10.4

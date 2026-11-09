@@ -21,6 +21,7 @@ This file is the **index**: commands, invariants, gotchas. Depth lives in `docs/
 
 | Doc | Read it when you need |
 | --- | --- |
+| [docs/FEATURES.md](docs/FEATURES.md) | What the app does, in plain words, screen by screen, with its known limits |
 | **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** | **How it behaves**: the two state spaces, data ownership, package graph, key algorithms, request flows, "where to make a change" map |
 | **[docs/PEDAGOGY.md](docs/PEDAGOGY.md)** | **Why any learning feature is the way it is** — feature→citation map, and the six documented divergences from the source brief |
 | [docs/LANGPACK.md](docs/LANGPACK.md) | Pack schema, build pipeline, sources + licences, versioning, quality gates |
@@ -102,6 +103,16 @@ impact, and `ru.json` / `en.json` carry the same keys. A convention with a check
 - **`config.yaml` is mutated only via `Server.updateConfig`** (clone → validate → atomic save →
   swap under lock). Add new `Config` fields to `config/clone.go` too. Never touch `s.cfg`
   directly.
+- **Managed components never block boot and the app never needs them.** `internal/components`
+  installs and supervises `mt`/`nlp` as child processes ([ADR-061](.claude/DECISIONS.md#adr-061)).
+  `AutoStart` runs in a goroutine and only logs; with everything absent (the default, and the whole
+  of the distroless image, which ships no Python) the app is exactly what it was. A managed
+  service's endpoint is **never stored**: `provider: managed` plus a port that exists only in the
+  manager's memory, resolved by `api.resolveService` — every client takes its `config.Service` from
+  it, so do not read `cfg.Services.MT/NLP` directly for a call. Children get an ALLOWLISTED env (never
+  `TANULOM_*` or a secret), run only the sources embedded in the binary (`make sync-components` after
+  editing `services/<id>/`; a test fails on drift), and no route accepts a URL, path or argument.
+  Installs are atomic (`<id>.installing/` renamed on success) and a failure leaves nothing.
 - **Secrets never leave the server and never enter YAML.** Stored in SQLite, stripped from DTOs
   (presence exposed as `secrets: {k: true}`), preserved on `PUT` when blank or omitted.
 - **Route guards are UX only** — the API enforces roles independently.
@@ -116,12 +127,22 @@ impact, and `ru.json` / `en.json` carry the same keys. A convention with a check
   hard-lock: a failed checkpoint, and the listening volume word order needs. Locking on order
   wedged a learner behind `vowel-harmony` — a motor skill the app itself says takes three
   months — with all of A1 shut behind it. Do not restore it.
+  **The path may still DRAW a unit as closed** ([ADR-058](.claude/DECISIONS.md#adr-058)): the unit
+  after one that is under 70% *settled* (`known`, or its strongest live card mature, >= 21 days;
+  `UnitState.settled`, rule sent as `unlock`) shows closed plus a notice — but opening it anyway is
+  always one tap. No stored lock, no endpoint refuses it; that is a visual gate, not this lock.
 - **Interleaving is gated behind a competence floor.** Blocked practice until rolling accuracy
   ≥ 80%, then interleaved, with hysteresis on fallback. This contradicts the source brief on
   purpose — see [R5](.claude/research/05-interleaving.md). Do not "fix" it back.
   The gate in `internal/drill/schedule.go` is a **pure function** of the learner's counters, and
   it exports the reason for its verdict as an i18n key. Keep it pure: the UI's claim that it is
   showing you the rule the server applied is only true while that holds.
+- **Answer options are built server-side from attested forms; grading is unchanged.**
+  `QueueItem.Options` (`internal/api/options.go`, [ADR-060](.claude/DECISIONS.md#adr-060)) holds
+  `expected` plus real distractors for `cloze`/`produce`, omitted below three. A tap is submitted
+  as the ordinary typed `answer` (`via: "choice"`) through `gradeTyped`; `via` is stored nowhere,
+  ignores `usedHint`, and rates at most Good. Recognition is weaker than recall — typing stays the
+  desktop default. Distractors never include a string the grader would also accept.
 - **A drill's correct answer must be attested in the pack.** Distractors may be constructed —
   a wrong allomorph is not a word — but the form marked right has to be one the language has.
   Resolve forms through `internal/morph/forms.go`. **Never read the pack's `paradigm` table for
@@ -335,7 +356,7 @@ impact, and `ru.json` / `en.json` carry the same keys. A convention with a check
   message telling the user to fetch what was already on disk. A pack-dependent route answering
   503 is a genuine failure path, not the normal first-run state: UI copy must not send the
   learner off to download anything, and `packPresent: false` from `/api/bootstrap` means
-  something broke. The full pack is an **upgrade** (`make langpack`).
+  something broke. The full pack is an **upgrade** (`make langpack`, or an admin's install button: [ADR-049](.claude/DECISIONS.md#adr-049) — never without a pinned `langpack.sha256`, never over the live file until verified and id-compatible with the learner's data, active only after a restart).
   **`backend/internal/lang/starter/*.gz` is committed, not generated** — `//go:embed` on a
   missing file is a compile error, so gitignoring it would mean a fresh clone cannot build.
   Change the pipeline and you must run `make starter` and commit the result, or the binary ships
@@ -353,13 +374,25 @@ impact, and `ru.json` / `en.json` carry the same keys. A convention with a check
   month 2. The chip says «следующий», the dot follows ENROLMENT (something the learner did) and
   the legend draws all four states: пройден · начат · следующий · впереди. Same rule as
   `fromHere`: keep the derivation, fix what the UI claims about it.
-- **No XP, no levels, no leagues, no leaderboards, no gems, no lootboxes.** Gamification's
+  **`done` is "in the deck", never «пройден»** ([ADR-057](.claude/DECISIONS.md#adr-057)): a unit is
+  `done` the moment it is enrolled. What the learner sees as progress is `UnitState.Learned` —
+  words that are *counted lemmas*, the SAME rule and helper as `/api/stats/level`
+  (`countedLemmas`) — and `GET /api/course` `totals`, both derived per request, never stored.
+  **"Next" follows ENROLMENT** ([ADR-048](.claude/DECISIONS.md#adr-048)): `plan.current` is the
+  first unit enrolled and not done, else the first neither enrolled nor done. Words mined from the
+  reader still make a unit `done`, but must never move "next" away from a unit the learner
+  started — that jump was the complaint. `inPlaySet` returns its errors and chunks its `IN`.
+- **No XP, no levels, no leagues, no leaderboards, no gems, no lootboxes** (and no ring that is
+  not a derived settled share with a numeric label — ADR-059, UX.md §14.5). Gamification's
   effect on *competence* is null, and extrinsic point economies are the part most likely to
   crowd out the real goal — [R14](.claude/research/14-motivation.md),
   [R16 §3](.claude/research/16-debunked.md). The permitted motivational surface is exactly:
-  the streak (obligations met), the lemma curve, the morph heatmap, checkpoint pass/fail, and
-  the exam countdown. Every one of those is a **competence** signal with something measured
-  behind it. A request for "a bit more fun" is answered inside that set.
+  the streak (obligations met), the lemma curve, the morph heatmap, checkpoint pass/fail, the
+  exam countdown, and the **estimated level + text coverage**
+  ([ADR-047](.claude/DECISIONS.md#adr-047)) — stated as a measured estimate with its method
+  printed, computed per request, never stored, and able to go DOWN (a decayed word stops
+  counting). Never call it a score or points. Every one of those is a **competence** signal with
+  something measured behind it. A request for "a bit more fun" is answered inside that set.
 - **No LLM-generated Hungarian becomes a card without passing `internal/corpus/attest.go`** —
   the guardrail lands with the LLM in Phase 9; `internal/corpus` does not exist yet and nothing
   generates Hungarian *as material* yet. The tutor's Hungarian is explanation, labelled
@@ -374,6 +407,7 @@ impact, and `ru.json` / `en.json` carry the same keys. A convention with a check
   `user_gloss` only as `machine` on an explicit save and a card's back only after «Принять как
   своё» re-saves it `manual`. Its example sentences are illustration, say so on the panel, and
   never become notes. Prompt: `.claude/prompts/word-entry.md`.
+- **Reading sets are pack sentences, imported by a click, never LLM text.** «Живые примеры» (`reading_set`, [ADR-056](.claude/DECISIONS.md#adr-056)) hold only existing `source='tatoeba'` sentences chosen by `langpack/pipeline/reading_sets.py`; `POST /api/library/sets/:code/import` makes an ordinary text through `Server.ingestText` and creates no note or card.
 - **Machine translation is display-only, and always says who wrote it.** `services/mt` (NLLB-200)
   generates Russian and English, not Hungarian, so `corpus` attestation cannot help — a wrong
   translation is perfectly well-formed. **Labelling is the entire defence**: `model` travels with
@@ -450,11 +484,16 @@ impact, and `ru.json` / `en.json` carry the same keys. A convention with a check
   class; page titles use the `page-title` utility (or `PageHeader.vue`), never a hand-written
   `text-3xl font-semibold`. Fonts are bundled subsets from `assets/fonts.css`; nothing loads
   from the network.
-- **Drawings are chrome, never a metric** ([ADR-037](.claude/DECISIONS.md#adr-037)). The line art in
-  `components/art` is one colour (`currentColor`), decorative (`aria-hidden`), under 2 KB a
-  motif, and lives on empty states, the done screen, 404 and under the wordmark at the two
-  doors. It never draws progress — no rings, flames or numbers (UX.md §14.5) — and never sits on
-  a `Note`, a card or the Progress screen.
+- **Drawings are chrome, never a metric** ([ADR-037](.claude/DECISIONS.md#adr-037),
+  [ADR-059](.claude/DECISIONS.md#adr-059)). The line art in `components/art` is decorative
+  (`aria-hidden`), under 2 KB a motif, and lives on empty states, the done screen, 404, under
+  the wordmark at the two doors — and, as **two-tone** pieces (line `currentColor` + `--art-fill`),
+  the six Budapest/Balaton drawings in the places UX.md §14.9 lists (Library/Words/Listen/Ear
+  empty, Grammar not-started, Today's header strip and rest state). A drawing never draws
+  progress and never sits on a `Note`, a graded card or the Progress screen's metrics.
+  **The one ring** is `components/visual/ProgressRing.vue`, and only for a derived share with a
+  counted denominator and a numeric label (a unit's settled words). No streak, XP or «activity»
+  rings, no flames.
 - **Icons: `@lucide/vue`**, NOT `lucide-vue-next` (deprecated). Some names changed in v1
   (`Home`→`House`); verify via type-check.
 - **Tailwind v4 resets buttons to `cursor: default`.** Reuse `buttonVariants`, `TabsTrigger`,
@@ -497,7 +536,7 @@ This project's credibility rests on not overclaiming. These are product requirem
   ASR are **labelled in the UI**.
 - **"We have not built this" is a supported outcome.** A topic with no drill generator resolves
   to the `explained` phase and says so; a topic the pack cannot supply attested material for
-  reports `noMaterial` rather than inventing answers. Thirteen of twenty-eight topics produce
+  reports `noMaterial` rather than inventing answers. Thirteen of thirty-three topics produce
   drills on hu-v1, and the app does not pretend otherwise.
 - **An error a drill cannot fix is routed, not drilled.** A vowel-length or rounding mistake is
   a perception problem; `internal/drill/from_error.go` returns `drill.remedy.ear` and the UI
@@ -505,9 +544,17 @@ This project's credibility rests on not overclaiming. These are product requirem
 - Known limitations are stated in the product, not only in docs: FSRS's efficiency figure is a
   simulation; per-user FSRS optimisation is absent in v1.0; coverage thresholds are
   English-derived; Hungarian ASR has ~11% WER; only 3 synthetic voices exist for HVPT.
-- **The guided course ends, and says so.** Twenty-four units, then `handedOver` and a catalogue
-  of real Hungarian. Do not extend it into an endless drip — a course that never ends produces a
-  learner who can only read material made for them [R11].
+- **The guided course ends, and says so.** Three FINITE tiers — 24 basic, 20 intermediate, 20
+  advanced core units (`course_unit.tier`; 64 in all) — then `handedOver` and a catalogue of real
+  Hungarian ([ADR-057](.claude/DECISIONS.md#adr-057), which extends the original 24-unit course at the
+  owner's request). The learner picks their own pace; `month` is an internal ordering and
+  checkpoint field and is never shown. `current`, `total`, `completed` and `handedOver` run over all
+  64 core units in order. Do not add a fourth tier or an endless drip — a course that never ends
+  produces a learner who can only read material made for them [R11]; the pipeline validator
+  ("exactly 24 + 20 + 20") refuses it. The twelve themed side units (`track = 'theme'`, colours, the
+  body, the weather …) are optional branches: `course.Resolve` never lets one decide `current`,
+  `total` or `handedOver` ([ADR-050](.claude/DECISIONS.md#adr-050)). Reading sets exist for the basic
+  tier and the themes only.
 - **The export is a FULL dump, and never an `.apkg`.** `internal/profile` +
   `/api/profile/{export,import,size}` carry every user-scoped table — both state spaces, the
   review log, texts, glosses, the daily ledger, tutor threads — plus `media/`, as a zip.

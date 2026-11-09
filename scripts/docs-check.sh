@@ -37,5 +37,20 @@ else
   status=1
 fi
 
+# 4. Design tokens meet WCAG and illustrations stay under 2 KB (ADR-059).
+if command -v python3 >/dev/null 2>&1; then
+  python3 scripts/validate_palette.py >/dev/null 2>&1 || {
+    echo "docs-check: scripts/validate_palette.py failed — run it for the table" >&2
+    status=1
+  }
+  python3 scripts/check_art.py >/dev/null 2>&1 || {
+    echo "docs-check: scripts/check_art.py failed — run it for the list" >&2
+    status=1
+  }
+else
+  echo "docs-check: python3 not found — palette contrast not checked" >&2
+  status=1
+fi
+
 [ "$status" -eq 0 ] && echo "docs-check: ok"
 exit "$status"

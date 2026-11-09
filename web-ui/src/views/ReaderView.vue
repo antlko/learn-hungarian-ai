@@ -8,6 +8,7 @@ import { BrainCircuit, Volume2, VolumeOff } from '@lucide/vue'
 import { describeError } from '@/lib/errors'
 import { Button, buttonVariants } from '@/components/ui/button'
 import KeyBar, { type KeyHint } from '@/components/common/KeyBar.vue'
+import BackButton from '@/components/common/BackButton.vue'
 import Note from '@/components/common/Note.vue'
 import SpeakButton from '@/components/common/SpeakButton.vue'
 import CoverageMeter from '@/components/reader/CoverageMeter.vue'
@@ -180,8 +181,9 @@ function tokenClass(tk: StoredToken) {
   const status = detail.value?.known[String(tk.lemmaId)]
   if (status === 'known') return base
   if (status === 'ignored') return `${base} text-ignored`
-  if (status === 'learning') return `${base} text-learning underline decoration-learning/40`
-  return `${base} text-new underline decoration-new/50 decoration-dotted`
+  if (status === 'learning')
+    return `${base} bg-tint-cream underline decoration-learning decoration-1 underline-offset-2`
+  return `${base} bg-tint-mist underline decoration-new decoration-dotted decoration-2 underline-offset-2`
 }
 
 async function load() {
@@ -473,22 +475,30 @@ onUnmounted(() => {
   <!-- The rail is sticky rather than a fixed sibling column, so the reading
        measure stays constant and the rail follows instead of competing. -->
   <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
-    <div class="flex min-w-0 flex-1 flex-col gap-5">
+    <!-- With a word open on a phone the sheet covers the lower ~60% of the
+         screen: the padding lets the text scroll clear above it. -->
+    <div
+      class="flex min-w-0 flex-1 flex-col gap-4 md:gap-5"
+      :class="selectedToken ? 'max-md:pb-[55dvh]' : ''"
+    >
+      <BackButton fallback="/library" />
       <p v-if="loading" class="text-sm text-muted-foreground">{{ $t('common.loading') }}</p>
       <Note v-else-if="error" variant="error">{{ error }}</Note>
 
       <template v-else-if="detail">
         <div class="flex flex-col gap-3">
-          <div class="flex items-start justify-between gap-3">
-            <h1 class="font-display text-2xl font-medium">{{ detail.text.title }}</h1>
-            <div class="flex shrink-0 items-center gap-2">
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+            <h1 class="font-display text-xl leading-snug font-medium sm:text-2xl">
+              {{ detail.text.title }}
+            </h1>
+            <div class="flex shrink-0 flex-wrap items-center gap-2">
               <!-- This text's own pile: the words mined here, reviewable as a
                    filter over the one scheduler (ADR-022). Drawn only once
                    there is something behind it. -->
               <RouterLink
                 v-if="detail.text.noteCount > 0"
                 :to="`/review/session?scope=text:${detail.text.id}`"
-                :class="cn(buttonVariants({ variant: 'outline', size: 'sm' }))"
+                :class="cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'max-md:min-h-10')"
               >
                 <BrainCircuit class="size-3.5" aria-hidden="true" />
                 {{ $t('library.reviewFrom', { n: detail.text.noteCount }) }}
@@ -502,7 +512,7 @@ onUnmounted(() => {
                 :disabled="!speech.usable"
                 :aria-pressed="autoSpeak"
                 :title="$t(autoSpeakTitle)"
-                class="shrink-0"
+                class="shrink-0 max-md:min-h-10"
                 @click="toggleAutoSpeak"
               >
                 <Volume2 v-if="autoSpeak && speech.usable" class="size-3.5" aria-hidden="true" />
@@ -529,7 +539,7 @@ onUnmounted(() => {
           encourage, which is volume.
         -->
         <article
-          class="max-w-prose rounded-xl border border-border bg-card p-6 text-lg leading-relaxed shadow-raised sm:p-8"
+          class="max-w-prose rounded-xl border border-tint-cream-edge bg-tint-cream/40 p-6 text-lg leading-relaxed shadow-raised max-md:-mx-4 max-md:rounded-none max-md:border-x-0 max-md:px-4 max-md:py-5 max-md:text-[1.0625rem] max-md:leading-[1.8] max-md:shadow-none sm:p-8"
           lang="hu"
         >
           <p v-for="(para, pi) in paragraphs" :key="pi" :class="pi > 0 ? 'mt-4' : ''">
@@ -537,7 +547,7 @@ onUnmounted(() => {
               ><span
                 v-if="p.tok.isWord"
                 :data-token="p.tok.index"
-                :class="tokenClass(p.tok)"
+                :class="[tokenClass(p.tok), 'max-md:scroll-mb-[45dvh]']"
                 @click="select(p.tok.index)"
                 >{{ p.tok.form }}</span
               ><span v-else>{{ p.tok.form }}</span
@@ -556,7 +566,7 @@ onUnmounted(() => {
             <li
               v-for="s in rail"
               :key="s.sentIdx"
-              class="rounded-lg border border-border-subtle bg-card p-3 text-sm"
+              class="rounded-xl border border-tint-mist-edge bg-card p-3 text-sm"
             >
               <div class="flex items-start gap-1">
                 <p class="min-w-0 flex-1" lang="hu">{{ s.text }}</p>
@@ -588,6 +598,7 @@ onUnmounted(() => {
       :sentence-translation="translation"
       :translating-sentence="translating"
       class="lg:sticky lg:top-2 lg:max-h-[calc(100dvh-6rem)]"
+      @close="selected = null"
       @status-change="setStatus"
       @add-card="addCard"
       @translate-sentence="selectedToken && translateSentence(selectedToken)"

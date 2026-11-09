@@ -25,42 +25,114 @@ Screen by screen. Design principles first, because they explain the individual d
    than as a choice. Nothing in a component names a colour, so the flip lives entirely in
    `index.html`, `stores/ui.ts` and the token file.
 
+### 1.1 Copy rules
+
+Learner-facing text is cut to what the screen cannot do without (browser flow not exercised).
+
+- **One helper line per block, at most**, and only where the block cannot be understood without
+  it. Section subtitles, "what this means" paragraphs and caveats are not that line.
+- **Everything longer goes behind `InfoTip`** (`components/common/InfoTip.vue`): a small grey «?»
+  that opens a popover beside it on a wide screen and a card above the tab bar on a phone. Put it
+  next to the label or title it explains. The page must read without it. **Placement:** the card
+is teleported to `<body>` and `position: fixed` from the button's rect — below and left-aligned
+to the button, clamped to stay inside the viewport with 12px margins (max width
+`min(20rem, 100vw − 24px)`), flipped above when there is no room below; scrolling closes it; Esc
+or an outside click closes it and focus returns to the button. Never render it inside a clipping
+container.
+- **Every sub-page has a way back.** `components/common/BackButton.vue` («← Назад», 44px) sits at
+  the top of every screen that is not one of the five tabs — unit page, placement test (every
+  step), reader, «Знаю» list, tutor — because the phone chrome has no browser back. It uses
+  `router.back()` when the previous entry is its fallback route, else navigates to the fallback.
+- **Labels are not hints.** A machine translation named with its model, an uncertain analysis,
+  «not built», a refused session with its numbers: short, but always visible (§1.5).
+- **Write like a person.** Short sentences, the word the learner would say, no stacked clauses,
+  no officialese («в наборе», «по сроку», not «размер порции очереди»). Headings are nouns or verbs.
+- **Glossary (one word per idea).** «слово» — never «лемма» (the pack's lemma is an internal
+  term). «в колоде» — a word added to review; «выучено» — a word reliably remembered; no
+  «в работе». Today, Progress and the plan say the same thing in the same words.
+- **No month wording** anywhere a learner reads («Месяц 1», «месяц 3»): levels are named by
+  size or CEFR band. `unit.month` is an internal ordering field.
+- **No standalone state fillers** («впереди», «ещё нет», «не было», «ещё не сдавалась»). A thing
+  not reached simply carries no label; an empty value is «—». A state word stays only when the
+  learner can act on it, in plain speech: «пройдена», «не пройдена», «в процессе».
+- **Registration and sign-in** carry title, fields and one button; a password rule is a placeholder.
+
 ---
 
 ## 2. Shell
 
+**Page container, scroll, safe areas (one rule each).**
+- `AppShell` wraps every routed screen in ONE container, `mx-auto w-full max-w-5xl` (1024px)
+  inside the shell's `px-4 sm:px-6 lg:px-8`, so the outer edges are identical on every page
+  ([ADR-059](../.claude/DECISIONS.md#adr-059)). `meta.width: 'wide'` (`max-w-6xl`) is the only
+  exception, for the reader. **Dashboard pages (Today, Progress) use the full 5xl width; a view
+  that is a single reading or form column puts `page-narrow` (`mx-auto w-full max-w-3xl`, defined
+  once in `tailwind.css`) on its root** — Settings, Users, Library, Resources, Listen, Ear, Words,
+  Known words, Placement, Review start, Grammar, Unit, Tutor. A view's root otherwise sets no
+  `max-w-*`, `mx-auto`, `px-*` or `pt-*` of its own. The content is wrapped in `RouteFade`
+  (§14.3): fade + 6px rise on a path change.
+- `<main>` is the scroll container and survives navigation, so the router's window scrollBehavior
+  never reaches it: the shell resets `main.scrollTop` to 0 on every PATH change (not query-only
+  ones), restores it on Back/Forward, and `history.scrollRestoration = 'manual'` stops a reload
+  restoring an offset into an unrendered page.
+- The topbar is in the flex column (never overlays), solid, fixed `h-14` plus
+  `env(safe-area-inset-top)`; `viewport-fit=cover` is set in `index.html`; BottomTabs pads
+  `env(safe-area-inset-bottom)`.
+
 ```
 ┌──────────────┬──────────────────────────────────────────────────────┐
-│  tanulom     │  due 42  ·  🔥 17  ·  ●TTS ●ASR ○NLP ●LLM   ru|en 🌙 │
+│  tanulom     │  A2.2 ≈71%  ·  🔥 17  ·  due 42  ·  account menu     │
 ├──────────────┼──────────────────────────────────────────────────────┤
 │ ▸ Today      │                                                      │
 │   Review  42 │                    ‹ route ›                         │
 │   Read       │                                                      │
-│   Listen     │                                                      │
-│   Speak      │                                                      │
-│   Ear        │                                                      │
 │   Grammar    │                                                      │
-│   Write      │                                                      │
-│   Library    │                                                      │
+│   Tutor *    │            (* only when an LLM is configured)        │
+│   Listen     │                                                      │
+│   Ear        │                                                      │
 │ ─────────    │                                                      │
 │   Progress   │                                                      │
+│   Accounts † │            († admin only)                            │
 │   Settings   │                                                      │
 └──────────────┴──────────────────────────────────────────────────────┘
 ```
 
-**Capability dots** — filled = reachable, hollow = configured but unreachable, absent = off.
+Below `md` the left menu is replaced by bottom tabs (below). Library is reached from Read; Words
+from the bottom-tab sheet and Progress.
+
+**Capability dots** (now inside the account menu, not the bar) — filled = reachable, hollow = configured but unreachable, absent = off.
 Hovering gives endpoint and latency. Features that need an unreachable service are visibly
 disabled with a one-line reason, never silently missing.
 
-**The shell, as built.** The sidebar orders by the daily loops — Today, Plan, Review (with the
-`dueNow` badge), Read, Grammar, Listen, Ear — with the two unbuilt sections («Говорение»,
-«Письмо») at the BOTTOM under a visible «скоро» heading: a dead row between two working ones
-reads as breakage, and a `title`-only tooltip is invisible on touch. It **collapses to a 56px
+**The shell, as built.** The sidebar orders by the daily loops — Today (which carries the course as a road — there is no Plan item), Review (with the
+`dueNow` badge), Read, Grammar, Listen, Ear — and nothing for features that are not built (the earlier «скоро» group of Speak and Write was removed: a row that does nothing reads as breakage). It **collapses to a 56px
 icon rail** (PanelLeft button at the foot, persisted per device in `tanulom.sidebar`, the badge
-becoming a dot on the icon; the «скоро» group is hidden entirely there — an icon that does
-nothing and cannot explain itself is worse than absence). Below `md` the rail is replaced by an
-off-canvas drawer behind a topbar hamburger; before that, the fixed 224px column simply ate 60%
-of a phone screen.
+becoming a dot on the icon). Below `md` the rail is replaced by the bottom tabs (below); an earlier off-canvas drawer behind a
+hamburger was dropped, and before that the fixed 224px column ate 60% of a phone screen.
+
+**Top bar, level chip, account menu, bottom tabs (B4).** The right side of the bar is, in order:
+the **level chip**, the streak flame (≥ sm only), the due chip (links to `/review`) and the
+**account menu**. The chip shows the estimated label («A2.2») and «≈71% слов текста» with its
+confidence qualifier («мало данных» / «ориентировочно»); on a phone only the label. Click/tap opens
+a popover: «Уровень (оценка)», one mini bar per CEFR band with an **80% marker**, the method
+sentence (`level.method.v1`, ALWAYS visible, never a tooltip) and a link to `/progress`. Data:
+`GET /api/stats/level` through `stores/level.ts` — fetched once, then at most once a minute, when an
+answer lands or the learner returns to Today; no polling. While loading it is a skeleton; on a
+failed fetch the chip is absent (never an error, never `e.message`). It is a measurement that can
+go down: no ring, no flame, no points (R14, ADR-047). The **account menu** holds language, theme,
+the optional-service dots and sign-out; the dots left the bar.
+
+**Dynamic navigation rules.** Order is fixed. Review's badge is `dueNow`. A small dot sits on the
+row holding today's unmet obligation: cards due → Review; queue clear but the day's minutes not met
+→ Read. The AI teacher row is listed only when an `llm` is configured (the capabilities list has
+answered; before that it is listed, so nothing flickers). The disabled «скоро» rows (Speak, Write)
+are gone. A new-reader-words badge on Read is NOT built: no cheap endpoint exposes it.
+
+**Below `md` the bottom tabs replace the rail and the hamburger drawer**: Сегодня · Повторение (due
+badge) · Чтение · Грамматика · Ещё. «Ещё» opens a sheet with the remaining routes. 44px targets,
+`aria-current`, the bar adds `env(safe-area-inset-bottom)`. The shell exposes `--bottom-tabs-h`
+(bar height incl. safe area on phones, `0px` from md up); `<main>` pads by it, and a screen's own
+sticky bottom strip should sit at `bottom: var(--bottom-tabs-h)`.
 
 **The rail is collapsed by default** — a nav one mouse-move away does not need to hold 224px of
 every screen — and **opens under the pointer**, folding back ~120 ms after it leaves. The collapse
@@ -112,11 +184,11 @@ and stacks underneath below `lg`.
 |---|---|---|
 | Read | the text | the word's breakdown, its meaning, its translation |
 | Review | the card | the word breakdown (`WordInspector`) |
-| Plan | the unit you are on | **«Весь план»** — the 24 units by month |
+| Today | the header, the next action, obligations | **the path** — the unit panel sits beside it from `lg` (§3.1) |
 | Grammar | the lesson, then the drill | **the level's topics**, current one marked |
 
 The last two are new, and both were the same failure: the orienting answer existed but was
-somewhere else. Plan kept the whole syllabus BELOW the unit card, so "what am I doing now" and
+somewhere else. The old Plan screen kept the whole syllabus BELOW the unit card, so "what am I doing now" and
 "where does it sit" were a scroll apart although they only mean anything together. Grammar had
 no list at all while a topic was open — «Все темы» was the only orientation, and it was a button
 that threw the topic away to show a map, so asking what was around this cost you the thing you
@@ -202,6 +274,91 @@ exactly how the app confused its first learner. The 30-day load strip from the s
 built: minutes as bar height, obligation-met days in green, straight off `daily_log`. First
 paint holds the layout with skeletons; errors carry a retry.
 
+> **Shell chips (topbar).** The level chip, the due chip and the streak chip are all `h-9` pills,
+> `text-sm`. The level chip shows only «A1.1» and a caret; its popover (teleported, viewport-clamped,
+> `w-80` on desktop, a full-width card above the tab bar on phones, Esc / outside click) holds the
+> level, «Понимаете ≈N% слов обычного текста», the confidence chip, per-band bars, the method
+> sentence and «Подробнее» → `/progress`. Under `md` the due chip is removed (the tab badge carries
+> it); the streak chip (flame + number) shows on phones and is hidden from `lg` on Today, where the
+> streak card exists. The brand mark sits left of the title on phones. *Written without exercising
+> a browser.*
+
+### 3.1 Today: the dashboard and the path (replaces the Plan screen)
+
+**Layout.** From `lg` (1024px) a two-column grid, `minmax(0,1fr) 340px`, gap 24: left the path
+(a ≈640px column centred in its cell), right a statistics column that is `sticky` ONLY when
+`(min-width:1024px) and (min-height:900px)` — on a shorter laptop it scrolls with the page, because a
+sticky column taller than the viewport strands its lower cards. Cards are compact (`p-4`, numerals
+`text-2xl`). **Below `lg` there is no stats strip at all**: a phone shows the topbar, the banner and
+the path (the streak is a chip in the topbar, the due count is the Повторение tab's badge). There
+is no page title of its own on any width — the topbar says «Сегодня»; only a small tram strip
+(`aria-hidden`) sits right-aligned on desktop. Components: `views/TodayView`,
+`roadmap/TodayStats`, `roadmap/RoadmapPath`.
+
+**Statistics column** (`TodayStats`; derived facts only, counts may go down, nothing is a reward,
+no explanatory paragraphs — explanations sit behind `InfoTip`). Tinted `StatCard`s that enter with
+the staggered `card-in`: **«К повторению»** (mist; due now, counted up; «новых: N»; a primary
+«Повторить» to `/review/session`; with nothing due and nothing new it shows the thermal-dome
+illustration and «На сегодня всё» instead — rest, not a reward); **«В колоде»** (sage; total and
+four chips from `GET /api/stats/deck`: новое · учу · повторяю = young + relearning · закреплено =
+mature + known; hidden until the endpoint answers); **«Серия»** (cream; the unchanged
+obligations-met streak and today's minutes «12 из 90 мин» on a thin bar); **«Уровень»** (blush;
+«A1.1», «≈N% слов текста» and an `InfoTip` with the method sentence; text on blush is ink); and a
+white **«Минуты по дням»** `MiniBars` for the last 7 days (text labels, no goal line).
+
+**The path and the soft gate (ADR-058/059).** `unitPhase.computeGate` runs client-side over
+`plan.units`: core units in `ord` order, `share = settled / total` (0 for an empty unit), `passed =
+share ≥ unlock.share` (server value, default 0.7). **Current** = the first core unit not passed
+(this replaces `plan.current` for drawing). Units before it are passed; units after it are
+**closed** unless the learner already opened them (`enrolled`) — then they are drawn open with
+their ring. Themes are never closed (dimmed until enrolled). Closed is presentation only: the node
+is soft grey with a lock (`aria-label` «закрыт»), still tappable, and the unit page says why (below);
+the API refuses nothing and ADR-013 stands.
+
+Nodes are round (56px, 72px for the current) in a gentle zigzag. A unit in work (enrolled, or with
+words already in the deck) wears a **`ProgressRing`**: value = settled share, centre = «42%», colour
+by share on the ember → blue → green ramp, fill 700ms on mount, a check once the share is reached.
+The current, unopened unit is a play disc with the «Начать» bubble; once opened it is a ring with
+«Продолжить»; only this node has the halo pulse. Titles sit under nodes (≤3 lines); no state
+words are printed (they live in `aria-label`s). Tier headers stay thin dividers
+(«Базовый · закреплено N из M» — the numerator is **settled**, the word is «закреплено», not
+«выучено», because that is what the number now means) with a 40px decorative illustration at the
+end. A checkpoint is a flag node after the last core unit of its month (the only padlock besides
+the soft-grey closed ones is a failed checkpoint); it links to `/progress`. Theme units are NOT at
+the bottom of the path: a segmented control directly under the banner, **«Курс | По темам»**
+(`role=tablist`, ≥44px targets, arrow keys), swaps the path for the themed units — a grid (3 columns,
+2 under 400px) under the header «По темам · закреплено N из M». The choice is remembered per
+device (`localStorage` `tanulom.todayView`, try/catch) AND in the URL (`/?view=themes|course`; the URL
+wins), so back from a unit page returns to the same view: a THEME unit's `BackButton` falls back to
+`/?view=themes`, a core unit's to `/`. Enrolling a theme unit changes nothing on the course path; the
+themes view shows its own header and no «Продолжить» bubble. A checkpoint flag also draws a quiet 1.5px
+dashed divider (6/6, `border` at 60%, `aria-hidden`) across the column behind it. No month is ever named.
+
+**Sticky banner.** When the previous unit has reached the share and the current one is not
+opened: «Готовы к следующему разделу?» with a primary «Добавить слова» (opens the unit page,
+whose action enrols) and a quiet «Позже» that hides it for the session (`sessionStorage`).
+Otherwise the banner shows the current unit's title (one line, truncated) and a labelled
+«Продолжить» / «Начать» button. It always refers to the CORE path's current unit, in both
+views. Below `lg` the banner is `sticky top-0` inside a wrapper with an opaque `bg-background` and a
+`::before` strip covering `<main>`'s top padding and side gutters, so no path content shows above or
+around it; from `lg` it is an ordinary static block (no strip — it once painted over the title).
+
+A node navigates to the unit's **page**, `/unit/:code` (`UnitView`, narrow column). Top to bottom:
+`BackButton`, title, an 88px `ProgressRing` with «закреплено N из M» and «в колоде K», the goal,
+a status chip only when informative, a **soft notice** when the unit is closed (cream tint, ink
+text: «Сначала закрепите «<предыдущий>»: N% из 70%» with a secondary «Открыть всё равно» that
+enrols exactly like the primary action — the sticky bar is replaced by it while closed), grammar
+chips, the words as a plain list, and the **sticky bottom bar** with the unit's one action
+(`bottom: var(--bottom-tabs-h)` above the phone tabs). `/?unit=<code>` redirects to the page; a
+unit becoming fully learned still raises the celebration. On load the page does not scroll,
+except once: if the current node is below the first screenful, `<main>` is scrolled (instant) to
+centre it. Performance: plain node elements, rings only on started units, `content-visibility:
+auto` per tier. `plan.handedOver` adds one small «Куда дальше» link.
+
+> Status: type-check, lint, build and docs-check run; the browser flow (two-column layout,
+> sticky column, ring animation, closed nodes, ready banner, unit notice) has NOT been exercised
+> in a browser.
+
 ---
 
 ## 4. Review
@@ -245,7 +402,7 @@ The **morpheme diff** is the point: the wrong suffix is highlighted, not the who
 mysterious.
 
 **Keyboard:** `space` reveal (`Enter` on typed directions) · `1`–`4` rate · `h` hint ·
-`u` undo · `t` set the word aside (§4.3) · `a` the tutor about this card, in both phases and
+`u` undo · `t` set the word aside (§4.3) · `a` the tutor about this card (only with an LLM), in both phases and
 free ([ADR-046](../.claude/DECISIONS.md#adr-046)) · `Esc` close the side panel (the word breakdown,
 then the tutor) · `space` on a set summary starts the next set (§4.4). Drawn by the key strip
 (§2), which is where `u` and `Esc` reach a learner for the first time: both have been implemented
@@ -284,14 +441,22 @@ words the dictionary does not carry, the small-model note and the context meter 
 amended). Keys pressed in the composer are the composer's; `Esc` closes the panel unless the
 composer kept it to stop an answer.
 
-**The card header names what it is asking.** It used to read `УЗНАВАНИЕ НОВАЯ` — two words
-uppercased by CSS, run together with nothing saying that the first is the direction and the
-second means you have not seen this card before. It read as one unparseable label. Now: the
-words «тип карточки», then two visually distinct chips, then a sentence under the progress bar
-saying what this direction asks of you («узнавание — видите венгерское слово, вспоминаете, что
-оно значит»), for all five directions. The chips keep the no-hit-target rule that put the
-direction there in the first place — `пропуск` reads in Russian as the imperative "skip", and as
-a bordered pill it was clicked as a skip button and did nothing.
+**The session header is ONE slim row that never wraps** (amended 2026-11-09; browser NOT
+exercised): `flex-nowrap`, the count `whitespace-nowrap` and tabular. On a phone
+(<md): `[× Выйти]  …  3/15  [▢ Форма ?]  [Учитель]` — the exit link (to `/review`, no confirm —
+answers are saved one by one), the count as «3/15», a SHORT card-type chip (icon + one word from
+`review.dir.short.*`: Форма / Перевод / Слово / На слух / Письмо) whose «?» carries the long
+description and «клик по слову — разбор», a «новая» chip when it applies, and the Teacher as an
+icon. The pile name, the weak-mode note and «набор N из M» are NOT on the phone row (the set
+summary says which set it is). On md+ the row keeps the fuller wording: «набор 2 из 5 · 7 из
+15» (a practice round: «все слова · 7 из 20») and the long type name («форма в предложении»).
+Practice adds a «Тренировка» chip; what that means is in the type chip's «?» («Не влияет на
+расписание повторений.»). Nothing else sits above the progress strip. **«Учитель» is hidden
+entirely while the LLM is not configured and answering** (`capabilities.available('llm')`): no
+dead-end panel, no `a` key, no key-strip entry; what the optional tutor is lives in Settings →
+Компоненты only. The chips keep the no-hit-target rule that put the direction there in the
+first place: `пропуск` reads in Russian as the imperative "skip", and as a bordered pill it
+was clicked as a skip button and did nothing.
 
 **Audio autoplays** on `listen` and `spell` directions. Never on `recognize` — it would give
 the answer away. Those two directions also withhold the Hungarian entirely until the answer:
@@ -372,6 +537,15 @@ The middle one is the reason it exists. `hoztunk` is not a word to memorise, it 
 + 1pl + indefinite, and a learner who can see that decomposes the next one themselves. Nothing
 in the panel is generated: an unresolvable form says so, and a word with no attested sentence
 says that too rather than being given an invented one.
+
+**On md+ it opens in a right-hand drawer** (`BottomSheet side="right"`): fixed to the right edge below
+the topbar, 24rem wide (max 90vw), 200ms slide (none under reduced motion), internal scroll, ✕ in its
+own header row, `Esc` closes. No scrim: the card stays visible and usable, a click outside does not
+close it (click another word to switch, the same word to close), and on windows >= 1100px it **reserves its
+width** (24rem right padding on the review page, animated 200ms, none under reduced motion) so the card
+re-centres in the remaining space; narrower windows overlay it. The Teacher uses the same single drawer — opening one replaces the other — and nothing
+scrolls for either. Below md the Teacher is the bottom sheet and the word stays under «Подробнее».
+*Written without exercising a browser.*
 
 `Esc` closes it. It is available in the reader too, where the rail gained the same examples.
 
@@ -473,13 +647,13 @@ minutes on: that is FSRS's learning step, not a sibling. `buryAnsweredSiblings`,
 ### 4.4 Sets — the day dealt out in bites, and a card that shows its own memory
 
 ```
-   План · набор 2 из 5 · отвечено: 7 из 15                    тип карточки  ФОРМА В ПРЕДЛОЖЕНИИ
-   ▓▓▓▓�▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░░░░░░░░
-   [закрепляю]  ✓✓✗✓✓  эта карточка: верно 4 из 5
+   desktop: [× Выйти]  набор 2 из 5 · 7 из 15   ФОРМА В ПРЕДЛОЖЕНИИ (?)  [Учитель]
+   phone:   [× Выйти]              7/15   Форма (?)  [🎓]
+   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░░░░░░░░
+   [повторяю] ▬▬▬▬ (?)
    ┌─────────────────────────────────────────────┐
    │  A ház___ lakom.                             │
    │  …                                           │
-   │  ответ верный → вернётся через ~3 дн         │
    └─────────────────────────────────────────────┘
    [ Снова  ~1 мин ] [ Трудно  ~10 мин ] [ Хорошо  ~3 дн ] [ Легко  ~8 дн ]
 ```
@@ -510,31 +684,17 @@ queue the server serves — unchanged, every number on it unchanged
   ([ADR-026](../.claude/DECISIONS.md#adr-026), amended 2026-09-03). What a miss gets instead is
   a line to read: the set summary and the done screen **list the missed words with their
   answers**.
-- **The memory row** under the direction hint says what this card knows about itself: the
-  stage as a badge (новая · учу · молодая · закрепилась · заново — Anki's young/mature at 21
-  days, named as a convention in the tooltip), the last eight outcomes as marks, and «эта
-  карточка: 4 из 5». After the answer the badge and the marks move to the new state and
-  «интервал 3 дн → 8 дн» appears. Every figure is measured or computed by the library; nothing
-  on the row goes up on its own, which is the whole of the difference between this and a score
-  ([R14], [R16 §3]). The **chance of recalling it now** used to sit on this row and was taken
-  off (2026-09-03): on a card in its learning steps the model computes it against an interval
-  of minutes, so it read «100%» over five crosses — right by the model, and to the learner a
-  claim that they know a word they have just missed five times. It still stands in the words
-  browser, where every card has graduated and the number means what it says.
-- **«что это значит?» — what it takes for the word to stop coming back**
-  ([ADR-039](../.claude/DECISIONS.md#adr-039)). The row was measured, honest and silent about
-  the one question the first learner asked: «не сильно понятно, что надо сделать, чтоб слово
-  закончить учить… а что делать, чтоб оно исчезло?» Read cold, «верно 0 из 9» over eight
-  crosses looks like a score being lost. A disclosure at the end of the row — closed by
-  default, remembered per device — answers it in five sentences: the stage and what it means
-  (the hint that until now lived only in a `title=`); what a right answer and a miss schedule
-  next, from the same preview the grade buttons use, while the card is still asking — in free
-  practice, that **nothing here is scheduled** instead; that a card never ends but returns ever
-  more rarely, which is what «выучено» means; that the tally is the review log and not points,
-  with no «N in a row» threshold behind it; and that the one control which does remove a word
-  is **«В корзину»** (`t`) — the whole word, and not a delete (§4.7). No bar, no denominator
-  and no target: there is no such number, and inventing one is the thing [R14] and [R16 §3]
-  rule out.
+- **The stage line** under the progress strip is ONE line (amended 2026-11-09): a chip with the
+  stage the scheduler reports — новая · учу · шаг 2 из 2 · повторяю · закреплено · заново — four
+  tiny rungs beside it, and a «?» that opens the «Как это работает» sheet (`HowItWorks`, the one
+  place that explains stages, the four buttons and a miss). It is a POSITION: it can go back
+  down, it has no end, nothing on it accumulates ([ADR-039](../.claude/DECISIONS.md#adr-039)).
+  The «эта карточка: верно N из M» tally, the outcome marks and the inline «что это значит?»
+  panel left this screen (the history lives in the words browser); after the answer
+  «интервал 3 дн → 8 дн» appears. The **chance of recalling it now** was taken off the card on
+  2026-09-03: in learning steps the model computes it against minutes, so it read «100%» over
+  five crosses. It still stands in the words browser. No bar, no denominator, no target
+  ([R14], [R16 §3]).
 - **The verdict takes the answer box's place.** On a typed card the box is the question's; once
   the answer is in, «вы: ala / нужно: aztán» renders exactly where the box was — the eye is
   already there — followed by what the card additionally graded, and only then the sentence as
@@ -544,11 +704,14 @@ queue the server serves — unchanged, every number on it unchanged
   find out what was wrong. The column is anchored at the top while a card is up, so the reveal
   grows downward instead of re-centring the prompt.
 - **The grades carry their intervals** — «Хорошо ~3 дн», from `Scheduler.Preview`, marked
-  approximate because fuzz is seeded at answer time — and a typed card says «ответ верный →
-  вернётся через ~3 дн» under its box. Neither appears in practice, where nothing is scheduled.
+  approximate because fuzz is seeded at answer time; absent in practice. The pre-answer line
+  «ответ верный → вернётся через ~3 дн» under the box was removed (2026-11-09): the grade
+  buttons say it after the answer. A typed miss still prints «слово вернётся примерно через ~N».
 - **Between sets: a summary of measured facts** — answered, right, missed (listed with their
   answers, to read over), «закрепилось» (the words whose interval crossed 21 days in this set,
-  named), minutes — with «Следующий набор» on `space` and «На сегодня хватит». No praise line,
+  named), minutes — with «Следующий набор» (`space`) and «На сегодня хватит» **above the
+  figures**, so a 375×812 phone reaches both without scrolling; the explanation of the missed
+  list is behind a «?». No praise line,
   no streak theatre; a two-note `setComplete` cue rather than the full stop, which still
   belongs to the empty queue. The learning-step auto-reload does **not** fire on this screen:
   the list was already fetched again when the set finished, which is how a matured miss is in
@@ -591,28 +754,80 @@ milestone toast) centred on the window and so sat 112px right of the card they b
 half a sidebar off. The shell exposes the rail's width as `--rail`, and the strips start
 after it.
 
+**Review on touch** (below `md`, or `(pointer: coarse)` on any width). The actions — «Проверить» /
+«Подсказка», «Показать», the four grades, «Дальше» — live in a bar pinned above the tab bar
+(`bottom: var(--bottom-tabs-h)`, 0px on md+), buttons at least 48px high with `gap-3` so a thumb
+does not reach the neighbour; on a wider touch screen the bar pads for the home-indicator inset
+itself (on <md the tab bar already covers it). No swipe gestures. `KeyBar` is hidden in both cases
+(and, where it shows, sits above the tab bar; on the review screen it starts collapsed to a
+small chip, per-device). The stage line is always visible; the word inspector column below `lg` is a «Подробнее»
+disclosure that opens itself when a word is asked for. Typed answers are `lang="hu"`,
+`autocapitalize/autocorrect=off`, `spellcheck=false`, `enterkeyhint="done"`; the phone keyboard's
+Enter submits («Проверить»). **No accent strip by default**: answers are not case-sensitive and
+diacritics are not required («Принимать ответ без диакритики», on by default), so a plain Latin
+keyboard is enough. `AccentStrip` stays as a per-device opt-in (Settings → Повторение, «Показывать
+кнопки с á é ő ű…», `lib/accentKeys.ts`, localStorage, default off): nine lower-case letters in
+ONE horizontally scrolling row inside the action bar, no shift; it inserts at the caret without
+blurring. **Keyboard:** the pinned bar is lifted by the keyboard's height
+(`composables/useKeyboardInset.ts`, from `visualViewport`) so «Проверить» stays above it, the spacer
+below the card grows by the same amount and the input is scrolled into view. On desktop the
+primary button carries a tiny `↵` («Проверить ↵», «Показать ↵», «Дальше ↵»); the key strip stays
+collapsed; phones show nothing about keys. Not yet checked in a browser at 375px.
+
+**Bottom sheet** (`components/common/BottomSheet.vue`). Teleported to `<body>`, slides up with a
+200ms transform/opacity transition (none under `prefers-reduced-motion`), `max-height: 75dvh`,
+rounded top corners, grab handle, visible ✕, backdrop tap and Esc close it, `role="dialog"
+aria-modal`, focus moves in and returns to the opener, Tab wraps inside. It sits above the tab bar
+(`z-50` over the bar's `z-30`), pads for the home-indicator inset and, while the keyboard is up,
+lifts by the keyboard's height. On <md the **Teacher** opens in it (the same `TutorAside`
+conversation and thread as the desktop side panel, which stays on md+) and «Как это работает»
+uses it too (a centred dialog on md+).
+
+**«Как это работает»** (`components/review/HowItWorks.vue`) is a `BottomSheet` (<md) / dialog: the four
+stages, what each grade schedules (the card's own preview times when opened from the «?» beside the
+ladder, general text from the start screen), that one miss does not erase a word and there is no
+«N правильных подряд» rule, that misses are listed and return later while hits are not re-asked in
+the set, what «Знаю» does, and that the new-card budget is global. After a typed miss the verdict
+carries one line saying when the word returns, from the preview already on the card.
+
 ### 4.5 The start screen — what to take, before taking it
 
 ```
-┌─ Повторение ──────────────────────────────────────────────────────────────┐
-│  Что взять сейчас: стопку по расписанию или круг тренировки.              │
-│                                                                           │
-│  ╭─ По расписанию ─────────────────────────────────────────────────────╮  │
-│  │  Всё      к повторению: 74 · 5 подх. по 15 · +72 новых  [▸ Начать ⎵]│  │
-│  │  План     к повторению: 37 · 3 подх. по 15 · +32 новых  [ Начать ]  │  │
-│  │  Тексты   к повторению: 37 · 3 подх. по 15 · +40 новых  [ Начать ]  │  │
-│  │  ─────────────────────────────────────────────────────────────────  │  │
-│  │  в наборе: 10 [15] 20 30   порядок: [сначала просроченные] вперемешку│  │
-│  ╰─────────────────────────────────────────────────────────────────────╯  │
-│                                                                           │
-│  ╭─ Тренировка ∞ ──────────────────────────────────────────────────────╮  │
-│  │  Свободная тренировка: случайные слова, в любой момент.             │  │
-│  │  На расписание не влияет.                                           │  │
-│  │  слова из: [Всё] План Тексты   слов за круг: 10 [20] 30  Слабые слова│  │
-│  │  [ Начать круг ]                                                    │  │
-│  ╰─────────────────────────────────────────────────────────────────────╯  │
-└───────────────────────────────────────────────────────────────────────────┘
+┌─ Повторение (?) ───────────────────────────────────────────────────────────┐
+│  ╭─ Сегодня ───────────────────────╮  ╭─ Тренировка (?) ───────────────╮    │
+│  │  74 к повторению   72 новых слов │  │  [ Начать ]                    │    │
+│  │  [          ▸ Начать   ⎵       ] │  │  Настроить ⌄                   │    │
+│  │  ( Все 146 | План 69 | Тексты 77)│  ╰────────────────────────────────╯    │
+│  │  Настроить ⌄                     │                                         │
+│  ╰──────────────────────────────────╯                                         │
+└──────────────────────────────────────────────────────────────────────────────┘
 ```
+
+**Lively pass (ADR-059; browser NOT exercised).** «Сегодня» is a mist tint card: the two
+numbers (к повторению · новых) are large count-up numerals (the final value is read once by
+screen readers), the pile segmented control carries soft-tinted counts, and the rest state draws
+the thermal-dome (rest, not reward). «Тренировка» is a cream tint card with a 48px paprika-string
+chip (decorative). The two cards enter with the `card-in` stagger.
+
+In the session the card itself stays plain white — no art. Around it: the progress strip's done
+part is `primary` on a soft mist track; a correct answer washes the card edge sage and draws the
+check (240ms, `check-draw`); a wrong one washes it blush and nudges the answer box ±4px
+(`answer-wrong`, transform only); «Дальше» enters with `route-in`; the stage chip is tinted
+(новое = mist, учу = cream, повторяю = sage, закреплено = sage + check) with ink text. The set
+summary shows a ProgressRing of верно/отвечено (label «12 из 15», a check when all were right),
+four tinted tiles (отвечено mist, верно sage, не получилось blush, минут cream) and the missed
+words in a blush card. No confetti, no points; reduced motion shows the final state.
+
+Mobile-first: one column, the hero first. «Сегодня» shows the two numbers that matter
+(к повторению · новых слов) of the selected pile and one large «Начать». Under it a segmented
+control «Все · План · Тексты» (counts as badges when the pile is non-empty) chooses what the button
+starts. Set size and order sit behind «Настроить» — remembered per device exactly as before
+(`lib/sets.ts`), default 15 / by due date; «вперемешку» lives there. «Тренировка» is a quieter
+card with its own «Начать»; its pile, length and «слабые слова» are behind its own «Настроить», and a
+«?» says in a sentence that practice does not change the schedule. With nothing due and nothing new
+the hero is a calm «На сегодня всё» with links to practice and to reading. From `md` up the two
+cards sit side by side (3fr/2fr, max 4xl) instead of stretching a form. The «Как это работает»
+dialog opens from the «?» by the title. Browser flow not exercised.
 
 **The choice left the card on 2026-09-03.** Three decisions had each put a control strip above
 the card — the pile tabs (ADR-016), «Тренировка ∞» with its rows (ADR-019, ADR-024), the set
@@ -632,7 +847,7 @@ two hundred times a day. Choosing what to take is a different moment from taking
 - **The raised object is the obligation.** The scheduled piles sit on the one raised card;
   practice is quiet beneath it — always there, owing nothing — with its pile, length and
   «слабые слова» chips, and the trash deliberately not among the piles (§4.3, ADR-025).
-- **`space` starts «Всё»**, as it starts the day on Today. Today's own «Начать: Память» goes
+- **`space` starts the selected pile** (default «Все»), as it starts the day on Today. Today's own «Начать: Память» goes
   straight to the card, past this screen: that button exists so the learner does not have to
   choose. The sidebar row, the topbar due chip and the memory loop card come here; the library,
   the reader and the trash go straight to the card with their query.
@@ -640,6 +855,18 @@ two hundred times a day. Choosing what to take is a different moment from taking
   слова из текста») and, in practice, the mode, the pile and the criterion really applied. The
   done screen says what the other piles hold in one sentence and links back here; its
   «Тренировка» starts a round over the pile just finished.
+
+### 4.6 Answering by options (client; browser not yet exercised)
+
+A cloze/produce card is answered by tapping one of `QueueItem.options` when the per-device
+`answerMode` (`lib/answerMode.ts`; default `choose` on `(pointer: coarse)`, `type` otherwise) is
+`choose` AND the server sent at least three options; otherwise the typed box appears, silently.
+A tap submits at once as the ordinary answer with `via: 'choice'`. The verdict colours the
+options in place (sage on the right one, blush plus the existing nudge on a wrong tap, the rest
+at 50%), so the card does not move. The bar shows «Знаю» before the answer and «Дальше» after;
+there is no «Подсказка» in this mode. Keys: `1`–`5` pick, `Enter`/`Space` move on. A toggle in
+the header row and a row under «Настроить» on the start screen switch the mode. Choosing is
+recognition and weaker than typing (PEDAGOGY §2.10); the start-screen tip says so in one line.
 
 ### 4.3 «Знаю» — taking a word out because you know it
 
@@ -780,13 +1007,13 @@ do, because a learner who thinks this is a delete will not use it. See
 
 ### 5.1 The library
 
-The shelf, built to stay usable as it grows: a two-column grid of cards — title, kind icon
-(paste/page/subtitles, 🎧 when audio is attached), date, word count, the two coverage bars with
-their reader names, and «Повторить слова: N» wherever the text has words in the deck (the
-per-text scope, ADR-022). Past three texts a toolbar appears: title search, sort
-(newest/level/coverage/title), level filter. The add form lives behind a header button and
-opens itself only on an empty shelf — a library whose front page is a data-entry form reads as
-a task, not a shelf.
+Title and a primary «Добавить текст» button. Two segments, «Мои тексты» and «Готовые подборки»
+(own texts by default when there are any, otherwise the sets). Own texts are compact rows, not
+tall cards: title, kind icon and word count, the known-words share, the level chip, a small bin,
+and «Повторить слова: N» wherever the text has words in the deck (the per-text scope, ADR-022).
+Past three texts a toolbar appears: title search, sort, level filter. The add form opens from the
+header button only — a library whose front page is a data-entry form reads as a task, not a
+shelf.
 
 **The level chip always names its author.** `B1 · оценка по частотам` (the ingest heuristic:
 pack frequency bands ≥90% of running words, grammar-topic ceiling at ≥3 hits, a sentence-length
@@ -795,15 +1022,48 @@ never overwritten by a machine). A text the estimator cannot resolve carries no 
 «уровень не определён» is a supported outcome, and the filter can select exactly those.
 ADR-023; the labelling rule is ADR-014's.
 
+**Ready-made sets («Готовые подборки»).** Shown only when `GET /api/library/sets` returns
+something (older packs: the segment is not drawn; a failed fetch does the same and never blocks
+the shelf). Compact rows grouped by level A1 · A2 · B1, the set at the learner's level first
+(«подходит вам сейчас» is a hint, never a filter or a lock), each with title, «N предложений»,
+and one small button — «Добавить» (`POST …/import`, then the reader) or «Открыть» when already
+imported. The collapse to a few sets («Показать все подборки») stays. What the sets are —
+real sentences written by people, adding creates a text and the cards are the learner's own act
+of tapping words — is an `InfoTip` beside the heading. Browser flow not exercised.
+
+**The reader on a phone.** A compact header: title, the two coverage figures as one line each over
+a thin bar, with «что означают эти цифры» behind an `InfoTip`; the text runs edge to edge with a
+generous line height. A selected word opens a **bottom sheet** above the tab bar (at most 60% of
+the height, with a close button) and the text gets padding and scroll margin so the word stays
+visible above it; «Знаю / Игнорировать / В карточки» are large buttons pinned to the sheet's bottom.
+The key bar is hidden below `md` and on touch. From `md` the word detail is the side rail it was.
+Browser flow not exercised.
+
 ### 5.2 Words — «что выучилось»
 
 `/words`, linked from the lemma total on Прогресс («Все слова →» — a total nobody can inspect
-is a claim). Every deck word as a row: dictionary form, gloss, status badge, a **memory bar**
-(the strongest card's retrievability right now, coloured by band — shown only once something
-was reviewed, because a bar over nothing would be an invented measurement), next review date,
-lapse count. Search goes through pack case-variants (never `COLLATE NOCASE`) and matches
-glosses too; sorts include «сначала шаткие», which is the browsing twin of practice's weak
-mode.
+is a claim). Every deck word as a row (a stacked card at 390 px, a three-column row from `md`):
+dictionary form and gloss; the **stage** as three rungs (учится → повторяется → закреплено,
+filled vs hollow plus the stage named in words, so colour is never the only channel);
+«вспоминаем» (relearning) sits on the first rung in a neutral tone, not red — it is a step back,
+not a failure; «знаю» stands outside the ladder. The ladder is a position, not a score: it can
+go down and counts nothing. While a card is on learning steps the row says «шаг N из M». Beside
+it a **memory bar** («память ≈N%», the strongest card's retrievability now, shown only once
+something was reviewed), the next review in words (сегодня / завтра / через N дн.) and the
+card's interval · reviews · misses (only non-zero fields). Stage chips (все · учатся · вспоминаем
+· молодые · зрелые · знаю) send `?stage=`; they carry no counts because the API returns no
+per-stage totals. A collapsible legend explains the stages (young = interval under 21 days,
+Anki's convention). Stage, status, sort and search persist in the query string. Search goes
+through pack case-variants (never `COLLATE NOCASE`) and matches glosses too; sorts include
+«сначала шаткие», the browsing twin of practice's weak mode. Verified at 390 px: not yet.
+
+**Lively pass (ADR-059; browser NOT exercised).** Four tinted tiles above the list — новое
+(mist) · учу (cream) · повторяю (sage) · закреплено (sage) — count WORDS from
+`GET /api/stats/deck` with a ≤600ms count-up; they are hidden when the endpoint does not answer.
+The row stage chip uses the same tints as the review card's chip (ink text; закреплено carries a
+check), rows enter with the `card-in` stagger (≤6 steps), and the empty state draws the paprika
+string. «Знаю» (`/known`) gets a sage header tile with the count and a sprig; its rows stagger
+the same way. Verified at 390 px: not yet.
 
 ---
 
@@ -920,6 +1180,15 @@ The lesson is assembled from three things the pack already carried and the app w
 `grammar_topic.explain_md_*` as prose, `morph_feature.label_*` + `explain_*` for what each
 feature IS, and `morph_feature.allomorphs` laid out by harmony class — which is literally what
 the allomorph drill then asks about. `TopicLesson.vue`.
+
+**As redesigned (ADR-053).** The topic list is a road grouped by level, drawn with the Today
+roadmap's node vocabulary (disc on a rail, shape + icon + word per state): «только правило» ·
+«ещё не начато» · «тренируем по одному» · «вперемешку» · «освоено» (the padlock only for a failed
+checkpoint). A topic page has two tabs, Урок | Упражнения; ADR-043's evidence picks the first one.
+The exercises tab prints the gate in numbers from the server («точность ≈72%, нужно 80%; ответов
+14 из минимум 20») and one sentence on why practice is one pattern at a time first. A topic with
+no drills says so and points to the tutor and the reader. The side rail of sibling topics is gone;
+previous/next links replace it.
 
 **Feature ids are never shown alone.** `Case=Sbl` is an identity, not a label. Every surface
 that names a feature — the drill prompt, the graded-feature chips after an answer, the reader's
@@ -1106,66 +1375,61 @@ than no pushes at all.
 
 ## 9. Progress — the signature screen
 
-```
-┌─ Прогресс ────────────────────────────────────────────────────────────────┐
-│                                                                           │
-│  Леммы  1 847                          B2 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄  6000    │
-│  ▁▂▃▄▅▆▇                               B1 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄  3500        │
-│                                        A2 ┄┄┄┄┄┄┄┄●  2000                │
-│                                                                           │
-│  ── Локативная система ─────────────  ── Грамматические признаки ─────    │
-│           где     куда    откуда       надёжно·4  шатко·2  мало данных·9  │
-│  внутри   -ban    -ba     -ból                                            │
-│            93%     88%     71%         ▸ Падежи        ответов: 61   71%  │
-│  на пов.  -n      -ra     -ról           ████████████████░░░░░░░░         │
-│            91%     64%     отв: 4      ▸ Наклонение    ответов: 24   92%  │
-│  рядом    -nál    -hoz    -tól           ██████████████████████░░         │
-│            отв: 2  не было  не было    ▸ Число         ответов: 4         │
-│                                          мало данных                      │
-│  Цвет — доля верных ответов.                                              │
-│  Пунктир — ответов пока мало.          ▲ Требует внимания:                │
-│  Серое — форма не встречалась.           делатив — с чего 64%,            │
-│                                          условное наклонение 71%          │
-└───────────────────────────────────────────────────────────────────────────┘
-```
+Single column from 390 px; every chart has a text or table alternative and every interactive
+element is keyboard-operable. Section order:
 
-The **locative grid** and the **feature heatmap** are what no other tool can render, because no
-other tool tracks features separately. This screen is the product's argument for itself.
+1. **Where you are** (`LevelPanel`, `GET /api/stats/level`, [ADR-047](../.claude/DECISIONS.md#adr-047)).
+   The estimated level label, «≈N% слов обычного текста», the confidence qualifier and the fixed
+   method sentence are ALWAYS on screen. Under them one bar per CEFR band (A1…C1) with a marker
+   at the 80% target, «ваших N из M», and reached / not reached as icon + word. A band is a
+   button: it opens `GET /api/stats/level/band/:band`, the highest-frequency words of that band
+   the learner does not yet count, glossed through `lib/gloss.ts`. «Хочу выучить» calls the same
+   `POST /api/notes` the reader uses (a duplicate says «уже есть»). Nothing here is stored or
+   only rises; both figures can go down.
+2. **Lemma curve** (`LemmaCurve`). Hover/touch crosshair with date and count, ← → / Home / End
+   from the keyboard, range 30 дн · 90 дн · всё (client-side), dashed reference lines from the
+   server's plan targets (labelled as reference points, not judgements), table alternative.
+3. **Activity calendar** (`ActivityCalendar`). Week columns, last 26 weeks, shade = minutes
+   against the learner's own daily target in four steps with a legend — not points, no streak
+   art. A cell's accessible name carries its minutes; selecting a day shows minutes by loop
+   (cards and exercises / reading / listening) and, if the obligation failed, WHICH half
+   (queue or minutes). Arrow keys move by day and week (roving tabindex); a table alternative
+   lists the last 60 recorded days. No due forecast and no raw card count: the screen speaks only
+   `srs.Breakdowns` vocabulary.
+4. **Grammar** — the locative grid (cells are buttons named by the feature label, never the raw
+   id) and the feature heatmap by family. Choosing a cell or a feature row opens a detail panel:
+   the pack's label and plain explanation (`stores/features.ts`), measured accuracy / answer count
+   / typical time, the recall-now figure with a note that it is time-based, and links to the
+   grammar topics from the mastery row's `topics` (`/grammar?topic=<code>`).
+5. **Level checks** («Проверки уровня»). The next one only: titled by size («300 слов», «900 слов»,
+   «2 000 слов» …), never by month; ONE progress line «36 из 300 слов» with a thin bar; no state
+   word until it has a verdict. A self-attested criterion (e.g. «Могу прочитать вслух незнакомый
+   абзац без остановок») is a plain sentence + checkbox with an InfoTip: the learner checks it,
+   the app cannot hear, and the tick does not touch the streak. Button «Проверить». History uses
+   shape + word: пройдена / не пройдена.
+6. **Free practice** — only when there is some; schedules nothing (ADR-019). Day bars have
+   screen-reader text, not title-only tooltips.
 
-**As built.** The lemma curve is cumulative from `lemma_state.first_seen`, with the A1–B2
-month-milestone targets as dashed reference lines labelled as reference points, not judgements.
+The grid, the heatmap rows and the feature panel are the product's argument for itself: no
+tool that treats a wordform as an atom can render them.
 
 **The heatmap measures ACCURACY, not retrievability, and says so when it has measured
 nothing.** Retrievability is the probability of recalling something *right now*: it is ~1.0 for
 anything reviewed recently, so a learner a few days in met nine families at 100%, read the
-screen as broken, and was right to. It also tracks the calendar rather than the learner — a
-week away would have looked like the grammar collapsing, though nothing was forgotten and no
-answer was given. The bar is the rolling accuracy, drawn only once the server's `ready` flag
-— `srs.GateReady` against `drill.gateWindow`, the same line the interleaving gate draws — says
-the figure rests on evidence; below it a row states its answer count and the words
-«мало данных» rather than inventing a percentage. Colour has two earned states and one
-unearned: held, `weak` (the server's verdict against `drill.masteryThreshold`), and unmeasured.
-Nothing on this screen re-derives either threshold: `(*Server).mastery` reads both from config
-once, so the screen and the scheduler cannot quote different numbers.
+screen as broken, and was right to. The bar is the rolling accuracy, drawn only once the
+server's `ready` flag — `srs.GateReady` against `drill.gateWindow` — says the figure rests on
+evidence; below it a row states its answer count and «мало данных». Colour has two earned states
+and one unearned: held, `weak` (the server's verdict against `drill.masteryThreshold`), and
+unmeasured. Nothing here re-derives either threshold. The detail panel does print
+recall-now, labelled as a time-based estimate, because it is a different question from the bar.
 
-**Families are named, and open.** «Падежи», «Определённость объекта» — never `Case` or
-`Number[psor]` — and each expands to the individual features under it, by the label the pack
-ships in both locales. A feature id survives only in a `title`, for debugging. The
-«Требует внимания» line names weak features the same way; it previously printed
-`Mood=Ind, Number=Sing` beneath a column of 100% bars, so the card contradicted itself in two
-adjacent elements.
+**Families are named, and open** — «Падежи», never `Case`. The «Требует внимания» line names weak
+features by label. **The locative grid distinguishes "not measured" from "not met"**: dashed with
+an answer count versus «не было».
 
-**The locative grid distinguishes "not measured" from "not met".** Both used to render as an
-em dash, so seven untouched cells read as breakage. A met-but-unmeasured cell is dashed and
-carries its answer count; a never-met cell says «не было» in words.
-
-**A criterion not yet reached is not a failure.** It shows an empty circle and a progress bar,
-not the ✗ the history list uses for a genuinely failed checkpoint. The checkpoint panel shows
-the NEXT assessment
-with live evidence before it is taken — the measured criterion labelled "измерено приложением",
-the human-verified ones labelled "ваше собственное подтверждение — приложение проверить это не
-может". A failure prints the three-failure-mode diagnostic with the numbers that triggered each
-finding, and locks curriculum levels above the checkpoint until a retake passes.
+**Loading** is skeletons per block; the level panel and the overview load independently, and
+failures go through `describeError`. The calendar, grid and feature panel are lazy chunks. The
+exam countdown lives on Today (§9.1), not here.
 
 ### 9.1 Today — the ledger made visible
 
@@ -1188,7 +1452,7 @@ direction weighting by goal) · **Grammar drills** (the competence gate, exposed
 **Curriculum** (the exam date) · **Language** (UI locale, gloss language, fallback behaviour) ·
 **Ear trainer** (the talker floor and trials per session — the control the HVPT refusal screen
 has always told people to come here and change, and which did not exist) ·
-**Services** (TTS/ASR/NLP/LLM provider, endpoint, key, test button, latency) ·
+**Components** (admin only — see §10.1a) · **Services** (TTS/ASR/NLP/LLM provider, endpoint, key, test button, latency) ·
 **About** (version, pack version and edition) · **Speech** and **Sound**, which sit outside the
 settings payload because they are device preferences, not account ones.
 
@@ -1343,6 +1607,85 @@ otherwise find the reader unusable.
 
 ---
 
+## 10.1a Settings → Компоненты — the pack, restart and honest sidecars
+
+Admin only: `ComponentsPanel` is not mounted for a learner, and the API enforces the role
+independently. It sits above Services and opens with one paragraph: the core is complete with
+nothing installed, these are optional upgrades. Data comes from `GET /api/admin/components`
+([ADR-049](../.claude/DECISIONS.md#adr-049)); one card per component, each with what it is, what
+you lose without it, and a state chip that carries a shape and text (never colour alone):
+не создан · не настроен · загружает N% · готов · нет связи · говорит устройство · ошибка.
+
+- **Language pack** (`PackCard`). Says whether the starter or the full pack is loaded and what the
+  full one adds (`lib/packFacts.ts` holds lemmas 5,725 → 35,311 and sentences 12,858 → 60,000; the
+  starter figures were counted in the embedded pack, the full-pack ones are «по документации» —
+  none is measured at runtime, and the label says which is which). «Установить полный словарь»
+  starts `POST /api/admin/pack/install`, then polls the job every 1.5 s **only while it runs and
+  the tab is visible** (timers cleared on unmount); a job already running is picked up on open.
+  `ready` raises a banner «Готово. Нужен перезапуск» (focus moves to it) with «Перезапустить
+  сейчас». A supervised server restarts itself and the card polls `/api/bootstrap` until it answers
+  again after having gone quiet, then reloads; an unsupervised one says «сервер остановлен —
+  запустите его заново вручную» and polls nothing. `failed` maps `errorKey` through
+  `describeError` with a retry. **The button is never enabled-and-failing**: with no pinned
+  checksum (the default) it is disabled, the card says the pack is not published, and shows the
+  two config fields (`langpack.url`, `langpack.sha256`, saved through the ordinary settings
+  update) and the `make langpack` fallback.
+- **Install method tabs** (`ComponentMethods`, for `mt`, `nlp`, `llm`; browser flow NOT exercised, real
+  install NOT exercised). Under the one-line description each card has a tablist
+  «Встроенный · Docker Compose · Свой сервер» (arrow keys, Home/End, ≥44 px targets). The default tab
+  is the one in use: built-in when `provider: managed`, else built-in when `managed.available`, else
+  Docker Compose. **A tab is a view, not a setting** — only installing or «Сохранить» changes config.
+  `llm` has no built-in tab (a multi-GB model server is not embedded); a server that sends no
+  `managed` field gets the two other tabs only. All `managed` fields are optional to the client.
+  - **Встроенный** (`ManagedTab`, `POST /api/admin/components/:id/{install,start,stop,uninstall}`).
+    One honest line before pressing: «Скачает и запустит сервис прямо здесь: ≈диск, ≈память —
+    оценка» (figures are the server's constants, not measurements). `absent` → «Установить»
+    (disabled with the server's `unavailableKey` sentence and a pointer to the other tabs when
+    `available` is false); `installing` → thin progress bar, step label (`component.step.*`) and a
+    collapsible «Журнал» (monospace, selectable, follows the tail unless scrolled up); `running` →
+    chip «работает · порт N · только внутри» with «Остановить» / «Удалить» (confirm dialog: files go,
+    settings stay); `stopped`/`installed` → «Запустить»; `failed` → the `errorKey` sentence, the
+    short `errorDetail`, the log opened, «Повторить». «Перезапуск сервера не нужен» is stated
+    because the app starts the child itself. State is announced in an `aria-live` line (state and
+    step, not the ticking percentage). The list is re-read every 2 s **only while a copy is
+    installing/starting and the tab is visible** (plus an 8 s grace after a button press); when the
+    work ends, settings are re-read because the server flips the provider itself.
+  - **Docker Compose**: the command, with «Что такое profile?» and «А порты не заняты?» as InfoTips.
+    The second is true of `docker-compose.yml` as shipped (the sidecars publish no host ports);
+    it stops being true if the admin adds `ports:`.
+  - **Свой сервер**: the address (and, for `llm`, the model with the server's list) moved here from
+    the Services card; «Сохранить» uses the ordinary settings update, «Проверить» re-probes.
+- **Services rows follow the tabs.** A `managed` row shows «встроенный · порт N» read-only on a sage
+  tint (no input) and its status is the same polled built-in state; mt/nlp/llm rows otherwise show
+  the address read-only with a pointer to the tab. `managed` is offered in the provider select only
+  once something is installed. Switching away is allowed (the server stops the child).
+- **Translator** reuses the Services card's live block (`MtBlock`: download bytes, retry); its
+  state still lives in `SettingsView`, so the Services row and this card cannot disagree.
+- **Morphology analyser, speech server, speech recognition** report `built: false` as «пока не
+  сделано» in the repository's own words — no compose command, no «Проверить», no «на связи».
+  The Services row for a component that is not built reads «пока не сделано» too (tts keeps
+  «говорит устройство» where the device has a voice, [ADR-012](../.claude/DECISIONS.md#adr-012)).
+- **Context analyser (nlp)** (`built: true`). Explains itself in one paragraph (picks the reading of
+  an ambiguous word from its neighbours; without it everything works and disputed cases say
+  «возможно») and keeps the unmeasured ≈2.4 GB RAM line. Not configured: the compose command plus
+  a pointer to the endpoint field. Configured and not ready: «Скачать модель» calls
+  `POST /api/admin/nlp/warmup`; while the sidecar reports `loading` the panel re-reads
+  `/api/admin/components` every ~2 s **only while the tab is visible** (timers cleared on unmount)
+  and an `aria-live` line reads «загружает модель N%». Unreachable shows `errors.nlpUnreachable`;
+  a failed warmup shows its `describeError` sentence inline.
+- **Reader label.** An analysis with `via: "context"` was chosen among the form's readings by the
+  sidecar; the word inspector keeps the «возможно» note (certainty stays `uncertain`) and adds
+  «По контексту (HuSpaCy)…» (`reader.viaContext`). Uncertainty is never hidden. `WordDetail`
+  (stored tokens carry no `via`) is unchanged.
+- **Language model**: configured/reachable/model; endpoint and model stay editable in Services.
+- A component with a `composeProfile` that is built shows a copyable
+  `docker compose --profile <x> up -d` and «Проверить», which re-asks every probe.
+
+**Not exercised in a browser:** the nlp warmup/poll and context label, plus the progress, restart-and-reload and focus behaviour were
+type-checked and built, not run end to end.
+
+---
+
 ## 12. Accessibility
 
 - Every interactive element is keyboard-reachable with a visible focus ring. Tailwind v4 resets
@@ -1391,6 +1734,27 @@ colour carrying state ≥ 4.5:1. Boundaries ≥ 3:1.** The same figures are repe
 beside each token block so a reader never has to open this file to check one. Since the
 light-first flip (§1.7), `:root` in `tailwind.css` carries the LIGHT values and `.dark` the
 override — the measurements themselves are unchanged, only which block is the default.
+
+**Palette A «Kalocsa & Balaton» ([ADR-059](../.claude/DECISIONS.md#adr-059)) — current.**
+Warm paper `#fbf7ef`, card `#ffffff`, ink `#1e2a32`, primary teal-blue `#1d5c6e`; four soft
+tints `cream #fbefd9 · mist #dcebef · blush #f7dcd2 · sage #ddebdd` (card = fill + 1px edge one
+step darker, no shadow); `success #236b43`, `warn #8a5f00`, `destructive #b3261e`.
+`--paprika #b8402a` is **graphics only** (illustration strokes, the ring's low end) and is never
+text. Ring ramp `--ring-start/mid/end` = `#b8402a → #2a6fb0 → #1b8a6b`. Dark (derived, own
+steps): bg `#0c1116`, card `#13181e`, ink `#f4ebdd`, primary `#7cc4d4`, tints
+`#2b2619 / #16303a / #34201c / #1b2e22`, paprika `#e8836a`, ramp `#e8836a → #5da2e6 → #4fcba5`.
+Radius `--radius` is 0.875rem (sm 10 · md 12 · lg 14 · xl 18px).
+**The numbers are produced by `scripts/validate_palette.py` (`make palette-check`, part of
+`make docs-check`), which reads the tokens out of `tailwind.css` and checks every pair used.**
+Minimum measured: light text 4.58 / graphics 3.17; dark text 4.67 / graphics 3.04. Selected
+ratios (light / dark): ink on bg 13.72 / 16.05, on blush 11.26 / 12.98; muted-fg on card 6.99 /
+9.70; primary on card 7.48 / 9.09; success on sage 5.22 / 7.56; warn on cream 4.96 / 7.77 (not
+allowed on blush: use ink); paprika on blush 4.24 / 5.76; border on bg 3.17 / 3.23. Colour is
+never the only channel: a ring carries a numeric label, a state word for screen readers and a
+check at settled.
+
+The tables below record the pre-A palette for the knowledge-state colours (`kn-*`, unchanged
+and re-verified by the script against the new surfaces) and the method.
 
 Dark — against `--background` #0a0e12 / `--card` #13181e / `--muted` #21272e:
 
@@ -1517,9 +1881,21 @@ value counting up) · `animate-phase-change` (260ms, the interleaving badge) ·
 `animate-milestone` (320ms). Durations are mirrored in `lib/motion.ts` for the few things that
 must be timed in script.
 
+**Added by ADR-059:** `route-fade` (160ms fade + 6px rise on a path change), `card-in` as a
+`--i`-staggered grid arrival (40ms × index, max 6), skeleton `shimmer` (translateX of a
+pseudo-element, 1.4s), the current node's `halo` (2.4s, opacity/transform on a pseudo-element;
+its end keyframe equals the static state so reduced motion lands cleanly), `bar-grow`
+(`scaleY`, bottom origin), the check draw (240ms) and the count-up (≤600ms, `useCountUp`,
+off under reduced motion; the final value is announced once). `--ease-standard` is
+`cubic-bezier(0.2, 0, 0, 1)`.
+
+**Second documented exception: the ring stroke.** `ProgressRing` animates `stroke-dashoffset`
+over 700ms: an arc's length has no transform equivalent. It is learner-visible state change on
+a rare event (a unit's share moved), not the answer loop. The reduced-motion rule flattens it.
+
 Rules:
 
-- **120–320ms, no exceptions.** A learner answering 200 cards a day sees `answer-correct` 200
+- **120–320ms, no exceptions** (the ring's 700ms above is the named exception). A learner answering 200 cards a day sees `answer-correct` 200
   times; anything longer is a tax collected 200 times.
 - **Transform and opacity only.** Both are compositor-only, so an animation can never contend
   with the keystroke that started it. Never animate width, height, top or left.
@@ -1584,6 +1960,12 @@ computed by the scheduler's own library); a set summary of measured facts betwee
 milestone moment when something genuinely real happens — a curriculum unit finished, a grammar
 topic reaching `mastered`, a checkpoint passed. [R18 §4] draws the line: a number that
 *measures* something is informational feedback; a number that only ever goes up is a reward.
+
+**Rings (ADR-059).** A progress ring is allowed in exactly one case: a **derived share with a
+counted denominator and a numeric label** — a unit's settled words out of its total, «42%».
+Never a streak ring, never an XP or «activity» ring, never a daily-goal ring, never anything
+that only goes up. It may go down (a lapse unsettles a word). Colour follows §14.7's ring
+ramp and is never the only channel.
 
 **Deliberately not built, and this absence is a decision, not an oversight:** XP, points,
 scores, levels, ranks, tiers, leagues, leaderboards, gems, coins or any invented currency,
@@ -1655,6 +2037,12 @@ that reports its own integrity as a fault teaches you not to trust either.
 Body text stays at `muted-foreground`, an optional title at `foreground`. `role="alert"` only
 for `error`: a refusal is information, not an interruption.
 
+**The ring ramp (ADR-059).** `ProgressRing` colours its stroke from a dedicated ramp —
+`--ring-start` (ember/vermilion) at 0, `--ring-mid` (blue) near 0.35, `--ring-end` (teal-green)
+from 0.7, mixed with `color-mix(in oklch)`. It is not the knowledge scale and not
+`destructive`: an empty ring is "not started", not a failure; `destructive` stays for real
+errors only.
+
 ### 14.8 Where feedback is wired
 
 `composables/useAnswerFeedback.ts` is the single implementation of "a verdict just landed": it
@@ -1671,7 +2059,7 @@ awaited, and `play()` swallows its own failures.
 - Ear — `views/EarView.vue`, on the trial response; `sessionComplete` at the end of a session.
 
 The three milestones are fired where the fact behind them becomes provable: a unit in
-`views/PlanView.vue` (off the refetched plan, because "done" is a fact about the review deck), a
+`views/TodayView.vue` (off the refetched plan, because "done" is a fact about the review deck), a
 topic in `views/GrammarView.vue` (on the phase transition, carrying the gate's own reason
 string), a checkpoint in `views/ProgressView.vue` (carrying the measured lemma criterion, never
 the self-attested half). `Milestone.vue` is mounted once in `AppShell.vue`.
@@ -1687,7 +2075,7 @@ line motifs of Hungarian folk embroidery, in one colour, without fills.
 | Pair of birds over a sprig | `art/BirdPair.vue` | the library's two empty states (no texts; a filter that found nothing) |
 | Pomegranate rosette | `art/Rosette.vue` | the review done screen (accent tone); the 404 |
 | Sprig of wheat | `art/Sprig.vue` | the trash and the words list when empty |
-| Vine of leaves and buds | `art/Vine.vue` | under the wordmark at login and setup (accent tone) |
+| Vine of leaves and buds | `art/Vine.vue` | no longer placed (login and setup now use the paprika string, §14.10) |
 
 **Rules.** `currentColor`, 1.5 px strokes, round caps, no animation, under 2 KB a motif,
 `aria-hidden` — the sentence beside a drawing carries the meaning. The default tone is 70 % of
@@ -1698,8 +2086,88 @@ text is the wrong drawing. A drawing never depicts a figure — no rings, flames
 of a screen. `Illustration.vue` (`name`, `size` sm/md/lg, `tone`) is the one way to place one;
 `EmptyState` takes `art` in place of `icon`.
 
+**Two-tone decorative pieces (ADR-059).** Six more, line in `currentColor` (primary) plus a
+fill from `--art-fill` (a 12–18% tint; no gradients, no text, under 2 KB each, 120×120 except
+the tram strip 360×80; `scripts/check_art.py` enforces size and the bans):
+
+| Piece | Component | Allowed place |
+|---|---|---|
+| Chain Bridge | `art/ArtChainBridge.vue` | Library empty |
+| Parliament dome | `art/ArtParliamentDome.vue` | Grammar, nothing started / empty |
+| Tram on the Danube | `art/ArtTram.vue` | Today header strip |
+| Thermal-bath cupola | `art/ArtThermalDome.vue` | Today «nothing due» rest state |
+| Paprika string | `art/ArtPaprikaString.vue` | Words empty |
+| Balaton waves | `art/ArtBalaton.vue` | Listen / Ear empty |
+
+(D3b also places: the Chain Bridge in the Library header and the Resources empty state, the
+parliament dome in the Grammar header, the paprika string above the login and setup wordmark,
+the balaton waves on the Ear start card, the tram on the 404 — all outside any `Note`, card
+body or metric.)
+
+Placed with `Illustration` (`chainBridge · parliament · tram · thermal · paprika · balaton`).
+**Forbidden, unchanged:** on a graded card, a `Note`, the Progress screen's metrics, or as a
+measure of anything. The one-colour embroidery pieces above keep their rules.
+
 **What nobody caught** goes to the handler in `main.ts` (ADR-038): the stack to the console,
 one toast in the learner's language through `lib/errors.ts`, the same sentence at most once
 per two seconds, and a 401 that got that far clears the session and opens the login form with
 the way back. Screens still catch their own failures and say them in place — the handler is
 the floor, not the pattern.
+
+### 14.10 The lively pass on the remaining screens (D3b, ADR-059)
+
+Visual only; no behaviour, route or gate logic changed. Browser **not** exercised when written.
+
+- **Progress** — a two-column dashboard from 1024px (level + curve left, measured tiles right;
+  one column below). The level panel is a `mist` card: the level label, a confidence chip and a
+  `ProgressRing` for *coverage* (≈N % of a text, numeric label counting up). The ring is hidden
+  from assistive tech because the sentence beside it says the same in words. Per-band bars have
+  tinted tracks and the 80 % marker. Tiles (`StatCard`): words in the deck, learned, solid in
+  grammar, free practice — measured counts that can go down. The lemma curve has a soft area
+  tint; the activity calendar steps from tint tokens; the locative grid uses sage (solid) and
+  cream (needs work) with the percentage printed in every cell. Level checks: a ring for «N из
+  M слов» (counted denominator) with the sentence as the accessible text, tinted history rows
+  (sage passed, cream failed — no red). No illustrations here.
+- **Grammar** — header is a `PageHero` with the parliament dome. Topic map discs and rows
+  tinted by stage (not started mist, one-at-a-time light sage, mixed sage, rule-only cream,
+  mastered primary + check; the stage word is always printed). Lesson/exercise tabs use a soft
+  mist active state; the gate explainer is a cream card with an accuracy bar and the printed
+  80 % marker. Options are ≥48 px; a correct option draws a check, a wrong one a cross, with
+  sage / blush wash and ink text (no red text on tint).
+- **Library / Reader** — `PageHero` with the Chain Bridge; tabs tinted; rows are soft cards;
+  CEFR chips tinted by band (A1 sage, A2 mist, B1 cream, B2 blush; the level text is always
+  inside). Reader: cream paper surface, unknown words get a mist wash plus a dotted underline,
+  learning words a cream wash plus a solid underline (never colour alone); the word sheet has a
+  mist header and the «Знаю» button is sage. No illustration on the reading surface.
+- **Settings** — each section title carries a small tinted icon chip (`SectionChip`, decorative).
+  Component cards are tinted by state (ready sage, installing mist with a ring and percentage,
+  failed blush, not built cream) and always print the state word.
+- **Login / Setup** — a cream-washed page; paprika string over the wordmark; the form card
+  stays the single raised object.
+- **Listen / Ear / Users / Resources / 404** — tinted option and list cards; balaton on the
+  Listen empty state and the Ear start card; Resources groups carry tinted icon chips; the 404
+  shows the tram strip.
+- **Shell** — the active sidebar row is a mist pill with a primary icon; bottom tabs put a mist
+  pill behind the active icon; the topbar due chip is cream, the streak sage, the level chip
+  mist. Text on every tint is ink; paprika/warn colours are never used for text on a tint.
+### 14.11 Brand mark
+
+A flat, geometric mark: the Hungarian Parliament's central dome (lantern, spire, two flanking
+pinnacles, arched roofline) in cream `#fbf7ef` on a rounded teal tile `#1d5c6e` (radius 22 %),
+a paprika `#b8402a` pennant on the spire and two cream wave strokes for the Danube. Flat
+colours, no gradients, no text; under 1.5 KB. Decorative chrome like §14.9: it never draws a
+metric.
+
+- Master: `web-ui/public/favicon.svg` (64×64). `icon-mask.svg` is the maskable variant (full
+  bleed, glyph inside the 80 % safe zone); `icon-small.svg` is the simplified 16/32 px variant
+  (no arches, one wave). `BrandMark.vue` carries the same geometry — change both together.
+- Raster files (`favicon-32.png`, `favicon.ico`, `apple-touch-icon.png`, `icon-192/512.png`,
+  `icon-maskable-512.png`) are generated and committed: run `scripts/make_icons.sh` (needs
+  Google Chrome headless and python3 only).
+- `manifest.webmanifest` + `<meta name="theme-color">` (light `#fbf7ef`, dark `#0a0e12`).
+- Components: `components/brand/BrandMark.vue` (`size`, `tile`, `title`; `tile=false` is the
+  glyph in `currentColor`) and `BrandWordmark.vue` (mark + «tanulom» in the display serif).
+- Minimum size 16 px (use `icon-small.svg` below 32 px); clear space of one eighth of the tile
+  on every side. The tile keeps its own colours, so it reads on light and dark pages alike.
+- No tagline beside the mark: it truncated in the sidebar and added nothing.
+

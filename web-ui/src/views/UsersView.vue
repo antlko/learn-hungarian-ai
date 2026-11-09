@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import InfoTip from '@/components/common/InfoTip.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
@@ -149,7 +150,7 @@ const since = (iso: string) => new Date(iso).toLocaleDateString()
 </script>
 
 <template>
-  <div class="mx-auto flex w-full max-w-3xl flex-col gap-6">
+  <div class="page-narrow flex w-full min-w-0 flex-col gap-6">
     <h1 class="page-title">{{ $t('users.title') }}</h1>
 
     <p v-if="!loaded" class="text-sm text-muted-foreground">{{ $t('common.loading') }}</p>
@@ -158,14 +159,16 @@ const since = (iso: string) => new Date(iso).toLocaleDateString()
       <!-- Who has an account is the object of this screen for an admin. -->
       <Card variant="raised">
         <CardHeader>
-          <CardTitle class="text-base">{{ $t('users.listTitle') }}</CardTitle>
-          <CardDescription>{{ $t('users.listHint') }}</CardDescription>
+          <CardTitle class="flex items-center gap-1 text-base">
+            {{ $t('users.listTitle') }}
+            <InfoTip>{{ $t('users.listHint') }}</InfoTip>
+          </CardTitle>
         </CardHeader>
         <CardContent class="stagger-in flex flex-col gap-2">
           <div
             v-for="u in users"
             :key="u.id"
-            class="flex flex-wrap items-center gap-3 rounded-lg border border-border-subtle bg-background p-3"
+            class="flex flex-wrap items-center gap-3 rounded-xl border border-tint-mist-edge bg-tint-mist/50 p-3"
           >
             <div class="min-w-0 flex-1">
               <p class="truncate text-sm font-medium">
@@ -209,7 +212,7 @@ const since = (iso: string) => new Date(iso).toLocaleDateString()
         </CardContent>
       </Card>
 
-      <Card variant="quiet">
+      <Card variant="tint-cream">
         <CardHeader>
           <CardTitle class="text-base">{{ $t('users.addTitle') }}</CardTitle>
           <CardDescription>{{ $t('users.addHint') }}</CardDescription>

@@ -170,7 +170,13 @@ CREATE TABLE course_unit (
     -- The situation this unit is for: "at the doctor", "at the ügyfélszolgálat".
     situation_ru  TEXT NOT NULL, situation_en  TEXT NOT NULL,
     -- grammar_topic codes this unit assumes or introduces, comma separated.
-    topic_codes   TEXT NOT NULL DEFAULT ''
+    topic_codes   TEXT NOT NULL DEFAULT '',
+    -- 'core' is the guided path (24 + 20 + 20 units); 'theme' is an optional side
+    -- unit that never decides the next unit or the hand-over (ADR-050).
+    track         TEXT NOT NULL DEFAULT 'core',
+    -- 'basic' | 'intermediate' | 'advanced' (ADR-057). `month` is an internal
+    -- ordering/checkpoint field and is not shown to learners.
+    tier          TEXT NOT NULL DEFAULT 'basic'
 );
 CREATE INDEX idx_course_unit_ord ON course_unit(ord);
 
@@ -200,6 +206,27 @@ CREATE TABLE resource (
     free        INTEGER NOT NULL DEFAULT 1 CHECK (free IN (0,1)),
     ord         INTEGER NOT NULL DEFAULT 0
 );
+
+-- Ready-made reading sets ("Живые примеры"): sentences that already exist in
+-- `sentence`, grouped by course unit and CEFR band. Written by
+-- pipeline/reading_sets.py; the app only reads them and never writes Hungarian
+-- of its own into a set. `level` is estimated from lemma.cefr.
+CREATE TABLE reading_set (
+    code     TEXT PRIMARY KEY,
+    level    TEXT NOT NULL,
+    track    TEXT NOT NULL DEFAULT 'core',
+    ord      INTEGER NOT NULL,
+    title_ru TEXT NOT NULL, title_en TEXT NOT NULL,
+    theme_ru TEXT NOT NULL DEFAULT '', theme_en TEXT NOT NULL DEFAULT ''
+);
+CREATE TABLE reading_set_sentence (
+    set_code    TEXT NOT NULL REFERENCES reading_set(code),
+    sentence_id INTEGER NOT NULL REFERENCES sentence(id),
+    ord         INTEGER NOT NULL,
+    PRIMARY KEY (set_code, sentence_id)
+);
+-- a sentence belongs to at most one set
+CREATE UNIQUE INDEX idx_rss_sentence ON reading_set_sentence(sentence_id);
 
 -- ─── the attestation guardrail ────────────────────────────────────────────
 CREATE TABLE ngram (

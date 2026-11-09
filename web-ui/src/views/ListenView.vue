@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import InfoTip from '@/components/common/InfoTip.vue'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { Headphones, Repeat, SkipForward, Speech, Upload } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import Note from '@/components/common/Note.vue'
+import EmptyState from '@/components/common/EmptyState.vue'
 import { api } from '@/api'
 import { useSpeechStore } from '@/stores/speech'
 import type { ListenState, TextDetail, TextSummary } from '@/types'
@@ -386,7 +388,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="mx-auto flex w-full max-w-3xl flex-col gap-6">
+  <div class="page-narrow flex w-full min-w-0 flex-col gap-6">
     <header class="flex items-center justify-between gap-3">
       <h1 class="page-title">{{ $t('listen.title') }}</h1>
     </header>
@@ -401,15 +403,19 @@ onUnmounted(() => {
       in the script's docblock — visible to us and to nobody who uses the app.
     -->
     <Note v-if="!detail" variant="info" class="text-xs">
-      <p class="mb-2 font-medium">{{ $t('listen.intro.title') }}</p>
+      <p class="mb-1 flex items-center gap-0.5 font-medium">
+        {{ $t('listen.intro.title') }}
+        <InfoTip>
+          <p>{{ $t('listen.intro.passes') }}</p>
+          <p class="mt-2">{{ $t('listen.intro.caveat') }}</p>
+        </InfoTip>
+      </p>
       <p>{{ $t('listen.intro.what') }}</p>
-      <p class="mt-2">{{ $t('listen.intro.passes') }}</p>
-      <p class="mt-2">{{ $t('listen.intro.caveat') }}</p>
     </Note>
 
     <!-- ── player ──────────────────────────────────────────────────────── -->
     <template v-if="detail && listen">
-      <Card variant="raised">
+      <Card variant="raised" class="animate-card-in">
         <CardHeader class="flex flex-row items-start justify-between gap-3 pb-4">
           <div class="flex flex-col gap-1">
             <CardTitle class="text-lg">{{ detail.text.title }}</CardTitle>
@@ -451,11 +457,11 @@ onUnmounted(() => {
               v-for="p in [1, 2, 3] as const"
               :key="p"
               type="button"
-              class="cursor-pointer rounded-md border px-2.5 py-1 text-xs transition-colors"
+              class="min-h-9 cursor-pointer rounded-full border px-3 py-1 text-xs transition-colors"
               :class="
                 listen.pass === p
-                  ? 'border-primary bg-primary/10 font-medium text-primary'
-                  : 'border-border text-muted-foreground hover:bg-accent hover:text-foreground'
+                  ? 'border-tint-mist-edge bg-tint-mist font-medium text-foreground'
+                  : 'border-border text-muted-foreground hover:bg-tint-mist/60 hover:text-foreground'
               "
               :aria-pressed="listen.pass === p"
               @click="setPass(p)"
@@ -621,7 +627,7 @@ onUnmounted(() => {
             <li v-for="m in materials" :key="m.id">
               <button
                 type="button"
-                class="flex w-full cursor-pointer items-center justify-between gap-3 rounded-md px-2.5 py-2.5 text-left text-sm transition-colors hover:bg-accent"
+                class="flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg px-2.5 py-2.5 text-left text-sm transition-colors hover:bg-tint-mist/60"
                 @click="open(m.id)"
               >
                 <span class="flex min-w-0 items-center gap-2">
@@ -644,9 +650,9 @@ onUnmounted(() => {
         </CardContent>
       </Card>
 
-      <Note v-else variant="info">{{ $t('listen.empty') }}</Note>
+      <EmptyState v-else art="balaton" :title="$t('listen.empty')" />
 
-      <Card variant="quiet">
+      <Card variant="tint-cream">
         <CardHeader class="pb-3">
           <CardTitle class="text-sm">{{ $t('listen.add') }}</CardTitle>
         </CardHeader>

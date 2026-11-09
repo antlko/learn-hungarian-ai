@@ -65,8 +65,10 @@ PAIRS: list[MinimalPair] = [
     MinimalPair("hurok", "húrok", "u/ú", "петля", "струны", "loop, noose", "strings", 3),
     MinimalPair("fut", "fűt", "u/ű", "бежит", "топит, отапливает", "runs", "heats", 2),
     MinimalPair("tud", "tűd", "u/ű", "знает", "твоя игла", "knows", "your needle", 3),
-    MinimalPair("szurok", "szűrök", "u/ű", "смола, дёготь", "фильтры; фильтрую", "pitch, tar",
-                "filters; I filter", 3),
+    # szurok/szűrök was here and is not a minimal pair: it differs in TWO vowels
+    # (u→ű AND o→ö), the same flaw that retired orul/örül below. u/ű stays
+    # trained by fut/fűt and tud/tűd. No replacement is added until its clips
+    # can be rendered; a pair without audio would be a trial with no stimulus.
     # sor/sör is the textbook real-word pair for this opposition; the previous
     # orul/örül differed in TWO vowels (o→ö AND u→ü) and trained an unattributable blend.
     MinimalPair("sor", "sör", "o/ö", "ряд, очередь", "пиво", "row, queue", "beer", 2),

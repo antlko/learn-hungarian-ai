@@ -32,6 +32,11 @@ export const cardVariants = cva('rounded-xl text-card-foreground', {
       default: 'border border-border bg-card',
       quiet: 'border border-border-subtle bg-card',
       inset: 'border border-border-subtle bg-background',
+      /** Soft coloured card (ADR-059): tint fill + 1px tinted edge, no shadow. */
+      'tint-mist': 'border border-tint-mist-edge bg-tint-mist',
+      'tint-cream': 'border border-tint-cream-edge bg-tint-cream',
+      'tint-blush': 'border border-tint-blush-edge bg-tint-blush',
+      'tint-sage': 'border border-tint-sage-edge bg-tint-sage',
     },
     /**
      * Clickable cards get the hover tint and the pointer. It is a separate axis
@@ -51,6 +56,11 @@ export const cardVariants = cva('rounded-xl text-card-foreground', {
   compoundVariants: [
     { variant: 'quiet', interactive: true, class: 'border-border' },
     { variant: 'inset', interactive: true, class: 'border-border' },
+    // A clickable tint card keeps the 3:1 boundary, like every other tier.
+    { variant: 'tint-mist', interactive: true, class: 'border-border' },
+    { variant: 'tint-cream', interactive: true, class: 'border-border' },
+    { variant: 'tint-blush', interactive: true, class: 'border-border' },
+    { variant: 'tint-sage', interactive: true, class: 'border-border' },
   ],
   defaultVariants: { variant: 'default', interactive: false },
 })

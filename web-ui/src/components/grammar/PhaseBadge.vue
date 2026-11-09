@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { CircleAlert, Lock, Layers, Shuffle, Sparkles, BookOpen } from '@lucide/vue'
+import { BookOpen, CircleAlert, Circle, Layers, Lock, Shuffle, Check } from '@lucide/vue'
+import { topicStage, type TopicStage } from '@/lib/grammarStage'
 import type { GateDecision, Phase } from '@/types'
 
 /**
@@ -11,15 +12,16 @@ import type { GateDecision, Phase } from '@/types'
  * clears a floor, because interleaving an explicit rule-based distinction in the
  * early stage is the one case the evidence says makes things worse ([R5]). A
  * learner who is not told that will conclude the app is broken — so the badge
- * always carries the REASON, translated from the key the server sent, and the
- * bar shows exactly how far off the next transition is.
- *
- * The "why?" link opens the plain-language explanation. See docs/UX.md §8.
+ * names the stage in plain words (never «blocked»/«interleaved»), with a shape
+ * and an icon as well as a colour, and the non-compact form carries the
+ * "what is this stage?" disclosure. The gate's NUMBERS live in GateExplainer.
  */
 const props = defineProps<{
   phase: Phase
   decision: GateDecision
-  /** Compact drops the bar and the explanation — used on the topic map. */
+  /** Answers given so far — separates «ещё не начато» from «по одному». */
+  attempts?: number
+  /** Compact drops the explanation — used where several badges are listed. */
   compact?: boolean
 }>()
 
@@ -28,8 +30,7 @@ const { t, te } = useI18n()
 /*
   The badge announces itself when the phase MOVES, and only then. Animating it
   on mount too would spend the one movement the design system reserves for this
-  ("it must be noticed") on every navigation, which is how a signal becomes
-  wallpaper. `moves` stays 0 until a real transition happens.
+  on every navigation. `moves` stays 0 until a real transition happens.
 */
 const moves = ref(0)
 watch(
@@ -39,53 +40,35 @@ watch(
   },
 )
 
+const stage = computed<TopicStage>(() =>
+  topicStage({
+    phase: props.phase,
+    progress: { attempts: props.attempts ?? 1 } as never,
+  }),
+)
+
 const meta = computed(() => {
-  const table: Record<Phase, { icon: typeof Lock; classes: string }> = {
+  const table: Record<TopicStage, { icon: Component; classes: string }> = {
     locked: { icon: Lock, classes: 'border-border bg-muted/40 text-muted-foreground' },
-    explained: { icon: BookOpen, classes: 'border-border bg-muted/30 text-muted-foreground' },
-    blocked: { icon: Layers, classes: 'border-learning/40 bg-learning/10 text-learning' },
-    interleaved: { icon: Shuffle, classes: 'border-primary/40 bg-primary/10 text-primary' },
-    mastered: { icon: Sparkles, classes: 'border-known/40 bg-known/10 text-known' },
+    ruleOnly: { icon: BookOpen, classes: 'border-tint-cream-edge bg-tint-cream text-foreground' },
+    fresh: { icon: Circle, classes: 'border-dashed border-tint-mist-edge bg-tint-mist text-foreground' },
+    oneAtATime: { icon: Layers, classes: 'border-tint-sage-edge bg-tint-sage text-foreground' },
+    mixed: { icon: Shuffle, classes: 'border-known/50 bg-tint-sage text-foreground' },
+    mastered: { icon: Check, classes: 'border-primary/40 bg-tint-mist text-primary' },
   }
-  return table[props.phase] ?? table.locked
+  return table[stage.value]
 })
 
-/** An unknown key renders as the key rather than as a blank — a silent gap in
- * the explanation is exactly the failure this badge exists to prevent. */
 /**
- * The ordering recommendation, if the gate attached one.
- *
- * Separate from `reasonText`, which explains the PHASE. Advice and verdict are
- * different claims: "you are practising this one contrast at a time because
- * accuracy is 68%" versus "the course order suggests finishing harmony first".
- * Conflating them is how a suggestion starts reading as a refusal.
+ * The ordering recommendation, if the gate attached one. Advice and verdict are
+ * different claims: conflating them is how a suggestion starts reading as a
+ * refusal.
  */
 const adviceText = computed(() => {
   const d = props.decision
   if (!d.advice) return ''
   return te(d.advice) ? t(d.advice, d.adviceArgs ?? {}) : ''
 })
-
-const reasonText = computed(() =>
-  te(props.decision.reason)
-    ? t(props.decision.reason, props.decision.args ?? {})
-    : props.decision.reason,
-)
-
-const pct = computed(() => {
-  const { current, target } = props.decision
-  if (target <= 0) return 0
-  return Math.min(100, Math.round((current / target) * 100))
-})
-
-/** Shown only once the estimate is thick enough to mean anything. */
-const showBar = computed(
-  () =>
-    !props.compact &&
-    props.decision.target > 0 &&
-    props.phase !== 'locked' &&
-    props.phase !== 'explained',
-)
 </script>
 
 <template>
@@ -97,7 +80,7 @@ const showBar = computed(
         :class="[meta.classes, moves > 0 && 'animate-phase-change']"
       >
         <component :is="meta.icon" class="size-3.5" aria-hidden="true" />
-        {{ $t(`gate.phase.${phase}`) }}
+        {{ $t(`grammar.stage.${stage}`) }}
       </span>
       <span v-if="decision.demoted" class="inline-flex items-center gap-1 text-xs text-error">
         <CircleAlert class="size-3.5" aria-hidden="true" />
@@ -106,55 +89,13 @@ const showBar = computed(
     </div>
 
     <template v-if="!compact">
-      <p class="text-sm text-muted-foreground">{{ reasonText }}</p>
-
-      <div v-if="showBar" class="flex flex-col gap-1">
-        <div
-          class="h-2 w-full max-w-md overflow-hidden rounded-full bg-muted"
-          role="progressbar"
-          :aria-valuenow="pct"
-          aria-valuemin="0"
-          aria-valuemax="100"
-        >
-          <div
-            class="h-full rounded-full transition-all"
-            :class="decision.ready ? 'bg-primary' : 'bg-muted-foreground/40'"
-            :style="{ width: `${pct}%` }"
-          />
-        </div>
-        <p class="font-mono text-xs text-muted-foreground">
-          {{ Math.round(decision.current * 100) }}% / {{ Math.round(decision.target * 100) }}% ·
-          <!-- While warming up the count is a shortfall the learner is filling.
-               Past the window it is not: "28 of 20 answers" reads as a bug, and
-               the figure is a rolling average over the last N either way. -->
-          <template v-if="decision.ready">
-            {{ $t('gate.windowFull', { of: decision.window }) }}
-          </template>
-          <template v-else>
-            {{ $t('gate.window', { n: decision.observations, of: decision.window }) }} ·
-            {{ $t('gate.notEnoughYet') }}
-          </template>
-        </p>
-      </div>
-
-      <!--
-        The ordering recommendation, when there is one. A line of advice, in
-        the muted colour of information rather than the red of a barrier: the
-        topic is open and practisable, and this says what would make it easier.
-      -->
+      <details class="text-sm text-muted-foreground">
+        <summary class="min-h-6 cursor-pointer text-xs underline-offset-2 hover:underline">
+          {{ $t('grammar.stageWhat') }}
+        </summary>
+        <p class="mt-1 leading-relaxed">{{ $t(`grammar.stageHelp.${stage}`) }}</p>
+      </details>
       <p v-if="adviceText" class="text-xs text-muted-foreground">{{ adviceText }}</p>
-
-      <!--
-        No "why?" link here.
-
-        The badge only ever renders non-compact on the Grammar screen, which
-        already has a working "why?" in its header — so this was a duplicate,
-        and a broken one: it navigated /grammar -> /grammar?why=1, the component
-        did not remount, `start()` never re-ran, and the panel never opened.
-        A control that does nothing is worse than no control, and two controls
-        for one thing is worse than one. The explanation itself stays where it
-        works.
-      -->
     </template>
   </div>
 </template>

@@ -23,6 +23,7 @@ from . import (
     features,
     frequency,
     minimal_pairs,
+    reading_sets,
     resources,
     sentences,
     subtitles,
@@ -417,11 +418,12 @@ def main() -> int:
     emit.bulk(
         conn, "course_unit",
         ["code", "month", "ord", "title_ru", "title_en", "goal_ru", "goal_en",
-         "situation_ru", "situation_en", "topic_codes"],
+         "situation_ru", "situation_en", "topic_codes", "track", "tier"],
         (
             (u["code"], u["month"], u["ord"], u["title_ru"], u["title_en"],
              u["goal_ru"], u["goal_en"], u["situation_ru"], u["situation_en"],
-             u.get("topic_codes", ""))
+             u.get("topic_codes", ""), u.get("track", "core"),
+             u.get("tier", "basic"))
             for u in course.UNITS
         ),
     )
@@ -432,7 +434,9 @@ def main() -> int:
     )
     cs = course.stats()
     stats.update({"course_units": cs["units"], "course_words": cs["words"]})
-    print(f"  course: {cs['units']} units over {cs['months']} months, {cs['words']} words")
+    print(f"  course: {cs['core_units']} core units {cs['tier_units']}, "
+          f"{cs['core_words']} words {cs['tier_words']}; "
+          f"{cs['theme_units']} theme units, {cs['theme_words']} words")
 
     emit.bulk(
         conn, "resource",
@@ -467,6 +471,22 @@ def main() -> int:
         stats["glosses_ru"] = stats["glosses_ru_course"] = 0
         print("  ! Russian Wiktionary unavailable — English glosses only, "
               "which the UI labels as a fallback")
+    conn.commit()
+
+    # ── reading sets ─────────────────────────────────────────────────────
+    # Last of the content stages: they choose from the sentences and the course
+    # written above. A set the build cannot fill is a build error, not a
+    # smaller set.
+    print("→ reading sets")
+    sets_stats = reading_sets.build(conn)
+    sets_problems = reading_sets.validate(conn)
+    if sets_problems:
+        print("the reading sets are invalid:", *sets_problems[:20], sep="\n  ")
+        return 1
+    stats.update(sets_stats)
+    print(f"  {sets_stats['reading_set']} sets, {sets_stats['reading_set_sentence']} sentences")
+    # A warning, not an error: see course.warn_unclozeable.
+    course.warn_unclozeable(conn)
     conn.commit()
 
     print("→ indexing and vacuuming")

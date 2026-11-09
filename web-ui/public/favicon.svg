@@ -1,11 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- The teal is the app's identity hue (198) — oklch(0.47 0.08 198), the light
-       palette's --primary, as sRGB — on which the paper-white «ő» sits at 5.4:1.
-       The glyph: the double acute is the diacritic learners of Hungarian most
-       often drop, and the one the ear trainer targets first. The serif stack is
-       the material's face (ADR-036); a tab renders with whatever the OS has, so
-       Georgia stands in when Literata is not installed there. -->
-  <rect width="32" height="32" rx="7" fill="#00686b"/>
-  <text x="16" y="23" font-family="Literata, Georgia, 'Times New Roman', serif" font-size="21"
-        font-weight="500" fill="#fbfaf7" text-anchor="middle">ő</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1d5c6e"/><g fill="#fbf7ef"><path d="M31.4 11h1.2v6h-1.2z"/><path d="M30 17h4l-.6 5h-2.8z"/><path d="M21 37c0-9 5-15 11-15s11 6 11 15z"/><path d="M20 36h24v4H20z"/><path d="M12 25l3 14h-6zM52 25l-3 14h6z"/><path d="M22.5 31l2.5 9h-5zM41.5 31l-2.5 9h5z"/><path d="M8 39h48v10H8z"/></g><path d="M32 6.5l6 2.2-6 2.2z" fill="#b8402a"/><g fill="none" stroke="#fbf7ef" stroke-width="2" stroke-linecap="round"><path d="M10 54q5.5-3 11 0t11 0 11 0 11 0"/><path d="M16 59q5.5-3 11 0t11 0 11 0" opacity=".6"/></g><g fill="#1d5c6e"><path d="M13 49v-5a2 2 0 014 0v5zM23 49v-5a2 2 0 014 0v5zM37 49v-5a2 2 0 014 0v5zM47 49v-5a2 2 0 014 0v5z"/></g></svg>

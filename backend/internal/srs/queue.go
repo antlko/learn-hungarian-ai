@@ -82,6 +82,12 @@ type QueueItem struct {
 	// of the two this direction wants, and guessing that in the client is how
 	// the hint would come to disagree with the grader.
 	Expected string `json:"expected,omitempty"`
+	// Options are 3-5 shuffled strings INCLUDING Expected, for a tap-to-answer
+	// card on a phone. Built by the API layer (api/options.go) from attested
+	// forms and omitted when fewer than three can be built, so the client falls
+	// back to typing. Grading is unchanged: the chosen string is submitted as
+	// the ordinary typed answer. ADR-060.
+	Options []string `json:"options,omitempty"`
 }
 
 // TargetSplit is the sentence either side of the target span, so the client can

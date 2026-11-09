@@ -82,6 +82,7 @@ func (s *Server) handleUpdateSettings(c fiber.Ctx) error {
 		}
 	}
 
+	prev := s.Config()
 	clamped, err := s.updateConfig(func(cfg *config.Config) {
 		if v := req.Locale; v != nil {
 			cfg.Locale.UI = v.UI
@@ -133,6 +134,10 @@ func (s *Server) handleUpdateSettings(c fiber.Ctx) error {
 			cfg.Curriculum.FocusUnlockListeningHours = v.FocusUnlockListeningHours
 			cfg.Curriculum.ExamDate = v.ExamDate
 		}
+		if v := req.LangPack; v != nil {
+			cfg.LangPack.URL = strings.TrimSpace(v.URL)
+			cfg.LangPack.SHA256 = strings.TrimSpace(v.SHA256)
+		}
 		for name, svc := range req.Services {
 			target := serviceField(cfg, name)
 			if target == nil {
@@ -140,6 +145,9 @@ func (s *Server) handleUpdateSettings(c fiber.Ctx) error {
 			}
 			target.Provider = svc.Provider
 			target.Endpoint = svc.Endpoint
+			if svc.Provider == config.ProviderManaged {
+				target.Endpoint = "" // never stored: the port is the manager's alone
+			}
 			target.Model = svc.Model
 			target.Voices = svc.Voices
 		}
@@ -147,6 +155,9 @@ func (s *Server) handleUpdateSettings(c fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+
+	// A provider moved off (or onto) `managed`: stop (or start) the child to match.
+	s.reconcileManaged(prev, s.Config())
 
 	// Service endpoints may have changed; do not show stale probe results.
 	InvalidateCapabilityCache()

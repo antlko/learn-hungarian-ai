@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
-import { BookmarkPlus, Check, EyeOff, Languages, Plus } from '@lucide/vue'
+import { BookmarkPlus, Check, EyeOff, Languages, Plus, X } from '@lucide/vue'
 import { describeError } from '@/lib/errors'
 import { Button } from '@/components/ui/button'
 import AiWordPanel from '@/components/common/AiWordPanel.vue'
@@ -63,6 +63,7 @@ const emit = defineEmits<{
   (e: 'statusChange', lemmaId: number, status: LemmaStatus): void
   (e: 'addCard', token: StoredToken, gloss: string): void
   (e: 'translateSentence'): void
+  (e: 'close'): void
 }>()
 
 const { t } = useI18n()
@@ -235,18 +236,36 @@ const statusDisabledReason = computed(() =>
 </script>
 
 <template>
+  <!-- On a phone this is a bottom sheet above the tab bar, at most 60% of the
+       screen, only while a word is open; the text stays readable above it. From
+       md up it is the rail it always was. -->
   <aside
-    class="flex w-full shrink-0 flex-col gap-4 overflow-y-auto rounded-xl border border-border-subtle bg-card p-5 lg:w-80"
+    :class="[
+      'flex w-full shrink-0 flex-col gap-4 overflow-y-auto rounded-xl border border-tint-mist-edge bg-card p-5 lg:w-80',
+      'max-md:fixed max-md:inset-x-0 max-md:bottom-[var(--bottom-tabs-h,0px)] max-md:z-40 max-md:max-h-[60dvh] max-md:rounded-b-none max-md:border-x-0 max-md:border-b-0 max-md:px-4 max-md:pt-4 max-md:pb-0 max-md:shadow-lg',
+      token ? '' : 'max-md:hidden',
+    ]"
   >
     <p v-if="!token" class="text-sm text-muted-foreground">{{ $t('reader.pickAWord') }}</p>
 
     <template v-else>
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-col gap-1 rounded-xl border border-tint-mist-edge bg-tint-mist p-3 max-md:order-[-3]">
         <!-- Hearing the form is half of learning it, and this is where the
              learner already is: one click, the device says it. -->
         <div class="flex items-center gap-1">
           <p class="font-mono text-xl" lang="hu">{{ token.form }}</p>
           <SpeakButton :text="token.form" />
+          <!-- Phone sheet only. It lives IN the header row so it is centred on the
+               word's line and inset by the tile's own padding — it used to be
+               absolutely positioned and sat on the tile's corner. -->
+          <button
+            type="button"
+            class="-mr-1 ml-auto inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground hover:bg-card/60 hover:text-foreground md:hidden"
+            :aria-label="$t('common.close')"
+            @click="emit('close')"
+          >
+            <X class="size-5" aria-hidden="true" />
+          </button>
         </div>
         <p v-if="lemma" class="text-sm text-muted-foreground">
           <span lang="hu">{{ lemma.lemma }}</span>
@@ -395,19 +414,19 @@ const statusDisabledReason = computed(() =>
         v-if="token.certainty === 'uncertain' || token.certainty === 'derived'"
         variant="limit"
         bare
-        class="text-[11px]"
+        class="text-[11px] max-md:order-[-1] max-md:line-clamp-2"
       >
         {{ $t(`reader.certainty.${token.certainty}`) }}
       </Note>
 
-      <div v-if="glosses.length" class="flex flex-col gap-1">
+      <div v-if="glosses.length" class="flex flex-col gap-1 max-md:order-[-2]">
         <p class="text-xs text-muted-foreground">
           {{ $t('reader.meaning') }}
           <span v-if="lemma?.glossFallback" class="text-uncertain">
             {{ $t('review.glossFallback') }}
           </span>
         </p>
-        <ol class="list-inside list-decimal text-sm leading-relaxed">
+        <ol class="list-inside list-decimal text-sm leading-relaxed max-md:text-base">
           <li v-for="(g, i) in glosses.slice(0, 4)" :key="i">{{ g }}</li>
         </ol>
       </div>
@@ -432,10 +451,13 @@ const statusDisabledReason = computed(() =>
 
       <!-- Known and Ignored need a lemma to attach to. Where there is none
            they are disabled and say why, rather than swallowing the click. -->
-      <div class="flex flex-wrap gap-1.5">
+      <div
+        class="flex flex-wrap gap-1.5 max-md:sticky max-md:bottom-0 max-md:order-[999] max-md:-mx-4 max-md:flex-nowrap max-md:border-t max-md:border-border-subtle max-md:bg-card max-md:px-4 max-md:py-2.5 max-md:[&>*]:min-h-11 max-md:[&>*]:flex-1"
+      >
         <Button
           size="sm"
           :variant="status === 'known' ? 'secondary' : 'outline'"
+          :class="status !== 'known' ? 'border-tint-sage-edge bg-tint-sage hover:bg-tint-sage/70' : ''"
           :disabled="unknownToPack"
           :title="statusDisabledReason"
           @click="setStatus('known')"

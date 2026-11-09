@@ -2,12 +2,15 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
-import { ArrowLeft, BookOpen, ChevronDown, GraduationCap, Info, PencilRuler } from '@lucide/vue'
+import { ArrowLeft, ArrowRight, BookOpen, GraduationCap, Info, PencilRuler } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Note from '@/components/common/Note.vue'
+import { Illustration } from '@/components/art'
+import PageHero from '@/components/visual/PageHero.vue'
 import DrillItemView from '@/components/grammar/DrillItem.vue'
 import FeatureGrid from '@/components/grammar/FeatureGrid.vue'
+import GateExplainer from '@/components/grammar/GateExplainer.vue'
 import PhaseBadge from '@/components/grammar/PhaseBadge.vue'
 import TopicLesson from '@/components/grammar/TopicLesson.vue'
 import TopicMap from '@/components/grammar/TopicMap.vue'
@@ -15,7 +18,6 @@ import TutorPanel from '@/components/grammar/TutorPanel.vue'
 import FeatureChips from '@/components/review/FeatureChips.vue'
 import MorphemeDiff from '@/components/review/MorphemeDiff.vue'
 import { prefersReducedMotion } from '@/lib/motion'
-import { cn } from '@/lib/utils'
 import { play } from '@/lib/sound'
 import { useCurriculumStore } from '@/stores/curriculum'
 import { useFeaturesStore } from '@/stores/features'
@@ -70,6 +72,7 @@ const selected = ref('')
  * After that, the drill leads and the lesson is one click away. ADR-043.
  */
 const practising = ref(false)
+// `practising` IS the active tab: false = «Урок», true = «Упражнения».
 
 /**
  * Topics the learner has practised on this device.
@@ -127,9 +130,6 @@ function drillsLead(t?: Topic | null): boolean {
   return t.progress.attempts > 0 || practisedSet().has(t.code)
 }
 
-/** The lesson panel, open or shut. Open whenever the drill is not leading. */
-const lessonOpen = ref(true)
-
 /** The tutor's side column. Off by default — it is a question, not a step. */
 const tutorOpen = ref(false)
 
@@ -138,7 +138,7 @@ const title = computed(() =>
   topic.value ? (ui.locale === 'ru' ? topic.value.titleRu : topic.value.titleEn) : '',
 )
 
-/** A topic's title in the UI locale — for the rail, which lists several. */
+/** A topic's title in the UI locale. */
 const topicTitle = (t: Topic) => (ui.locale === 'ru' ? t.titleRu : t.titleEn)
 
 /** Recent mistakes a grammar drill cannot fix — said plainly. See from_error.go. */
@@ -190,7 +190,6 @@ async function open(code: string, history: 'push' | 'replace' = 'push') {
   // loads, and a stale `true` from the previous topic would put an exercise
   // in front of a rule nobody has read.
   practising.value = false
-  lessonOpen.value = true
   tutorOpen.value = false
   if (route.query.topic !== code) {
     const query = { ...route.query, topic: code }
@@ -203,13 +202,11 @@ async function open(code: string, history: 'push' | 'replace' = 'push') {
   // Now the topic is loaded: one already under way opens on its exercise.
   if (drillsLead(store.activeTopic) && store.item) {
     practising.value = true
-    lessonOpen.value = false
   }
 }
 
 function closeTopic() {
   practising.value = false
-  lessonOpen.value = true
   tutorOpen.value = false
   store.activeTopic = null
   selected.value = ''
@@ -236,8 +233,7 @@ watch(
     if (want) void open(want, 'replace')
     else {
       practising.value = false
-      lessonOpen.value = true
-      tutorOpen.value = false
+          tutorOpen.value = false
       store.activeTopic = null
       selected.value = ''
     }
@@ -261,14 +257,28 @@ const position = computed(() => {
   return at < 0 ? null : { n: at + 1, of: peers.length }
 })
 
-/** The current level's topics, for the rail. Same grouping `TopicMap` does. */
-const levelTopics = computed(() => {
-  const t = topic.value
-  if (!t) return []
-  return store.topics
-    .filter((x) => x.level === t.level)
-    .sort((a, b) => a.teachOrder - b.teachOrder)
+/** The topic the page used to open by itself: the server's recommendation. */
+const recommended = computed(() => store.topics.find((x) => x.code === store.current) ?? null)
+
+/** Every topic in teaching order — level first, then the pack's own order. */
+const ordered = computed(() => {
+  const levels = ['A1', 'A2', 'B1', 'B2']
+  return [...store.topics].sort(
+    (a, b) => levels.indexOf(a.level) - levels.indexOf(b.level) || a.teachOrder - b.teachOrder,
+  )
 })
+
+/** Previous and next topic: links, not gates (ADR-013). */
+const neighbours = computed(() => {
+  const at = ordered.value.findIndex((x) => x.code === topic.value?.code)
+  if (at < 0) return { prev: null, next: null }
+  return { prev: ordered.value[at - 1] ?? null, next: ordered.value[at + 1] ?? null }
+})
+
+/** Why a topic has no exercises, as a key — the topic's own, else the batch's. */
+const noDrillsKey = computed(
+  () => store.unavailable || topic.value?.drills.reason || 'drill.unavailable.noGenerator',
+)
 
 /**
  * Move to the exercises.
@@ -282,12 +292,12 @@ const levelTopics = computed(() => {
  */
 async function beginPractice() {
   practising.value = true
-  lessonOpen.value = false
   // Remembered, so the next visit to this topic opens on the exercise. [R4]
   // is satisfied by the FIRST visit having landed on the lesson.
-  if (selected.value) rememberPractised(selected.value)
+  // Only when there is something to practise: the press is evidence of intent.
+  if (selected.value && store.item) rememberPractised(selected.value)
   await nextTick()
-  document.querySelector('[data-drill-card]')?.scrollIntoView({
+  document.querySelector('[data-topic-tabs]')?.scrollIntoView({
     block: 'start',
     behavior: prefersReducedMotion() ? 'auto' : 'smooth',
   })
@@ -297,7 +307,9 @@ async function start() {
   void catalogue.ensure()
   await store.load()
   if (route.query.why) showWhy.value = true
-  const code = (route.query.topic as string) || store.current
+  // No `?topic=`: the roadmap is the landing, with a «Продолжить» button to the
+  // recommended topic. A topic in the URL opens as before (ADR-043).
+  const code = route.query.topic as string
   // Replace on mount: landing on a screen must not put an entry behind you.
   if (code) await open(code, 'replace')
 }
@@ -342,10 +354,11 @@ watch(
 </script>
 
 <template>
-  <div class="mx-auto flex w-full max-w-6xl flex-col gap-6">
-    <header class="flex flex-wrap items-center justify-between gap-3">
-      <h1 class="page-title">{{ $t('grammar.title') }}</h1>
-      <div class="flex items-center gap-2">
+  <div class="page-narrow flex w-full min-w-0 flex-col gap-5">
+    <PageHero :title="$t('grammar.title')">
+      <template #art><Illustration name="parliament" size="sm" /></template>
+      <template #actions>
+      <div class="mt-2 flex flex-wrap items-center gap-2">
         <Button
           v-if="!store.placementTaken"
           variant="outline"
@@ -360,10 +373,11 @@ watch(
           {{ $t('gate.why') }}
         </Button>
       </div>
-    </header>
+      </template>
+    </PageHero>
 
     <!-- The honest explanation of the gate, in plain language, citing why. -->
-    <Card v-if="showWhy" variant="quiet" class="animate-card-in border-l-2 border-l-primary">
+    <Card v-if="showWhy" variant="tint-cream" class="animate-card-in">
       <CardHeader class="pb-3">
         <CardTitle class="text-base">{{ $t('gate.whyTitle') }}</CardTitle>
       </CardHeader>
@@ -388,218 +402,251 @@ watch(
 
     <!-- ── a topic is open ─────────────────────────────────────────────── -->
     <template v-if="topic">
-      <!-- Lesson and drills on the left, the level's topics on the right. -->
-      <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
-        <div class="flex min-w-0 flex-1 flex-col gap-6">
-      <!--
-        ── the chrome strip ─────────────────────────────────────────────
-        Where you are, and the two ways out of it, above the task rather than
-        buried in a card header. «Все темы» used to be a ghost/sm button inside
-        the lesson's CardHeader — the ONLY route back to the topic map in the
-        whole SPA, and invisible. It is an outline button in the page furniture
-        now.
-      -->
-      <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <Button variant="outline" size="sm" @click="closeTopic">
-          <ArrowLeft class="size-4" aria-hidden="true" />
-          {{ $t('grammar.allTopics') }}
-        </Button>
-
-        <div class="flex min-w-0 flex-col">
-          <h2 class="truncate text-sm font-medium">{{ title }}</h2>
-          <span class="text-[11px] text-muted-foreground">
-            {{ topic.level }}
-            <template v-if="position">
-              · {{ $t('grammar.teachOrderOf', { n: position.n, of: position.of }) }}
-            </template>
-            <template v-else>· {{ $t('grammar.teachOrder', { n: topic.teachOrder }) }}</template>
-          </span>
-        </div>
-
-        <PhaseBadge :phase="topic.phase" :decision="topic.decision" compact class="shrink-0" />
-
-        <!-- The batch counter travels with the task, not inside its card. -->
-        <span
-          v-if="practising && store.item"
-          class="font-mono text-xs tabular-nums text-muted-foreground"
-        >
-          {{ store.index + 1 }}/{{ store.items.length }}
-        </span>
-
-        <!-- The tutor is a question about the rule, so it is a panel you open
-             and not a step you pass through. Same shape as the review card's,
-             same key. ADR-027 -->
-        <Button
-          variant="ghost"
-          size="sm"
-          class="ml-auto"
-          :aria-pressed="tutorOpen"
-          @click="tutorOpen = !tutorOpen"
-        >
-          <GraduationCap class="size-4" aria-hidden="true" />
-          {{ $t('tutor.title') }}
-        </Button>
-      </div>
-
-      <!--
-        ── the lesson, collapsible ──────────────────────────────────────
-        Still the landing state on a topic's first visit — [R4] is the
-        strongest finding in the set and is not traded away for a layout. What
-        changed is that a topic already under way no longer makes the learner
-        scroll past the whole explanation to reach the exercise they came for.
-      -->
-      <Card :variant="lessonOpen ? 'raised' : 'quiet'">
-        <CardHeader :class="lessonOpen ? 'pb-3' : 'py-3'">
-          <button
-            type="button"
-            class="flex w-full cursor-pointer items-center gap-2 text-left"
-            :aria-expanded="lessonOpen"
-            @click="lessonOpen = !lessonOpen"
-          >
-            <BookOpen class="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-            <CardTitle class="text-sm">{{ $t('grammar.lesson.title') }}</CardTitle>
-            <ChevronDown
-              class="ml-auto size-4 shrink-0 text-muted-foreground transition-transform"
-              :class="lessonOpen ? 'rotate-180' : ''"
-              aria-hidden="true"
-            />
-          </button>
-        </CardHeader>
-
-        <CardContent v-if="lessonOpen" class="flex flex-col gap-6">
-          <TopicLesson v-if="store.detail" :detail="store.detail" />
-
+      <div class="flex flex-col gap-5">
+        <div class="flex min-w-0 flex-1 flex-col gap-5">
           <!--
-            The step from reading to practising. A button rather than an
-            automatic scroll because "I have read this" is the learner's call,
-            and because a screen that starts a timed retrieval attempt on its
-            own is measuring reading speed.
+            Where you are and the ways out: back to the road, and the previous and
+            next topic as plain links. Neither is a gate — order is advice.
           -->
-          <div v-if="!practising" class="flex flex-col gap-2 border-t border-border-subtle pt-5">
-            <Button v-if="store.item" class="self-start" @click="beginPractice">
-              <PencilRuler class="size-4" aria-hidden="true" />
-              {{ $t('grammar.lesson.startDrills') }}
+          <div class="flex flex-col gap-3">
+            <Button variant="outline" size="sm" class="min-h-12 self-start" @click="closeTopic">
+              <ArrowLeft class="size-4" aria-hidden="true" />
+              {{ $t('grammar.allTopics') }}
             </Button>
-            <!--
-              An empty batch always explains itself — and it is information, not
-              a failure. A topic we have not written a generator for is a stated
-              limitation of this build, and the lesson above it still teaches.
-            -->
-            <Note v-else-if="store.unavailable" variant="limit">
-              <p>{{ $t(store.unavailable) }}</p>
-              <p class="mt-1.5 text-xs">{{ $t('grammar.ruleStillApplies') }}</p>
-            </Note>
-            <p v-if="store.item" class="text-xs text-muted-foreground">
-              {{ $t('grammar.lesson.startDrillsHint') }}
-            </p>
+
+            <div class="flex flex-col gap-1">
+              <h2 class="text-xl font-semibold leading-snug">{{ title }}</h2>
+              <span class="text-xs text-muted-foreground">
+                {{ topic.level }}
+                <template v-if="position">
+                  · {{ $t('grammar.teachOrderOf', { n: position.n, of: position.of }) }}
+                </template>
+              </span>
+            </div>
+
+            <PhaseBadge
+              :phase="topic.phase"
+              :decision="topic.decision"
+              :attempts="topic.progress.attempts"
+            />
           </div>
 
-          <!-- The learner's own state on each feature. Below the lesson: it is
-               a progress reading, not part of the explanation. -->
-          <FeatureGrid
-            v-if="store.detail?.features.length"
-            :features="store.detail.features"
-            :harmony-latency-ms="store.gate?.harmonyLatencyMs ?? 2500"
-          />
-        </CardContent>
-      </Card>
+          <!-- ── the two tabs ─────────────────────────────────────────── -->
+          <div
+            data-topic-tabs
+            role="tablist"
+            :aria-label="title"
+            class="flex gap-1 rounded-xl border border-tint-cream-edge bg-tint-cream/60 p-1"
+          >
+            <button
+              id="grammar-tab-lesson"
+              type="button"
+              role="tab"
+              aria-controls="grammar-panel"
+              :aria-selected="!practising"
+              class="flex min-h-12 flex-1 cursor-pointer items-center justify-center gap-2 rounded-md px-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-ring"
+              :class="!practising ? 'border border-tint-mist-edge bg-tint-mist' : 'text-muted-foreground hover:bg-tint-mist/50'"
+              @click="practising = false"
+            >
+              <BookOpen class="size-4" aria-hidden="true" />
+              {{ $t('grammar.tab.lesson') }}
+            </button>
+            <button
+              id="grammar-tab-exercises"
+              type="button"
+              role="tab"
+              aria-controls="grammar-panel"
+              :aria-selected="practising"
+              class="flex min-h-12 flex-1 cursor-pointer items-center justify-center gap-2 rounded-md px-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-ring"
+              :class="practising ? 'border border-tint-mist-edge bg-tint-mist' : 'text-muted-foreground hover:bg-tint-mist/50'"
+              @click="beginPractice"
+            >
+              <PencilRuler class="size-4" aria-hidden="true" />
+              {{ $t('grammar.tab.exercises') }}
+              <span
+                v-if="practising && store.item"
+                class="font-mono text-xs tabular-nums text-muted-foreground"
+              >
+                {{ store.index + 1 }}/{{ store.items.length }}
+              </span>
+            </button>
+          </div>
 
-      <!--
-        ── the exercise: the task ────────────────────────────────────────
-        The main object on the screen once the learner is practising, rather
-        than the third card down under the lesson and the tutor. The counter
-        moved to the chrome strip, where it describes the session rather than
-        this one item.
-      -->
-      <Card v-if="practising && store.item" data-drill-card variant="raised">
-        <CardHeader class="pb-4">
-          <CardTitle class="text-sm font-medium text-muted-foreground">
-            {{ $t(`grammar.kind.${store.item.kind}`) }}
-          </CardTitle>
-        </CardHeader>
-        <CardContent class="flex flex-col gap-5 pb-6">
-          <DrillItemView
-            :item="store.item"
-            :result="store.result"
-            :submitting="store.submitting"
-            v-model:answer="store.answer"
-            @choose="choose"
-            @submit="store.submit()"
-            @next="advance"
-          />
+          <div
+            id="grammar-panel"
+            role="tabpanel"
+            :aria-labelledby="practising ? 'grammar-tab-exercises' : 'grammar-tab-lesson'"
+            class="flex flex-col gap-5"
+          >
+            <!-- ── Урок: [R4], the first visit lands here ─────────────── -->
+            <template v-if="!practising">
+              <Card variant="raised">
+                <CardContent class="flex flex-col gap-6 pt-6">
+                  <TopicLesson v-if="store.detail" :detail="store.detail" />
 
-          <template v-if="store.result">
-            <MorphemeDiff v-if="store.result.diff" :diff="store.result.diff" />
-            <FeatureChips :features="store.result.gradedFeatures" />
-            <!-- The hint has to match the item on screen: telling someone to
-                 press 1–4 in front of a text box is worse than no hint. -->
-            <p class="text-xs text-muted-foreground">
-              {{ store.isTyped ? $t('grammar.keysTyped') : $t('grammar.keys') }}
-            </p>
-          </template>
-        </CardContent>
-      </Card>
+                  <!-- The step from reading to practising is the learner's call:
+                       a screen that starts a timed attempt on its own measures
+                       reading speed. -->
+                  <div class="flex flex-col gap-2 border-t border-border-subtle pt-5">
+                    <Button v-if="store.item" class="min-h-12 self-start" @click="beginPractice">
+                      <PencilRuler class="size-4" aria-hidden="true" />
+                      {{ $t('grammar.lesson.startDrills') }}
+                    </Button>
+                    <p v-if="store.item" class="text-xs text-muted-foreground">
+                      {{ $t('grammar.lesson.startDrillsHint') }}
+                    </p>
+                    <p v-else-if="store.unavailable || !topic.drills.available" class="text-sm text-muted-foreground">
+                      {{ $t('grammar.noDrills.line') }}
+                    </p>
+                  </div>
 
-      <!-- Errors a grammar drill genuinely cannot treat. Routed, not drilled. -->
-      <Note v-if="nonDrillable.length" variant="limit" :title="$t('grammar.remedyTitle')">
-        <p v-for="f in nonDrillable" :key="f.featureId" class="mt-0.5">
-          <span class="text-foreground">{{ catalogue.label(f.featureId) }}</span>
-          — {{ $t(f.remedy) }}
-        </p>
-      </Note>
+                  <FeatureGrid
+                    v-if="store.detail?.features.length"
+                    :features="store.detail.features"
+                    :harmony-latency-ms="store.gate?.harmonyLatencyMs ?? 2500"
+                  />
+                </CardContent>
+              </Card>
+            </template>
+
+            <!-- ── Упражнения ─────────────────────────────────────────── -->
+            <template v-else>
+              <GateExplainer
+                v-if="topic.phase !== 'explained'"
+                :phase="topic.phase"
+                :decision="topic.decision"
+                :gate="store.gate"
+              />
+
+              <Card v-if="store.item" data-drill-card variant="raised">
+                <CardHeader class="pb-4">
+                  <CardTitle class="text-sm font-medium text-muted-foreground">
+                    {{ $t(`grammar.kind.${store.item.kind}`) }}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent class="flex flex-col gap-5 pb-6">
+                  <DrillItemView
+                    :item="store.item"
+                    :result="store.result"
+                    :submitting="store.submitting"
+                    v-model:answer="store.answer"
+                    @choose="choose"
+                    @submit="store.submit()"
+                    @next="advance"
+                  />
+
+                  <template v-if="store.result">
+                    <MorphemeDiff v-if="store.result.diff" :diff="store.result.diff" />
+                    <FeatureChips :features="store.result.gradedFeatures" />
+                    <!-- The hint has to match the item on screen: telling someone
+                         to press 1–4 in front of a text box is worse than none. -->
+                    <p class="hidden text-xs text-muted-foreground md:block">
+                      {{ store.isTyped ? $t('grammar.keysTyped') : $t('grammar.keys') }}
+                    </p>
+                  </template>
+                </CardContent>
+              </Card>
+
+              <!--
+                No exercises is a stated limit of this build, not a failure: the
+                lesson is the whole topic. The way forward is a question to the
+                tutor or real sentences in the reader, never a download.
+              -->
+              <div v-else class="flex flex-col gap-3">
+              <Illustration name="parliament" size="sm" class="self-start" />
+              <Note variant="limit">
+                <p class="font-medium text-foreground">{{ $t('grammar.noDrills.line') }}</p>
+                <p class="mt-1.5 text-xs">{{ $t(noDrillsKey) }}</p>
+                <p class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                  <RouterLink to="/tutor" class="inline-flex min-h-8 items-center underline">
+                    {{ $t('grammar.noDrills.tutor') }}
+                  </RouterLink>
+                  <RouterLink to="/library" class="inline-flex min-h-8 items-center underline">
+                    {{ $t('grammar.noDrills.reader') }}
+                  </RouterLink>
+                </p>
+              </Note>
+              </div>
+            </template>
+
+            <!-- Errors a grammar drill genuinely cannot treat. Routed, not drilled. -->
+            <Note v-if="nonDrillable.length" variant="limit" :title="$t('grammar.remedyTitle')">
+              <p v-for="f in nonDrillable" :key="f.featureId" class="mt-0.5">
+                <span class="text-foreground">{{ catalogue.label(f.featureId) }}</span>
+                — {{ $t(f.remedy) }}
+              </p>
+            </Note>
+          </div>
+
+          <!-- previous / next: lateral movement along the road -->
+          <nav class="grid grid-cols-2 gap-2" :aria-label="$t('grammar.neighbours')">
+            <Button
+              v-if="neighbours.prev"
+              variant="outline"
+              class="h-auto min-h-12 justify-start gap-2 py-2 text-left whitespace-normal"
+              @click="open(neighbours.prev.code, 'replace')"
+            >
+              <ArrowLeft class="size-4 shrink-0" aria-hidden="true" />
+              <span class="flex min-w-0 flex-col">
+                <span class="text-[11px] text-muted-foreground">{{ $t('grammar.prev') }}</span>
+                <span class="text-sm">{{ topicTitle(neighbours.prev) }}</span>
+              </span>
+            </Button>
+            <span v-else />
+            <Button
+              v-if="neighbours.next"
+              variant="outline"
+              class="h-auto min-h-12 justify-end gap-2 py-2 text-right whitespace-normal"
+              @click="open(neighbours.next.code, 'replace')"
+            >
+              <span class="flex min-w-0 flex-col">
+                <span class="text-[11px] text-muted-foreground">{{ $t('grammar.next') }}</span>
+                <span class="text-sm">{{ topicTitle(neighbours.next) }}</span>
+              </span>
+              <ArrowRight class="size-4 shrink-0" aria-hidden="true" />
+            </Button>
+          </nav>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            class="min-h-12 self-start lg:hidden"
+            :aria-pressed="tutorOpen"
+            @click="tutorOpen = !tutorOpen"
+          >
+            <GraduationCap class="size-4" aria-hidden="true" />
+            {{ $t('tutor.title') }}
+          </Button>
         </div>
 
-      <!--
-        The rail: where this topic sits among the ones at its level, and what
-        state each of them is in. «Все темы» was the only orientation there was
-        — a button that threw the topic away to show a map — so the answer to
-        "what is around this" cost you the thing you were reading. This is the
-        map at rail width, always on, current row marked.
-      -->
-      <aside
-        v-if="levelTopics.length > 1 || tutorOpen"
-        class="flex w-full shrink-0 flex-col gap-4 lg:sticky lg:top-2 lg:max-h-[calc(100dvh-7rem)] lg:overflow-y-auto"
-        :class="tutorOpen ? 'lg:w-96' : 'lg:w-72'"
-      >
-        <!--
-          The tutor, when asked for. In the side column rather than between the
-          lesson and the exercise: a question about the rule is something you
-          reach for, and putting it in the path from reading to practising made
-          it a step everyone walked through. Same placement and same behaviour
-          as the review card's panel. ADR-027, [R19]
-        -->
-        <TutorPanel v-if="tutorOpen" :topic="topic.code" :title="title" />
-
-        <h2
-          v-if="levelTopics.length > 1"
-          class="text-xs font-semibold tracking-widest text-muted-foreground uppercase"
-        >
-          {{ $t('grammar.levelTopics', { level: topic.level }) }}
-        </h2>
-        <ul v-if="levelTopics.length > 1" class="flex flex-col gap-1">
-          <li v-for="(x, i) in levelTopics" :key="x.code">
-            <button
-              type="button"
-              :aria-current="x.code === topic.code ? 'true' : undefined"
-              :class="
-                cn(
-                  'flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs hover:bg-accent',
-                  x.code === topic.code && 'bg-accent font-medium',
-                )
-              "
-              @click="open(x.code, 'replace')"
-            >
-              <span class="w-5 shrink-0 tabular-nums text-muted-foreground">{{ i + 1 }}</span>
-              <span class="min-w-0 flex-1 truncate">{{ topicTitle(x) }}</span>
-              <PhaseBadge :phase="x.phase" :decision="x.decision" compact class="shrink-0" />
-            </button>
-          </li>
-        </ul>
-      </aside>
+        <!-- The tutor is a question about the rule: a panel you open, not a step.
+             ADR-027, [R19] -->
+        <aside class="flex w-full shrink-0 flex-col gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            class="hidden min-h-12 self-start lg:inline-flex"
+            :aria-pressed="tutorOpen"
+            @click="tutorOpen = !tutorOpen"
+          >
+            <GraduationCap class="size-4" aria-hidden="true" />
+            {{ $t('tutor.title') }}
+          </Button>
+          <TutorPanel v-if="tutorOpen" :topic="topic.code" :title="title" />
+        </aside>
       </div>
     </template>
 
-    <!-- ── the map ─────────────────────────────────────────────────────── -->
+    <!-- ── the road ────────────────────────────────────────────────────── -->
+    <Button
+      v-if="!topic && !store.loading && recommended"
+      size="lg"
+      class="min-h-12 w-full justify-start gap-2 sm:w-auto"
+      @click="open(recommended.code)"
+    >
+      <PencilRuler class="size-4 shrink-0" aria-hidden="true" />
+      <span class="truncate">{{ $t('grammar.continueTopic', { topic: topicTitle(recommended) }) }}</span>
+    </Button>
     <TopicMap
       v-if="!topic && !store.loading"
       :topics="store.topics"

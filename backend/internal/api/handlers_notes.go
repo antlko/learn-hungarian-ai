@@ -231,12 +231,20 @@ func (s *Server) handleCreateNote(c fiber.Ctx) error {
 
 // MasteryResponse is the per-feature heatmap.
 type MasteryResponse struct {
-	Features []srs.FeatureMastery `json:"features"`
+	Features []MasteryFeature `json:"features"`
 	// Window is `drill.gateWindow`: the number of answers a rolling accuracy
 	// needs before `ready` turns true. It travels with the data so the screen
 	// can say "a figure appears after 20 answers" with the configured number
 	// rather than a copy of the default that drifts.
 	Window int `json:"window"`
+}
+
+// MasteryFeature is one heatmap row plus the grammar topics that teach the
+// feature, so a cell can link to its lesson. Topics is [] when the pack has no
+// curriculum or no topic claims the feature.
+type MasteryFeature struct {
+	srs.FeatureMastery
+	Topics []string `json:"topics"`
 }
 
 func (s *Server) handleMastery(c fiber.Ctx) error {
@@ -248,10 +256,23 @@ func (s *Server) handleMastery(c fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	if got == nil {
-		got = []srs.FeatureMastery{}
+	byFeature := map[string][]string{}
+	if s.dag != nil {
+		for _, t := range s.dag.Topics() {
+			for _, id := range t.FeatureIDs {
+				byFeature[id] = append(byFeature[id], t.Code)
+			}
+		}
 	}
-	return c.JSON(MasteryResponse{Features: got, Window: s.Config().Drill.GateWindow})
+	rows := make([]MasteryFeature, 0, len(got))
+	for _, m := range got {
+		topics := byFeature[m.FeatureID]
+		if topics == nil {
+			topics = []string{}
+		}
+		rows = append(rows, MasteryFeature{FeatureMastery: m, Topics: topics})
+	}
+	return c.JSON(MasteryResponse{Features: rows, Window: s.Config().Drill.GateWindow})
 }
 
 // clozeable reports whether a note has a span a cloze can blank.

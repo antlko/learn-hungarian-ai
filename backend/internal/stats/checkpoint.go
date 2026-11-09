@@ -230,3 +230,22 @@ func (s *Store) EvidenceFor(userID int64, spec CheckpointSpec, days []Day, today
 	ev.ListeningHours = listeningHours
 	return ev, nil
 }
+
+// chartTargetCheckpoints maps each CEFR band to the checkpoint whose lemma
+// target marks reaching it: m3 → A1 (900), m6 → A2 (2000), m12 → B1 (3500),
+// m18 → B2 (6000). The Progress chart's reference lines are read from Specs,
+// so the milestone numbers live in exactly one place.
+var chartTargetCheckpoints = []struct{ Level, Code string }{
+	{"A1", "m3"}, {"A2", "m6"}, {"B1", "m12"}, {"B2", "m18"},
+}
+
+// LemmaTargets returns the reference lines for the lemma curve, by band.
+func LemmaTargets() map[string]int {
+	out := make(map[string]int, len(chartTargetCheckpoints))
+	for _, t := range chartTargetCheckpoints {
+		if spec, ok := SpecFor(t.Code); ok {
+			out[t.Level] = spec.LemmaTarget
+		}
+	}
+	return out
+}

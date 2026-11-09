@@ -112,6 +112,7 @@ func (s *Server) handleQueue(c fiber.Ctx) error {
 	if err := s.attachCribs(u.ID, items); err != nil {
 		return err
 	}
+	s.attachOptions(items, now)
 	// A text scope's numbers ride along after the three fixed piles, so the
 	// segmented control keeps its arithmetic and the text chip gets its own.
 	var extras []srs.Scope
@@ -325,6 +326,11 @@ type AnswerRequest struct {
 	Typed      string `json:"typed"`
 	UsedHint   bool   `json:"usedHint"`
 	DurationMs int64  `json:"durationMs"`
+	// Via is how the answer was entered: "typed" (default) or "choice", a tap
+	// on one of QueueItem.Options. The chosen string arrives in Typed and is
+	// graded exactly like typing; Via changes only that a hint flag is ignored
+	// (a choice card has no hint) and is never stored. ADR-060.
+	Via string `json:"via,omitempty"`
 }
 
 // AnswerResponse reports the outcome, including which features were graded.
@@ -467,6 +473,16 @@ func (s *Server) handleAnswer(c fiber.Ctx) error {
 	// changed under it.
 	if note.Trashed {
 		return fiber.NewError(fiber.StatusConflict, "this word is in the trash")
+	}
+
+	if err := checkVia(req, card.Direction); err != nil {
+		return err
+	}
+	if req.Via == viaChoice {
+		// A choice card has no «Подсказка»: hiding options is the client's
+		// affair and a hint flag here would only cap the rating. Ignored.
+		req.UsedHint = false
+		slog.DebugContext(c.Context(), "review answer by choice", "card", card.ID)
 	}
 
 	outcome := srs.Outcome{

@@ -98,7 +98,7 @@ func (s *Server) handleTranslate(c fiber.Ctx) error {
 		return c.JSON(TranslateResponse{Translations: out})
 	}
 
-	client := mt.New(s.Config().Services.MT)
+	client := mt.New(s.service("mt"))
 	if client == nil {
 		return fiber.NewError(fiber.StatusServiceUnavailable, "translation.notConfigured")
 	}

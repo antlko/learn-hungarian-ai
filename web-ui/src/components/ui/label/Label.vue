@@ -7,7 +7,7 @@ defineProps<{ for?: string; class?: string }>()
 <template>
   <label
     :for="$props.for"
-    :class="cn('text-sm font-medium leading-none select-none', $props.class)"
+    :class="cn('flex min-h-7 items-center gap-0.5 text-sm font-medium leading-none select-none', $props.class)"
   >
     <slot />
   </label>

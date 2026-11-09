@@ -1,6 +1,6 @@
 """The hand-off: what to read, watch and listen to once the course runs out.
 
-course.py prescribes twenty-four units and then stops. This file is what the app
+course.py prescribes 64 units in three tiers and then stops. This file is what the app
 shows next — and the stopping is the design, not a gap in it. [R11] measures the
 effect of reading VOLUME, and volume is the one thing a syllabus cannot hand
 you: past some point the learner picks their own material or they read a few

@@ -1,12 +1,16 @@
 <script setup lang="ts">
+import InfoTip from '@/components/common/InfoTip.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { Dumbbell, Undo2 } from '@lucide/vue'
 import { describeError } from '@/lib/errors'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Illustration } from '@/components/art'
 import { Skeleton } from '@/components/ui/skeleton'
 import EmptyState from '@/components/common/EmptyState.vue'
+import BackButton from '@/components/common/BackButton.vue'
 import PageHeader from '@/components/common/PageHeader.vue'
 import Note from '@/components/common/Note.vue'
 import { api } from '@/api'
@@ -107,9 +111,11 @@ const notes = computed(() => data.value?.notes ?? [])
 </script>
 
 <template>
-  <div class="mx-auto flex w-full max-w-3xl flex-col gap-6">
+  <div class="page-narrow flex w-full min-w-0 flex-col gap-6">
+    <BackButton fallback="/words" class="-mb-3" />
     <PageHeader :title="$t('known.title')" :subtitle="$t('known.subtitle')">
       <template #actions>
+        <InfoTip>{{ $t('known.notice') }}</InfoTip>
         <Button v-if="notes.length" variant="outline" size="sm" class="gap-1.5" @click="practise">
           <Dumbbell class="size-4" aria-hidden="true" />
           {{ $t('known.practise') }}
@@ -120,7 +126,14 @@ const notes = computed(() => data.value?.notes ?? [])
     <!-- What this list IS, said once at the top rather than implied. A learner
          who thinks this is a delete will not use it; one who thinks it is a
          second queue will feel they owe it something. -->
-    <Note variant="info" class="text-xs">{{ $t('known.notice') }}</Note>
+
+    <Card v-if="notes.length" variant="tint-sage" class="card-in flex items-center justify-between gap-4 px-5 py-4">
+      <p class="text-sm">
+        <span class="text-3xl font-semibold tabular-nums">{{ data?.total ?? notes.length }}</span>
+        <span class="ml-2 text-muted-foreground">{{ $t('known.count') }}</span>
+      </p>
+      <Illustration name="sprig" size="sm" />
+    </Card>
 
     <Note v-if="error" variant="error">
       <p>{{ error }}</p>
@@ -134,9 +147,10 @@ const notes = computed(() => data.value?.notes ?? [])
     <template v-else-if="data">
       <div v-if="notes.length" class="flex flex-col gap-1.5">
         <div
-          v-for="n in notes"
+          v-for="(n, ni) in notes"
           :key="n.noteId"
-          class="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border border-border-subtle bg-card px-4 py-2.5"
+          :style="{ '--i': ni }"
+          class="card-in flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border border-border-subtle bg-card px-4 py-2.5"
         >
           <div class="min-w-0 flex-1">
             <p class="truncate font-medium" lang="hu">{{ n.lemma || n.targetForm || '—' }}</p>

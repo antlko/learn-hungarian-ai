@@ -204,7 +204,7 @@ conversation, never a tree of them.
 
 **Every question is grounded, and the grounding is chosen per question.** A pinned topic wins.
 Otherwise `tutor.InferTopic` scores the question against every topic's vocabulary
-(`tutor.TopicIndex`, built by the handler from the DAG and the pack for each question — twenty-eight
+(`tutor.TopicIndex`, built by the handler from the DAG and the pack for each question — thirty-three
 topics, cheap, always in step with the pack):
 
 | signal | weight |

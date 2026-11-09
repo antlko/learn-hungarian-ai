@@ -26,6 +26,11 @@ import (
 )
 
 func main() {
+	// Subcommands come before flag parsing, which only knows the server's flags.
+	if len(os.Args) > 1 && os.Args[1] == "reset-password" {
+		os.Exit(runResetPassword(os.Args[2:]))
+	}
+
 	logger.Init()
 
 	var (

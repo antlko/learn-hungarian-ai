@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Select } from '@/components/ui/select'
+import BackButton from '@/components/common/BackButton.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import TutorConversation from '@/components/grammar/TutorConversation.vue'
 import { tutorApi } from '@/api'
@@ -260,11 +261,12 @@ onMounted(async () => {
 <template>
   <!-- The viewport under the top bar (3.5rem) and the shell's own padding
        (1.5rem above, 2rem below): the chat gets all of it. -->
-  <div class="mx-auto flex h-[calc(100dvh-7rem)] w-full max-w-7xl flex-col gap-4">
-    <div class="flex min-h-0 flex-1 flex-col gap-4 lg:flex-row">
+  <div class="page-narrow flex h-[calc(100dvh-7rem)] w-full min-w-0 flex-col gap-4">
+    <BackButton fallback="/" class="-mb-2 shrink-0 md:hidden" />
+    <div class="flex min-h-0 flex-1 flex-col gap-4">
       <!-- The rail: a new chat, and the old ones. Below lg it sits above the
            chat, capped so it cannot eat the screen the chat is for. -->
-      <aside class="flex max-h-44 w-full shrink-0 flex-col gap-3 overflow-y-auto lg:max-h-none lg:w-64">
+      <aside class="flex max-h-44 w-full shrink-0 flex-col gap-3 overflow-y-auto">
         <Button class="gap-1.5 self-stretch" :variant="selectedId ? 'default' : 'outline'" @click="startNew">
           <Plus class="size-4" aria-hidden="true" />
           {{ $t('tutor.newChat') }}

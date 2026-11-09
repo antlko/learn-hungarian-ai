@@ -68,3 +68,35 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      # The `full` variant (Python inside, for managed components): same tags with
+      # a `-full` suffix (`latest-full`, `1.2.3-full`). Layers are shared with the
+      # build above, so this is mostly the python base plus a copy.
+      - name: Docker metadata (full)
+        id: meta-full
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          flavor: |
+            latest=auto
+            suffix=-full,onlatest=true
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=ref,event=tag
+            type=sha,format=short
+
+      - name: Build and push (full)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: full
+          platforms: linux/amd64,linux/arm64
+          push: true
+          build-args: |
+            VERSION=${{ github.ref_name }}
+          tags: ${{ steps.meta-full.outputs.tags }}
+          labels: ${{ steps.meta-full.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

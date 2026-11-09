@@ -5,7 +5,51 @@ the project uses [semantic versioning](https://semver.org/). Every design decisi
 is an ADR in [`.claude/DECISIONS.md`](.claude/DECISIONS.md), and every pedagogical claim traces to a
 note in [`.claude/research/`](.claude/research/README.md).
 
-## [Unreleased]
+## [Unreleased] — polish pass
+
+Answers to the owner's sixteen points: install clarity, mobile, how the app learns, statistics,
+the roadmap and a plain list of features. Nothing committed or released.
+
+### Learner-visible
+- **Estimated level and text coverage** (ADR-047): a chip in the top bar («A2.2», «≈71% слов текста»),
+  a card on Today, and a section in Progress, always with its method sentence; it can go down.
+- **The course grows to three finite tiers** (ADR-057): 24 basic + 20 intermediate + 20 advanced
+  core units (about 3 100 words), picked at your own pace; "month N" is gone from the screen. A
+  unit now shows how many words you have **learned**, not only how many are in the deck.
+- **Today is a roadmap** (ADR-048): level, one next action, today's obligations, words from
+  reading, and the course units with checkpoints. The Plan screen is gone; `/plan` redirects.
+- **"Next" follows enrolment**: mining a word from a text no longer switches the next unit.
+- **Phone layout**: bottom tabs, single-column roadmap, touch-sized review, a row of Hungarian
+  letters above the keyboard.
+- **«Как это работает»** explains learning steps and that there is no "N correct in a row" rule
+  (ADR-051). The scheduler is unchanged.
+- **Words shows a stage ladder** (учится, вспоминаем, повторяется, закреплено, знаю) with filters.
+- **Grammar** is a path of topics with plain phase names, Lesson | Exercises tabs and the gate
+  in numbers (ADR-053).
+- **Statistics redesigned**: activity calendar, level and coverage, clearer lemma curve and heatmap.
+- **Account menu** holds language, theme, service status and sign-out; the left menu is dynamic.
+- **Settings → Components** (ADR-052): what each optional piece is and costs, state and progress.
+- **Library reading sets** (ADR-056): 36 ready-made sets of real sentences, imported on a click.
+
+### Content
+- **Course**: core units grew to about 1,400 words; 12 optional theme units (ADR-050).
+- **Grammar**: five new topics (questions, numerals, pronouns, postpositions, time and date);
+  33 topics, 13 with exercises (ADR-055).
+- **Starter dictionary** is now 5,725 lemmas, 587,898 forms, 12,858 sentences.
+
+### Install and operations
+- **Install the full dictionary from Settings** (ADR-049): checksum-pinned, id-compatibility
+  checked, applied on restart. No pack is published yet, so the button says so.
+- **In-app Restart** (needs a restart policy; `TANULOM_SUPERVISED`).
+- **HuSpaCy sidecar** (`nlp` profile) built, opt-in, selects only among attested readings (ADR-054);
+  not run in CI, memory figure is the published one.
+- **Docs**: README rewritten around what works today (build from source), docs/FEATURES.md added,
+  the 40-minute pack question answered, the pack numbers reconciled.
+
+### Performance
+- Locale files load lazily and vendor code is a separate chunk; entry bundle 94 KB to 34 KB.
+
+## [Unreleased] — earlier
 
 The first month of real use, answered. Fourteen reports from the learner using it daily.
 

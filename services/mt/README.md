@@ -7,6 +7,16 @@ someone else's chat window.
 Enabled per install and **off by default**. The reader is complete without it: the translate
 control is not drawn when the service is unreachable, and nothing else in the app depends on it.
 
+## Managed mode (no Docker)
+
+**Settings → Components → «Встроенный» → Установить** has the app itself create a venv, install
+`requirements.txt` (torch from the CPU index for the one-time conversion, removed afterwards),
+convert the model and run this service on `127.0.0.1` on a free port — about 6 GB free disk while
+installing (estimate), ~2.5 GB after. Needs `python3` ≥ 3.10 with venv; see
+[SELFHOSTING.md](../../docs/SELFHOSTING.md) and [ADR-061](../../.claude/DECISIONS.md#adr-061).
+`MT_HOST` (default `0.0.0.0`) is what makes it loopback-only there. The app runs the copy embedded
+in its binary: after editing `app.py` run `make sync-components`.
+
 ## What it is
 
 [NLLB-200-distilled-600M](https://huggingface.co/facebook/nllb-200-distilled-600M), converted to

@@ -39,6 +39,24 @@ type WordRow struct {
 	NextDue        string  `json:"nextDue,omitempty"`
 	Lapses         int     `json:"lapses"`
 	Cards          int     `json:"cards"`
+	// Stage is where the word is in its life, in the review card's own
+	// vocabulary: "learning" | "relearning" | "young" | "mature" | "known".
+	// "known" is the learner's declaration («Знаю»), which outranks the
+	// cards; otherwise it is srs.StageOf the STRONGEST card (young/mature
+	// split at srs.MatureDays, Anki's convention). A word with no reviewed
+	// card yet is "learning". Empty only for an ignored word with no cards.
+	Stage string `json:"stage"`
+	// IntervalDays, Reps, StepsLeft and StepsTotal are the strongest card's
+	// srs.Memory figures — computed by the library, never re-derived here.
+	IntervalDays int `json:"intervalDays"`
+	Reps         int `json:"reps"`
+	StepsLeft    int `json:"stepsLeft"`
+	StepsTotal   int `json:"stepsTotal"`
+}
+
+// wordStages are the values of WordRow.Stage, and of the ?stage= filter.
+var wordStages = map[string]bool{
+	"learning": true, "relearning": true, "young": true, "mature": true, "known": true,
 }
 
 // WordsResponse is one page of the browser.
@@ -61,6 +79,10 @@ func (s *Server) handleWords(c fiber.Ctx) error {
 	default:
 		return badRequest("status must be all, learning, known or ignored")
 	}
+	stage := c.Query("stage")
+	if stage != "" && stage != "all" && !wordStages[stage] {
+		return badRequest("stage must be learning, relearning, young, mature or known")
+	}
 	sortBy := c.Query("sort", "added")
 	switch sortBy {
 	case "added", "word", "due", "retrievability":
@@ -80,6 +102,7 @@ func (s *Server) handleWords(c fiber.Ctx) error {
 		return err
 	}
 	byID := map[int64]*WordRow{}
+	best := map[int64]srs.Memory{} // the strongest card's figures, per lemma
 	for rows.Next() {
 		var w WordRow
 		if err := rows.Scan(&w.LemmaID, &w.Status, &w.FirstSeen); err != nil {
@@ -125,8 +148,13 @@ func (s *Server) handleWords(c fiber.Ctx) error {
 		st.LastReview = db.ParseTime(last)
 		w.Cards++
 		w.Lapses += int(st.Lapses)
-		if r := sched.Retrievability(st, now); r > w.Retrievability {
+		mem := srs.MemoryFor(st, sched, now, false)
+		if r := mem.Retrievability; r > w.Retrievability {
 			w.Retrievability = r
+		}
+		if cur, seen := best[lemmaID]; !seen || mem.Retrievability > cur.Retrievability ||
+			(mem.Retrievability == cur.Retrievability && mem.Reps > cur.Reps) {
+			best[lemmaID] = mem
 		}
 		if st.State != 0 && !st.Due.IsZero() {
 			if w.NextDue == "" || st.Due.Before(db.ParseTime(sql.NullString{String: w.NextDue, Valid: true})) {
@@ -137,6 +165,15 @@ func (s *Server) handleWords(c fiber.Ctx) error {
 	crows.Close()
 	if err := crows.Err(); err != nil {
 		return err
+	}
+
+	for id, w := range byID {
+		m, ok := best[id]
+		w.Stage = wordStage(w.Status, m, ok)
+		if ok {
+			w.IntervalDays, w.Reps = int(m.IntervalDays), int(m.Reps)
+			w.StepsLeft, w.StepsTotal = m.StepsLeft, m.StepsTotal
+		}
 	}
 
 	// Names and glosses from the pack, in chunks — the pack is a separate
@@ -207,6 +244,16 @@ func (s *Server) handleWords(c fiber.Ctx) error {
 		all = kept
 	}
 
+	if stage != "" && stage != "all" {
+		kept := all[:0]
+		for _, w := range all {
+			if w.Stage == stage {
+				kept = append(kept, w)
+			}
+		}
+		all = kept
+	}
+
 	sort.Slice(all, func(i, j int) bool {
 		a, b := all[i], all[j]
 		switch sortBy {
@@ -260,4 +307,20 @@ func escapeLike(s string) string {
 	s = strings.ReplaceAll(s, `\`, `\\`)
 	s = strings.ReplaceAll(s, `%`, `\%`)
 	return strings.ReplaceAll(s, `_`, `\_`)
+}
+
+// wordStage is the ONE stage rule of a word, shared by the Words list and
+// GET /api/stats/deck so their numbers cannot disagree: `known` status
+// outranks; else the strongest card's stage; a learning word with no reviewed
+// card yet is "learning" (the list's «ещё не повторялось»).
+func wordStage(status string, best srs.Memory, hasCard bool) string {
+	switch {
+	case status == "known":
+		return "known"
+	case hasCard && best.Stage != srs.StageNew:
+		return string(best.Stage)
+	case status == "learning":
+		return "learning"
+	}
+	return ""
 }

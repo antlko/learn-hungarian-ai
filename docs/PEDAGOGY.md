@@ -145,6 +145,21 @@ label the threshold lines *"English-derived, indicative only"* in both locales.
 
 `n+1` selection uses element coverage. See [R6](../.claude/research/06-lexical-coverage.md).
 
+### 2.3a The estimated level and text coverage are competence signals
+
+The app now states an **estimated level** («A2.2») and a **text coverage** figure («понимаете ≈71%
+слов обычного текста»). Both are on the permitted motivational surface only because they are
+measured, carry a printed method, and can go **down**: a word counts only while its retrievability
+is above the known-threshold, and learning-step words do not count, so the number is a reading of
+the deck now and not a total that accumulates. Coverage is the headline because comprehension
+tracks the share of running words known ([R6](../.claude/research/06-lexical-coverage.md)) and
+because reading volume is what the guided course hands over to
+([R11](../.claude/research/11-extensive-reading.md)). It is counted in **lemmas**, with R6's
+caveat unchanged: lemma coverage overstates real comprehension for Hungarian, so the confidence
+is never "high" and the copy says "estimate". CEFR bands here are frequency bands, not an exam;
+the 0.80 band share is our chosen threshold, not a literature figure. It is not XP: nothing is
+earned, spent or ranked ([ADR-047](../.claude/DECISIONS.md#adr-047)).
+
 ### 2.4 Pronunciation feedback must be explicit
 
 **Source plan §7.4 (v2):** "запись голоса + whisper-large-v3-hu, diff произношения".
@@ -209,8 +224,9 @@ built and is the long-term engine, but pointing a week-one learner at Telex and 
 mine is handing over a research project, not a course: `n+1` selection needs a vocabulary to
 score against, and at zero known lemmas every sentence scores the same.
 
-So the pack carries an explicit six-month syllabus — twenty-four units, each naming the errand
-it buys, the grammar it leans on and the words to own — and the app prescribes until it runs
+So the pack carries an explicit syllabus — sixty-four units in three finite tiers (basic,
+intermediate, advanced; [ADR-057](../.claude/DECISIONS.md#adr-057)), each naming the errand it
+buys, the grammar it leans on and the words to own — and the app prescribes until it runs
 out. Then it stops and hands over to a curated resource catalogue.
 
 The hand-off is the design, not a limitation. [R11](../.claude/research/11-extensive-reading.md)
@@ -227,6 +243,16 @@ effort (goal-gradient, endowed progress — consumer studies, about persistence)
 progress being feedback where points are rewards (Deci, Koestner & Ryan; Hattie). The set size
 is therefore a per-device dial with a default of 15, not a setting with a citation behind the
 number, and the note says so.
+
+### 2.10 Answer options are recognition, offered where typing is the obstacle
+
+Picking from up to five options is recognition, and [R12](../.claude/research/12-retrieval-direction.md)
+([R1](../.claude/research/01-retrieval-practice.md)) says productive recall outperforms recognition.
+So typing stays the default, and options are offered on touch devices, where a keyboard costs more
+than it teaches. The distractors are attested forms of the same lemma (cloze) or neighbouring
+lemmas (produce), so a wrong pick is a real word and a near miss is informative. A correct pick
+rates Good at most (no Easy), and a wrong one rates Again. Recognition counted as recall would
+overstate what the learner can produce; we cap it rather than price it. ADR-060.
 
 ## 3. What we do not build, and why
 

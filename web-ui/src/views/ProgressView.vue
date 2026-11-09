@@ -1,22 +1,37 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import InfoTip from '@/components/common/InfoTip.vue'
+import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ChevronRight, Circle, CircleCheck, CircleX } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import ProgressRing from '@/components/visual/ProgressRing.vue'
+import StatCard from '@/components/visual/StatCard.vue'
 import Note from '@/components/common/Note.vue'
-import LocativeGrid from '@/components/progress/LocativeGrid.vue'
-import ActivityChart from '@/components/progress/ActivityChart.vue'
+import LevelPanel from '@/components/progress/LevelPanel.vue'
+import LemmaCurve from '@/components/progress/LemmaCurve.vue'
 import { api } from '@/api'
+import { describeError } from '@/lib/errors'
+import { useCurriculumStore } from '@/stores/curriculum'
 import { useFeaturesStore } from '@/stores/features'
 import { useMilestoneStore } from '@/stores/milestone'
 import type { CheckpointVerdict, FeatureMastery, Overview } from '@/types'
 
+// The calendar, the locative grid and the feature panel are below the fold of a
+// phone: they load after the first paint rather than inside the route chunk.
+const ActivityCalendar = defineAsyncComponent(
+  () => import('@/components/progress/ActivityCalendar.vue'),
+)
+const LocativeGrid = defineAsyncComponent(() => import('@/components/progress/LocativeGrid.vue'))
+const FeatureDetail = defineAsyncComponent(() => import('@/components/progress/FeatureDetail.vue'))
+
 /**
  * The signature screen: what no wordform-atomic tool can render.
  *
- * The lemma curve says how many WORDS are in play; the feature heatmap says
- * which GRAMMAR is holding — two independent state spaces, shown as such. The
+ * Order: where you are (estimated level + coverage, ADR-047) → the lemma curve
+ * → activity calendar → grammar (feature heatmap) → checkpoints → free
+ * practice. Level and coverage are measurements with their method printed; the
  * checkpoint panel replaces levels with assessments ([R14]): measured criteria
  * the app can verify, attested criteria it explicitly cannot, and — on failure
  * — a diagnostic against the three documented failure modes.
@@ -26,6 +41,7 @@ const milestone = useMilestoneStore()
 // One catalogue, one set of labels. The screen used to hold its own copy of the
 // feature list and then print the raw ids anyway.
 const catalogue = useFeaturesStore()
+const curriculum = useCurriculumStore()
 
 const overview = ref<Overview | null>(null)
 
@@ -36,37 +52,28 @@ const gateWindow = ref(0)
 const verdict = ref<CheckpointVerdict | null>(null)
 const attested = ref<Set<string>>(new Set())
 const error = ref('')
+/** The feature whose detail panel is open (grid cell or family row). */
+const selectedFeature = ref('')
+const selectedMastery = computed(
+  () => mastery.value.find((m) => m.featureId === selectedFeature.value) ?? null,
+)
 
 async function load() {
   try {
-    const [ov, m] = await Promise.all([api.overview(), api.mastery(), catalogue.ensure()])
+    // 365 days: the calendar needs the year; the streak is computed server-side
+    // over the full ledger regardless.
+    const [ov, m] = await Promise.all([api.overview(365), api.mastery(), catalogue.ensure()])
     overview.value = ov
     mastery.value = m.features
     gateWindow.value = m.window
+    error.value = ''
   } catch (e) {
-    error.value = (e as Error).message
+    error.value = describeError(e)
   }
 }
-onMounted(load)
-
-// ── lemma curve as an inline SVG sparkline ────────────────────────────────
-const curve = computed(() => {
-  const pts = overview.value?.lemmas.curve ?? []
-  if (!pts.length) return null
-  const W = 560
-  const H = 120
-  const max = Math.max(pts[pts.length - 1].count, 100)
-  const step = pts.length > 1 ? W / (pts.length - 1) : 0
-  const path = pts
-    .map(
-      (p, i) =>
-        `${i === 0 ? 'M' : 'L'}${(i * step).toFixed(1)},${(H - (p.count / max) * H).toFixed(1)}`,
-    )
-    .join(' ')
-  const targets = Object.entries(overview.value!.lemmas.targets)
-    .filter(([, v]) => v <= max * 1.15)
-    .map(([k, v]) => ({ level: k, y: H - (v / max) * H }))
-  return { path, targets, W, H, latest: pts[pts.length - 1].count }
+onMounted(() => {
+  load()
+  if (!curriculum.topics.length) curriculum.load()
 })
 
 // ── the grammar heatmap ───────────────────────────────────────────────────
@@ -244,7 +251,7 @@ async function takeCheckpoint() {
     }
     await load()
   } catch (e) {
-    error.value = (e as Error).message
+    error.value = describeError(e)
   }
 }
 
@@ -253,261 +260,200 @@ function fmtDiag(key: string, value: number): string {
   if (key === 'checkpoint.diag.inputTooHard') return t(key, { pct: Math.round(value * 100) })
   return t(key)
 }
+
+/** Checkpoint states, in the roadmap's vocabulary: shape AND word. */
+function cpState(status: 'passed' | 'failed') {
+  return status === 'passed'
+    ? { icon: CircleCheck, cls: 'text-known', text: t('progress.cp.passed') }
+    : { icon: CircleX, cls: 'text-error', text: t('progress.cp.failed') }
+}
 </script>
 
 <template>
-  <div class="mx-auto flex w-full max-w-4xl flex-col gap-6">
+  <div class="flex w-full min-w-0 flex-col gap-6">
     <h1 class="page-title">{{ $t('progress.title') }}</h1>
     <Note v-if="error" variant="error">{{ error }}</Note>
 
+    <!-- Dashboard: level + curve on the left, measured tiles on the right (≥1024px).
+         No illustrations on this screen: it is made of measurements (ADR-059). -->
+    <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_17rem] lg:gap-6">
+      <div class="flex min-w-0 flex-col gap-4 lg:gap-6">
+    <!-- 1. Where you are (its own loading state) -->
+    <Card variant="tint-mist" class="card-in" style="--i: 0">
+      <CardContent class="py-5"><LevelPanel /></CardContent>
+    </Card>
+
+    <div v-if="!overview && !error" class="flex flex-col gap-4" aria-busy="true">
+      <Skeleton class="h-48 w-full" />
+    </div>
+
     <template v-if="overview">
-      <!--
-        ── lemma curve ──────────────────────────────────────────────────
-        The raised object on this screen. It is the one number that answers
-        "am I actually getting anywhere", and the two grids below it answer
-        "where exactly" — a subordinate question, and set as one.
-      -->
-      <Card variant="raised">
+      <!-- 2. Lemma curve -->
+      <Card variant="quiet" class="card-in" style="--i: 1">
         <CardHeader class="flex flex-row items-baseline justify-between pb-3">
           <CardTitle class="text-base">{{ $t('progress.lemmas') }}</CardTitle>
           <p class="flex items-baseline gap-2">
-            <!-- Keyed on the value so it rises into place when it changes;
-                 tabular figures or the digits reflow while they move. -->
-            <span
-              :key="overview.lemmas.known + overview.lemmas.learning"
-              class="animate-tick-up text-3xl font-semibold tabular-nums"
-            >
+            <span class="text-2xl font-semibold tabular-nums">
               {{ (overview.lemmas.known + overview.lemmas.learning).toLocaleString() }}
             </span>
             <span class="text-xs tabular-nums text-muted-foreground">
-              ({{ $t('progress.known') }} {{ overview.lemmas.known }})
+              {{ $t('progress.inDeck') }} · {{ overview.lemmas.known }} {{ $t('progress.known') }}
             </span>
-            <!-- The number, openable: every word behind it, with its own
-                 memory figure. A total nobody can inspect is a claim. -->
-            <RouterLink
-              to="/words"
-              class="ml-auto text-xs font-medium text-primary hover:underline"
-            >
+            <RouterLink to="/words" class="ml-2 text-xs font-medium text-primary hover:underline">
               {{ $t('words.open') }}
             </RouterLink>
           </p>
         </CardHeader>
         <CardContent class="pb-6">
-          <svg v-if="curve" :viewBox="`0 0 ${curve.W} ${curve.H}`" class="h-32 w-full">
-            <line
-              v-for="tgt in curve.targets"
-              :key="tgt.level"
-              :x1="0"
-              :x2="curve.W"
-              :y1="tgt.y"
-              :y2="tgt.y"
-              class="stroke-border-subtle"
-              stroke-dasharray="4 4"
-            />
-            <text
-              v-for="tgt in curve.targets"
-              :key="'t' + tgt.level"
-              :x="curve.W - 4"
-              :y="tgt.y - 3"
-              text-anchor="end"
-              class="fill-muted-foreground text-[10px]"
-            >
-              {{ tgt.level }} · {{ overview.lemmas.targets[tgt.level] }}
-            </text>
-            <path
-              :d="curve.path"
-              fill="none"
-              class="stroke-primary"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-          <Note v-else variant="info" bare>{{ $t('progress.noLemmas') }}</Note>
-          <p class="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-            {{ $t('progress.targetsCaveat') }}
+          <LemmaCurve :curve="overview.lemmas.curve" :targets="overview.lemmas.targets" />
+        </CardContent>
+      </Card>
+    </template>
+      </div>
+
+      <!-- Right column: measured facts, each a tinted tile. Counts can go down. -->
+      <div v-if="overview" class="grid grid-cols-2 content-start gap-4 lg:grid-cols-1">
+        <StatCard
+          tint="mist"
+          :label="$t('progress.tile.inDeck')"
+          :value="overview.lemmas.known + overview.lemmas.learning"
+          class="card-in"
+          style="--i: 1"
+        />
+        <StatCard
+          tint="sage"
+          :label="$t('progress.tile.known')"
+          :value="overview.lemmas.known"
+          class="card-in"
+          style="--i: 2"
+        />
+        <StatCard
+          v-if="tally.solid || tally.shaky"
+          tint="cream"
+          :label="$t('progress.tile.solid')"
+          :value="tally.solid"
+          class="card-in"
+          style="--i: 3"
+        >
+          <p v-if="tally.shaky" class="text-xs text-muted-foreground">
+            {{ $t('progress.shaky') }} · {{ tally.shaky }}
           </p>
+        </StatCard>
+        <StatCard
+          v-if="overview.practice && overview.practice.total > 0"
+          tint="none"
+          :label="$t('review.practiceStat')"
+          :value="overview.practice.total"
+          class="card-in"
+          style="--i: 4"
+        >
+          <p v-if="practiceAccuracy !== null" class="text-xs tabular-nums text-muted-foreground">{{ practiceAccuracy }}%</p>
+        </StatCard>
+      </div>
+    </div>
 
-          <!--
-            Free practice, on its own line and never folded into the review
-            count. The two mean different things: reviews move the schedule and
-            practice does not, so one figure covering both would report work
-            that never happened as progress through the deck. Accuracy sits
-            beside the volume because a count alone only ever goes up, which is
-            the shape of a point economy rather than of a competence signal.
-            [R14], ADR-019.
-          -->
-          <div
-            v-if="overview.practice && overview.practice.total > 0"
-            class="mt-4 border-t border-border-subtle pt-3"
-          >
-            <p class="flex items-baseline justify-between gap-3 text-xs">
-              <span class="text-muted-foreground">{{ $t('review.practiceStat') }}</span>
-              <span class="tabular-nums">
-                {{ overview.practice.total }}
-                <span v-if="practiceAccuracy !== null" class="ml-1 text-muted-foreground">
-                  · {{ practiceAccuracy }}%
-                </span>
-              </span>
-            </p>
+    <template v-if="overview">
 
-            <!-- The last two weeks of practice, day by day. Volume is the bar,
-                 accuracy is the figure — the half with something measured
-                 behind it. -->
-            <div
-              v-if="overview.practiceDays.length"
-              class="mt-2 flex items-end gap-1"
-              :aria-label="$t('progress.practiceDays')"
-            >
-              <div
-                v-for="d in overview.practiceDays.slice(-14)"
-                :key="d.day"
-                class="flex flex-col items-center gap-0.5"
-                :title="`${d.day}: ${d.right}/${d.total}`"
-              >
-                <div
-                  class="w-4 rounded-sm bg-primary/25"
-                  :style="{ height: `${8 + Math.min(40, d.total * 2)}px` }"
-                >
-                  <div
-                    class="w-full rounded-sm bg-primary"
-                    :style="{
-                      height: `${d.total ? Math.round((d.right / d.total) * 100) : 0}%`,
-                    }"
-                  />
-                </div>
-                <span class="text-[9px] tabular-nums text-muted-foreground">
-                  {{ d.day.slice(8) }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Accuracy by direction: where recognising works and producing
-                 does not — actionable, unlike a single blended figure. -->
-            <div v-if="overview.practiceByDirection.length" class="mt-2 flex flex-col gap-0.5">
-              <p
-                v-for="d in overview.practiceByDirection"
-                :key="d.direction"
-                class="flex items-baseline justify-between text-[11px]"
-              >
-                <span class="text-muted-foreground">
-                  {{ $t(`review.directions.${d.direction}`) }}
-                </span>
-                <span class="tabular-nums">
-                  {{ d.total ? Math.round((d.right / d.total) * 100) : 0 }}%
-                  <span class="text-muted-foreground">· {{ d.total }}</span>
-                </span>
-              </p>
-            </div>
-
-            <p class="mt-1 text-[11px] leading-relaxed text-muted-foreground">
-              {{ $t('review.practiceStatHint') }}
-            </p>
-          </div>
+      <!-- 3. Activity calendar -->
+      <Card variant="quiet" class="card-in" style="--i: 2">
+        <CardHeader class="pb-3">
+          <CardTitle class="text-base">{{ $t('progress.chart.title') }}</CardTitle>
+        </CardHeader>
+        <CardContent class="pb-6">
+          <ActivityCalendar :days="overview.days" :daily-minutes="overview.dailyMinutes" />
         </CardContent>
       </Card>
 
-      <div class="grid gap-6 lg:grid-cols-2">
-        <!-- ── locative grid ───────────────────────────────────────────── -->
-        <!--
-          ── activity by day ──────────────────────────────────────────────
-          This screen loaded `overview.days` for the streak and then threw the
-          rows away; the only picture of them was a flat strip on Today. Here
-          they get the range switch, because "what did the last year look like"
-          is a Progress question and not a Today one.
-        -->
-        <Card variant="quiet">
-          <CardContent class="py-5">
-            <ActivityChart :days="overview.days" :daily-minutes="overview.dailyMinutes" />
-          </CardContent>
-        </Card>
-
-        <Card variant="quiet">
-          <CardHeader class="pb-3">
-            <CardTitle class="text-base">{{ $t('progress.locative') }}</CardTitle>
-          </CardHeader>
-          <CardContent class="pb-6">
-            <p class="mb-3 text-[11px] leading-relaxed text-muted-foreground">
-              {{ $t('progress.locativeLead') }}
-            </p>
-            <LocativeGrid :features="catalogue.list" :mastery="mastery" />
+      <!-- 4. Grammar: locative grid + feature heatmap + detail -->
+      <Card variant="quiet" class="card-in" style="--i: 3">
+        <CardHeader class="pb-3">
+          <CardTitle class="flex items-center gap-1 text-base">
+            {{ $t('progress.heatmap') }}
+            <InfoTip>{{ $t('progress.heatmapLead') }}</InfoTip>
+          </CardTitle>
+        </CardHeader>
+        <CardContent class="flex flex-col gap-4 pb-6">
+          <div>
+            <h3 class="mb-3 flex items-center gap-0.5 text-sm font-medium">
+              {{ $t('progress.locative') }}
+              <InfoTip>{{ $t('progress.locativeLead') }}</InfoTip>
+            </h3>
+            <LocativeGrid
+              :features="catalogue.list"
+              :mastery="mastery"
+              :selected="selectedFeature"
+              @select="selectedFeature = $event"
+            />
             <p class="mt-3 text-[11px] leading-relaxed text-muted-foreground">
               {{ $t('progress.locativeLegend') }}
             </p>
-          </CardContent>
-        </Card>
+          </div>
 
-        <!-- ── feature heatmap ─────────────────────────────────────────── -->
-        <Card variant="quiet">
-          <CardHeader class="pb-3">
-            <CardTitle class="text-base">{{ $t('progress.heatmap') }}</CardTitle>
-          </CardHeader>
-          <CardContent class="flex flex-col gap-3 pb-6">
-            <Note v-if="!mastery.length" variant="info" bare>
-              {{ $t('progress.noMastery') }}
-            </Note>
+          <FeatureDetail
+            v-if="selectedFeature"
+            :feature-id="selectedFeature"
+            :mastery="selectedMastery"
+            :gate-window="gateWindow"
+            @close="selectedFeature = ''"
+          />
 
-            <template v-else>
-              <p class="text-[11px] leading-relaxed text-muted-foreground">
-                {{ $t('progress.heatmapLead') }}
-              </p>
+          <Note v-if="!mastery.length" variant="info" bare>
+            {{ $t('progress.noMastery') }}
+          </Note>
 
-              <!-- The tally in words, before any bar: three states, counted. -->
-              <p class="flex flex-wrap gap-x-3 gap-y-1 text-xs tabular-nums">
-                <span v-if="tally.solid" class="text-known">
-                  {{ $t('progress.solid') }} · {{ tally.solid }}
-                </span>
-                <span v-if="tally.shaky" class="text-learning">
-                  {{ $t('progress.shaky') }} · {{ tally.shaky }}
-                </span>
-                <span v-if="tally.unmeasured" class="text-muted-foreground">
-                  {{ $t('progress.notEnough') }} · {{ tally.unmeasured }}
-                </span>
-              </p>
+          <template v-else>
+            <p class="flex flex-wrap gap-x-3 gap-y-1 text-xs tabular-nums">
+              <span v-if="tally.solid" class="text-known">
+                {{ $t('progress.solid') }} · {{ tally.solid }}
+              </span>
+              <span v-if="tally.shaky" class="text-learning">
+                {{ $t('progress.shaky') }} · {{ tally.shaky }}
+              </span>
+              <span v-if="tally.unmeasured" class="text-muted-foreground">
+                {{ $t('progress.notEnough') }} · {{ tally.unmeasured }}
+              </span>
+            </p>
 
-              <div class="flex flex-col gap-1">
-                <!-- Open a family to see the features under it, each by the
-                     name the pack gives it. The id stays in the title for
-                     anyone debugging, and is never the only text. -->
-                <details
-                  v-for="g in heatmap"
-                  :key="g.key"
-                  class="group rounded-md px-1.5 py-1 hover:bg-accent/40"
-                >
-                  <summary class="flex cursor-pointer list-none flex-col gap-1">
-                    <span class="flex items-baseline gap-2 text-xs">
-                      <ChevronRight
-                        class="size-3 shrink-0 self-center text-muted-foreground transition-transform group-open:rotate-90"
-                        aria-hidden="true"
-                      />
-                      <span class="min-w-0 truncate font-medium">{{ g.label }}</span>
-                      <span class="shrink-0 text-[11px] tabular-nums text-muted-foreground">
-                        {{ $t('progress.answers', { n: g.observations }) }}
-                      </span>
-                      <span
-                        class="ml-auto shrink-0 tabular-nums"
-                        :class="g.accuracy === null ? 'text-muted-foreground' : 'font-semibold'"
-                      >
-                        {{ g.accuracy === null ? $t('progress.notEnough') : pct(g.accuracy) + '%' }}
-                      </span>
+            <div class="flex flex-col gap-1">
+              <details
+                v-for="g in heatmap"
+                :key="g.key"
+                class="group rounded-md px-1.5 py-1 hover:bg-accent/40"
+              >
+                <summary class="flex cursor-pointer list-none flex-col gap-1">
+                  <span class="flex items-baseline gap-2 text-xs">
+                    <ChevronRight
+                      class="size-3 shrink-0 self-center text-muted-foreground transition-transform group-open:rotate-90"
+                      aria-hidden="true"
+                    />
+                    <span class="min-w-0 truncate font-medium">{{ g.label }}</span>
+                    <span class="shrink-0 text-[11px] tabular-nums text-muted-foreground">
+                      {{ $t('progress.answers', { n: g.observations }) }}
                     </span>
-                    <span class="block h-2 overflow-hidden rounded-full bg-muted">
-                      <span
-                        class="block h-full rounded-full transition-[width] duration-300"
-                        :class="tone(g)"
-                        :style="{ width: g.accuracy === null ? '0%' : pct(g.accuracy) + '%' }"
-                      />
-                    </span>
-                  </summary>
-                  <ul class="mt-1.5 flex flex-col gap-1 pl-5 text-[11px]">
-                    <li
-                      v-for="m in g.items"
-                      :key="m.featureId"
-                      class="flex items-baseline gap-2"
+                    <span
+                      class="ml-auto shrink-0 tabular-nums"
+                      :class="g.accuracy === null ? 'text-muted-foreground' : 'font-semibold'"
                     >
-                      <span class="min-w-0 flex-1 truncate" :title="m.featureId">
-                        {{ catalogue.label(m.featureId) }}
-                      </span>
+                      {{ g.accuracy === null ? $t('progress.notEnough') : pct(g.accuracy) + '%' }}
+                    </span>
+                  </span>
+                  <span class="block h-2 overflow-hidden rounded-full bg-tint-mist" aria-hidden="true">
+                    <span
+                      class="block h-full rounded-full transition-[width] duration-300"
+                      :class="tone(g)"
+                      :style="{ width: g.accuracy === null ? '0%' : pct(g.accuracy) + '%' }"
+                    />
+                  </span>
+                </summary>
+                <ul class="mt-1.5 flex flex-col gap-0.5 pl-5 text-[11px]">
+                  <li v-for="m in g.items" :key="m.featureId">
+                    <button
+                      type="button"
+                      class="flex w-full items-baseline gap-2 rounded px-1 py-1 text-left hover:bg-accent/60 focus-visible:outline-2 focus-visible:outline-ring"
+                      :aria-pressed="selectedFeature === m.featureId"
+                      @click="selectedFeature = m.featureId"
+                    >
+                      <span class="min-w-0 flex-1 truncate">{{ catalogue.label(m.featureId) }}</span>
                       <span
                         class="shrink-0 tabular-nums"
                         :class="m.weak ? 'text-learning' : 'text-muted-foreground'"
@@ -518,75 +464,62 @@ function fmtDiag(key: string, value: number): string {
                             : $t('progress.notEnoughHint', { n: gateWindow })
                         }}
                       </span>
-                    </li>
-                  </ul>
-                </details>
-              </div>
+                    </button>
+                  </li>
+                </ul>
+              </details>
+            </div>
 
-              <!-- What to do about it, named. -->
-              <p v-if="needsWork.length" class="text-xs leading-relaxed">
-                <span class="text-muted-foreground">▲ {{ $t('progress.needsWork') }}:&nbsp;</span>
-                <span class="tabular-nums">{{ needsWorkText }}</span>
-              </p>
-              <p v-else-if="tally.solid" class="text-xs text-muted-foreground">
-                {{ $t('progress.noWeakYet') }}
-              </p>
-              <p v-else class="text-xs leading-relaxed text-muted-foreground">
-                {{ $t('progress.nothingMeasuredYet') }}
-              </p>
-            </template>
-          </CardContent>
-        </Card>
-      </div>
+            <p v-if="needsWork.length" class="text-xs leading-relaxed">
+              <span class="text-muted-foreground">▲ {{ $t('progress.needsWork') }}:&nbsp;</span>
+              <span class="tabular-nums">{{ needsWorkText }}</span>
+            </p>
+            <p v-else-if="tally.solid" class="text-xs text-muted-foreground">
+              {{ $t('progress.noWeakYet') }}
+            </p>
+            <p v-else class="text-xs leading-relaxed text-muted-foreground">
+              {{ $t('progress.nothingMeasuredYet') }}
+            </p>
+          </template>
+        </CardContent>
+      </Card>
 
-      <!-- ── checkpoints ─────────────────────────────────────────────────── -->
-      <Card variant="quiet">
+      <!-- 5. Checkpoints -->
+      <Card variant="quiet" class="card-in" style="--i: 4">
         <CardHeader class="flex flex-row items-baseline justify-between pb-3">
           <CardTitle class="text-base">{{ $t('checkpoint.title') }}</CardTitle>
-          <span v-if="overview.blockedLevels.length" class="text-xs text-error">
+          <span v-if="overview.blockedLevels.length" class="text-xs text-foreground">
             {{ $t('checkpoint.blocked', { levels: overview.blockedLevels.join(', ') }) }}
           </span>
         </CardHeader>
         <CardContent class="flex flex-col gap-4 pb-6">
-          <!-- The next assessment, with live evidence BEFORE taking it. -->
-          <div v-if="next" class="flex flex-col gap-3 rounded-lg border border-border bg-background p-4">
-            <p class="text-sm font-medium">{{ $t(`checkpoint.${next.spec.code}.title`) }}</p>
+          <div v-if="next" class="flex flex-col gap-3 rounded-xl border border-tint-cream-edge bg-tint-cream p-4">
+            <p class="flex flex-wrap items-center gap-2 text-sm font-medium">
+              <Circle class="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              {{ $t(`checkpoint.${next.spec.code}.title`) }}
+            </p>
             <ul class="flex flex-col gap-1.5 text-sm">
-              <!--
-                A criterion not reached YET is not a failure, and must not wear
-                the same ✗ the history list uses for a failed checkpoint: an
-                empty circle and a progress bar say "40 of 300, keep going",
-                which is what is actually true before the assessment is taken.
-              -->
               <li class="flex flex-col gap-1">
                 <span class="flex flex-wrap items-center gap-2">
                   <component
                     :is="next.evidence.lemmas >= next.spec.lemmaTarget ? CircleCheck : Circle"
                     class="size-4 shrink-0"
-                    :class="
-                      next.evidence.lemmas >= next.spec.lemmaTarget
-                        ? 'text-known'
-                        : 'text-muted-foreground'
-                    "
+                    :class="next.evidence.lemmas >= next.spec.lemmaTarget ? 'text-known' : 'text-muted-foreground'"
                     aria-hidden="true"
                   />
                   <span class="tabular-nums">
-                    {{
-                      $t('checkpoint.lemmaCriterion', {
-                        have: next.evidence.lemmas,
-                        need: next.spec.lemmaTarget,
-                      })
-                    }}
+                    {{ $t('checkpoint.lemmaCriterion', { have: next.evidence.lemmas, need: next.spec.lemmaTarget }) }}
                   </span>
-                  <span class="text-xs text-muted-foreground">{{ $t('checkpoint.measured') }}</span>
                 </span>
-                <span class="ml-6 block h-1.5 max-w-xs overflow-hidden rounded-full bg-muted">
-                  <span
-                    class="block h-full rounded-full bg-primary transition-[width] duration-300"
-                    :style="{
-                      width:
-                        Math.min(100, (next.evidence.lemmas / next.spec.lemmaTarget) * 100) + '%',
-                    }"
+                <!-- A ring with a counted denominator («N из 300 слов»); the sentence
+                     above is the accessible text, so the ring is hidden from AT. -->
+                <span class="ml-6 inline-flex items-center gap-2" aria-hidden="true">
+                  <ProgressRing
+                    :value="Math.min(1, next.evidence.lemmas / Math.max(1, next.spec.lemmaTarget))"
+                    :size="52"
+                    :stroke="5"
+                    :state="next.evidence.lemmas >= next.spec.lemmaTarget ? 'settled' : next.evidence.lemmas > 0 ? 'progress' : 'none'"
+                    :label="`${Math.round(Math.min(1, next.evidence.lemmas / Math.max(1, next.spec.lemmaTarget)) * 100)}%`"
                   />
                 </span>
               </li>
@@ -599,9 +532,7 @@ function fmtDiag(key: string, value: number): string {
                   @change="toggleAttest(a)"
                 />
                 <label :for="a" class="cursor-pointer">{{ $t(a) }}</label>
-                <!-- The line between what the app knows and what it was told.
-                     It is drawn on screen, not only in the docs. -->
-                <span class="text-xs text-uncertain">{{ $t('checkpoint.selfAttested') }}</span>
+                <InfoTip>{{ $t('checkpoint.selfAttested') }}</InfoTip>
               </li>
             </ul>
             <Button size="sm" class="self-start" @click="takeCheckpoint">
@@ -609,63 +540,100 @@ function fmtDiag(key: string, value: number): string {
             </Button>
           </div>
 
-          <!-- A verdict, and — on failure — the three-failure-mode diagnostic. -->
           <div
             v-if="verdict"
             class="animate-card-in rounded-lg border p-4"
-            :class="
-              verdict.checkpoint.status === 'passed'
-                ? 'border-known/50 bg-known/5'
-                : 'border-error/50 bg-error/5'
-            "
+            :class="verdict.checkpoint.status === 'passed' ? 'border-tint-sage-edge bg-tint-sage' : 'border-tint-cream-edge bg-tint-cream'"
           >
             <p class="text-sm font-medium">
-              {{
-                verdict.checkpoint.status === 'passed'
-                  ? $t('checkpoint.passed')
-                  : $t('checkpoint.failed')
-              }}
+              {{ verdict.checkpoint.status === 'passed' ? $t('checkpoint.passed') : $t('checkpoint.failed') }}
             </p>
             <ul
               v-if="verdict.diagnostic?.findings.length"
               class="mt-2 flex flex-col gap-1 text-sm leading-relaxed text-muted-foreground"
             >
-              <li v-for="f in verdict.diagnostic.findings" :key="f.key">
-                • {{ fmtDiag(f.key, f.value) }}
-              </li>
+              <li v-for="f in verdict.diagnostic.findings" :key="f.key">• {{ fmtDiag(f.key, f.value) }}</li>
             </ul>
-            <p
-              v-if="verdict.checkpoint.status === 'failed'"
-              class="mt-2 text-xs leading-relaxed text-muted-foreground"
-            >
-              {{ $t('checkpoint.rollback') }}
+            <p v-if="verdict.checkpoint.status === 'failed'" class="mt-2 text-xs text-muted-foreground">
+              <InfoTip>{{ $t('checkpoint.rollback') }}</InfoTip>
             </p>
           </div>
 
-          <!-- History. -->
           <ul v-if="overview.checkpoints.length" class="flex flex-col gap-1 text-sm">
             <li
               v-for="cp in overview.checkpoints"
               :key="cp.id || cp.decidedAt"
-              class="flex items-center gap-2"
+              class="flex flex-wrap items-center gap-2 rounded-lg border px-3 py-2"
+              :class="cp.status === 'passed' ? 'border-tint-sage-edge bg-tint-sage' : 'border-tint-cream-edge bg-tint-cream'"
             >
-              <component
-                :is="cp.status === 'passed' ? CircleCheck : CircleX"
-                class="size-4 shrink-0"
-                :class="cp.status === 'passed' ? 'text-known' : 'text-error'"
-                aria-hidden="true"
-              />
-              <!-- The checkpoint's name, not its slug. The locale has a title
-                   for every one of them, and the panel above already uses it —
-                   the history list underneath was the only place still printing
-                   `m3` at the learner. -->
+              <component :is="cpState(cp.status).icon" class="size-4 shrink-0" :class="cpState(cp.status).cls" aria-hidden="true" />
               <span class="font-medium">{{ $t(`checkpoint.${cp.code}.title`) }}</span>
+              <span class="text-xs font-medium">{{ cpState(cp.status).text }}</span>
               <span class="tabular-nums text-muted-foreground">
-                {{ new Date(cp.decidedAt).toLocaleDateString() }}
-                · {{ cp.evidence.lemmas }}/{{ cp.evidence.lemmaTarget }}
+                {{ new Date(cp.decidedAt).toLocaleDateString() }} · {{ cp.evidence.lemmas }}/{{ cp.evidence.lemmaTarget }}
               </span>
             </li>
           </ul>
+        </CardContent>
+      </Card>
+
+      <!-- 6. Free practice: schedules nothing, never folded into reviews (ADR-019). -->
+      <Card v-if="overview.practice && overview.practice.total > 0" variant="quiet" class="card-in" style="--i: 5">
+        <CardHeader class="pb-3">
+          <CardTitle class="flex items-center gap-1 text-base">
+            {{ $t('review.practiceStat') }}
+            <InfoTip>{{ $t('review.practiceStatHint') }}</InfoTip>
+          </CardTitle>
+        </CardHeader>
+        <CardContent class="pb-6">
+          <p class="flex items-baseline justify-between gap-3 text-sm tabular-nums">
+            <span>{{ overview.practice.total }}</span>
+            <span v-if="practiceAccuracy !== null" class="text-muted-foreground">{{ practiceAccuracy }}%</span>
+          </p>
+
+          <ul
+            v-if="overview.practiceDays.length"
+            class="mt-3 flex items-end gap-1"
+            :aria-label="$t('progress.practiceDays')"
+          >
+            <li
+              v-for="d in overview.practiceDays.slice(-14)"
+              :key="d.day"
+              class="flex flex-col items-center gap-0.5"
+            >
+              <span class="sr-only">
+                {{ $t('progress.practiceDay', { day: d.day, right: d.right, total: d.total }) }}
+              </span>
+              <div
+                class="w-4 rounded-sm bg-primary/25"
+                aria-hidden="true"
+                :style="{ height: `${8 + Math.min(40, d.total * 2)}px` }"
+              >
+                <div
+                  class="w-full rounded-sm bg-primary"
+                  :style="{ height: `${d.total ? Math.round((d.right / d.total) * 100) : 0}%` }"
+                />
+              </div>
+              <span class="text-[9px] tabular-nums text-muted-foreground" aria-hidden="true">
+                {{ d.day.slice(8) }}
+              </span>
+            </li>
+          </ul>
+
+          <div v-if="overview.practiceByDirection.length" class="mt-3 flex flex-col gap-0.5">
+            <p
+              v-for="d in overview.practiceByDirection"
+              :key="d.direction"
+              class="flex items-baseline justify-between text-xs"
+            >
+              <span class="text-muted-foreground">{{ $t(`review.directions.${d.direction}`) }}</span>
+              <span class="tabular-nums">
+                {{ d.total ? Math.round((d.right / d.total) * 100) : 0 }}%
+                <span class="text-muted-foreground">· {{ d.total }}</span>
+              </span>
+            </p>
+          </div>
+
         </CardContent>
       </Card>
     </template>

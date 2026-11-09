@@ -7,10 +7,11 @@ import { toast } from 'vue-sonner'
 
 import App from './App.vue'
 import { router } from './router'
-import { i18n } from './i18n'
+import { i18n, setLocale } from './i18n'
 import { ApiError } from '@/api/http'
 import { describeError } from '@/lib/errors'
 import { useAuthStore } from '@/stores/auth'
+import { useUiStore } from '@/stores/ui'
 
 const app = createApp(App)
 app.use(createPinia())
@@ -49,4 +50,18 @@ window.addEventListener('unhandledrejection', (ev) => {
   report(ev.reason)
 })
 
+// The active locale's messages must be in before the first render.
+// If its chunk fails to download, try the other language, else mount anyway
+// (keys show, the error toast explains) rather than leave a blank page.
+const wanted = useUiStore().locale
+try {
+  await setLocale(wanted)
+} catch (err) {
+  report(err)
+  try {
+    await setLocale(wanted === 'ru' ? 'en' : 'ru')
+  } catch {
+    /* mount with empty messages */
+  }
+}
 app.mount('#app')

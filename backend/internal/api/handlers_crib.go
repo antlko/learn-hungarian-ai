@@ -90,7 +90,7 @@ func (s *Server) cribLang() string {
 // One flight per learner at a time, so two queue loads in quick succession do
 // not translate the same forty sentences twice.
 func (s *Server) warmCribs(userID int64, items []srs.QueueItem) {
-	client := mt.New(s.Config().Services.MT)
+	client := mt.New(s.service("mt"))
 	if client == nil {
 		return
 	}

@@ -37,7 +37,10 @@ PACK          ?= $(DATA_DIR)/langpack-hu-v1.sqlite
 # the venv, so a system python renders nothing — `make audio` once reported
 # "rendered 0 clips" for exactly that reason.
 VENV          := $(LANGPACK_DIR)/.venv
-PYTHON        ?= $(if $(wildcard $(VENV)/bin/python),$(VENV)/bin/python,python3)
+# ABSOLUTE: the pipeline recipes `cd langpack` first, so a relative venv path
+# resolved against the wrong directory and `make refresh`/`make langpack` died
+# with «No such file or directory» for anyone who had run `make deps`.
+PYTHON        ?= $(if $(wildcard $(VENV)/bin/python),$(CURDIR)/$(VENV)/bin/python,python3)
 # The ear trainer's three CC0 Hungarian talkers. Pinned to `main` because
 # rhasspy/piper-voices publishes no tags; the .json voice cards beside each
 # model are tracked, so a swapped model is visible in a diff.
@@ -119,6 +122,17 @@ run: build ## Build, then serve UI + API from the single binary against ./data
 	@mkdir -p '$(DATA_DIR)'
 	./$(BIN) --data-dir '$(DATA_DIR)'
 
+.PHONY: reset-password
+reset-password: ensure-spa ## Forgot the password? Reset it in ./data (EMAIL=… PASSWORD=… optional; stop the server first)
+	cd '$(BACKEND_DIR)' && go run ./cmd/tanulom reset-password --data-dir '$(abspath $(DATA_DIR))' $(if $(EMAIL),--email '$(EMAIL)') $(if $(PASSWORD),--password '$(PASSWORD)')
+
+.PHONY: reset-learner
+reset-learner: ## Start over: delete the learner database + config in ./data (keeps the language pack and audio). Asks first
+	@printf '\n  This deletes ALL progress, accounts and settings in %s\n  (the language pack and media stay). Stop the server first. Type YES to go on: ' '$(abspath $(DATA_DIR))'; \
+	read ans; [ "$$ans" = "YES" ] || { echo "  cancelled"; exit 1; }; \
+	rm -f '$(DATA_DIR)'/tanulom.db '$(DATA_DIR)'/tanulom.db-wal '$(DATA_DIR)'/tanulom.db-shm '$(DATA_DIR)'/config.yaml; \
+	printf '\n  done — the next start asks you to create a new account.\n\n'
+
 ##@ Quality
 
 .PHONY: test
@@ -127,6 +141,11 @@ test: test-backend test-frontend docs-check ## Everything CI gates on: backend, 
 .PHONY: docs-check
 docs-check: ## Research citations resolve, notes state their code impact, locales match
 	@sh scripts/docs-check.sh
+
+.PHONY: palette-check
+palette-check: ## WCAG contrast of every design-token pair + illustration size limits
+	@python3 scripts/validate_palette.py
+	@python3 scripts/check_art.py
 
 .PHONY: test-backend
 test-backend: ensure-spa ## go vet + go build + go test ./...
@@ -157,10 +176,25 @@ fmt: $(WEB_DIR)/node_modules ## gofmt -w the backend, prettier the frontend
 ##@ Language pack
 
 .PHONY: langpack
-langpack: ## Rebuild data/langpack-hu-v1.sqlite (hours, tens of GB of scratch space)
+langpack: ## Rebuild data/langpack-hu-v1.sqlite (large source downloads and scratch space; duration not measured)
 	$(call need,$(PYTHON),$(PY_HINT))
 	@mkdir -p '$(DATA_DIR)'
 	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.build --out '$(PACK)'
+
+# The REDISTRIBUTABLE pack: Tatoeba + Wiktionary only (--subtitle-sentences 0),
+# because OPUS OpenSubtitles' licence does not cover publishing it
+# (langpack/LICENSES.md). Written to dist/ - never over $(PACK) - and gzipped,
+# which is the file a release carries and what Settings downloads. Put the
+# printed sha256 in langpack.sha256 (config.DefaultLangPackSHA256) when the asset
+# is published; the app refuses to download without it. Note the pipeline still
+# FETCHES the subtitle archives (sources.fetch_all) even though none are used.
+.PHONY: langpack-release
+langpack-release: ## Build the publishable pack (no OpenSubtitles) to dist/langpack-hu-v1.sqlite.gz and print its sha256
+	$(call need,$(PYTHON),$(PY_HINT))
+	@mkdir -p '$(CURDIR)/dist'
+	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.build --out '$(CURDIR)/dist/langpack-hu-v1.sqlite' --subtitle-sentences 0
+	gzip -9 -c '$(CURDIR)/dist/langpack-hu-v1.sqlite' > '$(CURDIR)/dist/langpack-hu-v1.sqlite.gz'
+	@(sha256sum '$(CURDIR)/dist/langpack-hu-v1.sqlite.gz' 2>/dev/null || shasum -a 256 '$(CURDIR)/dist/langpack-hu-v1.sqlite.gz')
 
 .PHONY: refresh-curriculum
 .PHONY: refresh
@@ -181,7 +215,7 @@ subtitles: ## Add conversational sentences from OPUS to an existing pack (~40 mi
 	@test -s '$(PACK)' || { echo 'need $(PACK) first — run: make langpack'; exit 1; }
 # The sentence stage never calls HuSpaCy — it links tokens through the pack's
 # own wordform index — so adding sentences to a pack that already has a lexicon
-# costs minutes of I/O, not the hours a full `make langpack` does. Stop the
+# costs minutes of I/O, not a full `make langpack` rebuild. Stop the
 # server first: the app treats a pack as read-only and this writes to one.
 	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.add_subtitles --pack '$(PACK)'
 
@@ -234,6 +268,14 @@ voices: ## Fetch the three Piper voice models the ear trainer renders with (180 
 			|| { rm -f "$$f.part"; echo "  failed: hu_HU-$$v-medium.onnx" >&2; exit 1; }; \
 	done
 	@printf '\n  voices in %s — now run: make audio\n\n' '$(VOICES_DIR)'
+
+# The managed-components manager embeds the sidecar sources (go:embed cannot reach
+# outside its package), so services/<id>/ stays the source of truth and the copy
+# under backend/internal/components/src/ is generated. A Go test fails on drift.
+.PHONY: sync-components
+sync-components: ## Copy services/{mt,nlp} sources into the Go package that embeds them (ADR-061)
+	cp services/mt/app.py services/mt/requirements.txt services/mt/requirements-convert.txt backend/internal/components/src/mt/
+	cp services/nlp/app.py services/nlp/requirements.txt backend/internal/components/src/nlp/
 
 .PHONY: mt
 mt: ## Run the local translator natively on :5003 (first run downloads ~2.4 GB)

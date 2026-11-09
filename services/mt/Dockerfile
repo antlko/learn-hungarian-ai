@@ -11,7 +11,11 @@ FROM python:3.12-slim AS convert
 ENV PIP_NO_CACHE_DIR=1
 WORKDIR /build
 COPY requirements.txt requirements-convert.txt ./
-RUN pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1 \
+# torch's own dependencies come from PyPI: resolving them against the PyTorch-only
+# index finds no usable wheels and falls back to building sdists (and fails).
+# The managed install (internal/components) does the same two steps.
+RUN pip install --no-deps --index-url https://download.pytorch.org/whl/cpu torch==2.5.1 \
+ && pip install filelock "typing-extensions>=4.8.0" sympy==1.13.1 networkx jinja2 fsspec setuptools \
  && pip install -r requirements.txt
 
 ARG MT_MODEL=facebook/nllb-200-distilled-600M

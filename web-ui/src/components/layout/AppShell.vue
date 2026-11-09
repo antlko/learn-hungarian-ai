@@ -1,21 +1,61 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import AppSidebar from './AppSidebar.vue'
 import AppTopbar from './AppTopbar.vue'
+import BottomTabs from './BottomTabs.vue'
 import MilestoneOverlay from '@/components/common/Milestone.vue'
+import RouteFade from '@/components/visual/RouteFade.vue'
+import { useCapabilitiesStore } from '@/stores/capabilities'
 import { useDeckStore } from '@/stores/deck'
+import { useLevelStore } from '@/stores/level'
+import { useReviewStore } from '@/stores/review'
 import { useUiStore } from '@/stores/ui'
 
 const route = useRoute()
 const ui = useUiStore()
 const deck = useDeckStore()
+const level = useLevelStore()
+const caps = useCapabilitiesStore()
+const review = useReviewStore()
 
 /**
  * The KeyBar reserve, paid only where a KeyBar exists. It used to be a global
  * `pb-20` — 80px of dead space at the bottom of nine screens for a strip only
  * the reader and the review card draw.
  */
+const mainEl = ref<HTMLElement | null>(null)
+/** ONE container for every screen; `meta.width: 'wide'` is the only exception. */
+const wide = computed(() => route.meta.width === 'wide')
+
+// <main> is the scroll container and survives route changes, so the router's
+// window-based scrollBehavior never reaches it. Reset on a PATH change (not a
+// query-only one: ?unit= / ?topic= stay put); Back/Forward restores the offset.
+const scrollMemory = new Map<string, number>()
+let popped = false
+const onPop = () => (popped = true)
+window.addEventListener('popstate', onPop)
+onUnmounted(() => window.removeEventListener('popstate', onPop))
+watch(
+  () => route.path,
+  async () => {
+    const back = popped
+    popped = false
+    await nextTick()
+    const el = mainEl.value
+    if (!el) return
+    el.scrollTo({ top: back ? (scrollMemory.get(route.fullPath) ?? 0) : 0, behavior: 'instant' })
+  },
+  { flush: 'post' },
+)
+watch(
+  () => route.fullPath,
+  (_n, old) => {
+    if (old && mainEl.value) scrollMemory.set(old, mainEl.value.scrollTop)
+  },
+  { flush: 'pre' },
+)
+
 const hasKeyBar = computed(() => route.name === 'review' || route.name === 'read')
 
 /**
@@ -66,13 +106,27 @@ function unfoldForFocus() {
 
 onUnmounted(() => clearTimeout(foldTimer))
 
-onMounted(() => void deck.refresh(true))
+onMounted(() => {
+  void deck.refresh(true)
+  void level.refresh(true)
+  // The nav hides the AI teacher without an llm; the dots are in the account menu.
+  void caps.refresh()
+})
+// The level moves when answers land or the learner returns to Today. The store
+// throttles to one fetch a minute, so this is cheap and there is no polling.
+watch(
+  () => route.name,
+  (n) => n === 'today' && void level.refresh(),
+)
+watch(
+  () => review.session.answered,
+  () => void level.refresh(),
+)
 watch(
   () => route.fullPath,
   () => {
     // Navigation closes the drawer and refreshes the chrome numbers (throttled
     // in the store): the badge must not contradict the screen it sits beside.
-    ui.mobileNavOpen = false
     void deck.refresh()
   },
 )
@@ -89,11 +143,11 @@ watch(
        milestone) to centre themselves on the PAGE rather than the viewport:
        they used to sit 112px off the card they belonged to. -->
   <div
-    class="flex h-dvh overflow-hidden bg-background"
+    class="flex h-dvh overflow-hidden bg-background [--bottom-tabs-h:calc(3.5rem+env(safe-area-inset-bottom))] md:[--bottom-tabs-h:0px]"
     :style="{ '--rail': ui.sidebarOpen ? '14rem' : '3.5rem' }"
   >
     <!--
-      The rail is desktop chrome; below md the drawer replaces it.
+      The rail is desktop chrome; below md the bottom tabs replace it.
 
       This box owns the width the PAGE is laid out against — the pinned one.
       The rail floats inside it and carries the hover listeners itself, so
@@ -123,29 +177,29 @@ watch(
     <div class="flex min-w-0 flex-1 flex-col">
       <AppTopbar />
       <!--
-        The only place page padding is set. Views used to add their own `p-6` on
+        The only place page padding AND page width are set (one container, max-w-5xl, or max-w-6xl via route meta.width = 'wide'; a single reading/form column adds `.page-narrow` at its own root, UX.md §2). Views used to add their own `p-6` on
         top of it, which is why some screens sat 24px further in than others —
         an inconsistency that reads as sloppiness long before anyone works out
         what it is.
       -->
       <main
-        class="flex-1 overflow-y-auto px-4 pt-6 sm:px-6 lg:px-8"
-        :class="hasKeyBar ? 'pb-20' : 'pb-8'"
+        ref="mainEl"
+        class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pt-6 sm:px-6 lg:px-8"
+        :class="
+          hasKeyBar
+            ? 'pb-20 max-md:pb-[calc(var(--bottom-tabs-h)+5rem)]'
+            : 'pb-8 max-md:pb-[calc(var(--bottom-tabs-h)+2rem)]'
+        "
       >
-        <slot />
+        <div class="mx-auto w-full" :class="wide ? 'max-w-6xl' : 'max-w-5xl'">
+          <RouteFade><slot /></RouteFade>
+        </div>
       </main>
     </div>
 
-    <!-- The off-canvas nav below md. A real overlay with a real backdrop —
-         before this the 224px rail simply ate 60% of a phone screen. -->
-    <div v-if="ui.mobileNavOpen" class="fixed inset-0 z-40 md:hidden">
-      <div
-        class="absolute inset-0 bg-black/40"
-        :aria-label="$t('common.closeMenu')"
-        @click="ui.mobileNavOpen = false"
-      />
-      <AppSidebar mobile class="absolute inset-y-0 left-0 z-10 bg-background shadow-raised" />
-    </div>
+    <!-- Below md the bottom tabs replace the old hamburger drawer: five
+         targets under the thumb, the rest in a sheet. -->
+    <BottomTabs />
 
     <!--
       Mounted once, in the shell, so any screen can `celebrate()` without

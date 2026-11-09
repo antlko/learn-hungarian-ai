@@ -95,17 +95,35 @@ curriculum:
 services:                   # endpoints only — keys live in SQLite      [ADR-005]
   tts: {provider: device}   # DEFAULT — the learner's browser speaks it, no endpoint
   asr: {provider: local, endpoint: "http://asr:5001"}
-  nlp: {provider: local, endpoint: "http://nlp:5002"}
+  nlp: {provider: off,   endpoint: "http://nlp:5002"}   # default off; `local` enables HuSpaCy context disambiguation (ADR-054). `openai` is refused.
   llm: {provider: off,   endpoint: "http://ollama:11434", model: "qwen3:8b"}
-  mt:  {provider: off,   endpoint: "http://mt:5003"}
+  mt:  {provider: off,   endpoint: "http://mt:5003"}    # `managed` (mt, nlp): installed + run by the binary, no endpoint stored (ADR-061)
+langpack:                   # the OPTIONAL full language pack      [ADR-049]
+  url: "https://github.com/antlko/learn-hungarian-ai/releases/latest/download/langpack-hu-v1.sqlite.gz"
+  sha256: ""                # hex SHA-256 of the .gz; EMPTY = nothing published, install refuses
 ```
+**`langpack.*` is what Settings → install downloads, and nothing else.** The install endpoint takes
+no URL from its request; only an admin, through `PUT /api/settings`, can change these two fields.
+`url` must be `https` (plain `http` only for `localhost` / `127.0.0.1`, so a mirror on the same
+machine or a test can serve one), and redirects to non-https are refused. `sha256` is the digest of
+the compressed file and is **required**: with it empty the install answers
+`errors.packNotPublished` without opening a connection, because downloading code-sized data
+without a pinned checksum is not something this app does. The default `url` is the release asset
+of this repository's origin; the default `sha256` is empty until a pack is published
+(`make langpack-release` prints the value to pin).
 
 **The `llm` endpoint is the host and nothing more — no `/v1`.** `internal/llm` appends the
 OpenAI paths itself (`{endpoint}/v1/chat/completions`, `{endpoint}/v1/models`), so an endpoint
 written with the suffix already on it is requested as `/v1/v1/chat/completions` and the tutor
 answers with a 404 under a services row that never went green.
 
-`provider` is one of `off`, `local`, `openai` — and, **for `tts` only**, `device`.
+`provider` is one of `off`, `local`, `openai` — and, **for `tts` only**, `device`, **for `mt` and
+`nlp` only**, `managed`. `managed` means the binary installed the service itself and runs it as a
+child process ([ADR-061](../.claude/DECISIONS.md#adr-061)): the endpoint is **never stored** (any
+`endpoint` sent with it is dropped) because the port is ephemeral and known only to the running
+manager; it is written automatically when an install finishes and reset to `off` by Uninstall.
+Choosing another provider in Settings stops the child; choosing `managed` again starts an installed
+one. `openai` stays refused for `mt` and `nlp`.
 
 **`llm` is what the grammar tutor and the text-level second opinion talk to.** Any
 OpenAI-compatible chat endpoint: `provider: local` for Ollama, llama.cpp or vLLM on your own

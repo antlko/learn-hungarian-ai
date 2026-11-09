@@ -37,11 +37,17 @@ type capabilityCache struct {
 var capCache capabilityCache
 
 func (s *Server) handleCapabilities(c fiber.Ctx) error {
+	return c.JSON(s.capabilities(c.Context()))
+}
+
+// capabilities probes every optional service, cached for probeCacheTTL. Shared
+// by /api/capabilities and /api/admin/components so the two cannot disagree.
+func (s *Server) capabilities(parent context.Context) []CapabilityDTO {
 	capCache.mu.Lock()
 	defer capCache.mu.Unlock()
 
 	if time.Since(capCache.at) < probeCacheTTL && capCache.result != nil {
-		return c.JSON(capCache.result)
+		return capCache.result
 	}
 
 	cfg := s.Config()
@@ -52,9 +58,18 @@ func (s *Server) handleCapabilities(c fiber.Ctx) error {
 		"llm": cfg.Services.LLM,
 		"mt":  cfg.Services.MT,
 	}
+	// A managed service has no stored endpoint; its port is resolved here, by
+	// the same function every client uses (resolveService).
+	managed := map[string]bool{}
+	for _, name := range []string{"nlp", "mt"} {
+		if services[name].Provider == config.ProviderManaged {
+			managed[name] = true
+			services[name] = s.resolveService(name, services[name])
+		}
+	}
 
 	// Two probes in sequence for llm (see probe), so the deadline covers both.
-	ctx, cancel := context.WithTimeout(c.Context(), 2*probeTimeout+time.Second)
+	ctx, cancel := context.WithTimeout(parent, 2*probeTimeout+time.Second)
 	defer cancel()
 	llmKey := s.llmKey()
 
@@ -71,6 +86,9 @@ func (s *Server) handleCapabilities(c fiber.Ctx) error {
 				key = llmKey
 			}
 			dto := probe(ctx, name, svc, key)
+			if managed[name] {
+				dto.Provider = config.ProviderManaged // the resolved view says "local"
+			}
 			mu.Lock()
 			out = append(out, dto)
 			mu.Unlock()
@@ -80,7 +98,7 @@ func (s *Server) handleCapabilities(c fiber.Ctx) error {
 
 	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
 	capCache.at, capCache.result = time.Now(), out
-	return c.JSON(out)
+	return out
 }
 
 // Details the llm row can carry beyond the shared ones. The client maps them
@@ -118,6 +136,14 @@ func probe(ctx context.Context, name string, svc config.Service, key string) Cap
 	if svc.Provider == config.ProviderDevice {
 		dto.Configured = true
 		dto.Detail = "device"
+		return dto
+	}
+	// Managed and no endpoint: selected, but the child is not running (stopped,
+	// starting, failed or still installing). Configured, not reachable — and not
+	// an error: the Components card has the state machine.
+	if svc.Provider == config.ProviderManaged && svc.Endpoint == "" {
+		dto.Configured = true
+		dto.Detail = "not running"
 		return dto
 	}
 	if svc.Endpoint == "" {

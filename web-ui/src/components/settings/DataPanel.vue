@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import InfoTip from '@/components/common/InfoTip.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 import { Download, Upload, TriangleAlert, Check } from '@lucide/vue'
 import { Button, buttonVariants } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Note from '@/components/common/Note.vue'
 import { describeError } from '@/lib/errors'
 import { api } from '@/api'
@@ -114,8 +115,10 @@ function cancel() {
 <template>
   <Card variant="quiet">
     <CardHeader>
-      <CardTitle class="text-base">{{ $t('settings.sections.data') }}</CardTitle>
-      <CardDescription>{{ $t('settings.data.hint') }}</CardDescription>
+      <CardTitle class="flex items-center gap-1 text-base">
+        {{ $t('settings.sections.data') }}
+        <InfoTip>{{ $t('settings.data.hint') }}</InfoTip>
+      </CardTitle>
     </CardHeader>
 
     <CardContent class="flex flex-col gap-5">

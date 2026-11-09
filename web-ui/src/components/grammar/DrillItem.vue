@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { X } from '@lucide/vue'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import SpeakButton from '@/components/common/SpeakButton.vue'
@@ -186,7 +187,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           {{ framePieces.before }}
           <span
             class="rounded px-2 py-0.5 transition-colors"
-            :class="result ? 'bg-known/15 text-known' : 'bg-muted text-muted-foreground'"
+            :class="result ? 'bg-tint-sage text-foreground' : 'bg-tint-mist text-muted-foreground'"
             >{{ result ? result.expected : '___' }}</span
           >
           {{ framePieces.after }}
@@ -213,9 +214,10 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           lang="hu"
           :class="[
             buttonVariants({ variant: 'outline', size: 'lg' }),
-            'min-w-32 font-mono text-base',
-            optionState(o.text) === 'correct' && 'border-known bg-known/10 text-known',
-            optionState(o.text) === 'wrong' && 'border-error bg-error/10 text-error',
+            'min-h-12 min-w-32 font-mono text-base',
+            optionState(o.text) === 'correct' && 'border-known bg-tint-sage text-foreground',
+            optionState(o.text) === 'wrong' && 'border-tint-blush-edge bg-tint-blush text-foreground',
+            !result && 'bg-tint-mist/50 hover:bg-tint-mist',
           ]"
           :disabled="submitting || !!result"
           @click="
@@ -227,6 +229,21 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         >
           <span class="mr-2 text-xs text-muted-foreground">{{ i + 1 }}</span>
           {{ o.text }}
+          <!-- A cue besides colour: a check draws on the right option, a cross on the wrong one. -->
+          <svg
+            v-if="optionState(o.text) === 'correct'"
+            viewBox="0 0 24 24"
+            class="ml-2 size-4 text-known"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M5 12.5 L10 17.5 L19 7" pathLength="1" stroke-dasharray="1" class="animate-check-draw" />
+          </svg>
+          <X v-else-if="optionState(o.text) === 'wrong'" class="ml-2 size-4" aria-hidden="true" />
           <span
             v-if="result && !o.attested"
             class="ml-2 text-xs text-uncertain"

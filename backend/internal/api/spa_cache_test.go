@@ -1,10 +1,13 @@
 package api
 
 import (
+	"io/fs"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"tanulom/internal/web"
 
 	"github.com/gofiber/fiber/v3"
 )
@@ -90,5 +93,27 @@ func TestClientRouteStillFallsBackToIndex(t *testing.T) {
 	resp, _ := c.do(http.MethodGet, "/grammar/placement", nil)
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("client route: want 200, got %d", resp.StatusCode)
+	}
+}
+
+// Root-level public files (favicon, manifest) are served as themselves, with
+// their own types — not swallowed by the shell fallback. Skips when the embedded
+// build is the placeholder and carries no manifest.
+func TestRootPublicFilesServedWithOwnTypes(t *testing.T) {
+	if _, err := fs.Stat(web.FS(), "manifest.webmanifest"); err != nil {
+		t.Skip("embedded build has no manifest.webmanifest (placeholder dist)")
+	}
+	_, c := newTestServer(t)
+	for path, want := range map[string]string{
+		"/manifest.webmanifest": "application/manifest+json",
+		"/favicon.svg":          "image/svg+xml",
+	} {
+		resp, _ := c.do(http.MethodGet, path, nil)
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf("%s: want 200, got %d", path, resp.StatusCode)
+		}
+		if got := resp.Header.Get("Content-Type"); got != want {
+			t.Errorf("%s: Content-Type %q, want %q", path, got, want)
+		}
 	}
 }

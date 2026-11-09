@@ -7,10 +7,13 @@
 package config
 
 import (
+	"encoding/hex"
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -86,6 +89,14 @@ const (
 	DefaultRateJitter       = 0.10
 
 	DefaultFocusUnlockListeningHours = 40
+
+	// DefaultLangPackURL is where the downloadable full pack is expected to be
+	// published: the release asset of this repository's origin. Nothing is
+	// there until the maintainer publishes it, which is why
+	// DefaultLangPackSHA256 is EMPTY — the installer never downloads without a
+	// pinned checksum and answers errors.packNotPublished instead (ADR-049).
+	DefaultLangPackURL    = "https://github.com/antlko/learn-hungarian-ai/releases/latest/download/langpack-hu-v1.sqlite.gz"
+	DefaultLangPackSHA256 = ""
 )
 
 // Goal re-weights which card directions are generated. See [R12] —
@@ -114,6 +125,11 @@ const (
 	// says the device has none. Never asserted, always checked where it can
 	// actually be checked.
 	ProviderDevice = "device"
+	// ProviderManaged is a sidecar the binary installs and runs ITSELF as a
+	// child process (internal/components, ADR-061). Valid for mt and nlp only.
+	// The endpoint is never stored: it is an ephemeral 127.0.0.1 port that only
+	// the running manager knows, resolved at call time.
+	ProviderManaged = "managed"
 )
 
 // Config is the whole of config.yaml.
@@ -126,6 +142,37 @@ type Config struct {
 	HVPT       HVPT       `yaml:"hvpt"`
 	Curriculum Curriculum `yaml:"curriculum"`
 	Services   Services   `yaml:"services"`
+	LangPack   LangPack   `yaml:"langpack"`
+}
+
+// LangPack says where the optional full language pack is downloaded from and
+// what its compressed bytes must hash to. Admin-only, set through
+// updateConfig like everything else; the URL is never taken from a request
+// that starts an install. See ADR-049.
+type LangPack struct {
+	URL string `yaml:"url"`
+	// SHA256 is the lowercase hex digest of the .gz file. Empty = nothing is
+	// published and the install refuses.
+	SHA256 string `yaml:"sha256"`
+}
+
+// validLangPackURL accepts https, and plain http only for a loopback host so a
+// test (or a LAN mirror on this machine) can serve a pack without TLS.
+func validLangPackURL(raw string) error {
+	u, err := url.Parse(raw)
+	if err != nil || u.Host == "" {
+		return fmt.Errorf("langpack.url: not a URL: %q", raw)
+	}
+	switch u.Scheme {
+	case "https":
+		return nil
+	case "http":
+		switch u.Hostname() {
+		case "localhost", "127.0.0.1", "::1":
+			return nil
+		}
+	}
+	return fmt.Errorf("langpack.url: want https (http only for localhost), got %q", raw)
 }
 
 type Server struct {
@@ -358,6 +405,11 @@ func (c *Config) normalize() {
 	if c.Curriculum.FocusUnlockListeningHours == 0 {
 		c.Curriculum.FocusUnlockListeningHours = DefaultFocusUnlockListeningHours
 	}
+	if c.LangPack.URL == "" {
+		c.LangPack.URL = DefaultLangPackURL
+	}
+	// SHA256 has no non-empty default on purpose: an unpublished pack must
+	// refuse, not download unverified bytes.
 	// ExamDate has no default on purpose: an exam the learner did not book is
 	// not an exam.
 	for _, s := range []*Service{&c.Services.ASR, &c.Services.NLP, &c.Services.LLM, &c.Services.MT} {
@@ -495,12 +547,17 @@ func (c *Config) Validate() (clamped []ErrClamped, err error) {
 			// The translator speaks its own `/translate`, not the chat API, so
 			// accepting `openai` here would promise a protocol we do not talk.
 			// Point `mt` at services/mt; point `llm` at the OpenAI-compatible box.
-			if name == "mt" {
+			if name == "mt" || name == "nlp" {
 				return nil, fmt.Errorf(
-					"services.mt.provider: want off or local, got %q — mt speaks its own /translate protocol", s.Provider)
+					"services.%s.provider: want off, local or managed, got %q — %s speaks its own protocol, not the OpenAI one",
+					name, s.Provider, name)
 			}
 			if s.Endpoint == "" {
 				return nil, fmt.Errorf("services.%s: endpoint required when provider is %q", name, s.Provider)
+			}
+		case ProviderManaged:
+			if name != "mt" && name != "nlp" {
+				return nil, fmt.Errorf("services.%s.provider: %q is only valid for mt and nlp", name, s.Provider)
 			}
 		case ProviderLocal:
 			if s.Endpoint == "" {
@@ -510,6 +567,15 @@ func (c *Config) Validate() (clamped []ErrClamped, err error) {
 			return nil, fmt.Errorf(
 				"services.%s.provider: want off, local or openai%s, got %q",
 				name, map[bool]string{true: ", device"}[name == "tts"], s.Provider)
+		}
+	}
+	if err := validLangPackURL(c.LangPack.URL); err != nil {
+		return nil, err
+	}
+	c.LangPack.SHA256 = strings.ToLower(strings.TrimSpace(c.LangPack.SHA256))
+	if h := c.LangPack.SHA256; h != "" {
+		if _, err := hex.DecodeString(h); err != nil || len(h) != 64 {
+			return nil, errors.New("langpack.sha256: want 64 hex characters or empty")
 		}
 	}
 	return clamped, nil

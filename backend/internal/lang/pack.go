@@ -27,9 +27,9 @@ type Meta struct {
 	SchemaVersion int      `json:"schema_version"`
 	GlossLangs    []string `json:"gloss_langs"`
 	// Edition is "starter" for the pack embedded in the binary and "full" for
-	// the one built with `make langpack`. The UI names the installed edition off
-	// this field rather than guessing from a row count. There is no in-app
-	// upgrade path and the UI says so — [ADR-010].
+	// the one built with `make langpack` or installed from Settings (ADR-049, takes
+	// effect after a restart). The UI names the installed edition off this field
+	// rather than guessing from a row count.
 	Edition string `json:"edition"`
 }
 

@@ -37,7 +37,39 @@ RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
 # next stage explains why that matters.
 RUN mkdir -p /data
 
-# --- Stage 3: minimal runtime image ---
+# --- Stage 3: `full` image -- the binary plus Python, for managed components ---
+# NOT the default. A plain `docker build .` builds the LAST stage (the distroless
+# one below), so this stage is only built on request:
+#   docker build --target full -t tanulom:full .
+# It exists so Settings -> Components can create a venv and `pip install` the
+# optional analyser/translator INSIDE this one container, with no sidecars. The
+# python:slim image already ships venv and ensurepip, so nothing is apt-installed.
+# Pick it only if you want that; the distroless image is smaller and has no Python.
+FROM python:3.12-slim-bookworm AS full
+LABEL org.opencontainers.image.title="tanulom (full)" \
+      org.opencontainers.image.description="Self-hosted, research-grounded Hungarian trainer, with Python for managed components" \
+      org.opencontainers.image.source="https://github.com/antlko/learn-hungarian-ai" \
+      org.opencontainers.image.url="https://github.com/antlko/learn-hungarian-ai" \
+      org.opencontainers.image.licenses="MIT"
+# Same uid/gid as the distroless `nonroot` user, so one volume or bind mount works
+# with either image. HOME exists so pip and venvs have somewhere to write.
+RUN groupadd --gid 65532 nonroot \
+ && useradd --uid 65532 --gid 65532 --home-dir /home/nonroot --create-home --shell /usr/sbin/nologin nonroot
+COPY --from=build /tanulom /tanulom
+# /data in the image, owned by 65532: see the explanation in the final stage.
+COPY --from=build --chown=65532:65532 /data /data
+ENV TANULOM_DATA_DIR=/data \
+    TANULOM_ADDR=:8012 \
+    TANULOM_SUPERVISED=1 \
+    HOME=/home/nonroot \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1
+EXPOSE 8012
+VOLUME ["/data"]
+USER 65532:65532
+ENTRYPOINT ["/tanulom"]
+
+# --- Stage 4: minimal runtime image (DEFAULT: must stay the LAST stage) ---
 FROM gcr.io/distroless/static:nonroot
 # image.source is what links the GHCR package to the repository, which is also
 # what makes the package inherit the repo's visibility and README.
@@ -57,8 +89,14 @@ COPY --from=build /tanulom /tanulom
 # numerically so it matches whatever the kernel sees on the volume -- the same
 # number you would `chown` a host directory to for a bind mount.
 COPY --from=build --chown=65532:65532 /data /data
+# TANULOM_SUPERVISED=1 tells the app it runs under a restart policy
+# (`--restart unless-stopped`, compose's `restart:`), so Settings may offer
+# "restart" after installing the full language pack: the process exits cleanly
+# and the supervisor brings it back. Without a policy that button would be an
+# outage, which is why this is not set for a bare binary. ADR-049.
 ENV TANULOM_DATA_DIR=/data \
-    TANULOM_ADDR=:8012
+    TANULOM_ADDR=:8012 \
+    TANULOM_SUPERVISED=1
 EXPOSE 8012
 VOLUME ["/data"]
 USER nonroot:nonroot

@@ -287,7 +287,12 @@ export const useReviewStore = defineStore('review', () => {
     reveal()
   }
 
-  async function submit(rating?: number) {
+  /**
+   * `choice` is an option the learner tapped: it travels as the ordinary answer
+   * string with `via: 'choice'`, and the hint flag is not sent (the server
+   * ignores it for a choice; there is no hint in that mode).
+   */
+  async function submit(rating?: number, choice?: string) {
     const card = current.value
     if (!card || submitting.value || summaryOpen.value) return
     submitting.value = true
@@ -296,9 +301,10 @@ export const useReviewStore = defineStore('review', () => {
       const body = {
         cardId: card.cardId,
         rating,
-        typed: isProductive.value ? typed.value : undefined,
-        usedHint: usedHint.value,
+        typed: choice !== undefined ? choice : isProductive.value ? typed.value : undefined,
+        usedHint: choice !== undefined ? false : usedHint.value,
         durationMs: Math.round(performance.now() - shownAt),
+        ...(choice !== undefined ? { via: 'choice' as const } : {}),
       }
       if (mode.value === 'practice') {
         const p = await api.practiceAnswer(body)

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import InfoTip from '@/components/common/InfoTip.vue'
 import type { Coverage, CoverageVerdict } from '@/types'
 
 /**
@@ -55,20 +56,36 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
 </script>
 
 <template>
-  <div class="flex flex-col gap-3">
+  <div class="flex flex-col gap-2">
     <!-- Words you know. The familiar figure, and the one that moves by reading. -->
     <div class="flex flex-col gap-1">
       <p class="flex items-baseline gap-2 text-xs">
         <span class="font-medium">{{ $t('reader.knownWords') }}</span>
-        <span class="tabular-nums text-muted-foreground">
+        <span class="tabular-nums text-muted-foreground max-sm:hidden">
           {{ $t('reader.ofWords', { have: coverage.knownLemmas, total: coverage.words }) }}
         </span>
         <span class="ml-auto font-semibold tabular-nums">{{ pct(coverage.lemmaCoverage) }}</span>
         <span class="font-medium" :class="verdictColour">
           {{ $t(`reader.verdict.${verdict}`) }}
         </span>
+        <!-- What the two figures mean: asked for, not printed. -->
+        <InfoTip :title="$t('reader.whatThisMeans')" class="-my-1.5 self-center">
+          <div class="flex flex-col gap-2">
+            <p>{{ $t('reader.coverageExplainWords') }}</p>
+            <p>{{ $t('reader.coverageExplainGrammar') }}</p>
+            <p class="text-foreground">{{ $t('reader.coverageExplainRaise') }}</p>
+            <p>
+              {{
+                $t('reader.thresholdCaveat', {
+                  minimal: pct(thresholds.minimal),
+                  unassisted: pct(thresholds.unassisted),
+                })
+              }}
+            </p>
+          </div>
+        </InfoTip>
       </p>
-      <div class="h-2 w-full overflow-hidden rounded-full bg-muted">
+      <div class="h-2 w-full overflow-hidden rounded-full bg-tint-mist">
         <div
           class="h-full rounded-full bg-learning transition-[width] duration-300"
           :style="{ width: pct(coverage.lemmaCoverage) }"
@@ -80,12 +97,12 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
     <div class="flex flex-col gap-1">
       <p class="flex items-baseline gap-2 text-xs">
         <span class="font-medium">{{ $t('reader.withGrammar') }}</span>
-        <span class="tabular-nums text-muted-foreground">
+        <span class="tabular-nums text-muted-foreground max-sm:hidden">
           {{ $t('reader.ofWords', { have: coverage.knownElements, total: coverage.words }) }}
         </span>
         <span class="ml-auto font-semibold tabular-nums">{{ pct(coverage.elementCoverage) }}</span>
       </p>
-      <div class="h-2 w-full overflow-hidden rounded-full bg-muted">
+      <div class="h-2 w-full overflow-hidden rounded-full bg-tint-mist">
         <div
           class="h-full rounded-full bg-known transition-[width] duration-300"
           :style="{ width: pct(coverage.elementCoverage) }"
@@ -93,29 +110,10 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
       </div>
     </div>
 
-    <!-- The third quantity, said out loud rather than tacked onto a caveat.
-         These words are in the denominator of both figures and the numerator of
-         neither, which is a thing a learner is entitled to know. -->
+    <!-- Words the analyser could not resolve sit in the denominator of both
+         figures and the numerator of neither; the learner is entitled to know. -->
     <p v-if="coverage.unresolved > 0" class="text-[11px] text-muted-foreground">
       {{ $t('reader.unresolved', { n: coverage.unresolved }) }}
     </p>
-
-    <details class="text-[11px] leading-relaxed text-muted-foreground">
-      <summary class="cursor-pointer select-none">{{ $t('reader.whatThisMeans') }}</summary>
-      <div class="mt-2 flex flex-col gap-2">
-        <p>{{ $t('reader.coverageExplainWords') }}</p>
-        <p>{{ $t('reader.coverageExplainGrammar') }}</p>
-        <!-- The actionable half: this is the sentence that was missing. -->
-        <p class="text-foreground">{{ $t('reader.coverageExplainRaise') }}</p>
-        <p>
-          {{
-            $t('reader.thresholdCaveat', {
-              minimal: pct(thresholds.minimal),
-              unassisted: pct(thresholds.unassisted),
-            })
-          }}
-        </p>
-      </div>
-    </details>
   </div>
 </template>

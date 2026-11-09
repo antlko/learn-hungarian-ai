@@ -1,20 +1,15 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { BrainCircuit, Flame, LogOut, Menu } from '@lucide/vue'
-import { Button } from '@/components/ui/button'
-import CapabilityDots from '@/components/common/CapabilityDots.vue'
+import { useRoute } from 'vue-router'
+import { BrainCircuit, Flame } from '@lucide/vue'
+import AccountMenu from './AccountMenu.vue'
+import LevelChip from './LevelChip.vue'
+import BrandMark from '@/components/brand/BrandMark.vue'
 import StreakBar from '@/components/common/StreakBar.vue'
-import LocaleToggle from '@/components/common/LocaleToggle.vue'
-import ThemeToggle from '@/components/common/ThemeToggle.vue'
-import { useAuthStore } from '@/stores/auth'
+import { APP_NAME } from '@/lib/brand'
 import { useDeckStore } from '@/stores/deck'
-import { useUiStore } from '@/stores/ui'
 
-const auth = useAuthStore()
-const router = useRouter()
 const route = useRoute()
-const ui = useUiStore()
 const deck = useDeckStore()
 
 /**
@@ -43,8 +38,7 @@ onUnmounted(() => document.removeEventListener('click', closeStreak, { capture: 
  */
 const TITLE_KEYS: Record<string, string> = {
   today: 'nav.today',
-  plan: 'nav.plan',
-  resources: 'nav.plan',
+  resources: 'resources.title',
   review: 'nav.review',
   'review-session': 'nav.review',
   library: 'nav.read',
@@ -59,33 +53,30 @@ const TITLE_KEYS: Record<string, string> = {
   known: 'known.title',
   users: 'nav.users',
   settings: 'nav.settings',
+  unit: 'nav.today',
 }
 const titleKey = computed(() => TITLE_KEYS[String(route.name ?? '')] ?? '')
-
-async function signOut() {
-  await auth.logout()
-  router.push({ name: 'login' })
-}
 </script>
 
 <template>
   <!-- Chrome, like the sidebar: the decorative boundary tier, so the rule under
        it separates without drawing the eye away from the page. -->
   <header
-    class="flex h-14 shrink-0 items-center gap-1 border-b border-border-subtle px-4"
+    class="relative z-30 box-content flex h-14 shrink-0 items-center gap-1 border-b border-border-subtle bg-background px-4 pt-[env(safe-area-inset-top)]"
   >
-    <Button
-      variant="ghost"
-      size="icon"
-      class="md:hidden"
-      :aria-label="$t('common.menu')"
-      @click="ui.mobileNavOpen = true"
+    <!-- Phones: the brand mark (the sidebar's «t») beside the page title. -->
+    <RouterLink
+      to="/"
+      class="flex min-w-0 flex-1 items-center gap-2 sm:hidden"
+      :aria-label="APP_NAME"
     >
-      <Menu class="size-4" />
-    </Button>
-    <span class="truncate text-sm font-medium">{{ titleKey ? $t(titleKey) : '' }}</span>
+      <BrandMark :size="32" class="shrink-0" />
+      <span class="min-w-0 truncate text-sm font-medium">{{ titleKey ? $t(titleKey) : '' }}</span>
+    </RouterLink>
+    <span class="hidden min-w-0 truncate text-sm font-medium sm:inline">{{ titleKey ? $t(titleKey) : '' }}</span>
 
-    <div class="ml-auto flex items-center gap-1">
+    <div class="ml-auto flex shrink-0 items-center gap-1.5">
+      <LevelChip />
       <!-- The ledger, in miniature: due now and the streak — the two numbers a
            learner orients by, both from the Breakdown (ADR-021). docs/UX.md §2
            specified them from the beginning; this is the first build to show
@@ -93,10 +84,10 @@ async function signOut() {
       <RouterLink
         v-if="deck.loaded && deck.dueNow > 0"
         to="/review"
-        class="flex items-center gap-1 rounded-full bg-learning/15 px-2 py-0.5 text-xs font-semibold tabular-nums text-learning transition-colors hover:bg-learning/25"
+        class="flex h-9 items-center gap-1.5 rounded-full border border-tint-cream-edge bg-tint-cream px-3 text-sm font-semibold tabular-nums text-foreground transition-colors hover:bg-tint-blush max-md:hidden"
         :title="$t('today.queueDue', { n: deck.dueNow })"
       >
-        <BrainCircuit class="size-3.5" aria-hidden="true" />
+        <BrainCircuit class="size-4 text-primary" aria-hidden="true" />
         {{ deck.dueNow }}
       </RouterLink>
       <!--
@@ -104,16 +95,17 @@ async function signOut() {
         why today has not counted yet, or how the week went — so it now says
         all three, from the same rule the server applies (stats.Day.Met).
       -->
-      <div v-if="deck.loaded && deck.streak > 0" class="relative" data-streak>
+      <div v-if="deck.loaded && deck.streak > 0" class="relative" :class="route.name === 'today' && 'lg:hidden'" data-streak>
         <button
           type="button"
-          class="flex cursor-pointer items-center gap-1 rounded-full px-1.5 py-0.5 text-xs font-semibold tabular-nums transition-colors hover:bg-accent"
+          class="flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-tint-sage-edge bg-tint-sage px-3 text-sm font-semibold tabular-nums transition-colors hover:bg-tint-mist focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           :aria-expanded="streakOpen"
           :title="$t('today.streakHint')"
+          :aria-label="$t('today.streak.title', { n: deck.streak })"
           @click="streakOpen = !streakOpen"
         >
           <Flame
-            class="size-3.5"
+            class="size-4"
             :class="deck.todayMet ? 'text-known' : 'text-muted-foreground'"
             aria-hidden="true"
           />
@@ -122,11 +114,11 @@ async function signOut() {
 
         <div
           v-if="streakOpen"
-          class="absolute top-full right-0 z-50 mt-2 flex w-72 flex-col gap-2.5 rounded-xl border bg-popover p-3.5 text-xs shadow-raised"
+          class="absolute top-full right-0 z-50 mt-2 flex w-72 max-w-[calc(100vw-1.5rem)] flex-col gap-2.5 rounded-xl border bg-popover p-3.5 text-xs shadow-raised"
         >
           <p class="flex items-baseline justify-between">
             <span class="font-medium">{{ $t('today.streak.title', { n: deck.streak }) }}</span>
-            <span v-if="deck.best > deck.streak" class="text-[11px] text-muted-foreground">
+            <span v-if="deck.best > deck.streak" class="text-xs text-muted-foreground">
               {{ $t('today.streak.best', { n: deck.best }) }}
             </span>
           </p>
@@ -156,26 +148,13 @@ async function signOut() {
             </p>
           </div>
 
-          <p class="text-[11px] leading-relaxed text-muted-foreground">
+          <p class="text-xs leading-relaxed text-muted-foreground">
             {{ $t('today.streak.noFreeze') }}
           </p>
         </div>
       </div>
 
-      <div class="mx-2 hidden h-4 w-px bg-border-subtle sm:block" />
-      <CapabilityDots class="hidden sm:flex" />
-      <div class="mx-2 h-4 w-px bg-border-subtle" />
-      <LocaleToggle />
-      <ThemeToggle />
-      <Button
-        variant="ghost"
-        size="icon"
-        :aria-label="$t('common.signOut')"
-        :title="$t('common.signOut')"
-        @click="signOut"
-      >
-        <LogOut class="size-4" />
-      </Button>
+      <AccountMenu />
     </div>
   </header>
 </template>

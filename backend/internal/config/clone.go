@@ -40,6 +40,7 @@ func (c Config) Clone() Config {
 		v := *c.Review.AccentTolerance
 		out.Review.AccentTolerance = &v
 	}
+	// LangPack holds two strings only: copied by value above, nothing to deep-copy.
 	// Mining.TargetLength is a [2]int array, not a slice: copied by value above.
 	return out
 }

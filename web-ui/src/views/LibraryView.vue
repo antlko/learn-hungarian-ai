@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useLevelStore } from '@/stores/level'
 import { useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
 import { useI18n } from 'vue-i18n'
@@ -14,38 +15,59 @@ import {
   Trash2,
 } from '@lucide/vue'
 import { describeError } from '@/lib/errors'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import EmptyState from '@/components/common/EmptyState.vue'
-import PageHeader from '@/components/common/PageHeader.vue'
+import { Illustration } from '@/components/art'
+import PageHero from '@/components/visual/PageHero.vue'
+import InfoTip from '@/components/common/InfoTip.vue'
 import Note from '@/components/common/Note.vue'
-import { cn } from '@/lib/utils'
 import { api } from '@/api'
-import type { TextSummary } from '@/types'
+import type { LibrarySet, TextSummary } from '@/types'
 
 /**
  * The shelf. What you already have comes first and stays findable as it grows:
  * search, a sort, a level filter — the flat unfiltered list stopped scaling at
  * about a dozen texts. The add form is a tool behind a button, not the point
- * of the screen; on an empty shelf it opens itself, because then it IS the
- * point.
+ * of the screen; on an empty shelf the sets lead, because then they ARE the
+ * point. With no texts yet the ready-made sets open first.
  */
 const router = useRouter()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
+const levelStore = useLevelStore()
 const texts = ref<TextSummary[] | null>(null)
+const sets = ref<LibrarySet[] | null>(null)
+const importing = ref('')
+
+/** Decorative tint by CEFR band; the level text is always printed inside the chip. */
+function bandChip(level: string | undefined): string {
+  switch (level?.slice(0, 2)) {
+    case 'A1':
+      return 'border-tint-sage-edge bg-tint-sage text-foreground'
+    case 'A2':
+      return 'border-tint-mist-edge bg-tint-mist text-foreground'
+    case 'B1':
+      return 'border-tint-cream-edge bg-tint-cream text-foreground'
+    default:
+      return 'border-tint-blush-edge bg-tint-blush text-foreground'
+  }
+}
 const error = ref('')
 const title = ref('')
 const body = ref('')
 const kind = ref('paste')
 const busy = ref(false)
 const adding = ref(false)
+/** Own texts or ready-made sets. Until picked: texts if there are any, else sets. */
+const tab = ref<'mine' | 'sets' | null>(null)
+const activeTab = computed(() =>
+  tab.value ?? (!texts.value || texts.value.length || !setGroups.value.length ? 'mine' : 'sets'),
+)
 
 const query = ref('')
 const sortBy = ref<'recent' | 'level' | 'coverage' | 'title'>('recent')
@@ -94,9 +116,81 @@ async function load() {
   error.value = ''
   try {
     texts.value = (await api.texts()).texts
-    if (texts.value.length === 0) adding.value = true
   } catch (e) {
     error.value = describeError(e)
+  }
+}
+
+/** Ready-made sets: best-effort. A 404 or failure on an older build just hides
+ *  the section; the learner's own shelf never waits on it. */
+const SET_LEVELS = ['A1', 'A2', 'B1'] as const
+/** A hint, never a lock: the band the level estimate currently works on. */
+const myBand = computed(() => levelStore.level?.band ?? '')
+
+/** 36 cards pushed the learner's own texts off the screen: show a few, the rest on request. */
+const SETS_COLLAPSED = 4
+const SETS_KEY = 'tanulom.library.setsExpanded'
+function readExpanded(): boolean {
+  try {
+    return localStorage.getItem(SETS_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+const setsExpanded = ref(readExpanded())
+function toggleSets() {
+  setsExpanded.value = !setsExpanded.value
+  try {
+    localStorage.setItem(SETS_KEY, setsExpanded.value ? '1' : '0')
+  } catch {
+    /* private mode: the choice just isn't remembered */
+  }
+}
+/** Sets at the learner's level first; otherwise the pack's own order. */
+const orderedSets = computed(() => {
+  const all = sets.value ?? []
+  return [...all.filter((s) => s.level === myBand.value), ...all.filter((s) => s.level !== myBand.value)]
+})
+const setGroups = computed(() => {
+  const shown = setsExpanded.value ? orderedSets.value : orderedSets.value.slice(0, SETS_COLLAPSED)
+  return SET_LEVELS.map((lv) => ({ level: lv, items: shown.filter((s) => s.level === lv) })).filter(
+    (g) => g.items.length,
+  )
+})
+
+/** The section is already «Готовые подборки»: drop the «Живые примеры: » prefix in the row. */
+function rowTitle(s: LibrarySet) {
+  return setTitle(s).replace(/^(Живые примеры|Real examples):\s*/i, '')
+}
+
+function setTitle(s: LibrarySet) {
+  const loc = (locale.value || '').startsWith('en') ? s.titleEn : s.titleRu
+  return loc || s.title
+}
+
+async function loadSets() {
+  try {
+    const r = await api.librarySets()
+    sets.value = Array.isArray(r) ? r : []
+  } catch {
+    sets.value = []
+  }
+}
+
+async function openSet(s: LibrarySet) {
+  if (s.imported && s.textId) {
+    router.push(`/read/${s.textId}`)
+    return
+  }
+  importing.value = s.code
+  try {
+    const res = await api.importLibrarySet(s.code)
+    if (res.created) toast.success(t('library.sets.added', { title: setTitle(s) }))
+    router.push(`/read/${res.textId}`)
+  } catch (e) {
+    toast.error(describeError(e))
+  } finally {
+    importing.value = ''
   }
 }
 
@@ -146,22 +240,26 @@ async function remove(id: number) {
   }
 }
 
-onMounted(load)
+onMounted(() => {
+  load()
+  loadSets()
+  levelStore.refresh()
+})
 
 const pct = (n: number) => `${Math.round(n * 100)}%`
-const day = (iso: string) => iso.slice(0, 10)
 </script>
 
 <template>
-  <div class="mx-auto flex w-full max-w-4xl flex-col gap-6">
-    <PageHeader :title="$t('nav.read')" :subtitle="$t('library.subtitle')">
+  <div class="page-narrow flex w-full min-w-0 flex-col gap-4">
+    <PageHero :title="$t('nav.read')">
+      <template #art><Illustration name="chainBridge" size="sm" /></template>
       <template #actions>
-        <Button variant="outline" size="sm" @click="adding = !adding">
+        <Button size="sm" class="mt-2 min-h-11 shrink-0 self-start px-4" @click="adding = !adding">
           <Plus class="size-4" aria-hidden="true" />
           {{ $t('library.addTitle') }}
         </Button>
       </template>
-    </PageHeader>
+    </PageHero>
 
     <Note v-if="error" variant="error">
       <p>{{ error }}</p>
@@ -170,9 +268,9 @@ const day = (iso: string) => iso.slice(0, 10)
       </Button>
     </Note>
 
-    <!-- The add form, on demand. Ahead of the shelf so it does not jump the
+    <!-- The add form, on demand, ahead of the lists so it does not jump the
          page when opened from the header. -->
-    <Card v-if="adding" variant="quiet">
+    <Card v-if="adding" variant="tint-cream" class="animate-card-in">
       <CardHeader class="pb-3">
         <CardTitle class="text-base">{{ $t('library.addTitle') }}</CardTitle>
       </CardHeader>
@@ -198,129 +296,208 @@ const day = (iso: string) => iso.slice(0, 10)
             v-model="body"
             rows="6"
             lang="hu"
-            class="w-full rounded-md border border-input bg-transparent p-3 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            class="w-full rounded-md border border-input bg-transparent p-3 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:text-sm"
             :placeholder="$t('library.textHint')"
           />
         </div>
-        <Button class="self-start" :disabled="busy || !body.trim()" @click="add">
+        <Button class="min-h-11 self-start" :disabled="busy || !body.trim()" @click="add">
           {{ busy ? $t('common.saving') : $t('library.add') }}
         </Button>
       </CardContent>
     </Card>
 
-    <!-- The finding tools appear once there is something to find. -->
-    <div v-if="texts && texts.length > 3" class="flex flex-wrap items-center gap-2">
-      <div class="relative min-w-48 flex-1">
-        <Search
-          class="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
-          aria-hidden="true"
-        />
-        <Input v-model="query" class="pl-8" :placeholder="$t('library.search')" />
-      </div>
-      <Select v-model="sortBy" class="w-auto" :aria-label="$t('library.sortLabel')">
-        <option value="recent">{{ $t('library.sort.recent') }}</option>
-        <option value="level">{{ $t('library.sort.level') }}</option>
-        <option value="coverage">{{ $t('library.sort.coverage') }}</option>
-        <option value="title">{{ $t('library.sort.title') }}</option>
-      </Select>
-      <Select v-model="levelFilter" class="w-auto" :aria-label="$t('library.filterLevel')">
-        <option value="">{{ $t('library.allLevels') }}</option>
-        <option v-for="l in CEFR" :key="l" :value="l">{{ l }}</option>
-        <option value="none">{{ $t('library.noLevel') }}</option>
-      </Select>
-    </div>
-
-    <!-- Loading holds the layout instead of popping a list into place. -->
-    <div v-if="!texts && !error" class="grid gap-3 sm:grid-cols-2">
-      <Skeleton v-for="i in 4" :key="i" class="h-36" />
-    </div>
-
-    <div v-else-if="shown.length" class="stagger-in grid gap-3 sm:grid-cols-2">
-      <div
-        v-for="tx in shown"
-        :key="tx.id"
-        class="flex flex-col gap-2.5 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/50"
+    <div
+      v-if="texts && setGroups.length"
+      role="tablist"
+      class="grid grid-cols-2 gap-1 rounded-xl border border-tint-cream-edge bg-tint-cream/60 p-1"
+    >
+      <button
+        v-for="tb in ['mine', 'sets'] as const"
+        :key="tb"
+        type="button"
+        role="tab"
+        :aria-selected="activeTab === tb"
+        :class="[
+          'min-h-11 cursor-pointer rounded-lg px-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-ring',
+          activeTab === tb
+            ? 'border border-tint-mist-edge bg-tint-mist font-medium text-foreground'
+            : 'text-muted-foreground hover:bg-tint-mist/50 hover:text-foreground',
+        ]"
+        @click="tab = tb"
       >
-        <div class="flex items-start gap-2">
-          <RouterLink :to="`/read/${tx.id}`" class="min-w-0 flex-1">
-            <p class="truncate text-sm font-medium hover:text-primary">{{ tx.title }}</p>
-            <p class="mt-0.5 flex items-center gap-1.5 text-xs tabular-nums text-muted-foreground">
-              <component :is="kindIcon(tx)" class="size-3.5 shrink-0" aria-hidden="true" />
-              {{ day(tx.addedAt) }} · {{ tx.wordCount }} {{ $t('library.words') }}
-            </p>
-          </RouterLink>
-          <!-- The level, with WHO said so — a machine estimate never poses as
-               a fact (ADR-023). No level is an honest state, not a blank. -->
-          <Badge v-if="tx.level" tone="outline" :title="levelCaption(tx)">
-            <span class="font-semibold text-foreground">{{ tx.level }}</span>
-            <span class="text-[10px]">{{ levelCaption(tx) }}</span>
-          </Badge>
-        </div>
+        {{ tb === 'mine' ? $t('library.tabs.mine') : $t('library.sets.title') }}
+      </button>
+    </div>
 
-        <!-- The two coverage numbers, named the way the reader names them. -->
-        <div class="flex flex-col gap-1">
-          <div class="flex items-center gap-2 text-[11px] text-muted-foreground">
-            <span class="w-28 shrink-0 truncate">{{ $t('reader.knownWords') }}</span>
-            <Progress :value="tx.lemmaCoverage * 100" tone="bg-learning" size="h-1" />
-            <span class="w-9 shrink-0 text-right tabular-nums">{{ pct(tx.lemmaCoverage) }}</span>
-          </div>
-          <div class="flex items-center gap-2 text-[11px] text-muted-foreground">
-            <span class="w-28 shrink-0 truncate">{{ $t('reader.withGrammarShort') }}</span>
-            <Progress :value="tx.elementCoverage * 100" tone="bg-known" size="h-1" />
-            <span class="w-9 shrink-0 text-right tabular-nums">{{ pct(tx.elementCoverage) }}</span>
-          </div>
-        </div>
-
-        <div class="mt-auto flex items-center gap-2 pt-1">
-          <RouterLink
-            v-if="tx.noteCount > 0"
-            :to="`/review/session?scope=text:${tx.id}`"
-            :class="cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'h-7 gap-1.5 text-xs')"
+    <!-- Ready-made sets: real sentences; adding makes a TEXT only — cards stay
+         the learner's explicit act. -->
+    <section
+      v-if="texts && activeTab === 'sets' && setGroups.length"
+      class="flex flex-col gap-4"
+      aria-labelledby="sets-h"
+    >
+      <h2 id="sets-h" class="flex items-center gap-1 text-base font-semibold">
+        {{ $t('library.sets.title') }}
+        <InfoTip>{{ $t('library.sets.intro') }}</InfoTip>
+      </h2>
+      <div v-for="g in setGroups" :key="g.level" class="flex flex-col gap-1.5">
+        <p
+          class="inline-flex w-fit rounded-full border px-2.5 py-0.5 text-xs font-semibold tracking-wide"
+          :class="bandChip(g.level)"
+        >
+          {{ g.level }}
+        </p>
+        <ul class="stagger-in flex flex-col gap-2">
+          <li
+            v-for="s in g.items"
+            :key="s.code"
+            class="flex items-center gap-3 rounded-xl border bg-card px-4 py-3"
+            :class="bandChip(s.level).split(' ')[0]"
           >
-            <BrainCircuit class="size-3.5" aria-hidden="true" />
-            {{ $t('library.reviewFrom', { n: tx.noteCount }) }}
-          </RouterLink>
-          <span v-else class="text-[11px] text-muted-foreground">
-            {{ $t('library.noWordsYet') }}
+            <div class="min-w-0 flex-1">
+              <p class="line-clamp-2 text-sm font-medium">{{ rowTitle(s) }}</p>
+              <p class="flex flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground">
+                <span class="tabular-nums">{{ $t('library.sets.count', { n: s.sentences }) }}</span>
+                <span v-if="s.track === 'theme'">· {{ $t('library.sets.theme') }}</span>
+                <span v-if="s.level === myBand" class="font-medium text-primary">
+                  · {{ $t('library.sets.fitsNow') }}
+                </span>
+              </p>
+            </div>
+            <Button
+              class="min-h-11 shrink-0"
+              size="sm"
+              :variant="s.imported ? 'outline' : 'default'"
+              :disabled="importing === s.code"
+              @click="openSet(s)"
+            >
+              {{
+                importing === s.code
+                  ? $t('common.saving')
+                  : s.imported
+                    ? $t('library.sets.open')
+                    : $t('library.sets.addRead')
+              }}
+            </Button>
+          </li>
+        </ul>
+      </div>
+      <Button
+        v-if="(sets?.length ?? 0) > SETS_COLLAPSED"
+        variant="outline"
+        size="sm"
+        class="min-h-11 self-start"
+        :aria-expanded="setsExpanded"
+        @click="toggleSets"
+      >
+        {{ setsExpanded ? $t('library.sets.showFewer') : $t('library.sets.showAll', { n: sets?.length ?? 0 }) }}
+      </Button>
+    </section>
+
+    <template v-if="activeTab !== 'sets'">
+      <!-- The finding tools appear once there is something to find. -->
+      <div v-if="texts && texts.length > 3" class="flex flex-wrap items-center gap-2">
+        <div class="relative min-w-48 flex-1">
+          <Search
+            class="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
+          <Input v-model="query" class="pl-8" :placeholder="$t('library.search')" />
+        </div>
+        <Select v-model="sortBy" class="w-auto" :aria-label="$t('library.sortLabel')">
+          <option value="recent">{{ $t('library.sort.recent') }}</option>
+          <option value="level">{{ $t('library.sort.level') }}</option>
+          <option value="coverage">{{ $t('library.sort.coverage') }}</option>
+          <option value="title">{{ $t('library.sort.title') }}</option>
+        </Select>
+        <Select v-model="levelFilter" class="w-auto" :aria-label="$t('library.filterLevel')">
+          <option value="">{{ $t('library.allLevels') }}</option>
+          <option v-for="l in CEFR" :key="l" :value="l">{{ l }}</option>
+          <option value="none">{{ $t('library.noLevel') }}</option>
+        </Select>
+      </div>
+
+      <!-- Loading holds the layout instead of popping a list into place. -->
+      <div v-if="!texts && !error" class="flex flex-col gap-2">
+        <Skeleton v-for="i in 5" :key="i" class="h-14" />
+      </div>
+
+      <ul
+        v-else-if="shown.length"
+        class="stagger-in flex flex-col gap-2"
+      >
+        <li
+          v-for="tx in shown"
+          :key="tx.id"
+          class="flex items-center gap-2 rounded-xl border border-border-subtle bg-card px-4 py-3"
+        >
+          <div class="min-w-0 flex-1">
+            <RouterLink :to="`/read/${tx.id}`" class="block min-h-9">
+              <p class="truncate text-sm font-medium hover:text-primary">{{ tx.title }}</p>
+              <p class="mt-0.5 flex items-center gap-1.5 text-xs tabular-nums text-muted-foreground">
+                <component :is="kindIcon(tx)" class="size-3.5 shrink-0" aria-hidden="true" />
+                {{ tx.wordCount }} {{ $t('library.words') }}
+              </p>
+            </RouterLink>
+            <RouterLink
+              v-if="tx.noteCount > 0"
+              :to="`/review/session?scope=text:${tx.id}`"
+              class="inline-flex min-h-7 items-center gap-1 text-xs text-primary hover:underline"
+            >
+              <BrainCircuit class="size-3.5" aria-hidden="true" />
+              {{ $t('library.reviewFrom', { n: tx.noteCount }) }}
+            </RouterLink>
+          </div>
+          <!-- Known-words share: the number the reader opens with. -->
+          <span
+            class="shrink-0 text-sm font-medium tabular-nums"
+            :title="$t('reader.knownWords')"
+          >
+            {{ pct(tx.lemmaCoverage) }}
           </span>
-          <span class="flex-1" />
+          <!-- The level, with WHO said so — a machine estimate never poses as
+               a fact (ADR-023). Caption in the tooltip; no level is no chip. -->
+          <span
+            v-if="tx.level"
+            :title="levelCaption(tx)"
+            class="shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-semibold"
+            :class="bandChip(tx.level)"
+          >
+            {{ tx.level }}
+          </span>
           <Button
             v-if="confirming !== tx.id"
             variant="ghost"
             size="icon"
-            class="size-7"
+            class="size-9 shrink-0"
             :aria-label="$t('library.remove')"
             @click="askRemove(tx.id)"
           >
-            <Trash2 class="size-3.5" />
+            <Trash2 class="size-4" />
           </Button>
-          <Button v-else variant="destructive" size="sm" class="h-7 text-xs" @click="remove(tx.id)">
+          <Button v-else variant="destructive" size="sm" class="shrink-0" @click="remove(tx.id)">
             {{ $t('library.removeConfirm') }}
           </Button>
-        </div>
-      </div>
-    </div>
+        </li>
+      </ul>
 
-    <!-- An empty shelf is a starting point; an emptied-out FILTER says which. -->
-    <EmptyState
-      v-else-if="texts && texts.length"
-      art="birds"
-      :title="$t('library.nothingFound')"
-      :body="$t('library.nothingFoundBody')"
-    >
-      <Button
-        variant="outline"
-        size="sm"
-        @click="((query = ''), (levelFilter = ''))"
+      <!-- An empty shelf is a starting point; an emptied-out FILTER says which. -->
+      <EmptyState
+        v-else-if="texts && texts.length"
+        art="chainBridge"
+        :title="$t('library.nothingFound')"
+        :body="$t('library.nothingFoundBody')"
       >
-        {{ $t('library.clearFilters') }}
-      </Button>
-    </EmptyState>
-    <EmptyState
-      v-else-if="texts"
-      art="birds"
-      :title="$t('library.emptyTitle')"
-      :body="$t('library.empty')"
-    />
+        <Button variant="outline" size="sm" @click="((query = ''), (levelFilter = ''))">
+          {{ $t('library.clearFilters') }}
+        </Button>
+      </EmptyState>
+      <EmptyState
+        v-else-if="texts"
+        art="chainBridge"
+        :title="$t('library.emptyTitle')"
+        :body="$t('library.empty')"
+      />
+    </template>
   </div>
 </template>

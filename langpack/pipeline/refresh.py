@@ -4,13 +4,14 @@
 several gigabytes and takes hours. That is the right price for the lexicon and
 the sentence corpus, and an absurd one for a typo in a grammar lesson.
 
-Four tables in the pack are computed from Python literals alone and depend on
+Five groups of tables in the pack are computed from Python literals alone and depend on
 nothing that has to be downloaded:
 
     morph_feature   the feature inventory, labels and explanations
     grammar_topic   the teaching DAG and every lesson
     minimal_pair    the ear trainer's contrasts
     course_unit     the guided course, and course_word with it
+    reading_set     the ready-made reading sets, chosen from the pack's own sentences
 
 This command rewrites exactly those, in place, in an existing pack. Everything
 else in the file is untouched.
@@ -34,7 +35,7 @@ import json
 import sqlite3
 from pathlib import Path
 
-from . import course, curriculum, features, minimal_pairs
+from . import course, curriculum, features, minimal_pairs, reading_sets
 
 # table -> (columns, row-builder). Order matters: course_word references
 # course_unit, so units are written first.
@@ -70,7 +71,7 @@ def _rows_course_unit() -> list[tuple]:
     return [
         (u["code"], u["month"], u["ord"], u["title_ru"], u["title_en"],
          u["goal_ru"], u["goal_en"], u["situation_ru"], u["situation_en"],
-         u.get("topic_codes", ""))
+         u.get("topic_codes", ""), u.get("track", "core"), u.get("tier", "basic"))
         for u in course.UNITS
     ]
 
@@ -83,7 +84,7 @@ COLUMNS = {
     "minimal_pair": ["a", "b", "contrast", "priority", "gloss_a_ru", "gloss_b_ru",
                      "gloss_a_en", "gloss_b_en", "context_a", "context_b"],
     "course_unit": ["code", "month", "ord", "title_ru", "title_en", "goal_ru",
-                    "goal_en", "situation_ru", "situation_en", "topic_codes"],
+                    "goal_en", "situation_ru", "situation_en", "topic_codes", "track", "tier"],
     "course_word": ["unit_code", "lemma", "upos", "gloss_ru", "gloss_en", "note", "ord"],
 }
 
@@ -145,6 +146,16 @@ def refresh(pack: Path) -> dict[str, int]:
                 r[0]: (r[1], r[2])
                 for r in conn.execute("SELECT id, a, b FROM minimal_pair")
             } if "minimal_pair" in have else {}
+            # `track` arrived after the first packs. The app opens a pack
+            # read-only and cannot add a column, so this build step does.
+            if "course_unit" in have:
+                cols_now = {r[1] for r in conn.execute("PRAGMA table_info(course_unit)")}
+                if "track" not in cols_now:
+                    conn.execute(
+                        "ALTER TABLE course_unit ADD COLUMN track TEXT NOT NULL DEFAULT 'core'")
+                if "tier" not in cols_now:
+                    conn.execute(
+                        "ALTER TABLE course_unit ADD COLUMN tier TEXT NOT NULL DEFAULT 'basic'")
             # course_word has a foreign key onto course_unit, so the deletes
             # run child-first and the inserts parent-first.
             for table in reversed(REFRESHED):
@@ -182,6 +193,17 @@ def refresh(pack: Path) -> dict[str, int]:
             # Adding one here costs nothing and keeps an existing pack usable.
             for stmt in MISSING_INDEXES:
                 conn.execute(stmt)
+
+            # Reading sets depend on the course words just rewritten, so they
+            # are recomputed here, from the sentences the pack already holds.
+            if "sentence" in have:
+                written.update(reading_sets.build(conn))
+                sets_problems = reading_sets.validate(conn)
+                if sets_problems:
+                    # Inside the transaction: raising rolls every table back.
+                    raise SystemExit("refusing to write: " + "\n  ".join([""] + sets_problems))
+                # A warning, not an error: see course.warn_unclozeable.
+                course.warn_unclozeable(conn)
     finally:
         conn.close()
     return written

@@ -96,6 +96,8 @@ export interface Settings {
   hvpt: { minTalkers: number; trialsPerSession: number; rateJitter: number }
   curriculum: { focusUnlockListeningHours: number; examDate: string }
   services: Record<string, Service>
+  /** Where the optional full language pack downloads from; empty sha256 = not published. */
+  langpack: { url: string; sha256: string }
   /** Presence only — a secret's value never reaches the client. */
   secrets: Record<string, boolean>
 }
@@ -105,7 +107,7 @@ export interface Settings {
  * valid for `tts` only, takes no endpoint, and is the default — see
  * `config.ProviderDevice` and `lib/speech.ts`.
  */
-export type ServiceProvider = 'off' | 'device' | 'local' | 'openai'
+export type ServiceProvider = 'off' | 'device' | 'local' | 'openai' | 'managed'
 
 export interface Service {
   provider: ServiceProvider
@@ -122,6 +124,7 @@ export interface UpdateSettingsRequest {
   hvpt?: Settings['hvpt']
   curriculum?: Settings['curriculum']
   services?: Record<string, Service>
+  langpack?: Settings['langpack']
   /** Blank value keeps the stored secret; a new value replaces it. */
   secrets?: Record<string, string>
 }
@@ -180,6 +183,8 @@ export interface Analysis {
   certainty: Certainty
   freqRank?: number
   alternatives: number
+  /** 'context' = chosen among the form's readings by the HuSpaCy sidecar; certainty stays 'uncertain'. */
+  via?: 'context'
 }
 
 export interface AnalyzedToken {
@@ -311,6 +316,8 @@ export interface QueueItem {
    * hint comes to show one word while the grader wants another. See ADR-017.
    */
   expected?: string
+  /** 3-5 shuffled candidates including `expected`, for tap-to-answer; absent means type. ADR-060. */
+  options?: string[]
 }
 
 /**
@@ -440,7 +447,20 @@ export interface WordRow {
   nextDue?: string
   lapses: number
   cards: number
+  /**
+   * Where the word is in its life, in the review card's vocabulary. `known` is
+   * the learner's «Знаю»; otherwise the strongest card's stage (young/mature
+   * split at a 21-day interval). Empty only for an ignored word with no cards.
+   */
+  stage: WordStage | ''
+  /** The strongest card's figures, from srs.Memory. */
+  intervalDays: number
+  reps: number
+  stepsLeft: number
+  stepsTotal: number
 }
+
+export type WordStage = 'learning' | 'relearning' | 'young' | 'mature' | 'known'
 
 export interface WordsResponse {
   words: WordRow[]
@@ -602,6 +622,8 @@ export interface AnswerRequest {
   rating?: number
   typed?: string
   usedHint?: boolean
+  /** How the answer was entered; a chosen option is sent as `typed`. ADR-060. */
+  via?: 'typed' | 'choice'
   durationMs: number
 }
 
@@ -633,6 +655,54 @@ export interface FeatureMastery {
   ready: boolean
   /** Ready AND under `drill.masteryThreshold`: a measured weakness. */
   weak: boolean
+  /** Codes of the grammar topics that teach this feature; `[]` if none. */
+  topics: string[]
+}
+
+/** One CEFR band's standing in the level estimate (GET /api/stats/level). */
+export interface LevelBand {
+  band: 'A1' | 'A2' | 'B1' | 'B2' | 'C1'
+  counted: number
+  total: number
+  /** counted / total */
+  share: number
+  /** The share at which the band's vocabulary counts as reached (0.8). */
+  target: number
+  /** At least half the band's drillable topics are interleaved or mastered. */
+  grammarReady: boolean
+  grammarDrillable: number
+  reached: boolean
+}
+
+/**
+ * A MEASURED estimate with a stated method (ADR-047), never a score: it can go
+ * down. `coverage` is the share of everyday running text made of counted words.
+ */
+export interface LevelEstimate {
+  /** "A2.2"; "C1+" once every measured band is reached. */
+  label: string
+  band: string
+  sublevel: number
+  confidence: 'low' | 'estimate'
+  coverage: number
+  countedLemmas: number
+  bands: LevelBand[]
+  /** Checkpoint code ("m3") holding the working band shut, or "". */
+  cappedBy: string
+  /** i18n key of the fixed method sentence. */
+  methodKey: string
+}
+
+export interface BandWord {
+  lemmaId: number
+  lemma: string
+  glossRu: string
+  glossEn: string
+  freqRank: number
+}
+
+export interface BandWordsResponse {
+  words: BandWord[]
 }
 
 /**
@@ -702,6 +772,20 @@ export interface GovernorVerdict {
 export type LemmaStatus = 'new' | 'learning' | 'known' | 'ignored'
 
 export type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
+
+/** A ready-made reading set of real sentences (GET /api/library/sets). */
+export interface LibrarySet {
+  code: string
+  level: 'A1' | 'A2' | 'B1'
+  track: 'core' | 'theme'
+  title: string
+  titleRu: string
+  titleEn: string
+  theme: string
+  sentences: number
+  imported: boolean
+  textId?: number
+}
 
 export interface TextSummary {
   id: number
@@ -1178,8 +1262,14 @@ export interface CourseUnit {
   situationEn: string
   /** Grammar topics this unit leans on — codes into the curriculum DAG. */
   topicCodes: string[]
+  /** 'core' (or absent) for the main road; 'theme' for a side unit (later batch). */
+  track?: string
+  /** Difficulty tier the road groups by. Absent (older server) means 'basic'. */
+  tier?: CourseTier
   words: CourseWord[]
 }
+
+export type CourseTier = 'basic' | 'intermediate' | 'advanced'
 
 /**
  * Where a unit stands. `ahead` is deliberately not `locked`: nothing in the API
@@ -1208,13 +1298,18 @@ export interface UnitState {
    * started month 2". The difference is what the row now explains.
    */
   fromHere?: number
+  /** Unit words actually learned (graduated or known). Absent means 0. */
+  learned?: number
+  /** Unit words settled: `known`, or the strongest live card is mature (>= unlock.settledDays). Absent means 0. ADR-058. */
+  settled?: number
   /** The unit's words with no card yet — named, so the UI never infers them. */
   notInPlay: string[]
 }
 
 export interface CoursePlan {
   units: UnitState[]
-  /** The unit to work on now. Empty once the course has handed over. */
+  /** The unit to take NEXT (ADR-048: follows enrolment — first enrolled and
+   *  unfinished, else first untouched). Empty once the course has handed over. */
   current: string
   handedOver: boolean
   completed: number
@@ -1229,8 +1324,24 @@ export interface CourseProgress {
   skipped: number
 }
 
+export interface CourseCounts {
+  words: number
+  inDeck: number
+  learned: number
+  /** Settled words (ADR-058). Absent on an older server. */
+  settled?: number
+}
+
+export interface CourseTotals extends CourseCounts {
+  perTier: Record<CourseTier, CourseCounts>
+}
+
 export interface CourseResponse {
   plan: CoursePlan
+  /** Absent on an older server: the client then sums the units. */
+  totals?: CourseTotals
+  /** The soft gate's rule (ADR-058); absent on an older server. Advice only. */
+  unlock?: { share: number; settledDays: number }
   enrolled: Record<string, CourseProgress>
 }
 
@@ -1482,4 +1593,88 @@ export interface ImportReport {
   replayChecked: number
   replayWarning?: string
   secretsOmitted: boolean
+}
+
+// ── Admin: pack install, restart, components (ADR-049) ────────────────────
+
+export type PackInstallState = 'idle' | 'downloading' | 'verifying' | 'ready' | 'failed'
+
+/** GET /api/admin/pack/install. `errorKey` is an i18n key (errors.*), '' when none. */
+export interface PackInstallStatus {
+  state: PackInstallState
+  bytes: number
+  total: number
+  errorKey: string
+  restartRequired: boolean
+}
+
+/** POST /api/admin/restart. false = nothing restarts it; tell the admin to start it again. */
+export interface RestartResponse {
+  supervised: boolean
+}
+
+export type ComponentId = 'pack' | 'mt' | 'nlp' | 'tts' | 'asr' | 'llm'
+
+/** GET /api/admin/components. `state` is a word the screen maps to copy. */
+export interface ComponentStatus {
+  id: ComponentId
+  configured: boolean
+  reachable: boolean
+  /** pack: starter | full | installing | restartRequired | missing. Others: off | device | unreachable | ready, or mt's own loading | ready | failed. */
+  state: string
+  /** 0..1; 0 when nothing is in flight. */
+  progress: number
+  model: string
+  ramHint: string
+  composeProfile: string
+  /** false = this repository does not ship the sidecar yet. */
+  built: boolean
+  /** mt and nlp only; absent from an older server — the screen then offers Docker and own-server tabs only. */
+  managed?: ManagedStatus
+}
+
+export type ManagedState =
+  | 'absent'
+  | 'installing'
+  | 'installed'
+  | 'starting'
+  | 'running'
+  | 'failed'
+  | 'stopped'
+
+/** The service the app downloads and runs itself (ADR-050). Every field but `available`/`state` may be missing. */
+export interface ManagedStatus {
+  available: boolean
+  /** i18n key (errors.componentNoPython | errors.componentReadOnly) when `available` is false. */
+  unavailableKey?: string
+  pythonVersion?: string
+  state: ManagedState
+  /** i18n key: component.step.venv | pip | model | start. */
+  step?: string
+  /** 0..1 over the whole install; never goes back within a job. */
+  progress?: number
+  /** 127.0.0.1 only. */
+  port?: number
+  errorKey?: string
+  /** A short tail of the failing command; no secrets. */
+  errorDetail?: string
+  /** The last ≤40 lines of the install/run log. */
+  log?: string[]
+  /** Human estimates from the server's constants, not measurements. */
+  diskNeed?: string
+  ramNeed?: string
+}
+
+/** POST /api/library/sets/:code/import. `created` is false when the learner already had it. */
+export interface ImportSetResult {
+  textId: number
+  created: boolean
+}
+
+/** GET /api/stats/deck: WORDS by stage (the Words list's rule), never a due count. */
+export interface DeckStages {
+  total: number
+  stages: { learning: number; relearning: number; young: number; mature: number; known: number }
+  /** In the deck, no reviewed card yet; not also counted in `stages.learning`. */
+  new: number
 }

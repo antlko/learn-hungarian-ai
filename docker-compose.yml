@@ -6,8 +6,7 @@
 # features that need them, with a visible reason.
 #
 #   docker compose up -d                                 core only
-#   docker compose --profile speech up -d                + TTS and ASR
-#   docker compose --profile nlp --profile speech up -d  + HuSpaCy
+#   docker compose --profile nlp up -d                   + HuSpaCy (needs >= 2.4 GB RAM)
 #   docker compose --profile llm up -d                   + a local model
 #   docker compose --profile mt up -d                    + sentence translation
 #
@@ -15,11 +14,16 @@
 # file — `COMPOSE_PROFILES=mt,llm` — and plain `docker compose up -d` brings them
 # up with everything else. See .env.example.
 #
-# NOTE (v0.1): the `nlp` and `speech` services are NOT IMPLEMENTED YET — those
-# build contexts are empty, so those two profiles will fail to start. They are
-# declared here so the intended topology is visible. See services/README.md.
-# The `llm` profile works today: it pulls a published Ollama image, and so does
-# `mt`, which builds from source in this repository.
+# `profiles` marks a service optional: it does not start unless asked for with
+# `--profile X` or COMPOSE_PROFILES. The sidecars publish NO host ports (only
+# `expose:`): they are reachable by service name on the compose network
+# (http://nlp:5002), so they cannot clash with anything on your host. Add `ports:`
+# yourself only if you want to reach one from outside.
+#
+# NOTE: the `speech` services (tts, asr) are NOT BUILT yet and are commented out
+# below, so no profile ever points at a missing build context. `nlp` and `mt`
+# build from source in this repository; `llm` pulls a published Ollama image.
+# See services/README.md.
 
 services:
   tanulom:
@@ -27,6 +31,13 @@ services:
     # To build from source instead of pulling, comment out `image:` above and
     # uncomment the next line:
     # build: .
+    #
+    # ALTERNATIVE: the `full` image carries Python, so Settings -> Components can
+    # install the analyser/translator inside this one container (no sidecars).
+    # Larger than the default; pick it only for that. Replace `image:` above with
+    # either of:
+    # image: ghcr.io/antlko/learn-hungarian-ai:latest-full
+    # build: {context: ., target: full}
     container_name: tanulom
     ports:
       # host:container. Both are 8012 because config.DefaultAddr is, and the
@@ -43,40 +54,41 @@ services:
     restart: unless-stopped
 
   # --- optional: Hungarian text analysis (HuSpaCy) --------------------------
-  # Enables context-aware disambiguation (vár = castle vs. waits) and analysis
-  # of forms absent from the language pack. Without it the app falls back to the
-  # pack's frequency prior and marks such analyses as uncertain.
+  # Opt-in context disambiguation: for a form the language pack finds ambiguous
+  # (vár = castle / waits) it picks among the pack's OWN readings and the reader
+  # says "по контексту". It never adds an analysis. Without it nothing changes.
+  #
+  # NOT A SMALL CONTAINER. The model (hu_core_news_md, CC BY-SA 4.0, ~127 MB
+  # wheel) is published at ~2.4 GB RAM; that is not measured here, so plan for
+  # at least 2.5-3 GB free. The image is small; the model is fetched on first
+  # use (Settings -> Components, or POST /api/admin/nlp/warmup) into the volume below. Then in
+  # Settings point services.nlp at http://nlp:5002 with provider `local`.
   nlp:
     profiles: ['nlp']
     build: ./services/nlp
     container_name: tanulom-nlp
     expose:
       - '5002'
+    volumes:
+      - tanulom-nlp-models:/models
+    # Suggested guard (uncomment on a shared host): mem_limit: 3g
     restart: unless-stopped
 
-  # --- optional: speech ------------------------------------------------------
-  # Piper gives three Hungarian voices for card audio and ear training; the
-  # Whisper fine-tune transcribes your speech. Note that Hungarian ASR has a
-  # word error rate around 11%, so the app gates its feedback on confidence.
-  tts:
-    profiles: ['speech']
-    build: ./services/tts
-    container_name: tanulom-tts
-    expose:
-      - '5000'
-    volumes:
-      - tanulom-voices:/voices
-    restart: unless-stopped
-
-  asr:
-    profiles: ['speech']
-    build: ./services/asr
-    container_name: tanulom-asr
-    expose:
-      - '5001'
-    volumes:
-      - tanulom-models:/models
-    restart: unless-stopped
+  # --- NOT BUILT: speech (tts, asr) -------------------------------------------
+  # Planned: Piper voices for card audio, a Whisper fine-tune for dictation. The
+  # build contexts are empty, so these are commented out rather than left to
+  # fail. The app speaks through the browser's own voices meanwhile (ADR-012).
+  #
+  # tts:
+  #   profiles: ['speech']
+  #   build: ./services/tts
+  #   expose: ['5000']
+  #   volumes: [tanulom-voices:/voices]
+  # asr:
+  #   profiles: ['speech']
+  #   build: ./services/asr
+  #   expose: ['5001']
+  #   volumes: [tanulom-models:/models]
 
   # --- optional: sentence translation ---------------------------------------
   # NLLB-200-distilled-600M on your own CPU, so "what does this line mean?" in
@@ -124,6 +136,5 @@ services:
 
 volumes:
   tanulom-data:
-  tanulom-voices:
-  tanulom-models:
+  tanulom-nlp-models:
   tanulom-ollama:

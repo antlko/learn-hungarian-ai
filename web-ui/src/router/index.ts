@@ -20,9 +20,19 @@ const routes: RouteRecordRaw[] = [
     meta: { public: true },
   },
   { path: '/', name: 'today', component: () => import('@/views/TodayView.vue') },
-  { path: '/plan', name: 'plan', component: () => import('@/views/PlanView.vue') },
+  // One unit as a page (it was a side panel). Legacy /?unit=<code> redirects here.
+  { path: '/unit/:code', name: 'unit', component: () => import('@/views/UnitView.vue') },
+  // The course is the road on Today now (ADR-048). Old links keep working:
+  // /plan → /, and a unit in the query opens that unit's page.
+  {
+    path: '/plan',
+    redirect: (to) =>
+      typeof to.query.unit === 'string' && to.query.unit
+        ? { name: 'unit', params: { code: to.query.unit } }
+        : { path: '/' },
+  },
   // The catalogue the course hands over to. Not sidebar-level: it is where you
-  // go once the plan runs out, and the plan itself is what sends you there.
+  // go once the course runs out, and the road on Today is what sends you there.
   { path: '/resources', name: 'resources', component: () => import('@/views/ResourcesView.vue') },
   // The start screen: which pile, in what shape, or a practice round. The
   // card itself lives one level down and takes its intent from the query —
@@ -34,7 +44,13 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/ReviewView.vue'),
   },
   { path: '/library', name: 'library', component: () => import('@/views/LibraryView.vue') },
-  { path: '/read/:id', name: 'read', component: () => import('@/views/ReaderView.vue') },
+  {
+    path: '/read/:id',
+    name: 'read',
+    component: () => import('@/views/ReaderView.vue'),
+    // The only screen with a real side panel on desktop; every other route shares the default container.
+    meta: { width: 'wide' },
+  },
   { path: '/grammar', name: 'grammar', component: () => import('@/views/GrammarView.vue') },
   // The dedicated tutor page: every conversation, with a history of the
   // topics already asked about. Reads and writes the exact same per-topic
@@ -65,9 +81,14 @@ const routes: RouteRecordRaw[] = [
   },
 ]
 
+// Reload/back must never restore an offset into a page that has not rendered yet.
+if (typeof history !== 'undefined') history.scrollRestoration = 'manual'
+
 export const router = createRouter({
   history: createWebHistory(),
   routes,
+  // <main> is the scroll container, not the window, so the shell resets it itself
+  // (AppShell). Window scroll is only ever 0 here.
   scrollBehavior: () => ({ top: 0 }),
 })
 

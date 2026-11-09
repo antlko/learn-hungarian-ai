@@ -82,7 +82,7 @@ const shown = computed(() => props.items.filter((i) => i.keys.length))
   -->
   <div
     v-if="shown.length"
-    class="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-4 pb-3 md:left-(--rail)"
+    class="pointer-events-none fixed bottom-[var(--bottom-tabs-h,0px)] left-(--rail) right-0 z-30 flex justify-center px-4 pb-3 max-md:hidden [@media(pointer:coarse)]:hidden"
   >
     <div
       v-if="open"

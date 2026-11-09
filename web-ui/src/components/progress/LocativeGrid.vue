@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useFeaturesStore } from '@/stores/features'
 import type { FeatureMastery, MorphFeature } from '@/types'
 
 const { t } = useI18n()
+const catalogue = useFeaturesStore()
 
 /**
  * The 3×3 locative grid, coloured by mastery.
@@ -13,7 +15,12 @@ const { t } = useI18n()
  * new. The colours make the per-cell state visible, which no wordform-atomic
  * tool can do, because no such tool has per-suffix state to show.
  */
-const props = defineProps<{ features: MorphFeature[]; mastery: FeatureMastery[] }>()
+const props = defineProps<{
+  features: MorphFeature[]
+  mastery: FeatureMastery[]
+  selected?: string
+}>()
+const emit = defineEmits<{ select: [featureId: string] }>()
 
 const rows = ['interior', 'surface', 'proximity'] as const
 const cols = ['where', 'whither', 'whence'] as const
@@ -60,8 +67,8 @@ function tone(x: Cell | undefined) {
   // outline, no fill, no colour it has not earned.
   if (!x.mastery.ready) return 'border-dashed border-border bg-transparent text-muted-foreground'
   return x.mastery.weak
-    ? 'border-learning/40 bg-learning/15 text-learning'
-    : 'border-known/40 bg-known/15 text-known'
+    ? 'border-tint-cream-edge bg-tint-cream text-foreground'
+    : 'border-tint-sage-edge bg-tint-sage text-foreground'
 }
 
 /** What the second line of a cell says. Never a percentage we cannot support. */
@@ -88,16 +95,20 @@ function figure(x: Cell | undefined): string {
           {{ $t(`grammar.row.${r}`) }}
         </th>
         <td v-for="c in cols" :key="c">
-          <div
-            class="rounded-md border px-2 py-2 text-center"
-            :class="tone(cell(r, c))"
-            :title="cell(r, c)?.id"
+          <button
+            v-if="cell(r, c)"
+            type="button"
+            class="w-full rounded-md border px-2 py-2 text-center focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring"
+            :class="[tone(cell(r, c)), cell(r, c)!.id === selected ? 'ring-2 ring-foreground' : '']"
+            :aria-label="`${catalogue.label(cell(r, c)!.id)}: ${figure(cell(r, c))}`"
+            :aria-pressed="cell(r, c)!.id === selected"
+            @click="emit('select', cell(r, c)!.id)"
           >
             <div v-if="cell(r, c)?.suffix" class="font-mono" lang="hu">
               -{{ cell(r, c)!.suffix }}
             </div>
             <div class="text-[10px] opacity-75">{{ figure(cell(r, c)) }}</div>
-          </div>
+          </button>
         </td>
       </tr>
     </tbody>

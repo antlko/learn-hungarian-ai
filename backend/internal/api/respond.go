@@ -112,7 +112,8 @@ func settingsDTO(c config.Config, secrets map[string]bool) SettingsDTO {
 			"llm": svc(c.Services.LLM),
 			"mt":  svc(c.Services.MT),
 		},
-		Secrets: secrets,
+		LangPack: LangPackDTO{URL: c.LangPack.URL, SHA256: c.LangPack.SHA256},
+		Secrets:  secrets,
 	}
 }
 

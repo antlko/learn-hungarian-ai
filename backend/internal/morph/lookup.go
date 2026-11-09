@@ -50,7 +50,15 @@ type Analysis struct {
 	// Alternatives counts the other readings that were rejected, so the UI can
 	// say "3 possible readings" rather than silently picking one.
 	Alternatives int `json:"alternatives"`
+	// Via records HOW this reading was chosen when it was not the pack's own
+	// default: "context" = an opt-in sidecar picked it among the pack's
+	// candidates (ADR-054). Empty is the ordinary case. The Certainty is left
+	// as it was — a contextual choice is still a choice, not a fact.
+	Via string `json:"via,omitempty"`
 }
+
+// ViaContext marks a reading chosen by the HuSpaCy sidecar.
+const ViaContext = "context"
 
 // Analyzer resolves wordforms against a language pack.
 type Analyzer struct {

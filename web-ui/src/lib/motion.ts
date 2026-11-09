@@ -17,6 +17,10 @@ export const MOTION = {
   tickUp: 240,
   phaseChange: 260,
   milestone: 320,
+  routeIn: 160,
+  ring: 700,
+  checkDraw: 240,
+  countUp: 600,
 } as const
 
 /**

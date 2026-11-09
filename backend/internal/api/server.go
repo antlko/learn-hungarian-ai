@@ -20,6 +20,7 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/recover"
 	"github.com/gofiber/fiber/v3/middleware/static"
 
+	"tanulom/internal/components"
 	"tanulom/internal/config"
 	"tanulom/internal/course"
 	"tanulom/internal/curriculum"
@@ -73,6 +74,13 @@ type Server struct {
 	bgCtx       context.Context
 	bgCancel    context.CancelFunc
 
+	// CEFR band sizes and the frequency total, read once from the read-only
+	// pack and cached for the life of the process. handlers_stats_level.go.
+	countedMu    sync.Mutex
+	countedCache map[int64]countedEntry
+	bandsMu      sync.Mutex
+	bandsCache   *packBands
+
 	// The guided syllabus: the pack's answer to "what do I do today".
 	syllabus *course.Syllabus
 
@@ -86,6 +94,16 @@ type Server struct {
 	// ADR-027.
 	tutorKB      *tutor.KB
 	tutorFlights sync.Map
+
+	// The full language pack's in-app install (ADR-049), and the process
+	// signal behind "restart" — a field so a test can observe it instead of
+	// ending the test binary.
+	packInstaller *lang.Installer
+	stopProcess   func()
+
+	// Managed sidecars (ADR-061): children of this process, supervised. Never
+	// nil after New; a test may replace it with one built on a fake runner.
+	components *components.Manager
 }
 
 // New wires a server against a data directory, creating it if needed.
@@ -114,8 +132,10 @@ func New(dataDir string) (*Server, error) {
 	}
 
 	s := &Server{dataDir: dataDir, cfg: cfg, db: database,
-		pending: drill.NewPending(), hvptPending: hvpt.NewPending()}
+		pending: drill.NewPending(), hvptPending: hvpt.NewPending(),
+		packInstaller: lang.NewInstaller(dataDir), stopProcess: signalSelfTerm}
 	s.bgCtx, s.bgCancel = context.WithCancel(context.Background())
+	s.components = s.newComponents()
 	s.reconcileStepsOnce()
 	s.backfillNoteOriginsOnce()
 	s.loadPack()
@@ -125,6 +145,9 @@ func New(dataDir string) (*Server, error) {
 		s.tutorKB = kb
 	}
 	s.app = s.buildApp()
+	// Last, and off the boot path: with every component absent (the default,
+	// and the whole of the distroless image) this does nothing at all.
+	s.autoStartComponents()
 	return s, nil
 }
 
@@ -175,6 +198,7 @@ func (s *Server) loadPack() {
 	// truncated download — we install the embedded pack and carry on. Failing
 	// that, the app still boots and every language feature reports unavailable,
 	// the same way an absent sidecar does.
+	s.applyPendingPack()
 	version, installed, err := lang.EnsurePack(s.dataDir)
 	if err != nil {
 		slog.Error("no usable language pack and the starter could not be installed",
@@ -223,6 +247,15 @@ func (s *Server) loadPack() {
 	s.hvptInv = inv
 }
 
+// applyPendingPack swaps in a pack an admin installed from Settings (ADR-049).
+// It must run before anything opens the pack: the install only parks the
+// verified file, and replacing the live one inside a running process would
+// change what already-pooled connections read.
+func (s *Server) applyPendingPack() {
+	res := lang.ApplyPending(s.bgCtx, s.dataDir, s.db.DB)
+	s.packInstaller.SetBootResult(res)
+}
+
 // Pack returns the loaded language pack, or nil.
 func (s *Server) Pack() *lang.Pack { return s.pack }
 
@@ -237,6 +270,12 @@ func (s *Server) Close() error {
 		s.bgCancel()
 	}
 	s.bg.Wait()
+	// Children go before the database: they are independent processes, but
+	// nothing may outlive the server that supervises them.
+	s.shutdownComponents()
+	if s.packInstaller != nil {
+		s.packInstaller.Wait() // it shares bgCtx, so this returns promptly
+	}
 	if s.pack != nil {
 		_ = s.pack.Close()
 	}
@@ -381,6 +420,9 @@ func (s *Server) buildApp() *fiber.App {
 
 	// Progress.
 	api.Get("/stats/overview", s.requireAuth, s.handleOverview)
+	api.Get("/stats/level", s.requireAuth, s.handleStatsLevel)
+	api.Get("/stats/deck", s.requireAuth, s.handleStatsDeck)
+	api.Get("/stats/level/band/:band", s.requireAuth, s.handleStatsLevelBand)
 	api.Post("/checkpoints", s.requireAuth, s.handleCheckpoint)
 	api.Post("/today/human", s.requireAuth, s.handleAttestHuman)
 
@@ -434,6 +476,9 @@ func (s *Server) buildApp() *fiber.App {
 	api.Get("/texts/:id", s.requireAuth, s.handleGetText)
 	api.Delete("/texts/:id", s.requireAuth, s.handleDeleteText)
 	api.Get("/texts/:id/next", s.requireAuth, s.handleNextSentences)
+	// Ready-made sets of real pack sentences, imported as ordinary texts. ADR-056.
+	api.Get("/library/sets", s.requireAuth, s.handleLibrarySets)
+	api.Post("/library/sets/:code/import", s.requireAuth, s.handleImportLibrarySet)
 	// A text's estimated level: the learner's own verdict, or a labelled second
 	// opinion from the configured model. ADR-023.
 	api.Put("/texts/:id/level", s.requireAuth, s.handleSetLevel)
@@ -447,6 +492,19 @@ func (s *Server) buildApp() *fiber.App {
 
 	// Admin-only: settings are global (config.yaml), so a learner must not edit them.
 	api.Put("/settings", s.requireAuth, s.requireAdmin, s.handleUpdateSettings)
+
+	// Admin-only: the optional full language pack, the restart that loads it,
+	// and the components overview. The pack's URL and checksum come from
+	// config.yaml, never from these requests. ADR-049.
+	api.Post("/admin/pack/install", s.requireAuth, s.requireAdmin, s.handlePackInstallStart)
+	api.Get("/admin/pack/install", s.requireAuth, s.requireAdmin, s.handlePackInstallStatus)
+	api.Post("/admin/nlp/warmup", s.requireAuth, s.requireAdmin, s.handleNLPWarmup)
+	api.Post("/admin/components/:id/install", s.requireAuth, s.requireAdmin, s.handleComponentInstall)
+	api.Post("/admin/components/:id/start", s.requireAuth, s.requireAdmin, s.handleComponentStart)
+	api.Post("/admin/components/:id/stop", s.requireAuth, s.requireAdmin, s.handleComponentStop)
+	api.Post("/admin/components/:id/uninstall", s.requireAuth, s.requireAdmin, s.handleComponentUninstall)
+	api.Post("/admin/restart", s.requireAuth, s.requireAdmin, s.handleAdminRestart)
+	api.Get("/admin/components", s.requireAuth, s.requireAdmin, s.handleAdminComponents)
 
 	// Admin-only: account management. Changing your own password is above, on
 	// /me/password, because it is the one thing here every learner may do.
@@ -483,7 +541,13 @@ func (s *Server) buildApp() *fiber.App {
 		default:
 			c.Set("Cache-Control", "no-cache, must-revalidate")
 		}
-		return c.Next()
+		err := c.Next()
+		// The static middleware types by extension and does not know .webmanifest
+		// (it answered text/plain); installability checks want the real type.
+		if strings.HasSuffix(path, ".webmanifest") && c.Response().StatusCode() == fiber.StatusOK {
+			c.Set("Content-Type", "application/manifest+json")
+		}
+		return err
 	})
 
 	// SPA: serve the embedded build, falling back to index.html so client-side

@@ -13,7 +13,10 @@ mastery heatmap are wrong. Treat the golden test as a release gate.
 ## 1. Why a pack exists
 
 The best Hungarian analyser (HuSpaCy `hu_core_news_lg`: lemma 97.6%, POS 96.7%) is Python. The
-core is a static Go binary. Resolution: run HuSpaCy **at build time** and ship the results.
+core is a static Go binary. Resolution: ship a **dictionary** (Wiktionary paradigms plus generated
+forms, in a pack) and resolve words by lookup; HuSpaCy is an optional sidecar for context
+disambiguation at runtime (step 4 below). **The build pipeline does not run HuSpaCy** — it links
+sentence tokens to lemmas through the pack's own `wordform` index and leaves `feats` empty.
 
 **Lookup ladder at runtime** — `internal/morph/lookup.go`:
 
@@ -103,7 +106,7 @@ under Settings → Data.
 | [hermitdave/FrequencyWords](https://github.com/hermitdave/FrequencyWords) `hu_50k` | frequency ranks (OpenSubtitles, spoken-register weighted) | CC BY-SA 4.0 |
 | [Hungarian Webcorpus 2.0](https://hlt.bme.hu/en/resources/webcorpus2) | n-gram attestation index, lemma frequency | CC BY-SA 4.0 (Wikipedia subcorpus) |
 | [UD Hungarian](https://github.com/UniversalDependencies/UD_Hungarian) | feature inventory; **golden test data** | CC BY-SA |
-| [HuSpaCy](https://github.com/huspacy/huspacy) `hu_core_news_lg` | build-time analysis | Apache-2.0 (models CC BY-SA) |
+| [HuSpaCy](https://github.com/huspacy/huspacy) `hu_core_news_md` | optional runtime sidecar (`services/nlp`, not yet built); **not used by the build** | Apache-2.0 (models CC BY-SA) |
 | [Common Voice HU](https://commonvoice.mozilla.org/hu/datasets) | **human talkers for HVPT** | CC0 |
 | [Piper hu_HU](https://huggingface.co/rhasspy/piper-voices/tree/main/hu/hu_HU) — anna, berta, imre | synthetic talkers, card audio | MIT |
 | [morphdb.hu](http://mokk.bme.hu/resources/morphdb-hu/) / [emMorph](https://github.com/dlt-rilmta/emMorph) | fallback suffix rules | see repo |
@@ -172,19 +175,22 @@ ruwiktionary tags `piros` an adjective where a frequency-derived lemma may be a
 noun, and refusing that pair would drop a colour word to defend a tagging
 convention.
 
-**The course's glosses outrank the dictionary's.** All 853 course words carry a
+**The course's glosses outrank the dictionary's.** All 3 645 course words (3 106 core in three tiers +
+539 in the twelve theme units) carry a
 hand-written `gloss_ru` chosen for the unit that teaches them, and that gloss is
 promoted to `sense_idx 0`; the imported senses shift down behind it rather than
-being discarded. `kér` shows *просить* — the sense the unit means — with
+being discarded (promotion runs in the full build; `make refresh` rewrites `course_word`
+but not `lemma_gloss`, so the cards use the course gloss and the word's detail view still shows
+the imported first sense for words added after the last full build). `kér` shows *просить* — the sense the unit means — with
 *требовать, заказывать* still reachable in the word's detail view. Showing a
-beginner the dictionary's first sense instead would be a small lie told 853
+beginner the dictionary's first sense instead would be a small lie told 3 645
 times.
 
 | | full pack | starter pack |
 |---|---|---|
-| lemmas with an RU gloss | 8 620 | 2 290 of 5 132 |
+| lemmas with an RU gloss | 8 620 | 3 168 of 6 989 |
 | top-1000 frequency band | 604 of 1 270 | — |
-| course words | 853 of 853 | 853 of 853 |
+| course words | 3 645 of 3 645 | 3 645 of 3 645 |
 
 Where Russian is absent the pack still has English, `pack_meta.gloss_langs` reads
 `["en","ru"]`, and the UI shows its documented fallback badge rather than
@@ -205,7 +211,7 @@ fetch → normalise → analyse → merge → score → emit
 |---|---|---|
 | fetch | `pipeline/fetch.py` | pinned URLs + SHA256 into `cache/`; **refuses to proceed on checksum mismatch** — reproducibility over convenience |
 | normalise | `wiktionary.py`, `wiktionary_ru.py`, `frequency.py` | JSONL → `lemma`, `lemma_gloss`, `paradigm`, IPA; frequency → ranks |
-| analyse | `analyse.py` | HuSpaCy over Tatoeba + a Webcorpus sample → `sentence_token`; expand `wordform` from **corpus-attested forms ∪ Wiktionary paradigms** |
+| analyse | *(in `build.py`)* | **No HuSpaCy and no `analyse.py`.** Tokens of Tatoeba sentences are linked to lemmas by dictionary lookup (`sentence_token.feats` is empty); `wordform` is Wiktionary paradigms ∪ generated rows (`verbs.py`, attested wins) |
 | merge | `features.py` | resolve lemma identity across sources; derive `morph_feature` incl. allomorph tables from harmony class |
 | score | `sentences.py`, `minimal_pairs.py`, `curriculum.py`, `lessons.py`, `ngram.py` | sentence difficulty; CEFR estimate per lemma; contrast inventory + audio rendering; topic DAG + lesson text; n-gram counts |
 | emit | `emit.py` | write SQLite, create indexes, `VACUUM`, checksum, `manifest.json` |
@@ -236,8 +242,128 @@ pair's clips under another. **Stop the server first** — the app treats a pack 
 this is a build step writing to one. After a refresh that changed the pairs, `make audio`
 renders the missing clips (`rm -rf data/media/hvpt` first to drop the old id-named files).
 
+### Growing the course
+
+The course is three **finite tiers** ([ADR-057](../.claude/DECISIONS.md#adr-057)) plus optional side
+units. Everything is Python literals in the compact line syntax of `pipeline/_wordlist.py`
+(`lemma|N|русский|English|optional note`; `N V A D M` expand to NOUN VERB ADJ ADV NUM, any other
+part of speech is written out):
+
+| file | what | counts |
+|---|---|---|
+| `course_m1..m6.py` | the 24 **basic** core units (months 1-6), their goals/situations and each unit's original 29-39 words | 853 words |
+| `course_growth.py` | `GROWTH[unit_code]`: more high-frequency words appended to a basic unit | +546 → 1 399 basic |
+| `course_m7_12.py` | 20 **intermediate** core units (`tier = 'intermediate'`, months 7-12, `ord` 701-720) | 1 012 words, 31-56 a unit |
+| `course_m13_18.py` | 20 **advanced** core units (`tier = 'advanced'`, months 13-18, `ord` 801-820) | 695 words, 18-55 a unit |
+| `course_themes.py` | 12 optional **theme** units (`track = 'theme'`, tier `basic`, `ord` 1001-1012 so they sort after the whole core path) | 539 words, 35-57 a unit |
+
+Intermediate words were chosen from the pack's frequency list (median rank ~3 400, roughly the B1
+band) and advanced ones from the rarer part of it (median rank ~5 700, B1-B2), grouped by theme:
+work, health, news, city, travel, money, feelings, argument, law, nature, technology, study,
+culture, cooking, home, sport, time, character, actions, connectors — then, in the advanced tier,
+the same themes "in depth" plus politics, conflict, professions and so on. A word is taught in
+exactly one unit across all tiers. `month` stays on every unit as an internal ordering and
+checkpoint-placement field (checkpoints `m1/m3/m6/m12/m18` sit after the last unit of that month);
+learners see the tier, never "month N". The advanced tier is smaller than the other two because the
+unused candidate pool with an attested Tatoeba sentence ran out of themes it could honestly fill.
+
+To add a word: append a line to the unit's block, then `make refresh-curriculum` and
+`make starter`. The checks that stand behind it (`course.validate`, `tests/test_course.py`):
+
+- the lemma exists in the pack **with the stated part of speech** (`unattested-word gate`);
+- ru and en glosses are hand-written, short, and not mixed-script. When unsure of a gloss,
+  leave the word out — a wrong gloss is worse than an absent word;
+- 15-60 words a unit; **exactly 24 basic + 20 intermediate + 20 advanced core units** (the course
+  ends; `course.TIER_UNITS`), consecutive in `ord`; a word is in exactly one unit, core before
+  theme, and the test fails rather than letting `_dedup` drop it silently;
+- **at least 90% of words have a real sentence in the starter** (`course.unclozeable`, the same
+  rule enrolment uses to build a sentence card), checked overall, for core, and **per tier**.
+  Currently 96.8% basic, 100% intermediate, 100% advanced. Prefer words that Tatoeba has a
+  sentence for; `tests/test_course.py` prints the share per tier;
+  `build.py` and `refresh.py` run the same check on the pack they write and **warn** (the share
+  and the count, `course.warn_unclozeable`) rather than fail: a full pack legitimately has fewer
+  sentences per word than the starter, which was curated against this course, so only the
+  starter's test enforces the floor;
+- never write the sentence yourself: Hungarian in the pack is Hungarian a person wrote.
+
+`refresh` adds the `course_unit.track` and `course_unit.tier` columns (default `'core'` /
+`'basic'`) to a pack built before they existed (the app opens packs read-only and cannot). A
+theme unit is optional and finite: it never decides which unit is next and never counts toward
+the hand-over ([ADR-050](../.claude/DECISIONS.md#adr-050)). **Reading sets** (below) exist for the
+basic tier and the themes only — `MONTH_BAND` stops at month 6 and the starter's short sentences
+cannot fill a B2 set.
+
+**Transplanting the starter without rebuilding it.** `starter.py` builds a starter from a full
+pack; when the full pack on hand is not the one the committed starter came from (so the reading
+sets would not reproduce), the course can be moved across instead: refresh a SCRATCH copy of the
+full pack, then into a gunzipped copy of the committed starter (a) add the lemma, gloss, wordform
+and paradigm rows and up to three shortest Tatoeba sentences (with tokens and translations) for
+every course word that lacks a usable sentence, pulling in the lemmas those sentences need so
+every token still resolves; (b) `ALTER TABLE course_unit ADD COLUMN tier`, replace `course_unit`
+and `course_word`; (c) update `pack_meta.stats`; (d) `reading_sets.build` + `validate`;
+(e) `PRAGMA integrity_check`, `VACUUM`, gzip. No other row is removed. The ADR-057 transplant added
+1 264 lemmas and 2 558 sentences (+4.2 MB gzipped).
+
 **`make starter` is not optional after either command.** The binary embeds its own pack, so
 skipping it ships last month's lessons ([ADR-010](../.claude/DECISIONS.md#adr-010)).
+
+### Reading sets («Живые примеры»)
+
+Stage `pipeline/reading_sets.py`, run by `build.py` (after the course), `refresh.py` (it follows the
+course words, so `make refresh-curriculum` recomputes it) and `starter.py` (chosen from what the
+STARTER holds, never copied from the full pack: a full-pack set can name a sentence the starter
+lacks). Two tables, `reading_set(code, level, track, ord, title_*, theme_*)` and
+`reading_set_sentence(set_code, sentence_id, ord)` with a UNIQUE index on `sentence_id`.
+
+One set per basic-tier course unit and theme — 36 (24 basic core + 12 themes; the intermediate and advanced tiers have none, ADR-057), titled «Живые примеры: <unit>» / "Real examples:
+<unit>", 20-30 sentences each (target 25). Selection is deterministic (ties fall to the sentence id):
+
+1. `source = 'tatoeba'` only — a sentence in the pack is one a person wrote, and the starter takes
+   nothing else. The stage writes no Hungarian;
+2. the sentence contains a word of the unit — by lemma id **or** by surface form of the unit
+   lemma's wordforms (the tagger's lemma and the dictionary's disagree);
+3. every CONTENT lemma (noun, verb, adjective, adverb, numeral, interjection) has `lemma.cefr` at
+   or below the set's band; a lemma with no band counts as above every band; every token resolves.
+   `lemma.cefr` is an estimate from frequency rank ([R6](../.claude/research/06-lexical-coverage.md)),
+   so the level on a set is an estimate too. Core: months 1-2 → A1, 3-4 → A2, 5-6 → B1. A theme is
+   A1 only if ≥ 20% of its words are A1 and the A1 pool fills it; on hu-v1 all twelve come out A2;
+4. each sentence is in at most one set; units are filled scarcest-pool-first;
+5. preference order: 5-12 tokens, more unit words, a Russian translation, an English one, length
+   near 8. **The starter's sentences are 3-4 tokens almost throughout** (it keeps the shortest of
+   the corpus), so on the starter only ~5% of set sentences reach 5 tokens; a full pack with longer
+   sentences fills sets with better ones.
+
+The token and translation tables are read once into an index (`_Index`) and reused for every unit
+and band — scanning `sentence_token` per unit made a full-pack refresh take minutes. Output is
+identical to the per-query version (`tests/test_reading_sets.py` compares them).
+
+To tune, edit the constants at the top of the module (`MONTH_BAND`, `MIN/MAX/TARGET_SENTENCES`,
+`SHORT_*`, `THEME_A1_SHARE`), then `make refresh-curriculum` and `make starter`. `validate` and
+`tests/test_reading_sets.py` gate size, level, uniqueness and provenance. A pack without these
+tables (built before ADR-056) serves an empty list; the app opens a pack read-only and cannot
+add them, so `refresh` is the upgrade path. Evidence base: extensive reading at the right level
+([R11](../.claude/research/11-extensive-reading.md)).
+
+### Growing the grammar
+
+A topic is a `Topic(...)` in `pipeline/curriculum.py` plus a lesson in `pipeline/lessons.py`
+([ADR-055](../.claude/DECISIONS.md#adr-055)). `curriculum.validate`, `tests/test_curriculum.py`,
+`tests/test_lessons.py` and `tests/test_features.py` refuse: a missing ru or en lesson, a lesson
+under 800 characters, a prerequisite that is not earlier in `teach_order`, a level that goes
+backwards, a feature id that does not exist, and a feature **no topic teaches**.
+
+- **Check every Hungarian form in the lesson against the pack** (`wordform`, or `sentence` for
+  compounds such as `hétkor` that the dictionary does not list). A lesson is the one place the
+  app states Hungarian with no drill to catch a typo. Drop an example you cannot find.
+- **A topic whose features have no suffix exponent is `explained`**: `Generator.KindsFor` derives
+  the generators from the features a topic carries, so a topic with no features (or only
+  `Person=*` / `Skill=*`) resolves to `drill.unavailable.noGenerator` with no code change, and
+  the product says so. Do not give a topic an allomorph-bearing feature merely to make it
+  drillable; that would offer drills the generators cannot honestly build.
+- `make refresh-curriculum`, then `make starter`, then commit the result.
+
+hu-v1 has **33 topics, 13 of which produce drills** (measured with `Generator.Availability` on
+the full pack, not assumed).
 
 ### Conversational sentences, and adding them without a rebuild
 
@@ -328,13 +454,16 @@ perfectly valid. Neither alone is sufficient for an agglutinative language.
 ```bash
 cd langpack
 python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python -m spacy download hu_core_news_lg    # ~700 MB
+pip install -r requirements.txt            # or, from the repo root: make deps
 python -m pipeline.build --out ../dist/langpack-hu-v1.sqlite
 ```
 
-Expect hours and tens of GB of scratch space. This runs in CI on tag
-(`.github/workflows/langpack.yml`), not on a developer's laptop, and never inside the app image.
+The sources are large (≈2 GB of OpenSubtitles and ≈580 MB of Wiktionary are fetched, checksum-pinned,
+into `langpack/cache`) and the build needs a lot of scratch space; the wall-clock time has not been
+measured. It is built on a maintainer's machine: CI (`.github/workflows/langpack.yml`) only runs the
+pipeline's unit tests, and the build never happens inside the app image. `make langpack-release`
+builds the **publishable** pack — `--subtitle-sentences 0`, Tatoeba + Wiktionary only, because the
+OpenSubtitles licence does not cover redistribution — gzips it to `dist/` and prints its SHA-256.
 
 ---
 
@@ -342,9 +471,21 @@ Expect hours and tens of GB of scratch space. This runs in CI on tag
 
 | Mode | How | For |
 |---|---|---|
-| **Download on first run** (default) | setup wizard fetches from GitHub Releases, verifies SHA256, shows progress | most users; keeps the image small |
-| **Baked in** | `docker build --build-arg BAKE_LANGPACK=1` | air-gapped installs |
-| **Bring your own** | drop the file in the data dir; detected at startup | custom or rebuilt packs |
+| **Starter, embedded** (default) | the binary carries it; `lang.EnsurePack` installs it on first boot | everyone; nothing to download |
+| **Install from Settings** | an admin presses install: the app downloads `langpack.url`, checks the pinned `langpack.sha256` of the gzip, verifies the pack and that every id your data points at still means the same word, parks it as `langpack-hu-v1.sqlite.new`, and asks for a restart, which applies it (re-checking ids at boot) ([ADR-049](../.claude/DECISIONS.md#adr-049)). Refuses while no checksum is pinned (nothing is published yet). | the full pack without a build toolchain |
+| **Bring your own** | `make langpack` (or `langpack-release`), drop `langpack-hu-v1.sqlite` in the data dir, restart; detected at startup | custom or rebuilt packs |
+
+There is no setup-wizard download and no `BAKE_LANGPACK` build argument; earlier drafts of this
+table described both and neither was ever built.
+
+**Are ids stable across builds?** `lemma.id` is assigned sequentially in Wiktionary-dump order
+(`build.py`), so it is reproducible for the same dump and shifts if the dump changes. `sentence.id`
+for Tatoeba rows is Tatoeba's own id; OpenSubtitles rows are numbered after the highest Tatoeba id,
+so building with `--subtitle-sentences 0` neither renumbers Tatoeba sentences nor lemmas (it only
+omits the tail). The starter keeps the full pack's ids. Because a *different* dump would renumber
+lemmas, the installer never trusts this: it compares every `lemma_id` / `sentence_id` in the
+learner database against the loaded and the new pack and refuses with `errors.packIncompatible`
+on any difference (`lang.CheckIDCompat`).
 
 The pack sits **next to** `tanulom.db`, not inside it. Upgrading is a file swap plus a schema
 check — user data is never at risk, which is the whole reason for the split.
@@ -367,8 +508,9 @@ A fourth is a limitation rather than a defect: **Wiktionary lists derived verb f
 features at all** (`olvashat` carries an empty `feats`). The potential, the `-lak/-lek` form,
 the imperative, the participles, the causative, the converb and the frequentative therefore have
 no attested material to build items from, and the app reports those topics as
-`drill.unavailable.noMaterial` rather than inventing answers. Thirteen of the twenty-eight
-topics produce drills on hu-v1.
+`drill.unavailable.noMaterial` rather than inventing answers. Thirteen of the thirty-three
+topics produce drills on hu-v1 (the five added by [ADR-055](../.claude/DECISIONS.md#adr-055) are
+taught by explanation and say so).
 
 ---
 
@@ -417,13 +559,13 @@ So there are two editions, distinguished by `pack_meta.edition`:
 | | starter | full |
 |---|---|---|
 | where | embedded in the binary (`internal/lang/starter/`, gzipped) | downloaded or built |
-| lemmas | 5 132 — a frequency band, plus every course word and every lemma their sentences need | 35 311 |
-| wordforms | 502 480 | 1 980 147 |
-| sentences | 12 000, every one fully resolvable inside the starter's lemma set | 60 000 |
-| lemmas with a Russian gloss | 2 290 | 8 620 |
-| course words | 853 (all of them) | 853 |
+| lemmas | 6 989 — a frequency band, plus every course word and every lemma their sentences need | 35 311 |
+| wordforms | 722 534 | 1 980 147 |
+| sentences | 15 416 (12 000 chosen by the selection rule below, plus those pulled in for the reading sets and for the intermediate / advanced course words), all Tatoeba, fully resolvable inside the starter's lemma set | 60 000 |
+| lemmas with a Russian gloss | 3 168 | 8 620 |
+| course words | 3 645 (all of them) | 3 645 |
 | curriculum, features, minimal pairs, course, resources, n-grams | complete | complete |
-| size | ~14 MB gzipped + 0.5 MB audio | 252 MB |
+| size | ~24.1 MB gzipped + 0.9 MB audio | 252 MB |
 
 `langpack/pipeline/starter.py` derives it from the full pack. The selection rule that matters:
 a sentence is kept only when **every** word token resolves to a kept lemma, so the reader and

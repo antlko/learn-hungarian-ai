@@ -1,5 +1,7 @@
 import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
+import { toast } from 'vue-sonner'
+import { describeError } from '@/lib/errors'
 import { setLocale, type AppLocale } from '@/i18n'
 import { isSoundEnabled, play, setSoundEnabled } from '@/lib/sound'
 
@@ -121,7 +123,7 @@ export const useUiStore = defineStore('ui', () => {
     locale,
     (l) => {
       localStorage.setItem(LOCALE_KEY, l)
-      setLocale(l)
+      setLocale(l).catch((e) => toast.error(describeError(e)))
     },
     { immediate: true },
   )

@@ -21,6 +21,8 @@ import type { TutorCardRef, TutorChip } from '@/types'
  * (ADR-046). The card still asks you.
  */
 defineProps<{
+  /** Inside a BottomSheet: the sheet draws the title, ✕ and card chrome. */
+  embedded?: boolean
   chips: TutorChip[]
   card: TutorCardRef | null
   phase: 'question' | 'answer'
@@ -33,11 +35,12 @@ defineEmits<{ created: [id: number]; deleted: []; close: [] }>()
 
 <template>
   <aside
-    class="flex w-full shrink-0 flex-col gap-3 rounded-xl border border-border-subtle bg-card p-4"
+    class="flex w-full shrink-0 flex-col gap-3"
+    :class="embedded ? '' : 'rounded-xl border border-border-subtle bg-card p-4'"
     :aria-label="$t('review.tutor.title')"
   >
-    <div class="flex items-center justify-between gap-2">
-      <p class="flex items-center gap-2 text-sm font-medium">
+    <div v-if="!embedded || threadId" class="flex items-center justify-between gap-2" :class="embedded ? 'justify-end' : ''">
+      <p v-if="!embedded" class="flex items-center gap-2 text-sm font-medium">
         <GraduationCap class="size-4 text-primary" aria-hidden="true" />
         {{ $t('review.tutor.title') }}
       </p>
@@ -52,7 +55,7 @@ defineEmits<{ created: [id: number]; deleted: []; close: [] }>()
         >
           <ExternalLink class="size-3.5" aria-hidden="true" />
         </RouterLink>
-        <Button variant="ghost" size="sm" :aria-label="$t('common.close')" :title="$t('common.close')" @click="$emit('close')">
+        <Button v-if="!embedded" variant="ghost" size="sm" :aria-label="$t('common.close')" :title="$t('common.close')" @click="$emit('close')">
           <X class="size-4" aria-hidden="true" />
         </Button>
       </div>

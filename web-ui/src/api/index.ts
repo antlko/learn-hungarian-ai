@@ -38,9 +38,13 @@ import type {
   ScoredSentence,
   TextDetail,
   TextSummary,
+  LibrarySet,
   TrashListResponse,
   TrashResponse,
   MTStatus,
+  ComponentStatus,
+  PackInstallStatus,
+  RestartResponse,
   AIEntry,
   AIEntryStatus,
   ImportReport,
@@ -48,6 +52,9 @@ import type {
   UserGloss,
   Translation,
   FeatureMastery,
+  LevelEstimate,
+  BandWordsResponse,
+  DeckStages,
   Forecast,
   GovernorVerdict,
   Me,
@@ -155,6 +162,7 @@ export const api = {
 
   words: (params: {
     status?: string
+    stage?: string
     q?: string
     sort?: string
     page?: number
@@ -221,6 +229,16 @@ export const api = {
       lemmaStatus?: LemmaStatus
     }>('/api/notes', body),
 
+  /** The estimated Hungarian level (ADR-047): a measurement with a stated method. */
+  level: () => http.get<LevelEstimate>('/api/stats/level'),
+
+  /** Words by stage (the Words list's rule). A word count, not a due count. */
+  deckStages: () => http.get<DeckStages>('/api/stats/deck'),
+
+  /** The highest-frequency words of one band the learner does not yet count. Read-only. */
+  levelBand: (band: string, limit = 50) =>
+    http.get<BandWordsResponse>(`/api/stats/level/band/${band}?limit=${limit}`),
+
   mastery: () => http.get<{ features: FeatureMastery[]; window: number }>('/api/stats/mastery'),
 
   /**
@@ -265,6 +283,14 @@ export const api = {
 
   // ── reading ───────────────────────────────────────────────────────────
   texts: () => http.get<{ texts: TextSummary[] }>('/api/texts'),
+
+  librarySets: () => http.get<LibrarySet[]>('/api/library/sets'),
+
+  importLibrarySet: (code: string) =>
+    http.post<{ textId: number; created: boolean }>(
+      `/api/library/sets/${encodeURIComponent(code)}/import`,
+      {},
+    ),
 
   createText: (body: { title?: string; body: string; kind?: string; sourceUrl?: string }) =>
     http.post<{ id: number; title: string; coverage: Coverage }>('/api/texts', body),
@@ -389,6 +415,19 @@ export const api = {
 
   /** Fetch the model, or retry after a failed download. Admin-only. */
   mtWarmup: () => http.post<MTStatus>('/api/mt/warmup', {}),
+
+  /** Admin: the pack and every optional sidecar in one list (ADR-049). */
+  adminComponents: () => http.get<ComponentStatus[]>('/api/admin/components'),
+  /** Admin: install | start | stop | uninstall the app-run copy of mt or nlp. 202 = started; 409 = a job is running. */
+  componentAction: (id: 'mt' | 'nlp', action: 'install' | 'start' | 'stop' | 'uninstall') =>
+    http.post<unknown>(`/api/admin/components/${id}/${action}`, {}),
+  /** Admin: ask the nlp sidecar to download/load its model; progress is read back via adminComponents. */
+  nlpWarmup: () => http.post<ComponentStatus>('/api/admin/nlp/warmup', {}),
+  /** Admin: start the full-pack download. 422 errors.packNotPublished, 409 busy. */
+  packInstallStart: () => http.post<PackInstallStatus>('/api/admin/pack/install', {}),
+  packInstallStatus: () => http.get<PackInstallStatus>('/api/admin/pack/install'),
+  /** Admin: stop the process; whether anything brings it back is `supervised`. */
+  adminRestart: () => http.post<RestartResponse>('/api/admin/restart', {}),
 }
 
 export { ApiError } from './http'

@@ -2,16 +2,21 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
-import { Download, RefreshCw, Volume2, VolumeOff } from '@lucide/vue'
+import { BrainCircuit, Ear, GraduationCap, Info, Languages, Server, Table2, Volume2, VolumeOff, Bell } from '@lucide/vue'
+import SectionChip from '@/components/settings/SectionChip.vue'
 import { describeError } from '@/lib/errors'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { api } from '@/api'
+import InfoTip from '@/components/common/InfoTip.vue'
 import Note from '@/components/common/Note.vue'
 import DataPanel from '@/components/settings/DataPanel.vue'
+import ComponentsPanel from '@/components/settings/ComponentsPanel.vue'
+import MtBlock from '@/components/settings/MtBlock.vue'
+import { showAccentKeys } from '@/lib/accentKeys'
 import { useSettingsStore } from '@/stores/settings'
 import { useCapabilitiesStore } from '@/stores/capabilities'
 import { useSpeechStore } from '@/stores/speech'
@@ -19,9 +24,11 @@ import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
 import type {
   CapabilityName,
+  ComponentStatus,
   GlossLang,
   Goal,
   MTStatus,
+  Service,
   ServiceProvider,
   UILocale,
 } from '@/types'
@@ -49,6 +56,7 @@ onMounted(async () => {
   await store.load()
   await caps.refresh()
   await refreshMT()
+  await loadComponents()
   loaded.value = true
 })
 
@@ -115,6 +123,33 @@ async function saveServices() {
   toast.success(t('common.saved'))
 }
 
+/** «Свой сервер» tab: save one service's address (and model) through the ordinary settings update. */
+async function saveService(id: string, patch: Partial<Service>) {
+  if (!s.value) return
+  const cur = s.value.services[id]
+  if (!cur) return
+  try {
+    await store.update({ services: { ...s.value.services, [id]: { ...cur, ...patch } } })
+    await Promise.all([caps.refresh(), refreshMT(), loadComponents()])
+    toast.success(t('common.saved'))
+  } catch (e) {
+    toast.error(describeError(e))
+  }
+}
+
+/**
+ * The server flips `services.<id>.provider` to/from `managed` itself (install,
+ * uninstall, stop). Re-read settings so the Services rows and the cards agree.
+ */
+async function reloadAfterManaged() {
+  try {
+    await store.load()
+    await Promise.all([caps.refresh(), refreshMT(), loadComponents()])
+  } catch {
+    // The next manual «Проверить» will redraw; a toast on a background refresh is noise.
+  }
+}
+
 const uiLocales: UILocale[] = ['ru', 'en']
 const glossLangs: GlossLang[] = ['ru', 'en', 'both']
 
@@ -130,7 +165,15 @@ const providers: ServiceProvider[] = ['off', 'local', 'openai']
 // would be an option whose only outcome is a validation error. [ADR-014]
 const providersFor = (name: CapabilityName): ServiceProvider[] => {
   if (name === 'tts') return ['device', ...providers]
-  if (name === 'mt') return providers.filter((p) => p !== 'openai')
+  if (name === 'mt' || name === 'nlp') {
+    const base = name === 'mt' ? providers.filter((p) => p !== 'openai') : providers
+    // `managed` is offered once there is something to run (or it is already chosen):
+    // a choice with nothing behind it would only end in a validation error.
+    const m = managedOf(name)
+    return m && (s.value?.services[name]?.provider === 'managed' || m.state !== 'absent')
+      ? [...base, 'managed']
+      : base
+  }
   return providers
 }
 
@@ -140,8 +183,57 @@ const goals: Goal[] = ['reading', 'conversation', 'exam']
 // type-checked rather than cast.
 const SERVICE_NAMES: CapabilityName[] = ['tts', 'asr', 'nlp', 'llm', 'mt']
 
+/*
+  What this repository actually ships, from the admin components list (ADR-049).
+  Admin-only endpoint, so a learner account gets an empty list and the rows fall
+  back to the capability probe alone. The old rows asked /health on a port
+  nobody listens on and could print «на связи» for a service nobody has built.
+*/
+const components = ref<ComponentStatus[]>([])
+const checking = ref(false)
+
+async function loadComponents() {
+  if (!auth.isAdmin) return
+  try {
+    components.value = await api.adminComponents()
+  } catch {
+    // The panel then shows only the pack card; a toast would be noise on load.
+    components.value = []
+  }
+}
+
+/** «Проверить»: re-ask every probe, then redraw every row from the same answer. */
+async function checkComponents() {
+  checking.value = true
+  try {
+    await Promise.all([caps.refresh(), refreshMT(), loadComponents()])
+  } finally {
+    checking.value = false
+  }
+}
+
+/** The built-in copy of mt / nlp from the last components poll, if the server reports one. */
+const managedOf = (name: CapabilityName) => components.value.find((c) => c.id === name)?.managed
+
+/** Rows whose address is edited in Components → «Свой сервер», not here. */
+const ADDRESS_IN_COMPONENTS = new Set<CapabilityName>(['mt', 'nlp', 'llm'])
+
+const isNotBuilt = (name: CapabilityName) =>
+  components.value.some((c) => c.id === name && !c.built)
+
 function serviceStatus(name: CapabilityName) {
   const cap = caps.byName[name]
+  // The built-in copy is reported by the app that runs it — the same polled
+  // status the Components card draws, so the two cannot disagree.
+  const mg = managedOf(name)
+  if (mg && s.value?.services[name]?.provider === 'managed') {
+    return { label: t(`component.state.${mg.state}`), ok: mg.state === 'running' }
+  }
+  // A sidecar that does not exist cannot be «на связи». tts keeps its own
+  // honest answer when the device speaks (below).
+  if (isNotBuilt(name) && !(name === 'tts' && (speech.available || cap?.detail === 'device'))) {
+    return { label: t('settings.services.notBuilt'), ok: false }
+  }
   if (!cap?.configured) {
     // `tts: off` does NOT mean silence. Hungarian speech comes from the
     // browser's own synthesiser (ADR-012) and is switched on in the Speech card
@@ -235,25 +327,6 @@ async function warmupMT() {
   }
 }
 
-/** The model, without its vendor prefix — the same shortening the reader uses. */
-const mtModel = computed(() => (mt.value?.model ?? '').split('/').pop() ?? '')
-
-/** Real progress or none. `totalBytes` of 0 means the service could not measure
- *  the download, and the bar goes indeterminate rather than claiming 0%. */
-const mtProgress = computed(() => {
-  const m = mt.value
-  if (!m?.totalBytes) return null
-  return Math.min(100, Math.round(((m.downloadedBytes ?? 0) / m.totalBytes) * 100))
-})
-
-/** Gigabytes in the learner's own notation: Russian writes 2,5 and the hint
- *  two lines below this already does. */
-const gb = (bytes: number) =>
-  (bytes / 1e9).toLocaleString(ui.locale === 'ru' ? 'ru-RU' : 'en-GB', {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  })
-
 /** Hear the voice that is actually selected, on the language it will speak. */
 function previewVoice() {
   if (!speech.speak('Jó napot! Ma szép idő van Budapesten.')) {
@@ -263,7 +336,7 @@ function previewVoice() {
 </script>
 
 <template>
-  <div class="mx-auto flex w-full max-w-3xl flex-col gap-6">
+  <div class="page-narrow flex w-full min-w-0 flex-col gap-6">
     <h1 class="page-title">{{ $t('settings.title') }}</h1>
 
     <p v-if="!loaded" class="text-sm text-muted-foreground">{{ $t('common.loading') }}</p>
@@ -273,14 +346,17 @@ function previewVoice() {
         Review is raised because retention and new-per-day decide the shape of
         every other screen; the sections below it are settings you visit once.
       -->
-      <Card variant="raised">
+      <Card variant="raised" class="card-in">
         <CardHeader>
-          <CardTitle class="text-base">{{ $t('settings.sections.review') }}</CardTitle>
+          <CardTitle class="flex items-center gap-2.5 text-base"><SectionChip :icon="BrainCircuit" tint="sage" />{{ $t('settings.sections.review') }}</CardTitle>
         </CardHeader>
         <CardContent class="flex flex-col gap-4">
           <div class="grid gap-4 sm:grid-cols-3">
             <div class="flex flex-col gap-1.5">
-              <Label for="retention">{{ $t('settings.review.desiredRetention') }}</Label>
+              <Label for="retention" class="flex items-center gap-0.5">
+                {{ $t('settings.review.desiredRetention') }}
+                <InfoTip>{{ $t('settings.review.desiredRetentionHint') }}</InfoTip>
+              </Label>
               <Input
                 id="retention"
                 v-model.number="s.review.desiredRetention"
@@ -291,7 +367,10 @@ function previewVoice() {
               />
             </div>
             <div class="flex flex-col gap-1.5">
-              <Label for="newPerDay">{{ $t('settings.review.newPerDay') }}</Label>
+              <Label for="newPerDay" class="flex items-center gap-0.5">
+                {{ $t('settings.review.newPerDay') }}
+                <InfoTip>{{ $t('settings.review.newPerDayHint') }}</InfoTip>
+              </Label>
               <Input id="newPerDay" v-model.number="s.review.newPerDay" type="number" min="0" />
             </div>
             <div class="flex flex-col gap-1.5">
@@ -304,12 +383,6 @@ function previewVoice() {
               />
             </div>
           </div>
-          <p class="text-xs leading-relaxed text-muted-foreground">
-            {{ $t('settings.review.desiredRetentionHint') }}
-          </p>
-          <p class="text-xs leading-relaxed text-muted-foreground">
-            {{ $t('settings.review.newPerDayHint') }}
-          </p>
 
           <!-- The plain-keyboard escape hatch, with its cost stated. -->
           <label class="flex items-start gap-2 text-sm">
@@ -320,21 +393,32 @@ function previewVoice() {
               class="mt-0.5 size-4 accent-primary"
             />
             <span class="flex flex-col gap-0.5">
-              <span>{{ $t('settings.review.accentTolerance') }}</span>
-              <span class="text-xs leading-relaxed text-muted-foreground">
-                {{ $t('settings.review.accentToleranceHint') }}
+              <span class="flex items-center gap-0.5">
+                {{ $t('settings.review.accentTolerance') }}
+                <InfoTip>{{ $t('settings.review.accentToleranceHint') }}</InfoTip>
               </span>
             </span>
           </label>
 
+          <!-- A device preference, not a setting: nothing is saved to the server. -->
+          <label class="flex items-start gap-2 text-sm">
+            <input id="accentKeys" v-model="showAccentKeys" type="checkbox" class="mt-0.5 size-4 accent-primary" />
+            <span class="flex items-center gap-0.5">
+              {{ $t('settings.review.accentKeys') }}
+              <InfoTip>{{ $t('settings.review.accentKeysHint') }}</InfoTip>
+            </span>
+          </label>
+
           <div class="flex max-w-xs flex-col gap-1.5">
-            <Label for="goal">{{ $t('settings.review.goal') }}</Label>
+            <Label for="goal" class="flex items-center gap-0.5">
+              {{ $t('settings.review.goal') }}
+              <InfoTip>{{ $t('settings.review.goalHint') }}</InfoTip>
+            </Label>
             <Select id="goal" v-model="s.review.goal">
               <option v-for="g in goals" :key="g" :value="g">
                 {{ $t(`settings.review.goals.${g}`) }}
               </option>
             </Select>
-            <p class="text-xs text-muted-foreground">{{ $t('settings.review.goalHint') }}</p>
           </div>
 
           <Button
@@ -351,11 +435,14 @@ function previewVoice() {
       <!-- Grammar drills: the gate is exposed on purpose -->
       <Card variant="quiet">
         <CardHeader>
-          <CardTitle class="text-base">{{ $t('settings.drill.title') }}</CardTitle>
+          <CardTitle class="flex items-center gap-2.5 text-base"><SectionChip :icon="Table2" tint="mist" />{{ $t('settings.drill.title') }}</CardTitle>
         </CardHeader>
         <CardContent>
           <div class="flex max-w-xs flex-col gap-1.5">
-            <Label for="gate">{{ $t('settings.drill.gateThreshold') }}</Label>
+            <Label for="gate" class="flex items-center gap-0.5">
+              {{ $t('settings.drill.gateThreshold') }}
+              <InfoTip>{{ $t('settings.drill.gateHint') }}</InfoTip>
+            </Label>
             <Input
               id="gate"
               :model-value="s.drill.gateThreshold"
@@ -363,9 +450,6 @@ function previewVoice() {
               step="0.05"
               disabled
             />
-            <p class="text-xs leading-relaxed text-muted-foreground">
-              {{ $t('settings.drill.gateHint') }}
-            </p>
           </div>
         </CardContent>
       </Card>
@@ -374,13 +458,19 @@ function previewVoice() {
            has always told people to come here and change. [R7] -->
       <Card variant="quiet">
         <CardHeader>
-          <CardTitle class="text-base">{{ $t('settings.hvpt.title') }}</CardTitle>
-          <CardDescription>{{ $t('settings.hvpt.hint') }}</CardDescription>
+          <CardTitle class="flex items-center gap-2.5 text-base">
+            <SectionChip :icon="Ear" tint="cream" />
+            {{ $t('settings.hvpt.title') }}
+            <InfoTip>{{ $t('settings.hvpt.hint') }}</InfoTip>
+          </CardTitle>
         </CardHeader>
         <CardContent class="flex flex-col gap-4">
           <div class="grid gap-4 sm:grid-cols-2">
             <div class="flex flex-col gap-1.5">
-              <Label for="minTalkers">{{ $t('settings.hvpt.minTalkers') }}</Label>
+              <Label for="minTalkers" class="flex items-center gap-0.5">
+                {{ $t('settings.hvpt.minTalkers') }}
+                <InfoTip>{{ $t('settings.hvpt.floorCaveat') }}</InfoTip>
+              </Label>
               <Input
                 id="minTalkers"
                 v-model.number="s.hvpt.minTalkers"
@@ -400,9 +490,6 @@ function previewVoice() {
               />
             </div>
           </div>
-          <p class="max-w-prose text-xs leading-relaxed text-muted-foreground">
-            {{ $t('settings.hvpt.floorCaveat') }}
-          </p>
           <Button
             class="self-start"
             :disabled="store.saving || !auth.isAdmin"
@@ -416,8 +503,11 @@ function previewVoice() {
       <!-- Curriculum: the exam date is a first-class object. [R14] -->
       <Card variant="quiet">
         <CardHeader>
-          <CardTitle class="text-base">{{ $t('settings.curriculum.title') }}</CardTitle>
-          <CardDescription>{{ $t('settings.curriculum.examHint') }}</CardDescription>
+          <CardTitle class="flex items-center gap-2.5 text-base">
+            <SectionChip :icon="GraduationCap" tint="blush" />
+            {{ $t('settings.curriculum.title') }}
+            <InfoTip>{{ $t('settings.curriculum.examHint') }}</InfoTip>
+          </CardTitle>
         </CardHeader>
         <CardContent class="flex flex-col gap-3">
           <div class="flex max-w-xs flex-col gap-1.5">
@@ -443,7 +533,7 @@ function previewVoice() {
       -->
       <Card variant="quiet">
         <CardHeader>
-          <CardTitle class="text-base">{{ $t('settings.sections.language') }}</CardTitle>
+          <CardTitle class="flex items-center gap-2.5 text-base"><SectionChip :icon="Languages" tint="cream" />{{ $t('settings.sections.language') }}</CardTitle>
         </CardHeader>
         <CardContent class="flex flex-col gap-4">
           <div class="grid gap-4 sm:grid-cols-2">
@@ -473,9 +563,9 @@ function previewVoice() {
               class="mt-0.5 size-4 accent-primary"
             />
             <span class="flex flex-col gap-0.5">
-              <span>{{ $t('settings.language.glossFallback') }}</span>
-              <span class="text-xs leading-relaxed text-muted-foreground">
-                {{ $t('settings.language.glossFallbackHint') }}
+              <span class="flex items-center gap-0.5">
+                {{ $t('settings.language.glossFallback') }}
+                <InfoTip>{{ $t('settings.language.glossFallbackHint') }}</InfoTip>
               </span>
             </span>
           </label>
@@ -491,19 +581,44 @@ function previewVoice() {
         </CardContent>
       </Card>
 
+      <!-- Admin only: installing a pack and restarting the server are not a learner's call. -->
+      <ComponentsPanel
+        v-if="auth.isAdmin"
+        :components="components"
+        :checking="checking"
+        :services="s.services"
+        :saving="store.saving"
+        :is-admin="auth.isAdmin"
+        :llm-models="llmModels"
+        @check="checkComponents"
+        @pack-refresh="loadComponents"
+        @changed="reloadAfterManaged"
+        @save-service="saveService"
+      >
+        <template #mt>
+          <MtBlock
+            v-if="s.services.mt.provider !== 'off'"
+            :mt="mt"
+            :warming="warming"
+            :is-admin="auth.isAdmin"
+            @warmup="warmupMT"
+          />
+        </template>
+      </ComponentsPanel>
+
       <Card variant="quiet">
         <CardHeader>
-          <CardTitle class="text-base">{{ $t('settings.sections.services') }}</CardTitle>
-          <CardDescription>{{ $t('settings.services.hint') }}</CardDescription>
+          <CardTitle class="flex items-center gap-2.5 text-base">
+            <SectionChip :icon="Server" tint="mist" />
+            {{ $t('settings.sections.services') }}
+            <InfoTip>{{ $t('settings.services.hint') }}</InfoTip>
+          </CardTitle>
         </CardHeader>
         <CardContent class="flex flex-col gap-4">
           <div
             v-for="name in SERVICE_NAMES"
             :key="name"
-            class="grid items-end gap-3"
-            :class="
-              name === 'llm' ? 'sm:grid-cols-[10rem_1fr_12rem_auto]' : 'sm:grid-cols-[10rem_1fr_auto]'
-            "
+            class="grid items-end gap-3 sm:grid-cols-[10rem_1fr_auto]"
           >
             <div class="flex flex-col gap-1.5">
               <Label :for="`prov-${name}`">{{ $t(`capabilities.${name}`) }}</Label>
@@ -513,7 +628,35 @@ function previewVoice() {
                 </option>
               </Select>
             </div>
-            <div class="flex flex-col gap-1.5">
+            <!-- The built-in copy has no address to edit: the app picks the port. -->
+            <div
+              v-if="s.services[name].provider === 'managed'"
+              class="flex flex-col gap-1.5"
+            >
+              <Label :for="`ep-${name}`">{{ $t('settings.services.endpoint') }}</Label>
+              <p
+                :id="`ep-${name}`"
+                class="flex min-h-9 items-center rounded-md border border-tint-sage-edge bg-tint-sage px-3 text-sm"
+              >
+                {{
+                  managedOf(name)?.port
+                    ? $t('component.services.managedPort', { port: managedOf(name)?.port })
+                    : $t('component.services.managed')
+                }}
+              </p>
+            </div>
+            <div v-else-if="ADDRESS_IN_COMPONENTS.has(name) && auth.isAdmin" class="flex flex-col gap-1.5">
+              <Label :for="`ep-${name}`">{{ $t('settings.services.endpoint') }}</Label>
+              <p :id="`ep-${name}`" class="flex min-h-9 items-center text-sm text-muted-foreground">
+                {{
+                  s.services[name].provider === 'off'
+                    ? $t('settings.services.notConfigured')
+                    : s.services[name].endpoint || $t('component.services.noAddress')
+                }}
+                <InfoTip>{{ $t('component.services.moved') }}</InfoTip>
+              </p>
+            </div>
+            <div v-else class="flex flex-col gap-1.5">
               <Label :for="`ep-${name}`">{{ $t('settings.services.endpoint') }}</Label>
               <Input
                 :id="`ep-${name}`"
@@ -527,28 +670,6 @@ function previewVoice() {
                     : 'http://localhost:5000'
                 "
               />
-            </div>
-            <!--
-              The model, for the language model only. The request names it and
-              every answer is labelled with it, and Ollama refuses a request
-              without one — so it is not optional, and the row above says so
-              while it is blank. The list is what the endpoint reported it
-              serves; typing a name it did not list is still allowed, because
-              not every server answers /v1/models.
-            -->
-            <div v-if="name === 'llm'" class="flex flex-col gap-1.5">
-              <Label for="model-llm">{{ $t('settings.services.model') }}</Label>
-              <Input
-                id="model-llm"
-                v-model="s.services.llm.model"
-                list="llm-models"
-                :disabled="s.services.llm.provider === 'off'"
-                placeholder="qwen3:8b"
-                autocomplete="off"
-              />
-              <datalist id="llm-models">
-                <option v-for="m in llmModels" :key="m" :value="m" />
-              </datalist>
             </div>
             <span
               class="pb-2 text-xs"
@@ -566,92 +687,6 @@ function previewVoice() {
             {{ store.saving ? $t('common.saving') : $t('common.save') }}
           </Button>
 
-          <!--
-            The translator, in detail. The row above can only say configured /
-            reachable, and for this service that is not enough: it spends its
-            first several minutes downloading 2.4 GB and answering 503, which
-            the probe reports as «нет связи» — indistinguishable from never
-            having been deployed. Four states, each with the remedy that fits it.
-          -->
-          <div
-            v-if="s.services.mt.provider !== 'off'"
-            class="flex flex-col gap-2 rounded-lg border border-border-subtle bg-background p-3"
-          >
-            <p class="flex flex-wrap items-baseline gap-2 text-xs">
-              <span class="font-medium">{{ $t('settings.mt.title') }}</span>
-              <span v-if="mtModel" class="font-mono text-[11px] text-muted-foreground">
-                {{ mtModel }}
-              </span>
-            </p>
-
-            <!-- Not deployed. The one state the app genuinely cannot fix from
-                 here, so it hands over the command that does. -->
-            <template v-if="!mt?.reachable">
-              <p class="text-xs text-muted-foreground">{{ $t('settings.mt.notRunning') }}</p>
-              <code
-                class="overflow-x-auto rounded bg-muted px-2 py-1 font-mono text-[11px] whitespace-pre"
-              >docker compose --profile mt up -d</code>
-            </template>
-
-            <!-- Downloading. Real bytes when the service can count them, an
-                 indeterminate bar when it cannot — never an invented per cent. -->
-            <template v-else-if="mt.state === 'loading'">
-              <p class="text-xs text-learning">{{ $t('settings.mt.downloading') }}</p>
-              <div class="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                <div
-                  v-if="mtProgress !== null"
-                  class="h-full rounded-full bg-learning transition-[width] duration-500"
-                  :style="{ width: `${mtProgress}%` }"
-                />
-                <div v-else class="h-full w-1/3 animate-pulse rounded-full bg-learning" />
-              </div>
-              <p class="text-[11px] tabular-nums text-muted-foreground">
-                <template v-if="mtProgress !== null && mt.totalBytes">
-                  {{
-                    $t('settings.mt.progress', {
-                      done: gb(mt.downloadedBytes ?? 0),
-                      total: gb(mt.totalBytes),
-                      pct: mtProgress,
-                    })
-                  }}
-                </template>
-                <template v-else>{{ $t('settings.mt.downloadingSize') }}</template>
-              </p>
-            </template>
-
-            <!-- Failed, with the service's own reason. A sentence we invented
-                 about it would drop the one detail that lets anyone fix it. -->
-            <template v-else-if="mt.state === 'failed'">
-              <p class="text-xs text-error">{{ $t('settings.mt.failed') }}</p>
-              <code
-                v-if="mt.detail"
-                class="max-h-24 overflow-auto rounded bg-muted px-2 py-1 font-mono text-[11px]"
-              >{{ mt.detail }}</code>
-            </template>
-
-            <p v-else class="text-xs text-known">{{ $t('settings.mt.ready') }}</p>
-
-            <Button
-              v-if="mt?.reachable && mt.state !== 'ready'"
-              size="sm"
-              variant="outline"
-              class="self-start"
-              :disabled="warming || !auth.isAdmin || mt.state === 'loading'"
-              :title="auth.isAdmin ? '' : $t('settings.mt.adminOnly')"
-              @click="warmupMT"
-            >
-              <component
-                :is="mt.state === 'failed' ? RefreshCw : Download"
-                class="size-3.5"
-                aria-hidden="true"
-              />
-              {{ mt.state === 'failed' ? $t('settings.mt.retry') : $t('settings.mt.download') }}
-            </Button>
-
-            <p class="text-[11px] leading-relaxed text-muted-foreground">
-              {{ $t('settings.mt.hint') }}
-            </p>
-          </div>
         </CardContent>
       </Card>
 
@@ -664,7 +699,7 @@ function previewVoice() {
       <!-- About -->
       <Card variant="quiet">
         <CardHeader>
-          <CardTitle class="text-base">{{ $t('settings.sections.about') }}</CardTitle>
+          <CardTitle class="flex items-center gap-2.5 text-base"><SectionChip :icon="Info" tint="mist" />{{ $t('settings.sections.about') }}</CardTitle>
         </CardHeader>
         <CardContent class="flex flex-col gap-1 text-sm text-muted-foreground">
           <p>tanulom {{ auth.bootstrap?.version }}</p>
@@ -701,8 +736,11 @@ function previewVoice() {
     -->
     <Card variant="quiet">
       <CardHeader>
-        <CardTitle class="text-base">{{ $t('speech.title') }}</CardTitle>
-        <CardDescription>{{ $t('speech.hint') }}</CardDescription>
+        <CardTitle class="flex items-center gap-2.5 text-base">
+        <SectionChip :icon="Volume2" tint="sage" />
+        {{ $t('speech.title') }}
+          <InfoTip>{{ $t('speech.hint') }}</InfoTip>
+        </CardTitle>
       </CardHeader>
       <CardContent class="flex flex-col gap-4">
         <div class="flex flex-wrap items-center gap-3">
@@ -767,8 +805,11 @@ function previewVoice() {
     -->
     <Card variant="quiet">
       <CardHeader>
-        <CardTitle class="text-base">{{ $t('settings.sound.title') }}</CardTitle>
-        <CardDescription>{{ $t('settings.sound.hint') }}</CardDescription>
+        <CardTitle class="flex items-center gap-2.5 text-base">
+        <SectionChip :icon="Bell" tint="cream" />
+        {{ $t('settings.sound.title') }}
+          <InfoTip>{{ $t('settings.sound.hint') }}</InfoTip>
+        </CardTitle>
       </CardHeader>
       <CardContent class="flex items-center gap-3">
         <Button

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { CircleCheck, CircleX } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import BackButton from '@/components/common/BackButton.vue'
 import Note from '@/components/common/Note.vue'
 import DrillItemView from '@/components/grammar/DrillItem.vue'
 import { api } from '@/api'
@@ -132,7 +133,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="mx-auto flex w-full max-w-2xl flex-col gap-6">
+  <div class="page-narrow flex w-full min-w-0 flex-col gap-6">
+    <!-- On every step (intro, questions, result): leaves the flow for Grammar. -->
+    <BackButton fallback="/grammar" class="-mb-3" />
     <header class="flex flex-col gap-2">
       <h1 class="page-title">{{ $t('grammar.placement.title') }}</h1>
       <p class="max-w-prose text-sm leading-relaxed text-muted-foreground">

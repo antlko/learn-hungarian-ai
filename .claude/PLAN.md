@@ -193,7 +193,7 @@ Full spec: [`../docs/LANGPACK.md`](../docs/LANGPACK.md).
       difficulty score
 - [x] `pipeline/minimal_pairs.py` — the contrast inventory ([R7](research/07-hvpt.md)) and its
       audio. Landed in Phase 6, where the ear trainer could actually exercise it
-- [x] `pipeline/curriculum.py` — `grammar_topic` DAG (**28** topics on hu-v1, not the ~60 the
+- [x] `pipeline/curriculum.py` — `grammar_topic` DAG (**28** topics on hu-v1 when this phase landed, **33** after [ADR-055](DECISIONS.md#adr-055), not the ~60 the
       original line guessed), ordering from [R15](research/15-hungarian-difficulty.md)
 - [x] 2/3/4-gram counts for the attestation guardrail — built inside `pipeline/build.py`
       (there is no `ngram.py`; it is twenty lines and one pass over the sentence table)

@@ -111,8 +111,8 @@ Two failures shaped this:
 - **An app that boots into "download a language pack" is a build step wearing a UI.** Every
   screen except Settings is dead, and the newcomer is asked to solve a distribution problem
   before reading a word of Hungarian. The starter pack — the whole curriculum and course, the
-  5,059 lemmas with their 517,837 forms and glosses (2,259 of them glossed in Russian, and all
-  853 course words), 11,400 sentences it can fully explain, every minimal pair — is 15.6 MB
+  5,725 lemmas with their 587,898 forms and glosses (and all 1,938 course words), 12,858
+  sentences it can fully explain, every minimal pair — is 19.8 MB
   gzipped in the binary, beside 513 KB of Opus clips, and is enough to work through the first
   months for real. The 252 MB full pack is an **upgrade** that widens the vocabulary, built with
   `make langpack`; it is offered, never required.
@@ -153,6 +153,8 @@ cmd/tanulom
               ├── hvpt ── drill, srs, lang, db
               ├── stats ── db
               ├── mt ── config (optional sidecar; a nil client is "switched off")
+              ├── nlp ── config (optional sidecar, same shape)
+              ├── components ── (embeds services/{mt,nlp}; installs + supervises them as children; imports nothing from internal/)
               ├── llm ── config (OpenAI-compatible chat, blocking and streamed)
               ├── tutor ── llm, db (the embedded reference corpus, retrieval, topic inference, the prompt, threads)
               └── web (//go:embed all:dist)
@@ -294,6 +296,15 @@ Availability is **proven by building an item**, cached per topic: a topic can pa
 structural test and still produce nothing, because the pack's attested `olvashat` carries no
 features at all. Saying "we have not built exercises for this" is a supported outcome.
 
+### 5.6a Answer options — `internal/api/options.go`
+
+`attachOptions` runs after `enrichFromPack` in the review and practice queue handlers (it needs
+`Expected` and `Lemma`) and fills `QueueItem.Options` for `cloze`/`produce`. Cloze candidates come
+from `morph.Analyzer.FormsOf` (attested only, never the `paradigm` table); produce candidates from
+same-POS `lemma` rows by frequency rank. Seed = hash(card, local day). Grading is untouched: the
+chosen string is the ordinary `typed` answer through `gradeTyped`; `via` is validated by `checkVia`
+and stored nowhere. [ADR-060](../.claude/DECISIONS.md#adr-060).
+
 ### 5.7 Replay — `internal/srs/replay.go`
 
 The review log is complete so that replaying it reproduces stored FSRS state **bit for bit**
@@ -360,12 +371,63 @@ Segment the learner's answer and the target, align morphemes, classify the diver
 `harmony | case | definiteness | possessor | vowel_length | agreement | spelling`. The **class**,
 not the mere fact of being wrong, drives what gets drilled next.
 
+### 5.10a Context disambiguation (ladder step 4) — `internal/nlp`, `morph/context.go`
+
+Opt-in, [ADR-054](../.claude/DECISIONS.md#adr-054). After `AnalyzeText`, if `services.nlp` is
+`local` and some word is `uncertain`, `api.applyNLPHints` posts the whole text once to the sidecar
+(`POST /analyze`, 10 s total budget). `nlp.Client` drops tokens whose byte offsets are outside the
+text or off rune boundaries; `Analyzer.ApplyContextHints` then picks, for each `uncertain` word,
+the pack candidate (from `Lookup`) whose lemma and UPOS equal the sidecar token overlapping that
+span, and sets `Analysis.Via = "context"`. It never adds an analysis; on any error the result is
+exactly what the core produced alone. Used by text ingest and `/api/analyze`.
+
+### 5.10b Managed components — `internal/components`
+
+[ADR-061](../.claude/DECISIONS.md#adr-061). The binary can install and run `mt` and `nlp` itself.
+`components.Manager` (one per `Server`) owns, per id: an install job, a supervised child and an
+in-memory state `absent → installing → installed → starting → running → failed | stopped` (the
+`managed` object of [API.md](API.md)).
+
+- **Seams.** `Runner` (run-to-completion and long-lived commands), `Prober` (loopback HTTP),
+  `DiskInfo` (statfs) and `LookPath` are interfaces; tests drive the whole pipeline on fakes — no
+  network, no Python, no model. `ExecRunner` is the one real implementation (own process group
+  per child: Unix; on Windows the manager reports itself unavailable).
+- **Install** (single-flight per id, 409 otherwise; preflight is synchronous so a refusal reaches
+  the button): python ≥ 3.10 with `venv`+`ensurepip` found (cached 30 s) → free-disk check →
+  `<data>/components/<id>.installing/` ← embedded sources → `python -m venv` → `pip install`
+  (mt: torch from the CPU index first, removed after) with progress counted from pip's
+  `Collecting` lines → model preparation (mt: `app.prepare_model()`; nlp: `POST /warmup` once the
+  service runs, progress from `/health`) → atomic rename → start → `OnInstalled` (sets
+  `provider=managed` through `updateConfig`). Any failure removes `.installing/` — and the final
+  directory when it came after the rename — and records `errorKey` (+ a redacted tail).
+- **Supervision.** The child is `venv/bin/python src/app.py` in its own process group with an
+  allowlisted environment (`PATH`, `HOME=<comp>/home`, `LANG`, and the service's own
+  `*_HOST=127.0.0.1`/`*_PORT`/`*_MODEL_DIR`) — never the server's. The port comes from
+  `127.0.0.1:0` at each start and lives in memory only (an `EADDRINUSE` exit re-picks without
+  counting as a crash). Output goes to a 200-line ring buffer and a 1 MiB rotating `run.log`,
+  both path-redacted. Crashes restart with exponential backoff (1 s … 30 s); more than 5 in 10 min
+  is `failed`. Stop is SIGTERM to the group, SIGKILL after 5 s. `src/` is rewritten from the
+  embedded copy before every start.
+- **One endpoint resolver.** `Manager.Endpoint(id)` is the only source of a managed port;
+  `api.resolveService` turns a `managed` service into an ordinary `local` one for the duration of a
+  call, and `mt.New`, `nlp.New`, the capability probe and the Components rows all take their
+  `config.Service` from it. Nothing else knows ports exist; config.yaml never holds one.
+- **Lifecycle in `api`.** `api.New` builds the manager and starts `AutoStart` in a goroutine
+  after the pack and DB are ready (never blocking boot); `Close` stops the children before the DB
+  closes; a Settings change moving a provider off `managed` stops the child, onto it starts an
+  installed one (`reconcileManaged`).
+- **Sources.** `services/<id>/` is the truth (the Dockerfiles build from it); the copy in
+  `internal/components/src/` is what `go:embed` carries. `make sync-components` refreshes it and
+  `TestEmbeddedSourcesMatchServices` fails on drift.
+
 ### 5.11 The guided course — `internal/course`
 
-Twenty-four units over six months, shipped in the pack: each names the errand it buys ("I can
+Sixty-four core units in **three finite tiers** ([ADR-057](../.claude/DECISIONS.md#adr-057)) —
+24 basic, 20 intermediate, 20 advanced — shipped in the pack: each names the errand it buys ("I can
 register at a GP"), the grammar topics it leans on, and the words to own. It answers the
 question the DAG and the miner both leave open — *what do I do today* — for as long as a
-beginner needs it answered, and then stops.
+learner needs it answered, and then stops. The learner picks their own pace; `month` is an internal
+ordering/checkpoint field and is never shown.
 
 Two properties are load-bearing.
 
@@ -373,9 +435,43 @@ Two properties are load-bearing.
 and a unit is `done` when every one of its words is in that learner's `lemma_state` as
 `learning` or `known`. `course_progress` records enrolment and the counts an enrolment produced;
 there is no completion column, and adding one would let the plan screen disagree with the deck.
-The join lives in `api.Server.inPlaySet` because the two tables are in two databases.
+The join lives in `api.Server.inPlaySet` because the two tables are in two databases; it
+queries the pack in chunks of 500 and **returns** its errors — an empty set would read as
+"nothing is in play" and reset every unit.
 
-**The hand-off is the design.** `plan.handedOver` goes true when the last unit is done, and the
+**"Next" follows enrolment, not the deck** ([ADR-048](../.claude/DECISIONS.md#adr-048)).
+`plan.current` (JSON name kept; the learner-facing word is «следующий») is the first unit that
+is enrolled and not `done`; failing that, the first unit neither enrolled nor `done`. Words added
+from the reader still count toward `done` — that is a fact about the deck — but they can no
+longer pull "next" away from a unit the learner started.
+
+**Tiers and tracks** ([ADR-050](../.claude/DECISIONS.md#adr-050), [ADR-057](../.claude/DECISIONS.md#adr-057)).
+`course_unit.tier` is `basic` | `intermediate` | `advanced` (default `basic` for an older pack).
+`course_unit.track` is `core` (the 64-unit path, ~3 100 words) or `theme` (twelve optional side units:
+colours, the body, the weather …; tier `basic`). `Resolve` computes `done`/`ahead` and `enrolled` for every unit the same way, but
+**only core units** are considered for `plan.current`, counted in `plan.total`/`plan.completed`,
+or required for `handedOver`. A learner can finish every theme and still be on unit 9, or finish
+the path with all twelve themes untouched and be handed over. Still no stored completion flag.
+
+**`learned` is not `done`** ([ADR-057](../.claude/DECISIONS.md#adr-057)). `done` says every word is *in
+the deck*, which is true the moment a unit is enrolled, so it must not be shown as «пройден».
+`Syllabus.ResolveCounted` also takes a `counted(lemma)` predicate and sets `UnitState.Learned`: how
+many of the unit's words are **counted lemmas** — the same set `/api/stats/level` uses
+(`Server.countedLemmas`: status `known`, or a graduated Review-state card whose retrievability is at
+least `mining.knownThreshold`; suspended and trashed excluded) and its 30 s per-user cache.
+`Plan.Totals()` sums the core units (themes excluded) into `{words, inDeck, learned, perTier}`.
+Both are derived at request time; nothing is stored. `Resolve` (no predicate) leaves `Learned` 0.
+
+**`settled` is the soft gate's measure** ([ADR-058](../.claude/DECISIONS.md#adr-058)). A unit's word is
+*settled* when its lemma is `known`, or its strongest non-suspended, non-trashed card is `mature`
+(`srs.StageOf`: Review state, interval >= `srs.MatureDays` = 21 days — the Words list's own split).
+`Server.countedAndSettled` fills both sets in the one card scan and the one 30 s per-user cache
+(`countedLemmas`), so answering a card drops both. `UnitState.Settled` is a subset of `WordsInPlay`;
+`Totals` and `perTier` carry it; `course.UnlockShare` (0.70) and `srs.MatureDays` travel as
+`unlock` on `GET /api/course`. Nothing is stored and nothing server-side refuses a unit: the client
+draws the unit after one under 70% settled as closed, and opening it is one tap.
+
+**The hand-off is the design.** `plan.handedOver` goes true when the last core unit is done, and the
 app stops prescribing vocabulary in favour of the pack's `resource` catalogue. A course that
 never ends produces a learner who can only read material made for them
 ([R11](../.claude/research/11-extensive-reading.md)).
@@ -384,6 +480,32 @@ Enrolling a unit builds one **sentence** note per word — shortest attested sen
 that lemma, so a first encounter is not also a parsing exercise — and marks the lemma
 `learning`. A word the pack has no attested sentence for is **skipped and named**, not turned
 into a bare-word card ([R16 §8](../.claude/research/16-debunked.md)).
+
+### 5.12 The estimated level and text coverage — `internal/stats/level.go`
+
+A measured estimate with a stated method ([ADR-047](../.claude/DECISIONS.md#adr-047)); computed
+per request by `stats.EstimateLevel` (pure) from inputs `api/handlers_stats_level.go` gathers,
+never stored. **A lemma counts** when it is `known`, or has a graduated card (FSRS state Review)
+whose retrievability is at least `mining.knownThreshold`; words on their learning steps do not,
+and a word that decays stops counting, so the figures can go down.
+
+- **Coverage** = Σ `freq_pm` of counted lemmas ÷ Σ `freq_pm` of every frequency-ranked pack lemma:
+  the share of everyday running text made of words you count.
+- **Band reached** (A1–C1, by the pack's frequency-derived `lemma.cefr`): counted share ≥ 0.80
+  **and** at least half of the band's *drillable* topics are `interleaved`/`mastered` (a band with
+  none passes) **and** the band is not in `BlockedLevels` (a failed checkpoint). Rule-card-only
+  topics never hold a band back.
+- **Label**: the working band is the first measurable band not reached; sublevel =
+  `1 + floor(min(share/0.8, 0.999) × 3)`, so "A2.2". Vocabulary done but grammar missing stays
+  at `.3` (`bands[i].grammarReady` lets the screen name grammar); `cappedBy` names the checkpoint
+  behind the lowest blocked level. **Confidence** is `low` below 100 counted lemmas, else
+  `estimate` — never "high": there is no exam behind it.
+- Band sizes and the frequency total are read once from the read-only pack and cached per boot.
+  The constants (`LevelBandTarget`, `LevelGrammarShare`, `LevelLowDataLemmas`) live in `stats`.
+
+The same change moved the lemma-curve reference lines (`lemmas.targets`) out of a literal in
+`handleOverview` and onto `stats.Specs` (`stats.LemmaTargets`), so the milestone numbers live
+once.
 
 ---
 
@@ -446,6 +568,7 @@ GET /api/capabilities
 | Change what the learner chooses before a sitting — pile, set size, order, a practice round's shape | `web-ui/src/views/ReviewStartView.vue` (`/review`). The card at `/review/session` takes its intent from the query (`?scope=`, `?practice=`) and starts nothing on its own ([ADR-028](../.claude/DECISIONS.md#adr-028)) |
 | Change what the grammar tutor is told, reads or may do | `internal/tutor` — `prompts/` (the system text), `prompt.go` (order and budgets), `retrieve.go`, `infer.go` (which lesson a free chat's question is about), `store.go` (threads), `kb/` (the corpus, `make tutor-kb` for the generated half); `handlers_tutor.go` gathers the input and builds the topic index. It must keep explaining and never minting — [`TUTOR.md`](TUTOR.md), [ADR-027](../.claude/DECISIONS.md#adr-027), [ADR-029](../.claude/DECISIONS.md#adr-029). The chat's controls are [ADR-031](../.claude/DECISIONS.md#adr-031): `POST /api/tutor/:id/stop` cancels the flight's context, `replace` on a question truncates and re-asks, and every answer stores the stream's `usage` plus the window Ollama reports on `/api/ps` (`prompt_tokens`, `answer_tokens`, `context_tokens`) for the context meter |
 | Add a way to answer a card that must not schedule | `internal/api/handlers_practice.go` + `internal/srs/practice.go` — and never `review_log`, which replay depends on |
+| Change which sentences a ready-made reading set holds, or its level | `langpack/pipeline/reading_sets.py` (constants at the top), then `make refresh-curriculum` + `make starter`. The API side is `handlers_library_sets.go`; an import goes through `Server.ingestText`, the same path as a paste ([ADR-056](../.claude/DECISIONS.md#adr-056)). Never write a set's Hungarian by hand |
 | Judge a text's difficulty | `internal/mining/level.go` (`EstimateLevel`, pure) + `levelInputs` in `handlers_texts.go`; the LLM second opinion and manual override in `handlers_level.go` ([ADR-023](../.claude/DECISIONS.md#adr-023)). The band table is the pack's `lemma.cefr` — do not fork a third one |
 | Browse the learner's words | `internal/api/handlers_words.go` — status from `lemma_state`, memory figures derived from the CARDS (lemma_state's FSRS columns are dormant) |
 | Export or import a whole profile | `internal/profile` — the table manifest (with its coverage test), column discovery via `PRAGMA table_info`, id remapping, and the replay check; `handlers_profile.go` streams and spools. Import REPLACES, in one transaction, for the acting user only. Secrets are omitted. [ADR-040](../.claude/DECISIONS.md#adr-040) |
@@ -464,6 +587,7 @@ GET /api/capabilities
 | Add a checkpoint criterion | `internal/stats/checkpoint.go` (`Specs`) + both locale files |
 | Change a course unit's words or its goal | `langpack/pipeline/course_mN.py` (one module per month), then rebuild the pack. Never in Go — the syllabus is pack content |
 | Change what makes a unit done, or what enrolment creates | `internal/course/course.go` (`Resolve`) and `internal/api/handlers_course.go` (`noteForWord`). Completion stays **derived from the deck** |
+| Change how the course is drawn (the road, node states, unit panel, «Из чтения» card) | `web-ui/src/views/TodayView.vue`, `components/roadmap/*`, `components/plan/UnitDetail.vue`. There is no Plan route: `/plan` redirects to `/` (`?unit=` opens that node) |
 | Add or drop a hand-off resource | `langpack/pipeline/resources.py`, then rebuild the pack |
 | Change what the binary ships with | `langpack/pipeline/starter.py` + `make starter`; the artefact is embedded by `internal/lang/starter.go` |
 | Add an API endpoint | `internal/api/handlers_*.go`, DTO in `dto.go`, mirror in `web-ui/src/types/`, document in [`API.md`](API.md) |

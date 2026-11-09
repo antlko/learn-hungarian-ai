@@ -1,15 +1,34 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Check, CircleCheck, Clock, GraduationCap, MoonStar, Undo2 } from '@lucide/vue'
+import {
+  ChevronDown,
+  CircleCheck,
+  Clock,
+  Eye,
+  GraduationCap,
+  ListChecks,
+  Headphones,
+  Keyboard,
+  MoonStar,
+  PenLine,
+  TextCursorInput,
+  Undo2,
+  X,
+} from '@lucide/vue'
+import { useMediaQuery } from '@vueuse/core'
 import { onBeforeRouteUpdate, useRoute, useRouter, type LocationQuery } from 'vue-router'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import BottomSheet from '@/components/common/BottomSheet.vue'
+import InfoTip from '@/components/common/InfoTip.vue'
 import KeyBar, { type KeyHint } from '@/components/common/KeyBar.vue'
 import Note from '@/components/common/Note.vue'
 import HungarianText from '@/components/common/HungarianText.vue'
 import SpeakButton from '@/components/common/SpeakButton.vue'
 import WordInspector from '@/components/common/WordInspector.vue'
+import AnswerOptions from '@/components/review/AnswerOptions.vue'
+import AccentStrip from '@/components/review/AccentStrip.vue'
 import FeatureChips from '@/components/review/FeatureChips.vue'
 import MemoryMeter from '@/components/review/MemoryMeter.vue'
 import MissedList from '@/components/review/MissedList.vue'
@@ -18,6 +37,9 @@ import SentenceCrib from '@/components/review/SentenceCrib.vue'
 import SetSummary from '@/components/review/SetSummary.vue'
 import TutorAside from '@/components/review/TutorAside.vue'
 import { untilInterval } from '@/lib/interval'
+import { showAccentKeys } from '@/lib/accentKeys'
+import { answerMode } from '@/lib/answerMode'
+import { useKeyboardInset } from '@/composables/useKeyboardInset'
 import { useAnswerFeedback } from '@/composables/useAnswerFeedback'
 import { pickGloss } from '@/lib/gloss'
 import { play } from '@/lib/sound'
@@ -68,6 +90,39 @@ const { t } = useI18n()
 // Destructured so the refs are top-level and the template can read them
 // directly; nested inside an object they would not be unwrapped.
 const { verdict, flashKey, flashClass, signal, clear } = useAnswerFeedback()
+
+/**
+ * A phone, or anything driven by a finger (a tablet is wider than md and still
+ * has no keyboard): the actions go into a bar pinned above the tab bar, the
+ * accent row appears, the key strip goes, and the secondary panels fold into
+ * «Подробнее». Layout only — nothing about grading or the queue reads this.
+ */
+const compact = useMediaQuery('(max-width: 767px), (pointer: coarse)')
+/** Strictly a phone-width screen: where the Teacher opens in a bottom sheet. */
+const isPhone = useMediaQuery('(max-width: 767px)')
+/**
+ * The on-screen keyboard's height. The pinned action bar is lifted by it so
+ * «Проверить» stays visible above the keyboard (visualViewport; see the
+ * composable for why `bottom` alone is not enough).
+ */
+const { inset: keyboardInset } = useKeyboardInset()
+watch(keyboardInset, (k) => {
+  // The card scrolls so the input is never under the bar or the keyboard.
+  if (k > 0) void nextTick(() => document.querySelector('[data-answer-input]')?.scrollIntoView({ block: 'nearest' }))
+})
+/**
+ * The key map starts collapsed to a small chip (docs/UX.md §4): it is chrome
+ * two hundred cards later. Seeded once, so a learner who opens it keeps it
+ * open — KeyBar itself remembers that per device.
+ */
+const KEYBAR_KEY = 'tanulom.keybar.review'
+try {
+  if (localStorage.getItem(KEYBAR_KEY) === null) localStorage.setItem(KEYBAR_KEY, 'off')
+} catch {
+  // Storage refused: the strip simply starts open, as it did.
+}
+/** The inspector/tutor column below lg: opens itself when something fills it. */
+const detailsOpen = ref(false)
 
 /** The gloss, plus whether it fell back to the other language. Never silent. */
 const gloss = computed(() => pickGloss(store.current?.glossRu, store.current?.glossEn, ui.locale))
@@ -197,6 +252,49 @@ const verdictKind = computed<'diff' | 'correct' | 'expected'>(() => {
   return 'expected'
 })
 
+/**
+ * Whether this card is answered by picking an option. All three must hold: the
+ * learner's device preference, a cloze/produce card, and at least three options
+ * from the server (it sends none when it could not build them). Otherwise the
+ * typed input appears with no message. The expected answer is never derived
+ * here — the options and the graded string are the server's.
+ */
+const hasOptions = computed(() => {
+  const c = store.current
+  return !!c && (c.direction === 'cloze' || c.direction === 'produce') && (c.options?.length ?? 0) >= 3
+})
+const choiceActive = computed(() => answerMode.value === 'choose' && hasOptions.value)
+const chosen = ref<string | null>(null)
+const optionsResult = computed(() =>
+  chosen.value !== null && store.result ? { correct: store.result.correct, expected: store.result.expected || store.current?.expected || '' } : null,
+)
+function toggleAnswerMode() {
+  if (store.phase !== 'question') return
+  answerMode.value = answerMode.value === 'choose' ? 'type' : 'choose'
+  void focusAnswer()
+}
+watch(() => store.current?.cardId, () => {
+  chosen.value = null
+  // A new card always starts at the top. The verdict scrolls the answered card
+  // down to its «Дальше» (and the options list can be taller than the screen),
+  // and <main> is the scroll container, so without this the NEXT card opened
+  // scrolled to wherever the last one ended.
+  void nextTick(() => document.querySelector('main')?.scrollTo({ top: 0, behavior: 'instant' }))
+})
+
+async function pickOption(option: string) {
+  if (!choiceActive.value || store.phase !== 'question' || store.submitting) return
+  chosen.value = option
+  const res = await store.submit(undefined, option)
+  if (!res) {
+    chosen.value = null
+    return
+  }
+  signal(res.correct)
+  await nextTick()
+  document.querySelector<HTMLElement>('[data-next]')?.focus({ preventScroll: true })
+}
+
 const clozeCue = computed(() => {
   const c = store.current
   if (!c || c.direction !== 'cloze') return null
@@ -273,6 +371,8 @@ const inspected = ref('')
 
 function inspect(word: string) {
   inspected.value = inspected.value === word ? '' : word
+  // One drawer on desktop: the word replaces the Teacher in it.
+  if (inspected.value && !isPhone.value) tutorOpen.value = false
 }
 
 /**
@@ -291,14 +391,32 @@ function inspect(word: string) {
  * one flush ordering away; this cannot.
  */
 const tutorOpen = ref(false)
+/**
+ * The Teacher is offered only when the LLM is configured AND answering: without
+ * it the button would open a dead end. What the optional tutor is lives in
+ * Settings → Components, not here.
+ */
+const tutorAvailable = computed(() => caps.available('llm'))
+/** Right-hand drawer on desktop (word or Teacher), bottom sheet on a phone. */
+const drawerOpen = computed(() => !isPhone.value && !!store.current && (!!inspected.value || tutorOpen.value))
+/** Wide windows reserve the drawer's 24rem so the card re-centres; narrower ones let it overlay. */
+const wideEnough = useMediaQuery('(min-width: 1100px)')
+const reserveDrawer = computed(() => drawerOpen.value && wideEnough.value)
+const drawerWord = computed(() => !isPhone.value && !!inspected.value)
+const tutorInSheet = computed(() => tutorOpen.value && isPhone.value && !!store.current)
+watch(tutorAvailable, (ok) => {
+  if (!ok) tutorOpen.value = false
+})
 const tutorThread = ref<{ note: number; id: number } | null>(null)
 const tutorThreadId = computed(() =>
   tutorThread.value && tutorThread.value.note === store.current?.noteId ? tutorThread.value.id : undefined,
 )
 
 function toggleTutor() {
+  if (!tutorAvailable.value) return
   if (!tutorOpen.value && !store.current) return
   tutorOpen.value = !tutorOpen.value
+  if (tutorOpen.value && !isPhone.value) inspected.value = ''
 }
 
 /** The chat a first question creates belongs to the word it was asked about. */
@@ -406,13 +524,28 @@ const currentBreakdown = computed(() => store.scopes.find((s) => s.scope === sto
 const pileLabel = computed(() => {
   if (store.mode === 'practice') {
     const from = String(store.practiceScope)
-    const pile = from.startsWith('text:')
-      ? t('review.textScope')
-      : `${t('review.practiceFrom')} ${t(`review.scope.${from}`)}`
-    return `${t('review.practice')} · ${pile}`
+    return from.startsWith('text:') ? t('review.textScope') : t(`review.practicePile.${from}`)
   }
-  return store.textScope ? t('review.textScope') : t(`review.scope.${String(store.scope)}`)
+  if (store.textScope) return t('review.textScope')
+  // «Всё» is the default pile and not worth a word in the header.
+  return store.scope === 'all' ? '' : t(`review.scope.${String(store.scope)}`)
 })
+
+/** «3 из 15»: cards answered over the set (practice: over the round). */
+const progressLabel = computed(() =>
+  t('review.set.progress', { done: store.setProgress.done, total: store.setProgress.total }),
+)
+/** «3/15»: the same figure for a phone's one-line header. */
+const progressShort = computed(() => `${store.setProgress.done}/${store.setProgress.total}`)
+
+/** Icon beside the short type label in the header chip. */
+const DIRECTION_ICON = {
+  recognize: Eye,
+  produce: Keyboard,
+  listen: Headphones,
+  cloze: TextCursorInput,
+  spell: PenLine,
+} as const
 
 /**
  * Work waiting in the piles this session did not draw from, so emptying one
@@ -471,6 +604,8 @@ const nextDueLabel = computed(() => {
 })
 
 function maybeAutoReload() {
+  // A hidden tab re-renders nothing: this tick re-evaluates the whole card once a second.
+  if (document.hidden) return
   nowTick.value = Date.now()
   // Only the DONE screen reloads on its own. Between sets the list was
   // refreshed the moment the set finished, and the learner is reading a
@@ -515,6 +650,19 @@ const setPct = computed(() =>
 )
 
 /**
+ * One calm line after a typed miss: when the word comes back, from the
+ * preview the server computed for THIS card — the figure the «Снова» button
+ * would have carried. Never in practice (nothing is scheduled) and never
+ * after a hint, which has no verdict.
+ */
+const missLine = computed(() => {
+  const r = store.result
+  if (store.mode !== 'review' || !r || r.correct) return ''
+  const when = previewLabel('again')
+  return when ? t('review.missReturns', { t: `~${when}` }) : ''
+})
+
+/**
  * What each grade would schedule, under the buttons — the scheduler's own
  * figures, labelled approximate because interval fuzz is seeded at answer
  * time. Never in practice: nothing there is scheduled. [R18 §5]
@@ -528,35 +676,6 @@ function previewLabel(key: 'again' | 'hard' | 'good' | 'easy'): string {
   const i = untilInterval(p[key], p.at ? new Date(p.at).getTime() : nowTick.value)
   return t(`review.units.${i.unit}`, { n: i.n })
 }
-
-/**
- * What «~10 мин» is a step TOWARDS, in one clause under the answer box.
- *
- * Three cases, and the app says the true one rather than a reassuring one:
- * the next right answer takes the card onto day-scale intervals; the card is
- * still walking the minute steps and this is which; or it is already on days
- * and the interval simply grows. Everything here is read off `memory` — the
- * scheduler's own position — so the sentence cannot drift from the schedule.
- */
-const graduationNote = computed(() => {
-  const m = store.current?.memory
-  if (!m || store.mode !== 'review') return ''
-  // `graduatesNow`, not the ladder's `graduatesNext`: this sentence is about
-  // the answer being offered right now, and «ещё один верный ответ» beside a
-  // preview that already reads «~1 дн» points at an answer that is not the
-  // one in front of the learner. The ladder, which is about position, keeps
-  // the "one more" wording.
-  if (m.graduatesOnGood) return t('review.memory.graduatesNow')
-  // Deliberately NOT the step number here. This sentence is about what the
-  // answer SCHEDULES, and the step number describes where the card is now —
-  // printing them together read as «~10 мин = шаг 1 из 2» when a right answer
-  // actually moves it to step 2. The numbered position belongs on the ladder
-  // above, which is about position; working out the step a Good would land on
-  // would mean reimplementing FSRS's step logic in the client.
-  if (m.stepsTotal && m.stepsLeft) return t('review.memory.stillStep')
-  if (m.stage === 'young' || m.stage === 'mature') return t('review.memory.onDays')
-  return ''
-})
 
 /**
  * The next set: the head of the list the store fetched when the last one
@@ -574,8 +693,9 @@ async function nextSet() {
  * for the learner who sees it before they read anything. docs/UX.md §11
  */
 const cardTone = computed(() => {
-  if (verdict.value === 'correct') return 'border-known/60'
-  if (verdict.value === 'wrong') return 'border-error/60'
+  // A soft inset wash of the tint beside the edge: colour only, no layout.
+  if (verdict.value === 'correct') return 'border-known/60 ring-4 ring-inset ring-tint-sage'
+  if (verdict.value === 'wrong') return 'border-error/60 ring-4 ring-inset ring-tint-blush'
   return 'border-border'
 })
 
@@ -604,6 +724,15 @@ watch(
 
 onUnmounted(() => speech.cancel())
 
+// Phone only: the desktop drawer overlays the page and nothing scrolls for it.
+watch(inspected, (i) => {
+  if (!i || !isPhone.value) return
+  detailsOpen.value = true
+  void nextTick(() =>
+    document.querySelector('[data-details]')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }),
+  )
+})
+
 /**
  * The full stop. Fires only on a session that had something in it: arriving at
  * an already-empty queue is not an achievement and must not sound like one.
@@ -625,6 +754,7 @@ watch(
 
 function advance() {
   clear()
+  chosen.value = null
   marked.value = null
   store.next()
 }
@@ -635,6 +765,8 @@ async function submitTyped() {
     await focusAnswer()
     return
   }
+  // A choice card is answered by tapping, never by this path.
+  if (choiceActive.value) return
   const res = await store.submit()
   if (res) signal(res.correct)
   await showVerdict()
@@ -666,11 +798,15 @@ async function showVerdict() {
 const keyHints = computed<KeyHint[]>(() => {
   const answering = store.phase === 'answer'
   return [
-    store.isProductive
+    choiceActive.value
+      ? answering
+        ? { keys: ['Enter'], label: t('keys.review.next') }
+        : { keys: ['1', '2', '3', '4', '5'], label: t('keys.review.choose') }
+      : store.isProductive
       ? { keys: ['Enter'], label: t('keys.review.check') }
       : { keys: ['Space'], label: answering ? t('keys.review.next') : t('keys.review.reveal') },
     { keys: ['1', '2', '3', '4'], label: t('keys.review.rate'), muted: store.isProductive || !answering },
-    { keys: ['h'], label: t('keys.review.hint') },
+    ...(choiceActive.value ? [] : [{ keys: ['h'], label: t('keys.review.hint') }]),
     { keys: ['u'], label: t('keys.review.undo') },
     // Dimmed while the answer box has focus, because `t` is a letter and goes
     // into it — the same guard `h` and `u` sit behind. The button under the
@@ -681,7 +817,7 @@ const keyHints = computed<KeyHint[]>(() => {
       label: t('keys.review.know'),
       muted: store.isProductive && store.phase === 'question',
     },
-    { keys: ['a'], label: t('keys.review.tutor'), muted: !store.current },
+    ...(tutorAvailable.value ? [{ keys: ['a'], label: t('keys.review.tutor'), muted: !store.current }] : []),
     { keys: ['Escape'], label: t('keys.review.closeInspector'), muted: !inspected.value && !tutorOpen.value },
   ]
 })
@@ -695,8 +831,17 @@ async function grade(rating: number) {
 }
 
 function onKey(e: KeyboardEvent) {
+  // A dialog (the «как это работает» sheet) owns the keyboard while it is open.
+  if ((e.target as HTMLElement | null)?.closest?.('[role="dialog"]')) return
   if (store.done || store.loading) return
   const typing = (e.target as HTMLElement)?.tagName === 'INPUT'
+  // A focused button/link activates itself on Enter/Space: running the shortcut
+  // too (and preventing the default) would answer twice or swallow the click.
+  if (
+    (e.key === 'Enter' || e.key === ' ') &&
+    (e.target as HTMLElement | null)?.closest?.('button, a, [role="button"]')
+  )
+    return
 
   // The tutor's composer takes its own keys — Enter sends, Esc stops — and
   // the card must not answer to them. An Esc the composer did not keep
@@ -718,8 +863,7 @@ function onKey(e: KeyboardEvent) {
   }
   if (!store.current) return
 
-  // Esc closes the inspector, then the tutor, rather than leaving either to
-  // be dismissed by mouse.
+  // Esc closes the drawer (or, on a phone, the inspector, then the tutor).
   if (e.key === 'Escape' && (inspected.value || tutorOpen.value)) {
     e.preventDefault()
     if (inspected.value) inspected.value = ''
@@ -727,8 +871,17 @@ function onKey(e: KeyboardEvent) {
     return
   }
 
+  if (choiceActive.value && store.phase === 'question' && /^[1-5]$/.test(e.key)) {
+    e.preventDefault()
+    const o = store.current.options?.[Number(e.key) - 1]
+    if (o && !store.submitting) void pickOption(o)
+    return
+  }
   if (e.key === 'Enter' || (e.key === ' ' && !typing)) {
     e.preventDefault()
+    if (store.submitting) return
+    // Choice cards are answered by picking; Enter only moves on afterwards.
+    if (choiceActive.value && store.phase === 'question') return
     if (store.isProductive) {
       void submitTyped()
     } else if (store.phase === 'question') {
@@ -740,6 +893,7 @@ function onKey(e: KeyboardEvent) {
   }
   if (!typing && e.key === 'h') {
     e.preventDefault()
+    if (store.submitting || store.phase !== 'question' || choiceActive.value) return
     store.hint()
     return
   }
@@ -833,8 +987,8 @@ const ratingKeys = [
     jump when you click a word in it.
   -->
   <div
-    class="mx-auto flex w-full flex-col gap-6 lg:flex-row lg:items-start lg:justify-center"
-    :class="tutorOpen ? 'max-w-6xl' : inspected ? 'max-w-5xl' : 'max-w-2xl'"
+    class="flex w-full min-w-0 flex-col gap-6 transition-[padding] duration-200 motion-reduce:transition-none"
+    :class="reserveDrawer ? 'pr-96' : ''"
   >
     <!--
       Anchored at the top while a card is up. Centred, the column re-centred
@@ -844,7 +998,7 @@ const ratingKeys = [
     -->
     <div
       class="flex w-full min-w-0 max-w-2xl flex-col gap-6"
-      :class="store.current && !store.betweenSets ? '' : 'min-h-[70vh] justify-center'"
+      :class="store.current && !store.betweenSets ? '' : 'md:min-h-[70vh] md:justify-center'"
     >
     <p v-if="store.loading" class="text-sm text-muted-foreground">{{ $t('common.loading') }}</p>
 
@@ -1033,14 +1187,6 @@ const ratingKeys = [
     />
 
     <template v-else-if="store.current">
-      <!-- Practice schedules nothing, and the learner is told so rather than
-           left to infer it from a due date that never moves. The app's
-           credibility rests on not overclaiming, and this is the one screen
-           where the same card means two different things. -->
-      <Note v-if="store.mode === 'practice'" variant="info" class="text-xs">
-        {{ $t('review.practiceNotice') }}
-      </Note>
-
       <!-- The word just set aside, and the way back. No confirmation dialog
            precedes this — «Знаю» is reversible, and a dialog on a reversible
            action taxes the common case to guard the rare one. What it owes
@@ -1078,103 +1224,118 @@ const ratingKeys = [
         </RouterLink>
       </Note>
 
-      <!-- Progress -->
+      <!-- ONE slim header row, then the progress strip, then one stage line.
+           Nothing else sits above the card. -->
       <div class="flex flex-col gap-2">
-        <!-- Wraps: «ВОСПРОИЗВЕДЕНИЕ» is a long chip and the content column is
-             narrow on a phone, where it used to run off the right edge. -->
-        <div
-          class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-muted-foreground"
-        >
-          <span class="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-            <!-- The pile, now that the tabs are on the start screen (ADR-028).
-                 A practice round also prints the criterion really applied:
+        <!-- One line, never wrapping. Phone: [✕ Выйти] … 3/15 [Форма ?] [Учитель].
+             The pile, the weak-mode note and «набор N из M» are desktop's — the
+             set summary says which set this is. -->
+        <div class="flex flex-nowrap items-center gap-1.5 text-xs text-muted-foreground md:gap-x-3">
+          <!-- The way out. Answers are saved one by one, so it asks nothing. -->
+          <RouterLink
+            to="/review"
+            :class="buttonVariants({ variant: 'ghost' })"
+            class="-ml-2 h-8 min-h-8 shrink-0 gap-1 px-2 text-sm whitespace-nowrap text-muted-foreground hover:text-foreground md:-ml-3 md:gap-1.5 md:px-3"
+          >
+            <X class="size-4" aria-hidden="true" />
+            {{ $t('review.exit') }}
+          </RouterLink>
+          <span
+            class="flex min-h-8 min-w-0 flex-1 items-center justify-end gap-x-1.5 whitespace-nowrap md:justify-start"
+          >
+            <span v-if="pileLabel" class="truncate max-md:hidden">{{ pileLabel }} ·</span>
+            <!-- A practice round also prints the criterion really applied:
                  «слабые» only when the server served it that way, and the
                  fallback echo when it did not (ADR-024). -->
-            <span>{{ pileLabel }}</span>
-            <span v-if="store.mode === 'practice' && store.practiceServedMode === 'weak'">
-              · {{ $t('review.practiceWeak') }}
-            </span>
-            <span
-              v-else-if="store.mode === 'practice' && store.practiceMode === 'weak'"
-              class="text-uncertain"
-            >
-              · {{ $t('review.practiceWeakFallback') }}
-            </span>
-            <span v-if="setLabel" class="font-medium text-foreground">· {{ setLabel }}</span>
-            <span class="font-mono tabular-nums">
-              {{ $t('review.set.progress', { done: store.setProgress.done, total: store.setProgress.total }) }}
+            <template v-if="store.mode === 'practice' && store.practiceServedMode === 'weak'">
+              <span class="max-md:hidden">{{ $t('review.practiceWeak') }} ·</span>
+            </template>
+            <template v-else-if="store.mode === 'practice' && store.practiceMode === 'weak'">
+              <span class="text-uncertain max-md:hidden">{{ $t('review.practiceWeakFallback') }} ·</span>
+            </template>
+            <span v-if="setLabel" class="font-medium text-foreground max-md:hidden">{{ setLabel }} ·</span>
+            <span class="shrink-0 font-mono tabular-nums whitespace-nowrap">
+              <span class="md:hidden">{{ progressShort }}</span>
+              <span class="max-md:hidden">{{ progressLabel }}</span>
             </span>
           </span>
-          <!--
-            The direction, as a LABEL. It used to be a bordered pill sitting in
-            the top-right corner where a control belongs, and `пропуск` — the
-            name of the direction — reads in Russian as the imperative "skip".
-            It was clicked as a skip button and did nothing, which is the worst
-            outcome an affordance can have. No border, no box, no hit target —
-            `pointer-events-none` keeps it that way now that it is two chips.
-
-            Two chips, because it was two words: `УЗНАВАНИЕ НОВАЯ`, uppercased
-            by CSS, run together with a space between them and nothing saying
-            that the first is what the card asks of you and the second is that
-            you have not seen it before. Read as one unparseable label.
-          -->
-          <span class="flex min-w-0 items-center gap-2">
-          <span class="pointer-events-none flex min-w-0 flex-wrap items-center gap-1.5">
-            <span class="hidden text-[10px] text-muted-foreground sm:inline">
-              {{ $t('review.cardType') }}
-            </span>
+          <span class="flex shrink-0 items-center gap-1 md:gap-1.5">
+            <!-- Practice schedules nothing; the chip says which mode this is.
+                 What that means is in the type chip's tip. -->
             <span
-              class="rounded border border-border-subtle bg-muted px-1.5 py-0.5 text-[10px] tracking-wide uppercase"
+              v-if="store.mode === 'practice'"
+              class="inline-flex h-8 items-center rounded-md border border-border-subtle bg-muted px-1.5 text-[10px] tracking-wide whitespace-nowrap uppercase md:pl-2 md:pr-0.5"
             >
-              {{ $t(`review.directions.${store.current.direction}`) }}
+              {{ $t('review.practice') }}
+              <InfoTip class="max-md:hidden" :label="$t('review.practice')">{{ $t('review.practiceTip') }}</InfoTip>
+            </span>
+            <!-- The card type: icon + ONE word on a phone (the long name on
+                 desktop), its description behind a «?». Not a button look. -->
+            <span
+              class="inline-flex h-8 items-center gap-1 rounded-md border border-border-subtle bg-muted pl-1.5 pr-0 text-[10px] tracking-wide whitespace-nowrap uppercase md:pl-2"
+            >
+              <component :is="DIRECTION_ICON[store.current.direction]" class="size-3 shrink-0 md:hidden" aria-hidden="true" />
+              <span class="md:hidden">{{ $t(`review.dir.short.${store.current.direction}`) }}</span>
+              <span class="max-md:hidden">{{ $t(`review.directions.${store.current.direction}`) }}</span>
+              <InfoTip :label="$t('review.cardType')">
+                {{ $t(`review.directionHint.${store.current.direction}`) }}
+                {{ $t('review.keysInspect') }}
+                <template v-if="store.mode === 'practice'"> {{ $t('review.practiceTip') }}</template>
+              </InfoTip>
             </span>
             <span
               v-if="store.current.isNew"
-              class="rounded border border-new/40 bg-new/10 px-1.5 py-0.5 text-[10px] tracking-wide text-new uppercase"
+              class="inline-flex h-8 items-center rounded-md border border-new/40 bg-new/10 px-1.5 text-[10px] tracking-wide whitespace-nowrap text-new uppercase md:px-2"
             >
               {{ $t('review.newCard') }}
             </span>
-          </span>
-          <!-- The tutor, top right, in both phases (ADR-034). A sibling of the
-               chips' span, which is pointer-events-none on purpose. -->
-          <Button
-            variant="ghost"
-            size="sm"
-            class="shrink-0 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-            :class="tutorOpen ? 'bg-accent text-foreground' : ''"
-            :aria-pressed="tutorOpen"
-            :title="$t('review.tutor.hint')"
-            @click="toggleTutor"
-          >
-            <GraduationCap class="size-3.5" aria-hidden="true" />
-            <span class="hidden sm:inline">{{ $t('review.tutor.open') }}</span>
-            <span class="font-mono text-[10px] opacity-60">a</span>
-          </Button>
+            <!-- Options or typing, for this card and the following ones. Only
+                 where the server sent options; fixed once an answer is in. -->
+            <Button
+              v-if="hasOptions"
+              variant="ghost"
+              size="sm"
+              class="size-9 shrink-0 p-0 text-muted-foreground hover:text-foreground"
+              :class="choiceActive ? 'bg-accent text-foreground' : ''"
+              :aria-pressed="choiceActive"
+              :aria-label="$t('review.choice.toggle')"
+              :title="$t('review.choice.toggle')"
+              :disabled="store.phase !== 'question'"
+              @click="toggleAnswerMode"
+            >
+              <ListChecks class="size-4" aria-hidden="true" />
+            </Button>
+            <!-- The Teacher, in both phases (ADR-034) — only with an LLM. -->
+            <Button
+              v-if="tutorAvailable"
+              variant="ghost"
+              size="sm"
+              class="h-8 shrink-0 gap-1.5 px-2 text-xs text-muted-foreground hover:text-foreground"
+              :class="tutorOpen ? 'bg-accent text-foreground' : ''"
+              :aria-pressed="tutorOpen"
+              :aria-label="$t('review.tutor.open')"
+              :title="$t('review.tutor.hint')"
+              @click="toggleTutor"
+            >
+              <GraduationCap class="size-4" aria-hidden="true" />
+              <span class="hidden md:inline">{{ $t('review.tutor.open') }}</span>
+              <span v-if="!compact" class="font-mono text-[10px] opacity-60">a</span>
+            </Button>
           </span>
         </div>
-        <!-- The set's own bar: cards answered, over the set. A finish line the
-             learner can see the end of. [R18 §2] -->
-        <div class="h-1 w-full overflow-hidden rounded-full bg-muted">
+        <!-- The set's own bar: cards answered, over the set. [R18 §2] -->
+        <div class="h-1.5 w-full overflow-hidden rounded-full bg-tint-mist-edge">
           <div
             class="h-full rounded-full bg-primary transition-[width] duration-200"
             :style="{ width: `${setPct}%` }"
           />
         </div>
-        <!-- What this direction actually asks of you. The five directions were
-             named and never explained, and the name alone does not tell a
-             learner whether to type, to recall or to listen. docs/UX.md §1.4. -->
-        <p class="text-[11px] leading-relaxed text-muted-foreground">
-          {{ $t(`review.directionHint.${store.current.direction}`) }}
-        </p>
-        <!-- What this card knows about itself: stage, the last outcomes — and
-             after the answer, where the interval went. Measured figures only;
-             there is no score here. [R18], ADR-026 -->
+        <!-- Where the card stands: a position, never a score. [R18], ADR-039 -->
         <MemoryMeter
           v-if="store.current.memory"
           :memory="store.current.memory"
           :after="store.result?.memory ?? null"
           :scheduled="store.mode === 'review'"
-          class="mt-1"
         />
       </div>
 
@@ -1185,8 +1346,8 @@ const ratingKeys = [
       -->
       <div
         :key="store.current.cardId"
-        class="animate-card-in rounded-xl border bg-card p-8 shadow-raised transition-colors"
-        :class="cardTone"
+        class="animate-card-in rounded-xl border bg-card shadow-raised transition-[border-color,box-shadow] duration-200 sm:p-8"
+        :class="[cardTone, choiceActive ? 'p-3' : 'p-5']"
       >
         <!--
           An audio card withholds the text in BOTH phases: the sound is the
@@ -1314,7 +1475,8 @@ const ratingKeys = [
           which on a long card meant scrolling to find out what was wrong.
         -->
         <form
-          v-if="store.isProductive && store.phase === 'question'"
+          v-if="store.isProductive && store.phase === 'question' && !choiceActive"
+          id="review-form"
           class="mt-6 flex flex-col gap-3"
           @submit.prevent="submitTyped"
         >
@@ -1322,40 +1484,35 @@ const ratingKeys = [
             v-model="store.typed"
             data-answer-input
             lang="hu"
+            inputmode="text"
             autocapitalize="off"
+            autocorrect="off"
             autocomplete="off"
             spellcheck="false"
-            class="text-center text-lg"
+            enterkeyhint="done"
+            class="h-11 scroll-mb-40 text-center text-lg"
             :placeholder="typePlaceholder"
           />
-          <div class="flex justify-center gap-2">
-            <Button type="submit" :disabled="store.submitting">{{ $t('review.check') }}</Button>
-            <Button type="button" variant="ghost" size="sm" @click="store.hint()">
-              {{ $t('review.hint') }}
-            </Button>
-          </div>
-          <p
-            v-if="previewLabel(effective('good'))"
-            class="text-center text-[11px] text-muted-foreground"
-            :title="$t('review.memory.previewHint')"
-          >
-            {{ $t('review.memory.ifRight', { t: previewLabel(effective('good')) }) }}
-            <!--
-              «через ~10 мин» on its own is a number with no meaning attached;
-              the learner who reported this could not tell what it was a step
-              towards. The second clause says what the scheduler is actually
-              doing — either "this is a learning step and one more right answer
-              ends them", or "this card is already on days". Both come from
-              the server (srs.Memory), never derived here.
-            -->
-            <span v-if="graduationNote" class="text-known">— {{ graduationNote }}</span>
-          </p>
+          <!-- Check and «Подсказка» live in the action bar below the card,
+               tied to this form by id. -->
         </form>
 
-        <!-- Reveal for receptive cards -->
-        <div v-else-if="store.phase === 'question'" class="mt-6 flex justify-center">
-          <Button @click="store.reveal()">{{ $t('review.show') }}</Button>
-        </div>
+        <!-- Options (answerMode 'choose'): they stay on screen through the
+             verdict, so the card does not move when it arrives. -->
+        <AnswerOptions
+          v-if="choiceActive && store.current.options"
+          :options="store.current.options"
+          :chosen="chosen"
+          :result="optionsResult"
+          :busy="store.submitting"
+          :show-index="!compact"
+          @pick="pickOption"
+        />
+
+        <!-- Reveal for receptive cards: the button is in the action bar. This
+             branch only keeps the v-else chain from falling through to the
+             verdict block while the card is still asking. -->
+        <template v-else-if="store.phase === 'question'" />
 
         <!--
           Result. Keyed on the feedback counter so the movement replays for
@@ -1377,17 +1534,19 @@ const ratingKeys = [
         >
           <template v-if="store.isProductive">
             <MorphemeDiff
-              v-if="verdictKind === 'diff' && store.result?.diff"
+              v-if="!choiceActive && verdictKind === 'diff' && store.result?.diff"
               :diff="store.result.diff"
             />
 
             <!-- A hit: the verdict and the form it confirmed, on one line. -->
             <div
-              v-else-if="verdictKind === 'correct'"
+              v-else-if="!choiceActive && verdictKind === 'correct'"
               class="flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1"
             >
               <span class="flex items-center gap-1.5 text-sm font-medium text-known">
-                <Check class="size-4" aria-hidden="true" />
+                <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                  <path d="M3 8.5 6.5 12 13 4.5" pathLength="1" stroke-dasharray="1" class="animate-check-draw" />
+                </svg>
                 {{ $t('review.right') }}
               </span>
               <span class="font-mono text-2xl leading-relaxed text-known" lang="hu">
@@ -1406,7 +1565,7 @@ const ratingKeys = [
               so the answer was nowhere on the screen at all.
             -->
             <div
-              v-else
+              v-else-if="!choiceActive"
               class="rounded-lg border border-border-subtle bg-background p-3 font-mono text-lg leading-relaxed"
             >
               <div v-if="store.typed" class="flex items-baseline gap-2">
@@ -1433,6 +1592,12 @@ const ratingKeys = [
             </p>
 
             <FeatureChips v-if="store.result" :features="store.result.gradedFeatures" />
+
+            <!-- A miss, said calmly, with when it returns (the scheduler's own
+                 figure for «Снова» on this card). -->
+            <p v-if="missLine" class="text-center text-xs leading-relaxed text-muted-foreground">
+              {{ missLine }}
+            </p>
           </template>
 
           <!--
@@ -1469,37 +1634,106 @@ const ratingKeys = [
         </div>
       </div>
 
-      <!-- Grading -->
-      <div v-if="store.phase === 'answer'" class="flex flex-col gap-2">
-        <div v-if="!store.isProductive" class="grid grid-cols-4 gap-2">
-          <Button
-            v-for="r in ratingKeys"
-            :key="r.n"
-            :variant="r.variant"
-            class="h-auto flex-col gap-0.5 py-4"
-            :title="$t('review.memory.previewHint')"
-            @click="grade(r.n)"
-          >
-            <span>{{ $t(`review.ratings.${r.key}`) }}</span>
-            <!-- After «Подсказка» — the only thing that shows the answer
-                 before it is graded — the server caps the grade at Hard; the
-                 button says so. The tutor does not do this (ADR-046). -->
-            <span v-if="capped(r.key)" class="text-[10px] leading-tight text-uncertain">
-              {{ $t('review.ratings.cappedHard') }}
-            </span>
-            <!-- What this grade schedules, from the scheduler's own preview.
-                 Approximate, and absent in practice. -->
-            <span v-if="previewLabel(effective(r.key))" class="font-mono text-[11px] tabular-nums opacity-80">
-              ~{{ previewLabel(effective(r.key)) }}
-            </span>
-            <span class="font-mono text-[10px] opacity-60">{{ r.n }}</span>
-          </Button>
+      <!--
+        The actions. In flow on a desktop; pinned above the tab bar on a phone
+        or a touch screen, each at least 48px high with room between them so a
+        thumb does not hit the neighbour. On <md the tab bar already covers the
+        home-indicator inset (it is inside --bottom-tabs-h); a wider touch
+        screen has no tab bar, so the inset is padded here instead.
+      -->
+      <div
+        data-action-bar
+        :class="
+          compact
+            ? 'fixed inset-x-0 bottom-[var(--bottom-tabs-h,0px)] z-30 border-t border-border-subtle bg-background px-4 pt-3 pb-3 md:left-(--rail) md:pb-[calc(env(safe-area-inset-bottom)+0.75rem)]'
+            : ''
+        "
+        :style="compact && keyboardInset > 0 ? { bottom: `${keyboardInset}px` } : undefined"
+      >
+        <div class="mx-auto flex w-full max-w-2xl flex-col gap-2">
+          <!-- Opt-in (Settings → Повторение); off by default. -->
+          <AccentStrip v-if="showAccentKeys && store.isProductive && store.phase === 'question'" />
+          <template v-if="store.phase === 'question'">
+            <div v-if="choiceActive" class="flex justify-center">
+              <Button
+                variant="secondary"
+                :class="compact ? 'h-12 w-full' : ''"
+                :disabled="store.marking"
+                :title="$t('review.know.hint')"
+                @click="knowCurrent"
+              >
+                <CircleCheck class="size-4" aria-hidden="true" />
+                {{ $t('review.know.action') }}
+                <span v-if="!compact" class="font-mono text-[10px] opacity-60">t</span>
+              </Button>
+            </div>
+            <div v-else-if="store.isProductive" class="flex justify-center gap-3" :class="compact ? '' : 'mt-0'">
+              <Button
+                type="button"
+                variant="ghost"
+                :size="compact ? 'default' : 'sm'"
+                :class="compact ? 'h-12 flex-1' : ''"
+                @click="store.hint()"
+              >
+                {{ $t('review.hint') }}
+              </Button>
+              <Button
+                type="submit"
+                form="review-form"
+                :class="compact ? 'h-12 flex-[2]' : ''"
+                :disabled="store.submitting"
+              >
+                {{ $t('review.check') }}
+                <span v-if="!compact" class="font-mono text-[10px] opacity-60">↵</span>
+              </Button>
+            </div>
+            <div v-else class="flex justify-center">
+              <Button :class="compact ? 'h-12 w-full' : ''" @click="store.reveal()">
+                {{ $t('review.show') }}
+                <span v-if="!compact" class="font-mono text-[10px] opacity-60">↵</span>
+              </Button>
+            </div>
+          </template>
+          <template v-else>
+            <div v-if="!store.isProductive" class="grid grid-cols-4" :class="compact ? 'gap-3' : 'gap-2'">
+              <Button
+                v-for="r in ratingKeys"
+                :key="r.n"
+                :variant="r.variant"
+                class="h-auto flex-col gap-0.5 px-1 py-4"
+                :class="compact ? 'min-h-14' : ''"
+                :title="$t('review.memory.previewHint')"
+                @click="grade(r.n)"
+              >
+                <span>{{ $t(`review.ratings.${r.key}`) }}</span>
+                <!-- After «Подсказка» — the only thing that shows the answer
+                     before it is graded — the server caps the grade at Hard; the
+                     button says so. The tutor does not do this (ADR-046). -->
+                <span v-if="capped(r.key)" class="text-[10px] leading-tight text-uncertain">
+                  {{ $t('review.ratings.cappedHard') }}
+                </span>
+                <!-- What this grade schedules, from the scheduler's own preview.
+                     Approximate, and absent in practice. -->
+                <span v-if="previewLabel(effective(r.key))" class="font-mono text-[11px] tabular-nums opacity-80">
+                  ~{{ previewLabel(effective(r.key)) }}
+                </span>
+                <span v-if="!compact" class="font-mono text-[10px] opacity-60">{{ r.n }}</span>
+              </Button>
+            </div>
+            <Button v-else data-next class="w-full animate-route-in" :class="compact ? 'h-12' : ''" @click="submitTyped">
+              {{ $t('review.next') }}
+              <span v-if="!compact" class="font-mono text-[10px] opacity-60">↵</span>
+            </Button>
+          </template>
         </div>
-        <Button v-else class="w-full" @click="submitTyped">
-          {{ $t('review.next') }}
-          <span class="font-mono text-[10px] opacity-60">↵</span>
-        </Button>
       </div>
+      <!-- Room for the pinned bar, so the last line of the page is not under it. -->
+      <div
+        v-if="compact"
+        class="h-24"
+        :style="keyboardInset > 0 ? { height: `calc(6rem + ${keyboardInset}px)` } : undefined"
+        aria-hidden="true"
+      />
 
       <Note v-if="store.error" variant="error">{{ store.error }}</Note>
 
@@ -1513,7 +1747,7 @@ const ratingKeys = [
         out of reach — and making the learner reveal an answer they do not want
         first would be the app insisting on an interaction to accept a refusal.
       -->
-      <div class="flex flex-wrap justify-center gap-2">
+      <div v-if="!(choiceActive && store.phase === 'question')" class="flex flex-wrap justify-center gap-2">
         <Button
           variant="ghost"
           size="sm"
@@ -1524,35 +1758,59 @@ const ratingKeys = [
         >
           <CircleCheck class="size-3.5" aria-hidden="true" />
           {{ $t('review.know.action') }}
-          <span class="font-mono text-[10px] opacity-60">t</span>
+          <span v-if="!compact" class="font-mono text-[10px] opacity-60">t</span>
         </Button>
       </div>
 
-      <p class="text-center text-xs text-muted-foreground">{{ $t('review.keysInspect') }}</p>
-      <KeyBar :items="keyHints" storage-key="tanulom.keybar.review" />
+      <KeyBar v-if="!compact" :items="keyHints" storage-key="tanulom.keybar.review" />
     </template>
     </div>
 
     <!-- The side column: any word, at any time — what it means, what shape it
          is in, and three sentences it really appears in — and the tutor,
          after an answer, with the question about this card already written. -->
+    <div v-if="inspected && isPhone" data-details class="flex w-full min-w-0 flex-col gap-2">
+    <!-- The panels fold into «Подробнее» instead of sitting between
+         the card and the bar; they open themselves when asked for. -->
+    <button
+      type="button"
+      class="flex min-h-11 cursor-pointer items-center gap-1 self-start text-sm text-muted-foreground hover:text-foreground"
+      :aria-expanded="detailsOpen"
+      @click="detailsOpen = !detailsOpen"
+    >
+      {{ $t('review.details') }}
+      <ChevronDown class="size-4 transition-transform" :class="detailsOpen ? 'rotate-180' : ''" aria-hidden="true" />
+    </button>
     <div
-      v-if="inspected || tutorOpen"
-      class="flex w-full flex-col gap-4 lg:sticky lg:top-2 lg:max-h-[calc(100dvh-6rem)] lg:shrink-0 lg:overflow-y-auto"
-      :class="tutorOpen ? 'lg:w-96' : 'lg:w-80'"
+      class="flex w-full flex-col gap-4"
+      :class="detailsOpen ? '' : 'hidden'"
     >
       <WordInspector v-if="inspected" :key="inspected" :word="inspected" @close="inspected = ''" />
-      <TutorAside
-        v-if="tutorOpen && store.current"
-        :chips="tutorChips"
-        :card="tutorCard"
-        :note="store.current.noteId"
-        :phase="store.phase"
-        :thread-id="tutorThreadId"
-        @created="onTutorCreated"
-        @deleted="tutorThread = null"
-        @close="tutorOpen = false"
-      />
     </div>
+    </div>
+
+  <!-- Desktop: ONE right-hand drawer, the clicked word or the Teacher; phone: the
+       Teacher in a bottom sheet (the word stays inline under «Подробнее»). -->
+  <BottomSheet
+    side="right"
+    :open="drawerOpen || tutorInSheet"
+    :title="drawerWord ? inspected : $t('review.tutor.title')"
+    :hide-title="drawerWord"
+    @close="drawerWord ? (inspected = '') : (tutorOpen = false)"
+  >
+    <WordInspector v-if="drawerWord" :key="inspected" :word="inspected" embedded @close="inspected = ''" />
+    <TutorAside
+      v-else-if="store.current"
+      embedded
+      :chips="tutorChips"
+      :card="tutorCard"
+      :note="store.current.noteId"
+      :phase="store.phase"
+      :thread-id="tutorThreadId"
+      @created="onTutorCreated"
+      @deleted="tutorThread = null"
+      @close="tutorOpen = false"
+    />
+  </BottomSheet>
   </div>
 </template>

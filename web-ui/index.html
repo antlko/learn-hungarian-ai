@@ -2,15 +2,19 @@
 <html lang="ru" class="light">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
     <meta
       name="description"
       content="tanulom — a self-hosted Hungarian trainer that tracks words and grammatical features as two separate memories. Spaced repetition, a reader, a grammar tutor and ear training, on your own machine."
     />
     <!-- The two page backgrounds as sRGB, from the oklch tokens in assets/tailwind.css. -->
-    <meta name="theme-color" content="#fbfaf7" />
+    <meta name="theme-color" content="#fbf7ef" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0e12" media="(prefers-color-scheme: dark)" />
     <title>tanulom</title>
     <!--
       Before the app runs: the theme the learner chose (stores/ui.ts writes it under
@@ -26,8 +30,15 @@
             t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
           }
           document.documentElement.className = t
-          var m = document.querySelector('meta[name="theme-color"]')
-          if (m) m.setAttribute('content', t === 'dark' ? '#0a0e12' : '#fbfaf7')
+          // The learner's choice may differ from the OS: drop the media-scoped pair
+          // for one tag that follows the chosen theme.
+          document.querySelectorAll('meta[name="theme-color"]').forEach(function (n, i) {
+            if (i) n.remove()
+            else {
+              n.removeAttribute('media')
+              n.setAttribute('content', t === 'dark' ? '#0a0e12' : '#fbf7ef')
+            }
+          })
           var l = localStorage.getItem('tanulom.locale')
           if (l === 'ru' || l === 'en') document.documentElement.lang = l
         } catch (e) {

@@ -47,7 +47,7 @@ const maxAnalyzeBytes = 200_000
 func (s *Server) requirePack() error {
 	if s.analyzer == nil {
 		return fiber.NewError(fiber.StatusServiceUnavailable,
-			"no language pack is installed — download one from Settings → Data")
+			"errors.packMissing")
 	}
 	return nil
 }
@@ -71,6 +71,7 @@ func (s *Server) handleAnalyze(c fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	s.applyNLPHints(c.Context(), analyzeHintsTimeout, req.Text, tokens)
 
 	segCache := map[string][]morph.Segment{}
 	out := make([]AnalyzedTokenDTO, 0, len(tokens))
@@ -82,7 +83,9 @@ func (s *Server) handleAnalyze(c fiber.Ctx) error {
 			if t.Analysis.Certainty != morph.UnknownAnalysis {
 				known++
 			}
-			key := strings.ToLower(t.Text)
+			// Keyed by lemma too: a context-chosen reading can differ from the
+			// default one for the same surface form.
+			key := strings.ToLower(t.Text) + "|" + strconv.FormatInt(t.Analysis.LemmaID, 10)
 			segs, ok := segCache[key]
 			if !ok {
 				segs = s.analyzer.SegmentForm(t.Text, t.Analysis)

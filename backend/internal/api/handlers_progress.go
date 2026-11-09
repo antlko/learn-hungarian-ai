@@ -25,6 +25,7 @@ func localDay(t time.Time) string { return t.Format("2006-01-02") }
 // "queue cleared" obligation, every day, forever. ADR-021.
 func (s *Server) recordInteraction(userID int64, kind string, durationMs int64) {
 	now := time.Now()
+	s.invalidateCounted(userID)
 	due, err := srs.NewStore(s.db.DB).ActionableDue(userID,
 		s.Config().Review.BurySiblingsEnabled(), now)
 	if err != nil {
@@ -169,7 +170,7 @@ func (s *Server) handleOverview(c fiber.Ctx) error {
 		u.ID).Scan(&out.Lemmas.Learning); err != nil {
 		return err
 	}
-	out.Lemmas.Targets = map[string]int{"A1": 900, "A2": 2000, "B1": 3500, "B2": 6000}
+	out.Lemmas.Targets = stats.LemmaTargets()
 
 	days, err := st.Days(u.ID, 400)
 	if err != nil {

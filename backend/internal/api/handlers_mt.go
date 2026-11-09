@@ -65,7 +65,7 @@ func (s *Server) handleMTStatus(c fiber.Ctx) error {
 	if _, err := mustUser(c); err != nil {
 		return err
 	}
-	client := mt.New(s.Config().Services.MT)
+	client := mt.New(s.service("mt"))
 	if client == nil {
 		return c.JSON(MTStatusResponse{})
 	}
@@ -88,7 +88,7 @@ func (s *Server) handleMTWarmup(c fiber.Ctx) error {
 	if _, err := mustUser(c); err != nil {
 		return err
 	}
-	client := mt.New(s.Config().Services.MT)
+	client := mt.New(s.service("mt"))
 	if client == nil {
 		// The same i18n key the reader's translate button uses, so the two
 		// screens cannot describe the same configuration differently.

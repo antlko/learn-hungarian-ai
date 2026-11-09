@@ -107,6 +107,7 @@ func (s *Server) handlePracticeQueue(c fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	s.attachOptions(items, time.Now())
 	s.warmCribs(u.ID, items)
 	return c.JSON(PracticeQueueResponse{Items: items, Scope: scope, Mode: served, Pool: pool})
 }
@@ -144,6 +145,10 @@ func (s *Server) handlePracticeAnswer(c fiber.Ctx) error {
 	}
 	note, err := store.Note(u.ID, card.NoteID)
 	if err != nil {
+		return err
+	}
+
+	if err := checkVia(req, card.Direction); err != nil {
 		return err
 	}
 

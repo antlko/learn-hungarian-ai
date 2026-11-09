@@ -1,0 +1,4 @@
+# Conversion only. Pulled in the build stage and left behind: torch is ~800 MB
+# and the service never imports it once the CTranslate2 model exists.
+-r requirements.txt
+torch==2.5.1

@@ -7,14 +7,15 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import InfoTip from '@/components/common/InfoTip.vue'
 import Note from '@/components/common/Note.vue'
 import LocaleToggle from '@/components/common/LocaleToggle.vue'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
 import { Illustration } from '@/components/art'
-import { APP_NAME, APP_TAGLINE_KEY } from '@/lib/brand'
+import BrandWordmark from '@/components/brand/BrandWordmark.vue'
 
 
 const auth = useAuthStore()
@@ -75,27 +76,27 @@ async function submit() {
 // mapping to a localised string.</script>
 
 <template>
-  <div class="grid min-h-dvh place-items-center px-4 py-10">
+  <div class="relative grid min-h-dvh place-items-center bg-tint-cream/40 px-4 py-10">
     <div class="absolute right-4 top-4 flex gap-1">
       <LocaleToggle />
       <ThemeToggle />
     </div>
 
-    <Card variant="raised" class="w-full" :class="step === 1 ? 'max-w-md' : 'max-w-xl'">
-      <CardHeader class="gap-2">
-        <div class="flex items-baseline justify-between gap-3">
-          <div class="flex flex-col">
-            <span class="font-display text-2xl font-medium">{{ APP_NAME }}</span>
-            <span class="text-xs text-muted-foreground">{{ $t(APP_TAGLINE_KEY) }}</span>
-            <Illustration name="vine" tone="accent" class="mt-2" />
-          </div>
+    <div class="flex w-full flex-col items-center gap-6" :class="step === 1 ? 'max-w-md' : 'max-w-xl'">
+    <div class="flex flex-col items-center gap-2">
+      <Illustration name="paprika" size="md" />
+      <BrandWordmark :size="56" />
+    </div>
+    <Card variant="raised" class="w-full">
+      <CardHeader class="gap-3">
+        <div class="flex items-baseline justify-end gap-3">
           <!-- Two steps, and which one you are on: a wizard that does not say
                how long it is reads as open-ended. -->
           <span class="shrink-0 text-xs tabular-nums text-muted-foreground">
             {{ $t('setup.step', { n: step, of: 2 }) }}
           </span>
         </div>
-        <div class="h-1 w-full overflow-hidden rounded-full bg-muted">
+        <div class="h-1.5 w-full overflow-hidden rounded-full bg-tint-mist">
           <div
             class="h-full rounded-full bg-primary transition-[width] duration-200"
             :style="{ width: step === 1 ? '50%' : '100%' }"
@@ -104,9 +105,6 @@ async function submit() {
         <CardTitle class="mt-1 text-lg">
           {{ step === 1 ? $t('setup.title') : $t('setup.local.title') }}
         </CardTitle>
-        <CardDescription>
-          {{ step === 1 ? $t('setup.subtitle') : $t('setup.local.subtitle') }}
-        </CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -131,13 +129,11 @@ async function submit() {
               v-model="password"
               type="password"
               autocomplete="new-password"
+              :placeholder="$t('setup.passwordHint', { min: MIN_PASSWORD })"
               required
               :minlength="MIN_PASSWORD"
               :disabled="busy"
             />
-            <p class="text-xs text-muted-foreground">
-              {{ $t('setup.passwordHint', { min: MIN_PASSWORD }) }}
-            </p>
           </div>
 
           <div class="grid grid-cols-2 gap-3">
@@ -149,7 +145,10 @@ async function submit() {
               </Select>
             </div>
             <div class="flex flex-col gap-1.5">
-              <Label for="glossLang">{{ $t('setup.glossLanguage') }}</Label>
+              <Label for="glossLang" class="flex items-center gap-0.5">
+                {{ $t('setup.glossLanguage') }}
+                <InfoTip>{{ $t('setup.glossHint') }}</InfoTip>
+              </Label>
               <Select id="glossLang" v-model="glossLang" :disabled="busy">
                 <option value="ru">{{ $t('setup.glossRu') }}</option>
                 <option value="en">{{ $t('setup.glossEn') }}</option>
@@ -157,8 +156,6 @@ async function submit() {
               </Select>
             </div>
           </div>
-
-          <p class="text-xs text-muted-foreground">{{ $t('setup.glossHint') }}</p>
 
           <Note v-if="error" variant="error" bare>{{ error }}</Note>
 
@@ -183,9 +180,6 @@ async function submit() {
                   <span>{{ $t(`setup.local.ready.${key}`) }}</span>
                 </li>
               </ul>
-              <p class="text-xs leading-relaxed text-muted-foreground">
-                {{ $t('setup.local.readyHint') }}
-              </p>
             </template>
 
             <!-- The starter pack installs itself at boot; if it did not, saying so
@@ -197,19 +191,16 @@ async function submit() {
             <h3 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
               {{ $t('setup.local.extrasTitle') }}
             </h3>
-            <p class="text-xs leading-relaxed text-muted-foreground">
-              {{ $t('setup.local.extrasHint') }}
-            </p>
 
             <div class="flex flex-col gap-1.5">
-              <Label for="fullPack">{{ $t('setup.local.fullPack') }}</Label>
+              <Label for="fullPack" class="flex items-center gap-0.5">
+                {{ $t('setup.local.fullPack') }}
+                <InfoTip>{{ $t('setup.local.fullPackHint') }}</InfoTip>
+              </Label>
               <Select id="fullPack" v-model="fullPack" :disabled="busy">
                 <option value="later">{{ $t('setup.local.fullPackLater') }}</option>
                 <option value="build">{{ $t('setup.local.fullPackBuild') }}</option>
               </Select>
-              <p class="text-xs leading-relaxed text-muted-foreground">
-                {{ $t('setup.local.fullPackHint') }}
-              </p>
               <p v-if="fullPack === 'build'" class="text-xs leading-relaxed text-muted-foreground">
                 {{ $t('setup.local.fullPackBuildHint') }}
                 <code class="rounded bg-muted px-1.5 py-0.5 font-mono">make langpack</code>
@@ -217,19 +208,15 @@ async function submit() {
             </div>
 
             <div class="flex flex-col gap-1.5">
-              <Label for="speech">{{ $t('setup.local.speech') }}</Label>
+              <Label for="speech" class="flex items-center gap-0.5">
+                {{ $t('setup.local.speech') }}
+                <InfoTip>{{ $t('setup.local.speechHint') }}</InfoTip>
+              </Label>
               <Select id="speech" v-model="speech" :disabled="busy">
                 <option value="later">{{ $t('setup.local.speechLater') }}</option>
                 <option value="now">{{ $t('setup.local.speechNow') }}</option>
               </Select>
-              <p class="text-xs leading-relaxed text-muted-foreground">
-                {{ $t('setup.local.speechHint') }}
-              </p>
             </div>
-
-            <p class="text-xs leading-relaxed text-muted-foreground">
-              {{ $t('setup.local.laterInSettings') }}
-            </p>
           </section>
 
           <Note v-if="error" variant="error" bare>{{ error }}</Note>
@@ -246,5 +233,6 @@ async function submit() {
         </form>
       </CardContent>
     </Card>
+    </div>
   </div>
 </template>
