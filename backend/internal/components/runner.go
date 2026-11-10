@@ -69,6 +69,14 @@ func (p *execProc) Terminate()            { termGroup(p.cmd.Process) }
 func (p *execProc) Kill()                 { killGroup(p.cmd.Process) }
 func (p *execProc) Done() <-chan struct{} { return p.done }
 
+// ExitCode is valid once Done is closed; -1 when the child died on a signal.
+func (p *execProc) ExitCode() int {
+	if p.cmd.ProcessState == nil {
+		return -1
+	}
+	return p.cmd.ProcessState.ExitCode()
+}
+
 // Start implements Runner.
 func (ExecRunner) Start(c Cmd, onLine func(string)) (Proc, error) {
 	cmd := exec.Command(c.Path, c.Args...)

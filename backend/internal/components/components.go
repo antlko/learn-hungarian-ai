@@ -114,6 +114,7 @@ type spec struct {
 	diskNeedBytes uint64
 	diskNeed      string
 	ramNeed       string
+	defPort       int // the service's own default (services/<id>/app.py), used by `component run`
 	hostEnv       string
 	portEnv       string
 	modelEnv      string
@@ -136,13 +137,13 @@ var specs = map[string]spec{
 	MT: {
 		id: MT, files: []string{"app.py", "requirements.txt", "requirements-convert.txt"},
 		diskNeedBytes: 6 * gb, diskNeed: "≈6 GB (estimate)", ramNeed: "≈2–3 GB (estimate, not measured)",
-		hostEnv: "MT_HOST", portEnv: "MT_PORT", modelEnv: "MT_MODEL_DIR", modelSub: "nllb-ct2",
+		defPort: 5003, hostEnv: "MT_HOST", portEnv: "MT_PORT", modelEnv: "MT_MODEL_DIR", modelSub: "nllb-ct2",
 		torch: true, prepare: "import app; app.prepare_model()", pipExpected: 30,
 	},
 	NLP: {
 		id: NLP, files: []string{"app.py", "requirements.txt"},
 		diskNeedBytes: gb + gb/2, diskNeed: "≈1.5 GB (estimate)", ramNeed: "≈2.4 GB (published, not measured)",
-		hostEnv: "NLP_HOST", portEnv: "NLP_PORT", modelEnv: "NLP_MODEL_DIR", modelSub: "",
+		defPort: 5002, hostEnv: "NLP_HOST", portEnv: "NLP_PORT", modelEnv: "NLP_MODEL_DIR", modelSub: "",
 		warmup: true, pipExpected: 18,
 	},
 }
@@ -181,6 +182,9 @@ type Options struct {
 	OnInstalled func(id string) error
 	// OnChange runs after any state change (capability cache invalidation).
 	OnChange func(id string)
+	// OnLog receives every redacted install/run log line (the `component run`
+	// CLI prints them); nil in the server.
+	OnLog func(id, line string)
 
 	// ProcInfo / SignalPID are the pid-file reaper's seams.
 	ProcInfo      func(pid int) (cmdline string, alive bool)
@@ -362,6 +366,9 @@ func (m *Manager) addLog(c *comp, line string) {
 	line = m.redact(line)
 	if line == "" {
 		return
+	}
+	if m.opt.OnLog != nil {
+		m.opt.OnLog(c.spec.id, line)
 	}
 	m.mu.Lock()
 	if c.noise.skip(line) {

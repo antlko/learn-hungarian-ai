@@ -16,33 +16,49 @@ import (
 // ErrBusy while one runs, ErrInstalled when there is nothing to install, and
 // keyed *Errors for the preflight.
 func (m *Manager) Install(ctx context.Context, id string) error {
-	c, err := m.get(id)
+	c, py, err := m.claimInstall(id)
 	if err != nil {
 		return err
 	}
+	m.wg.Add(1)
+	go func() {
+		defer m.wg.Done()
+		m.runInstall(m.ctx, c, py.path, false)
+	}()
+	return nil
+}
+
+// claimInstall is Install's synchronous half: the preflight and the single-flight
+// claim. On success the component is `installing` and the caller must run
+// runInstall, which releases the claim.
+func (m *Manager) claimInstall(id string) (*comp, pyInfo, error) {
+	c, err := m.get(id)
+	if err != nil {
+		return nil, pyInfo{}, err
+	}
 	py := m.python()
 	if wkey := m.writable(); wkey != "" {
-		return &Error{Key: wkey}
+		return nil, pyInfo{}, &Error{Key: wkey}
 	}
 	if !py.ok {
-		return &Error{Key: py.key}
+		return nil, pyInfo{}, &Error{Key: py.key}
 	}
 	free, err := m.opt.Disk.Free(m.dir)
 	if err != nil {
-		return &Error{Key: KeyReadOnly, Detail: m.redact(err.Error())}
+		return nil, pyInfo{}, &Error{Key: KeyReadOnly, Detail: m.redact(err.Error())}
 	}
 	if free < c.spec.diskNeedBytes {
-		return &Error{Key: KeyDiskFull, Detail: fmt.Sprintf("need ≈%d GB, %d GB free", c.spec.diskNeedBytes/gb, free/gb)}
+		return nil, pyInfo{}, &Error{Key: KeyDiskFull, Detail: fmt.Sprintf("need ≈%d GB, %d GB free", c.spec.diskNeedBytes/gb, free/gb)}
 	}
 
 	m.mu.Lock()
 	if m.installing != "" || c.busy || c.claim || c.supDone != nil {
 		m.mu.Unlock()
-		return ErrBusy
+		return nil, pyInfo{}, ErrBusy
 	}
 	if m.installedOnDisk(id) {
 		m.mu.Unlock()
-		return ErrInstalled
+		return nil, pyInfo{}, ErrInstalled
 	}
 	c.busy = true
 	m.installing = id
@@ -51,18 +67,16 @@ func (m *Manager) Install(ctx context.Context, id string) error {
 	c.log.reset()
 	m.mu.Unlock()
 	m.changed(id)
-
-	m.wg.Add(1)
-	go func() {
-		defer m.wg.Done()
-		m.runInstall(m.ctx, c, py.path)
-	}()
-	return nil
+	return c, py, nil
 }
 
 // runInstall is the whole pipeline. Every failure funnels through fail, which
 // removes everything this run created.
-func (m *Manager) runInstall(ctx context.Context, c *comp, python string) {
+//
+// foreground (the `component run` CLI) stops after the atomic rename: the CLI
+// starts the service itself, on the address it was asked for, so there is no
+// ephemeral child, no warm-up here and no provider=managed hand-over.
+func (m *Manager) runInstall(ctx context.Context, c *comp, python string, foreground bool) {
 	id := c.spec.id
 	sp := c.spec
 	stage, final := m.stage(id), m.final(id)
@@ -212,6 +226,15 @@ func (m *Manager) runInstall(ctx context.Context, c *comp, python string) {
 		return
 	}
 	renamed = true
+	if foreground {
+		m.set(c, func(c *comp) {
+			c.busy = false
+			m.installing = ""
+			c.state, c.step, c.progress = StateInstalled, "", 1
+		})
+		slog.Info("components: install finished", "component", id, "seconds", int(time.Since(started).Seconds()))
+		return
+	}
 
 	// 5. start, and (nlp) fetch the model through the service itself.
 	m.setStep(c, StepStart, 0.88)
@@ -247,6 +270,9 @@ func (m *Manager) runInstall(ctx context.Context, c *comp, python string) {
 }
 
 func (m *Manager) setStep(c *comp, step string, p float64) {
+	if m.opt.OnLog != nil {
+		m.opt.OnLog(c.spec.id, "step: "+step)
+	}
 	m.set(c, func(c *comp) {
 		c.step = step
 		if p > c.progress {

@@ -594,6 +594,19 @@
       "ports": "What about port clashes?",
       "portsTip": "No ports are published to the outside: services reach each other by name inside the compose network, so there are no port clashes on your server."
     },
+    "source": {
+      "line": "The model {model} ({licence}) will be downloaded from HuggingFace, its author's site: {modelLink}. Service code: {sourceLink}.",
+      "modelPage": "model page",
+      "repo": "{path} in the repository"
+    },
+    "sidecar": {
+      "dockerIntro": "Run the app and the service as two containers on one network. The service is the same image started with a different command, and it publishes no port.",
+      "dockerNote": "The first start downloads the model: follow it with docker logs -f {name}. Run the network command once; the app container may already exist.",
+      "composeIntro": "Add the {name} service to your compose file (you already have the main service); the whole file is below. It is the same image with a different command.",
+      "composeUp": "Then run docker compose up -d. The first start downloads the model by itself: follow it with docker compose logs -f {name}.",
+      "ownVolume": "The service has its own volume (do not share the app's /data) and uses expose, not ports: it has no password, so it is reachable only from the compose network.",
+      "setting": "Then open Settings → Services → {where}, choose «Local» and enter the address {url}."
+    },
     "own": {
       "hint": {
         "mt": "Already run your own translation service? Enter its address.",

@@ -2,8 +2,10 @@ package api
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"tanulom/internal/config"
 	"testing"
+	"time"
 )
 
 // A note mined from the learner's own reading has no pack sentence behind it,
@@ -26,20 +28,44 @@ func packedWithMT(t *testing.T, endpoint string) (*Server, *client) {
 
 // The queue is the app's highest-frequency screen. It must never be hostage to
 // a sidecar that may be off, undeployed, or still loading 600 MB of weights.
+//
+// The queue DOES start a background warm (warmCribs, off the response path), so
+// "no translation calls" cannot be asserted by counting: that count races the
+// warm goroutine and flaked in CI. What is true, and what matters to the
+// learner, is that the response does not wait for the translator. The fake
+// below never answers until the test ends; the queue must still come back at
+// once, with no crib on any item.
 func TestTheQueueNeverCallsTheTranslator(t *testing.T) {
 	t.Parallel()
-	fake := newFakeMT(t)
-	_, c := packedWithMT(t, fake.URL)
-	noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
+	release := make(chan struct{})
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/health" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		<-release // a translator that hangs
+	}))
+	t.Cleanup(srv.Close)
+	t.Cleanup(func() { close(release) }) // runs first (LIFO): unblocks srv.Close
 
-	before := fake.calls.Load()
-	var queue QueueResponse
-	if resp := c.json(http.MethodGet, "/api/review/queue", nil, &queue); resp.StatusCode != http.StatusOK {
-		t.Fatalf("queue: %d", resp.StatusCode)
+	_, c := packedWithMT(t, srv.URL)
+	created := noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
+
+	done := make(chan *QueueResponse, 1)
+	go func() {
+		var queue QueueResponse
+		if resp := c.json(http.MethodGet, "/api/review/queue", nil, &queue); resp.StatusCode != http.StatusOK {
+			t.Errorf("queue: %d", resp.StatusCode)
+		}
+		done <- &queue
+	}()
+	select {
+	case <-done:
+	case <-time.After(5 * time.Second):
+		t.Fatal("the queue waited on the translator; it must read the cache and nothing else")
 	}
-	if got := fake.calls.Load(); got != before {
-		t.Errorf("the queue made %d translation calls; it must read the cache and nothing else",
-			got-before)
+	if it := queueItem(t, c, created.NoteID); it.SentenceRU != "" || it.SentenceEN != "" || it.SentenceModel != "" {
+		t.Errorf("a crib appeared while the translator was hanging: %+v", it)
 	}
 }
 

@@ -129,6 +129,10 @@ manager; it is written automatically when an install finishes and reset to `off`
 Choosing another provider in Settings stops the child; choosing `managed` again starts an installed
 one. `openai` stays refused for `mt` and `nlp`.
 
+A sidecar run by `tanulom component run` in a second compose service (SELFHOSTING.md) is the ordinary `local`
+provider with the service's address (`http://tanulom-mt:5003`): it is not `managed`, nothing is stored about it
+beyond that endpoint, and the app never starts or stops it.
+
 **`llm` is what the grammar tutor and the text-level second opinion talk to.** Any
 OpenAI-compatible chat endpoint: `provider: local` for Ollama, llama.cpp or vLLM on your own
 machine (`endpoint: http://ollama:11434`, `model: qwen3:8b`), `provider: openai` for a hosted

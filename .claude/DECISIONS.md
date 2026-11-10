@@ -2891,3 +2891,24 @@ GPU libraries).
   the same `/data` layout, so switching tag keeps data and account. The slim image sets
   `TANULOM_IMAGE=slim`; when the Python probe fails there the install answers
   `errors.componentNoPythonSlimImage` («замените тег на :latest») instead of `componentNoPython`.
+- **`component run` — the same image as a second compose service (2026-11-10).** `tanulom component run
+  <mt|nlp> [--port N] [--host 0.0.0.0|127.0.0.1]` (handled in `cmd/tanulom` before the server's flag parsing; the
+  no-argument server and every existing flag are untouched) does the same preflight and the SAME install
+  code as the button (`Manager.EnsureInstalled`, synchronous, progress on stdout), skips it when the
+  `.installed` marker exists, then runs the embedded service as the process's foreground child
+  (`Manager.RunForeground`): host default `0.0.0.0` (a compose sidecar must be reachable by service name;
+  the managed mode still binds `127.0.0.1`, and `childEnvAt` is the one place the host is chosen), the
+  service's own default port (mt 5003, nlp 5002), the same allowlisted env (no `TANULOM_*`, no secret) and
+  the same `MT_MODEL`. SIGTERM/SIGINT are forwarded to the child's process group (SIGKILL after 5 s) and
+  the exit code is the child's; there is no in-process restart loop — the container's restart policy is
+  the supervisor, so a crash is visible to it. For nlp it also runs the `/warmup` path after `/health`
+  answers, so the first start downloads the model. The inputs are an id, an IP literal and a port in
+  1024-65535; no URL, path or argument reaches a command line, so ADR-061's rule stands. A bad argument
+  exits 2, a missing Python (on `:latest-slim`: «use the :latest image») exits 1.
+  **Why a same-image second service rather than a sidecar image:** no extra image to build and publish in
+  CI, no second Dockerfile to keep in step with `services/`, and the sources run are the ones embedded in
+  the binary (drift-tested). The NLLB weights are CC-BY-NC: they are downloaded by the user's own
+  container from HuggingFace at first start, never baked into or redistributed with anything we publish
+  (the reason ADR-015's baked image was a poor fit for a published tag). The sidecar has no auth, so the
+  docs say `expose:`, never `ports:`, and give it its own volume — never the app's `/data`, which holds
+  the SQLite database.

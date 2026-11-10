@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import CommandBox from '@/components/settings/CommandBox.vue'
-import { COMPOSE_YAML, DOCKER_RUN } from '@/lib/deploy'
+import { COMPOSE_YAML, DOCKER_RUN, SIDECARS, sidecarCompose, sidecarDocker, sidecarEndpoint } from '@/lib/deploy'
+import SidecarSource from '@/components/settings/SidecarSource.vue'
 import ManagedTab from '@/components/settings/ManagedTab.vue'
 import type { ComponentStatus, Service } from '@/types'
 
@@ -89,6 +90,8 @@ watch(
   },
 )
 const isLlm = computed(() => props.comp.id === 'llm')
+// mt/nlp can run as a second container from the same image; llm cannot.
+const sidecar = computed(() => SIDECARS[props.comp.id])
 function save() {
   const p = props.service?.provider
   // Saving an address means «use this server». openai (llm) stays openai.
@@ -154,6 +157,7 @@ const tabId = (m: Method) => `${uid}-tab-${m}`
         @stop="emit('stop')"
         @uninstall="emit('uninstall')"
       />
+      <SidecarSource v-if="sidecar" :sidecar="sidecar" class="mt-2" />
     </div>
 
     <!-- Docker -->
@@ -164,9 +168,20 @@ const tabId = (m: Method) => `${uid}-tab-${m}`
       :aria-labelledby="tabId('docker')"
       class="flex flex-col gap-2"
     >
-      <p class="text-[11px] text-muted-foreground">{{ $t('component.docker.hint') }}</p>
-      <CommandBox :command="DOCKER_RUN" />
-      <p class="text-[11px] text-muted-foreground">{{ $t('component.docker.next') }}</p>
+      <template v-if="sidecar">
+        <p class="text-[11px] text-muted-foreground">{{ $t('component.sidecar.dockerIntro') }}</p>
+        <CommandBox :command="sidecarDocker(sidecar)" />
+        <SidecarSource :sidecar="sidecar" />
+        <p class="text-[11px] text-muted-foreground">{{ $t('component.sidecar.dockerNote', { name: sidecar.serviceName }) }}</p>
+        <p class="text-[11px] text-muted-foreground">
+          {{ $t('component.sidecar.setting', { where: $t(`capabilities.${sidecar.id}`), url: sidecarEndpoint(sidecar) }) }}
+        </p>
+      </template>
+      <template v-else>
+        <p class="text-[11px] text-muted-foreground">{{ $t('component.docker.hint') }}</p>
+        <CommandBox :command="DOCKER_RUN" />
+        <p class="text-[11px] text-muted-foreground">{{ $t('component.docker.next') }}</p>
+      </template>
       <Button size="sm" variant="outline" class="min-h-11 self-start sm:min-h-8" :disabled="checking" @click="emit('check')">
         {{ $t('settings.components.check') }}
       </Button>
@@ -180,8 +195,21 @@ const tabId = (m: Method) => `${uid}-tab-${m}`
       :aria-labelledby="tabId('compose')"
       class="flex flex-col gap-2"
     >
-      <p class="text-[11px] text-muted-foreground">{{ $t('component.compose.intro') }}</p>
-      <CommandBox :command="COMPOSE_YAML" />
+      <template v-if="sidecar">
+        <p class="text-[11px] text-muted-foreground">{{ $t('component.sidecar.composeIntro', { name: sidecar.serviceName }) }}</p>
+        <CommandBox :command="sidecarCompose(sidecar)" />
+        <SidecarSource :sidecar="sidecar" />
+        <p class="text-[11px] text-muted-foreground">{{ $t('component.sidecar.composeUp', { name: sidecar.serviceName }) }}</p>
+        <p class="text-[11px] text-muted-foreground">{{ $t(`component.need.${sidecar.id}`) }}</p>
+        <p class="text-[11px] text-muted-foreground">
+          {{ $t('component.sidecar.setting', { where: $t(`capabilities.${sidecar.id}`), url: sidecarEndpoint(sidecar) }) }}
+        </p>
+        <p class="text-[11px] text-muted-foreground">{{ $t('component.sidecar.ownVolume') }}</p>
+      </template>
+      <template v-else>
+        <p class="text-[11px] text-muted-foreground">{{ $t('component.compose.intro') }}</p>
+        <CommandBox :command="COMPOSE_YAML" />
+      </template>
       <p class="text-[11px] text-muted-foreground">{{ $t('component.compose.volumeNote') }}</p>
       <p class="text-[11px] text-muted-foreground">{{ $t('component.compose.folderNote') }}</p>
       <details v-if="comp.composeProfile" class="rounded-lg border border-border-subtle p-2">
@@ -213,6 +241,7 @@ const tabId = (m: Method) => `${uid}-tab-${m}`
       class="flex flex-col gap-2.5"
     >
       <p class="text-[11px] text-muted-foreground">{{ $t(`component.own.hint.${comp.id}`) }}</p>
+      <SidecarSource v-if="sidecar" :sidecar="sidecar" />
       <div class="flex flex-col gap-1.5">
         <Label :for="`${uid}-ep`">{{ $t('settings.services.endpoint') }}</Label>
         <Input :id="`${uid}-ep`" v-model="endpoint" :disabled="!isAdmin" placeholder="http://localhost:5000" autocomplete="off" />

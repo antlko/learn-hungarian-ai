@@ -1658,7 +1658,18 @@ you lose without it, and a state chip that carries a shape and text (never colou
     work ends, settings are re-read because the server flips the provider itself.
   - **Docker**: the `docker run` command (`:latest`), then «Настройки → Компоненты → Из приложения →
     Установить». «Проверить» re-probes.
-  - **Docker Compose**: a paste-ready `compose.yaml` (one `tanulom` service, named volume), notes about
+    **For `mt` and `nlp`** (`SIDECARS` in `lib/deploy.ts`, the one source of snippets, ports 5003/5002 and
+    the repo URL `REPO_URL`) this tab instead prints `docker network create tanulom` plus two `docker run`
+    lines on that network: the app, and a sidecar from the SAME image (`component run <id>`, own volume
+    `tanulom-<id>`, no `-p`), then the Settings step «Сервисы → Перевод/Разбор текста → Локально» with
+    `http://tanulom-<id>:<port>`.
+  - **Model line** (`SidecarSource`, on the managed, Docker, Compose and Own-server tabs of `mt`/`nlp`): «Будет
+    скачана модель X (licence) с HuggingFace… страница модели · services/<id> в репозитории», both links
+    `target=_blank rel=noopener`. Weights come from the model's author, never from our repo. The nlp
+    HuggingFace id/licence are not re-verified at runtime.
+  - **Docker Compose** (`mt`/`nlp`: the file holds BOTH `tanulom` and `tanulom-<id>` — `expose` not `ports`, own
+    volume, numbered-free steps, the honest size estimate from `component.need.*`, `docker compose logs -f`):
+    a paste-ready `compose.yaml` (one `tanulom` service, named volume), notes about
     keeping an existing volume name and running in a folder holding only that file. The old
     `docker compose --profile <id> up -d` command with «Что такое profile?» and «А порты не заняты?»
     InfoTips moved into a collapsed «Из клона репозитория» disclosure. The ports line is true of

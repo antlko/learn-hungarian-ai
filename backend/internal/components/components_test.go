@@ -22,7 +22,10 @@ type fakeProc struct {
 	once sync.Once
 	done chan struct{}
 	term atomic.Int32
+	code atomic.Int32 // what ExitCode reports (component run)
 }
+
+func (p *fakeProc) ExitCode() int { return int(p.code.Load()) }
 
 func newProc() *fakeProc  { return &fakeProc{done: make(chan struct{})} }
 func (p *fakeProc) exit() { p.once.Do(func() { close(p.done) }) }

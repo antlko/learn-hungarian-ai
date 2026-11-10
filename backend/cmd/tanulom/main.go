@@ -31,6 +31,11 @@ func main() {
 		os.Exit(runResetPassword(os.Args[2:]))
 	}
 
+	if rest, lead, ok := componentArgs(os.Args[1:]); ok {
+		logger.Init()
+		os.Exit(runComponent(rest, lead))
+	}
+
 	logger.Init()
 
 	var (

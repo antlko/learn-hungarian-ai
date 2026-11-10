@@ -115,12 +115,16 @@ func (m *Manager) launch(c *comp) error {
 
 // childEnv is the COMPLETE environment of a running service: an allowlist,
 // never the server's (no TANULOM_*, no secret, no proxy credentials).
-func (m *Manager) childEnv(c *comp, port int) []string {
+func (m *Manager) childEnv(c *comp, port int) []string { return m.childEnvAt(c, "127.0.0.1", port) }
+
+// childEnvAt is childEnv with the bind host chosen by the caller. The managed
+// mode always passes 127.0.0.1; only `component run` passes anything else.
+func (m *Manager) childEnvAt(c *comp, host string, port int) []string {
 	sp := c.spec
 	root := m.final(sp.id)
 	env := baseEnv(filepath.Join(root, "home"))
 	return append(env,
-		sp.hostEnv+"=127.0.0.1",
+		sp.hostEnv+"="+host,
 		sp.portEnv+"="+strconv.Itoa(port),
 		sp.modelEnv+"="+filepath.Join(root, "models", sp.modelSub),
 		// After conversion torch is uninstalled on purpose; transformers then
@@ -131,13 +135,15 @@ func (m *Manager) childEnv(c *comp, port int) []string {
 	)
 }
 
-func (m *Manager) childCmd(c *comp, port int) Cmd {
+func (m *Manager) childCmd(c *comp, port int) Cmd { return m.childCmdAt(c, "127.0.0.1", port) }
+
+func (m *Manager) childCmdAt(c *comp, host string, port int) Cmd {
 	root := m.final(c.spec.id)
 	return Cmd{
 		Path: filepath.Join(root, "venv", "bin", "python"),
 		Args: []string{filepath.Join(root, "src", "app.py")},
 		Dir:  filepath.Join(root, "src"),
-		Env:  m.childEnv(c, port),
+		Env:  m.childEnvAt(c, host, port),
 	}
 }
 

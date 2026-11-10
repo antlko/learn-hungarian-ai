@@ -126,6 +126,48 @@ Not using Docker? `make mt` creates the venv and runs the service on `:5003` nat
 **The core is complete without any of them.** Optional services are probed at runtime; features
 that need an unreachable one are visibly disabled with a reason, never silently missing.
 
+### The translator or analyser as a second service of the same image
+
+No source checkout, no extra image: the `:latest` image carries the two service sources and the
+installer, and `tanulom component run <mt|nlp>` runs one of them **in the foreground as that
+container's main process**. A compose file that already runs the app adds a second service from
+the same image:
+
+```yaml
+  tanulom-mt:
+    image: ghcr.io/antlko/learn-hungarian-ai:latest
+    command: ["component", "run", "mt"]    # or "nlp"
+    expose: ['5003']                       # nlp: '5002'
+    volumes:
+      - tanulom-mt:/data                   # its OWN volume
+    restart: unless-stopped
+# and, at the top level:
+volumes:
+  tanulom-mt:
+```
+
+Then in the app, **Settings → Services**: Translation → `Local`, endpoint `http://tanulom-mt:5003`
+(analyser: `Local`, `http://tanulom-nlp:5002`). Use the compose **service name**, not `localhost`.
+
+- **First start installs, later starts do not.** The container builds the venv, installs the pinned
+  requirements and prepares the model (`mt`: ≈ 6 GB of disk while it runs, ≈ 2.5 GB kept, the model
+  fetched from HuggingFace by *your* container; `nlp`: ≈ 1.5 GB, then it fetches its 127 MB model through
+  the service's own warm-up) — progress is in `docker logs`. A finished install is marked on the volume,
+  so a restart (`restart: unless-stopped`) goes straight to starting the service. The sources are
+  restored from the image on every start, so pulling a newer image upgrades the service code.
+- **Its own volume. Never mount the app's `/data` into it**, and never two processes on one `/data`:
+  the app's SQLite database lives there. The sidecar needs no database; `tanulom-mt:/data` is only its
+  venv and model. A fresh named volume inherits the image's `/data` owned by uid 65532, which is the user
+  the container runs as, so nothing needs `chown`.
+- **No authentication.** The services answer anyone who can reach them. `expose:` keeps the port on the
+  compose network only; do **not** write `ports:` for them. `--host` (`0.0.0.0` by default, so the app
+  can reach it by service name; `127.0.0.1` is the only other value, because the readiness probe asks
+  that address) and `--port` (default `mt` 5003, `nlp` 5002) are the only options;
+  both are validated, and nothing else — no URL, path or command — is accepted.
+- **Needs the `:latest` image.** On `:latest-slim` it stops at once with «This image has no Python».
+- **Exit codes:** 2 for a bad argument, 1 when the install or the service fails (the log says why),
+  otherwise the service's own. `docker stop` (SIGTERM) is forwarded to the service and waited for.
+
 ## Components installed from the app (Settings → Components → «Встроенный»)
 
 The translator (`mt`) and the morphology analyser (`nlp`) are plain Python services. Besides
