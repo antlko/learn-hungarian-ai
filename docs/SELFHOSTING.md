@@ -40,8 +40,7 @@ sentences (counts: [LANGPACK.md](LANGPACK.md)). It only widens lookup. Two ways:
 
 - **Settings → Components → Install the full dictionary** (admin). One click: the download
   address and checksum are pinned in the binary (nothing to type; `langpack.url` / `langpack.sha256`
-  in `config.yaml` are only an override, e.g. a mirror). **The checksum is not pinned yet**, so
-  until a release ships one the button says "not published". Needs free disk for the download plus the unpacked pack (about 260 MB each),
+  in `config.yaml` are only an override, e.g. a mirror). The pinned pack is about 62 MB. Needs free disk for the download plus the unpacked pack (about 260 MB each),
   then a restart (below).
 - **`make langpack`** on a workstation (about 2 GB of OpenSubtitles and 580 MB of Wiktionary are
   downloaded; running time not measured). Put `data/langpack-hu-v1.sqlite` into the volume and

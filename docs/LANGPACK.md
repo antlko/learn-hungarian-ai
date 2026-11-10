@@ -464,6 +464,15 @@ measured. It is built on a maintainer's machine: CI (`.github/workflows/langpack
 pipeline's unit tests, and the build never happens inside the app image. `make langpack-release`
 builds the **publishable** pack — `--subtitle-sentences 0`, Tatoeba + Wiktionary only, because the
 OpenSubtitles licence does not cover redistribution — gzips it to `dist/` and prints its SHA-256.
+`make langpack-derive` makes the same publishable pack from an existing full pack (it drops every
+non-Tatoeba sentence and the rows hanging off it, rebuilds the n-grams and recomputes the stats),
+which is how the published asset was made: the raw dumps were no longer available.
+
+**Why the pack is not built inside the app.** Tried on 2026-11-10 and rejected. `lemma.id` follows
+the order of the English-Wiktionary dump, and the pinned inputs rolled away upstream (the five Tatoeba
+exports and kaikki.org's file no longer match `checksums.json`). A rebuild from today's dump would
+renumber every word, so ADR-049's id check would refuse it for any learner who has data, and it
+would no longer extend the embedded starter. Installing the published pack is the supported route.
 
 ---
 

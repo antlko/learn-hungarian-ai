@@ -112,8 +112,8 @@ machine or a test can serve one), and redirects to non-https are refused. `sha25
 the compressed file and is **required**: with it empty the install answers
 `errors.packNotPublished` without opening a connection, because downloading code-sized data
 without a pinned checksum is not something this app does. The default `url` is the asset of the
-data release `langpack-hu-v1` of this repository; the binary's `sha256` is empty until the
-maintainer uploads it and pins the digest (`make langpack-release` prints the value). Set both fields
+data release `langpack-hu-v1` of this repository; the binary pins its `sha256` (`make langpack-derive` or
+`make langpack-release` prints the value for a new pack). Set both fields
 here only to install from a mirror or a pack you built.
 
 **The `llm` endpoint is the host and nothing more — no `/v1`.** `internal/llm` appends the

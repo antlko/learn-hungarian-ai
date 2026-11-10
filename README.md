@@ -224,8 +224,9 @@ There are two ways to get it:
 
 1. **Settings → Components → «Установить полный словарь»** (admin). The app downloads a gzipped
    pack, checks it against a SHA-256 pinned in the binary, verifies that every word your cards
-   point at still means the same word, and asks for a restart. **The checksum is not pinned yet**,
-   so until a release ships it the button says the pack is not published and does nothing.
+   point at still means the same word, and asks for a restart. The pack is the
+   Tatoeba-only build (35,311 words, 60,000 sentences, about 62 MB), published as the `langpack-hu-v1`
+   release of this repository.
    (`langpack.url` / `langpack.sha256` in config override the pin, e.g. for a mirror.)
 2. **Build it yourself: `make langpack`.** Not for the faint-hearted: it fetches about **2 GB of
    OpenSubtitles and 580 MB of Wiktionary**, needs a lot of scratch space and Python 3.11, and

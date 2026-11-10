@@ -2412,8 +2412,7 @@ before one click was a chore the app can do itself.
   `v1.0.1` (which carries no pack asset) would 404 every install. A pack version is a different
   thing from an app version.
 - *Binary-pinned default, resolved at point of use.* `config.DefaultLangPackURL`,
-  `DefaultLangPackSHA256` (EMPTY until the maintainer uploads the asset and pins its digest, then
-  shipped in the next release) and `DefaultLangPackSizeBytes` (button label only). **Effective pin**
+  `DefaultLangPackSHA256` (pinned: the Tatoeba-only pack, sha256 584c4ca9…c4acd, 65,535,311 bytes) and `DefaultLangPackSizeBytes` (button label only). **Effective pin**
   (`config.EffectiveLangPack`): checksum = stored `langpack.sha256` if non-empty, else the const; URL =
   the const if the stored URL is empty or is the old `releases/latest/download/…` default, else the
   stored one (a stored value equal to the current default also counts as unset). `normalize()` does NOT fill `langpack.url`, empty validates and means "the binary's pin", so nothing is ever written to YAML, so

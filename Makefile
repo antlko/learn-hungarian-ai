@@ -196,6 +196,18 @@ langpack-release: ## Build the publishable pack (no OpenSubtitles) to dist/langp
 	gzip -9 -c '$(CURDIR)/dist/langpack-hu-v1.sqlite' > '$(CURDIR)/dist/langpack-hu-v1.sqlite.gz'
 	@(sha256sum '$(CURDIR)/dist/langpack-hu-v1.sqlite.gz' 2>/dev/null || shasum -a 256 '$(CURDIR)/dist/langpack-hu-v1.sqlite.gz')
 
+# The same artefact as langpack-release, derived from the pack you already have
+# ($(PACK)) instead of the raw dumps: drops every non-Tatoeba sentence and what
+# hangs off it, rebuilds the n-gram index, checks consistency, writes
+# dist/langpack-hu-v1.sqlite(.gz) + manifest and prints the gz sha256. $(PACK) is
+# only read.
+.PHONY: langpack-derive
+langpack-derive: ## Derive the publishable (Tatoeba-only) pack from the local pack into dist/ and print its sha256
+	$(call need,$(PYTHON),$(PY_HINT))
+	@test -s '$(PACK)' || { echo 'need $(PACK) first — run: make langpack'; exit 1; }
+	@mkdir -p '$(CURDIR)/dist'
+	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.release --full '$(abspath $(PACK))' --out '$(CURDIR)/dist'
+
 .PHONY: refresh-curriculum
 .PHONY: refresh
 refresh: refresh-curriculum ## Alias for refresh-curriculum

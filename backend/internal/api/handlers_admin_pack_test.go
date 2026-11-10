@@ -95,6 +95,10 @@ func TestAdminPackRoutesAreAdminOnly(t *testing.T) {
 }
 
 func TestPackInstallNotPublished(t *testing.T) {
+	// The binary now carries a real pin; model the unpublished state by clearing it.
+	old := packDefaultSHA
+	packDefaultSHA = ""
+	defer func() { packDefaultSHA = old }()
 	_, c := newPackedServer(t)
 	var e struct{ Error string }
 	resp := c.json(http.MethodPost, "/api/admin/pack/install", nil, &e)
@@ -318,6 +322,9 @@ func TestPackInstallUsesBinaryPinnedChecksum(t *testing.T) {
 
 // An unpublished pack (empty pin, nothing stored) makes no network request.
 func TestPackInstallUnpublishedMakesNoRequest(t *testing.T) {
+	old := packDefaultSHA
+	packDefaultSHA = ""
+	defer func() { packDefaultSHA = old }()
 	_, c := newPackedServer(t)
 	hits := 0
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { hits++ }))
