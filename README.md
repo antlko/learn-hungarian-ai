@@ -21,6 +21,52 @@ words, at your own pace) tells you what to do until you no longer need telling.
 
 ---
 
+## What it looks like
+
+Light theme, Russian interface (the English one is complete too, ADR-004). Every screen works on a phone.
+
+### Today
+
+The day's four loops, one obligation bar, and a streak that counts obligations met — not points.
+
+![Today — desktop](docs/screenshots/today.png)
+
+<img src="docs/screenshots/today-m.png" alt="Today — mobile" width="320">
+
+### Review
+
+A card after the answer: the verdict, the sentence it came from, and what the word means.
+
+![Review — desktop](docs/screenshots/review.png)
+
+<img src="docs/screenshots/review-m.png" alt="Review — mobile" width="320">
+
+### Reader
+
+Paste any text. Two coverage numbers say how much of it you can read; click a word for its analysis, meaning and real examples.
+
+![Reader — desktop](docs/screenshots/reader.png)
+
+<img src="docs/screenshots/reader-m.png" alt="Reader — mobile" width="320">
+
+### Grammar
+
+The lesson comes first; the drill sits behind a button.
+
+![Grammar — desktop](docs/screenshots/grammar.png)
+
+<img src="docs/screenshots/grammar-m.png" alt="Grammar — mobile" width="320">
+
+### Ear trainer
+
+A real word, two candidates, three voices — perception practice for sounds typing cannot fix.
+
+![Ear trainer — desktop](docs/screenshots/ear.png)
+
+<img src="docs/screenshots/ear-m.png" alt="Ear trainer — mobile" width="320">
+
+---
+
 ## Why another language app
 
 Anki, LingQ and Migaku all treat a **wordform as an atom**. For Hungarian that is a category
@@ -201,19 +247,6 @@ The short version; [docs/FEATURES.md](docs/FEATURES.md) is the real list.
 - **Yours** — one data directory; export or import a full profile.
 
 Not built: speaking practice with pronunciation feedback and a writing corrector.
-
-## What it looks like
-
-Light theme, Russian interface; the English one is complete too (ADR-004).
-
-| | |
-|---|---|
-| ![Today — the four loops of the day, the obligation bar and the streak](docs/screenshots/today.png) | ![A review card after the answer, with the tutor's breakdown beside it](docs/screenshots/review.png) |
-| *Today: the day's four loops, one obligation bar, a streak that counts obligations met.* | *A card after the answer — the verdict, the sentence, and the tutor reading the card.* |
-| ![The reader — two coverage numbers over a pasted text, one word opened](docs/screenshots/reader.png) | ![A grammar lesson — the topic is explained before it is drilled](docs/screenshots/grammar.png) |
-| *The reader: two coverage numbers, a word opened for its analysis.* | *Grammar: the lesson first, the drill behind a button.* |
-| ![The ear trainer — one talker, one minimal pair](docs/screenshots/ear.png) | |
-| *The ear trainer: a real word, two candidates, three voices.* | |
 
 ## How it works
 
