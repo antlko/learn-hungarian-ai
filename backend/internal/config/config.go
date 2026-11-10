@@ -90,8 +90,10 @@ const (
 
 	DefaultFocusUnlockListeningHours = 40
 
-	// The downloadable full pack is a DATA release of this repository, tag
-	// langpack-hu-v1 — not `releases/latest`, which follows whatever app
+	// The downloadable full pack is committed in this repository
+	// (langpack/release/), served by raw.githubusercontent.com and pinned by
+	// SHA-256 below, so a moved branch fails loudly instead of installing
+	// something else. It is NOT a release asset: `releases/latest` follows whatever app
 	// release is newest and would 404 the moment one is cut (ADR-049).
 	// DefaultLangPackSHA256 is the SHA-256 of the COMPRESSED asset, pinned here
 	// because the installer never downloads without a checksum (it answers
@@ -99,7 +101,7 @@ const (
 	// only Tatoeba sentences (`make langpack-derive`), 35,311 words and 60,000
 	// sentences. These live in the binary and are resolved at point of use by
 	// EffectiveLangPack; they are never written into config.yaml.
-	DefaultLangPackURL    = "https://github.com/antlko/learn-hungarian-ai/releases/download/langpack-hu-v1/langpack-hu-v1.sqlite.gz"
+	DefaultLangPackURL    = "https://raw.githubusercontent.com/antlko/learn-hungarian-ai/main/langpack/release/langpack-hu-v1.sqlite.gz"
 	DefaultLangPackSHA256 = "584c4ca9838c2ad98713e6019f2ee20014efb6a6378afa943a7ee6d0274c4acd"
 	// DefaultLangPackSizeBytes is the compressed download size, for the button
 	// label only. 0 = unknown.

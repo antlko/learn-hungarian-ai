@@ -230,7 +230,7 @@ func TestEffectiveLangPack(t *testing.T) {
 			t.Errorf("%s: config mutated", tc.name)
 		}
 	}
-	if strings.Contains(DefaultLangPackURL, "/latest/") || !strings.Contains(DefaultLangPackURL, "/releases/download/langpack-hu-v1/") {
+	if strings.Contains(DefaultLangPackURL, "/latest/") || !strings.HasSuffix(DefaultLangPackURL, "/langpack/release/langpack-hu-v1.sqlite.gz") {
 		t.Errorf("default URL = %s", DefaultLangPackURL)
 	}
 	if u, s := EffectiveLangPack(&Config{}); u != DefaultLangPackURL || s != DefaultLangPackSHA256 {

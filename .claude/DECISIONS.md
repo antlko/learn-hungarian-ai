@@ -2406,8 +2406,12 @@ is pinned, the button honestly says the pack has not been published.
 
 **Amendment — the pin lives in the binary (2026-11-10).** Typing a URL and a SHA into Settings
 before one click was a chore the app can do itself.
-- *Data release.* The pack is an asset of its own release, tag `langpack-hu-v1`:
-  `https://github.com/antlko/learn-hungarian-ai/releases/download/langpack-hu-v1/langpack-hu-v1.sqlite.gz`.
+- *Committed pack (changed 2026-11-10; was a data release).* The pack file is committed at
+  `langpack/release/langpack-hu-v1.sqlite.gz` (about 62 MB, no Git LFS, so raw URLs work) and served from
+  `https://raw.githubusercontent.com/antlko/learn-hungarian-ai/main/langpack/release/langpack-hu-v1.sqlite.gz`;
+  the SHA-256 pinned in the binary is what makes a moved `main` safe. Cost: the blob is in history for
+  good, so a new pack version means another ~60 MB commit — change the pack rarely. Release assets
+  were dropped because publishing one needs a separate manual upload.
   `releases/latest/download/…` was **rejected**: `latest` follows the newest *app* release, so cutting
   `v1.0.1` (which carries no pack asset) would 404 every install. A pack version is a different
   thing from an app version.
