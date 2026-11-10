@@ -6,7 +6,8 @@ import { Check, CircleDashed, Loader, Minus, Square, TriangleAlert, Unplug } fro
 import { Button } from '@/components/ui/button'
 import ComponentMethods from '@/components/settings/ComponentMethods.vue'
 import ProgressRing from '@/components/visual/ProgressRing.vue'
-import type { ComponentStatus, Service } from '@/types'
+import CheckLine from '@/components/settings/CheckLine.vue'
+import type { Capability, CheckResult, ComponentStatus, Service } from '@/types'
 
 /**
  * One optional sidecar, in plain words: what it is, what you lose without it,
@@ -21,6 +22,9 @@ import type { ComponentStatus, Service } from '@/types'
 const props = defineProps<{
   comp: ComponentStatus
   checking: boolean
+  result?: CheckResult
+  /** The live capability probe, for the reason under the address. */
+  cap?: Capability
   /** The service's stored settings row; absent for the pack-less/learner view. */
   service?: Service
   isAdmin?: boolean
@@ -169,6 +173,8 @@ const tint = computed(() => {
       :service="service"
       :is-admin="isAdmin ?? false"
       :checking="checking"
+      :result="result"
+      :cap="cap"
       :saving="saving ?? false"
       :busy="busy ?? false"
       :action-error="actionError ?? ''"
@@ -191,5 +197,6 @@ const tint = computed(() => {
     >
       {{ $t('settings.components.check') }}
     </Button>
+    <CheckLine v-if="comp.built && !tabbed" :result="result" :checking="checking" />
   </section>
 </template>

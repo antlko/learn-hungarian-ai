@@ -157,6 +157,13 @@ export interface Translation {
   cached: boolean
 }
 
+/** What the last press of «Проверить» found, per service. */
+export interface CheckResult {
+  at: Date
+  reachable: boolean
+  reason?: string
+}
+
 export interface Capability {
   name: CapabilityName
   provider: ServiceProvider
@@ -164,6 +171,8 @@ export interface Capability {
   reachable: boolean
   latencyMs?: number
   detail?: string
+  /** Why a configured service could not be reached (a code; the client words it). */
+  reason?: string
   /** What an llm endpoint says it serves (`GET /v1/models`) — the picker's list. */
   models?: string[]
 }

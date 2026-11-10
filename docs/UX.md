@@ -1700,6 +1700,7 @@ you lose without it, and a state chip that carries a shape and text (never colou
   «По контексту (HuSpaCy)…» (`reader.viaContext`). Uncertainty is never hidden. `WordDetail`
   (stored tokens carry no `via`) is unchanged.
 - **Language model**: configured/reachable/model; endpoint and model stay editable in Services.
+- **«Проверить»** (every sidecar/llm card, all three tabs) leaves a `role=status` line beside the button: «Проверяю…» while it runs, then «Проверено в 12:03:11 — на связи» or «— нет связи» plus a sentence for the probe's `reason` (`settings.components.reason.*`). A saved `https://` address whose probe says `tlsToPlainHttp` shows that sentence under the field without pressing anything.
 - A component with a `composeProfile` that is built shows a copyable
   `docker compose --profile <x> up -d` and «Проверить», which re-asks every probe.
 

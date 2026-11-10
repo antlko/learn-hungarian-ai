@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import ComponentCard from '@/components/settings/ComponentCard.vue'
 import PackCard from '@/components/settings/PackCard.vue'
-import type { ComponentId, ComponentStatus, Service } from '@/types'
+import type { Capability, CheckResult, ComponentId, ComponentStatus, Service } from '@/types'
 
 /**
  * Settings → Компоненты. Admin only (SettingsView mounts it behind `isAdmin`;
@@ -20,6 +20,8 @@ import type { ComponentId, ComponentStatus, Service } from '@/types'
 const props = defineProps<{
   components: ComponentStatus[]
   checking: boolean
+  checkResults: Partial<Record<string, CheckResult>>
+  caps: Partial<Record<string, Capability>>
   /** Stored `services.*` rows, so a tab can show and save the address. */
   services: Record<string, Service>
   saving: boolean
@@ -157,6 +159,8 @@ const sidecars = computed(() =>
         :key="c.id"
         :comp="c"
         :checking="checking"
+        :result="checkResults[c.id]"
+        :cap="caps[c.id]"
         :service="services[c.id]"
         :is-admin="isAdmin"
         :saving="saving"

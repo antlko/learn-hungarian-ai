@@ -85,7 +85,7 @@ guard on `/users` is UX only; this is the boundary that matters, and a test walk
 |---|---|---|---|
 | `GET` | `/api/settings` | ✅ | secrets stripped; presence exposed as `secrets: {openaiKey: true}` |
 | `PUT` | `/api/settings` | ✅ | partial; **blank/omitted secret preserves the stored one** |
-| `GET` | `/api/capabilities` | ✅ | `[{name, provider, configured, reachable, latencyMs, detail, models?}]`, cached 30 s. `detail` is one of `not configured`, `bad endpoint`, `unreachable`, `unhealthy`, `device`, and for `llm` also `no model` / `unknown model`; `models` is what a reachable `llm` endpoint listed on `GET /v1/models` (absent when it has no such route) |
+| `GET` | `/api/capabilities` | ✅ | `[{name, provider, configured, reachable, latencyMs, detail, reason?, models?}]`, cached 30 s. `reason` is set only when a configured service could not be reached: `tlsToPlainHttp` (an `https://` address on a plain-HTTP server, the usual Ollama mistake), `refused`, `timeout`, `dns`, `tlsCert` or `unreachable`; `detail` stays `unreachable`, and no raw error, URL or address is sent. `detail` is one of `not configured`, `bad endpoint`, `unreachable`, `unhealthy`, `device`, and for `llm` also `no model` / `unknown model`; `models` is what a reachable `llm` endpoint listed on `GET /v1/models` (absent when it has no such route) |
 | `POST` | `/api/capabilities/:name/test` | ⏳ | round-trip test against a provider |
 
 **`tts` with `provider: "device"` reports `configured: true, reachable: false, detail: "device"`,

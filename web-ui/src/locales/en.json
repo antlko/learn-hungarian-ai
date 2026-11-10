@@ -300,6 +300,17 @@
       "copied": "Copied",
       "copyFailed": "Could not copy - select the command by hand.",
       "check": "Check",
+      "checking": "Checking…",
+      "checkedOk": "Checked at {time} — connected",
+      "checkedFail": "Checked at {time} — no connection",
+      "reason": {
+        "tlsToPlainHttp": "The server answers in plain HTTP, but the address starts with https://. Ollama does not use TLS — start the address with http://.",
+        "refused": "Connection refused: nothing is listening at this address. Check the port and that the service is running. Ollama on a Mac listens on 127.0.0.1 only by default — start it with OLLAMA_HOST=0.0.0.0.",
+        "timeout": "The server did not answer in time. Check the address, the network and the firewall.",
+        "dns": "That address cannot be found. Check the host name.",
+        "tlsCert": "The server's TLS certificate is not trusted. On a home network http:// is simpler.",
+        "unreachable": "Cannot connect. Check the address and the network."
+      },
       "ram": "Memory needed: {ram}",
       "ramHint": {
         "mt": "≈2.4 GB model download (memory use not measured)",

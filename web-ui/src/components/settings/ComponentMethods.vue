@@ -8,7 +8,8 @@ import CommandBox from '@/components/settings/CommandBox.vue'
 import { COMPOSE_YAML, DOCKER_RUN, SIDECARS, sidecarCompose, sidecarDocker, sidecarEndpoint } from '@/lib/deploy'
 import SidecarSource from '@/components/settings/SidecarSource.vue'
 import ManagedTab from '@/components/settings/ManagedTab.vue'
-import type { ComponentStatus, Service } from '@/types'
+import CheckLine from '@/components/settings/CheckLine.vue'
+import type { Capability, CheckResult, ComponentStatus, Service } from '@/types'
 
 /**
  * The ways to run one optional service, as tabs: from the app (it
@@ -24,6 +25,8 @@ const props = defineProps<{
   service: Service | undefined
   isAdmin: boolean
   checking: boolean
+  result?: CheckResult
+  cap?: Capability
   saving: boolean
   busy: boolean
   actionError: string
@@ -88,6 +91,10 @@ watch(
     endpoint.value = e ?? ''
     model.value = m ?? ''
   },
+)
+/** The https-in-front-of-plain-HTTP mistake, shown without pressing anything. */
+const httpsHint = computed(
+  () => props.cap?.reason === 'tlsToPlainHttp' && (props.service?.endpoint ?? '').startsWith('https://'),
 )
 const isLlm = computed(() => props.comp.id === 'llm')
 // mt/nlp can run as a second container from the same image; llm cannot.
@@ -185,6 +192,7 @@ const tabId = (m: Method) => `${uid}-tab-${m}`
       <Button size="sm" variant="outline" class="min-h-11 self-start sm:min-h-8" :disabled="checking" @click="emit('check')">
         {{ $t('settings.components.check') }}
       </Button>
+      <CheckLine :result="result" :checking="checking" />
     </div>
 
     <!-- Docker Compose -->
@@ -230,6 +238,7 @@ const tabId = (m: Method) => `${uid}-tab-${m}`
       <Button size="sm" variant="outline" class="min-h-11 self-start sm:min-h-8" :disabled="checking" @click="emit('check')">
         {{ $t('settings.components.check') }}
       </Button>
+      <CheckLine :result="result" :checking="checking" />
     </div>
 
     <!-- Свой сервер -->
@@ -247,6 +256,7 @@ const tabId = (m: Method) => `${uid}-tab-${m}`
         <Input :id="`${uid}-ep`" v-model="endpoint" :disabled="!isAdmin" placeholder="http://localhost:5000" autocomplete="off" />
       </div>
       <!-- The model, for the language model only: the request names it and Ollama refuses a blank one. -->
+      <p v-if="httpsHint" class="-mt-1 text-[11px] text-foreground">{{ $t('settings.components.reason.tlsToPlainHttp') }}</p>
       <div v-if="isLlm" class="flex flex-col gap-1.5">
         <Label :for="`${uid}-model`">{{ $t('settings.services.model') }}</Label>
         <Input
@@ -269,6 +279,7 @@ const tabId = (m: Method) => `${uid}-tab-${m}`
           {{ $t('settings.components.check') }}
         </Button>
       </div>
+      <CheckLine :result="result" :checking="checking" />
     </div>
   </div>
 </template>

@@ -204,6 +204,10 @@ type CapabilityDTO struct {
 	Reachable  bool   `json:"reachable"`
 	LatencyMs  int64  `json:"latencyMs,omitempty"`
 	Detail     string `json:"detail,omitempty"`
+	// Reason says why a configured service could not be reached: one of
+	// tlsToPlainHttp, refused, timeout, dns, tlsCert, unreachable. A code, never
+	// the raw error, URL or address; absent when reachable or not attempted.
+	Reason string `json:"reason,omitempty"`
 	// Models is what an llm endpoint says it serves (GET /v1/models), for
 	// the settings screen to offer; absent for every other service and for an
 	// endpoint that does not answer the route.

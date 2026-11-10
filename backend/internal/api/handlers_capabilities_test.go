@@ -1,11 +1,15 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"slices"
+	"strings"
 	"testing"
+	"time"
 
 	"tanulom/internal/config"
 )
@@ -89,5 +93,72 @@ func TestCapabilitiesVerifyTheLLMModelAgainstTheEndpoint(t *testing.T) {
 		if cap.Name != "llm" && cap.Models != nil {
 			t.Errorf("%s carries models: %+v", cap.Name, cap)
 		}
+	}
+}
+
+// The reason a probe failed is what tells «https:// in front of an Ollama»
+// from a dead server; both used to read only «unreachable».
+func TestProbeClassifiesTransportFailures(t *testing.T) {
+	t.Parallel()
+	svc := func(url string) config.Service {
+		return config.Service{Provider: config.ProviderLocal, Endpoint: url}
+	}
+
+	plain := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {}))
+	defer plain.Close()
+	got := probe(context.Background(), "llm", svc(strings.Replace(plain.URL, "http://", "https://", 1)), "")
+	if got.Reachable || got.Detail != "unreachable" || got.Reason != reasonTLSToPlainHTTP {
+		t.Errorf("plain HTTP behind https://: %+v", got)
+	}
+
+	// A server that answers the TLS hello with bytes that are not TLS at all (what
+	// Python's http.server did when this was reproduced by hand): same advice.
+	raw, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer raw.Close()
+	go func() {
+		for {
+			c, err := raw.Accept()
+			if err != nil {
+				return
+			}
+			_, _ = c.Write([]byte("not tls at all\r\n\r\n"))
+			_ = c.Close()
+		}
+	}()
+	if got := probe(context.Background(), "llm", svc("https://"+raw.Addr().String()), ""); got.Reason != reasonTLSToPlainHTTP {
+		t.Errorf("non-TLS bytes behind https://: %+v", got)
+	}
+
+	closed := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {}))
+	url := closed.URL
+	closed.Close()
+	if got := probe(context.Background(), "llm", svc(url), ""); got.Reason != reasonRefused {
+		t.Errorf("closed port: %+v", got)
+	}
+
+	slow := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		select {
+		case <-r.Context().Done():
+		case <-time.After(3 * time.Second):
+		}
+	}))
+	defer slow.Close()
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+	if got := probe(ctx, "llm", svc(slow.URL), ""); got.Reason != reasonTimeout {
+		t.Errorf("slow server: %+v", got)
+	}
+
+	tlsSrv := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {}))
+	defer tlsSrv.Close()
+	if got := probe(context.Background(), "llm", svc(tlsSrv.URL), ""); got.Reason != reasonTLSCert {
+		t.Errorf("untrusted cert: %+v", got)
+	}
+
+	if got := probe(context.Background(), "llm", svc(plain.URL), ""); got.Reason != "" {
+		t.Errorf("reachable must carry no reason: %+v", got)
 	}
 }

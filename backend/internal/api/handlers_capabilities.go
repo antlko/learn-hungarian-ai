@@ -2,11 +2,16 @@ package api
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"errors"
+	"net"
 	"net/http"
 	"slices"
 	"sort"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
@@ -163,6 +168,7 @@ func probe(ctx context.Context, name string, svc config.Service, key string) Cap
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		dto.Detail = "unreachable"
+		dto.Reason = classifyProbeError(err)
 		return dto
 	}
 	defer resp.Body.Close()
@@ -180,6 +186,56 @@ func probe(ctx context.Context, name string, svc config.Service, key string) Cap
 		probeModels(ctx, svc, key, &dto)
 	}
 	return dto
+}
+
+// Reasons a probe could not connect, carried in CapabilityDTO.Reason. Machine
+// codes only: the client maps them to a sentence, and neither the raw error
+// nor the URL/IP it names ever reaches the DTO.
+const (
+	reasonTLSToPlainHTTP = "tlsToPlainHttp"
+	reasonRefused        = "refused"
+	reasonTimeout        = "timeout"
+	reasonDNS            = "dns"
+	reasonTLSCert        = "tlsCert"
+	reasonUnreachable    = "unreachable"
+)
+
+// classifyProbeError turns a transport error into one of the reason codes. The
+// common home mistake — https:// in front of an Ollama, which speaks plain HTTP —
+// is only visible in the error text; net/http exposes no typed error for it.
+func classifyProbeError(err error) string {
+	if err == nil {
+		return ""
+	}
+	var (
+		dnsErr   *net.DNSError
+		certErr  *tls.CertificateVerificationError
+		unknown  x509.UnknownAuthorityError
+		hostErr  x509.HostnameError
+		invalid  x509.CertificateInvalidError
+		recordHd tls.RecordHeaderError
+		netErr   net.Error
+	)
+	switch {
+	case strings.Contains(err.Error(), "server gave HTTP response to HTTPS client"),
+		// The peer answered a TLS hello with something that is not TLS at all
+		// (Go reports tls.RecordHeaderError): in practice a plain-HTTP server
+		// such as Ollama behind an https:// address, whatever bytes it replied.
+		errors.As(err, &recordHd):
+		return reasonTLSToPlainHTTP
+	case errors.Is(err, syscall.ECONNREFUSED):
+		return reasonRefused
+	case errors.Is(err, context.DeadlineExceeded):
+		return reasonTimeout
+	case errors.As(err, &dnsErr):
+		return reasonDNS
+	case errors.As(err, &certErr), errors.As(err, &unknown), errors.As(err, &hostErr),
+		errors.As(err, &invalid):
+		return reasonTLSCert
+	case errors.As(err, &netErr) && netErr.Timeout():
+		return reasonTimeout
+	}
+	return reasonUnreachable
 }
 
 // probeModels fills Models and the model-related Detail on a reachable llm row.

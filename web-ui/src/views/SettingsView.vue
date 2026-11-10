@@ -31,6 +31,7 @@ import type {
   Service,
   ServiceProvider,
   UILocale,
+  CheckResult,
 } from '@/types'
 
 const store = useSettingsStore()
@@ -191,6 +192,8 @@ const SERVICE_NAMES: CapabilityName[] = ['tts', 'asr', 'nlp', 'llm', 'mt']
 */
 const components = ref<ComponentStatus[]>([])
 const checking = ref(false)
+/** The last «Проверить» per service, so an unchanged answer is still visibly an answer. */
+const checkResults = ref<Partial<Record<CapabilityName, CheckResult>>>({})
 
 async function loadComponents() {
   if (!auth.isAdmin) return
@@ -207,6 +210,10 @@ async function checkComponents() {
   checking.value = true
   try {
     await Promise.all([caps.refresh(), refreshMT(), loadComponents()])
+    const at = new Date()
+    const next: Partial<Record<CapabilityName, CheckResult>> = {}
+    for (const c of caps.list) next[c.name] = { at, reachable: c.reachable, reason: c.reason }
+    checkResults.value = next
   } finally {
     checking.value = false
   }
@@ -586,6 +593,8 @@ function previewVoice() {
         v-if="auth.isAdmin"
         :components="components"
         :checking="checking"
+        :check-results="checkResults"
+        :caps="caps.byName"
         :services="s.services"
         :saving="store.saving"
         :is-admin="auth.isAdmin"
