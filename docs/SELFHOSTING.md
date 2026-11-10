@@ -16,16 +16,16 @@ Open **http://localhost:8012** and create your account. **Nothing is downloaded*
 carries a starter language pack and installs it into `/data` on first boot, audio included. The
 full dictionary is an optional upgrade (below). See [ADR-010](../.claude/DECISIONS.md#adr-010).
 
-> **No prebuilt image exists yet.** `docker-publish.yml` builds `amd64` and `arm64` into
-> `ghcr.io/antlko/learn-hungarian-ai` only when a `v*` tag is pushed (after the CI gate passes),
-> and the repository has no tag, so `docker pull ghcr.io/antlko/learn-hungarian-ai:latest` fails
-> today. Build from the clone as above. After the first tag, make the GHCR package public once
-> in the GitHub UI, or pulls from other machines are refused. `docker-compose.yml` points at that
-> image: until a release, comment out `image:` and uncomment `build: .`.
+> **Prebuilt image.** `docker-publish.yml` builds `amd64` and `arm64` into
+> `ghcr.io/antlko/learn-hungarian-ai` when a `v*` tag is pushed (after the CI gate passes); `v1.0.0`
+> is out, so `docker compose up -d` with the repository's `docker-compose.yml` pulls it. If another
+> machine is refused, make the GHCR package public once in the GitHub UI. A minimal, paste-ready
+> compose file is in the [README](../README.md#b-docker-compose--the-prebuilt-image-no-clone-needed);
+> to build from the clone instead, comment out `image:` and uncomment `build: .`.
 >
 > **Two images.** `tanulom` (default, distroless) is small and has no Python: the core app and the
 > sidecar services (`--profile nlp|mt|llm`). `tanulom:full` (`docker build --target full -t
-> tanulom:full .`, or `ghcr.io/antlko/learn-hungarian-ai:latest-full` once published) adds Python so
+> tanulom:full .`, or `ghcr.io/antlko/learn-hungarian-ai:latest-full`) adds Python so
 > «Встроенные компоненты» in Settings can install components inside the same container. Both run as
 > uid 65532 and share the `/data` layout, so you can switch between them on the same volume. Pick
 > `full` only if you want that; otherwise stay on the default. No image variant was built or run when

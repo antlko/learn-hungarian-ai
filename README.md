@@ -140,20 +140,43 @@ dictionary) only works when something will bring the container back
 ([self-hosting](docs/SELFHOSTING.md#restart-policy-matters)). Set `-e TZ=Europe/Budapest` too, or
 your "day" ends at UTC midnight.
 
-### B. Docker Compose
+### B. Docker Compose — the prebuilt image, no clone needed
 
-```bash
-git clone https://github.com/antlko/learn-hungarian-ai.git && cd learn-hungarian-ai
-cp .env.example .env           # then edit COMPOSE_PROFILES (see "Optional components")
-docker compose up -d
+Save this as `docker-compose.yml` anywhere and run `docker compose up -d`:
+
+```yaml
+services:
+  tanulom:
+    container_name: tanulom
+    image: ghcr.io/antlko/learn-hungarian-ai:latest
+    ports:
+      - '8012:8012'          # host:container — change only the left number
+    volumes:
+      - tanulom_data:/data   # database, settings, installed packs, your audio
+    environment:
+      TZ: Europe/Budapest    # your "day" (streak, new-card budget) ends at local midnight
+    restart: unless-stopped
+
+volumes:
+  tanulom_data:
 ```
 
-**About the image.** `docker-compose.yml` pulls `ghcr.io/antlko/learn-hungarian-ai:latest`. That
-image is published by `.github/workflows/docker-publish.yml` **only when a `v*` tag is pushed**,
-and this repository has no tag yet, so **the pull fails today**. Until the first release, do
-what the file's comment says: comment out `image:` and uncomment `build: .` under it (or just use
-option A). The `.env.example` default `COMPOSE_PROFILES=mt,llm` starts the translator and Ollama
-too; set it empty (`COMPOSE_PROFILES=`) for the core alone.
+Open **http://localhost:8012** (or whichever host port you picked, e.g. `'7771:8012'` →
+`http://localhost:7771`). Everything the app keeps lives in the one `tanulom_data` volume, so
+updating is `docker compose pull && docker compose up -d`; to keep a copy on the host instead of a
+named volume, use a bind mount such as `/srv/tanulom:/data` (the container runs as uid 65532, so
+`chown 65532 /srv/tanulom` first). Keep `restart: unless-stopped`: the in-app **Restart** button
+needs something to bring the container back.
+
+The image is published for `amd64` and `arm64` by
+`.github/workflows/docker-publish.yml` whenever a `v*` tag is pushed. If the pull is refused from
+another machine, the GHCR package is still private: make it public once in the GitHub UI (or
+`docker login ghcr.io`). Want Python inside the container so *Settings → Components* can install
+the analyser or translator? Use `:latest-full` instead of `:latest`.
+
+**The repository's own `docker-compose.yml`** (clone, then `cp .env.example .env`) adds the optional
+sidecars as profiles — `nlp`, `mt` (sentence translation), `llm` (a local Ollama) — none of which the
+app needs. `COMPOSE_PROFILES=` empty runs the core alone; `.env.example` defaults to `mt,llm`.
 
 ### C. From source, no Docker
 
