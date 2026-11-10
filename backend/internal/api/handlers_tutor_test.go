@@ -579,7 +579,16 @@ func TestTutorKeepsABudgetCutAnswerWithItsFigures(t *testing.T) {
 func TestTutorStopKeepsThePartialAnswer(t *testing.T) {
 	t.Parallel()
 	srv, c := newPackedServer(t)
+	// «started» is signalled by the handler once it HAS TAKEN the first delta, not
+	// when the fake flushed it: stopping in between left nothing to keep, and the
+	// answer was (correctly) an error — the CI flake this replaces.
 	started := make(chan struct{}, 1)
+	srv.onTutorDelta = func() {
+		select {
+		case started <- struct{}{}:
+		default:
+		}
+	}
 	fake := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v1/chat/completions" {
 			http.NotFound(w, r)
@@ -588,7 +597,6 @@ func TestTutorStopKeepsThePartialAnswer(t *testing.T) {
 		w.Header().Set("Content-Type", "text/event-stream")
 		_, _ = w.Write([]byte(`data: {"choices":[{"delta":{"content":"Elj"},"finish_reason":null}]}` + "\n\n"))
 		w.(http.Flusher).Flush()
-		started <- struct{}{}
 		<-r.Context().Done() // the stop cancels the request; the model never finishes
 	}))
 	t.Cleanup(fake.Close)

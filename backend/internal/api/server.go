@@ -76,7 +76,10 @@ type Server struct {
 	cribFlights sync.Map
 	bg          sync.WaitGroup
 	bgCtx       context.Context
-	bgCancel    context.CancelFunc
+	// onTutorDelta is a test seam: called after each streamed tutor delta has
+	// been taken into the answer. Set before the server serves; nil in production.
+	onTutorDelta func()
+	bgCancel     context.CancelFunc
 
 	// CEFR band sizes and the frequency total, read once from the read-only
 	// pack and cached for the life of the process. handlers_stats_level.go.

@@ -750,6 +750,9 @@ func (s *Server) handleTutorAsk(c fiber.Ctx) error {
 		echoed := false
 		usage, streamErr := client.Stream(ctx, msgs, tutor.MaxAnswerTokens, tutor.Temperature, func(delta string) error {
 			answer.WriteString(delta)
+			if s.onTutorDelta != nil {
+				s.onTutorDelta()
+			}
 			// The model reciting the prompt's own headings: cut there, stop
 			// asking for more. The client's draft shows the tail for a moment;
 			// the stored message that replaces it on `done` does not.
