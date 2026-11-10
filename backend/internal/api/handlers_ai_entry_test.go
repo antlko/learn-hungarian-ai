@@ -14,6 +14,7 @@ import (
 // backtick its Hungarian.
 
 func TestAIEntryReadsSloppyJSONFromSmallModels(t *testing.T) {
+	t.Parallel()
 	cases := []struct {
 		name, answer string
 		wantLemma    string
@@ -92,6 +93,7 @@ func TestAIEntryReadsSloppyJSONFromSmallModels(t *testing.T) {
 // them must not thereby turn the check off — that is the one failure a learner
 // could not possibly notice.
 func TestAIEntryChecksHungarianEvenWithoutBackticks(t *testing.T) {
+	t.Parallel()
 	// No backticks anywhere: the prompt asks for them, the model ignored it.
 	answer := `{"lemma":"xyzzyk","pos":"NOUN","meanings":["ерунда"],
 	            "examples":[{"hu":"A xyzzyk nagy.","tr":"Ерунда большая."}]}`
@@ -126,6 +128,7 @@ func TestAIEntryChecksHungarianEvenWithoutBackticks(t *testing.T) {
 // The model saying "I do not know" is an honest dead end and is passed
 // straight through rather than dressed up.
 func TestAIEntryHonoursTheModelsOwnUnknown(t *testing.T) {
+	t.Parallel()
 	got := parseAIEntry(`{"unknown": true}`)
 	if !got.Unknown {
 		t.Fatalf("want Unknown, got %+v", got)
@@ -138,6 +141,7 @@ func TestAIEntryHonoursTheModelsOwnUnknown(t *testing.T) {
 // The caps in the prompt are advice; the parser enforces them, so a model that
 // writes twelve meanings cannot fill the panel.
 func TestAIEntryCapsWhatItAccepts(t *testing.T) {
+	t.Parallel()
 	got := parseAIEntry(`{"lemma":"ház","meanings":["a","b","c","d","e"],
 	                      "morphemes":["h","á","z","x"],
 	                      "examples":[{"hu":"Egy."},{"hu":"Kettő."},{"hu":"Három."}]}`)
@@ -155,6 +159,7 @@ func TestAIEntryCapsWhatItAccepts(t *testing.T) {
 // With no model configured the inspector must not offer the button at all:
 // offering it and then failing is the pattern ADR-001 exists to avoid.
 func TestAIEntryStatusSaysWhyItIsUnavailable(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	var st aiEntryStatus
@@ -180,6 +185,7 @@ func TestAIEntryStatusSaysWhyItIsUnavailable(t *testing.T) {
 // The entry path may reach `user_gloss` — but only on an explicit save, and
 // never by itself. Asking for an entry must create nothing.
 func TestAskingForAnEntryStoresNothing(t *testing.T) {
+	t.Parallel()
 	srv, c := newPackedServer(t)
 	fake, _ := fakeLLM(t, `{"lemma":"ház","pos":"NOUN","meanings":["дом"]}`)
 	enableLLM(t, srv, fake.URL)

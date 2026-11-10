@@ -10,6 +10,7 @@ import (
 // The correction loop end to end: report → overlay → visible as an override →
 // retractable. The pack itself must never change (it is read-only by contract).
 func TestCorrectionOverlaysTheBreakdown(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	// Before: the pack's own reading.
@@ -74,6 +75,7 @@ func TestCorrectionOverlaysTheBreakdown(t *testing.T) {
 }
 
 func TestBreakdownExplainsInBothLocales(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	var got BreakdownResponse
 	c.json(http.MethodGet, "/api/breakdown?form=k%C3%B6nyvben", nil, &got)

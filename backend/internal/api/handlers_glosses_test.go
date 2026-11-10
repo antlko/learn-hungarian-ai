@@ -15,6 +15,7 @@ func glossSetup(t *testing.T) *client {
 // A word nobody has glossed is not an error. Almost every word is in that
 // state, and a 404 would put a special case in every caller.
 func TestGlossMissIsAnEmptyAnswerNotAnError(t *testing.T) {
+	t.Parallel()
 	c := glossSetup(t)
 
 	var out GlossDTO
@@ -35,6 +36,7 @@ func TestGlossMissIsAnEmptyAnswerNotAnError(t *testing.T) {
 // unchecked translation into something a person appears to stand behind —
 // exactly what ADR-014 exists to prevent.
 func TestMachineGlossStaysLabelledAcrossASave(t *testing.T) {
+	t.Parallel()
 	c := glossSetup(t)
 
 	body := PutGlossRequest{Gloss: "Я открываю.", Source: "machine", Model: "facebook/nllb-200-distilled-600M"}
@@ -59,6 +61,7 @@ func TestMachineGlossStaysLabelledAcrossASave(t *testing.T) {
 // to fall this way: mislabelling a person's note as machine output is a
 // cosmetic insult; the reverse passes off a guess as a person's understanding.
 func TestUnknownSourceDefaultsToManual(t *testing.T) {
+	t.Parallel()
 	c := glossSetup(t)
 
 	c.json(http.MethodPut, "/api/glosses/Kinyitom",
@@ -74,6 +77,7 @@ func TestUnknownSourceDefaultsToManual(t *testing.T) {
 // `Kinyitom` at the head of a sentence and `kinyitom` inside one are the same
 // word, and a learner who glossed one has glossed both.
 func TestGlossIsCaseInsensitive(t *testing.T) {
+	t.Parallel()
 	c := glossSetup(t)
 
 	c.json(http.MethodPut, "/api/glosses/Kinyitom", PutGlossRequest{Gloss: "открываю"}, nil)
@@ -86,6 +90,7 @@ func TestGlossIsCaseInsensitive(t *testing.T) {
 }
 
 func TestGlossOverwriteAndDelete(t *testing.T) {
+	t.Parallel()
 	c := glossSetup(t)
 
 	c.json(http.MethodPut, "/api/glosses/Kinyitom", PutGlossRequest{Gloss: "первое"}, nil)
@@ -108,6 +113,7 @@ func TestGlossOverwriteAndDelete(t *testing.T) {
 }
 
 func TestGlossRefusesEmptyAndOverlong(t *testing.T) {
+	t.Parallel()
 	c := glossSetup(t)
 
 	if resp := c.json(http.MethodPut, "/api/glosses/Kinyitom",

@@ -34,8 +34,6 @@ type capabilityCache struct {
 	result []CapabilityDTO
 }
 
-var capCache capabilityCache
-
 func (s *Server) handleCapabilities(c fiber.Ctx) error {
 	return c.JSON(s.capabilities(c.Context()))
 }
@@ -43,11 +41,11 @@ func (s *Server) handleCapabilities(c fiber.Ctx) error {
 // capabilities probes every optional service, cached for probeCacheTTL. Shared
 // by /api/capabilities and /api/admin/components so the two cannot disagree.
 func (s *Server) capabilities(parent context.Context) []CapabilityDTO {
-	capCache.mu.Lock()
-	defer capCache.mu.Unlock()
+	s.capCache.mu.Lock()
+	defer s.capCache.mu.Unlock()
 
-	if time.Since(capCache.at) < probeCacheTTL && capCache.result != nil {
-		return capCache.result
+	if time.Since(s.capCache.at) < probeCacheTTL && s.capCache.result != nil {
+		return s.capCache.result
 	}
 
 	cfg := s.Config()
@@ -97,7 +95,7 @@ func (s *Server) capabilities(parent context.Context) []CapabilityDTO {
 	wg.Wait()
 
 	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
-	capCache.at, capCache.result = time.Now(), out
+	s.capCache.at, s.capCache.result = time.Now(), out
 	return out
 }
 
@@ -200,11 +198,11 @@ func probeModels(ctx context.Context, svc config.Service, key string, dto *Capab
 	}
 }
 
-// InvalidateCapabilityCache forces the next probe to run. Called after a settings
+// invalidateCapabilityCache forces the next probe to run. Called after a settings
 // change so the UI does not show stale service state for up to 30s.
-func InvalidateCapabilityCache() {
-	capCache.mu.Lock()
-	defer capCache.mu.Unlock()
-	capCache.at = time.Time{}
-	capCache.result = nil
+func (s *Server) invalidateCapabilityCache() {
+	s.capCache.mu.Lock()
+	defer s.capCache.mu.Unlock()
+	s.capCache.at = time.Time{}
+	s.capCache.result = nil
 }

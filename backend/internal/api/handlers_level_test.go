@@ -30,6 +30,7 @@ func createLevelText(t *testing.T, c *client) int64 {
 }
 
 func TestManualLevelRoundTripsAndBeatsTheMachine(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	id := createLevelText(t, c)
 
@@ -52,6 +53,7 @@ func TestManualLevelRoundTripsAndBeatsTheMachine(t *testing.T) {
 }
 
 func TestLLMLevelIsOffByDefaultAndValidatedWhenOn(t *testing.T) {
+	t.Parallel()
 	srv, c := newPackedServer(t)
 	id := createLevelText(t, c)
 

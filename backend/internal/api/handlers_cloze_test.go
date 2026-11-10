@@ -22,6 +22,7 @@ import (
 // test in internal/srs covers splitCloze, and would not have caught the field
 // still being serialised.
 func TestQueueSplitsClozeAroundAccents(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	// Two accented letters sit before the target, so a byte offset used as a
@@ -64,6 +65,7 @@ func TestQueueSplitsClozeAroundAccents(t *testing.T) {
 // The byte offsets must not be on the wire at all. Leaving them there is an
 // invitation to slice with them again.
 func TestQueueDoesNotShipByteOffsets(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	c.json(http.MethodPost, "/api/notes", map[string]any{
 		"hu": "Már a házban van a könyv.", "targetForm": "házban",

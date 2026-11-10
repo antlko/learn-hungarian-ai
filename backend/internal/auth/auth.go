@@ -31,12 +31,18 @@ const MinPasswordLength = 10
 // passwords. Callers must not distinguish them — doing so enumerates accounts.
 var ErrInvalidCredentials = errors.New("invalid credentials")
 
+// BcryptCost is the work factor for new hashes. Production keeps the library
+// default; test binaries lower it (bcrypt.MinCost) because every test that
+// creates a user would otherwise pay ~60ms (~600ms under -race) for nothing.
+// Stored hashes carry their own cost, so verification is unaffected.
+var BcryptCost = bcrypt.DefaultCost
+
 // HashPassword bcrypt-hashes a password after validating it.
 func HashPassword(password string) (string, error) {
 	if err := ValidatePassword(password); err != nil {
 		return "", err
 	}
-	h, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	h, err := bcrypt.GenerateFromPassword([]byte(password), BcryptCost)
 	if err != nil {
 		return "", fmt.Errorf("hash password: %w", err)
 	}

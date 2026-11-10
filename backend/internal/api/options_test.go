@@ -111,6 +111,7 @@ func assertSound(t *testing.T, s *Server, opts []string, expected string) {
 }
 
 func TestClozeOptionsAreSameLemmaAttestedForms(t *testing.T) {
+	t.Parallel()
 	s, _ := newOptionsServer(t)
 	it := optionItem(s, srs.Cloze, "ház", "házban", 7, t)
 	opts := s.buildOptions(it, time.Now())
@@ -126,6 +127,7 @@ func TestClozeOptionsAreSameLemmaAttestedForms(t *testing.T) {
 }
 
 func TestProduceOptionsAreNeighbourLemmasWithoutSynonyms(t *testing.T) {
+	t.Parallel()
 	s, _ := newOptionsServer(t)
 	it := optionItem(s, srs.Produce, "ház", "ház", 8, t)
 	for day := 0; day < 20; day++ {
@@ -141,6 +143,7 @@ func TestProduceOptionsAreNeighbourLemmasWithoutSynonyms(t *testing.T) {
 }
 
 func TestOptionsDeterministicPerDayAndVaryAcrossDays(t *testing.T) {
+	t.Parallel()
 	s, _ := newOptionsServer(t)
 	it := optionItem(s, srs.Produce, "ház", "ház", 9, t)
 	now := time.Date(2026, 11, 9, 10, 0, 0, 0, time.Local)
@@ -158,6 +161,7 @@ func TestOptionsDeterministicPerDayAndVaryAcrossDays(t *testing.T) {
 }
 
 func TestNoOptionsWhenNothingToOffer(t *testing.T) {
+	t.Parallel()
 	s, _ := newPackedServer(t)
 	// `azt` is the only PRON lemma and has a single form.
 	var pron int64
@@ -172,6 +176,7 @@ func TestNoOptionsWhenNothingToOffer(t *testing.T) {
 }
 
 func TestReaderMinedNoteGetsOptionsAndChoiceGradesLikeTyping(t *testing.T) {
+	t.Parallel()
 	_, c := newOptionsServer(t)
 	var lemma int64
 	c.app.pack.DB().QueryRow(`SELECT id FROM lemma WHERE lemma = 'ház'`).Scan(&lemma)
@@ -235,6 +240,7 @@ func TestReaderMinedNoteGetsOptionsAndChoiceGradesLikeTyping(t *testing.T) {
 }
 
 func TestViaIsValidatedAndPracticeAcceptsIt(t *testing.T) {
+	t.Parallel()
 	_, c := newOptionsServer(t)
 	created := noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
 	cardID := productiveCardID(t, c, created.NoteID)

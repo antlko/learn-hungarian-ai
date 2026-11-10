@@ -15,6 +15,7 @@ import (
 // is how the first learner's tutor failed with nothing on the settings screen
 // to point at.
 func TestCapabilitiesVerifyTheLLMModelAgainstTheEndpoint(t *testing.T) {
+	t.Parallel()
 	srv, c := newTestServer(t)
 	c.json(http.MethodPost, "/api/setup", SetupRequest{Email: "a@example.com", Password: goodPassword}, nil)
 
@@ -31,7 +32,7 @@ func TestCapabilitiesVerifyTheLLMModelAgainstTheEndpoint(t *testing.T) {
 
 	llmRow := func() CapabilityDTO {
 		t.Helper()
-		InvalidateCapabilityCache()
+		srv.invalidateCapabilityCache()
 		var caps []CapabilityDTO
 		if resp := c.json(http.MethodGet, "/api/capabilities", nil, &caps); resp.StatusCode != 200 {
 			t.Fatalf("capabilities: %d", resp.StatusCode)
@@ -84,7 +85,7 @@ func TestCapabilitiesVerifyTheLLMModelAgainstTheEndpoint(t *testing.T) {
 		t.Errorf("an endpoint without the list: want plain reachable, got %+v", row)
 	}
 	// Other rows never carry a model list.
-	for _, cap := range capCache.result {
+	for _, cap := range srv.capCache.result {
 		if cap.Name != "llm" && cap.Models != nil {
 			t.Errorf("%s carries models: %+v", cap.Name, cap)
 		}

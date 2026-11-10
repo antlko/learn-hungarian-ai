@@ -45,6 +45,10 @@ type Server struct {
 	mu  sync.RWMutex // guards cfg
 	cfg config.Config
 
+	// capCache holds the last service probe. Per server, not per process: two
+	// servers (every test builds its own) must not read each other's probes.
+	capCache capabilityCache
+
 	db  *db.DB
 	app *fiber.App
 

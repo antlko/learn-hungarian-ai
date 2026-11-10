@@ -10,6 +10,7 @@ import (
 // Undo end to end: answer a cloze that grades features, undo, and both state
 // spaces must read exactly as if the answer never happened.
 func TestUndoRevertsBothStateSpaces(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	// A cloze note whose target carries Case=Ine.
@@ -106,6 +107,7 @@ func TestUndoRevertsBothStateSpaces(t *testing.T) {
 // Undo after TWO answers reverts only the last, and the first answer's effect
 // on the feature state survives — recomputed, not wiped.
 func TestUndoRevertsOnlyTheLastAnswer(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	c.json(http.MethodPost, "/api/notes", map[string]any{

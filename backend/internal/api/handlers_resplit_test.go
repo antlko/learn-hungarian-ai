@@ -10,6 +10,7 @@ import (
 // and every card mined from that text carried the join. The reader repairs it
 // on open rather than asking the learner to re-add their library.
 func TestOpeningATextRepairsItsSentenceBoundaries(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	const body = "A ház\n\nA könyv nagy."

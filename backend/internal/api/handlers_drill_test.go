@@ -21,6 +21,7 @@ func topicByCode(topics []TopicDTO, code string) (TopicDTO, bool) {
 }
 
 func TestCurriculumStartsAtTheFirstDrillableTopic(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	var got CurriculumResponse
@@ -85,6 +86,7 @@ func TestCurriculumStartsAtTheFirstDrillableTopic(t *testing.T) {
 // [R4]: the rule card comes first and is a required field. A topic detail
 // without both locales' explanations is an incomplete topic.
 func TestTopicDetailCarriesTheRuleCardInBothLocales(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	var got TopicDetailResponse
@@ -121,6 +123,7 @@ func TestTopicDetailCarriesTheRuleCardInBothLocales(t *testing.T) {
 // The whole loop: fetch items, answer them, watch the gate move — and never see
 // the answer in the payload.
 func TestDrillLoopAdvancesTheGate(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	var batch DrillNextResponse
@@ -235,6 +238,7 @@ func peekAnswer(t *testing.T, s *Server, itemID string) (string, string) {
 }
 
 func TestOutOfOrderTopicIsPractisableAndSaysSo(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	// A topic whose prerequisites are unmet serves items anyway. The order is
@@ -275,6 +279,7 @@ func TestOutOfOrderTopicIsPractisableAndSaysSo(t *testing.T) {
 // behaviour that made a fresh install useless until the user solved a
 // distribution problem by hand.
 func TestFreshInstallHasAWorkingPack(t *testing.T) {
+	t.Parallel()
 	s, err := New(t.TempDir()) // no writeTestPack: nothing but an empty dir
 	if err != nil {
 		t.Fatalf("New: %v", err)
@@ -320,6 +325,7 @@ func TestFreshInstallHasAWorkingPack(t *testing.T) {
 }
 
 func TestPlacementLadderAndSeeding(t *testing.T) {
+	t.Parallel()
 	s, c := newPackedServer(t)
 
 	var pl PlacementResponse

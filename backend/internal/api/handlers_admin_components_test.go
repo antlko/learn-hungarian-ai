@@ -109,7 +109,6 @@ func withFakeManager(t *testing.T, s *Server, port int, mods ...func(*components
 	})
 	t.Cleanup(func() {
 		s.components.Shutdown(context.Background())
-		InvalidateCapabilityCache() // the probe cache is process-wide; do not leak "managed" into the next test
 	})
 	return r
 }
@@ -134,7 +133,11 @@ func waitManaged(t *testing.T, c *client, id, state string) *ManagedDTO {
 	deadline := time.Now().Add(10 * time.Second)
 	for {
 		m := managedOf(t, c, id)
-		if m != nil && m.State == state {
+		// "running" is reported as soon as the child answers, which is BEFORE
+		// the install finishes (model warm-up, hand-over, releasing the
+		// single-flight claim). Progress reaches 1 in the same locked step that
+		// releases it, so wait for that, or the next request meets a 409.
+		if m != nil && m.State == state && (state != "running" || m.Progress == 1) {
 			return m
 		}
 		if time.Now().After(deadline) {
@@ -152,6 +155,7 @@ func serviceOf(t *testing.T, c *client, id string) ServiceDTO {
 }
 
 func TestComponentRoutesAreAdminOnly(t *testing.T) {
+	t.Parallel()
 	s, admin := newAdmin(t)
 	addUser(t, admin, "bea@example.com", "bea elég hosszú jelszó", "learner")
 	learner := signIn(t, s, "bea@example.com", "bea elég hosszú jelszó")
@@ -170,6 +174,7 @@ func TestComponentRoutesAreAdminOnly(t *testing.T) {
 }
 
 func TestComponentUnknownIDIs404(t *testing.T) {
+	t.Parallel()
 	s, c := newAdmin(t)
 	withFakeManager(t, s, 1)
 	for _, id := range []string{"tts", "llm", "pack", "..%2Fetc"} {
@@ -182,6 +187,7 @@ func TestComponentUnknownIDIs404(t *testing.T) {
 }
 
 func TestComponentsListCarriesManagedOnMTAndNLPOnly(t *testing.T) {
+	t.Parallel()
 	s, c := newAdmin(t)
 	withFakeManager(t, s, 1, func(o *components.Options) {
 		o.LookPath = func(string) (string, error) { return "", os.ErrNotExist }
@@ -208,6 +214,7 @@ func TestComponentsListCarriesManagedOnMTAndNLPOnly(t *testing.T) {
 }
 
 func TestComponentInstallRefusedOnFullDisk(t *testing.T) {
+	t.Parallel()
 	s, c := newAdmin(t)
 	withFakeManager(t, s, 1, func(o *components.Options) { o.Disk = apiDisk{free: 1 << 20} })
 	var e struct{ Error string }
@@ -217,6 +224,7 @@ func TestComponentInstallRefusedOnFullDisk(t *testing.T) {
 }
 
 func TestManagedInstallSelectsProviderAndTheClientsResolveThePort(t *testing.T) {
+	t.Parallel()
 	s, c := newAdmin(t)
 	port := childServer(t)
 	r := withFakeManager(t, s, port)
@@ -279,6 +287,7 @@ func TestManagedInstallSelectsProviderAndTheClientsResolveThePort(t *testing.T) 
 }
 
 func TestStopMakesManagedServiceUnreachableNotBroken(t *testing.T) {
+	t.Parallel()
 	s, c := newAdmin(t)
 	r := withFakeManager(t, s, childServer(t))
 	c.do(http.MethodPost, "/api/admin/components/mt/install", nil)
@@ -318,6 +327,7 @@ func TestStopMakesManagedServiceUnreachableNotBroken(t *testing.T) {
 }
 
 func TestStartNeedsAnInstall(t *testing.T) {
+	t.Parallel()
 	s, c := newAdmin(t)
 	withFakeManager(t, s, 1)
 	var e struct{ Error string }
@@ -327,6 +337,7 @@ func TestStartNeedsAnInstall(t *testing.T) {
 }
 
 func TestSwitchingProviderAwayStopsTheChild(t *testing.T) {
+	t.Parallel()
 	s, c := newAdmin(t)
 	r := withFakeManager(t, s, childServer(t))
 	c.do(http.MethodPost, "/api/admin/components/mt/install", nil)
@@ -359,6 +370,7 @@ func TestSwitchingProviderAwayStopsTheChild(t *testing.T) {
 }
 
 func TestUninstallResetsManagedProviderAndDeletesFiles(t *testing.T) {
+	t.Parallel()
 	s, c := newAdmin(t)
 	withFakeManager(t, s, childServer(t))
 	c.do(http.MethodPost, "/api/admin/components/nlp/install", nil)
@@ -385,6 +397,7 @@ func TestUninstallResetsManagedProviderAndDeletesFiles(t *testing.T) {
 }
 
 func TestUninstallLeavesAForeignProviderAlone(t *testing.T) {
+	t.Parallel()
 	s, c := newAdmin(t)
 	withFakeManager(t, s, childServer(t))
 	c.do(http.MethodPost, "/api/admin/components/mt/install", nil)
@@ -398,6 +411,7 @@ func TestUninstallLeavesAForeignProviderAlone(t *testing.T) {
 }
 
 func TestBootDoesNotBlockOnManagedComponents(t *testing.T) {
+	t.Parallel()
 	// Nothing installed + provider managed in config: New must come up, the
 	// autostart finds nothing and the app is simply without the service.
 	s, c := newAdmin(t)

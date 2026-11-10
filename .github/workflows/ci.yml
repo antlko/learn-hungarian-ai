@@ -33,7 +33,9 @@ jobs:
         run: mkdir -p internal/web/dist && echo '<!doctype html><title>stub</title>' > internal/web/dist/index.html
       - run: go vet ./...
       - run: go build ./...
-      - run: go test ./... -race -count=1
+      # internal/api alone is ~200 tests; under -race on a 2-core runner the package
+      # exceeds Go's default 10m per-package timeout (run 42666660594), so say so.
+      - run: go test ./... -race -count=1 -timeout 25m
 
   frontend:
     name: Frontend (Vue)

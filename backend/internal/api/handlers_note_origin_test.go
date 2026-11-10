@@ -10,6 +10,7 @@ import (
 // new note but must not lose that text's claim — and a foreign text id is
 // refused rather than stored.
 func TestCreateNoteLinksItsText(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	makeText := func(title string) int64 {

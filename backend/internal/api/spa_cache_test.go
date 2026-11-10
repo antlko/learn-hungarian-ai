@@ -39,6 +39,7 @@ func doRaw(t *testing.T, c *client, req *http.Request) *http.Response {
 // current asset hashes, a browser that had opened the app once kept its first
 // copy forever and booted into a blank page after any rebuild.
 func TestIndexRevalidatesOnContentNotModTime(t *testing.T) {
+	t.Parallel()
 	_, c := newTestServer(t)
 
 	resp, body := c.do(http.MethodGet, "/", nil)
@@ -76,6 +77,7 @@ func TestIndexRevalidatesOnContentNotModTime(t *testing.T) {
 // HTML served for a `.js` request dies in the parser on `<`, and the symptom is
 // a blank page instead of the missing file it actually is.
 func TestMissingAssetIs404NotTheAppShell(t *testing.T) {
+	t.Parallel()
 	_, c := newTestServer(t)
 	resp, body := c.do(http.MethodGet, "/assets/index-DELETED0.js", nil)
 	if resp.StatusCode != http.StatusNotFound {
@@ -89,6 +91,7 @@ func TestMissingAssetIs404NotTheAppShell(t *testing.T) {
 // A client-side route still deep-links to the shell — that is what the SPA
 // fallback is for, and it must survive the asset guard above.
 func TestClientRouteStillFallsBackToIndex(t *testing.T) {
+	t.Parallel()
 	_, c := newTestServer(t)
 	resp, _ := c.do(http.MethodGet, "/grammar/placement", nil)
 	if resp.StatusCode != http.StatusOK {
@@ -100,6 +103,7 @@ func TestClientRouteStillFallsBackToIndex(t *testing.T) {
 // their own types — not swallowed by the shell fallback. Skips when the embedded
 // build is the placeholder and carries no manifest.
 func TestRootPublicFilesServedWithOwnTypes(t *testing.T) {
+	t.Parallel()
 	if _, err := fs.Stat(web.FS(), "manifest.webmanifest"); err != nil {
 		t.Skip("embedded build has no manifest.webmanifest (placeholder dist)")
 	}

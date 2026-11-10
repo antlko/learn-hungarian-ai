@@ -23,6 +23,7 @@ func practiceDeck(t *testing.T, c *client) {
 // The whole point: it opens whatever the queue says. A learner with nothing due
 // must still be able to train.
 func TestPracticeIsAvailableWithAnEmptyReviewQueue(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	practiceDeck(t, c)
 
@@ -48,6 +49,7 @@ func TestPracticeIsAvailableWithAnEmptyReviewQueue(t *testing.T) {
 
 // The invariant the whole feature rests on.
 func TestPracticeChangesNoCardState(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	practiceDeck(t, c)
 
@@ -72,6 +74,7 @@ func TestPracticeChangesNoCardState(t *testing.T) {
 // review_log is replayed to reproduce FSRS state bit for bit, and undo is
 // delete-and-replay over it. A practice row in there would break both.
 func TestPracticeWritesNothingToTheReviewLog(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	practiceDeck(t, c)
 
@@ -98,6 +101,7 @@ func TestPracticeWritesNothingToTheReviewLog(t *testing.T) {
 // Practice must not advance the second state space either: `morph_state` is an
 // FSRS state space, so writing to it IS scheduling.
 func TestPracticeGradesNoFeatures(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	practiceDeck(t, c)
 
@@ -118,6 +122,7 @@ func TestPracticeGradesNoFeatures(t *testing.T) {
 
 // It does not consume the daily new-card budget: nothing was introduced.
 func TestPracticeDoesNotSpendTheNewCardBudget(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	practiceDeck(t, c)
 
@@ -137,6 +142,7 @@ func TestPracticeDoesNotSpendTheNewCardBudget(t *testing.T) {
 // The verdict must be the review queue's verdict. A trainer that marks `ház`
 // right where the queue marks it wrong is worse than no trainer.
 func TestPracticeGradesTheSameAnswerTheQueueWould(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	created := noteOn(t, c, map[string]any{
 		"hu": "A házban van a könyv.", "targetForm": "házban",
@@ -170,6 +176,7 @@ func TestPracticeGradesTheSameAnswerTheQueueWould(t *testing.T) {
 
 // Practice is reported as practice — separately, with accuracy beside volume.
 func TestPracticeIsReportedSeparatelyFromReviews(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	practiceDeck(t, c)
 
@@ -201,6 +208,7 @@ func TestPracticeIsReportedSeparatelyFromReviews(t *testing.T) {
 // The streak needs the queue cleared as well, so practice can never stand in
 // for the day's obligation however long it goes on.
 func TestPracticeAloneEarnsNoStreak(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	practiceDeck(t, c)
 
@@ -218,6 +226,7 @@ func TestPracticeAloneEarnsNoStreak(t *testing.T) {
 }
 
 func TestPracticeRejectsAnUnknownScope(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	if resp := c.json(http.MethodGet, "/api/practice/queue?scope=nope", nil, nil); resp.StatusCode != http.StatusBadRequest {
 		t.Errorf("got %d, want 400", resp.StatusCode)
@@ -248,6 +257,7 @@ func cardRow(t *testing.T, c *client, id int64) cardSnapshot {
 // serves the shakiest words first, and a virgin deck falls back to random —
 // echoed, so the screen never claims a criterion it did not apply.
 func TestPracticeSizeIsClampedAndHonoured(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	practiceDeck(t, c)
 
@@ -265,6 +275,7 @@ func TestPracticeSizeIsClampedAndHonoured(t *testing.T) {
 }
 
 func TestPracticeRejectsAnUnknownMode(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	if resp := c.json(http.MethodGet, "/api/practice/queue?mode=managed", nil, nil); resp.StatusCode != http.StatusBadRequest {
 		t.Errorf("an unknown mode answered %d, want 400", resp.StatusCode)
@@ -272,6 +283,7 @@ func TestPracticeRejectsAnUnknownMode(t *testing.T) {
 }
 
 func TestWeakModeServesLowestRetrievabilityFirstAndFallsBackOnAVirginDeck(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	practiceDeck(t, c)
 

@@ -15,6 +15,7 @@ import (
 // morphological state space: the guess lands in the grammar heatmap as a
 // Case=Acc failure. The word is given; the FORM is the exercise.
 func TestClozeCarriesTheLemmaAsItsCue(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	var created CreateNoteResponse

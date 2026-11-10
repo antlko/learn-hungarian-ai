@@ -70,6 +70,7 @@ func newEarServer(t *testing.T, talkers []string) (*Server, *client) {
 // the divergence recorded in docs/PEDAGOGY.md. Here we raise the floor above
 // what the fixture supplies to exercise the refusal itself.
 func TestEarSessionRefusedBelowFloorOverHTTP(t *testing.T) {
+	t.Parallel()
 	_, c := newEarServer(t, []string{"anna", "berta"})
 
 	if resp, body := c.do(http.MethodPut, "/api/settings", map[string]any{
@@ -97,6 +98,7 @@ func TestEarSessionRefusedBelowFloorOverHTTP(t *testing.T) {
 // voices meet the shipped floor, so a fresh install can actually use the Ear
 // screen instead of meeting a wall on first open.
 func TestEarSessionRunsAtTheShippedDefault(t *testing.T) {
+	t.Parallel()
 	_, c := newEarServer(t, []string{"anna", "berta", "imre"})
 
 	var res HVPTSessionResponse
@@ -112,6 +114,7 @@ func TestEarSessionRunsAtTheShippedDefault(t *testing.T) {
 // With the floor met, the full loop runs: trials carry no answer, the answer
 // reveals the played member, state accumulates, replay of an expired id is 410.
 func TestEarTrainingLoop(t *testing.T) {
+	t.Parallel()
 	_, c := newEarServer(t, []string{"a1", "a2", "a3", "a4", "a5"})
 
 	var res HVPTSessionResponse
@@ -196,6 +199,7 @@ func TestEarTrainingLoop(t *testing.T) {
 // The listening loop feeds the word-order gate: hours accumulate from reports
 // and the curriculum reads them.
 func TestListeningHoursFeedTheCurriculumGate(t *testing.T) {
+	t.Parallel()
 	_, c := newEarServer(t, []string{"a1"})
 
 	// Upload a material: multipart with audio + transcript.

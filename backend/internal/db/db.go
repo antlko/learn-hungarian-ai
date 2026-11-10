@@ -14,6 +14,7 @@ import (
 	"embed"
 	"fmt"
 	"path/filepath"
+	"sync"
 
 	"github.com/pressly/goose/v3"
 	_ "modernc.org/sqlite" // pure-Go driver: keeps CGO_ENABLED=0
@@ -59,8 +60,15 @@ func Open(path string) (*DB, error) {
 	return &DB{sqlDB}, nil
 }
 
+// gooseMu serialises migrate: goose keeps its base FS, logger and dialect in
+// package globals, so two databases opening at once (parallel tests) race on
+// them. Production opens one database, so the lock is free there.
+var gooseMu sync.Mutex
+
 // migrate applies the embedded goose migrations. goose skips already-applied ones.
 func migrate(sqlDB *sql.DB) error {
+	gooseMu.Lock()
+	defer gooseMu.Unlock()
 	goose.SetBaseFS(embedMigrations)
 	goose.SetLogger(goose.NopLogger()) // keep goose off stdout; we log via slog
 	if err := goose.SetDialect("sqlite3"); err != nil {

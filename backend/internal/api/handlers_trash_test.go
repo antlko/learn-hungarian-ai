@@ -21,6 +21,7 @@ func trashNote(t *testing.T, c *client, noteID int64) TrashResponse {
 }
 
 func TestTrashingAWordRemovesItFromTheQueueAndTheCounts(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
@@ -68,6 +69,7 @@ func TestTrashingAWordRemovesItFromTheQueueAndTheCounts(t *testing.T) {
 // fixed three: it went from «+13» to no number at all the moment a word was
 // trashed, because the text scope was simply missing from the fresh list.
 func TestTrashReturnsTheCallersOwnScopeNumbers(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	var created struct {
 		ID int64 `json:"id"`
@@ -102,6 +104,7 @@ func TestTrashReturnsTheCallersOwnScopeNumbers(t *testing.T) {
 
 // The trash is practiseable and never schedulable.
 func TestTheTrashIsPractisedNeverReviewed(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	drop := noteOn(t, c, map[string]any{"hu": "Nagy a ház.", "targetForm": "ház"})
 	trashNote(t, c, drop.NoteID)
@@ -122,6 +125,7 @@ func TestTheTrashIsPractisedNeverReviewed(t *testing.T) {
 // A stale tab holding a card that has since been trashed must not schedule it —
 // the whole promise is that nothing about the word moves afterwards.
 func TestAnsweringATrashedCardIsRefused(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	note := noteOn(t, c, map[string]any{"hu": "Nagy a ház.", "targetForm": "ház"})
 	item := queueItem(t, c, note.NoteID)
@@ -139,6 +143,7 @@ func TestAnsweringATrashedCardIsRefused(t *testing.T) {
 // Restore puts it back, and re-adding the word from the reader does the same —
 // otherwise «добавить» reported success on a word that stayed invisible.
 func TestRestoreAndReAddBothBringAWordBack(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	note := noteOn(t, c, map[string]any{"hu": "Nagy a ház.", "targetForm": "ház"})
 
@@ -173,6 +178,7 @@ func TestRestoreAndReAddBothBringAWordBack(t *testing.T) {
 // A note that is not the caller's, or is gone, says so rather than reporting a
 // silent success.
 func TestTrashingAnUnknownNoteIs404(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	if resp := c.json(http.MethodPost, "/api/notes/98765/trash", nil, nil); resp.StatusCode != http.StatusNotFound {
 		t.Errorf("unknown note returned %d, want 404", resp.StatusCode)
@@ -217,6 +223,7 @@ func lemmaStatus(t *testing.T, s *Server, userID, lemmaID int64) string {
 // as unknown in its n+1 scoring and the plan goes on counting it as missing,
 // while the learner has just said they know it.
 func TestKnowingAWordMarksItsLemmaKnownAndRestorePutsItBack(t *testing.T) {
+	t.Parallel()
 	s, c := newPackedServer(t)
 
 	n := noteOn(t, c, map[string]any{"hu": "Nagy a ház.", "targetForm": "ház"})
@@ -254,6 +261,7 @@ func TestKnowingAWordMarksItsLemmaKnownAndRestorePutsItBack(t *testing.T) {
 // The old path is the same handler under its old name, so a tab that has not
 // reloaded keeps working — and gets the new behaviour too.
 func TestTheTrashPathStillWorksAndAlsoMarksTheWord(t *testing.T) {
+	t.Parallel()
 	s, c := newPackedServer(t)
 
 	n := noteOn(t, c, map[string]any{"hu": "Nagy a ház.", "targetForm": "ház"})

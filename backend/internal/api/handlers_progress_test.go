@@ -12,6 +12,7 @@ import (
 // streak, checkpoints read the evidence, a failure blocks the curriculum, a
 // retake unblocks it.
 func TestProgressLedgerStreakAndCheckpoints(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	// A fresh account: overview exists, streak zero, next checkpoint is m1.
@@ -132,6 +133,7 @@ func TestProgressLedgerStreakAndCheckpoints(t *testing.T) {
 // `DueLeft == 0`. Clearing the SERVED queue must drive the obligation to zero,
 // with the hidden sibling reported as buried rather than as unmet debt.
 func TestClearingTheServedQueueMeetsTheDueObligation(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	created := noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
 

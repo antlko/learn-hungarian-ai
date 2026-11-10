@@ -62,6 +62,7 @@ func houseNote(t *testing.T, c *client) CreateNoteResponse {
 }
 
 func TestProduceGradesTheDictionaryForm(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	created := houseNote(t, c)
 	id := cardOfDirection(t, c, created.NoteID, srs.Produce)
@@ -81,6 +82,7 @@ func TestProduceGradesTheDictionaryForm(t *testing.T) {
 // The assertion that fails before this change: the prompt is the lemma's gloss,
 // so the lemma is the only answer it can be asking for.
 func TestProduceRejectsTheSentencesInflectedForm(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	created := houseNote(t, c)
 	id := cardOfDirection(t, c, created.NoteID, srs.Produce)
@@ -97,6 +99,7 @@ func TestProduceRejectsTheSentencesInflectedForm(t *testing.T) {
 // Cloze must NOT have moved. It blanks one exact span, and it is the only
 // direction that writes to the morphological state space.
 func TestClozeStillGradesTheSurfaceForm(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	created := houseNote(t, c)
 	id := cardOfDirection(t, c, created.NoteID, srs.Cloze)
@@ -115,6 +118,7 @@ func TestClozeStillGradesTheSurfaceForm(t *testing.T) {
 // Without a lemma there is nothing to fall back TO but the surface form. A card
 // that grades the inflected form is wrong; one that grades nothing is broken.
 func TestProduceFallsBackToTheSurfaceFormWithoutALemma(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	var created CreateNoteResponse
@@ -142,6 +146,7 @@ func TestProduceFallsBackToTheSurfaceFormWithoutALemma(t *testing.T) {
 // wants the dictionary form while `cloze` wants the form in the sentence — so
 // the queue now ships the string the card is graded against.
 func TestTheQueueShipsTheStringEachCardIsGradedAgainst(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	created := houseNote(t, c)
 
@@ -171,6 +176,7 @@ func TestTheQueueShipsTheStringEachCardIsGradedAgainst(t *testing.T) {
 // part, the hint shows one answer and the grader wants another — which is worse
 // than no hint at all.
 func TestTheShippedAnswerIsTheOneTheGraderUses(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	created := houseNote(t, c)
 	id := cardOfDirection(t, c, created.NoteID, srs.Produce)

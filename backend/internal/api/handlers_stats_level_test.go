@@ -61,6 +61,7 @@ func declare(t *testing.T, s *Server, lemmaID int64, status string) {
 }
 
 func TestStatsLevelEmptyDeckAndShape(t *testing.T) {
+	t.Parallel()
 	_, c := newBandedServer(t)
 	resp, body := c.do(http.MethodGet, "/api/stats/level", nil)
 	if resp.StatusCode != http.StatusOK {
@@ -93,6 +94,7 @@ func TestStatsLevelEmptyDeckAndShape(t *testing.T) {
 }
 
 func TestStatsLevelCountsKnownNotLearningSteps(t *testing.T) {
+	t.Parallel()
 	s, c := newBandedServer(t)
 	// A word on its learning steps (a fresh card) does NOT count.
 	noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
@@ -119,6 +121,7 @@ func TestStatsLevelCountsKnownNotLearningSteps(t *testing.T) {
 }
 
 func TestStatsLevelBandListsHighestFrequencyUncounted(t *testing.T) {
+	t.Parallel()
 	s, c := newBandedServer(t)
 	declare(t, s, 4, "known") // the most frequent A1 word is already counted
 
@@ -146,6 +149,7 @@ func TestStatsLevelBandListsHighestFrequencyUncounted(t *testing.T) {
 }
 
 func TestWordRowCarriesStageAndFilters(t *testing.T) {
+	t.Parallel()
 	s, c := newBandedServer(t)
 	noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
 	declare(t, s, 3, "known")
@@ -188,6 +192,7 @@ func TestWordRowCarriesStageAndFilters(t *testing.T) {
 }
 
 func TestMasteryRowsNameTheirTopics(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	created := noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
 	var queue QueueResponse
@@ -220,6 +225,7 @@ func TestMasteryRowsNameTheirTopics(t *testing.T) {
 // An unreadable pack must surface as an error, never as «nothing is in play»,
 // which would reset every unit on the plan to untouched.
 func TestInPlaySetReturnsItsError(t *testing.T) {
+	t.Parallel()
 	s, c := newBandedServer(t)
 	noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
 	var uid int64
@@ -237,20 +243,15 @@ func TestInPlaySetReturnsItsError(t *testing.T) {
 
 // More lemmas in play than one statement may bind: chunked, not an error.
 func TestInPlaySetChunksLargeDecks(t *testing.T) {
+	t.Parallel()
 	s, c := newBandedServer(t)
 	noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
 	var uid int64
 	_ = s.db.QueryRow(`SELECT id FROM user LIMIT 1`).Scan(&uid)
-	tx, err := s.db.Begin()
-	if err != nil {
-		t.Fatal(err)
-	}
-	for id := 10000; id < 10000+40000; id++ {
-		if _, err := tx.Exec(`INSERT INTO lemma_state (user_id, lemma_id, status) VALUES (?,?, 'known')`, uid, id); err != nil {
-			t.Fatal(err)
-		}
-	}
-	if err := tx.Commit(); err != nil {
+	// One recursive INSERT rather than 40 000 round trips: under -race each
+	// Exec cost ~0.7 ms, which made this the slowest test in the package.
+	if _, err := s.db.Exec(`WITH RECURSIVE n(id) AS (SELECT 10000 UNION ALL SELECT id+1 FROM n WHERE id < 49999)
+		INSERT INTO lemma_state (user_id, lemma_id, status) SELECT ?, id, 'known' FROM n`, uid); err != nil {
 		t.Fatal(err)
 	}
 	got, err := s.inPlaySet(uid)
@@ -262,6 +263,7 @@ func TestInPlaySetChunksLargeDecks(t *testing.T) {
 // GET /api/stats/level is hit on every page load: it must not write
 // topic_progress (resolveCurriculum persists; the estimate must not).
 func TestStatsLevelDoesNotWriteTopicProgress(t *testing.T) {
+	t.Parallel()
 	s, c := newBandedServer(t)
 	count := func() int {
 		var n int
@@ -282,6 +284,7 @@ func TestStatsLevelDoesNotWriteTopicProgress(t *testing.T) {
 }
 
 func TestStatsLevelBandCollapsesHomonyms(t *testing.T) {
+	t.Parallel()
 	dir := t.TempDir()
 	writeTestPack(t, dir)
 	pdb, err := sql.Open("sqlite", filepath.Join(dir, "langpack-hu-v1.sqlite"))

@@ -132,6 +132,7 @@ func doneMessage(t *testing.T, events [][2]string) *tutor.Message {
 }
 
 func TestTutorIsOffUntilAModelIsConfigured(t *testing.T) {
+	t.Parallel()
 	srv, c := newPackedServer(t)
 
 	var thread TutorThreadResponse
@@ -192,6 +193,7 @@ func TestTutorIsOffUntilAModelIsConfigured(t *testing.T) {
 }
 
 func TestTutorGroundsTheQuestionStreamsAndLabelsTheAnswer(t *testing.T) {
+	t.Parallel()
 	srv, c := newPackedServer(t)
 	fake, lastPrompt := fakeLLM(t, "Use `házban`, never `házben`. Also `xyzzy` is not a word.")
 	enableLLM(t, srv, fake.URL)
@@ -300,6 +302,7 @@ func TestTutorGroundsTheQuestionStreamsAndLabelsTheAnswer(t *testing.T) {
 // follow-up with no signal, switches when a new subject is named, and says
 // so in the prompt when nothing matched. Every answer records its grounding.
 func TestTutorInfersTheLessonForAFreeChat(t *testing.T) {
+	t.Parallel()
 	srv, c := newPackedServer(t)
 	fake, lastPrompt := fakeLLM(t, "Because.")
 	enableLLM(t, srv, fake.URL)
@@ -363,6 +366,7 @@ func TestTutorInfersTheLessonForAFreeChat(t *testing.T) {
 }
 
 func TestTutorAnswersInTheConfiguredLanguageByDefault(t *testing.T) {
+	t.Parallel()
 	srv, c := newPackedServer(t) // setup chose ru
 	fake, lastPrompt := fakeLLM(t, "Ответ.")
 	enableLLM(t, srv, fake.URL)
@@ -379,6 +383,7 @@ func TestTutorAnswersInTheConfiguredLanguageByDefault(t *testing.T) {
 }
 
 func TestTutorRefusesBadQuestionsAndKeepsThemOffTheThread(t *testing.T) {
+	t.Parallel()
 	srv, c := newPackedServer(t)
 	fake, _ := fakeLLM(t, "x")
 	enableLLM(t, srv, fake.URL)
@@ -406,6 +411,7 @@ func TestTutorRefusesBadQuestionsAndKeepsThemOffTheThread(t *testing.T) {
 // two once shared one string, which meant a bad tutor answer silently changed
 // what a failed level estimate said too.
 func TestTutorFailureHasItsOwnErrorKeyDistinctFromLevelEstimate(t *testing.T) {
+	t.Parallel()
 	srv, c := newPackedServer(t)
 	notAChatAPI := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r) // e.g. services/mt: no /v1/chat/completions route
@@ -438,6 +444,7 @@ func TestTutorFailureHasItsOwnErrorKeyDistinctFromLevelEstimate(t *testing.T) {
 // their first question and naming their pin — never a place a card, gloss or
 // state space reads.
 func TestTutorListIsTheLearnersHistory(t *testing.T) {
+	t.Parallel()
 	srv, c := newPackedServer(t)
 	var emptyRes TutorListResponse
 	if resp := c.json(http.MethodGet, "/api/tutor", nil, &emptyRes); resp.StatusCode != http.StatusOK {
@@ -496,6 +503,7 @@ func TestTutorListIsTheLearnersHistory(t *testing.T) {
 // The line the tutor does not cross (ADR-027): a question changes nothing
 // the learner is graded against. Counted, not assumed.
 func TestTutorCreatesNoCardsAndMovesNoState(t *testing.T) {
+	t.Parallel()
 	srv, c := newPackedServer(t)
 	fake, _ := fakeLLM(t, "Add `házban` to your cards!")
 	enableLLM(t, srv, fake.URL)
@@ -544,6 +552,7 @@ func fakeStreamer(t *testing.T, srv *Server, body string, window int) {
 // with the server's figures and the window on it (ADR-031). It was once sent
 // as `error` with «ничего не изменилось» under a stored partial — false twice.
 func TestTutorKeepsABudgetCutAnswerWithItsFigures(t *testing.T) {
+	t.Parallel()
 	srv, c := newPackedServer(t)
 	fakeStreamer(t, srv, `data: {"choices":[{"delta":{"content":"Use "},"finish_reason":null}]}`+"\n\n"+
 		`data: {"choices":[{"delta":{"content":"`+"`házban`"+`"},"finish_reason":"length"}]}`+"\n\n"+
@@ -568,6 +577,7 @@ func TestTutorKeepsABudgetCutAnswerWithItsFigures(t *testing.T) {
 // as `done`, marked interrupted; the flight is released so the next question
 // goes through; stopping when nothing is in flight is a no-op.
 func TestTutorStopKeepsThePartialAnswer(t *testing.T) {
+	t.Parallel()
 	srv, c := newPackedServer(t)
 	started := make(chan struct{}, 1)
 	fake := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -622,6 +632,7 @@ func TestTutorStopKeepsThePartialAnswer(t *testing.T) {
 // thread when it was the first, and asks again with the history that is
 // left — never a branch (ADR-031).
 func TestTutorEditReplacesTheQuestionAndWhatFollowed(t *testing.T) {
+	t.Parallel()
 	srv, c := newPackedServer(t)
 	fake, lastPrompt := fakeLLM(t, "Answer.")
 	enableLLM(t, srv, fake.URL)
@@ -683,6 +694,7 @@ func cardOf(t *testing.T, srv *Server, noteID int64, direction string) int64 {
 // grounds the lesson from the card's own features, and stores the question
 // with the card it was about.
 func TestTutorCardQuestionIsComposedGroundedAndStored(t *testing.T) {
+	t.Parallel()
 	srv, c := newPackedServer(t)
 	fake, lastPrompt := fakeLLM(t, "Because `házban`.")
 	enableLLM(t, srv, fake.URL)
@@ -727,6 +739,7 @@ func TestTutorCardQuestionIsComposedGroundedAndStored(t *testing.T) {
 
 // The question-phase hint: nothing that is the answer reaches the prompt.
 func TestTutorHintWordCarriesNoWord(t *testing.T) {
+	t.Parallel()
 	srv, c := newPackedServer(t)
 	fake, lastPrompt := fakeLLM(t, "A noun, back harmony.")
 	enableLLM(t, srv, fake.URL)
@@ -758,6 +771,7 @@ func TestTutorHintWordCarriesNoWord(t *testing.T) {
 // Another learner's card, a card that is not there, a bad phase: refused
 // before anything is stored, with the tutor's own key.
 func TestTutorRefusesAnotherLearnersCard(t *testing.T) {
+	t.Parallel()
 	srv, c := newPackedServer(t)
 	fake, _ := fakeLLM(t, "x")
 	enableLLM(t, srv, fake.URL)
@@ -783,6 +797,7 @@ func TestTutorRefusesAnotherLearnersCard(t *testing.T) {
 // question, and a different word opens a different chat — the panel that
 // showed the previous word's conversation is the whole reason for the note id.
 func TestTutorReviewThreadIsOnePerWord(t *testing.T) {
+	t.Parallel()
 	srv, c := newPackedServer(t)
 	fake, _ := fakeLLM(t, "Answer.")
 	enableLLM(t, srv, fake.URL)
@@ -851,6 +866,7 @@ func TestTutorReviewThreadIsOnePerWord(t *testing.T) {
 // The question limit is characters, as the composer counts them — a
 // thousand Cyrillic letters are two thousand bytes and were once refused.
 func TestTutorAcceptsAThousandCyrillicCharacters(t *testing.T) {
+	t.Parallel()
 	srv, c := newPackedServer(t)
 	fake, _ := fakeLLM(t, "Да.")
 	enableLLM(t, srv, fake.URL)

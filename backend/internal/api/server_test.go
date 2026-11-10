@@ -20,7 +20,9 @@ import (
 // that carries the session cookie between calls.
 func newTestServer(t *testing.T) (*Server, *client) {
 	t.Helper()
-	s, err := New(t.TempDir())
+	dir := t.TempDir()
+	seedStarterPack(t, dir)
+	s, err := New(dir)
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}
@@ -83,6 +85,7 @@ func (c *client) json(method, path string, body any, out any) *http.Response {
 const goodPassword = "elég hosszú jelszó"
 
 func TestBootstrapAndSetupFlow(t *testing.T) {
+	t.Parallel()
 	_, c := newTestServer(t)
 
 	var boot BootstrapDTO
@@ -138,6 +141,7 @@ func TestBootstrapAndSetupFlow(t *testing.T) {
 }
 
 func TestSetupRejectsWeakInput(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name string
 		req  SetupRequest
@@ -164,6 +168,7 @@ func TestSetupRejectsWeakInput(t *testing.T) {
 }
 
 func TestAuthIsRequired(t *testing.T) {
+	t.Parallel()
 	_, c := newTestServer(t)
 	for _, path := range []string{"/api/me", "/api/settings", "/api/capabilities"} {
 		resp, _ := c.do(http.MethodGet, path, nil)
@@ -174,6 +179,7 @@ func TestAuthIsRequired(t *testing.T) {
 }
 
 func TestLoginLogout(t *testing.T) {
+	t.Parallel()
 	_, c := newTestServer(t)
 	c.json(http.MethodPost, "/api/setup", SetupRequest{Email: "anna@example.com", Password: goodPassword}, nil)
 
@@ -212,6 +218,7 @@ func TestLoginLogout(t *testing.T) {
 }
 
 func TestSettingsRoundTripAndSecretHandling(t *testing.T) {
+	t.Parallel()
 	_, c := newTestServer(t)
 	c.json(http.MethodPost, "/api/setup", SetupRequest{Email: "anna@example.com", Password: goodPassword}, nil)
 
@@ -258,6 +265,7 @@ func TestSettingsRoundTripAndSecretHandling(t *testing.T) {
 }
 
 func TestSettingsClampIsReported(t *testing.T) {
+	t.Parallel()
 	_, c := newTestServer(t)
 	var me MeDTO
 	c.json(http.MethodPost, "/api/setup", SetupRequest{Email: "a@example.com", Password: goodPassword}, &me)
@@ -278,6 +286,7 @@ func TestSettingsClampIsReported(t *testing.T) {
 }
 
 func TestSettingsRejectsInvalidAndDoesNotPersist(t *testing.T) {
+	t.Parallel()
 	s, c := newTestServer(t)
 	var me MeDTO
 	c.json(http.MethodPost, "/api/setup", SetupRequest{Email: "a@example.com", Password: goodPassword}, &me)
@@ -299,6 +308,7 @@ func TestSettingsRejectsInvalidAndDoesNotPersist(t *testing.T) {
 }
 
 func TestUnknownServiceRejectedBeforeSaving(t *testing.T) {
+	t.Parallel()
 	s, c := newTestServer(t)
 	var me MeDTO
 	c.json(http.MethodPost, "/api/setup", SetupRequest{Email: "a@example.com", Password: goodPassword}, &me)
@@ -320,6 +330,7 @@ func TestUnknownServiceRejectedBeforeSaving(t *testing.T) {
 }
 
 func TestCapabilitiesReportUnconfiguredServices(t *testing.T) {
+	t.Parallel()
 	_, c := newTestServer(t)
 	c.json(http.MethodPost, "/api/setup", SetupRequest{Email: "a@example.com", Password: goodPassword}, nil)
 
@@ -355,6 +366,7 @@ func TestCapabilitiesReportUnconfiguredServices(t *testing.T) {
 }
 
 func TestSPAFallbackServesIndexForClientRoutes(t *testing.T) {
+	t.Parallel()
 	_, c := newTestServer(t)
 	resp, body := c.do(http.MethodGet, "/progress", nil)
 	if resp.StatusCode != http.StatusOK {
@@ -366,6 +378,7 @@ func TestSPAFallbackServesIndexForClientRoutes(t *testing.T) {
 }
 
 func TestUnknownAPIRouteIs404NotSPA(t *testing.T) {
+	t.Parallel()
 	_, c := newTestServer(t)
 	resp, body := c.do(http.MethodGet, "/api/does-not-exist", nil)
 	if resp.StatusCode != http.StatusNotFound {
@@ -381,6 +394,7 @@ func TestUnknownAPIRouteIs404NotSPA(t *testing.T) {
 // after the handler makes it run after the request has already been served —
 // i.e. no limiting at all, with no error anywhere.
 func TestAuthRoutesAreRateLimited(t *testing.T) {
+	t.Parallel()
 	_, c := newTestServer(t)
 
 	var limited bool
@@ -401,6 +415,7 @@ func TestAuthRoutesAreRateLimited(t *testing.T) {
 }
 
 func TestSPACacheHeaders(t *testing.T) {
+	t.Parallel()
 	// index.html must never be cached: it is the file that names the current
 	// asset hashes, so caching it pins a returning visitor to the previous
 	// build for as long as the cache lives. Fingerprinted assets, by contrast,
@@ -427,6 +442,7 @@ func TestSPACacheHeaders(t *testing.T) {
 // The setup and users screens print the password floor the server enforces,
 // not a copy of it: bootstrap carries auth.MinPasswordLength (ADR-038).
 func TestBootstrapReportsTheMinimumPasswordLength(t *testing.T) {
+	t.Parallel()
 	_, c := newTestServer(t)
 	var boot BootstrapDTO
 	if resp := c.json(http.MethodGet, "/api/bootstrap", nil, &boot); resp.StatusCode != 200 {

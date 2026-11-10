@@ -57,6 +57,7 @@ func newSetsServer(t *testing.T) (*Server, *client) {
 }
 
 func TestLibrarySetsListOrderLocaleAndShape(t *testing.T) {
+	t.Parallel()
 	_, c := newSetsServer(t)
 
 	var ru []LibrarySetDTO
@@ -86,6 +87,7 @@ func TestLibrarySetsListOrderLocaleAndShape(t *testing.T) {
 }
 
 func TestLibrarySetImportMakesAnOrdinaryTextAndIsIdempotent(t *testing.T) {
+	t.Parallel()
 	s, c := newSetsServer(t)
 
 	var first ImportSetResponse
@@ -142,6 +144,7 @@ func TestLibrarySetImportMakesAnOrdinaryTextAndIsIdempotent(t *testing.T) {
 }
 
 func TestLibrarySetUnknownCodeIs404(t *testing.T) {
+	t.Parallel()
 	_, c := newSetsServer(t)
 	if resp := c.json(http.MethodPost, "/api/library/sets/nope/import", nil, nil); resp.StatusCode != http.StatusNotFound {
 		t.Errorf("unknown code: %d, want 404", resp.StatusCode)
@@ -149,6 +152,7 @@ func TestLibrarySetUnknownCodeIs404(t *testing.T) {
 }
 
 func TestLibrarySetsAreEmptyOnAnOlderPack(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t) // test pack without the tables
 	resp, body := c.do(http.MethodGet, "/api/library/sets", nil)
 	if resp.StatusCode != http.StatusOK || strings.TrimSpace(string(body)) != "[]" {
@@ -160,6 +164,7 @@ func TestLibrarySetsAreEmptyOnAnOlderPack(t *testing.T) {
 }
 
 func TestLibrarySetsAreImportedPerLearner(t *testing.T) {
+	t.Parallel()
 	s, admin := newSetsServer(t)
 	var mine ImportSetResponse
 	admin.json(http.MethodPost, "/api/library/sets/m1-u1/import", nil, &mine)
@@ -180,6 +185,7 @@ func TestLibrarySetsAreImportedPerLearner(t *testing.T) {
 }
 
 func TestLibrarySetsRequireSignIn(t *testing.T) {
+	t.Parallel()
 	s, _ := newSetsServer(t)
 	anon := &client{t: t, app: s}
 	if resp := anon.json(http.MethodGet, "/api/library/sets", nil, nil); resp.StatusCode != http.StatusUnauthorized {
@@ -193,6 +199,7 @@ func TestLibrarySetsRequireSignIn(t *testing.T) {
 // Against the starter the binary really ships: every set imports, and the
 // splitter never merges two of a set's sentences (the blank-line rule).
 func TestEveryStarterSetImportsAsOneSentencePerParagraph(t *testing.T) {
+	t.Parallel()
 	s, c := newTestServer(t) // New installs the embedded starter
 	if resp, body := c.do(http.MethodPost, "/api/setup", SetupRequest{
 		Email: "anna@example.com", Password: goodPassword, UILocale: "ru", GlossLang: "both",
@@ -223,6 +230,7 @@ func TestEveryStarterSetImportsAsOneSentencePerParagraph(t *testing.T) {
 }
 
 func TestPasteCannotClaimASetSourceURL(t *testing.T) {
+	t.Parallel()
 	s, c := newSetsServer(t)
 	for _, src := range []string{"set:m1-u1", "SET:m1-u1", "  set:x"} {
 		resp, body := c.do(http.MethodPost, "/api/texts", CreateTextRequest{
@@ -248,6 +256,7 @@ func TestPasteCannotClaimASetSourceURL(t *testing.T) {
 }
 
 func TestConcurrentImportsOfOneSetYieldOneText(t *testing.T) {
+	t.Parallel()
 	s, c := newSetsServer(t)
 	const n = 6
 	var wg sync.WaitGroup
@@ -277,6 +286,7 @@ func TestConcurrentImportsOfOneSetYieldOneText(t *testing.T) {
 }
 
 func TestImportLocksAreIndependentPerUserAndSet(t *testing.T) {
+	t.Parallel()
 	a := importLock(1, "m1-u1")
 	if a != importLock(1, "m1-u1") {
 		t.Fatal("same (user, set) must share one lock")

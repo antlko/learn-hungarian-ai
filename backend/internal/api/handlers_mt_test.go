@@ -68,6 +68,7 @@ func newFakeMTLifecycle(t *testing.T, initial string) *fakeMTLifecycle {
 // downloading service and an undeployed one reached Settings identically. The
 // status route must report the difference.
 func TestMTStatusDistinguishesLoadingFromUnreachable(t *testing.T) {
+	t.Parallel()
 	fake := newFakeMTLifecycle(t, "loading")
 	_, c := setupWithMT(t, fake.URL)
 
@@ -102,6 +103,7 @@ func TestMTStatusDistinguishesLoadingFromUnreachable(t *testing.T) {
 }
 
 func TestMTStatusReportsOffWhenNotConfigured(t *testing.T) {
+	t.Parallel()
 	_, c := setupWithMT(t, "")
 
 	var out MTStatusResponse
@@ -117,6 +119,7 @@ func TestMTStatusReportsOffWhenNotConfigured(t *testing.T) {
 // sentence we invent about "the model could not be loaded" would lose the one
 // piece of information that lets anybody fix it.
 func TestMTStatusCarriesTheServicesOwnFailureReason(t *testing.T) {
+	t.Parallel()
 	fake := newFakeMTLifecycle(t, "failed")
 	_, c := setupWithMT(t, fake.URL)
 
@@ -132,6 +135,7 @@ func TestMTStatusCarriesTheServicesOwnFailureReason(t *testing.T) {
 // Warmup is what makes a failed download retryable without a container
 // restart — which on a deployed instance means without SSH.
 func TestMTWarmupRestartsAFailedLoad(t *testing.T) {
+	t.Parallel()
 	fake := newFakeMTLifecycle(t, "failed")
 	_, c := setupWithMT(t, fake.URL)
 
@@ -148,6 +152,7 @@ func TestMTWarmupRestartsAFailedLoad(t *testing.T) {
 }
 
 func TestMTWarmupRefusesWhenNotConfigured(t *testing.T) {
+	t.Parallel()
 	_, c := setupWithMT(t, "")
 
 	var body map[string]string

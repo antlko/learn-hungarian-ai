@@ -48,7 +48,7 @@ PIPER_BASE    ?= https://huggingface.co/rhasspy/piper-voices/resolve/main/hu/hu_
 VERSION       ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 # The race detector needs a C toolchain (macOS: Xcode command-line tools).
 # Without one: make test GO_TEST_FLAGS=-count=1
-GO_TEST_FLAGS ?= -race -count=1
+GO_TEST_FLAGS ?= -race -count=1 -timeout 25m
 
 # The dev-only listen address. It is NOT a default and it is not read from
 # internal/config: it must equal the proxy target spelled literally in

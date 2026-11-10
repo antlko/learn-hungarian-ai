@@ -52,6 +52,7 @@ func settledOf(p CourseResponse, code string) int {
 }
 
 func TestCourseSettledCountsKnownAndMatureOnly(t *testing.T) {
+	t.Parallel()
 	s, c := newCourseServer(t, true)
 	var fresh CourseResponse
 	c.json(http.MethodGet, "/api/course", nil, &fresh)
@@ -99,6 +100,7 @@ func TestCourseSettledCountsKnownAndMatureOnly(t *testing.T) {
 }
 
 func TestCourseResponseCarriesUnlockRule(t *testing.T) {
+	t.Parallel()
 	_, c := newCourseServer(t, true)
 	var got CourseResponse
 	c.json(http.MethodGet, "/api/course", nil, &got)
@@ -113,6 +115,7 @@ func TestCourseResponseCarriesUnlockRule(t *testing.T) {
 // A pack without the tier column resolves, and settled is simply 0 for a fresh
 // learner: the older pack is unaffected.
 func TestCourseSettledOnOlderPack(t *testing.T) {
+	t.Parallel()
 	s, c := newCourseServer(t, false)
 	declare(t, s, 3, "known")
 	var got CourseResponse

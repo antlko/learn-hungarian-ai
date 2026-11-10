@@ -40,6 +40,7 @@ func nlpRow(t *testing.T, c *client) ComponentDTO {
 }
 
 func TestNLPComponentIsBuiltAndReportsDownloadProgress(t *testing.T) {
+	t.Parallel()
 	fake, _ := fakeNLP(t, "downloading")
 	s, c := setupWithMT(t, "")
 	if r := nlpRow(t, c); !r.Built || r.Configured || r.State != "off" {
@@ -48,9 +49,9 @@ func TestNLPComponentIsBuiltAndReportsDownloadProgress(t *testing.T) {
 	if _, err := s.updateConfig(func(cfg *config.Config) { cfg.Services.NLP = config.Service{Provider: "local", Endpoint: fake.URL} }); err != nil {
 		t.Fatal(err)
 	}
-	capCache.mu.Lock()
-	capCache.result = nil
-	capCache.mu.Unlock()
+	s.capCache.mu.Lock()
+	s.capCache.result = nil
+	s.capCache.mu.Unlock()
 	r := nlpRow(t, c)
 	if r.State != "loading" || r.Progress != 0.5 || r.Model != "hu_core_news_md" || !r.Reachable {
 		t.Fatalf("downloading: %+v", r)
@@ -58,6 +59,7 @@ func TestNLPComponentIsBuiltAndReportsDownloadProgress(t *testing.T) {
 }
 
 func TestNLPWarmup(t *testing.T) {
+	t.Parallel()
 	s, c := setupWithMT(t, "")
 	if resp := c.json(http.MethodPost, "/api/admin/nlp/warmup", nil, nil); resp.StatusCode != http.StatusServiceUnavailable {
 		t.Fatalf("not configured: %d", resp.StatusCode)

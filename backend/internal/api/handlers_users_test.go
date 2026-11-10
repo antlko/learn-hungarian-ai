@@ -51,6 +51,7 @@ func listUsers(t *testing.T, c *client) []UserDTO {
 }
 
 func TestUserLifecycle(t *testing.T) {
+	t.Parallel()
 	_, admin := newAdmin(t)
 
 	users := listUsers(t, admin)
@@ -104,6 +105,7 @@ func TestUserLifecycle(t *testing.T) {
 // A password hash must never reach the wire — not in a list, not in the object
 // returned by the write that stored it.
 func TestPasswordHashNeverLeavesTheServer(t *testing.T) {
+	t.Parallel()
 	_, admin := newAdmin(t)
 
 	_, createBody := admin.do(http.MethodPost, "/api/users",
@@ -123,6 +125,7 @@ func TestPasswordHashNeverLeavesTheServer(t *testing.T) {
 }
 
 func TestCreateUserRejectsBadInput(t *testing.T) {
+	t.Parallel()
 	_, admin := newAdmin(t)
 
 	cases := []struct {
@@ -155,6 +158,7 @@ func TestCreateUserRejectsBadInput(t *testing.T) {
 // the constraint. That has to surface as a 409, not as the 500 an unmapped
 // constraint error would produce.
 func TestDuplicateEmailIsConflictNotServerError(t *testing.T) {
+	t.Parallel()
 	_, admin := newAdmin(t)
 	addUser(t, admin, "bea@example.com", goodPassword, "learner")
 
@@ -174,6 +178,7 @@ func TestDuplicateEmailIsConflictNotServerError(t *testing.T) {
 // Losing the last admin locks everyone out of settings and of this screen, with
 // no way back short of editing the database by hand.
 func TestLastAdminCannotBeDemotedOrDeleted(t *testing.T) {
+	t.Parallel()
 	_, admin := newAdmin(t)
 	me := listUsers(t, admin)[0]
 
@@ -212,6 +217,7 @@ func TestLastAdminCannotBeDemotedOrDeleted(t *testing.T) {
 // A rejected half must reject the whole edit: landing the role change and then
 // failing on the password would leave the caller unable to tell what applied.
 func TestUpdateUserDoesNotApplyPartially(t *testing.T) {
+	t.Parallel()
 	s, admin := newAdmin(t)
 	bea := addUser(t, admin, "bea@example.com", goodPassword, "learner")
 
@@ -232,6 +238,7 @@ func TestUpdateUserDoesNotApplyPartially(t *testing.T) {
 
 // Deleting an account must take its learner data and its live sessions with it.
 func TestDeleteUserCascadesDataAndSessions(t *testing.T) {
+	t.Parallel()
 	s, admin := newAdmin(t)
 	bea := addUser(t, admin, "bea@example.com", goodPassword, "learner")
 	beaClient := signIn(t, s, "bea@example.com", goodPassword)
@@ -264,6 +271,7 @@ func TestDeleteUserCascadesDataAndSessions(t *testing.T) {
 
 // Route guards in the SPA are UX only; this is the boundary that matters.
 func TestLearnerIsForbiddenOnEveryAdminRoute(t *testing.T) {
+	t.Parallel()
 	s, admin := newAdmin(t)
 	bea := addUser(t, admin, "bea@example.com", goodPassword, "learner")
 	beaClient := signIn(t, s, "bea@example.com", goodPassword)
@@ -298,6 +306,7 @@ func TestLearnerIsForbiddenOnEveryAdminRoute(t *testing.T) {
 }
 
 func TestChangeOwnPassword(t *testing.T) {
+	t.Parallel()
 	s, admin := newAdmin(t)
 	addUser(t, admin, "bea@example.com", goodPassword, "learner")
 
@@ -349,6 +358,7 @@ func TestChangeOwnPassword(t *testing.T) {
 // An admin reset is the answer to a compromised account, so it has to evict the
 // account everywhere — while leaving the admin's own session alone.
 func TestAdminPasswordResetEndsThatUsersSessions(t *testing.T) {
+	t.Parallel()
 	s, admin := newAdmin(t)
 	bea := addUser(t, admin, "bea@example.com", goodPassword, "learner")
 	beaClient := signIn(t, s, "bea@example.com", goodPassword)
@@ -375,6 +385,7 @@ func TestAdminPasswordResetEndsThatUsersSessions(t *testing.T) {
 // An admin changing their own password through the admin route keeps the browser
 // they are holding, exactly as /api/me/password does.
 func TestAdminChangingOwnPasswordKeepsCurrentSession(t *testing.T) {
+	t.Parallel()
 	_, admin := newAdmin(t)
 	me := listUsers(t, admin)[0]
 
@@ -388,6 +399,7 @@ func TestAdminChangingOwnPasswordKeepsCurrentSession(t *testing.T) {
 }
 
 func TestUserRoutesRequireAuthentication(t *testing.T) {
+	t.Parallel()
 	_, c := newTestServer(t)
 	c.json(http.MethodPost, "/api/setup", SetupRequest{Email: "admin@example.com", Password: goodPassword}, nil)
 	c.cookie = ""

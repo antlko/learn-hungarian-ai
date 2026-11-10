@@ -58,11 +58,11 @@ func (s *Server) newComponents(mods ...func(*components.Options)) *components.Ma
 					*f = config.Service{Provider: config.ProviderManaged}
 				}
 			})
-			InvalidateCapabilityCache()
+			s.invalidateCapabilityCache()
 			return err
 		},
 		// Ports appear and vanish; never show a 30 s old probe over them.
-		OnChange: func(string) { InvalidateCapabilityCache() },
+		OnChange: func(string) { s.invalidateCapabilityCache() },
 	}
 	for _, mod := range mods { // tests swap the runner, never the hooks
 		mod(&o)
@@ -189,7 +189,7 @@ func (s *Server) handleComponentUninstall(c fiber.Ctx) error {
 			return err
 		}
 	}
-	InvalidateCapabilityCache()
+	s.invalidateCapabilityCache()
 	return s.componentResponse(c, id)
 }
 

@@ -27,6 +27,7 @@ func packedWithMT(t *testing.T, endpoint string) (*Server, *client) {
 // The queue is the app's highest-frequency screen. It must never be hostage to
 // a sidecar that may be off, undeployed, or still loading 600 MB of weights.
 func TestTheQueueNeverCallsTheTranslator(t *testing.T) {
+	t.Parallel()
 	fake := newFakeMT(t)
 	_, c := packedWithMT(t, fake.URL)
 	noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
@@ -46,6 +47,7 @@ func TestTheQueueNeverCallsTheTranslator(t *testing.T) {
 // screen reports a failure — the same behaviour as a cache miss, so there is
 // one thing to reason about rather than two.
 func TestTheQueueWorksWithNoTranslatorAtAll(t *testing.T) {
+	t.Parallel()
 	_, c := packedWithMT(t, "")
 	created := noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
 
@@ -60,6 +62,7 @@ func TestTheQueueWorksWithNoTranslatorAtAll(t *testing.T) {
 
 // The label is what makes a machine crib permissible on a card at all.
 func TestAReaderCardCarriesALabelledCrib(t *testing.T) {
+	t.Parallel()
 	fake := newFakeMT(t)
 	_, c := packedWithMT(t, fake.URL)
 	const hu = "A házban van a könyv."
@@ -85,6 +88,7 @@ func TestAReaderCardCarriesALabelledCrib(t *testing.T) {
 // A pack translation was written by a person. Printing a model beside it would
 // libel the translator and make the label meaningless where it matters.
 func TestAPackTranslationCarriesNoModel(t *testing.T) {
+	t.Parallel()
 	_, c := packedWithMT(t, "")
 	// sentenceId is normally set by the course path; passed directly here
 	// because what matters is only that the sentence came from the pack.
@@ -103,6 +107,7 @@ func TestAPackTranslationCarriesNoModel(t *testing.T) {
 // The background top-up is what fills the cache for a deck that predates the
 // feature. It runs OFF the response path, so the test waits for it.
 func TestTheBackgroundWarmFillsTheCache(t *testing.T) {
+	t.Parallel()
 	fake := newFakeMT(t)
 	s, c := packedWithMT(t, fake.URL)
 	created := noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})

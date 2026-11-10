@@ -37,6 +37,7 @@ func seedStateCard(t *testing.T, s *Server, lemmaID int64, state, days, reps int
 }
 
 func TestStatsDeckCountsLemmasByWordsListStage(t *testing.T) {
+	t.Parallel()
 	s, c := newBandedServer(t)
 	// lemma 1 learning, 2 relearning, 3 young, 4 mature, 5 known, 6 never
 	// reviewed; a seventh (trashed) word must not count.

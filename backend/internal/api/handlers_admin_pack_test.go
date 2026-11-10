@@ -238,7 +238,6 @@ func TestAdminRestart(t *testing.T) {
 }
 
 func TestAdminComponentsShape(t *testing.T) {
-	InvalidateCapabilityCache() // the probe cache is process-wide; earlier tests may have filled it
 	_, c := newPackedServer(t)
 	var comps []ComponentDTO
 	if resp := c.json(http.MethodGet, "/api/admin/components", nil, &comps); resp.StatusCode != 200 {

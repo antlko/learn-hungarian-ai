@@ -38,6 +38,7 @@ func queueItem(t *testing.T, c *client, noteID int64) srs.QueueItem {
 // does — so every word added from a text reached `produce`, whose entire prompt
 // IS the gloss, with an empty question. The pack has a dictionary entry.
 func TestReaderNoteBorrowsThePacksGloss(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	created := noteOn(t, c, map[string]any{
 		"hu": "A házban van a könyv.", "targetForm": "házban",
@@ -57,6 +58,7 @@ func TestReaderNoteBorrowsThePacksGloss(t *testing.T) {
 // only the learner's own, and a cross-locale fallback is already rendered
 // behind the `review.glossFallback` badge.
 func TestAGlossTheLearnerWroteIsNeverOverwritten(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	created := noteOn(t, c, map[string]any{
 		"hu": "A házban van a könyv.", "targetForm": "házban",
@@ -76,6 +78,7 @@ func TestAGlossTheLearnerWroteIsNeverOverwritten(t *testing.T) {
 // an EMPTY feature string, so before this it got no sentence card at all — and
 // neither did 23 of 37 words mined from a real text.
 func TestAFeaturelessTargetStillGetsAClozeCard(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	created := noteOn(t, c, map[string]any{
 		"hu": "A házban van a könyv.", "targetForm": "a",
@@ -103,6 +106,7 @@ func TestAFeaturelessTargetStillGetsAClozeCard(t *testing.T) {
 // that writes to the morphological state space, and a cloze with no features
 // must write NOTHING rather than inventing something to grade.
 func TestAFeaturelessClozeGradesNoFeatures(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	created := noteOn(t, c, map[string]any{
 		"hu": "A házban van a könyv.", "targetForm": "a",
@@ -124,6 +128,7 @@ func TestAFeaturelessClozeGradesNoFeatures(t *testing.T) {
 
 // Without a span there is nothing to blank, so there is still no cloze.
 func TestANoteWithNoSpanStillGetsNoCloze(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	created := noteOn(t, c, map[string]any{"hu": "A házban van a könyv."})
 
@@ -137,6 +142,7 @@ func TestANoteWithNoSpanStillGetsNoCloze(t *testing.T) {
 // The reader recolours the word from this. Guessing `learning` client-side
 // would recolour a word the learner declared KNOWN backwards on every re-add.
 func TestCreateNoteReportsTheLemmaStatus(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	created := noteOn(t, c, map[string]any{
 		"hu": "A házban van a könyv.", "targetForm": "házban",
@@ -161,6 +167,7 @@ func TestCreateNoteReportsTheLemmaStatus(t *testing.T) {
 // The duplicate branch returned before the lemma was ever touched, which left
 // a re-added word with no status to recolour from.
 func TestDuplicateNoteStillReportsTheLemmaStatus(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	body := map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"}
 	noteOn(t, c, body)

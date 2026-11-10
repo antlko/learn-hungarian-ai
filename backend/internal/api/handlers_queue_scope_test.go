@@ -8,6 +8,7 @@ import (
 )
 
 func TestQueueDefaultsToAll(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
 
@@ -28,6 +29,7 @@ func TestQueueDefaultsToAll(t *testing.T) {
 // Refused rather than quietly widened: a typo that returns the whole deck looks
 // exactly like the feature working, and would be found only by counting cards.
 func TestQueueRejectsAnUnknownScope(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	resp := c.json(http.MethodGet, "/api/review/queue?scope=everything", nil, nil)
 	if resp.StatusCode != http.StatusBadRequest {
@@ -38,6 +40,7 @@ func TestQueueRejectsAnUnknownScope(t *testing.T) {
 // A word added from a text is not course material and must not appear under
 // «План», however the note was made.
 func TestQueueScopeFiltersBySource(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	created := noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
 
@@ -64,6 +67,7 @@ func TestQueueScopeFiltersBySource(t *testing.T) {
 // The control has to label the tab the learner is NOT standing on, so every
 // scope is counted whichever one was asked for.
 func TestQueueAlwaysReportsEveryScopesCount(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
 

@@ -17,6 +17,7 @@ import (
 // and the `spell` direction never honours it — that direction exists to train
 // exactly the diacritics being forgiven.
 func TestAccentToleranceAcceptsAccentlessTyping(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	var created CreateNoteResponse
@@ -48,6 +49,7 @@ func TestAccentToleranceAcceptsAccentlessTyping(t *testing.T) {
 }
 
 func TestAccentToleranceCanBeTurnedOff(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	var settings SettingsDTO

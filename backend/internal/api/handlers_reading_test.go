@@ -13,6 +13,7 @@ import (
 // is one half of stats.Day.Met, and reading was not in it.
 
 func TestReadingCountsTowardTheDaysMinutes(t *testing.T) {
+	t.Parallel()
 	s, c := newPackedServer(t)
 
 	var before OverviewResponse
@@ -47,6 +48,7 @@ func TestReadingCountsTowardTheDaysMinutes(t *testing.T) {
 // see whether anyone is looking at the screen, so it makes a lying client
 // cheap rather than impossible.
 func TestOneReportCannotMintMoreThanAMinute(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	var out ReadingProgressResponse
@@ -67,6 +69,7 @@ func TestOneReportCannotMintMoreThanAMinute(t *testing.T) {
 // An idle tick is the normal case, not a failure: the client reports on a
 // timer and most ticks carry nothing.
 func TestAnIdleTickIsAcceptedAndCreditsNothing(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 
 	var out ReadingProgressResponse
@@ -92,6 +95,7 @@ func TestAnIdleTickIsAcceptedAndCreditsNothing(t *testing.T) {
 // default rather than an error: a stale client should get a chart, not a
 // failure.
 func TestTheDayWindowIsClampedToTheRangesTheChartOffers(t *testing.T) {
+	t.Parallel()
 	for raw, want := range map[string]int{
 		"":         90,
 		"7":        7,

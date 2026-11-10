@@ -92,6 +92,7 @@ func unitByCode(p CourseResponse, code string) (u struct {
 // the moment a unit is enrolled. `learned` is the honest figure: only counted
 // lemmas (known, or graduated and still remembered) — ADR-057.
 func TestCourseReportsLearnedSeparatelyFromInDeck(t *testing.T) {
+	t.Parallel()
 	s, c := newCourseServer(t, true)
 
 	var fresh CourseResponse
@@ -144,6 +145,7 @@ func TestCourseReportsLearnedSeparatelyFromInDeck(t *testing.T) {
 }
 
 func TestCourseTotalsJSONShape(t *testing.T) {
+	t.Parallel()
 	_, c := newCourseServer(t, true)
 	resp, body := c.do(http.MethodGet, "/api/course", nil)
 	if resp.StatusCode != http.StatusOK {
@@ -186,6 +188,7 @@ func TestCourseTotalsJSONShape(t *testing.T) {
 // A pack built before `tier` existed reads every unit as basic and the course
 // still resolves.
 func TestCourseFromAPackWithoutTierIsAllBasic(t *testing.T) {
+	t.Parallel()
 	_, c := newCourseServer(t, false)
 	var got CourseResponse
 	if resp := c.json(http.MethodGet, "/api/course", nil, &got); resp.StatusCode != 200 {

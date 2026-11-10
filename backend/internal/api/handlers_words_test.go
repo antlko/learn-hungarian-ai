@@ -9,6 +9,7 @@ import (
 // lemma_state, memory figures derived from the cards, names from the pack —
 // searchable without ever touching COLLATE NOCASE.
 func TestWordsBrowserListsSearchesAndMeasures(t *testing.T) {
+	t.Parallel()
 	_, c := newPackedServer(t)
 	noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
 	noteOn(t, c, map[string]any{"hu": "Itt van a könyvben ma.", "targetForm": "könyvben"})

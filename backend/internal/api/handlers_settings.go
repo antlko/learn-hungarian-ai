@@ -160,7 +160,7 @@ func (s *Server) handleUpdateSettings(c fiber.Ctx) error {
 	s.reconcileManaged(prev, s.Config())
 
 	// Service endpoints may have changed; do not show stale probe results.
-	InvalidateCapabilityCache()
+	s.invalidateCapabilityCache()
 
 	secrets, err := s.secretPresence(u.ID)
 	if err != nil {

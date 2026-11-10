@@ -56,6 +56,7 @@ func realPackDataDir(t *testing.T) string {
 }
 
 func TestRealPackEnrolmentFindsWordsTheTaggerFiledElsewhere(t *testing.T) {
+	t.Parallel()
 	dir := realPackDataDir(t)
 	s, err := New(dir)
 	if err != nil {

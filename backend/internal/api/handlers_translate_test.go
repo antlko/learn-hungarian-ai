@@ -70,6 +70,7 @@ func setupWithMT(t *testing.T, endpoint string) (*Server, *client) {
 }
 
 func TestTranslateLabelsAndCaches(t *testing.T) {
+	t.Parallel()
 	fake := newFakeMT(t)
 	_, c := setupWithMT(t, fake.URL)
 
@@ -120,6 +121,7 @@ func TestTranslateLabelsAndCaches(t *testing.T) {
 }
 
 func TestTranslateDeduplicatesWithinABatch(t *testing.T) {
+	t.Parallel()
 	fake := newFakeMT(t)
 	_, c := setupWithMT(t, fake.URL)
 
@@ -144,6 +146,7 @@ func TestTranslateDeduplicatesWithinABatch(t *testing.T) {
 // The one sidecar failure that would look like success: a short batch silently
 // shifts every later translation onto the wrong sentence.
 func TestTranslateRefusesAShortBatch(t *testing.T) {
+	t.Parallel()
 	fake := newFakeMT(t)
 	fake.short.Store(true)
 	_, c := setupWithMT(t, fake.URL)
@@ -156,6 +159,7 @@ func TestTranslateRefusesAShortBatch(t *testing.T) {
 }
 
 func TestTranslateWithoutAServiceSaysSo(t *testing.T) {
+	t.Parallel()
 	_, c := setupWithMT(t, "")
 
 	var e struct {
@@ -173,6 +177,7 @@ func TestTranslateWithoutAServiceSaysSo(t *testing.T) {
 
 // A learner who already paid for a sentence keeps it when the sidecar stops.
 func TestTranslateServesCacheWithTheServiceStopped(t *testing.T) {
+	t.Parallel()
 	fake := newFakeMT(t)
 	s, c := setupWithMT(t, fake.URL)
 
@@ -199,6 +204,7 @@ func TestTranslateServesCacheWithTheServiceStopped(t *testing.T) {
 }
 
 func TestTranslateRejectsBadInput(t *testing.T) {
+	t.Parallel()
 	fake := newFakeMT(t)
 	_, c := setupWithMT(t, fake.URL)
 
@@ -228,6 +234,7 @@ func TestTranslateRejectsBadInput(t *testing.T) {
 // The translator speaks its own protocol, so offering `openai` for it would
 // advertise a wire format the client does not talk. [ADR-014]
 func TestMTRejectsTheOpenAIProvider(t *testing.T) {
+	t.Parallel()
 	s, _ := setupWithMT(t, "")
 	_, err := s.updateConfig(func(cfg *config.Config) {
 		cfg.Services.MT = config.Service{Provider: config.ProviderOpenAI, Endpoint: "http://example.invalid"}
