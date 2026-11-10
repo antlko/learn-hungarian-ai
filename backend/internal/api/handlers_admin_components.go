@@ -118,10 +118,13 @@ func (s *Server) reconcileManaged(prev, next config.Config) {
 // autoStartComponents runs at boot, off the boot path: a component that will not
 // start is logged and the app carries on without it.
 func (s *Server) autoStartComponents() {
+	// Capture the manager here, on the boot path: reading s.components inside the
+	// goroutine raced with a test (and any future caller) that swaps the field.
+	comps := s.components
 	s.bg.Add(1)
 	go func() {
 		defer s.bg.Done()
-		s.components.AutoStart(func(id string) bool {
+		comps.AutoStart(func(id string) bool {
 			cfg := s.Config()
 			return serviceField(&cfg, id).Provider == config.ProviderManaged
 		})
