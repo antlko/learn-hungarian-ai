@@ -84,3 +84,5 @@ config.local.yaml
 
 # The tutor corpus build downloads its sources here; the outputs are committed.
 langpack/cache/tutor/
+
+.agent-context
