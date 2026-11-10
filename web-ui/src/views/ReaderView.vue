@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useMediaQuery } from '@vueuse/core'
 import { useActiveTime } from '@/composables/useActiveTime'
 import { useRoute } from 'vue-router'
 import { toast } from 'vue-sonner'
@@ -8,6 +9,7 @@ import { BrainCircuit, Volume2, VolumeOff } from '@lucide/vue'
 import { describeError } from '@/lib/errors'
 import { Button, buttonVariants } from '@/components/ui/button'
 import KeyBar, { type KeyHint } from '@/components/common/KeyBar.vue'
+import BottomSheet from '@/components/common/BottomSheet.vue'
 import BackButton from '@/components/common/BackButton.vue'
 import Note from '@/components/common/Note.vue'
 import SpeakButton from '@/components/common/SpeakButton.vue'
@@ -106,6 +108,15 @@ const paragraphs = computed<Piece[][]>(() => {
 const selectedToken = computed<StoredToken | null>(
   () => detail.value?.tokens.find((t) => t.index === selected.value) ?? null,
 )
+/** Below md the word panel is a modeless bottom sheet; from md up, the sticky rail. */
+const isPhone = useMediaQuery('(max-width: 767px)')
+/** The sheet's pinned footer, where WordDetail puts «Знаю» / «Игнорировать» / «В карточки». */
+const sheetActions = ref<HTMLElement | null>(null)
+/** The last selected word, kept while the sheet slides out so it does not empty mid-animation. */
+const sheetToken = ref<StoredToken | null>(null)
+watch(selectedToken, (t) => {
+  if (t) sheetToken.value = t
+})
 const selectedStatus = computed<LemmaStatus | undefined>(() => {
   const id = selectedToken.value?.lemmaId
   return id ? detail.value?.known[String(id)] : undefined
@@ -149,10 +160,30 @@ function speakSelected() {
   }, 140)
 }
 
+/**
+ * Phone: the word sheet stands on the lower half of the screen, so a word
+ * tapped down there would vanish behind its own explanation. Bring it into the
+ * strip that stays visible (the page gains bottom padding while a word is open).
+ */
+async function revealAboveSheet(index: number) {
+  if (!isPhone.value) return
+  await nextTick()
+  const el = document.querySelector<HTMLElement>(`[data-token="${index}"]`)
+  const main = el?.closest('main')
+  if (!el || !main) return
+  const r = el.getBoundingClientRect()
+  const vh = window.innerHeight
+  // Sheet top = 45% of the screen, less the tab bar it stands on.
+  const visibleBottom = vh * 0.45 - 56 - 12
+  if (r.bottom <= visibleBottom && r.top >= 64) return
+  main.scrollBy({ top: r.top - vh * 0.22, behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
+}
+
 /** The one way the selection moves — so nothing can select a word silently. */
 function select(index: number) {
   selected.value = index
   speakSelected()
+  void revealAboveSheet(index)
   // A translation is about one sentence. Walking out of it drops the caption
   // rather than leaving it under a line it does not translate.
   if (translationFor.value !== null && selectedToken.value?.sentIdx !== translationFor.value) {
@@ -591,17 +622,40 @@ onUnmounted(() => {
     </div>
 
     <WordDetail
-      v-if="detail"
+      v-if="detail && !isPhone"
       :token="selectedToken"
       :status="selectedStatus"
       :sentence="selectedToken ? sentenceOf(selectedToken) : ''"
       :sentence-translation="translation"
       :translating-sentence="translating"
       class="lg:sticky lg:top-2 lg:max-h-[calc(100dvh-6rem)]"
-      @close="selected = null"
       @status-change="setStatus"
       @add-card="addCard"
       @translate-sentence="selectedToken && translateSentence(selectedToken)"
     />
+    <!-- Phone: the same panel in a pull-out sheet; the page behind stays live, so
+         tapping another word just switches it. -->
+    <BottomSheet
+      v-if="detail && isPhone"
+      modeless
+      hide-title
+      :open="!!selectedToken"
+      :title="sheetToken?.form ?? ''"
+      @close="selected = null"
+    >
+      <WordDetail
+        embedded
+        :actions-target="sheetActions"
+        :token="selectedToken ?? sheetToken"
+        :status="selectedStatus"
+        :sentence="(selectedToken ?? sheetToken) ? sentenceOf((selectedToken ?? sheetToken)!) : ''"
+        :sentence-translation="translation"
+        :translating-sentence="translating"
+        @status-change="setStatus"
+        @add-card="addCard"
+        @translate-sentence="selectedToken && translateSentence(selectedToken)"
+      />
+      <template #footer><div ref="sheetActions" /></template>
+    </BottomSheet>
   </div>
 </template>

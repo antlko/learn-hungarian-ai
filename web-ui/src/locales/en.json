@@ -869,7 +869,6 @@
       "maturedList": "Settled in this set (an interval of 21 days or more): {words}",
       "maturedHint": "“Settled” is Anki's word for a card whose next review is three weeks or more away. A convention, not a memory threshold — but a measured one."
     },
-    "details": "More",
     "missReturns": "That's fine: the word will come back in about {t}.",
     "accent": {
       "label": "Hungarian letters"
@@ -934,6 +933,12 @@
       "wk": "{n} wk",
       "mo": "{n} mo",
       "yr": "{n} yr"
+    },
+    "audio": {
+      "askSpell": "Type the word you hear.",
+      "askListen": "What does the word you hear mean?",
+      "word": "Word",
+      "sentence": "In its sentence"
     },
     "know": {
       "action": "Know it",

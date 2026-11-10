@@ -461,6 +461,16 @@ was clicked as a skip button and did nothing.
 **Audio autoplays** on `listen` and `spell` directions. Never on `recognize` — it would give
 the answer away. Those two directions also withhold the Hungarian entirely until the answer:
 the sound is the question, and printing the sentence turns a dictation into a copying exercise.
+What is spoken is **the one word the card asks about** (`targetForm`; `spell` at 0.85 rate), not its
+sentence — a sentence read out with one word graded left the learner guessing which word was meant
+(ADR-063). The card says what to do in words («Напишите слово, которое слышите.» / «Что значит слово,
+которое вы слышите?») and carries two buttons: «Слово» (replay) and «В предложении» (the whole sentence,
+as context, on request). Exercised in the browser at 375px and desktop, 2026-11-10.
+
+**«Знаю» on a phone / touch screen** sits at the right end of the stage line above the card, not at the
+foot of the page: down there it was a thumb's slip above the pinned «Дальше» (ADR-063). On the options
+question it stays the pinned bar's only button, as before; on desktop it stays under the ratings. The
+header's «новое» chip is hidden below md — the stage line already says it, and the row overflowed.
 Speech comes from the device by default ([ADR-012](../.claude/DECISIONS.md#adr-012)); a device
 with no Hungarian voice gets the reason on the card rather than a silent one.
 
@@ -544,7 +554,12 @@ own header row, `Esc` closes. No scrim: the card stays visible and usable, a cli
 close it (click another word to switch, the same word to close), and on windows >= 1100px it **reserves its
 width** (24rem right padding on the review page, animated 200ms, none under reduced motion) so the card
 re-centres in the remaining space; narrower windows overlay it. The Teacher uses the same single drawer — opening one replaces the other — and nothing
-scrolls for either. Below md the Teacher is the bottom sheet and the word stays under «Подробнее».
+scrolls for either. Below md the SAME single `BottomSheet` carries the word or the Teacher (one replaces the other, at every
+width): the word opens `modeless` (no scrim, the sentence above stays scrollable and tappable, another
+word switches it, the same word or ✕ or `Esc` or dragging it down closes it; 55dvh by default, drag the
+handle up for ~92dvh), the Teacher stays modal. **Advancing to another card closes both** (the key is
+`store.index` + `cardId`, which also fires when the same card returns in a learning step, but not on the
+question→answer flip, so the Teacher stays open across answering). ADR-062.
 *Written without exercising a browser.*
 
 `Esc` closes it. It is available in the reader too, where the rail gained the same examples.
@@ -760,8 +775,7 @@ after it.
 does not reach the neighbour; on a wider touch screen the bar pads for the home-indicator inset
 itself (on <md the tab bar already covers it). No swipe gestures. `KeyBar` is hidden in both cases
 (and, where it shows, sits above the tab bar; on the review screen it starts collapsed to a
-small chip, per-device). The stage line is always visible; the word inspector column below `lg` is a «Подробнее»
-disclosure that opens itself when a word is asked for. Typed answers are `lang="hu"`,
+small chip, per-device). The stage line is always visible; the word inspector is the modeless bottom sheet (§4.1). Typed answers are `lang="hu"`,
 `autocapitalize/autocorrect=off`, `spellcheck=false`, `enterkeyhint="done"`; the phone keyboard's
 Enter submits («Проверить»). **No accent strip by default**: answers are not case-sensitive and
 diacritics are not required («Принимать ответ без диакритики», on by default), so a plain Latin
@@ -782,6 +796,14 @@ aria-modal`, focus moves in and returns to the opener, Tab wraps inside. It sits
 lifts by the keyboard's height. On <md the **Teacher** opens in it (the same `TutorAside`
 conversation and thread as the desktop side panel, which stays on md+) and «Как это работает»
 uses it too (a centred dialog on md+).
+Below md it is **draggable** by its top row — one 44px row holding the pill (centred), the title if shown
+and the ✕ on the right (pointer events, `touch-action: none` there; the ✕ and `Esc` stay the accessible close): down > ~80px or a flick closes,
+up > ~48px expands to ~92dvh, from expanded down > ~80px returns; otherwise it snaps back (200ms, none under
+reduced motion, no transition while the finger is down). `modeless` (word panels): no scrim, no Tab trap,
+no `aria-modal`, the wrapper ignores pointers so the page stays live, a tap outside does not close,
+55dvh by default, a stronger top shadow, and it **stands on the tab bar** (which stays visible and
+tappable) instead of covering it. Optional `footer` slot: a pinned non-scrolling row that takes
+the safe-area inset.
 
 **«Как это работает»** (`components/review/HowItWorks.vue`) is a `BottomSheet` (<md) / dialog: the four
 stages, what each grade schedules (the card's own preview times when opened from the «?» beside the
@@ -1033,11 +1055,13 @@ of tapping words — is an `InfoTip` beside the heading. Browser flow not exerci
 
 **The reader on a phone.** A compact header: title, the two coverage figures as one line each over
 a thin bar, with «что означают эти цифры» behind an `InfoTip`; the text runs edge to edge with a
-generous line height. A selected word opens a **bottom sheet** above the tab bar (at most 60% of
-the height, with a close button) and the text gets padding and scroll margin so the word stays
-visible above it; «Знаю / Игнорировать / В карточки» are large buttons pinned to the sheet's bottom.
+generous line height. A selected word opens a **modeless, draggable bottom sheet** (`BottomSheet modeless`, §14: handle,
+55dvh by default, up to ~92dvh, drag down or ✕ closes; the text behind stays scrollable and tappable, tapping
+another word switches it without closing) above the tab bar; the text gets bottom padding so the word can
+scroll clear above it, and a word tapped where the sheet will stand is scrolled into the visible strip
+(`revealAboveSheet`); «Знаю / Игнорировать / В карточки» are large buttons in the sheet's pinned footer.
 The key bar is hidden below `md` and on touch. From `md` the word detail is the side rail it was.
-Browser flow not exercised.
+Exercised in the browser at 375px, light and dark (2026-11-10).
 
 ### 5.2 Words — «что выучилось»
 

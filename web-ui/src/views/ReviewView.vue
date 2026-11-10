@@ -2,7 +2,6 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
-  ChevronDown,
   CircleCheck,
   Clock,
   Eye,
@@ -121,9 +120,6 @@ try {
 } catch {
   // Storage refused: the strip simply starts open, as it did.
 }
-/** The inspector/tutor column below lg: opens itself when something fills it. */
-const detailsOpen = ref(false)
-
 /** The gloss, plus whether it fell back to the other language. Never silent. */
 const gloss = computed(() => pickGloss(store.current?.glossRu, store.current?.glossEn, ui.locale))
 
@@ -135,6 +131,17 @@ const gloss = computed(() => pickGloss(store.current?.glossRu, store.current?.gl
 const isAudioDirection = computed(
   () => store.current?.direction === 'listen' || store.current?.direction === 'spell',
 )
+
+/**
+ * What an audio card SAYS: the one word it is asking about, not its sentence.
+ *
+ * Reading the whole sentence out and then grading one word of it left the
+ * learner guessing which word was meant (report, 2026-11-10). The sentence is
+ * still one tap away, as context. ADR-063.
+ */
+const audioWord = computed(() => store.current?.targetForm?.trim() || store.current?.hu || '')
+const audioRate = computed(() => (store.current?.direction === 'spell' ? 0.85 : 1))
+const audioHasSentence = computed(() => !!store.current && audioWord.value !== store.current.hu.trim())
 
 /**
  * Whether the reveal block should print the whole sentence again.
@@ -371,8 +378,8 @@ const inspected = ref('')
 
 function inspect(word: string) {
   inspected.value = inspected.value === word ? '' : word
-  // One drawer on desktop: the word replaces the Teacher in it.
-  if (inspected.value && !isPhone.value) tutorOpen.value = false
+  // One sheet/drawer at every width: the word replaces the Teacher in it.
+  if (inspected.value) tutorOpen.value = false
 }
 
 /**
@@ -397,13 +404,14 @@ const tutorOpen = ref(false)
  * Settings → Components, not here.
  */
 const tutorAvailable = computed(() => caps.available('llm'))
-/** Right-hand drawer on desktop (word or Teacher), bottom sheet on a phone. */
-const drawerOpen = computed(() => !isPhone.value && !!store.current && (!!inspected.value || tutorOpen.value))
+/** ONE sheet: right-hand drawer on desktop, bottom sheet on a phone — the word or the Teacher. */
+const drawerOpen = computed(() => !!store.current && (!!inspected.value || tutorOpen.value))
 /** Wide windows reserve the drawer's 24rem so the card re-centres; narrower ones let it overlay. */
 const wideEnough = useMediaQuery('(min-width: 1100px)')
 const reserveDrawer = computed(() => drawerOpen.value && wideEnough.value)
-const drawerWord = computed(() => !isPhone.value && !!inspected.value)
-const tutorInSheet = computed(() => tutorOpen.value && isPhone.value && !!store.current)
+const drawerWord = computed(() => !!inspected.value)
+/** A word on a phone does not block the sentence above it; the Teacher stays modal. */
+const sheetModeless = computed(() => isPhone.value && drawerWord.value)
 watch(tutorAvailable, (ok) => {
   if (!ok) tutorOpen.value = false
 })
@@ -416,7 +424,7 @@ function toggleTutor() {
   if (!tutorAvailable.value) return
   if (!tutorOpen.value && !store.current) return
   tutorOpen.value = !tutorOpen.value
-  if (tutorOpen.value && !isPhone.value) inspected.value = ''
+  if (tutorOpen.value) inspected.value = ''
 }
 
 /** The chat a first question creates belongs to the word it was asked about. */
@@ -706,6 +714,21 @@ async function focusAnswer() {
 }
 
 /**
+ * Every advance closes the word and the Teacher. `cardId` alone is not enough:
+ * a card in a learning step comes back as the SAME card, so it would not fire.
+ * `store.index` rises on each `next()`; the question→answer flip of one card
+ * changes neither part, so the Teacher stays open across answering. The
+ * Teacher's thread is keyed by note (`tutorThreadId`), so it is not touched.
+ */
+watch(
+  () => `${store.index}:${store.current?.cardId ?? ''}`,
+  () => {
+    inspected.value = ''
+    tutorOpen.value = false
+  },
+)
+
+/**
  * Autoplay, on the directions where the audio IS the question.
  *
  * Never on `recognize` — hearing the sentence read out gives away the card that
@@ -716,22 +739,12 @@ async function focusAnswer() {
 watch(
   () => store.current?.cardId,
   () => {
-    inspected.value = ''
     void focusAnswer()
-    if (isAudioDirection.value && store.current) speech.speak(store.current.hu)
+    if (isAudioDirection.value && store.current) speech.speak(audioWord.value, audioRate.value)
   },
 )
 
 onUnmounted(() => speech.cancel())
-
-// Phone only: the desktop drawer overlays the page and nothing scrolls for it.
-watch(inspected, (i) => {
-  if (!i || !isPhone.value) return
-  detailsOpen.value = true
-  void nextTick(() =>
-    document.querySelector('[data-details]')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }),
-  )
-})
 
 /**
  * The full stop. Fires only on a session that had something in it: arriving at
@@ -1285,7 +1298,7 @@ const ratingKeys = [
             </span>
             <span
               v-if="store.current.isNew"
-              class="inline-flex h-8 items-center rounded-md border border-new/40 bg-new/10 px-1.5 text-[10px] tracking-wide whitespace-nowrap text-new uppercase md:px-2"
+              class="inline-flex max-md:hidden h-8 items-center rounded-md border border-new/40 bg-new/10 px-1.5 text-[10px] tracking-wide whitespace-nowrap text-new uppercase md:px-2"
             >
               {{ $t('review.newCard') }}
             </span>
@@ -1331,12 +1344,31 @@ const ratingKeys = [
           />
         </div>
         <!-- Where the card stands: a position, never a score. [R18], ADR-039 -->
-        <MemoryMeter
-          v-if="store.current.memory"
-          :memory="store.current.memory"
-          :after="store.result?.memory ?? null"
-          :scheduled="store.mode === 'review'"
-        />
+        <div class="flex items-center justify-between gap-2">
+          <MemoryMeter
+            v-if="store.current.memory"
+            :memory="store.current.memory"
+            :after="store.result?.memory ?? null"
+            :scheduled="store.mode === 'review'"
+          />
+          <!--
+            Phone: «Знаю» lives up here, a screen away from «Дальше» and the
+            ratings. At the foot of the page it sat a thumb's slip above the
+            pinned bar (report, 2026-11-10).
+          -->
+          <Button
+            v-if="compact && !(choiceActive && store.phase === 'question')"
+            variant="ghost"
+            size="sm"
+            class="ml-auto min-h-11 shrink-0 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+            :disabled="store.marking"
+            :title="$t('review.know.hint')"
+            @click="knowCurrent"
+          >
+            <CircleCheck class="size-3.5" aria-hidden="true" />
+            {{ $t('review.know.action') }}
+          </Button>
+        </div>
       </div>
 
       <!--
@@ -1361,12 +1393,26 @@ const ratingKeys = [
           than left tapping a dead button. ADR-005.
         -->
         <div v-if="isAudioDirection" class="flex flex-col items-center gap-3 py-4">
-          <SpeakButton
-            :text="store.current.hu"
-            size="sm"
-            :label="$t('speech.replay')"
-            :rate="store.current.direction === 'spell' ? 0.85 : 1"
-          />
+          <!-- What is being asked, in words: the card shows no text to infer it from. -->
+          <p v-if="store.phase === 'question'" class="text-center text-base leading-relaxed">
+            {{ $t(store.current.direction === 'spell' ? 'review.audio.askSpell' : 'review.audio.askListen') }}
+          </p>
+          <div class="flex flex-wrap items-center justify-center gap-2">
+            <SpeakButton
+              :text="audioWord"
+              size="sm"
+              :label="$t('review.audio.word')"
+              :rate="audioRate"
+              class="min-h-11 border border-border"
+            />
+            <SpeakButton
+              v-if="audioHasSentence"
+              :text="store.current.hu"
+              size="sm"
+              :label="$t('review.audio.sentence')"
+              class="min-h-11 text-muted-foreground"
+            />
+          </div>
           <p
             v-if="!speech.usable"
             class="max-w-sm text-center text-xs leading-relaxed text-uncertain"
@@ -1747,7 +1793,7 @@ const ratingKeys = [
         out of reach — and making the learner reveal an answer they do not want
         first would be the app insisting on an interaction to accept a refusal.
       -->
-      <div v-if="!(choiceActive && store.phase === 'question')" class="flex flex-wrap justify-center gap-2">
+      <div v-if="!compact && !(choiceActive && store.phase === 'question')" class="flex flex-wrap justify-center gap-2">
         <Button
           variant="ghost"
           size="sm"
@@ -1766,34 +1812,13 @@ const ratingKeys = [
     </template>
     </div>
 
-    <!-- The side column: any word, at any time — what it means, what shape it
-         is in, and three sentences it really appears in — and the tutor,
-         after an answer, with the question about this card already written. -->
-    <div v-if="inspected && isPhone" data-details class="flex w-full min-w-0 flex-col gap-2">
-    <!-- The panels fold into «Подробнее» instead of sitting between
-         the card and the bar; they open themselves when asked for. -->
-    <button
-      type="button"
-      class="flex min-h-11 cursor-pointer items-center gap-1 self-start text-sm text-muted-foreground hover:text-foreground"
-      :aria-expanded="detailsOpen"
-      @click="detailsOpen = !detailsOpen"
-    >
-      {{ $t('review.details') }}
-      <ChevronDown class="size-4 transition-transform" :class="detailsOpen ? 'rotate-180' : ''" aria-hidden="true" />
-    </button>
-    <div
-      class="flex w-full flex-col gap-4"
-      :class="detailsOpen ? '' : 'hidden'"
-    >
-      <WordInspector v-if="inspected" :key="inspected" :word="inspected" @close="inspected = ''" />
-    </div>
-    </div>
-
-  <!-- Desktop: ONE right-hand drawer, the clicked word or the Teacher; phone: the
-       Teacher in a bottom sheet (the word stays inline under «Подробнее»). -->
+  <!-- ONE sheet at every width, the clicked word or the Teacher (one replaces the
+       other): a right-hand drawer on desktop, a bottom sheet on a phone — modeless
+       for a word, so the sentence above stays tappable. -->
   <BottomSheet
     side="right"
-    :open="drawerOpen || tutorInSheet"
+    :modeless="sheetModeless"
+    :open="drawerOpen"
     :title="drawerWord ? inspected : $t('review.tutor.title')"
     :hide-title="drawerWord"
     @close="drawerWord ? (inspected = '') : (tutorOpen = false)"

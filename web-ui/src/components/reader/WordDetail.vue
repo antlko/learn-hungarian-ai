@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
-import { BookmarkPlus, Check, EyeOff, Languages, Plus, X } from '@lucide/vue'
+import { BookmarkPlus, Check, EyeOff, Languages, Plus } from '@lucide/vue'
 import { describeError } from '@/lib/errors'
 import { Button } from '@/components/ui/button'
 import AiWordPanel from '@/components/common/AiWordPanel.vue'
@@ -58,12 +58,18 @@ const props = defineProps<{
    */
   sentenceTranslation?: Translation | null
   translatingSentence?: boolean
+  /**
+   * Inside the phone bottom sheet: no box of its own (the sheet is the box), and
+   * the action row is moved into `actionsTarget` — the sheet's pinned footer —
+   * so it never scrolls away. One instance, one fetch; only the row relocates.
+   */
+  embedded?: boolean
+  actionsTarget?: HTMLElement | null
 }>()
 const emit = defineEmits<{
   (e: 'statusChange', lemmaId: number, status: LemmaStatus): void
   (e: 'addCard', token: StoredToken, gloss: string): void
   (e: 'translateSentence'): void
-  (e: 'close'): void
 }>()
 
 const { t } = useI18n()
@@ -236,15 +242,14 @@ const statusDisabledReason = computed(() =>
 </script>
 
 <template>
-  <!-- On a phone this is a bottom sheet above the tab bar, at most 60% of the
-       screen, only while a word is open; the text stays readable above it. From
-       md up it is the rail it always was. -->
+  <!-- From md up the sticky rail. On a phone ReaderView puts this, `embedded`, in a
+       modeless BottomSheet, which is the box. -->
   <aside
-    :class="[
-      'flex w-full shrink-0 flex-col gap-4 overflow-y-auto rounded-xl border border-tint-mist-edge bg-card p-5 lg:w-80',
-      'max-md:fixed max-md:inset-x-0 max-md:bottom-[var(--bottom-tabs-h,0px)] max-md:z-40 max-md:max-h-[60dvh] max-md:rounded-b-none max-md:border-x-0 max-md:border-b-0 max-md:px-4 max-md:pt-4 max-md:pb-0 max-md:shadow-lg',
-      token ? '' : 'max-md:hidden',
-    ]"
+    :class="
+      embedded
+        ? 'flex w-full flex-col gap-4'
+        : 'flex w-full shrink-0 flex-col gap-4 overflow-y-auto rounded-xl border border-tint-mist-edge bg-card p-5 lg:w-80'
+    "
   >
     <p v-if="!token" class="text-sm text-muted-foreground">{{ $t('reader.pickAWord') }}</p>
 
@@ -255,17 +260,6 @@ const statusDisabledReason = computed(() =>
         <div class="flex items-center gap-1">
           <p class="font-mono text-xl" lang="hu">{{ token.form }}</p>
           <SpeakButton :text="token.form" />
-          <!-- Phone sheet only. It lives IN the header row so it is centred on the
-               word's line and inset by the tile's own padding — it used to be
-               absolutely positioned and sat on the tile's corner. -->
-          <button
-            type="button"
-            class="-mr-1 ml-auto inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground hover:bg-card/60 hover:text-foreground md:hidden"
-            :aria-label="$t('common.close')"
-            @click="emit('close')"
-          >
-            <X class="size-5" aria-hidden="true" />
-          </button>
         </div>
         <p v-if="lemma" class="text-sm text-muted-foreground">
           <span lang="hu">{{ lemma.lemma }}</span>
@@ -451,8 +445,13 @@ const statusDisabledReason = computed(() =>
 
       <!-- Known and Ignored need a lemma to attach to. Where there is none
            they are disabled and say why, rather than swallowing the click. -->
+      <Teleport :to="actionsTarget ?? 'body'" :disabled="!embedded || !actionsTarget">
       <div
-        class="flex flex-wrap gap-1.5 max-md:sticky max-md:bottom-0 max-md:order-[999] max-md:-mx-4 max-md:flex-nowrap max-md:border-t max-md:border-border-subtle max-md:bg-card max-md:px-4 max-md:py-2.5 max-md:[&>*]:min-h-11 max-md:[&>*]:flex-1"
+        :class="
+          embedded
+            ? 'flex flex-nowrap gap-1.5 [&>*]:min-h-11 [&>*]:flex-1'
+            : 'flex flex-wrap gap-1.5'
+        "
       >
         <Button
           size="sm"
@@ -477,6 +476,7 @@ const statusDisabledReason = computed(() =>
           <Plus class="size-3.5" />{{ $t('reader.addCard') }}
         </Button>
       </div>
+      </Teleport>
       <p v-if="unknownToPack" class="-mt-2 text-[10px] text-muted-foreground">
         {{ statusDisabledReason }}
       </p>

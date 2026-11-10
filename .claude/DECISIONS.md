@@ -2912,3 +2912,20 @@ GPU libraries).
   (the reason ADR-015's baked image was a poor fit for a published tag). The sidecar has no auth, so the
   docs say `expose:`, never `ports:`, and give it its own volume — never the app's `/data`, which holds
   the SQLite database.
+
+## ADR-062 — The word panel is one draggable, modeless bottom sheet on phones; the review drawer closes on advance
+
+**Context.** Learner report, 2026-11-10: on a phone the review word inspector opened inline under «Подробнее», below the fold; the reader's phone word panel was a hand-rolled fixed box with no handle, animation or drag. On desktop the review drawer (Teacher or word) stayed open when the next card came.
+
+**Decision.** `BottomSheet` gains below-md dragging (handle + header; down closes, up expands to ~92dvh), a `modeless` mode (no scrim, no trap, page behind live, 55dvh default) and a pinned `footer` slot. Review shows the word and the Teacher in the same single sheet at every width (word modeless on a phone, Teacher modal); the inline «Подробнее» block is removed. The reader shows `WordDetail` in a modeless sheet below md (its action row in the footer), the sticky rail from md up. Advancing to another card closes both word and Teacher, keyed on `store.index` + `cardId` (a learning-step card returns with the same `cardId`; the question→answer flip changes neither). The tutor thread stays keyed by note.
+
+**Consequences.** One sheet primitive, one behaviour. Amends ADR-034's "tutor beside the card": the Teacher no longer survives to the next card. Nothing in scheduling, the tutor's data path or the API changes.
+
+## ADR-063 — An audio card speaks the word it asks about; «Знаю» keeps away from «Дальше» on a phone
+
+**Context.** Learner report, 2026-11-10 (phone): on a `spell` card the whole sentence was read out and the card showed nothing, so there was no way to tell which word to type; and «Знаю» sat at the foot of the page directly above the pinned «Дальше», where a slip sets a word aside.
+
+**Decision.** `listen` and `spell` speak `targetForm` (autoplay and the «Слово» button; `spell` slowed to 0.85); the sentence is a second button, «В предложении», context on request. The card states the task in a line of text during the question. The Hungarian stays withheld until the answer, as before. On compact layouts «Знаю» moves to the right end of the stage line above the card; the options-question bar and the desktop placement are unchanged.
+
+**Consequences.** Client-only: no grading, scheduling or DTO change (`spell` was already graded against `targetForm`). An isolated word from device TTS can sound flatter than in its sentence — the sentence button is the remedy. Homophone-free guarantee is not claimed: a word that sounds like another is still disambiguated only by the sentence button.
+
