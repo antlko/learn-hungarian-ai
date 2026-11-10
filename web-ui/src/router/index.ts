@@ -55,7 +55,13 @@ const routes: RouteRecordRaw[] = [
   // The dedicated tutor page: every conversation, with a history of the
   // topics already asked about. Reads and writes the exact same per-topic
   // thread `TutorPanel.vue` opens from under a lesson — not a second tutor.
-  { path: '/tutor', name: 'tutor', component: () => import('@/views/AiTeacherView.vue') },
+  {
+    path: '/tutor',
+    name: 'tutor',
+    component: () => import('@/views/AiTeacherView.vue'),
+    // A chat app: history rail + conversation, like ChatGPT (ADR-031).
+    meta: { width: 'wide' },
+  },
   { path: '/ear', name: 'ear', component: () => import('@/views/EarView.vue') },
   { path: '/progress', name: 'progress', component: () => import('@/views/ProgressView.vue') },
   { path: '/words', name: 'words', component: () => import('@/views/WordsView.vue') },

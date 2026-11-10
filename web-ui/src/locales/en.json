@@ -1619,6 +1619,8 @@
     "openFull": "Open in AI Teacher",
     "backToLesson": "Back to the lesson",
     "history": {
+      "openList": "Open chats",
+      "closeList": "Close chats",
       "title": "Chats",
       "reviewTitle": "Review · {date}",
       "reviewPrefix": "Review",

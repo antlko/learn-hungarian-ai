@@ -1619,6 +1619,8 @@
     "openFull": "Открыть в AI-учителе",
     "backToLesson": "Вернуться к уроку",
     "history": {
+      "openList": "Открыть список чатов",
+      "closeList": "Закрыть список чатов",
       "title": "Чаты",
       "reviewTitle": "Повторение · {date}",
       "reviewPrefix": "Повторение",

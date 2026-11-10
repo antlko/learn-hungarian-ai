@@ -2,13 +2,12 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
-import { Plus, Repeat, Trash2 } from '@lucide/vue'
+import { PanelLeft, Plus, Repeat, Trash2, X } from '@lucide/vue'
 import { describeError } from '@/lib/errors'
 import { cn } from '@/lib/utils'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Select } from '@/components/ui/select'
-import BackButton from '@/components/common/BackButton.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import TutorConversation from '@/components/grammar/TutorConversation.vue'
 import { tutorApi } from '@/api'
@@ -61,6 +60,8 @@ const TABS: TutorKind[] = ['chat', 'review', 'word']
 const tab = ref<TutorKind>('chat')
 const counts = ref<Partial<Record<TutorKind, number>>>({})
 const clearing = ref(false)
+/** Below lg the rail is a drawer; this is whether it is open. */
+const railOpen = ref(false)
 const confirmClear = ref(false)
 
 /** The open chat's id from the URL, or null for a new chat. */
@@ -193,11 +194,13 @@ function rowSubtitle(row: TutorSummary) {
 }
 
 function open(id: number) {
+  railOpen.value = false
   if (id === selectedId.value) return
   void router.replace({ query: { thread: String(id) } })
 }
 
 function startNew() {
+  railOpen.value = false
   newTopic.value = ''
   void router.replace({ query: {} })
 }
@@ -261,12 +264,34 @@ onMounted(async () => {
 <template>
   <!-- The viewport under the top bar (3.5rem) and the shell's own padding
        (1.5rem above, 2rem below): the chat gets all of it. -->
-  <div class="page-narrow flex h-[calc(100dvh-7rem)] w-full min-w-0 flex-col gap-4">
-    <BackButton fallback="/" class="-mb-2 shrink-0 md:hidden" />
-    <div class="flex min-h-0 flex-1 flex-col gap-4">
-      <!-- The rail: a new chat, and the old ones. Below lg it sits above the
-           chat, capped so it cannot eat the screen the chat is for. -->
-      <aside class="flex max-h-44 w-full shrink-0 flex-col gap-3 overflow-y-auto">
+  <div class="flex h-[calc(100dvh-7rem-var(--bottom-tabs-h))] w-full min-w-0 gap-4">
+    <div class="flex min-h-0 min-w-0 flex-1 gap-4">
+      <!-- Backdrop of the mobile drawer. -->
+      <div
+        v-if="railOpen"
+        class="fixed inset-0 z-40 bg-black/40 lg:hidden"
+        aria-hidden="true"
+        @click="railOpen = false"
+      />
+      <!-- The rail, ChatGPT-style: a new chat and the old ones, always on the
+           left from lg up; below lg an off-canvas drawer the header button
+           toggles. -->
+      <aside
+        id="tutor-rail"
+        class="flex flex-col gap-3 overflow-y-auto bg-background p-3 max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-50 max-lg:w-80 max-lg:max-w-[85vw] max-lg:shadow-raised max-lg:transition-transform lg:w-72 lg:shrink-0 lg:border-r lg:border-border-subtle lg:bg-transparent lg:p-0 lg:pr-4"
+        :class="railOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full max-lg:invisible'"
+      >
+        <div class="flex items-center justify-between lg:hidden">
+          <span class="text-sm font-semibold">{{ $t('tutor.history.title') }}</span>
+          <button
+            type="button"
+            class="cursor-pointer rounded-md p-1.5 text-muted-foreground hover:bg-accent"
+            :aria-label="$t('tutor.history.closeList')"
+            @click="railOpen = false"
+          >
+            <X class="size-4" aria-hidden="true" />
+          </button>
+        </div>
         <Button class="gap-1.5 self-stretch" :variant="selectedId ? 'default' : 'outline'" @click="startNew">
           <Plus class="size-4" aria-hidden="true" />
           {{ $t('tutor.newChat') }}
@@ -286,7 +311,7 @@ onMounted(async () => {
         </section>
 
         <section class="flex min-h-0 flex-col gap-2">
-          <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+          <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase max-lg:hidden">
             {{ $t('tutor.history.title') }}
           </h2>
 
@@ -413,9 +438,19 @@ onMounted(async () => {
       </aside>
 
       <!-- The conversation: the one raised object on this screen. -->
-      <Card variant="raised" class="flex min-h-0 flex-1 flex-col gap-2 p-3 sm:p-4">
+      <Card variant="raised" class="flex min-h-0 min-w-0 flex-1 flex-col gap-2 p-3 sm:p-4">
         <div class="flex items-center justify-between gap-3 border-b border-border-subtle pb-2">
-          <div class="flex min-w-0 flex-col">
+          <button
+            type="button"
+            class="-ml-1 cursor-pointer rounded-md p-1.5 text-muted-foreground hover:bg-accent lg:hidden"
+            :aria-label="$t('tutor.history.openList')"
+            aria-controls="tutor-rail"
+            :aria-expanded="railOpen"
+            @click="railOpen = true"
+          >
+            <PanelLeft class="size-5" aria-hidden="true" />
+          </button>
+          <div class="flex min-w-0 flex-1 flex-col">
             <h1 class="min-w-0 truncate text-sm font-medium">
               <span v-for="(part, i) in heading" :key="i" :lang="part.hu ? 'hu' : undefined">{{ part.text }}</span>
             </h1>
@@ -427,7 +462,7 @@ onMounted(async () => {
             <RouterLink
               v-if="pinnedCode"
               :to="{ path: '/grammar', query: { topic: pinnedCode } }"
-              class="px-2 text-xs text-muted-foreground hover:text-foreground hover:underline"
+              class="px-2 text-xs text-muted-foreground hover:text-foreground hover:underline max-sm:hidden"
             >
               {{ $t('tutor.backToLesson') }}
             </RouterLink>
@@ -440,7 +475,7 @@ onMounted(async () => {
               @click="conversation?.del()"
             >
               <Trash2 class="size-3.5" aria-hidden="true" />
-              {{ $t('tutor.delete') }}
+              <span class="max-sm:sr-only">{{ $t('tutor.delete') }}</span>
             </Button>
           </div>
         </div>

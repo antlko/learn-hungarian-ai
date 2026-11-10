@@ -1317,6 +1317,12 @@ sources. Messages sit in a reading column; a question is a bubble, an answer is 
 first learner's words: «окно чата очень маленькое, смотри на дизайн Клода или ChatGPT» — the
 chat had been a box under a 3xl title, two notices and a footnote.
 
+**Layout.** From `lg` up the screen is two panes under the wide container: the chat list as a
+fixed 18rem left rail (new chat, pin picker, tabs, rows), the conversation filling the rest — the
+ChatGPT arrangement. Below `lg` the rail is an off-canvas drawer with a backdrop; the
+panel-icon button at the left of the conversation header opens it, and picking a chat, «Новый
+чат» or the ✕ closes it. On a phone the header actions fold to icons (the lesson link is hidden).
+
 The page is a chat the way every chat looks ([ADR-029](../.claude/DECISIONS.md#adr-029)) — the
 first learner's words for what it should be were «просто как AI-учитель и всё», with a new-chat
 button and old chats to come back to, like the Ollama app they had just installed. What makes
