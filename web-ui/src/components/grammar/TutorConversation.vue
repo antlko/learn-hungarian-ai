@@ -121,9 +121,11 @@ const showSources = ref(false)
 /**
  * Whether the standing notice and the sources list are drawn under the
  * composer. They are the chat screen's; the review card's panel goes without
- * — see the note at the top. Nothing per-answer is affected.
+ * — see the note at the top. Nothing per-answer is affected. The full AI-teacher
+ * page drops it too (learner: «remove this»): each answer still names its model
+ * and lesson, and a small model still gets its warning.
  */
-const standing = computed(() => props.kind !== 'review')
+const standing = computed(() => props.kind !== 'review' && props.compact)
 
 /**
  * A model too small for the job, read off its tag. The docs have said since
@@ -294,6 +296,11 @@ defineExpose({ thread, messages, asking, remove, del })
         @scroll.passive="onLogScroll"
       >
         <div class="mx-auto flex w-full max-w-3xl flex-col gap-5 py-2">
+          <!-- On a phone the small-model warning scrolls with the chat instead
+               of standing over the composer and pushing it up. ADR-030 -->
+          <Note v-if="smallModel && !compact" variant="limit" bare class="text-xs lg:hidden">
+            {{ $t('tutor.smallModel', smallModel) }}
+          </Note>
           <!-- Nothing asked yet: the openers, in the middle of the room —
                unless the card's own chips are the openers. -->
           <div v-if="!messages.length && !draft" class="flex flex-col items-center gap-3 py-8 text-center">
@@ -373,7 +380,7 @@ defineExpose({ thread, messages, asking, remove, del })
       <!-- The composer, and under it everything the learner must know. -->
       <div class="mx-auto flex w-full max-w-3xl flex-col gap-2 pt-3">
         <!-- What the model is, when its tag says it is small. ADR-030 -->
-        <Note v-if="smallModel" variant="limit" bare class="text-xs">
+        <Note v-if="smallModel" variant="limit" bare class="text-xs" :class="compact ? '' : 'max-lg:hidden'">
           {{ $t('tutor.smallModel', smallModel) }}
         </Note>
         <!-- The window was full: the head of the prompt was cut without a word. ADR-031 -->
@@ -407,7 +414,7 @@ defineExpose({ thread, messages, asking, remove, del })
         </div>
 
         <form
-          class="flex items-end gap-2 rounded-xl border border-border bg-card p-2 shadow-raised transition-colors focus-within:border-ring"
+          class="flex items-end gap-2 rounded-xl border border-border bg-card p-2 shadow-raised transition-colors focus-within:border-ring max-sm:flex-wrap max-sm:rounded-2xl"
           @submit.prevent="submit()"
         >
           <textarea
@@ -417,25 +424,31 @@ defineExpose({ thread, messages, asking, remove, del })
             :placeholder="placeholder ?? (pinnedTopic ? $t('tutor.placeholder') : $t('tutor.placeholderFree'))"
             :title="$t('tutor.keys')"
             :disabled="asking"
-            class="max-h-48 min-h-9 flex-1 resize-none bg-transparent px-2 py-1.5 text-sm leading-relaxed outline-none disabled:opacity-60"
+            class="max-h-48 min-h-9 flex-1 resize-none bg-transparent px-2 py-1.5 text-sm leading-relaxed outline-none disabled:opacity-60 max-sm:basis-full"
             maxlength="1000"
             @input="grow"
             @keydown="onKey"
           />
           <!-- «Стоп» while the answer streams; the partial is kept and marked. ADR-031 -->
-          <Button v-if="asking" type="button" variant="outline" class="gap-1.5" @click="stop">
+          <Button v-if="asking" type="button" variant="outline" class="gap-1.5 max-sm:ml-auto" @click="stop">
             <Square class="size-3.5" aria-hidden="true" />
             {{ $t('tutor.stop') }}
           </Button>
-          <Button v-else type="submit" :disabled="!question.trim()" class="gap-1.5">
+          <Button
+            v-else
+            type="submit"
+            :disabled="!question.trim()"
+            :aria-label="$t('tutor.send')"
+            class="gap-1.5 max-sm:ml-auto max-sm:size-9 max-sm:rounded-full max-sm:p-0"
+          >
             <SendHorizontal class="size-4" aria-hidden="true" />
-            {{ $t('tutor.send') }}
+            <span class="max-sm:sr-only">{{ $t('tutor.send') }}</span>
           </Button>
         </form>
 
         <!-- The context meter: how full the model's window was on the last
              answer. A bar only when the server reported the window. ADR-031 -->
-        <div v-if="usage" class="flex flex-col gap-1">
+        <div v-if="usage" class="flex flex-col gap-1" :class="compact ? '' : 'max-sm:hidden'">
           <Progress
             v-if="usage.reported && usage.window"
             :value="usage.pct"
@@ -450,7 +463,7 @@ defineExpose({ thread, messages, asking, remove, del })
              cannot do. Not on the review card, where every answer already
              carries its own labels and this paragraph is read once and then
              sits in the way for the rest of the session. -->
-        <p v-if="standing || (compact && thread.thread)" class="text-[11px] leading-relaxed text-muted-foreground">
+        <p v-if="standing || (compact && thread.thread)" class="text-[10px] leading-snug text-muted-foreground sm:text-[11px]">
           <template v-if="standing">{{ $t('tutor.notice') }}</template>
           <button
             v-if="standing && sources"

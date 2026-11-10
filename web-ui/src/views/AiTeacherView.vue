@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
-import { PanelLeft, Plus, Repeat, Trash2, X } from '@lucide/vue'
+import { PanelLeft, Plus, SquarePen, Repeat, Trash2, X } from '@lucide/vue'
 import { describeError } from '@/lib/errors'
 import { cn } from '@/lib/utils'
 import { Button, buttonVariants } from '@/components/ui/button'
@@ -438,7 +438,10 @@ onMounted(async () => {
       </aside>
 
       <!-- The conversation: the one raised object on this screen. -->
-      <Card variant="raised" class="flex min-h-0 min-w-0 flex-1 flex-col gap-2 p-3 sm:p-4">
+      <Card
+        variant="raised"
+        class="flex min-h-0 min-w-0 flex-1 flex-col gap-2 p-3 max-sm:border-0 max-sm:bg-transparent max-sm:p-0 max-sm:shadow-none sm:p-4"
+      >
         <div class="flex items-center justify-between gap-3 border-b border-border-subtle pb-2">
           <button
             type="button"
@@ -450,11 +453,20 @@ onMounted(async () => {
           >
             <PanelLeft class="size-5" aria-hidden="true" />
           </button>
+          <button
+            type="button"
+            class="-ml-2 cursor-pointer rounded-md p-1.5 text-muted-foreground hover:bg-accent lg:hidden"
+            :aria-label="$t('tutor.newChat')"
+            :title="$t('tutor.newChat')"
+            @click="startNew"
+          >
+            <SquarePen class="size-5" aria-hidden="true" />
+          </button>
           <div class="flex min-w-0 flex-1 flex-col">
             <h1 class="min-w-0 truncate text-sm font-medium">
               <span v-for="(part, i) in heading" :key="i" :lang="part.hu ? 'hu' : undefined">{{ part.text }}</span>
             </h1>
-            <p class="truncate text-xs text-muted-foreground">
+            <p class="truncate text-xs text-muted-foreground max-sm:hidden">
               {{ pinnedCode ? $t('tutor.pin.is', { topic: pinnedTitle }) : $t('tutor.pin.auto') }}
             </p>
           </div>
