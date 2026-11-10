@@ -71,7 +71,7 @@ jobs:
             type=ref,event=tag
             type=sha,format=short
 
-      - name: Build and push (python: latest, X.Y.Z, ..., plus -full aliases)
+      - name: Build and push (python image - latest, X.Y.Z and the -full aliases)
         uses: docker/build-push-action@v6
         with:
           context: .
