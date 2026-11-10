@@ -90,13 +90,23 @@ const (
 
 	DefaultFocusUnlockListeningHours = 40
 
-	// DefaultLangPackURL is where the downloadable full pack is expected to be
-	// published: the release asset of this repository's origin. Nothing is
-	// there until the maintainer publishes it, which is why
-	// DefaultLangPackSHA256 is EMPTY — the installer never downloads without a
-	// pinned checksum and answers errors.packNotPublished instead (ADR-049).
-	DefaultLangPackURL    = "https://github.com/antlko/learn-hungarian-ai/releases/latest/download/langpack-hu-v1.sqlite.gz"
+	// The downloadable full pack is a DATA release of this repository, tag
+	// langpack-hu-v1 — not `releases/latest`, which follows whatever app
+	// release is newest and would 404 the moment one is cut (ADR-049).
+	// DefaultLangPackSHA256 is EMPTY until the maintainer uploads the asset
+	// and pins its digest here: the installer never downloads without a
+	// checksum and answers errors.packNotPublished instead. These live in the
+	// binary and are resolved at point of use by EffectiveLangPack; they are
+	// never written into config.yaml.
+	DefaultLangPackURL    = "https://github.com/antlko/learn-hungarian-ai/releases/download/langpack-hu-v1/langpack-hu-v1.sqlite.gz"
 	DefaultLangPackSHA256 = ""
+	// DefaultLangPackSizeBytes is the approximate download size, for the
+	// button label only. 0 = unknown.
+	DefaultLangPackSizeBytes int64 = 0
+
+	// legacyLangPackURL was the default before the data release; configs that
+	// normalize()d it onto disk are treated as "unset".
+	legacyLangPackURL = "https://github.com/antlko/learn-hungarian-ai/releases/latest/download/langpack-hu-v1.sqlite.gz"
 )
 
 // Goal re-weights which card directions are generated. See [R12] —
@@ -156,9 +166,32 @@ type LangPack struct {
 	SHA256 string `yaml:"sha256"`
 }
 
+// EffectiveLangPack is the URL and checksum an install uses: the binary's
+// pinned defaults unless the administrator stored their own. A stored URL equal
+// to the legacy `releases/latest` default counts as unset.
+func EffectiveLangPack(c *Config) (url, sha string) {
+	return EffectiveLangPackFor(c, DefaultLangPackURL, DefaultLangPackSHA256)
+}
+
+// EffectiveLangPackFor is EffectiveLangPack with the defaults as parameters,
+// so a test can exercise a published pin while the repository's is empty.
+func EffectiveLangPackFor(c *Config, defURL, defSHA string) (url, sha string) {
+	url, sha = c.LangPack.URL, strings.ToLower(strings.TrimSpace(c.LangPack.SHA256))
+	if strings.TrimSpace(url) == "" || url == legacyLangPackURL || url == DefaultLangPackURL {
+		url = defURL
+	}
+	if sha == "" {
+		sha = defSHA
+	}
+	return url, sha
+}
+
 // validLangPackURL accepts https, and plain http only for a loopback host so a
 // test (or a LAN mirror on this machine) can serve a pack without TLS.
 func validLangPackURL(raw string) error {
+	if strings.TrimSpace(raw) == "" {
+		return nil // empty = use the binary's default
+	}
 	u, err := url.Parse(raw)
 	if err != nil || u.Host == "" {
 		return fmt.Errorf("langpack.url: not a URL: %q", raw)
@@ -405,9 +438,9 @@ func (c *Config) normalize() {
 	if c.Curriculum.FocusUnlockListeningHours == 0 {
 		c.Curriculum.FocusUnlockListeningHours = DefaultFocusUnlockListeningHours
 	}
-	if c.LangPack.URL == "" {
-		c.LangPack.URL = DefaultLangPackURL
-	}
+	// LangPack.URL is deliberately NOT filled: empty means "the binary's pin"
+	// (EffectiveLangPack). Writing the default to YAML would freeze it and
+	// override a future binary's default.
 	// SHA256 has no non-empty default on purpose: an unpublished pack must
 	// refuse, not download unverified bytes.
 	// ExamDate has no default on purpose: an exam the learner did not book is

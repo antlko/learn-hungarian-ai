@@ -98,19 +98,23 @@ services:                   # endpoints only — keys live in SQLite      [ADR-0
   nlp: {provider: off,   endpoint: "http://nlp:5002"}   # default off; `local` enables HuSpaCy context disambiguation (ADR-054). `openai` is refused.
   llm: {provider: off,   endpoint: "http://ollama:11434", model: "qwen3:8b"}
   mt:  {provider: off,   endpoint: "http://mt:5003"}    # `managed` (mt, nlp): installed + run by the binary, no endpoint stored (ADR-061)
-langpack:                   # the OPTIONAL full language pack      [ADR-049]
-  url: "https://github.com/antlko/learn-hungarian-ai/releases/latest/download/langpack-hu-v1.sqlite.gz"
-  sha256: ""                # hex SHA-256 of the .gz; EMPTY = nothing published, install refuses
+langpack:                   # OVERRIDE for the OPTIONAL full language pack      [ADR-049]
+  url: ""                   # EMPTY = the binary's pinned URL (release tag langpack-hu-v1)
+  sha256: ""                # hex SHA-256 of the .gz; EMPTY = the binary's pinned digest
 ```
-**`langpack.*` is what Settings → install downloads, and nothing else.** The install endpoint takes
+**`langpack.*` is an override; the defaults are pinned in the binary** (`config.DefaultLangPackURL`
+/ `DefaultLangPackSHA256`, resolved by `config.EffectiveLangPack` and never written to this file).
+A stored `url` equal to the old `…/releases/latest/download/…` default counts as unset. **The install
+downloads the effective pin, and nothing else.** The install endpoint takes
 no URL from its request; only an admin, through `PUT /api/settings`, can change these two fields.
 `url` must be `https` (plain `http` only for `localhost` / `127.0.0.1`, so a mirror on the same
 machine or a test can serve one), and redirects to non-https are refused. `sha256` is the digest of
 the compressed file and is **required**: with it empty the install answers
 `errors.packNotPublished` without opening a connection, because downloading code-sized data
-without a pinned checksum is not something this app does. The default `url` is the release asset
-of this repository's origin; the default `sha256` is empty until a pack is published
-(`make langpack-release` prints the value to pin).
+without a pinned checksum is not something this app does. The default `url` is the asset of the
+data release `langpack-hu-v1` of this repository; the binary's `sha256` is empty until the
+maintainer uploads it and pins the digest (`make langpack-release` prints the value). Set both fields
+here only to install from a mirror or a pack you built.
 
 **The `llm` endpoint is the host and nothing more — no `/v1`.** `internal/llm` appends the
 OpenAI paths itself (`{endpoint}/v1/chat/completions`, `{endpoint}/v1/models`), so an endpoint

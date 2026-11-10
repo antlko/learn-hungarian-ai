@@ -5,17 +5,18 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import CommandBox from '@/components/settings/CommandBox.vue'
+import { COMPOSE_YAML, DOCKER_RUN } from '@/lib/deploy'
 import ManagedTab from '@/components/settings/ManagedTab.vue'
 import type { ComponentStatus, Service } from '@/types'
 
 /**
- * The three ways to run one optional service, as tabs: built in (the app
- * downloads and runs it), Docker Compose, your own server. A tab is only a
+ * The ways to run one optional service, as tabs: from the app (it
+ * downloads and runs it), Docker, Docker Compose, your own server. A tab is only a
  * VIEW — choosing one changes no config; installing, or saving an address,
  * does. Without `managed` in the answer (an older server) only the other two
  * are offered. Browser flow not exercised.
  */
-type Method = 'managed' | 'compose' | 'own'
+type Method = 'managed' | 'docker' | 'compose' | 'own'
 
 const props = defineProps<{
   comp: ComponentStatus
@@ -38,7 +39,9 @@ const emit = defineEmits<{
 
 const uid = useId()
 const methods = computed<Method[]>(() =>
-  props.comp.managed ? ['managed', 'compose', 'own'] : ['compose', 'own'],
+  props.comp.managed
+    ? ['managed', 'docker', 'compose', 'own']
+    : ['docker', 'compose', 'own'],
 )
 
 function initial(): Method {
@@ -46,7 +49,7 @@ function initial(): Method {
     if (props.service?.provider === 'managed') return 'managed'
     if (props.comp.managed.available) return 'managed'
   }
-  return 'compose'
+  return 'docker'
 }
 const tab = ref<Method>(initial())
 // If `managed` arrives after the first paint (list loads late), don't strand on a missing tab.
@@ -103,7 +106,7 @@ const tabId = (m: Method) => `${uid}-tab-${m}`
       role="tablist"
       :aria-label="$t('component.tab.label')"
       class="grid gap-1 rounded-xl border border-border-subtle bg-background/60 p-1"
-      :class="methods.length === 3 ? 'grid-cols-3' : 'grid-cols-2'"
+      :class="methods.length === 4 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'"
       @keydown="onKey"
     >
       <button
@@ -132,7 +135,7 @@ const tabId = (m: Method) => `${uid}-tab-${m}`
       </button>
     </div>
 
-    <!-- Встроенный -->
+    <!-- Из приложения -->
     <div
       v-if="comp.managed"
       v-show="tab === 'managed'"
@@ -153,6 +156,22 @@ const tabId = (m: Method) => `${uid}-tab-${m}`
       />
     </div>
 
+    <!-- Docker -->
+    <div
+      v-show="tab === 'docker'"
+      :id="panelId('docker')"
+      role="tabpanel"
+      :aria-labelledby="tabId('docker')"
+      class="flex flex-col gap-2"
+    >
+      <p class="text-[11px] text-muted-foreground">{{ $t('component.docker.hint') }}</p>
+      <CommandBox :command="DOCKER_RUN" />
+      <p class="text-[11px] text-muted-foreground">{{ $t('component.docker.next') }}</p>
+      <Button size="sm" variant="outline" class="min-h-11 self-start sm:min-h-8" :disabled="checking" @click="emit('check')">
+        {{ $t('settings.components.check') }}
+      </Button>
+    </div>
+
     <!-- Docker Compose -->
     <div
       v-show="tab === 'compose'"
@@ -161,18 +180,25 @@ const tabId = (m: Method) => `${uid}-tab-${m}`
       :aria-labelledby="tabId('compose')"
       class="flex flex-col gap-2"
     >
-      <template v-if="comp.composeProfile">
-        <p class="text-[11px] text-muted-foreground">{{ $t('settings.components.composeHint') }}</p>
-        <CommandBox :command="`docker compose --profile ${comp.composeProfile} up -d`" />
-        <p class="flex items-center gap-0.5 text-[11px] text-muted-foreground">
-          {{ $t('component.compose.profile') }}
-          <InfoTip>{{ $t('component.compose.profileTip') }}</InfoTip>
-        </p>
-        <p class="flex items-center gap-0.5 text-[11px] text-muted-foreground">
-          {{ $t('component.compose.ports') }}
-          <InfoTip>{{ $t('component.compose.portsTip') }}</InfoTip>
-        </p>
-      </template>
+      <p class="text-[11px] text-muted-foreground">{{ $t('component.compose.intro') }}</p>
+      <CommandBox :command="COMPOSE_YAML" />
+      <p class="text-[11px] text-muted-foreground">{{ $t('component.compose.volumeNote') }}</p>
+      <p class="text-[11px] text-muted-foreground">{{ $t('component.compose.folderNote') }}</p>
+      <details v-if="comp.composeProfile" class="rounded-lg border border-border-subtle p-2">
+        <summary class="min-h-6 cursor-pointer text-xs font-medium">{{ $t('component.compose.clone') }}</summary>
+        <div class="mt-2 flex flex-col gap-2">
+          <p class="text-[11px] text-muted-foreground">{{ $t('settings.components.composeHint') }}</p>
+          <CommandBox :command="`docker compose --profile ${comp.composeProfile} up -d`" />
+          <p class="flex items-center gap-0.5 text-[11px] text-muted-foreground">
+            {{ $t('component.compose.profile') }}
+            <InfoTip>{{ $t('component.compose.profileTip') }}</InfoTip>
+          </p>
+          <p class="flex items-center gap-0.5 text-[11px] text-muted-foreground">
+            {{ $t('component.compose.ports') }}
+            <InfoTip>{{ $t('component.compose.portsTip') }}</InfoTip>
+          </p>
+        </div>
+      </details>
       <Button size="sm" variant="outline" class="min-h-11 self-start sm:min-h-8" :disabled="checking" @click="emit('check')">
         {{ $t('settings.components.check') }}
       </Button>

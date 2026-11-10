@@ -59,7 +59,7 @@
     "creating": "Creating…",
     "step": "Step {n} of {of}",
     "local": {
-      "title": "This machine",
+      "title": "Your server",
       "readyTitle": "Ready to use",
       "ready": {
         "vocabulary": "Dictionary with word forms and real example sentences",
@@ -70,12 +70,12 @@
       "extrasTitle": "Optional, later",
       "fullPack": "The full language pack",
       "fullPackLater": "Later, the starter is enough",
-      "fullPackBuild": "I will build it myself",
+      "fullPackBuild": "I will install it from Settings",
       "fullPackHint": "252 MB: more words and sentences to build cards from. The app works the same, with more material.",
-      "fullPackBuildHint": "It is built from source rather than downloaded. In a clone of the repository, run:",
-      "speech": "Local speech services (synthesis and recognition)",
+      "fullPackBuildHint": "Open Settings → Components: once the full pack is published, an Install button appears there.",
+      "speech": "Speech synthesis and pronunciation check on your server",
       "speechLater": "Later",
-      "speechNow": "Take me to their settings after this",
+      "speechNow": "Open their settings after this step",
       "speechHint": "Needed for synthesized speech and pronunciation checks. Everything else works without them."
     }
   },
@@ -329,6 +329,8 @@
           "unknown": "state unknown"
         },
         "install": "Install the full dictionary",
+        "installSized": "Install the full dictionary (≈{mb} MB)",
+        "custom": "Use your own pack address",
         "retry": "Try again",
         "progressLabel": "Language pack download",
         "downloading": "Downloading…",
@@ -341,7 +343,7 @@
         "supervised": "The container will start again by itself; the page refreshes in a few seconds.",
         "manual": "The server has stopped - start it again by hand.",
         "timeout": "The server did not come back. Check that it is running, then reload the page.",
-        "notPublished": "The full pack is not published yet. If you have its address and checksum, enter them below, or build it yourself.",
+        "notPublished": "The full pack is not published yet. It will arrive in an upcoming version of the app — an Install button will appear here.",
         "url": "Pack address",
         "sha": "Checksum (SHA-256)",
         "build": "Build it on the server with the command below (slow, needs Python).",
@@ -349,8 +351,8 @@
       },
       "mt": {
         "title": "Sentence translation",
-        "what": "Machine translation of sentences, shown with the model name.",
-        "without": "Without it only human translations from the pack remain. The machine one is shown small, with the model name (NLLB-200 600M); it is never graded and never lands on cards by itself."
+        "what": "A neural network translates sentences. The model that translated is always shown beside the text.",
+        "without": "Without it only human translations remain. The neural translation (NLLB-200 600M) is shown small, with the model name; it is never graded and never lands on cards by itself."
       },
       "nlp": {
         "title": "Context-aware word analysis",
@@ -398,7 +400,7 @@
       "model": "Model",
       "noModel": "name a model",
       "unknownModel": "not served by this endpoint",
-      "managed": "Built-in"
+      "managed": "From the app"
     },
     "clamped": "“{field}” was pulled back into range: {from} became {to}.",
     "curriculum": {
@@ -443,7 +445,7 @@
       "floorCaveat": "The research asks for five or more voices: talker variability is the active ingredient, and it is what transfers the skill to real speech. The current language pack ships three, so a floor of 5 means no session will ever start. You can lower the floor, but some of the effect goes with it, and the app will not pretend otherwise."
     },
     "mt": {
-      "title": "Local translator",
+      "title": "Neural translator",
       "notRunning": "The service is not answering; the container is probably not running. Command for the server:",
       "downloading": "Downloading the model. This happens once.",
       "downloadingSize": "about 2.4 GB, once",
@@ -532,7 +534,8 @@
   "component": {
     "tab": {
       "label": "Install method",
-      "managed": "Built-in",
+      "managed": "From the app",
+      "docker": "Docker",
       "compose": "Docker Compose",
       "own": "Own server",
       "inUse": "in use"
@@ -557,10 +560,10 @@
     "managed": {
       "will": "Downloads and runs the service right here: ≈{disk} on disk, ≈{ram} memory — an estimate.",
       "tip": {
-        "mt": "Downloads Python libraries and the NLLB-200 translation model. Everything lives in the app's data folder, and the service listens only inside this machine. Sizes are estimates, not measurements.",
-        "nlp": "Downloads the spaCy library and the HuSpaCy language model. Everything lives in the app's data folder, and the service listens only inside this machine. Sizes are estimates, not measurements."
+        "mt": "Downloads Python libraries and the NLLB-200 translation model. Everything lives in the app's data folder, and the service listens only inside this computer. Sizes are estimates, not measurements.",
+        "nlp": "Downloads the spaCy library and the HuSpaCy language model. Everything lives in the app's data folder, and the service listens only inside this computer. Sizes are estimates, not measurements."
       },
-      "useOther": "Use the Docker Compose tab or the -full image.",
+      "useOther": "Pick another tab: Docker or Docker Compose (the :latest image has Python), or Own server.",
       "keepOpen": "The install runs on the server: you can close this page.",
       "runningLine": "Runs inside the app and is not reachable from outside.",
       "noRestart": "No server restart needed — the app starts the service itself."
@@ -577,7 +580,15 @@
       "title": "Remove the component?",
       "body": "Remove the component's files? This frees disk space. Your settings are kept."
     },
+    "docker": {
+      "hint": "Start the app with one command on a server that has Docker. The :latest image includes Python, so components install from the app itself.",
+      "next": "Once the container is up, open Settings → Components → From the app and press Install."
+    },
     "compose": {
+      "intro": "Paste this into compose.yaml. The :latest image includes Python, so components install from the app itself: Settings → Components → From the app.",
+      "volumeNote": "If the data volume already exists, keep your own volume name.",
+      "folderNote": "Run it in a folder that holds only this file: docker compose reads the file from the current folder.",
+      "clone": "From a repository clone",
       "profile": "What is a profile?",
       "profileTip": "A profile marks an optional service in the compose file: it does not start until you ask for it.",
       "ports": "What about port clashes?",
@@ -587,12 +598,12 @@
       "hint": {
         "mt": "Already run your own translation service? Enter its address.",
         "nlp": "Already run your own word-analysis service? Enter its address.",
-        "llm": "An OpenAI-style server address (for example Ollama) and a model name."
+        "llm": "An OpenAI-compatible server address (for example Ollama) and a model name."
       }
     },
     "services": {
-      "managedPort": "built-in · port {port}",
-      "managed": "built-in",
+      "managedPort": "from the app · port {port}",
+      "managed": "from the app",
       "noAddress": "no address set",
       "moved": "Change the address in Components, on the Own server tab."
     }
@@ -623,6 +634,7 @@
     "nlpUnreachable": "The text-analysis service (HuSpaCy) is not responding.",
     "diskFull": "There is not enough free disk space to install. Nothing was changed.",
     "componentNoPython": "Python 3.10 or newer with venv and pip was not found — the built-in install is unavailable.",
+    "componentNoPythonSlimImage": "This image has no Python. Change the image tag to :latest — your data and account stay (same user, same volume).",
     "componentReadOnly": "The data folder is read-only — the built-in install is unavailable.",
     "componentBusy": "Something is already running for this component. Wait for it to finish.",
     "componentNetwork": "No network access: the files could not be downloaded. Nothing was changed.",
@@ -976,7 +988,7 @@
     "machineShort": "machine translation, {model}",
     "notConfigured": "No translator is set up. Settings → Services → Translation.",
     "unreachable": "The translator is not answering. It may still be loading its model.",
-    "machine": "Machine translation, {model}. Nobody has checked this line — use it as a crib, not as the answer."
+    "machine": "Neural translation, {model}. Nobody has checked this line — use it as a crib, not as the answer."
   },
   "library": {
     "sets": {

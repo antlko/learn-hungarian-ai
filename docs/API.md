@@ -100,16 +100,17 @@ thing this endpoint must not do.
 ## Admin: full pack, restart, components
 
 All four routes are **admin-only** (learner 403, anonymous 401) — [ADR-049](../.claude/DECISIONS.md#adr-049).
-None accepts a URL: `langpack.url` / `langpack.sha256` live in `config.yaml` and
-`GET/PUT /api/settings` (`settings.langpack: {url, sha256}`; `http` accepted only for localhost).
+None accepts a URL: the pinned default lives in the binary; `langpack.url` / `langpack.sha256` are an
+optional override in `config.yaml` and `GET/PUT /api/settings` (`settings.langpack: {url, sha256}`;
+`http` accepted only for localhost). Empty fields mean "use the binary's pin" (ADR-049).
 
 | Method | Path | Notes |
 |---|---|---|
-| `POST` | `/api/admin/pack/install` | starts the single install job → **202** with the status below. **409** `errors.packInstallBusy` while one runs; **422** `errors.packNotPublished` when `langpack.sha256` is empty |
-| `GET` | `/api/admin/pack/install` | `{state, bytes, total, errorKey, restartRequired}` |
+| `POST` | `/api/admin/pack/install` | starts the single install job → **202** with the status below. **409** `errors.packInstallBusy` while one runs; **422** `errors.packNotPublished` when the effective checksum (stored, else the binary's) is empty — no request is made |
+| `GET` | `/api/admin/pack/install` | `{state, bytes, total, errorKey, restartRequired, published, sizeBytes, url}` |
 | `POST` | `/api/admin/restart` | → **202** `{supervised: bool}`; ~400 ms later the process gets SIGTERM (graceful shutdown). `supervised` is true iff `TANULOM_SUPERVISED=1`. **409** while an install runs |
 | `GET` | `/api/admin/components` | `[{id, configured, reachable, state, progress, model, ramHint, composeProfile, built, managed?}]` — `managed` on `mt` and `nlp` only, below |
-| `POST` | `/api/admin/components/:id/install` | `:id` is `mt` or `nlp` (anything else **404** `errors.componentUnknown`). **202** with the `managed` object; the job runs in the background and the card polls `GET /api/admin/components`. **409** `errors.componentBusy` (a job runs) / `errors.componentInstalled`; **422** `errors.componentNoPython` / `errors.componentReadOnly`; **507** `errors.diskFull` (preflight, nothing written) |
+| `POST` | `/api/admin/components/:id/install` | `:id` is `mt` or `nlp` (anything else **404** `errors.componentUnknown`). **202** with the `managed` object; the job runs in the background and the card polls `GET /api/admin/components`. **409** `errors.componentBusy` (a job runs) / `errors.componentInstalled`; **422** `errors.componentNoPython` (or `errors.componentNoPythonSlimImage` on the `:latest-slim` image) / `errors.componentReadOnly`; **507** `errors.diskFull` (preflight, nothing written) |
 | `POST` | `/api/admin/components/:id/start` | **202**; **409** `errors.componentNotInstalled` / `errors.componentBusy`. Idempotent while running |
 | `POST` | `/api/admin/components/:id/stop` | **202**; SIGTERM then SIGKILL after 5 s. Idempotent. **409** `errors.componentBusy` during an install |
 | `POST` | `/api/admin/components/:id/uninstall` | **202**; stops the child, deletes `<data>/components/<id>/`, and sets `services.<id>.provider` to `off` iff it was `managed`. **409** `errors.componentBusy` during an install |
@@ -142,7 +143,10 @@ probes as `configured: true, reachable: false` (`detail: "not running"`).
   "bytes": 52428800, "total": 262144000,   // compressed bytes; total 0 when the server sent no length
   "errorKey": "",            // on failed: errors.packNotPublished | packChecksum | packDownloadFailed |
                              //   packCorrupt | packIncompatible | packOlder | diskFull
-  "restartRequired": false } // true once state is "ready"
+  "restartRequired": false,  // true once state is "ready"
+  "published": true,         // effective checksum non-empty; false = install would 422 packNotPublished
+  "sizeBytes": 0,            // approximate download size for the button label; 0 = unknown
+  "url": "https://…" }       // the effective source (stored override, else the binary's pin)
 ```
 
 `ready` means the verified pack is parked as `langpack-hu-v1.sqlite.new`; the live pack is untouched

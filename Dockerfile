@@ -38,13 +38,15 @@ RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
 RUN mkdir -p /data
 
 # --- Stage 3: `full` image -- the binary plus Python, for managed components ---
-# NOT the default. A plain `docker build .` builds the LAST stage (the distroless
-# one below), so this stage is only built on request:
+# Published as `:latest` (and `:latest-full`, kept as an alias). It is NOT the
+# default for a contributor's plain `docker build .`, which builds the LAST stage
+# (the distroless `slim` one below) -- smaller and faster to build. Build this
+# one with:
 #   docker build --target full -t tanulom:full .
 # It exists so Settings -> Components can create a venv and `pip install` the
 # optional analyser/translator INSIDE this one container, with no sidecars. The
 # python:slim image already ships venv and ensurepip, so nothing is apt-installed.
-# Pick it only if you want that; the distroless image is smaller and has no Python.
+# The distroless `slim` image is smaller and has no Python (`:latest-slim`).
 FROM python:3.12-slim-bookworm AS full
 LABEL org.opencontainers.image.title="tanulom (full)" \
       org.opencontainers.image.description="Self-hosted, research-grounded Hungarian trainer, with Python for managed components" \
@@ -69,8 +71,10 @@ VOLUME ["/data"]
 USER 65532:65532
 ENTRYPOINT ["/tanulom"]
 
-# --- Stage 4: minimal runtime image (DEFAULT: must stay the LAST stage) ---
-FROM gcr.io/distroless/static:nonroot
+# --- Stage 4: `slim` -- minimal runtime image (DEFAULT for `docker build .`: must stay the LAST stage) ---
+# Published as `:latest-slim`. Ships no Python, so managed components are
+# unavailable; TANULOM_IMAGE=slim lets the app say exactly that and name the fix.
+FROM gcr.io/distroless/static:nonroot AS slim
 # image.source is what links the GHCR package to the repository, which is also
 # what makes the package inherit the repo's visibility and README.
 LABEL org.opencontainers.image.title="tanulom" \
@@ -96,7 +100,8 @@ COPY --from=build --chown=65532:65532 /data /data
 # outage, which is why this is not set for a bare binary. ADR-049.
 ENV TANULOM_DATA_DIR=/data \
     TANULOM_ADDR=:8012 \
-    TANULOM_SUPERVISED=1
+    TANULOM_SUPERVISED=1 \
+    TANULOM_IMAGE=slim
 EXPOSE 8012
 VOLUME ["/data"]
 USER nonroot:nonroot

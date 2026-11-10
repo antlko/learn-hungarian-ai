@@ -2404,6 +2404,25 @@ trusting a checksum served beside the file (a compromised host serves both).
 live pack is untouched, a full disk is its own message. Until a release asset exists and its digest
 is pinned, the button honestly says the pack has not been published.
 
+**Amendment — the pin lives in the binary (2026-11-10).** Typing a URL and a SHA into Settings
+before one click was a chore the app can do itself.
+- *Data release.* The pack is an asset of its own release, tag `langpack-hu-v1`:
+  `https://github.com/antlko/learn-hungarian-ai/releases/download/langpack-hu-v1/langpack-hu-v1.sqlite.gz`.
+  `releases/latest/download/…` was **rejected**: `latest` follows the newest *app* release, so cutting
+  `v1.0.1` (which carries no pack asset) would 404 every install. A pack version is a different
+  thing from an app version.
+- *Binary-pinned default, resolved at point of use.* `config.DefaultLangPackURL`,
+  `DefaultLangPackSHA256` (EMPTY until the maintainer uploads the asset and pins its digest, then
+  shipped in the next release) and `DefaultLangPackSizeBytes` (button label only). **Effective pin**
+  (`config.EffectiveLangPack`): checksum = stored `langpack.sha256` if non-empty, else the const; URL =
+  the const if the stored URL is empty or is the old `releases/latest/download/…` default, else the
+  stored one (a stored value equal to the current default also counts as unset). `normalize()` does NOT fill `langpack.url`, empty validates and means "the binary's pin", so nothing is ever written to YAML, so
+  existing volumes need no edit and a new release's pin takes effect without touching them. A stored
+  value is an explicit override (a mirror, a self-built pack) and wins.
+- *Still refuses unpinned.* Empty effective checksum → `errors.packNotPublished`, no request made.
+  `GET /api/admin/pack/install` adds `published` (effective checksum non-empty), `sizeBytes`, `url`,
+  so the UI can offer one button when published and the old explanation when not.
+
 ## ADR-050 — The course grows; themed side units are optional and never decide the path
 
 **Context.** The guided course had 24 units and 853 words. Month files carried 30-40 hand-argued
@@ -2861,3 +2880,11 @@ GPU libraries).
 - Not implemented on Windows (the manager reports unavailable).
 - ADR-015's statement that the app cannot start the translator is true only of the default image
   and of Compose; with Python available it can, and says so.
+- **Image tags (2026-11-10).** `:latest` / `X.Y.Z` / `X.Y` / `X` are now the Python-capable image
+  (Dockerfile target `full`), so a fresh install can add the analyser or translator from Settings
+  without changing the tag; `:latest-full` / `X.Y.Z-full` stay published as aliases so snippets in
+  the wild keep working. The distroless target (`slim`, no Python; the last stage, so a contributor's
+  plain `docker build .` still builds it) is `:latest-slim` / `X.Y.Z-slim`. Both run as uid 65532 on
+  the same `/data` layout, so switching tag keeps data and account. The slim image sets
+  `TANULOM_IMAGE=slim`; when the Python probe fails there the install answers
+  `errors.componentNoPythonSlimImage` («замените тег на :latest») instead of `componentNoPython`.

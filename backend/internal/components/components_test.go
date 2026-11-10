@@ -1191,3 +1191,16 @@ func TestTransformersAdvisoryIsFilteredAndChildEnvQuietsIt(t *testing.T) {
 		}
 	}
 }
+
+func TestSlimImageGetsItsOwnNoPythonKey(t *testing.T) {
+	t.Setenv("TANULOM_IMAGE", "slim")
+	h := newHarness(t, func(o *Options) {
+		o.LookPath = func(string) (string, error) { return "", errors.New("not found") }
+	})
+	if st := h.m.Status(MT); st.Available || st.UnavailableKey != KeyNoPythonSlim {
+		t.Fatalf("%+v", st)
+	}
+	if k := errKey(h.m.Install(context.Background(), MT)); k != KeyNoPythonSlim {
+		t.Fatalf("install key = %q", k)
+	}
+}

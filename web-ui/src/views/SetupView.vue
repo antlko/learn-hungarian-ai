@@ -41,12 +41,13 @@ const error = ref('')
  *
  * Both default to LATER. Forcing a 252 MB download on a weak machine before the
  * first Hungarian word is the wrong trade, and neither extra has an in-app
- * install path: the full pack is built with `make langpack`, and the speech
- * services are the ordinary `services` config. So "now" means "take me to
- * Settings", never a download button this app cannot honour.
+ * install path here: the full pack installs from Settings → Components once it
+ * is published, and the speech services are the ordinary `services` config. So
+ * "now" means "take me to Settings", never a download button this app cannot
+ * honour.
  */
 const step = ref<1 | 2>(1)
-const fullPack = ref<'later' | 'build'>('later')
+const fullPack = ref<'later' | 'settings'>('later')
 const speech = ref<'later' | 'now'>('later')
 
 async function submit() {
@@ -62,7 +63,7 @@ async function submit() {
     ui.setAppLocale(uiLocale.value)
     // Someone who asked to set the speech services up now is dropped where the
     // form for them actually lives, rather than being told to go and find it.
-    router.push({ name: speech.value === 'now' ? 'settings' : 'today' })
+    router.push({ name: speech.value === 'now' || fullPack.value === 'settings' ? 'settings' : 'today' })
   } catch (e) {
     error.value = describeError(e)
     // A rejected account is a step-1 problem; step 2 would hide the message.
@@ -199,11 +200,10 @@ async function submit() {
               </Label>
               <Select id="fullPack" v-model="fullPack" :disabled="busy">
                 <option value="later">{{ $t('setup.local.fullPackLater') }}</option>
-                <option value="build">{{ $t('setup.local.fullPackBuild') }}</option>
+                <option value="settings">{{ $t('setup.local.fullPackBuild') }}</option>
               </Select>
-              <p v-if="fullPack === 'build'" class="text-xs leading-relaxed text-muted-foreground">
+              <p v-if="fullPack === 'settings'" class="text-xs leading-relaxed text-muted-foreground">
                 {{ $t('setup.local.fullPackBuildHint') }}
-                <code class="rounded bg-muted px-1.5 py-0.5 font-mono">make langpack</code>
               </p>
             </div>
 

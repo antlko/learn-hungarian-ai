@@ -132,7 +132,7 @@ docker run -d --name tanulom -p 8012:8012 -v tanulom-data:/data \
 ```
 
 Want components installed from inside the app (no sidecars)? Build the Python-carrying variant
-instead: `docker build --target full -t tanulom:full .` and run `tanulom:full`
+instead (the published `:latest` already has it): `docker build --target full -t tanulom:full .` and run `tanulom:full`
 ([which to pick](docs/SELFHOSTING.md#quick-start)).
 
 Keep `--restart unless-stopped`: the in-app **Restart** button (used after installing the full
@@ -171,8 +171,9 @@ needs something to bring the container back.
 The image is published for `amd64` and `arm64` by
 `.github/workflows/docker-publish.yml` whenever a `v*` tag is pushed. If the pull is refused from
 another machine, the GHCR package is still private: make it public once in the GitHub UI (or
-`docker login ghcr.io`). Want Python inside the container so *Settings → Components* can install
-the analyser or translator? Use `:latest-full` instead of `:latest`.
+`docker login ghcr.io`). `:latest` includes Python, so *Settings → Components* can install the
+analyser or translator inside the container (`:latest-full` is an alias of it). Prefer the smaller
+distroless image without Python? Use `:latest-slim`; switching tag keeps your data and account.
 
 **The repository's own `docker-compose.yml`** (clone, then `cp .env.example .env`) adds the optional
 sidecars as profiles — `nlp`, `mt` (sentence translation), `llm` (a local Ollama) — none of which the
@@ -222,11 +223,10 @@ more example sentences. No feature depends on it. (Full-pack figures are from
 There are two ways to get it:
 
 1. **Settings → Components → «Установить полный словарь»** (admin). The app downloads a gzipped
-   pack, checks it against a pinned SHA-256, verifies that every word your cards point at still
-   means the same word, and asks for a restart. **This needs a published pack, and none is
-   published yet**: the default checksum in config is empty, and with no checksum the button
-   says so and does nothing. (When one is published, its URL and digest go in `langpack.url` /
-   `langpack.sha256`.)
+   pack, checks it against a SHA-256 pinned in the binary, verifies that every word your cards
+   point at still means the same word, and asks for a restart. **The checksum is not pinned yet**,
+   so until a release ships it the button says the pack is not published and does nothing.
+   (`langpack.url` / `langpack.sha256` in config override the pin, e.g. for a mirror.)
 2. **Build it yourself: `make langpack`.** Not for the faint-hearted: it fetches about **2 GB of
    OpenSubtitles and 580 MB of Wiktionary**, needs a lot of scratch space and Python 3.11, and
    **its running time has not been measured** (the docs say "hours"). Copy the resulting

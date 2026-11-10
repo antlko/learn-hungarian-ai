@@ -29,15 +29,18 @@ services:
   tanulom:
     image: ghcr.io/antlko/learn-hungarian-ai:latest
     # To build from source instead of pulling, comment out `image:` above and
-    # uncomment the next line:
-    # build: .
-    #
-    # ALTERNATIVE: the `full` image carries Python, so Settings -> Components can
-    # install the analyser/translator inside this one container (no sidecars).
-    # Larger than the default; pick it only for that. Replace `image:` above with
-    # either of:
-    # image: ghcr.io/antlko/learn-hungarian-ai:latest-full
+    # uncomment the next line (target: full = the Python-capable image, like
+    # :latest; a plain `build: .` builds the distroless slim one):
     # build: {context: ., target: full}
+    #
+    # `:latest` carries Python, so Settings -> Components can install the
+    # analyser/translator inside this one container (no sidecars). `:latest-full`
+    # is an alias of it. ALTERNATIVE: the smaller distroless image without Python
+    # (same uid and /data layout, so switching keeps your data). Replace `image:`
+    # above with either of:
+    # image: ghcr.io/antlko/learn-hungarian-ai:latest-slim
+    # build: .
+    # (`build: {context: ., target: full}` builds the Python one from source.)
     container_name: tanulom
     ports:
       # host:container. Both are 8012 because config.DefaultAddr is, and the

@@ -22,8 +22,8 @@ import type { ComponentStatus, PackInstallStatus } from '@/types'
  * restart required» — the screen says so instead of pretending to hot-swap.
  *
  * The button is never enabled-and-failing: with no published checksum the server
- * would answer errors.packNotPublished, so the card explains that up front and
- * shows the two fields an admin can fill in.
+ * would answer errors.packNotPublished, so the card says so up front and hides the
+ * button; the address and checksum fields live in a collapsed disclosure.
  */
 const props = defineProps<{ comp: ComponentStatus | undefined }>()
 const emit = defineEmits<{ refresh: [] }>()
@@ -68,12 +68,19 @@ const failedMessage = computed(() =>
 const urlDraft = ref('')
 const shaDraft = ref('')
 const savedSha = computed(() => settings.settings?.langpack.sha256 ?? '')
-const notPublished = computed(
-  () =>
-    !savedSha.value ||
-    startErrorKey.value === 'errors.packNotPublished' ||
-    status.value?.errorKey === 'errors.packNotPublished',
-)
+// `published` comes from the server (a pinned checksum in the binary). Until the
+// first status answer arrives, fall back on the saved custom checksum.
+const notPublished = computed(() => {
+  if (startErrorKey.value === 'errors.packNotPublished') return true
+  if (status.value?.errorKey === 'errors.packNotPublished') return true
+  return status.value ? !status.value.published && !savedSha.value : !savedSha.value
+})
+const installLabel = computed(() => {
+  const b = status.value?.sizeBytes ?? 0
+  return b > 0
+    ? t('settings.components.pack.installSized', { mb: mb(b) })
+    : t('settings.components.pack.install')
+})
 
 function syncDrafts() {
   urlDraft.value = settings.settings?.langpack.url ?? ''
@@ -330,29 +337,36 @@ async function restart() {
       <Note variant="limit" bare class="text-xs">
         {{ $t('settings.components.pack.notPublished') }}
       </Note>
-      <div class="grid gap-3 sm:grid-cols-2">
-        <div class="flex flex-col gap-1.5">
-          <Label for="pack-url">{{ $t('settings.components.pack.url') }}</Label>
-          <Input id="pack-url" v-model="urlDraft" autocomplete="off" />
+      <details class="rounded-lg border border-border-subtle p-2">
+        <summary class="min-h-6 cursor-pointer text-xs font-medium">
+          {{ $t('settings.components.pack.custom') }}
+        </summary>
+        <div class="mt-2 flex flex-col gap-3">
+          <div class="grid gap-3 sm:grid-cols-2">
+            <div class="flex flex-col gap-1.5">
+              <Label for="pack-url">{{ $t('settings.components.pack.url') }}</Label>
+              <Input id="pack-url" v-model="urlDraft" autocomplete="off" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <Label for="pack-sha">{{ $t('settings.components.pack.sha') }}</Label>
+              <Input
+                id="pack-sha"
+                v-model="shaDraft"
+                autocomplete="off"
+                spellcheck="false"
+                class="font-mono"
+              />
+            </div>
+          </div>
+          <Button size="sm" variant="outline" class="self-start" :disabled="settings.saving" @click="saveSource">
+            {{ $t('common.save') }}
+          </Button>
+          <p class="text-[11px] leading-relaxed text-muted-foreground">
+            {{ $t('settings.components.pack.build') }}
+          </p>
+          <CommandBox command="make langpack" />
         </div>
-        <div class="flex flex-col gap-1.5">
-          <Label for="pack-sha">{{ $t('settings.components.pack.sha') }}</Label>
-          <Input
-            id="pack-sha"
-            v-model="shaDraft"
-            autocomplete="off"
-            spellcheck="false"
-            class="font-mono"
-          />
-        </div>
-      </div>
-      <Button size="sm" variant="outline" class="self-start" :disabled="settings.saving" @click="saveSource">
-        {{ $t('common.save') }}
-      </Button>
-      <p class="text-[11px] leading-relaxed text-muted-foreground">
-        {{ $t('settings.components.pack.build') }}
-      </p>
-      <CommandBox command="make langpack" />
+      </details>
     </div>
 
     <p v-if="isFull && !isReady" class="text-xs text-known">
@@ -360,17 +374,16 @@ async function restart() {
     </p>
 
     <Button
-      v-if="!isFull && !isReady && !running"
+      v-if="!isFull && !isReady && !running && !notPublished"
       class="self-start"
-      :disabled="starting || notPublished"
-      :aria-describedby="notPublished ? 'pack-url' : undefined"
+      :disabled="starting"
       @click="install"
     >
       <component :is="status?.state === 'failed' ? RotateCw : Download" class="size-4" aria-hidden="true" />
       {{
         status?.state === 'failed'
           ? $t('settings.components.pack.retry')
-          : $t('settings.components.pack.install')
+          : installLabel
       }}
     </Button>
   </section>

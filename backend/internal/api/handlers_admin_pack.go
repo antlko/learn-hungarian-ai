@@ -10,6 +10,7 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 
+	"tanulom/internal/config"
 	"tanulom/internal/lang"
 	"tanulom/internal/mt"
 )
@@ -18,8 +19,8 @@ import (
 // overview — ADR-049 (amends ADR-010).
 //
 // Every route here is admin-only and none of them accepts a URL: where the pack
-// comes from and what it must hash to are config.yaml (`langpack.url`,
-// `langpack.sha256`), changed only through PUT /api/settings. A request body
+// comes from and what it must hash to are the binary's pinned defaults, overridable in config.yaml (`langpack.url`,
+// `langpack.sha256`) through PUT /api/settings. A request body
 // that could name a URL would turn an admin session into a server-side fetch.
 //
 // The pack is opened once at boot, so a finished install is "ready, restart
@@ -53,6 +54,13 @@ type PackInstallStatusDTO struct {
 	Total           int64  `json:"total"`
 	ErrorKey        string `json:"errorKey"`
 	RestartRequired bool   `json:"restartRequired"`
+	// Published is false while the binary pins no checksum and the admin
+	// stored none: the install would be refused, so the UI says so up front.
+	Published bool `json:"published"`
+	// SizeBytes is the approximate download size (0 = unknown); URL the
+	// effective source.
+	SizeBytes int64  `json:"sizeBytes"`
+	URL       string `json:"url"`
 }
 
 // RestartResponse is POST /api/admin/restart.
@@ -93,18 +101,29 @@ var componentTable = []struct {
 	{"llm", "llm", "", true},
 }
 
-func statusDTO(st lang.InstallStatus) PackInstallStatusDTO {
+// packDefaultSHA is the binary's pinned checksum; a variable only so a test can
+// stand in for a published pack.
+var packDefaultSHA = config.DefaultLangPackSHA256
+
+func (s *Server) effectiveLangPack() (url, sha string) {
+	cfg := s.Config()
+	return config.EffectiveLangPackFor(&cfg, config.DefaultLangPackURL, packDefaultSHA)
+}
+
+func (s *Server) statusDTO(st lang.InstallStatus) PackInstallStatusDTO {
+	url, sha := s.effectiveLangPack()
 	return PackInstallStatusDTO{State: st.State, Bytes: st.Bytes, Total: st.Total,
-		ErrorKey: st.ErrorKey, RestartRequired: st.RestartRequired}
+		ErrorKey: st.ErrorKey, RestartRequired: st.RestartRequired,
+		Published: sha != "", SizeBytes: config.DefaultLangPackSizeBytes, URL: url}
 }
 
 // handlePackInstallStart begins the download. 202, 409 while one runs, 422
 // when nothing is published to download.
 func (s *Server) handlePackInstallStart(c fiber.Ctx) error {
-	cfg := s.Config()
+	url, sha := s.effectiveLangPack()
 	err := s.packInstaller.Start(s.bgCtx, lang.InstallSpec{
-		URL:    cfg.LangPack.URL,
-		SHA256: cfg.LangPack.SHA256,
+		URL:    url,
+		SHA256: sha,
 		Compat: func(ctx context.Context, next *lang.Pack) error {
 			return lang.CheckIDCompat(ctx, s.db.DB, s.pack, next)
 		},
@@ -117,11 +136,11 @@ func (s *Server) handlePackInstallStart(c fiber.Ctx) error {
 	case err != nil:
 		return err
 	}
-	return c.Status(fiber.StatusAccepted).JSON(statusDTO(s.packInstaller.Status()))
+	return c.Status(fiber.StatusAccepted).JSON(s.statusDTO(s.packInstaller.Status()))
 }
 
 func (s *Server) handlePackInstallStatus(c fiber.Ctx) error {
-	return c.JSON(statusDTO(s.packInstaller.Status()))
+	return c.JSON(s.statusDTO(s.packInstaller.Status()))
 }
 
 // handleAdminRestart stops the process gracefully after answering 202.

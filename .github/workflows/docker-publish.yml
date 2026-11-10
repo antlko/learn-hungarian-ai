@@ -32,23 +32,23 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Docker metadata
+      # `latest` is the Python-capable image (target `full`): a fresh install can
+      # then add the managed analyser/translator from Settings without changing
+      # the tag. The distroless target (`slim`, no Python) is `latest-slim` /
+      # `X.Y.Z-slim`. `-full` tags stay published as aliases of the unsuffixed
+      # ones so snippets already in the wild keep working. ADR-061.
+      #
+      # `latest=auto` sets `latest` from a `type=semver` match, and ONLY when the
+      # version is not a pre-release -- `v1.2.3` moves it, `v1.2.3-rc1` does not.
+      # (`type=raw,value=latest,enable={{is_default_branch}}` publishes NOTHING on
+      # a tag push: the ref is compared whole against `main`.)
+      - name: Docker metadata (python, unsuffixed)
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}
-          # `latest=auto` (the default) sets `latest` from a `type=semver`
-          # match, and ONLY when the version is not a pre-release — so
-          # `v1.2.3` moves it and `v1.2.3-rc1` does not.
           flavor: latest=auto
           tags: |
-            # These three are what makes `latest` work at all. The previous
-            # spelling was `type=raw,value=latest,enable={{is_default_branch}}`,
-            # which publishes NOTHING here: metadata-action strips only
-            # `refs/heads/`, so on `refs/tags/v1.0.0` it compares that whole ref
-            # against `main` and never matches. This workflow runs on tags only,
-            # so no `latest` was ever pushed — while docker-compose.yml pulls
-            # `:latest`. v1.2.3 -> `1.2.3`, `1.2`, `1`, plus `latest`.
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
@@ -56,23 +56,7 @@ jobs:
             type=ref,event=tag
             type=sha,format=short
 
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          build-args: |
-            VERSION=${{ github.ref_name }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      # The `full` variant (Python inside, for managed components): same tags with
-      # a `-full` suffix (`latest-full`, `1.2.3-full`). Layers are shared with the
-      # build above, so this is mostly the python base plus a copy.
-      - name: Docker metadata (full)
+      - name: Docker metadata (python, -full alias)
         id: meta-full
         uses: docker/metadata-action@v5
         with:
@@ -87,7 +71,7 @@ jobs:
             type=ref,event=tag
             type=sha,format=short
 
-      - name: Build and push (full)
+      - name: Build and push (python: latest, X.Y.Z, ..., plus -full aliases)
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -96,7 +80,40 @@ jobs:
           push: true
           build-args: |
             VERSION=${{ github.ref_name }}
-          tags: ${{ steps.meta-full.outputs.tags }}
-          labels: ${{ steps.meta-full.outputs.labels }}
+          tags: |
+            ${{ steps.meta.outputs.tags }}
+            ${{ steps.meta-full.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # The distroless variant: same tags with a `-slim` suffix (`latest-slim`,
+      # `1.2.3-slim`). Layers are shared with the build above.
+      - name: Docker metadata (slim)
+        id: meta-slim
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          flavor: |
+            latest=auto
+            suffix=-slim,onlatest=true
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=ref,event=tag
+            type=sha,format=short
+
+      - name: Build and push (slim)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: slim
+          platforms: linux/amd64,linux/arm64
+          push: true
+          build-args: |
+            VERSION=${{ github.ref_name }}
+          tags: ${{ steps.meta-slim.outputs.tags }}
+          labels: ${{ steps.meta-slim.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

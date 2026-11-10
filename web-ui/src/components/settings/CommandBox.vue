@@ -30,12 +30,12 @@ onUnmounted(() => clearTimeout(timer))
 
 <template>
   <div class="flex flex-col gap-1">
-    <div class="flex items-stretch gap-2">
+    <div class="flex flex-col items-stretch gap-2 sm:flex-row">
       <code
         class="min-w-0 flex-1 overflow-x-auto rounded bg-muted px-2 py-1.5 font-mono text-[11px] whitespace-pre"
         >{{ command }}</code
       >
-      <Button size="sm" variant="outline" type="button" @click="copy">
+      <Button size="sm" variant="outline" type="button" class="self-start sm:self-stretch" @click="copy">
         <Check v-if="copied" class="size-3.5" aria-hidden="true" />
         <Copy v-else class="size-3.5" aria-hidden="true" />
         {{ $t('settings.components.copy') }}

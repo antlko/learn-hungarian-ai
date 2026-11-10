@@ -62,7 +62,10 @@ const (
 	StepModel = "component.step.model"
 	StepStart = "component.step.start"
 
-	KeyNoPython      = "errors.componentNoPython"
+	KeyNoPython = "errors.componentNoPython"
+	// KeyNoPythonSlim replaces KeyNoPython on the distroless image
+	// (TANULOM_IMAGE=slim), which ships no Python by design.
+	KeyNoPythonSlim  = "errors.componentNoPythonSlimImage"
 	KeyReadOnly      = "errors.componentReadOnly"
 	KeyBusy          = "errors.componentBusy"
 	KeyUnknown       = "errors.componentUnknown"
@@ -557,6 +560,9 @@ func (m *Manager) probeEnvironment() envInfo {
 // the temp directory, never from the data directory or the server's cwd.
 func (m *Manager) detectPython() pyInfo {
 	info := pyInfo{key: KeyNoPython}
+	if os.Getenv("TANULOM_IMAGE") == "slim" {
+		info.key = KeyNoPythonSlim
+	}
 	if !pythonSupported {
 		return info
 	}

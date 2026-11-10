@@ -1626,18 +1626,24 @@ you lose without it, and a state chip that carries a shape and text (never colou
   сейчас». A supervised server restarts itself and the card polls `/api/bootstrap` until it answers
   again after having gone quiet, then reloads; an unsupervised one says «сервер остановлен —
   запустите его заново вручную» and polls nothing. `failed` maps `errorKey` through
-  `describeError` with a retry. **The button is never enabled-and-failing**: with no pinned
-  checksum (the default) it is disabled, the card says the pack is not published, and shows the
-  two config fields (`langpack.url`, `langpack.sha256`, saved through the ordinary settings
-  update) and the `make langpack` fallback.
+  `describeError` with a retry. **The button is never enabled-and-failing**: when the status says
+  `published: false` (no checksum pinned in the binary or stored) the button is hidden and the card
+  says «Полный пакет ещё не выложен…»; the two override fields (`langpack.url`, `langpack.sha256`,
+  saved through the ordinary settings update) and the `make langpack` fallback sit in a collapsed
+  «Свой адрес пакета» disclosure, so no input is visible by default. When `published` is true one
+  primary button «Установить полный словарь (≈N МБ)» installs from the binary's pin (size omitted
+  when `sizeBytes` is 0); no address or checksum is shown. The setup wizard's step 2 offers only
+  «Потом» or «Установлю из настроек» (which lands on Settings after the account is created); it
+  never asks for a build command.
 - **Install method tabs** (`ComponentMethods`, for `mt`, `nlp`, `llm`; browser flow NOT exercised, real
   install NOT exercised). Under the one-line description each card has a tablist
-  «Встроенный · Docker Compose · Свой сервер» (arrow keys, Home/End, ≥44 px targets). The default tab
-  is the one in use: built-in when `provider: managed`, else built-in when `managed.available`, else
-  Docker Compose. **A tab is a view, not a setting** — only installing or «Сохранить» changes config.
+  «Из приложения · Docker · Docker Compose · Свой сервер» (arrow keys, Home/End, ≥44 px targets). The default tab
+  is the one in use: «Из приложения» when `provider: managed`, else when `managed.available`, else
+  Docker. **A tab is a view, not a setting** — only installing or «Сохранить» changes config.
   `llm` has no built-in tab (a multi-GB model server is not embedded); a server that sends no
-  `managed` field gets the two other tabs only. All `managed` fields are optional to the client.
-  - **Встроенный** (`ManagedTab`, `POST /api/admin/components/:id/{install,start,stop,uninstall}`).
+  `managed` field gets the three other tabs only. The image name lives once in `lib/deploy.ts`; `:latest` has Python
+  (install from the app), `:latest-slim` does not (`errors.componentNoPythonSlimImage`). All `managed` fields are optional to the client.
+  - **Из приложения** (`ManagedTab`, `POST /api/admin/components/:id/{install,start,stop,uninstall}`).
     One honest line before pressing: «Скачает и запустит сервис прямо здесь: ≈диск, ≈память —
     оценка» (figures are the server's constants, not measurements). `absent` → «Установить»
     (disabled with the server's `unavailableKey` sentence and a pointer to the other tabs when
@@ -1650,9 +1656,14 @@ you lose without it, and a state chip that carries a shape and text (never colou
     step, not the ticking percentage). The list is re-read every 2 s **only while a copy is
     installing/starting and the tab is visible** (plus an 8 s grace after a button press); when the
     work ends, settings are re-read because the server flips the provider itself.
-  - **Docker Compose**: the command, with «Что такое profile?» and «А порты не заняты?» as InfoTips.
-    The second is true of `docker-compose.yml` as shipped (the sidecars publish no host ports);
-    it stops being true if the admin adds `ports:`.
+  - **Docker**: the `docker run` command (`:latest`), then «Настройки → Компоненты → Из приложения →
+    Установить». «Проверить» re-probes.
+  - **Docker Compose**: a paste-ready `compose.yaml` (one `tanulom` service, named volume), notes about
+    keeping an existing volume name and running in a folder holding only that file. The old
+    `docker compose --profile <id> up -d` command with «Что такое profile?» and «А порты не заняты?»
+    InfoTips moved into a collapsed «Из клона репозитория» disclosure. The ports line is true of
+    `docker-compose.yml` as shipped (the sidecars publish no host ports); it stops being true if the
+    admin adds `ports:`.
   - **Свой сервер**: the address (and, for `llm`, the model with the server's list) moved here from
     the Services card; «Сохранить» uses the ordinary settings update, «Проверить» re-probes.
 - **Services rows follow the tabs.** A `managed` row shows «встроенный · порт N» read-only on a sage

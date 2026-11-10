@@ -1606,6 +1606,11 @@ export interface PackInstallStatus {
   total: number
   errorKey: string
   restartRequired: boolean
+  /** The binary carries a pinned checksum, so the install needs no address from the admin. */
+  published: boolean
+  /** Size of the pack asset in bytes; 0 = unknown. */
+  sizeBytes: number
+  url: string
 }
 
 /** POST /api/admin/restart. false = nothing restarts it; tell the admin to start it again. */

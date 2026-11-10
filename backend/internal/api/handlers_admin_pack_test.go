@@ -290,3 +290,47 @@ func TestIDRefsCoverTheLearnerSchema(t *testing.T) {
 		}
 	}
 }
+
+// A pin compiled into the binary is used when config.yaml stores none: the
+// URL is the test server's, the checksum comes from the "binary".
+func TestPackInstallUsesBinaryPinnedChecksum(t *testing.T) {
+	s, c := newPackedServer(t)
+	body, sha := gzPack(t, s, "")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.Write(body) }))
+	defer srv.Close()
+	old := packDefaultSHA
+	packDefaultSHA = sha
+	defer func() { packDefaultSHA = old }()
+	pinPack(t, c, srv.URL, "")
+
+	var st PackInstallStatusDTO
+	c.json(http.MethodGet, "/api/admin/pack/install", nil, &st)
+	if !st.Published || st.URL != srv.URL {
+		t.Errorf("status = %+v", st)
+	}
+	if resp, b := c.do(http.MethodPost, "/api/admin/pack/install", nil); resp.StatusCode != http.StatusAccepted {
+		t.Fatalf("start: %d %s", resp.StatusCode, b)
+	}
+	if got := waitInstall(t, c); got.State != "ready" {
+		t.Errorf("install = %+v", got)
+	}
+}
+
+// An unpublished pack (empty pin, nothing stored) makes no network request.
+func TestPackInstallUnpublishedMakesNoRequest(t *testing.T) {
+	_, c := newPackedServer(t)
+	hits := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { hits++ }))
+	defer srv.Close()
+	pinPack(t, c, srv.URL, "")
+	var st PackInstallStatusDTO
+	c.json(http.MethodGet, "/api/admin/pack/install", nil, &st)
+	if st.Published {
+		t.Errorf("published = true with no pin: %+v", st)
+	}
+	var e struct{ Error string }
+	resp := c.json(http.MethodPost, "/api/admin/pack/install", nil, &e)
+	if resp.StatusCode != http.StatusUnprocessableEntity || e.Error != "errors.packNotPublished" || hits != 0 {
+		t.Errorf("%d %q hits=%d", resp.StatusCode, e.Error, hits)
+	}
+}

@@ -56,6 +56,8 @@ func userDTO(u db.User) UserDTO {
 // settingsDTO renders config for the wire. Secret values are never included —
 // only their presence, supplied by the caller.
 func settingsDTO(c config.Config, secrets map[string]bool) SettingsDTO {
+	// The URL shown is the effective one; the checksum is only what is stored.
+	effURL, _ := config.EffectiveLangPack(&c)
 	dirs := make(map[string]DirectionDTO, len(c.Review.Directions))
 	for k, v := range c.Review.Directions {
 		dirs[k] = DirectionDTO{Enabled: v.Enabled, Weight: v.Weight}
@@ -112,7 +114,7 @@ func settingsDTO(c config.Config, secrets map[string]bool) SettingsDTO {
 			"llm": svc(c.Services.LLM),
 			"mt":  svc(c.Services.MT),
 		},
-		LangPack: LangPackDTO{URL: c.LangPack.URL, SHA256: c.LangPack.SHA256},
+		LangPack: LangPackDTO{URL: effURL, SHA256: c.LangPack.SHA256},
 		Secrets:  secrets,
 	}
 }

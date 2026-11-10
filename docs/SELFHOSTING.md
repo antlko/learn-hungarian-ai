@@ -23,13 +23,13 @@ full dictionary is an optional upgrade (below). See [ADR-010](../.claude/DECISIO
 > compose file is in the [README](../README.md#b-docker-compose--the-prebuilt-image-no-clone-needed);
 > to build from the clone instead, comment out `image:` and uncomment `build: .`.
 >
-> **Two images.** `tanulom` (default, distroless) is small and has no Python: the core app and the
-> sidecar services (`--profile nlp|mt|llm`). `tanulom:full` (`docker build --target full -t
-> tanulom:full .`, or `ghcr.io/antlko/learn-hungarian-ai:latest-full`) adds Python so
-> «Встроенные компоненты» in Settings can install components inside the same container. Both run as
-> uid 65532 and share the `/data` layout, so you can switch between them on the same volume. Pick
-> `full` only if you want that; otherwise stay on the default. No image variant was built or run when
-> this was written.
+> **Two images.** `ghcr.io/antlko/learn-hungarian-ai:latest` (also `X.Y.Z`, `X.Y`, `X`, and the
+> aliases `latest-full` / `X.Y.Z-full`) carries Python, so «Встроенные компоненты» in Settings can
+> install the analyser or translator inside the same container. `:latest-slim` / `X.Y.Z-slim` is the
+> distroless image: smaller, no Python, core app and sidecar services (`--profile nlp|mt|llm`) only.
+> Both run as uid 65532 and share the `/data` layout, so switching tag keeps your data and account.
+> Building yourself: `docker build .` builds the slim image, `docker build --target full -t
+> tanulom:full .` the Python one. No image variant was built or run when this was written.
 >
 > Not using Docker: `make build && ./bin/tanulom --data-dir ./data` (Go 1.26+, Node 22.18+).
 
@@ -38,9 +38,10 @@ full dictionary is an optional upgrade (below). See [ADR-010](../.claude/DECISIO
 The starter has 5,725 lemmas and 12,858 sentences; the full pack 35,311 lemmas and about 60,000
 sentences (counts: [LANGPACK.md](LANGPACK.md)). It only widens lookup. Two ways:
 
-- **Settings → Components → Install the full dictionary** (admin). Requires a published pack
-  with a pinned checksum in `langpack.url` / `langpack.sha256`; **none is published yet**, so
-  the button says so. Needs free disk for the download plus the unpacked pack (about 260 MB each),
+- **Settings → Components → Install the full dictionary** (admin). One click: the download
+  address and checksum are pinned in the binary (nothing to type; `langpack.url` / `langpack.sha256`
+  in `config.yaml` are only an override, e.g. a mirror). **The checksum is not pinned yet**, so
+  until a release ships one the button says "not published". Needs free disk for the download plus the unpacked pack (about 260 MB each),
   then a restart (below).
 - **`make langpack`** on a workstation (about 2 GB of OpenSubtitles and 580 MB of Wiktionary are
   downloaded; running time not measured). Put `data/langpack-hu-v1.sqlite` into the volume and
@@ -146,8 +147,8 @@ need `apt install python3-venv`.
 | Method | Where the Python comes from |
 |---|---|
 | Native binary (`make build`, `make dev`) | your system `python3` |
-| `tanulom:full` image (`docker build --target full`) | the image: Python + venv + CA certificates, same binary and uid 65532, same `/data` layout |
-| Default `tanulom` image (distroless) | **none** — it has no shell and no Python, and says so: use the full image, Compose or your own server |
+| `:latest` image (target `full`; `:latest-full` is an alias) | the image: Python + venv + CA certificates, same binary and uid 65532, same `/data` layout |
+| `:latest-slim` image (distroless; plain `docker build .`) | **none** — it has no shell and no Python, and says so (`errors.componentNoPythonSlimImage`): change the tag to `:latest` |
 
 **Disk and RAM** (documented estimates, not measurements — the screen says "estimate"):
 
@@ -332,8 +333,9 @@ Migrations run automatically inside `db.Open` on start. There is no migrate step
 distroless image has no shell to run one.
 
 **Installing the full language pack from Settings.** An admin can press install in Settings; the
-app downloads `langpack.url` (see [CONFIGURATION.md](CONFIGURATION.md)) into `/data` as a
-temporary file, checks the gzip against `langpack.sha256`, unpacks and opens it, confirms that
+app downloads the pinned pack URL (built into the binary; override with `langpack.url`, see
+[CONFIGURATION.md](CONFIGURATION.md)) into `/data` as a
+temporary file, checks the gzip against the pinned checksum (`langpack.sha256` overrides), unpacks and opens it, confirms that
 every word id your notes, lemma states and imported texts point at still means the same word,
 and only then parks it beside the live pack as `langpack-hu-v1.sqlite.new`. Any failure leaves the pack you have
 untouched and removes the temporary files; a full disk is reported as such. It needs free space
@@ -366,7 +368,7 @@ scoping.
 | Reviews pile up | new-card limit too high | Settings → Review — the governor shows the projection |
 | Slow first analysis of a long text | tokenising and looking up every token | one-time per text; results are persisted in `text_token` |
 | `docker pull ghcr.io/…` says `denied` / `not found` | no `v*` tag has been pushed, or the package is still private | build from source (Quick start) |
-| Install button says the pack "has not been published" | `langpack.sha256` is empty (the default); no pack is published | expected today. Use `make langpack` and copy the file, or set `langpack.url` and `langpack.sha256` to a pack you host |
+| Install button says the pack "has not been published" | the binary pins no checksum yet and `langpack.sha256` is empty | expected until a release ships one. Use `make langpack` and copy the file, or set `langpack.url` and `langpack.sha256` to a pack you host |
 | After an update the course or lessons look old (for example only the Basic tier shows) | the app keeps using the full language pack you built earlier, and the course lives inside the pack | stop the server and run `make refresh` (seconds, no downloads; it rewrites the course, lessons and features in `data/langpack-hu-v1.sqlite` — copy the file first if you want a backup). A pack installed from Settings is replaced by installing the newer one |
 | Forgot the password | there is no email reset on a self-hosted install | stop the server, then `make reset-password` (from a checkout; `EMAIL=…` / `PASSWORD=…` optional — otherwise it prints a generated one) or `tanulom reset-password --data-dir ./data`; in Docker: `docker run --rm -v tanulom-data:/data tanulom reset-password --data-dir /data`. Progress is kept; every session of that account is signed out |
 | Want to start over | — | stop the server, then `make reset-learner` (asks for `YES`): deletes accounts, progress and settings in `./data` and keeps the language pack and audio |
@@ -374,4 +376,4 @@ scoping.
 | Installed pack rejected: "incompatible" | its word ids differ from the pack your cards point at (built from another dump) | build from the same source dump, or keep the starter |
 | `nlp` is "downloading" forever / "error" | the model wheel could not be fetched (network, proxy, disk) | read the card's reason; `docker logs tanulom-nlp`; retry from Components; the volume `tanulom-nlp-models` must be writable |
 | `nlp` container killed | out of memory | give it >= 3 GB or leave it off; the app is unchanged without it |
-| `docker compose up` fails pulling `tanulom` | the image is not published | build instead (`build: .` in the compose file) |
+| `docker compose up` fails pulling `tanulom` | the image is refused from another machine, or the tag is wrong | the image is published (`:latest` = Python-capable, `:latest-slim` = distroless without Python); make the GHCR package public once, or build from the clone with `build: {context: ., target: full}` |

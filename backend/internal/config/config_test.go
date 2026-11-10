@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -207,5 +208,56 @@ func TestBurySiblingsDefaultsTrueAndRespectsAnExplicitFalse(t *testing.T) {
 	}
 	if again.Review.BurySiblingsEnabled() {
 		t.Error("explicit false lost on round trip")
+	}
+}
+
+func TestEffectiveLangPack(t *testing.T) {
+	const defURL, defSHA = "https://example.com/d.gz", "aa"
+	legacy := "https://github.com/antlko/learn-hungarian-ai/releases/latest/download/langpack-hu-v1.sqlite.gz"
+	cases := []struct{ name, url, sha, wantURL, wantSHA string }{
+		{"empty takes both defaults", "", "", defURL, defSHA},
+		{"legacy latest URL maps to default", legacy, "", defURL, defSHA},
+		{"custom url and sha win", "https://m.example/p.gz", "BB", "https://m.example/p.gz", "bb"},
+		{"custom sha only", "", "cc", defURL, "cc"},
+	}
+	for _, tc := range cases {
+		c := &Config{LangPack: LangPack{URL: tc.url, SHA256: tc.sha}}
+		u, s := EffectiveLangPackFor(c, defURL, defSHA)
+		if u != tc.wantURL || s != tc.wantSHA {
+			t.Errorf("%s: got %q %q", tc.name, u, s)
+		}
+		if c.LangPack.URL != tc.url || c.LangPack.SHA256 != tc.sha {
+			t.Errorf("%s: config mutated", tc.name)
+		}
+	}
+	if strings.Contains(DefaultLangPackURL, "/latest/") || !strings.Contains(DefaultLangPackURL, "/releases/download/langpack-hu-v1/") {
+		t.Errorf("default URL = %s", DefaultLangPackURL)
+	}
+	if u, s := EffectiveLangPack(&Config{}); u != DefaultLangPackURL || s != DefaultLangPackSHA256 {
+		t.Errorf("EffectiveLangPack(zero) = %q %q", u, s)
+	}
+}
+
+func TestLangPackURLStaysEmptyOnDisk(t *testing.T) {
+	dir := t.TempDir()
+	c, err := Load(dir) // fresh dir: writes the default config
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.LangPack.URL != "" {
+		t.Errorf("loaded url = %q, want empty", c.LangPack.URL)
+	}
+	b, err := os.ReadFile(Path(dir))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(b), "langpack-hu-v1") {
+		t.Errorf("default URL written to YAML:\n%s", b)
+	}
+	if _, err := c.Validate(); err != nil {
+		t.Errorf("empty langpack.url must validate: %v", err)
+	}
+	if u, _ := EffectiveLangPack(&Config{LangPack: LangPack{URL: DefaultLangPackURL}}); u != DefaultLangPackURL {
+		t.Errorf("stored default URL = %q", u)
 	}
 }
