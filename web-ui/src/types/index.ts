@@ -288,6 +288,8 @@ export interface Memory {
 export interface QueueItem {
   cardId: number
   noteId: number
+  /** Course unit code when the note came from enrolling a unit; absent otherwise. Display-only. */
+  unit?: string
   direction: DirectionName
   isNew: boolean
   due: string
@@ -634,6 +636,14 @@ export interface Example {
   ru?: string
   en?: string
   form?: string
+}
+
+/** One attested pack sentence shown on a course unit (display-only; never a note). */
+export interface UnitPhrase {
+  id: number
+  hu: string
+  ru: string
+  en?: string
 }
 
 /** The full decomposition of one form — [R4]'s explicit instruction in miniature. */
@@ -1372,6 +1382,8 @@ export interface UnitState {
   settled?: number
   /** The unit's words with no card yet — named, so the UI never infers them. */
   notInPlay: string[]
+  /** Not-in-deck words of an ENROLLED unit that the pack has no sentence to illustrate (derived per request; ADR-072). */
+  noExample: string[]
 }
 
 export interface CoursePlan {

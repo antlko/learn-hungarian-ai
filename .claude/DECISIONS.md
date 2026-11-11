@@ -3035,3 +3035,14 @@ S is FSRS stability in days. 180 days (`srs.ProgressFullDays`) is a declared dis
 **Consequences.** `trashed`/`TrashCount` and `GET /api/trash` count and list words (a lemma and an instant), not notes; `cards` sums the directions of every note moved. Nothing is deleted, so undo and replay are unaffected. Manual add from the reader (`POST /api/notes`) still restores a trashed duplicate: that is the learner's explicit act.
 
 **Same change: display case.** A cloze blank at the head of a sentence carries the sentence's capital, not the word's. Options (`internal/api/options.go`) and `expectedFor` for a cloze show the form in its lemma's case, lowercase unless the dictionary form is capitalised; grading was already case-insensitive. A tapped option is spoken (UX.md Review).
+
+
+## ADR-072 — Course words take any attested pack sentence; unit phrases are pack sentences; AI gap-filling waits for attestation
+
+**Status:** accepted · 2026-11-11 *(user report: `sziasztok` was left without a card)* · extends [ADR-042](#adr-042), [ADR-066](#adr-066)
+
+**Context.** Greetings and interjections live in one- and two-word sentences, and enrolment's three-token floor left such words «без примера». The tempting fix is to let the model write the missing sentence. That collides with the invariant that no LLM Hungarian becomes a card without `internal/corpus/attest.go`, with [ADR-042](#adr-042) (the model may write a dictionary entry, never material) and [ADR-066](#adr-066) (the one labelled AI-written Hungarian lives in «Диалог» sets, `source='authored'`, filtered out everywhere else). MT stays display-only and labelled ([ADR-014](#adr-014)).
+
+**Decision.** (1) Enrolment gains a last-resort pass with `len_tokens >= 1` — still `source <> 'authored'`, same attestation — which runs only when the 3+ token passes found nothing. When the analyser files the token under another lemma, a token spelled like the course headword still gives the cloze span, with EMPTY target features (a cloze needs a span, not features; another lemma's features are never graded); a lemma-id reading stays preferred. (2) `GET /api/course/units/:code/phrases` shows up to four short pack sentences with human translations — display-only, no note. (3) `UnitState.noExample` names enrolled-unit words the pack still cannot illustrate, derived per request. (4) AI gap-filling for those words is NOT built: it waits for attestation. The user may later override this explicitly; that would be a new ADR, with the output labelled and kept out of `note` until attested.
+
+**Consequences.** A one-word greeting can become a card when the pack has such a sentence; a pack with none (the embedded starter has no `sziasztok` sentence) still reports the word, honestly, in `skipped` / `noExample`. `QueueItem.unit` (from `note.source = 'course:<code>'`) is display-only. Nothing here touches scheduling or the two state spaces.

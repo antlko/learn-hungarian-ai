@@ -302,3 +302,24 @@ func mustNote(t *testing.T, s *Store, userID, id int64) Note {
 	}
 	return n
 }
+
+// The card can say which unit a word came from; a word the learner added
+// themselves says nothing. Display-only: it is read off note.source.
+func TestQueueItemNamesTheCourseUnit(t *testing.T) {
+	e, userID := newEngine(t)
+	s, now := e.store, time.Now()
+	scopedNote(t, s, userID, "course:m1-u1", "a", now)
+	scopedNote(t, s, userID, "manual", "b", now)
+
+	items, _, err := s.Queue(userID, ScopeAll, 0, 0, true, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := map[string]string{}
+	for _, it := range items {
+		got[it.TargetForm] = it.Unit
+	}
+	if got["a"] != "m1-u1" || got["b"] != "" {
+		t.Errorf("units = %v, want a=m1-u1 and b empty", got)
+	}
+}

@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, shallowRef } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, onMounted, ref, shallowRef, watch } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { Repeat } from '@lucide/vue'
+import { buttonVariants } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import BackButton from '@/components/common/BackButton.vue'
 import Note from '@/components/common/Note.vue'
@@ -14,7 +16,7 @@ import { api, ApiError } from '@/api'
 import { useCurriculumStore } from '@/stores/curriculum'
 import { useMilestoneStore } from '@/stores/milestone'
 import { useUiStore } from '@/stores/ui'
-import type { CoursePlan, EnrolResult, UnitState } from '@/types'
+import type { CoursePlan, EnrolResult, UnitPhrase, UnitState } from '@/types'
 
 /**
  * One unit as a page (it was a side panel / bottom sheet): back button, title,
@@ -35,6 +37,7 @@ const error = ref('')
 const enrolResult = ref<EnrolResult | null>(null)
 const busy = ref(false)
 const actionError = ref('')
+const phrases = ref<UnitPhrase[]>([])
 
 const code = computed(() => String(route.params.code ?? ''))
 const state = computed<UnitState | null>(
@@ -44,6 +47,21 @@ const state = computed<UnitState | null>(
 const gateEntry = computed(() => (state.value ? (computeGate(plan.value?.units ?? [], unlockShare.value).byCode.get(state.value.unit.code) ?? null) : null))
 /** A themed unit goes back to the themes grid, a core one to the course path. */
 const backTo = computed(() => (state.value && isSideUnit(state.value) ? '/?view=themes' : '/'))
+/**
+ * Words the action can still add: not in the deck, minus those the pack cannot
+ * illustrate (enrolling would skip them again). «Знаю» words are in play already.
+ */
+const takeable = computed(() => {
+  const st = state.value
+  if (!st) return 0
+  const none = new Set(st.noExample ?? [])
+  return st.notInPlay.filter((l) => !none.has(l)).length
+})
+/** The bar exists to take words: hidden once there is nothing left to take. */
+const showBar = computed(() => !!state.value && !closed.value && (!state.value.enrolled || takeable.value > 0))
+const report = computed(() =>
+  enrolResult.value && state.value && enrolResult.value.unitCode === state.value.unit.code ? enrolResult.value : null,
+)
 const closed = computed(() => !!gateEntry.value?.closed)
 const topicTitles = computed(() => {
   const out: Record<string, string> = {}
@@ -61,6 +79,16 @@ async function loadPlan() {
     error.value = e instanceof ApiError ? e.message : describeError(e)
   } finally {
     loading.value = false
+  }
+}
+
+/** Optional: a failure just leaves the block out. */
+async function loadPhrases(c: string) {
+  try {
+    const res = await api.unitPhrases(c)
+    if (c === code.value) phrases.value = res.phrases ?? []
+  } catch {
+    if (c === code.value) phrases.value = []
   }
 }
 
@@ -93,12 +121,25 @@ async function enrol() {
 onMounted(async () => {
   if (curriculum.topics.length === 0) void curriculum.load()
   await loadPlan()
+  void loadPhrases(code.value)
+})
+watch(code, (c) => {
+  phrases.value = []
+  enrolResult.value = null
+  actionError.value = ''
+  void loadPhrases(c)
 })
 </script>
 
 <template>
-  <div class="page-narrow flex w-full min-w-0 flex-col gap-4 max-md:pb-20">
-    <BackButton :fallback="backTo" />
+  <div class="page-narrow flex w-full min-w-0 flex-col gap-4" :class="report || actionError ? 'max-md:pb-36' : showBar ? 'max-md:pb-20' : ''">
+    <div class="flex items-center justify-between gap-3">
+      <BackButton :fallback="backTo" />
+      <RouterLink to="/review" :class="buttonVariants({ variant: 'outline', size: 'sm' })">
+        <Repeat class="size-4" aria-hidden="true" />
+        {{ $t('nav.review') }}
+      </RouterLink>
+    </div>
 
     <template v-if="loading">
       <Skeleton class="h-10 w-2/3" />
@@ -112,6 +153,7 @@ onMounted(async () => {
       <UnitDetail
         :state="state"
         :enrol="enrolResult"
+        :phrases="phrases"
         :topic-titles="topicTitles"
         :share="gateEntry?.share ?? 0"
         :unlock-share="unlockShare"
@@ -119,15 +161,21 @@ onMounted(async () => {
         :busy="busy"
         @enrol="enrol"
       />
-      <Note v-if="actionError" variant="error">{{ actionError }}</Note>
-      <EnrolReport v-if="enrolResult && enrolResult.unitCode === state.unit.code" :result="enrolResult" />
 
-      <!-- Always reachable: sticks above the tab bar on a phone. -->
+      <!--
+        Always reachable: sticks above the tab bar on a phone. The result of
+        the action lives HERE, directly above the button, so it is on screen
+        without scrolling; the live region exists before it has content.
+      -->
       <div
-        v-if="!closed"
-        class="fixed inset-x-0 bottom-[var(--bottom-tabs-h,0px)] z-20 border-t bg-background px-4 py-3 md:sticky md:inset-x-auto md:bottom-0 md:rounded-xl md:border md:shadow-raised"
+        role="status"
+        aria-live="polite"
+        class="fixed inset-x-0 bottom-[var(--bottom-tabs-h,0px)] z-20 flex flex-col gap-2 bg-background md:sticky md:inset-x-auto md:bottom-0 md:rounded-xl md:shadow-raised"
+        :class="(showBar || report || actionError) && 'border-t px-4 py-3 md:border'"
       >
-        <UnitAction :enrolled="state.enrolled" :busy="busy" @enrol="enrol" />
+        <Note v-if="actionError" variant="error">{{ actionError }}</Note>
+        <EnrolReport v-if="report" :result="report" @dismiss="enrolResult = null" />
+        <UnitAction v-if="showBar" :enrolled="state.enrolled" :busy="busy" :takeable="takeable" @enrol="enrol" />
       </div>
     </template>
   </div>

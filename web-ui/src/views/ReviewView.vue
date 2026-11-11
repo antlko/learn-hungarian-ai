@@ -2,6 +2,7 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
+  ArrowRight,
   CircleCheck,
   Clock,
   Eye,
@@ -1208,7 +1209,7 @@ const ratingKeys = [
           {{ $t('review.start.choose') }}
         </RouterLink>
         <RouterLink to="/" :class="buttonVariants({ variant: 'ghost' })">
-          {{ $t('common.backHome') }}
+          {{ $t('review.backToMaterial') }}
         </RouterLink>
         <!-- The pace is a setting, not a verdict. Saying "come back tomorrow"
              without showing where the dial is makes it look like one. -->
@@ -1716,6 +1717,17 @@ const ratingKeys = [
             />
           </div>
         </div>
+
+        <!-- Secondary, quiet, in the card and far from «Дальше»/«Знаю» (ADR-063). -->
+        <p v-if="store.phase === 'answer' && store.current.unit" class="mt-4 text-center">
+          <RouterLink
+            :to="{ name: 'unit', params: { code: store.current.unit } }"
+            class="inline-flex min-h-11 items-center gap-1 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            {{ $t('review.openUnit') }}
+            <ArrowRight class="size-3" aria-hidden="true" />
+          </RouterLink>
+        </p>
       </div>
 
       <!--

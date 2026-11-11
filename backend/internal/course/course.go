@@ -256,6 +256,12 @@ type UnitState struct {
 	// nothing. A unit is forty words; naming them is cheap and lets the word
 	// list show per-word state as fact rather than inference.
 	NotInPlay []string `json:"notInPlay"`
+	// NoExample names the NotInPlay words of an ENROLLED unit that the pack has
+	// no attested sentence to illustrate, so enrolment could not give them a
+	// card. Filled by the API layer (a dry run of the enrol lookup, per request,
+	// nothing stored); always a list. Words the learner set aside as «Знаю» are
+	// in play and never appear here (ADR-071, ADR-072).
+	NoExample []string `json:"noExample"`
 	// FromHere is the subset of WordsInPlay whose notes this unit created.
 	//
 	// WordsInPlay counts a lemma wherever it came from — and that is correct,
@@ -320,6 +326,7 @@ func (s *Syllabus) ResolveCounted(progress map[string]Progress, inPlay func(lemm
 			st.Enrolled = p.Enrolled
 		}
 		st.NotInPlay = []string{}
+		st.NoExample = []string{}
 		for _, w := range u.Words {
 			if inPlay(w.Lemma) {
 				st.WordsInPlay++

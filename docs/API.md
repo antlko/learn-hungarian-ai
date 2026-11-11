@@ -269,6 +269,16 @@ the review screen; the server serves the same list as ever, and every number in 
 the answer returned has elapsed — the client waits on the scheduler's own step, never asks
 early.
 
+**A queue item carries `unit`** (omitted when empty): the course unit code when the note's
+`source` is `course:<code>`, so the card can say where the word came from. Display-only; no
+effect on scheduling or scope.
+
+**`GET /api/course` — `noExample`.** Each `plan.units[]` entry has `noExample: string[]` (always a
+list): for an ENROLLED unit, the words not yet in the deck that a dry run of the enrolment lookup
+still cannot illustrate with an attested pack sentence. Derived per request, nothing stored; a word
+marked «Знаю» is in play and never listed. The enrol response (`created`=`notesMade`, `duplicate`,
+`skipped[]`) is unchanged.
+
 **A queue item also carries `sentenceRu` / `sentenceEn`.** These translate the WHOLE SENTENCE and
 are distinct from `glossRu` / `glossEn`, which gloss the target WORD. Confusing the two is what
 made the card unreadable — `Jó hírt hoztunk.` under «хороший; добрый», the entry for `jó`, with
@@ -487,6 +497,7 @@ endpoints serve it, then hand over.
 |---|---|---|---|
 | `GET` | `/api/course` | ✅ | the syllabus resolved against this learner's deck: `{plan, enrolled, totals, unlock}`. `plan.current` is the unit to take NEXT and follows enrolment ([ADR-048](../.claude/DECISIONS.md#adr-048)): the first unit enrolled and not done, else the first neither enrolled nor done; reader words can finish a unit but never move it. 503 when there is no pack, or when the pack carries no course. Each `units[].unit` has a `track` (`"core"` or `"theme"`; `"core"` for a pack built before the column existed) and a `tier` (`"basic"` | `"intermediate"` | `"advanced"`; `"basic"` for an older pack and for every theme unit; [ADR-057](../.claude/DECISIONS.md#adr-057)). `unit.month` (1-18) is an internal ordering/checkpoint field, not a learner-facing label. Each `units[]` also has `learned`: how many of the unit's words are *counted lemmas* (the `/api/stats/level` rule). `wordsInPlay` says a word is in the deck; `learned` says it has been learned. `totals` tallies the core words, in all and per tier: `{words, inDeck, learned, settled, perTier: {basic|intermediate|advanced: {words, inDeck, learned, settled}}}`; themes are excluded. Each `units[]` also has `settled` ([ADR-058](../.claude/DECISIONS.md#adr-058)): how many of the unit's words are *settled* — lemma `known`, or a non-suspended, non-trashed card at stage `mature` (interval >= 21 days). `unlock: {share: 0.7, settledDays: 21}` is the soft gate's rule so the client never hard-codes it: a unit after one with `settled < share * wordsTotal` is DRAWN closed. It is advice; no endpoint refuses enrolling or practising such a unit. Theme units are optional side branches ([ADR-050](../.claude/DECISIONS.md#adr-050)): they carry their own `status` (`done`/`ahead`) and `enrolled`, but never become `current`, and `total`/`completed`/`handedOver` count the 64 core units only (all three tiers; `handedOver` only after the last tier's last unit is done) |
 | `POST` | `/api/course/:code/enrol` | ✅ | takes a unit up: one sentence note per word, into the review deck. `{unitCode, notesMade, duplicate, skipped[]}`; a `skipped` entry has `known: true` when the word was left out because the lemma is «Знаю» (no note is created and a trashed one is not restored — [ADR-071](../.claude/DECISIONS.md#adr-071)). 404 unknown unit; 400 when every review direction is disabled |
+| `GET` | `/api/course/units/:code/phrases` | ✅ | `{phrases: [{id, hu, ru, en?}]}` — up to 4 attested pack sentences for the unit: `source <> 'authored'`, 1–6 tokens, with a human RU translation from `sentence_trans` (EN when present), each containing at least one unit word (corpus lemma id, or an attested spelling confirmed by the analyser). Ranked by distinct unit words hit, then shortest. Display-only, creates no note; `phrases` is `[]` when nothing qualifies. There is no per-sentence audio in the pack, so no `hasAudio`. 404 unknown unit ([ADR-072](../.claude/DECISIONS.md#adr-072)) |
 | `GET` | `/api/resources` | ✅ | `{resources: [{kind, title, url, level, blurbRu, blurbEn, free}]}` — the hand-off catalogue, read from the pack. 503 without a pack; a pack predating the table yields `{"resources": []}` rather than an error |
 
 ```json

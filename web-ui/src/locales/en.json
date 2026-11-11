@@ -226,6 +226,11 @@
     "enrolling": "Adding…",
     "enrolHint": "Each word becomes a card with a real sentence, not a bare word pair.",
     "report": {
+      "summaryMade": "Cards added: {n}",
+      "summaryNoExample": "no example: {n}",
+      "skippedWhyShort": "The language pack has no real sentence for these words, and we will not invent Hungarian. A fuller pack may have examples.",
+      "details": "Details",
+      "hideDetails": "Hide",
       "made": "Cards made: {n}",
       "duplicate": "Already in your deck, so not duplicated: {n}.",
       "skipped": "No card yet ({n}):",
@@ -244,7 +249,12 @@
       "next": "The machinery stays. The review deck, sentence collection, the grammar drills and the ear trainer all keep working exactly as before — what changes is where the material comes from.",
       "toResources": "Open the catalogue"
     },
-    "fromElsewhere": "{n} words are already in the deck — from reading or another unit"
+    "fromElsewhere": "{n} words are already in the deck — from reading or another unit",
+    "takeWords": "Add {n} word | Add {n} words",
+    "noExampleLine": "{n} word has no example yet | {n} words have no example yet",
+    "noExampleWhy": "The language pack has no real sentence with these words, and we will not invent Hungarian. They stay part of the unit; a fuller pack may have examples.",
+    "wordNote": "Note on this word",
+    "phrases": "Phrases from this unit"
   },
   "resources": {
     "title": "Where to go next",
@@ -684,6 +694,8 @@
     "toggle": "Switch language"
   },
   "review": {
+    "openUnit": "Open unit",
+    "backToMaterial": "Back to the material",
     "tutor": {
       "open": "Tutor",
       "hint": "Ask the AI tutor about this card — it does not affect the word's schedule",

@@ -180,8 +180,41 @@ func (s *Server) handleCourse(c fiber.Ctx) error {
 		func(lemma string) bool { return learned[lemma] },
 		func(lemma string) bool { return settled[lemma] },
 	)
+	if err := s.fillNoExample(&plan); err != nil {
+		return err
+	}
 	return c.JSON(CourseResponse{Plan: plan, Enrolled: progress, Totals: plan.Totals(),
 		Unlock: course.Unlock{Share: course.UnlockShare, SettledDays: srs.MatureDays}})
+}
+
+// fillNoExample names, for each enrolled unit, the words not in the deck that a
+// dry run of enrolment still cannot illustrate. Derived per request and never
+// stored: the pack is the only source of examples, so a pack update changes the
+// answer on the next load. Only enrolled units with something not in play are
+// examined, which keeps the screen's cost to the units the learner has started.
+func (s *Server) fillNoExample(plan *course.Plan) error {
+	for i := range plan.Units {
+		st := &plan.Units[i]
+		if !st.Enrolled || len(st.NotInPlay) == 0 {
+			continue
+		}
+		missing := map[string]bool{}
+		for _, l := range st.NotInPlay {
+			missing[l] = true
+		}
+		for _, w := range st.Unit.Words {
+			if !missing[w.Lemma] {
+				continue
+			}
+			missing[w.Lemma] = false // a lemma listed twice is reported once
+			if _, ok, err := s.noteForWord(w); err != nil {
+				return err
+			} else if !ok {
+				st.NoExample = append(st.NoExample, w.Lemma)
+			}
+		}
+	}
+	return nil
 }
 
 // fromUnitSet reports which (unit, lemma) pairs this learner has a note for
@@ -470,7 +503,7 @@ func (s *Server) noteForWord(w course.Word) (srs.Note, bool, error) {
 // noteFromSentences builds a note from the shortest attested sentence that
 // contains this exact lemma.
 //
-// Two searches, because ONE OF THEM IS NOT ENOUGH and the failure was silent.
+// Passes, because ONE OF THEM IS NOT ENOUGH and the failure was silent.
 //
 // The corpus links each token to a lemma id chosen by the tagger that built the
 // pack. The course names its words with the DICTIONARY's lemma. Those two
@@ -486,32 +519,65 @@ func (s *Server) noteForWord(w course.Word) (srs.Note, bool, error) {
 //     lemma row for the participle.
 //
 // So the second pass searches by SURFACE FORM instead, over the forms the pack
-// attests for this lemma. Both passes then go through the same verification:
-// the runtime analyser has to agree that the token in the sentence really reads
-// as this lemma. Nothing is loosened — a sentence still has to be attested and
-// the token still has to be the word being taught — only the way candidates are
-// found is widened.
+// attests for this lemma. Both passes go through the same verification: the
+// token in the sentence has to be the word being taught — by the analyser's
+// lemma id, or, when the analyser files the token under another lemma, by the
+// token being spelled exactly like the course headword (then the note carries a
+// span and NO features: a cloze needs a span, not features, and another
+// lemma's features must not be graded). A lemma-id reading is always preferred.
+//
+// The third pass is the last resort: len_tokens >= 1. Greetings and
+// interjections (`Sziasztok!`) live in one- and two-word sentences, and the
+// three-token floor of the first two passes made them unillustratable. It runs
+// only when nothing longer was usable. Still attested pack sentences only —
+// source <> 'authored' — never anything written for the occasion (ADR-072).
 func (s *Server) noteFromSentences(lemmaID int64, w course.Word) (srs.Note, bool, error) {
 	seen := map[int64]bool{}
+	var fallback *srs.Note
 
-	for _, find := range []func(int64) (*sql.Rows, error){
-		s.sentencesByLemmaID,
-		s.sentencesBySurfaceForm,
-	} {
-		rows, err := find(lemmaID)
+	type pass struct {
+		find      func(int64, int) (*sql.Rows, error)
+		minTokens int
+	}
+	passes := []pass{
+		{s.sentencesByLemmaID, minCourseTokens},
+		{s.sentencesBySurfaceForm, minCourseTokens},
+		{s.sentencesByLemmaID, 1},
+		{s.sentencesBySurfaceForm, 1},
+	}
+	for i, p := range passes {
+		// The last-resort passes run only when nothing longer was usable —
+		// including a span-only fallback from the first two.
+		if i == 2 && fallback != nil {
+			break
+		}
+		rows, err := p.find(lemmaID, p.minTokens)
 		if err != nil {
 			return srs.Note{}, false, err
 		}
-		note, ok, err := s.firstUsableSentence(rows, lemmaID, w, seen)
+		note, ok, err := s.firstUsableSentence(rows, lemmaID, w, seen, &fallback)
 		if err != nil {
 			return srs.Note{}, false, err
 		}
 		if ok {
 			return note, true, nil
 		}
+		// A lemma-id reading anywhere in the two normal passes beats a span-only
+		// fallback, so the fallback is only taken once both have been tried.
+		if i == 1 && fallback != nil {
+			return *fallback, true, nil
+		}
+	}
+	if fallback != nil {
+		return *fallback, true, nil
 	}
 	return srs.Note{}, false, nil
 }
+
+// minCourseTokens is the usual floor on a course example's length: a one- or
+// two-word sentence is a poor first encounter with most words. Greetings are the
+// exception, which is what the len_tokens >= 1 last-resort pass is for.
+const minCourseTokens = 3
 
 // sentencesByLemmaID: the corpus's own link. Indexed, exact, and preferred.
 //
@@ -519,12 +585,12 @@ func (s *Server) noteFromSentences(lemmaID int64, w course.Word) (srs.Note, bool
 // encounter than a short one, and no sentence at all is worse than both — the
 // word would be skipped and the unit would quietly teach less than it says. The
 // reader's n+1 scoring handles difficulty properly later.
-func (s *Server) sentencesByLemmaID(lemmaID int64) (*sql.Rows, error) {
+func (s *Server) sentencesByLemmaID(lemmaID int64, minTokens int) (*sql.Rows, error) {
 	return s.pack.DB().Query(`
 		SELECT s.id, s.hu FROM sentence s
 		  JOIN sentence_token t ON t.sentence_id = s.id
-		 WHERE t.lemma_id = ? AND s.len_tokens >= 3 AND s.source <> 'authored'
-		 ORDER BY s.len_tokens LIMIT 12`, lemmaID)
+		 WHERE t.lemma_id = ? AND s.len_tokens >= ? AND s.source <> 'authored'
+		 ORDER BY s.len_tokens LIMIT 12`, lemmaID, minTokens)
 }
 
 // maxFormsSearched bounds the IN clause of the surface search. The forms come
@@ -538,7 +604,7 @@ const maxFormsSearched = 24
 // `sentence_token.form` is BINARY-collated like every other index in the pack,
 // so the casings are enumerated rather than folded — `COLLATE NOCASE` here would
 // scan all 331k rows. See internal/morph/casefold.go.
-func (s *Server) sentencesBySurfaceForm(lemmaID int64) (*sql.Rows, error) {
+func (s *Server) sentencesBySurfaceForm(lemmaID int64, minTokens int) (*sql.Rows, error) {
 	forms, err := s.analyzer.FormsOf(lemmaID)
 	if err != nil {
 		return nil, err
@@ -566,18 +632,25 @@ func (s *Server) sentencesBySurfaceForm(lemmaID int64) (*sql.Rows, error) {
 		return nil, nil
 	}
 	marks, args := morph.Placeholders(variants)
+	args = append(args, minTokens)
 	return s.pack.DB().Query(`
 		SELECT s.id, s.hu FROM sentence s
 		  JOIN sentence_token t ON t.sentence_id = s.id
-		 WHERE t.form IN (`+marks+`) AND s.len_tokens >= 3 AND s.source <> 'authored'
+		 WHERE t.form IN (`+marks+`) AND s.len_tokens >= ? AND s.source <> 'authored'
 		 ORDER BY s.len_tokens LIMIT 12`, args...)
 }
 
 // firstUsableSentence returns a note from the first candidate whose tokens the
-// analyser confirms as this lemma. `seen` carries across the two passes so a
-// sentence found by both is only examined once.
+// analyser confirms as this lemma. `seen` carries across the passes so a
+// sentence found by two is only examined once.
+//
+// When no reading of a token maps to the course lemma id, a token spelled like
+// the course headword (case-folded) still locates the word: that note is
+// recorded in `fallback` (first one wins) with a span and EMPTY features, since
+// the analyser's features belong to another lemma and must not be graded. The
+// caller takes it only if no lemma-id reading turns up.
 func (s *Server) firstUsableSentence(
-	rows *sql.Rows, lemmaID int64, w course.Word, seen map[int64]bool,
+	rows *sql.Rows, lemmaID int64, w course.Word, seen map[int64]bool, fallback **srs.Note,
 ) (srs.Note, bool, error) {
 	if rows == nil {
 		return srs.Note{}, false, nil
@@ -619,6 +692,18 @@ func (s *Server) firstUsableSentence(
 					LemmaID: &id, SentenceID: &sid,
 					Notes: w.Note,
 				}, true, nil
+			}
+			if *fallback == nil && strings.EqualFold(tok.Text, w.Lemma) {
+				id := lemmaID
+				sid := sentenceID
+				*fallback = &srs.Note{
+					Kind: "sentence", HU: hu,
+					TargetForm: tok.Text, TargetStart: tok.Start, TargetEnd: tok.End,
+					TargetFeats: []string{},
+					GlossRU:     w.GlossRU, GlossEN: w.GlossEN,
+					LemmaID: &id, SentenceID: &sid,
+					Notes: w.Note,
+				}
 			}
 		}
 	}

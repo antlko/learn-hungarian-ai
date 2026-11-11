@@ -470,6 +470,7 @@ func (s *Server) buildApp() *fiber.App {
 	// The guided course and the hand-off catalogue.
 	api.Get("/course", s.requireAuth, s.handleCourse)
 	api.Post("/course/:code/enrol", s.requireAuth, s.handleEnrolUnit)
+	api.Get("/course/units/:code/phrases", s.requireAuth, s.handleUnitPhrases)
 	api.Get("/resources", s.requireAuth, s.handleResources)
 
 	// Ear trainer.

@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { CircleCheck } from '@lucide/vue'
-import { Card, CardContent } from '@/components/ui/card'
-import Note from '@/components/common/Note.vue'
+import { computed, ref, useId } from 'vue'
+import { ChevronDown, CircleCheck, X } from '@lucide/vue'
 import SpeakButton from '@/components/common/SpeakButton.vue'
 import { pickGloss } from '@/lib/gloss'
 import { useUiStore } from '@/stores/ui'
@@ -11,20 +9,22 @@ import type { EnrolResult } from '@/types'
 /**
  * What taking a unit into work actually produced — including what it did not.
  *
- * The `skipped` list is spelled out word by word instead of being rounded into
- * "28 of 30 added". A card in this app is a sentence, so a word the pack has no
- * attested sentence for gets no card at all; hiding that would leave the learner
- * believing they are being taught vocabulary that is not in the deck. Same rule
- * as everywhere else — see the honesty rules in CLAUDE.md.
+ * Compact: ONE summary line («Добавлено карточек: 12 · без примера: 3») sits
+ * above the unit's action bar so it is on screen the moment the button was
+ * pressed; the words behind it are a collapsible list.
  *
- * **Each one carries its translation.** The list used to be bare Hungarian —
- * `sziasztok, bemutatkozik, nagyon` — which names a word to the learner and
- * then declines to say what it means. Refusing to invent an example sentence is
- * a principle; withholding a gloss that is sitting in the pack beside the word
- * is just an omission.
+ * The `skipped` list is still spelled out word by word instead of being rounded
+ * into "28 of 30 added". A card in this app is a sentence, so a word the pack has
+ * no attested sentence for gets no card at all; hiding that would leave the
+ * learner believing they are being taught vocabulary that is not in the deck.
+ * Each word carries its translation: refusing to invent an example sentence is
+ * a principle; withholding a gloss that is sitting beside the word is an omission.
  */
 const props = defineProps<{ result: EnrolResult }>()
+const emit = defineEmits<{ dismiss: [] }>()
 const ui = useUiStore()
+const open = ref(false)
+const id = useId()
 
 const rows = computed(() =>
   props.result.skipped.map((w) => ({
@@ -36,6 +36,7 @@ const rows = computed(() =>
 /** No example in the pack (the refusal to invent) vs. the learner already knows it (ADR-071). */
 const skipped = computed(() => rows.value.filter((w) => !w.known))
 const knownSkipped = computed(() => rows.value.filter((w) => w.known))
+const hasDetails = computed(() => rows.value.length > 0 || props.result.duplicate > 0)
 
 /** Re-taking a finished unit adds nothing; "0 cards made" is a worse way to say so. */
 const nothingToDo = computed(
@@ -44,28 +45,46 @@ const nothingToDo = computed(
 </script>
 
 <template>
-  <Card class="animate-card-in border-known/50 bg-known/5">
-    <CardContent class="flex flex-col gap-3 p-5 text-sm">
-      <p class="flex items-center gap-2 font-medium">
-        <CircleCheck class="size-4 text-known" aria-hidden="true" />
-        {{ nothingToDo ? $t('plan.report.none') : $t('plan.report.made', { n: result.notesMade }) }}
+  <div class="animate-card-in rounded-lg border border-known/50 bg-known/5 text-sm">
+    <div class="flex items-center gap-2 py-1 pr-1 pl-3">
+      <CircleCheck class="size-4 shrink-0 text-known" aria-hidden="true" />
+      <p class="min-w-0 flex-1 font-medium">
+        <template v-if="nothingToDo">{{ $t('plan.report.none') }}</template>
+        <template v-else>
+          {{ $t('plan.report.summaryMade', { n: result.notesMade }) }}
+          <template v-if="skipped.length"> · {{ $t('plan.report.summaryNoExample', { n: skipped.length }) }}</template>
+        </template>
       </p>
+      <button
+        v-if="hasDetails"
+        type="button"
+        class="inline-flex min-h-11 cursor-pointer items-center gap-1 rounded-md px-2 text-xs text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+        :aria-expanded="open"
+        :aria-controls="id"
+        @click="open = !open"
+      >
+        {{ open ? $t('plan.report.hideDetails') : $t('plan.report.details') }}
+        <ChevronDown class="size-3.5 transition-transform" :class="open && 'rotate-180'" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        class="inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+        :aria-label="$t('common.dismiss')"
+        @click="emit('dismiss')"
+      >
+        <X class="size-4" aria-hidden="true" />
+      </button>
+    </div>
 
+    <div v-if="open" :id="id" class="flex max-h-[40dvh] flex-col gap-3 overflow-y-auto border-t border-known/30 px-3 py-3">
       <p v-if="result.duplicate > 0 && !nothingToDo" class="text-muted-foreground">
         {{ $t('plan.report.duplicate', { n: result.duplicate }) }}
       </p>
 
-      <!--
-        The words that got no card. This is a refusal to invent Hungarian, which
-        is a feature of the app and reads as one — the same calm panel used
-        everywhere else the app declines to guess.
-      -->
-      <Note
-        v-if="skipped.length"
-        variant="limit"
-        :title="$t('plan.report.skipped', { n: skipped.length })"
-      >
-        <ul class="flex flex-col gap-0.5">
+      <!-- The refusal to invent Hungarian is a feature of the app and reads as one. -->
+      <div v-if="skipped.length">
+        <p class="font-medium">{{ $t('plan.report.skipped', { n: skipped.length }) }}</p>
+        <ul class="mt-1 flex flex-col gap-0.5">
           <li v-for="w in skipped" :key="w.lemma" class="flex flex-wrap items-baseline gap-x-2">
             <span class="font-medium text-foreground" lang="hu">{{ w.lemma }}</span>
             <span class="text-xs text-muted-foreground">{{ w.gloss.text }}</span>
@@ -75,8 +94,8 @@ const nothingToDo = computed(
             <SpeakButton :text="w.lemma" class="-my-1.5" />
           </li>
         </ul>
-        <p class="mt-1.5 text-xs leading-relaxed">{{ $t('plan.report.skippedWhy') }}</p>
-      </Note>
+        <p class="mt-1.5 text-xs leading-relaxed text-muted-foreground">{{ $t('plan.report.skippedWhyShort') }}</p>
+      </div>
 
       <!-- Words the learner marked «Знаю» are not a failure of the pack: they were left out on purpose. -->
       <div v-if="knownSkipped.length" class="text-muted-foreground">
@@ -88,6 +107,6 @@ const nothingToDo = computed(
           </li>
         </ul>
       </div>
-    </CardContent>
-  </Card>
+    </div>
+  </div>
 </template>

@@ -79,8 +79,9 @@ func TestCourseSentenceSearchesNeverReturnAuthoredLines(t *testing.T) {
 	}
 
 	for name, find := range map[string]func(int64) (*sql.Rows, error){
-		"by lemma id":     s.sentencesByLemmaID,
-		"by surface form": s.sentencesBySurfaceForm,
+		// minTokens 1: the widest net (the last-resort pass) must still be authored-free.
+		"by lemma id":     func(id int64) (*sql.Rows, error) { return s.sentencesByLemmaID(id, 1) },
+		"by surface form": func(id int64) (*sql.Rows, error) { return s.sentencesBySurfaceForm(id, 1) },
 		"example by id":   s.exampleRowsByLemmaID,
 		"example by form": s.exampleRowsBySurfaceForm,
 	} {
@@ -105,7 +106,7 @@ func TestCourseSentenceSearchesNeverReturnAuthoredLines(t *testing.T) {
 	}
 
 	// The lemma-id searches do find the real sentences (so they are exercised).
-	rows, err := s.sentencesByLemmaID(1)
+	rows, err := s.sentencesByLemmaID(1, minCourseTokens)
 	if err != nil {
 		t.Fatal(err)
 	}

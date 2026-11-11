@@ -15,6 +15,18 @@ export const i18n = createI18n({
   locale: 'ru' as AppLocale,
   fallbackLocale: 'en' as AppLocale,
   messages: {},
+  // Russian has three forms: «1 слово | 2 слова | 5 слов» (one | few | many).
+  pluralRules: {
+    ru: (choice: number, choicesLength: number) => {
+      if (choicesLength !== 3) return choice === 1 ? 0 : 1
+      const n = Math.abs(choice)
+      const m10 = n % 10
+      const m100 = n % 100
+      if (m10 === 1 && m100 !== 11) return 0
+      if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 1
+      return 2
+    },
+  },
   missingWarn: import.meta.env.DEV,
   fallbackWarn: import.meta.env.DEV,
 })

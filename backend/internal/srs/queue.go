@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"hash/fnv"
 	"sort"
+	"strings"
 	"time"
 
 	"tanulom/internal/db"
@@ -30,6 +31,10 @@ type QueueItem struct {
 	Memory     *Memory `json:"memory,omitempty"`
 	HU         string  `json:"hu"`
 	TargetForm string  `json:"targetForm"`
+	// Unit is the course unit code when the note came from enrolling a unit
+	// (note.source = 'course:<code>'), empty otherwise. Display-only: it lets the
+	// card say where the word was met and has no effect on scheduling.
+	Unit string `json:"unit,omitempty"`
 	// TargetStart/TargetEnd are BYTE offsets into HU and never cross the wire.
 	// A JavaScript client indexes strings in UTF-16 code units, so slicing HU
 	// with them put the blank in the middle of a word on every sentence
@@ -396,7 +401,7 @@ func (s *Store) selectQueue(userID int64, scope Scope, where string, args ...any
 		       n.hu, n.target_form, n.target_start, n.target_end, n.target_feats,
 		       n.gloss_ru, n.gloss_en, n.lemma_id, n.sentence_id,
 		       c.stability, c.difficulty, c.scheduled_days, c.reps, c.lapses,
-		       c.last_review, c.remaining_steps
+		       c.last_review, c.remaining_steps, n.source
 		  FROM card c JOIN note n ON n.id = c.note_id
 		 WHERE n.user_id = ? AND c.suspended = 0 ` + scope.filter() + where
 
@@ -410,13 +415,18 @@ func (s *Store) selectQueue(userID int64, scope Scope, where string, args ...any
 	for rows.Next() {
 		var it QueueItem
 		var due, feats string
+		var source sql.NullString
 		var last sql.NullString
 		if err := rows.Scan(&it.CardID, &it.NoteID, &it.Direction, &it.State, &due,
 			&it.HU, &it.TargetForm, &it.TargetStart, &it.TargetEnd, &feats,
 			&it.GlossRU, &it.GlossEN, &it.LemmaID, &it.SentenceID,
 			&it.fsrs.Stability, &it.fsrs.Difficulty, &it.fsrs.ScheduledDays,
-			&it.fsrs.Reps, &it.fsrs.Lapses, &last, &it.fsrs.RemainingSteps); err != nil {
+			&it.fsrs.Reps, &it.fsrs.Lapses, &last, &it.fsrs.RemainingSteps, &source); err != nil {
 			return nil, fmt.Errorf("scan queue item: %w", err)
+		}
+		it.Unit = strings.TrimPrefix(source.String, "course:")
+		if !strings.HasPrefix(source.String, "course:") {
+			it.Unit = ""
 		}
 		it.IsNew = it.State == 0
 		it.Due = db.ParseTime(sql.NullString{String: due, Valid: true})

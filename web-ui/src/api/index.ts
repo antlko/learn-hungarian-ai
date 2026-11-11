@@ -19,6 +19,7 @@ import type {
   UndoResult,
   CourseResponse,
   EnrolResult,
+  UnitPhrase,
   Resource,
   CurriculumResponse,
   DrillAnswerRequest,
@@ -262,6 +263,10 @@ export const api = {
 
   // ── the guided course ─────────────────────────────────────────────────
   course: () => http.get<CourseResponse>('/api/course'),
+
+  /** Up to four attested pack sentences that show the unit's words in use. */
+  unitPhrases: (code: string) =>
+    http.get<{ phrases: UnitPhrase[] }>(`/api/course/units/${encodeURIComponent(code)}/phrases`),
 
   enrolUnit: (code: string) =>
     http.post<EnrolResult>(`/api/course/${encodeURIComponent(code)}/enrol`),

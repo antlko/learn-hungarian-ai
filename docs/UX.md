@@ -347,8 +347,20 @@ A node navigates to the unit's **page**, `/unit/:code` (`UnitView`, narrow colum
 a status chip only when informative, a **soft notice** when the unit is closed (cream tint, ink
 text: «Сначала закрепите «<предыдущий>»: N% из 70%» with a secondary «Открыть всё равно» that
 enrols exactly like the primary action — the sticky bar is replaced by it while closed), grammar
-chips, the words as a plain list, and the **sticky bottom bar** with the unit's one action
-(`bottom: var(--bottom-tabs-h)` above the phone tabs). `/?unit=<code>` redirects to the page; a
+chips, an optional **«Фразы из раздела»** block (≤4 real pack sentences with the gloss in the
+learner's language and a speak button; display only, hidden when empty or when the fetch fails),
+the words as a compact list (one line per word: deck-state icon, headword, «–», gloss truncated;
+a word's note hides behind a «?» InfoTip; two columns from `sm`), and the **sticky bottom
+dock** (`bottom: var(--bottom-tabs-h)` above the phone tabs).
+
+The dock is a `role="status" aria-live="polite"` container holding, top to bottom: an error
+(`describeError`), the **enrol result** and the action bar. The result is ONE line («Добавлено
+карточек: N · без примера: M») with «Подробнее» (the no-example words, each with its gloss and a
+short honest reason; the «Знаю» words left out) and a dismiss ×; it is visible on arrival at 390
+and 1280 px with no scrolling, no toast and no scroll-into-view. The action reads «Взять раздел»
+before enrolment, «Добавить N слов» while enrolled words can still be added (not in the deck,
+minus `noExample`), and the bar is **hidden** otherwise. Words the pack has no sentence for
+(`noExample`) get a quiet line over the list, «N слов пока без примера», with an InfoTip. `/?unit=<code>` redirects to the page; a
 unit becoming fully learned still raises the celebration. On load the page does not scroll,
 except once: if the current node is below the first screenful, `<main>` is scrolled (instant) to
 centre it. Performance: plain node elements, rings only on started units, `content-visibility:
@@ -514,6 +526,10 @@ would either hide that backlog or invent one. The daily new-card budget is share
 and the copy says so: switching piles buys no extra new material. The card names its pile in the
 progress row, and the done screen says what the other piles hold and links back to the start
 screen, so emptying one pile does not need a reload to discover the other.
+The done screen and the start screen's empty state also carry «К материалу» (the course road on
+Today). On the answered card's back, a card made from a course note shows a quiet «К разделу»
+link (`item.unit` → `/unit/:code`) at the foot of the card, away from «Дальше» and «Знаю»;
+leaving mid-sitting is safe (answers are already saved).
 [ADR-016](../.claude/DECISIONS.md#adr-016), [ADR-028](../.claude/DECISIONS.md#adr-028).
 
 **A cloze over the learner's own sentence says what the sentence means.** A word added from the

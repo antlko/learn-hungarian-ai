@@ -280,6 +280,9 @@ const chipOff = 'hover:bg-accent hover:text-foreground'
               <RouterLink to="/library" :class="buttonVariants({ variant: 'outline', size: 'sm' })">
                 {{ $t('review.start.goRead') }}
               </RouterLink>
+              <RouterLink to="/" :class="buttonVariants({ variant: 'outline', size: 'sm' })">
+                {{ $t('review.backToMaterial') }}
+              </RouterLink>
             </div>
           </div>
 

@@ -11,7 +11,8 @@ import Note from '@/components/common/Note.vue'
 import { cn } from '@/lib/utils'
 import { pickGloss } from '@/lib/gloss'
 import { useUiStore } from '@/stores/ui'
-import type { CourseWord, EnrolResult, UnitState } from '@/types'
+import SpeakButton from '@/components/common/SpeakButton.vue'
+import type { CourseWord, EnrolResult, UnitPhrase, UnitState } from '@/types'
 
 /**
  * One unit, at full size — normally the one to work on now.
@@ -27,6 +28,8 @@ import type { CourseWord, EnrolResult, UnitState } from '@/types'
  */
 const props = defineProps<{
   state: UnitState
+  /** Real pack sentences that show the unit's words in use (optional, may be empty). */
+  phrases?: UnitPhrase[]
   enrol: EnrolResult | null
   topicTitles: Record<string, string>
   /** Settled share of this unit, 0–1. */
@@ -78,11 +81,17 @@ type DeckState = 'in' | 'out' | 'noMaterial'
 const report = computed(() => (props.enrol?.unitCode === unit.value.code ? props.enrol : null))
 
 const notInPlay = computed(() => new Set(props.state.notInPlay))
+const noExample = computed(() => new Set(props.state.noExample ?? []))
+const noExampleCount = computed(() => noExample.value.size)
+const phraseRows = computed(() =>
+  (props.phrases ?? []).map((p) => ({ id: p.id, hu: p.hu, gloss: pickGloss(p.ru, p.en, ui.locale) })),
+)
 
 function deckState(w: CourseWord): DeckState {
   // A word the pack cannot attest a sentence for is not merely absent — it will
   // stay absent however many times the learner enrols, and saying "not yet" of
   // it would be a promise the pack cannot keep.
+  if (noExample.value.has(w.lemma)) return 'noMaterial'
   if (report.value?.skipped.some((sk) => sk.lemma === w.lemma && !sk.known)) return 'noMaterial'
   return notInPlay.value.has(w.lemma) ? 'out' : 'in'
 }
@@ -178,11 +187,29 @@ const gloss = (w: CourseWord) => pickGloss(w.glossRu, w.glossEn, ui.locale)
       </div>
     </section>
 
+    <!-- Real sentences from the pack, for context only: nothing here is a card. -->
+    <section v-if="phraseRows.length" class="flex flex-col gap-2">
+      <h2 class="text-xs font-semibold tracking-widest text-muted-foreground">
+        {{ $t('plan.phrases') }}
+      </h2>
+      <ul class="flex flex-col divide-y divide-border-subtle rounded-xl border">
+        <li v-for="p in phraseRows" :key="p.id" class="flex items-center gap-2 px-3 py-2">
+          <span class="flex min-w-0 flex-1 flex-col">
+            <span class="font-medium" lang="hu">{{ p.hu }}</span>
+            <span class="text-sm text-muted-foreground">
+              {{ p.gloss.text }}
+              <span v-if="p.gloss.isFallback" class="ml-1 text-xs text-uncertain">{{ $t('review.glossFallback') }}</span>
+            </span>
+          </span>
+          <SpeakButton :text="p.hu" class="shrink-0" />
+        </li>
+      </ul>
+    </section>
+
     <section class="flex flex-col gap-2">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <h2 class="flex items-center text-xs font-semibold tracking-widest text-muted-foreground uppercase">
           {{ $t('plan.words') }}
-          <InfoTip v-if="report?.skipped.length">{{ $t('plan.word.noMaterialNotice') }}</InfoTip>
         </h2>
         <span class="font-mono text-xs tabular-nums text-muted-foreground">
           {{
@@ -195,30 +222,38 @@ const gloss = (w: CourseWord) => pickGloss(w.glossRu, w.glossEn, ui.locale)
         </span>
       </div>
 
-      <!-- Plain page flow, no inner scroll: a compact two-line row per word. -->
-      <ul class="flex flex-col divide-y divide-border-subtle rounded-xl border">
-        <li v-for="w in unit.words" :key="w.lemma" class="flex items-start gap-3 px-3 py-2">
+      <!-- Honest and quiet: these words stay in the unit; the pack just has no real sentence for them yet. -->
+      <p v-if="noExampleCount > 0" class="flex items-center text-xs text-muted-foreground">
+        {{ $t('plan.noExampleLine', { n: noExampleCount }, noExampleCount) }}
+        <InfoTip>{{ $t('plan.noExampleWhy') }}</InfoTip>
+      </p>
+
+      <!-- Plain page flow, no inner scroll: one line per word, two columns from sm. -->
+      <div class="overflow-hidden rounded-xl border">
+      <ul class="-mb-px grid grid-cols-1 sm:grid-cols-2">
+        <li
+          v-for="w in unit.words"
+          :key="w.lemma"
+          class="flex items-center gap-2 border-b border-border-subtle px-3 py-1.5 sm:odd:border-r"
+        >
           <component
             :is="icons[deckState(w)]"
-            class="mt-1 size-4 shrink-0"
+            class="size-4 shrink-0"
             :class="tones[deckState(w)]"
             role="img"
             :aria-label="$t(`plan.word.${deckState(w)}`)"
           />
-          <span class="flex min-w-0 flex-col">
+          <span class="min-w-0 flex-1 truncate text-sm">
             <span class="font-semibold" lang="hu">{{ w.lemma }}</span>
-            <span class="text-sm text-muted-foreground">
-              {{ gloss(w).text }}
-              <span v-if="gloss(w).isFallback" class="ml-1 text-xs text-uncertain">
-                {{ $t('review.glossFallback') }}
-              </span>
-            </span>
-            <span v-if="w.note" class="text-xs leading-relaxed text-muted-foreground">
-              {{ w.note }}
+            <span class="text-muted-foreground">
+              – {{ gloss(w).text }}
+              <span v-if="gloss(w).isFallback" class="ml-1 text-xs text-uncertain">{{ $t('review.glossFallback') }}</span>
             </span>
           </span>
+          <InfoTip v-if="w.note" :label="$t('plan.wordNote')">{{ w.note }}</InfoTip>
         </li>
       </ul>
+      </div>
     </section>
   </div>
 </template>
