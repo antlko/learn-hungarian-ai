@@ -52,6 +52,9 @@ type WordRow struct {
 	Reps         int `json:"reps"`
 	StepsLeft    int `json:"stepsLeft"`
 	StepsTotal   int `json:"stepsTotal"`
+	// Progress is the strongest card's 0-100 progress number (ADR-070, [R20]);
+	// a learning word with no reviewed card is 0. Absent for a «Знаю» word.
+	Progress *int `json:"progress,omitempty"`
 }
 
 // wordStages are the values of WordRow.Stage, and of the ?stage= filter.
@@ -85,9 +88,9 @@ func (s *Server) handleWords(c fiber.Ctx) error {
 	}
 	sortBy := c.Query("sort", "added")
 	switch sortBy {
-	case "added", "word", "due", "retrievability":
+	case "added", "word", "due", "retrievability", "progress":
 	default:
-		return badRequest("sort must be added, word, due or retrievability")
+		return badRequest("sort must be added, word, due, retrievability or progress")
 	}
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 	page = max(1, page)
@@ -170,6 +173,13 @@ func (s *Server) handleWords(c fiber.Ctx) error {
 	for id, w := range byID {
 		m, ok := best[id]
 		w.Stage = wordStage(w.Status, m, ok)
+		if w.Stage != "" && w.Stage != "known" {
+			p := 0
+			if ok {
+				p = m.Progress
+			}
+			w.Progress = &p
+		}
 		if ok {
 			w.IntervalDays, w.Reps = int(m.IntervalDays), int(m.Reps)
 			w.StepsLeft, w.StepsTotal = m.StepsLeft, m.StepsTotal
@@ -272,6 +282,14 @@ func (s *Server) handleWords(c fiber.Ctx) error {
 		case "retrievability":
 			if a.Retrievability != b.Retrievability {
 				return a.Retrievability < b.Retrievability
+			}
+		case "progress":
+			// Lowest first, like retrievability; a word without one (known) last.
+			if (a.Progress == nil) != (b.Progress == nil) {
+				return a.Progress != nil
+			}
+			if a.Progress != nil && *a.Progress != *b.Progress {
+				return *a.Progress < *b.Progress
 			}
 		default: // added: newest first
 			if a.FirstSeen != b.FirstSeen {

@@ -3,11 +3,15 @@ package api
 import (
 	"net/http"
 	"testing"
+	"time"
 
+	"tanulom/internal/db"
 	"tanulom/internal/srs"
 )
 
-// Free practice is retrieval WITHOUT scheduling. These pin the "without".
+// A practice answer is a real review (ADR-064) EXCEPT on new cards and on words
+// in «Знаю», which stay practice_log-only. The older tests below use fresh
+// decks, so they pin that exception; the counted path is tested after them.
 
 // Answers come from the item's `Expected`, never from TargetForm: `produce`
 // grades the DICTIONARY form, so typing the surface form is wrong for it, and a
@@ -322,7 +326,8 @@ func TestWeakModeServesLowestRetrievabilityFirstAndFallsBackOnAVirginDeck(t *tes
 		t.Errorf("weak mode did not lead with the decayed card; got %d items", len(p.Items))
 	}
 
-	// Still ADR-019: a weak-mode answer schedules nothing.
+	// ADR-064: a weak-mode answer on a reviewed card is a real review, so the
+	// decayed card (due in 2020) gets a new due date.
 	var before, after string
 	if err := c.app.db.QueryRow(`SELECT due FROM card WHERE id = ?`, first.CardID).Scan(&before); err != nil {
 		t.Fatal(err)
@@ -332,7 +337,199 @@ func TestWeakModeServesLowestRetrievabilityFirstAndFallsBackOnAVirginDeck(t *tes
 	if err := c.app.db.QueryRow(`SELECT due FROM card WHERE id = ?`, first.CardID).Scan(&after); err != nil {
 		t.Fatal(err)
 	}
-	if before != after {
-		t.Error("a weak-mode practice answer moved a due date — ADR-019 broken")
+	if before == after {
+		t.Error("a weak-mode practice answer on a reviewed card left its due date alone (ADR-064)")
+	}
+}
+
+// --- Practice answers are reviews (ADR-064) ---
+
+func practiceCard(t *testing.T, c *client, noteID int64, d srs.Direction) int64 {
+	t.Helper()
+	var id int64
+	if err := c.app.db.QueryRow(`SELECT id FROM card WHERE note_id = ? AND direction = ?`,
+		noteID, string(d)).Scan(&id); err != nil {
+		t.Fatalf("find %s card: %v", d, err)
+	}
+	return id
+}
+
+func countRows(t *testing.T, c *client, table string) int {
+	t.Helper()
+	var n int
+	if err := c.app.db.QueryRow(`SELECT COUNT(*) FROM ` + table).Scan(&n); err != nil {
+		t.Fatal(err)
+	}
+	return n
+}
+
+// reviewedProduceCard makes a note and gives its produce card one real review,
+// so it is no longer new.
+func reviewedProduceCard(t *testing.T, c *client) (noteID, cardID int64) {
+	t.Helper()
+	created := noteOn(t, c, map[string]any{
+		"hu": "A házban van a könyv.", "targetForm": "házban",
+		"glossRu": "дом", "glossEn": "house",
+	})
+	cardID = practiceCard(t, c, created.NoteID, srs.Produce)
+	if resp := c.json(http.MethodPost, "/api/review/answer",
+		AnswerRequest{CardID: cardID, Typed: "ház"}, nil); resp.StatusCode != http.StatusOK {
+		t.Fatalf("review answer: %d", resp.StatusCode)
+	}
+	// Stored instants have millisecond resolution; keep two answers apart.
+	time.Sleep(5 * time.Millisecond)
+	return created.NoteID, cardID
+}
+
+func TestPracticeAnswerOnAReviewedCardIsAReview(t *testing.T) {
+	t.Parallel()
+	_, c := newPackedServer(t)
+	_, cardID := reviewedProduceCard(t, c)
+	logBefore := countRows(t, c, "review_log")
+	before := cardRow(t, c, cardID)
+
+	var out PracticeAnswerResponse
+	if resp := c.json(http.MethodPost, "/api/practice/answer",
+		AnswerRequest{CardID: cardID, Typed: "ház"}, &out); resp.StatusCode != http.StatusOK {
+		t.Fatalf("practice answer: %d", resp.StatusCode)
+	}
+	if !out.Counted || out.Reason != "" {
+		t.Fatalf("counted=%v reason=%q, want a counted answer", out.Counted, out.Reason)
+	}
+	if out.Rating == 0 || out.NextDue == nil || out.IntervalDays == nil || out.Memory == nil {
+		t.Errorf("a counted answer carries rating, nextDue, intervalDays and memory: %+v", out)
+	}
+	if got := countRows(t, c, "review_log"); got != logBefore+1 {
+		t.Errorf("review_log rows = %d, want %d", got, logBefore+1)
+	}
+	if after := cardRow(t, c, cardID); after == before {
+		t.Error("a counted practice answer left the card state unchanged")
+	}
+	// A produce card grades no features: only cloze does.
+	if n := countRows(t, c, "feature_review"); n != 0 {
+		t.Errorf("produce card wrote %d feature reviews", n)
+	}
+	if n := countRows(t, c, "practice_log"); n != 1 {
+		t.Errorf("practice_log rows = %d, want 1 (the tally is kept too)", n)
+	}
+	// Same instant in both tables: undo relies on it.
+	var same int
+	if err := c.app.db.QueryRow(`
+		SELECT COUNT(*) FROM practice_log p JOIN review_log r
+		  ON r.card_id = p.card_id AND r.review_time = p.practised_at
+		 `).Scan(&same); err != nil || same != 1 {
+		t.Errorf("practice_log and the last review_log row share no instant (%d, %v)", same, err)
+	}
+}
+
+func TestPracticeClozeGradesOnlyTheFeaturesTheItemRequired(t *testing.T) {
+	t.Parallel()
+	_, c := newPackedServer(t)
+	created := noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
+	cardID := practiceCard(t, c, created.NoteID, srs.Cloze)
+	// Warm the card so it is not new.
+	c.json(http.MethodPost, "/api/review/answer", AnswerRequest{CardID: cardID, Typed: "házban"}, nil)
+	featBefore := countRows(t, c, "feature_review")
+
+	var out PracticeAnswerResponse
+	c.json(http.MethodPost, "/api/practice/answer", AnswerRequest{CardID: cardID, Typed: "házban"}, &out)
+	if !out.Counted {
+		t.Fatalf("cloze practice not counted: %+v", out)
+	}
+	// «házban» carries the inessive on a packed server; without a target
+	// feature the equality below would hold as 0 == 0 and prove nothing.
+	if len(created.TargetFeats) == 0 {
+		t.Fatalf("fixture note has no target features: %+v", created)
+	}
+	if len(out.GradedFeatures) == 0 {
+		t.Errorf("the note targets %v but practice graded no features", created.TargetFeats)
+	}
+	if got := countRows(t, c, "feature_review") - featBefore; got != len(out.GradedFeatures) {
+		t.Errorf("feature reviews written = %d, graded features reported = %d", got, len(out.GradedFeatures))
+	}
+}
+
+func TestPracticeOnAKnownWordIsLoggedNotReviewed(t *testing.T) {
+	t.Parallel()
+	_, c := newPackedServer(t)
+	noteID, cardID := reviewedProduceCard(t, c)
+	if resp := c.json(http.MethodPost, "/api/notes/"+itoa(noteID)+"/trash", nil, nil); resp.StatusCode != http.StatusOK {
+		t.Fatalf("trash: %d", resp.StatusCode)
+	}
+	logBefore, morphBefore := countRows(t, c, "review_log"), countRows(t, c, "morph_state")
+	before := cardRow(t, c, cardID)
+
+	var out PracticeAnswerResponse
+	c.json(http.MethodPost, "/api/practice/answer", AnswerRequest{CardID: cardID, Typed: "ház"}, &out)
+	if out.Counted || out.Reason != "known" {
+		t.Errorf("counted=%v reason=%q, want false/known", out.Counted, out.Reason)
+	}
+	if countRows(t, c, "review_log") != logBefore || countRows(t, c, "morph_state") != morphBefore ||
+		cardRow(t, c, cardID) != before {
+		t.Error("practice on a «Знаю» word moved its schedule")
+	}
+	if n := countRows(t, c, "practice_log"); n != 1 {
+		t.Errorf("practice_log rows = %d, want 1", n)
+	}
+}
+
+func TestPracticeOnANewCardIsLoggedNotReviewed(t *testing.T) {
+	t.Parallel()
+	_, c := newPackedServer(t)
+	created := noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban", "glossRu": "дом"})
+	cardID := practiceCard(t, c, created.NoteID, srs.Produce)
+	before := cardRow(t, c, cardID)
+
+	var out PracticeAnswerResponse
+	c.json(http.MethodPost, "/api/practice/answer", AnswerRequest{CardID: cardID, Typed: "ház"}, &out)
+	if out.Counted || out.Reason != "new" {
+		t.Errorf("counted=%v reason=%q, want false/new", out.Counted, out.Reason)
+	}
+	if countRows(t, c, "review_log") != 0 || countRows(t, c, "morph_state") != 0 || cardRow(t, c, cardID) != before {
+		t.Error("practice on a new card moved its schedule or the new-card budget")
+	}
+}
+
+func TestPracticeMissOnAMatureCardRelearns(t *testing.T) {
+	t.Parallel()
+	_, c := newPackedServer(t)
+	_, cardID := reviewedProduceCard(t, c)
+	last := time.Now().Add(-30 * 24 * time.Hour)
+	if _, err := c.app.db.Exec(`
+		UPDATE card SET state = 2, stability = 40, difficulty = 5, scheduled_days = 40,
+		       reps = 6, remaining_steps = 0, last_review = ?, due = ? WHERE id = ?`,
+		db.FmtTime(last), db.FmtTime(last.Add(40*24*time.Hour)), cardID); err != nil {
+		t.Fatal(err)
+	}
+
+	var out PracticeAnswerResponse
+	c.json(http.MethodPost, "/api/practice/answer", AnswerRequest{CardID: cardID, Typed: "nonsense"}, &out)
+	if !out.Counted || out.Correct {
+		t.Fatalf("want a counted miss, got %+v", out)
+	}
+	if out.Memory == nil || out.Memory.Stage != srs.StageRelearning || out.Memory.Progress >= 20 {
+		t.Errorf("memory after a miss on a mature card = %+v, want relearning under 20", out.Memory)
+	}
+}
+
+func TestUndoOfACountedPracticeAnswerRestoresStateAndTheTally(t *testing.T) {
+	t.Parallel()
+	_, c := newPackedServer(t)
+	_, cardID := reviewedProduceCard(t, c)
+	before := cardRow(t, c, cardID)
+
+	var out PracticeAnswerResponse
+	c.json(http.MethodPost, "/api/practice/answer", AnswerRequest{CardID: cardID, Typed: "ház"}, &out)
+	if !out.Counted || countRows(t, c, "practice_log") != 1 {
+		t.Fatalf("setup: counted=%v", out.Counted)
+	}
+	if resp := c.json(http.MethodPost, "/api/review/undo", nil, nil); resp.StatusCode != http.StatusOK {
+		t.Fatalf("undo: %d", resp.StatusCode)
+	}
+	if after := cardRow(t, c, cardID); after != before {
+		t.Errorf("undo did not restore the card:\n  before %+v\n  after  %+v", before, after)
+	}
+	if n := countRows(t, c, "practice_log"); n != 0 {
+		t.Errorf("practice_log rows after undo = %d, want 0", n)
 	}
 }

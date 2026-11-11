@@ -71,7 +71,6 @@ func (s *Server) handleAnalyze(c fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	s.applyNLPHints(c.Context(), analyzeHintsTimeout, req.Text, tokens)
 
 	segCache := map[string][]morph.Segment{}
 	out := make([]AnalyzedTokenDTO, 0, len(tokens))
@@ -165,6 +164,9 @@ type LemmaDTO struct {
 	// dictionary. The UI renders those differently: a generated form is a good
 	// guess, and a learner is entitled to know which is which.
 	ParadigmDerived map[string]bool `json:"paradigmDerived,omitempty"`
+	// Memory is the learner's own progress on this word; absent when it is not
+	// in their deck. ADR-070.
+	Memory *LemmaMemory `json:"memory,omitempty"`
 }
 
 func (s *Server) handleLemma(c fiber.Ctx) error {
@@ -230,6 +232,13 @@ func (s *Server) handleLemma(c fiber.Ctx) error {
 	for slot := range paradigm {
 		if !attested[slot] {
 			dto.ParadigmDerived[slot] = true
+		}
+	}
+	if u, ok := userLocal(c); ok {
+		// Best-effort: the dictionary entry is the answer; a memory block the
+		// panel can do without must not fail it.
+		if m, err := s.lemmaMemory(u.ID, id); err == nil {
+			dto.Memory = m
 		}
 	}
 	return c.JSON(dto)

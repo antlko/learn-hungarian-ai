@@ -17,7 +17,7 @@ import (
 // step, which a stored-previous-state scheme can — and the property test that
 // guarantees replay fidelity is the same one that guarantees undo fidelity.
 //
-// Scope: the last CARD answer. Its feature reviews — written in the same
+// Scope: the last CARD answer (a counted practice answer is one: ADR-064). Its feature reviews — written in the same
 // transaction, identified by (card_id, review_time) — are reverted with it.
 // Drill answers are not undoable: their gate movement is announced on screen at
 // answer time, and unwinding topic phase transitions would mean un-ringing a
@@ -87,6 +87,16 @@ func (e *Engine) UndoLast(userID int64, gateWindow int, now time.Time) (UndoResu
 	if _, err := tx.Exec(`
 		DELETE FROM feature_review
 		 WHERE user_id = ? AND card_id = ? AND review_time = ?`,
+		userID, cardID, reviewTime); err != nil {
+		return UndoResult{}, err
+	}
+
+	// A practice answer that was counted as this review (ADR-064) wrote its
+	// practice_log row at the same instant; undoing the review takes it too,
+	// or the practice tally would still count an answer the learner took back.
+	if _, err := tx.Exec(`
+		DELETE FROM practice_log
+		 WHERE user_id = ? AND card_id = ? AND practised_at = ?`,
 		userID, cardID, reviewTime); err != nil {
 		return UndoResult{}, err
 	}

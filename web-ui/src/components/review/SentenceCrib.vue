@@ -18,10 +18,12 @@
  * the human English with the model beside it. Both stay: the human line is
  * the one to trust.
  *
- * Nothing is fetched until asked: the review queue reads the cache and never
- * calls the sidecar, and a button the learner presses is the only thing that
- * should change that. A fetch is keyed to the sentence — it used to survive a
- * card change and show the previous card's translation under the next one.
+ * Fetched when shown, never by the queue (ADR-067): the crib asks the
+ * translator itself as soon as it is on screen and the learner's language is
+ * missing; the review queue still only reads the cache. If that automatic
+ * fetch fails the crib stays silent and the button remains as the fallback.
+ * A fetch is keyed to the sentence — it used to survive a card change and show
+ * the previous card's translation under the next one.
  */
 import { computed, ref, watch } from 'vue'
 import { Languages } from '@lucide/vue'
@@ -42,8 +44,12 @@ const props = withDefaults(
     isFallback?: boolean
     /** `card` centres under the sentence; `inline` is the inspector's small line. */
     size?: 'card' | 'inline'
+    /** Fetch the machine translation on its own when shown; a parent that batches turns it off. */
+    auto?: boolean
+    /** A machine translation the parent fetched (batched), shown below any pack line. */
+    machine?: Translation | null
   }>(),
-  { text: '', model: '', isFallback: false, size: 'card' },
+  { text: '', model: '', isFallback: false, size: 'card', auto: true, machine: null },
 )
 
 const caps = useCapabilitiesStore()
@@ -52,6 +58,8 @@ const ui = useUiStore()
 const fetched = ref<Translation | null>(null)
 const loading = ref(false)
 const failed = ref(false)
+/** The sentence a request is in flight for: one request per sentence at a time. */
+let inflight = ''
 
 // A translation fetched for one sentence never shows under another.
 watch(
@@ -60,14 +68,17 @@ watch(
     fetched.value = null
     loading.value = false
     failed.value = false
+    inflight = ''
   },
 )
 
 /** The human line: the pack's, in either language. */
 const packText = computed(() => (props.model ? '' : props.text))
 /** The machine line: fetched here, or handed in from the cache with its model. */
-const machineText = computed(() => fetched.value?.text || (props.model ? props.text : ''))
-const machineModel = computed(() => fetched.value?.model || props.model || '')
+const machineText = computed(
+  () => fetched.value?.text || props.machine?.text || (props.model ? props.text : ''),
+)
+const machineModel = computed(() => fetched.value?.model || props.machine?.model || props.model || '')
 const shortModel = computed(() => machineModel.value.split('/').pop() ?? '')
 /** Offered when the learner's language is missing and something could supply it. */
 const canAsk = computed(
@@ -75,22 +86,39 @@ const canAsk = computed(
 )
 const inline = computed(() => props.size === 'inline')
 
-async function translate() {
-  if (loading.value) return
+async function translate(auto = false) {
+  const hu = props.hu
+  if (!hu || inflight === hu) return
+  inflight = hu
   loading.value = true
   failed.value = false
   try {
-    const res = await api.translate([props.hu], ui.locale === 'ru' ? 'ru' : 'en')
+    const res = await api.translate([hu], ui.locale === 'ru' ? 'ru' : 'en')
+    if (props.hu !== hu) return // the card moved on; this is someone else's line now
     fetched.value = res.translations[0] ?? null
   } catch {
     // The sidecar being off, still loading, or unreachable are one thing from
     // here, and all of them are "not now" rather than "broken". The card is
-    // perfectly usable without a crib.
-    failed.value = true
+    // perfectly usable without a crib. An automatic attempt says nothing at
+    // all: the button below is still there to try again.
+    if (props.hu === hu && !auto) failed.value = true
   } finally {
-    loading.value = false
+    if (props.hu === hu) {
+      loading.value = false
+      inflight = ''
+    }
   }
 }
+
+// ADR-067: shown means fetched. Re-runs when the sentence changes or the
+// translator comes up after the crib was already on screen.
+watch(
+  [() => props.hu, () => props.auto, () => caps.available('mt')],
+  () => {
+    if (props.auto && canAsk.value) void translate(true)
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -121,7 +149,7 @@ async function translate() {
       class="flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-60"
       :class="inline ? '-ml-2 self-start' : 'mx-auto'"
       :disabled="loading"
-      @click="translate"
+      @click="translate()"
     >
       <Languages class="size-3.5" aria-hidden="true" />
       {{ loading ? $t('reader.translating') : $t('translation.toLocale') }}

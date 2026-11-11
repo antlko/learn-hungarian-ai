@@ -1,6 +1,6 @@
 # Self-hosting
 
-One container, one volume. Optional components (translator, morphology analyser, tutor model) when you want them. For what each one is, see the [README](../README.md#optional-components); for what the app does, [FEATURES.md](FEATURES.md).
+One container, one volume. Optional components (translator, tutor model) when you want them. For what each one is, see the [README](../README.md#optional-components); for what the app does, [FEATURES.md](FEATURES.md).
 
 ## Quick start
 
@@ -25,8 +25,8 @@ full dictionary is an optional upgrade (below). See [ADR-010](../.claude/DECISIO
 >
 > **Two images.** `ghcr.io/antlko/learn-hungarian-ai:latest` (also `X.Y.Z`, `X.Y`, `X`, and the
 > aliases `latest-full` / `X.Y.Z-full`) carries Python, so «Встроенные компоненты» in Settings can
-> install the analyser or translator inside the same container. `:latest-slim` / `X.Y.Z-slim` is the
-> distroless image: smaller, no Python, core app and sidecar services (`--profile nlp|mt|llm`) only.
+> install the translator inside the same container. `:latest-slim` / `X.Y.Z-slim` is the
+> distroless image: smaller, no Python, core app and sidecar services (`--profile mt|llm`) only.
 > Both run as uid 65532 and share the `/data` layout, so switching tag keeps your data and account.
 > Building yourself: `docker build .` builds the slim image, `docker build --target full -t
 > tanulom:full .` the Python one. No image variant was built or run when this was written.
@@ -68,18 +68,9 @@ Back up the volume and you have backed up everything. A per-learner export also 
 
 ## Docker Compose, with optional services
 
-**`nlp` setup.** `docker compose --profile nlp up -d` builds `services/nlp` and starts without the model. Fetch it
-(`hu_core_news_md` 3.8.1, CC BY-SA 4.0, ~127 MB) from Settings → Components or with the admin
-endpoint `POST /api/admin/nlp/warmup`. Then
-in Settings set the NLP service to `local`, endpoint `http://nlp:5002`. Progress shows on the
-Components card. It is not a small container: give it a memory limit you can afford and expect
-slower ingest of long texts. Docker build and the real model have not been run by the authors'
-CI; treat first use as a trial.
-
 ```bash
 docker compose up -d                                   # core only
 docker compose --profile mt up -d                      # + sentence translation
-docker compose --profile nlp up -d                     # + HuSpaCy (>= 2.5-3 GB RAM free)
 docker compose --profile llm up -d                     # + Ollama
 ```
 
@@ -87,7 +78,6 @@ docker compose --profile llm up -d                     # + Ollama
 |---|---|---|
 | *(none)* | SRS, reader, grammar, HVPT, listening, progress | ~40 MB image |
 | `mt` | Hungarian → Russian/English sentence translation in the reader | ~600 MB model, 200–400 MB resident |
-| `nlp` | HuSpaCy: picks the in-context reading of ambiguous forms (`vár`) among the pack's own | **plan >= 2.4 GB RAM** (published figure, not measured in a container); small image, ~127 MB model fetched once into a volume |
 | `speech` | *not built yet* — the browser speaks | n/a |
 | `llm` | local tutor and roleplay | ~5 GB+ depending on model |
 
@@ -126,18 +116,18 @@ Not using Docker? `make mt` creates the venv and runs the service on `:5003` nat
 **The core is complete without any of them.** Optional services are probed at runtime; features
 that need an unreachable one are visibly disabled with a reason, never silently missing.
 
-### The translator or analyser as a second service of the same image
+### The translator as a second service of the same image
 
-No source checkout, no extra image: the `:latest` image carries the two service sources and the
-installer, and `tanulom component run <mt|nlp>` runs one of them **in the foreground as that
+No source checkout, no extra image: the `:latest` image carries the translator source and the
+installer, and `tanulom component run mt` runs it **in the foreground as that
 container's main process**. A compose file that already runs the app adds a second service from
 the same image:
 
 ```yaml
   tanulom-mt:
     image: ghcr.io/antlko/learn-hungarian-ai:latest
-    command: ["component", "run", "mt"]    # or "nlp"
-    expose: ['5003']                       # nlp: '5002'
+    command: ["component", "run", "mt"]
+    expose: ['5003']
     volumes:
       - tanulom-mt:/data                   # its OWN volume
     restart: unless-stopped
@@ -146,13 +136,11 @@ volumes:
   tanulom-mt:
 ```
 
-Then in the app, **Settings → Services**: Translation → `Local`, endpoint `http://tanulom-mt:5003`
-(analyser: `Local`, `http://tanulom-nlp:5002`). Use the compose **service name**, not `localhost`.
+Then in the app, **Settings → Services**: Translation → `Local`, endpoint `http://tanulom-mt:5003`. Use the compose **service name**, not `localhost`.
 
 - **First start installs, later starts do not.** The container builds the venv, installs the pinned
   requirements and prepares the model (`mt`: ≈ 6 GB of disk while it runs, ≈ 2.5 GB kept, the model
-  fetched from HuggingFace by *your* container; `nlp`: ≈ 1.5 GB, then it fetches its 127 MB model through
-  the service's own warm-up) — progress is in `docker logs`. A finished install is marked on the volume,
+  fetched from HuggingFace by *your* container) — progress is in `docker logs`. A finished install is marked on the volume,
   so a restart (`restart: unless-stopped`) goes straight to starting the service. The sources are
   restored from the image on every start, so pulling a newer image upgrades the service code.
 - **Its own volume. Never mount the app's `/data` into it**, and never two processes on one `/data`:
@@ -162,7 +150,7 @@ Then in the app, **Settings → Services**: Translation → `Local`, endpoint `h
 - **No authentication.** The services answer anyone who can reach them. `expose:` keeps the port on the
   compose network only; do **not** write `ports:` for them. `--host` (`0.0.0.0` by default, so the app
   can reach it by service name; `127.0.0.1` is the only other value, because the readiness probe asks
-  that address) and `--port` (default `mt` 5003, `nlp` 5002) are the only options;
+  that address) and `--port` (default `mt` 5003) are the only options;
   both are validated, and nothing else — no URL, path or command — is accepted.
 - **Needs the `:latest` image.** On `:latest-slim` it stops at once with «This image has no Python».
 - **Exit codes:** 2 for a bad argument, 1 when the install or the service fails (the log says why),
@@ -170,8 +158,8 @@ Then in the app, **Settings → Services**: Translation → `Local`, endpoint `h
 
 ## Components installed from the app (Settings → Components → «Встроенный»)
 
-The translator (`mt`) and the morphology analyser (`nlp`) are plain Python services. Besides
-Docker Compose and your own server, the **binary can install and run them itself**: an
+The translator (`mt`) is a plain Python service. Besides
+Docker Compose and your own server, the **binary can install and run it itself**: an
 administrator presses **Install** and the app builds a Python venv under
 `<data>/components/<id>/`, installs the pinned requirements, prepares the model and starts the
 service as a **child process**. No restart of the app is needed and no Docker socket is involved.
@@ -196,7 +184,6 @@ need `apt install python3-venv`.
 | Component | Free disk needed | Installed | RAM while running |
 |---|---|---|---|
 | `mt` | ≈ 6 GB at the start (torch is installed for the one-time conversion, then removed) | ≈ 2.5 GB | ≈ 2–3 GB |
-| `nlp` | ≈ 1.5 GB | ≈ 0.6 GB (+127 MB model) | ≈ 2.4 GB (published figure) |
 
 The preflight refuses an install below the first column (`errors.diskFull`) before anything is written.
 
@@ -251,12 +238,11 @@ Settings → Services. Keys are stored in SQLite, never in `config.yaml`.
 | Core (the app) | 256 MB is comfortable | ~40 MB image, ~20 MB starter pack + 1 MB audio in `/data`, plus your database | estimate; **not measured** under load |
 | Full dictionary (after install) | no more than the core, plus the pack's page cache | 252 MB file (260 MB extra while installing) | LANGPACK.md |
 | `mt` translator | 200–400 MB resident | ~2.4 GB downloaded to build, ~600 MB kept | services/mt README (model card), not measured by us |
-| `nlp` HuSpaCy | **>= 2.4 GB** published for the md model (plan 2.5–3 GB) | small image + ~127 MB model in a volume | huspacy.github.io; **not measured in a container; not run in CI** |
 | `llm` Ollama, 7–8B model | 8–16 GB (CPU) or a GPU | ~1.5 GB image + ~5 GB per model | rough; not measured |
 | `speech` (`tts`, `asr`) | n/a | n/a | **not built** |
 
 The core runs on a Raspberry Pi or a NAS; the image is built for `amd64` and `arm64`. Do not run
-`nlp` and a local 8B model on a small box at the same time without a memory limit
+`mt` and a local 8B model on a small box at the same time without a memory limit
 (`mem_limit` in the compose file).
 
 ## The tutor's model (Ollama)
@@ -281,7 +267,7 @@ with `OLLAMA_HOST=0.0.0.0` and use `http://host.docker.internal:11434`.
 
 ## Ports
 
-Only `8012` is published to the host. `ollama` (11434), `mt` (5003) and `nlp` (5002) are
+Only `8012` is published to the host. `ollama` (11434), and `mt` (5003) are
 reachable only inside the compose network. Components installed from the app listen on an ephemeral
 `127.0.0.1` port inside the app's own container or machine and need no port at all. `5173` is the Vite dev server (`make dev`). Change the
 **left** side of `8012:8012` to move the app; the four places that agree on 8012 are listed in
@@ -415,6 +401,4 @@ scoping.
 | Want to start over | — | stop the server, then `make reset-learner` (asks for `YES`): deletes accounts, progress and settings in `./data` and keeps the language pack and audio |
 | After install, "restart needed", and Restart does nothing visible | the container has no restart policy, so it stopped and stayed stopped (`supervised: false`) | `docker start tanulom`; use `--restart unless-stopped` next time |
 | Installed pack rejected: "incompatible" | its word ids differ from the pack your cards point at (built from another dump) | build from the same source dump, or keep the starter |
-| `nlp` is "downloading" forever / "error" | the model wheel could not be fetched (network, proxy, disk) | read the card's reason; `docker logs tanulom-nlp`; retry from Components; the volume `tanulom-nlp-models` must be writable |
-| `nlp` container killed | out of memory | give it >= 3 GB or leave it off; the app is unchanged without it |
 | `docker compose up` fails pulling `tanulom` | the image is refused from another machine, or the tag is wrong | the image is published (`:latest` = Python-capable, `:latest-slim` = distroless without Python); make the GHCR package public once, or build from the clone with `build: {context: ., target: full}` |

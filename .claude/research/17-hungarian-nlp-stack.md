@@ -83,9 +83,9 @@ knowledge), **HuGME** (hallucination, relevance, bias).
    `wordform → (lemma, upos, feats)` table shipped in the language pack.
 2. **Runtime** — the Go binary does an **indexed lookup**, not analysis. O(1), no dependencies.
 3. **Unknown forms** — a suffix-stripper built from `morph_feature` allomorph tables.
-4. **Ambiguity** — when the optional `nlp` sidecar is running, HuSpaCy disambiguates in context
-   (`vár` = castle vs. waits). Without it, the pack's frequency prior is used and the UI marks
-   the analysis as uncertain.
+4. **Ambiguity** — the pack's frequency prior is used and the UI marks the analysis as uncertain
+   (`vár` = castle vs. waits). The optional context-disambiguation sidecar once planned here was
+   removed by ADR-069.
 
 See [`docs/LANGPACK.md`](../../docs/LANGPACK.md) for the pipeline and
 [`langpack/LICENSES.md`](../../langpack/LICENSES.md) for the attribution ledger.

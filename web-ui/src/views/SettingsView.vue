@@ -166,8 +166,8 @@ const providers: ServiceProvider[] = ['off', 'local', 'openai']
 // would be an option whose only outcome is a validation error. [ADR-014]
 const providersFor = (name: CapabilityName): ServiceProvider[] => {
   if (name === 'tts') return ['device', ...providers]
-  if (name === 'mt' || name === 'nlp') {
-    const base = name === 'mt' ? providers.filter((p) => p !== 'openai') : providers
+  if (name === 'mt') {
+    const base = providers.filter((p) => p !== 'openai')
     // `managed` is offered once there is something to run (or it is already chosen):
     // a choice with nothing behind it would only end in a validation error.
     const m = managedOf(name)
@@ -182,7 +182,7 @@ const goals: Goal[] = ['reading', 'conversation', 'exam']
 
 // A fixed, typed list so rows keep a stable order and the capability lookup is
 // type-checked rather than cast.
-const SERVICE_NAMES: CapabilityName[] = ['tts', 'asr', 'nlp', 'llm', 'mt']
+const SERVICE_NAMES: CapabilityName[] = ['tts', 'asr', 'llm', 'mt']
 
 /*
   What this repository actually ships, from the admin components list (ADR-049).
@@ -219,17 +219,18 @@ async function checkComponents() {
   }
 }
 
-/** The built-in copy of mt / nlp from the last components poll, if the server reports one. */
+/** The built-in copy of mt from the last components poll, if the server reports one. */
 const managedOf = (name: CapabilityName) => components.value.find((c) => c.id === name)?.managed
 
 /** Rows whose address is edited in Components → «Свой сервер», not here. */
-const ADDRESS_IN_COMPONENTS = new Set<CapabilityName>(['mt', 'nlp', 'llm'])
+const ADDRESS_IN_COMPONENTS = new Set<CapabilityName>(['mt', 'llm'])
 
 const isNotBuilt = (name: CapabilityName) =>
   components.value.some((c) => c.id === name && !c.built)
 
 function serviceStatus(name: CapabilityName) {
   const cap = caps.byName[name]
+  if (cap?.paused) return { label: t('capabilities.paused'), ok: false }
   // The built-in copy is reported by the app that runs it — the same polled
   // status the Components card draws, so the two cannot disagree.
   const mg = managedOf(name)

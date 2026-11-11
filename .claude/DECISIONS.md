@@ -61,7 +61,7 @@ Fallback ladder:
 1. exact `wordform` hit → done;
 2. unknown form → suffix-stripper built from `morph_feature` allomorph tables;
 3. ambiguous form → frequency prior, and the analysis is flagged `Uncertain` in the API and UI;
-4. `nlp` sidecar running → HuSpaCy disambiguates in context (`vár` = castle vs. waits) — real since [ADR-054](#adr-054); it only selects among the pack's own readings.
+4. ~~`nlp` sidecar → HuSpaCy disambiguates in context~~ — removed by [ADR-069](#adr-069); the ladder is exact → prior → suffix.
 
 **Consequences.**
 - Analysis is O(1) and works fully offline with zero dependencies.
@@ -751,7 +751,7 @@ would libel the translator and make the label meaningless where it matters.
 
 ## ADR-019 — Free practice: retrieval that deliberately schedules nothing
 
-**Status:** accepted · 2026-08-27 *(user decision)* · see
+**Status:** superseded by [ADR-064](#adr-064) (practice answers are reviews) · accepted · 2026-08-27 *(user decision)* · see
 [R1](research/01-retrieval-practice.md), [R14](research/14-motivation.md),
 [ADR-003](#adr-003)
 
@@ -1883,7 +1883,7 @@ would read it. What they would have met:
 
 ## ADR-039 — The card says what it takes for a word to stop coming back
 
-**Status:** accepted · 2026-09-04 *(user report)* · see [R14](research/14-motivation.md),
+**Status:** amended by [ADR-070](#adr-070) (progress number) · accepted · 2026-09-04 *(user report)* · see [R14](research/14-motivation.md),
 [R16 §3](research/16-debunked.md), [R18](research/18-session-shape.md),
 [ADR-019](#adr-019), [ADR-021](#adr-021), [ADR-025](#adr-025), [ADR-026](#adr-026)
 
@@ -2562,7 +2562,7 @@ why practice is one pattern at a time first ([R5]); no threshold is restated in 
 - Accuracy appears as counted answers («верно 17 из 20»), never a bare percentage.
 - No backend change: `decision.{current,target,observations,window}` and `gate.*` already existed.
 
-## ADR-054 — The HuSpaCy sidecar is opt-in and only selects among attested analyses
+## ADR-054 — The HuSpaCy sidecar is opt-in and only selects among attested analyses (SUPERSEDED by ADR-069)
 
 **Status:** accepted · 2026-11 · *implements step 4 of [ADR-002](#adr-002)'s ladder*
 
@@ -2929,3 +2929,109 @@ GPU libraries).
 
 **Consequences.** Client-only: no grading, scheduling or DTO change (`spell` was already graded against `targetForm`). An isolated word from device TTS can sound flatter than in its sentence — the sentence button is the remedy. Homophone-free guarantee is not claimed: a word that sounds like another is still disambiguated only by the sentence button.
 
+
+## ADR-065 — A review sitting survives navigation, not reload
+
+**Context.** Learner report, 2026-11-11: leaving Review for another screen and coming back dealt a new set, so a half-finished sitting was lost. ADR-026 made sets client-side; ADR-028 gave Review a start screen.
+
+**Decision.** The sitting stays in the Pinia store (`stores/review.ts`). Returning to Review resumes it when mode, scope and the local day all match what the store holds; otherwise the start screen shows as before. The start screen gets an explicit «Начать заново» that discards the held sitting and deals a fresh set. Nothing is written to `sessionStorage`/`localStorage`.
+
+**Why not persist across reload.** A stored position into a list refetched from the server would be a client-side retry list: the queue has moved on (answers were logged, burial and the daily budget changed), so index N no longer means the same card. A reload therefore starts from the server's queue, which is the only authority on what is due.
+
+**Consequences.** Amends ADR-026 ("refresh after each set" still holds) and ADR-028 (start screen is skipped on resume). Client-only: no API, scheduling or DTO change. A sitting from yesterday is never resumed (local-day check). Answers already given were logged at the time, so nothing is lost by discarding.
+
+## ADR-066 — Reading sets: curated «Фразы», authored «Диалог», preview before import
+
+**Status:** accepted 2026-11-11, amended 2026-11-11 *(user decision: the original rejection of model-written dialogues is reversed)*.
+
+**Context.** Learner report, 2026-11-11: the shortest-first sets of ADR-056 read as a pile of unrelated fragments, many with names, rare words, morbid or nonsensical lines, and the learner could not see a set before importing it. What a learner wants to read first is what Hungarians really say: short exchanges, the phrases a child hears. No corpus offers that at A1, and Tatoeba lines picked one by one never form a conversation.
+
+**Decision.**
+- **«Фразы: X» / "Phrases: X"** stay **Tatoeba pack sentences only**. Scoring adds a conversational bonus (questions, first/second person), a proper-noun penalty and the frequency rank of the rarest content word. Order is a greedy lemma chain. `langpack/pipeline/reading_sets_exclude.txt` removes lines a human rejected (off-topic, morbid, nonsense, broken translation; 345 ids after reading all 36 sets), and a candidate whose content lemmas equal an earlier pick's is skipped (the same frame). `validate` fails on an excluded id.
+- **«Диалог: X» / "Dialogue: X"**: one authored dialogue per course unit (36), 8-14 turns, at most 10 words a line, vocabulary and grammar at the unit's level, a Russian and an English translation per line (`pipeline/dialogues*.py`). Stored as `sentence.source = 'authored'` (ids from 9 000 000, no `sentence_token` rows) in `reading_set` rows with `track = 'dialogue'`, `ord` right before the unit's «Фразы». Build-time validation: every word is an attested `wordform`, every content lemma is within the unit's band or taught by that unit.
+- **Provenance is stated everywhere**: «Написано ИИ, носителем не проверено» / "Written by AI, not checked by a native speaker" on the card and in the preview; the imported text is recorded as `kind: generated`. Attestation proves a form exists, not that a line is idiomatic; the label is what keeps that honest. The lines were read as a strict Hungarian teacher would, and simpler constructions replaced doubtful ones; still no native review.
+- **`authored` feeds reading sets only.** Drills, examples, practice, course sentence search and listening read real corpus sentences: each query filters `source <> 'authored'` (backend tests prove it); the n-gram attestation index never counts authored lines, so the model cannot vouch for its own text; the starter gets its dialogues from `reading_sets.build`, never from the full pack.
+- `GET /api/library/sets/:code` returns the set for preview (`{…, authored, sentences:[{hu, ru?, en?}]}`, 404 for an unknown code); the list DTO gains `authored`. The Library's «Посмотреть» opens it in a sheet with the translation in the learner's gloss language (a fallback language is labelled), footer «Добавить» / «Открыть». Import stays an explicit click. `forYou` is derived at request time, never stored.
+
+**Rejected.** (1) Keeping the sets Tatoeba-only: it cannot produce a conversation. (2) Mixing dialogue lines into «Фразы»: a set would be half real and half AI, and the label could not be honest. (3) Letting authored lines serve drills or examples: those need real, attested Hungarian (ADR-042, "no LLM Hungarian becomes a card").
+
+**Consequences.** Amends ADR-056; supersedes the 2026-11-11 first text of this ADR ("model-written dialogues rejected") and narrows INVARIANTS "Reading sets are pack sentences": the one AI-written Hungarian in the pack is a labelled dialogue that feeds nothing but reading. No LLM Hungarian enters a card. DTO, `docs/API.md`, `docs/LANGPACK.md`, UX §5.1 updated. Open: a native speaker's read of the 387 lines; the pack release lists authored lines as CC BY-SA 4.0 (`langpack/LICENSES.md`).
+
+## ADR-067 — Machine translation is fetched when a crib is shown, never by the queue
+
+**Context.** ADR-035 offered the translator wherever one was missing, as a button; ADR-014 made the translation a labelled crib. On a card whose crib is on screen but empty, the learner had to tap to see what the app could already supply.
+
+**Decision.** `SentenceCrib` fetches the translation by itself, and only where the crib already renders: on cloze before the answer, on the other directions after it. An automatic failure is silent (no error banner); the manual button remains. The model label is unchanged (ADR-014). `WordInspector` batches its translation into one call. The reader's sentence translation stays one tap. There is no setting.
+
+**Consequences.** Amends ADR-035 and ADR-014's "nothing until asked": the queue and scheduler still only read the cache and never trigger MT, and with the sidecar stopped the card behaves as before. Display-only: no grade, state or DTO change.
+
+## ADR-068 — Services can be paused from the account menu
+
+**Context.** A learner on a small machine wanted TTS or the LLM off for a session without deleting provider, endpoint or model from Settings.
+
+**Decision.** `Service.Paused` is a flag that keeps provider, endpoint and model. `POST /api/admin/services/:name/paused` (admin only) sets it. Paused means treated as off everywhere and the managed child process (ADR-061) is stopped; it survives restart and a settings `PUT`. Non-admins see read-only status. Short names in the menu: tts «Озвучка» / "Voice", asr «Речь в текст» / "Speech to text", llm «ИИ-учитель» / "AI tutor", mt «Перевод» / "Translation".
+
+**Consequences.** The app is already fully usable with every sidecar off, so pausing is the same path as "not configured". The flag lives in `config.yaml` via `Server.updateConfig` and `config/clone.go`; no secret is involved. Resuming restarts the managed child.
+
+## ADR-069 — Remove the context-disambiguation sidecar
+
+**Context.** ADR-054 added an optional HuSpaCy (`hu_core_news_md`) sidecar that, at text ingest and live `/api/analyze`, re-picked among the pack's own candidate readings for `uncertain` words (`Via="context"`, ladder step 4 of ADR-002). Nobody measured a benefit; it costs about 2.4 GB of RAM, a managed-component installer path, a compose profile, an admin warm-up endpoint and a Settings card.
+
+**Decision.** Remove it entirely: `services/nlp`, `internal/nlp`, `morph.ApplyContextHints`, `AnalyzedToken.Via`, `services.nlp` in config, the `nlp` capability, the managed component and its warm-up machinery, `POST /api/admin/nlp/warmup`, the Settings card and the «по контексту» label. The lookup ladder is exact → prior → suffix. An uncertain word keeps the frequency prior and its "uncertain" mark, exactly as with the sidecar stopped before.
+
+**Rejected.** An LLM as a substitute: slow per word, optional itself, and its choices are not attested in the pack. Keeping the code dormant: dead paths rot, and git history restores it (the last commit that has it is the one before this change).
+
+**Consequences.** Supersedes ADR-054; amends ADR-002 step 4 (gone) and ADR-061 (`mt` is the only managed component). Capabilities list four services (tts, asr, llm, mt). An old `config.yaml` with a `services.nlp` block still loads (unknown keys are ignored) and the block is dropped on the next write; a stored `nlpKey` secret is simply never read. "The app is fully usable with every sidecar stopped" is unchanged.
+
+## ADR-064 — Practice answers are reviews
+
+**Status:** accepted · 2026-11-11 *(user decision)* · supersedes [ADR-019](#adr-019) and the "schedules nothing" part of [ADR-024](#adr-024) · see [R20](research/20-practice-and-progress.md), [ADR-003](#adr-003)
+
+**Context.** ADR-019 kept practice out of FSRS for fear of the cramming problem and rejected a discounted update as scheduling maths of our own. The learner, who trains daily, reports the cost: a word answered correctly five times in «Тренировка» still sits at the same stage next to its review, so the trainer feels like it does nothing and the stage chip lies about what they know.
+
+**Decision.** A practice answer is a real review. `POST /api/practice/answer` grades exactly as before, then calls the same `Engine.Answer` the review queue calls: one card review plus feature reviews only for the features the item required (`emit.go` untouched), one `review_log` row. It still writes `practice_log` with the SAME instant, so the practice volume stats are unchanged. It counts toward `maxReviewsPerDay`, the interaction ledger (streak, `due_left`) is refreshed through the review path, and sibling burial sees the answer. Undo deletes the `practice_log` row with the review it reverts (same card, same instant). The response carries `counted`, rating, `nextDue`, `intervalDays`, `gradedFeatures` and `memory`.
+
+**Why this is sound.** go-fsrs v4 (FSRS-6) uses real elapsed time. An early review gains stability through `nextRecallStability` with the real recall chance (small when early, so the gain is small). A same-day answer uses `shortTermStability`, floored at the current S for Hard/Good/Easy. The library already discounts what ADR-019 feared; we add no maths and no weights.
+
+**Exceptions (practice_log only, as before).** (1) Words in «Знаю» (trashed note, `scope=trash`): nothing about them moves ([R14] / trash rule). (2) NEW cards: a first review would bypass the global daily new budget. The response says `counted:false` with `reason` `known` or `new`, so the screen can say why nothing moved.
+
+**Rejected.** "Only every second correct answer counts": drops real recall events, keeps every miss, biases the log toward failure, and needs a hidden counter. "Record only if due": makes practice a no-op exactly when it is most useful. A half-weight review: our own maths.
+
+**Accepted FSRS behaviours.** Practice can advance learning steps without the 10-minute spacing. A same-day Good on a review card moves its due date to now + interval.
+
+**Consequences.** `/api/practice/*` is no longer free of state; INVARIANTS.md is rewritten. Practice cards still carry no grade preview in the queue (the learner chooses the order, not the scheduler). `replay` stays exact: the log is the only source. Weak mode (ADR-024) is unchanged.
+
+## ADR-070 — A progress number per word, mapped from FSRS stage and stability
+
+**Status:** accepted · 2026-11-11 *(user decision)* · amends [ADR-039](#adr-039) and the ADR-026 amendment · see [R20](research/20-practice-and-progress.md)
+
+**Context.** The statuses (new, learning, young, mature, relearning) are coarse, and with practice moving them (ADR-064) the learner wants to see a word rise on a right answer and fall on a mistake. ADR-039 refused any "N correct" threshold because FSRS has none.
+
+**Decision.** Every card carries `Memory.progress`, an integer 0–100, derived by `srs.progressOf` from the stored state alone; the statuses are marks on it. Bands come from `StageOf`, so the number always agrees with the stage chip:
+
+| Stage | Progress |
+|---|---|
+| new | 0 |
+| learning, relearning | 0–19: `floor(20·(done+1)/(total+1))`, done = steps total − steps left (default steps: 6, then 13) |
+| young (< 21 d) | 20–69: `20 + floor(50·min(S/21, 1))` |
+| mature (≥ 21 d) | 70–100: `70 + floor(30·clamp(ln(S/21)/ln(180/21), 0, 1))` |
+
+S is FSRS stability in days. 180 days (`srs.ProgressFullDays`) is a declared display horizon, a convention like the 21-day split, not a memory threshold and not a goal: 100 means "stable for half a year", not "learned". A word's number is its best card's; the inspector lists each card.
+
+**Behaviour.** It rises on correct answers and falls on a lapse (relearning is below 20). It never counts up on its own: time passing changes nothing, only answers do. Display-only: never called a score, points or level; no XP-like surface (see the motivation invariants).
+
+**Known edges, documented not patched.** Interval fuzz can flip a card between mature and young at the 21-day boundary, so a correct answer may show a small drop (−1; up to −9 in the property test, because the mature band is by interval and the fuzzed interval can exceed S) and the stage chip flips with it. A same-day answer on a settled card shows +0 by FSRS's own arithmetic. The property test logs these flips.
+
+**Consequences.** `WordRow.progress`, `DeckStages.progress` (deciles of words with a reviewed card), `memory` on the lemma detail. Deciles count words by memory state, not reviews, so "every review number comes from `srs.Breakdowns`" still holds.
+
+## ADR-071 — «Знаю» covers the word, not one note
+
+**Status:** accepted · 2026-11-11 *(user report)* · amends [ADR-041](#adr-041)
+
+**Context.** «Знаю» set `trashed_at` on the one note under the cursor and the lemma `known`. A lemma owns one note per sentence, text and course unit, so the same word came back the same day through another note (the queue never looks at lemma status). Enrolling a unit also matched on `(hu, target_form)` only: it could mint a fresh note for a known lemma and its duplicate path could un-trash a «Знаю» note.
+
+**Decision.** The link is `note.lemma_id` (a pack lemma id; nullable). `Store.TrashWord` sets aside every live note of that lemma for the user in one transaction with one `trashed_at` instant and marks the lemma `known`; `Store.RestoreWord` restores the notes carrying the tapped note's instant and sets the lemma `learning`. A note with no lemma moves alone. Notes trashed at another time stay where they are. Enrolment skips a word whose lemma status is `known`, reporting it in `skipped` with `known: true`, and never restores a note for it. The review client drops every queued card of the lemma.
+
+**Consequences.** `trashed`/`TrashCount` and `GET /api/trash` count and list words (a lemma and an instant), not notes; `cards` sums the directions of every note moved. Nothing is deleted, so undo and replay are unaffected. Manual add from the reader (`POST /api/notes`) still restores a trashed duplicate: that is the learner's explicit act.
+
+**Same change: display case.** A cloze blank at the head of a sentence carries the sentence's capital, not the word's. Options (`internal/api/options.go`) and `expectedFor` for a cloze show the form in its lemma's case, lowercase unless the dictionary form is capitalised; grading was already case-insensitive. A tapped option is spoken (UX.md Review).

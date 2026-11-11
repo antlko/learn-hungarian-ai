@@ -63,7 +63,7 @@ func settingsDTO(c config.Config, secrets map[string]bool) SettingsDTO {
 		dirs[k] = DirectionDTO{Enabled: v.Enabled, Weight: v.Weight}
 	}
 	svc := func(s config.Service) ServiceDTO {
-		return ServiceDTO{Provider: s.Provider, Endpoint: s.Endpoint, Model: s.Model, Voices: s.Voices}
+		return ServiceDTO{Provider: s.Provider, Endpoint: s.Endpoint, Model: s.Model, Voices: s.Voices, Paused: s.Paused}
 	}
 	if secrets == nil {
 		secrets = map[string]bool{}
@@ -110,7 +110,6 @@ func settingsDTO(c config.Config, secrets map[string]bool) SettingsDTO {
 		Services: map[string]ServiceDTO{
 			"tts": svc(c.Services.TTS),
 			"asr": svc(c.Services.ASR),
-			"nlp": svc(c.Services.NLP),
 			"llm": svc(c.Services.LLM),
 			"mt":  svc(c.Services.MT),
 		},

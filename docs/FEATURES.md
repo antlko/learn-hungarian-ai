@@ -50,15 +50,21 @@ FSRS-6, unmodified.
   keyboard. Typing without accents can be accepted with a lower grade; you choose in Settings.
 - **«Знаю».** Sets a word aside because you know it. Nothing is deleted; restoring it brings
   the card back overdue.
-- **Practice mode.** Free practice (random or weakest words) that schedules nothing and changes no
-  statistics.
+- **Practice mode.** Free practice (random or weakest words). Since ADR-064 a practice answer is
+  a real review: it moves the word like any other (except words in «Знаю» and new words, which
+  say «Не засчитано» and why); a counted answer can be undone. Before a word is due memory grows
+  less, so practice takes more answers.
+- **A progress bar for every word.** 0–100 (ADR-070), shown while reviewing, in the word list,
+  in the word's inspector and as a words-by-progress chart on Progress. The stages are marks on
+  the bar at 20 and 70; a right answer moves it up, a mistake moves it down. 100 means about
+  half a year between showings, and the word still comes back — it is progress, not a score.
 - **Mobile.** Large touch targets and the bottom tab bar (see [Mobile](#mobile)).
 
 Optional: the tutor can be asked about a card (it never changes the schedule).
 
 ## Words
 
-Every word in your deck as a list, with a **stage ladder**: *учится* (short steps),
+Every word in your deck as a list, with a **stage ladder**: *учу* (short steps),
 *вспоминаем* (forgotten, back on short steps), *повторяется* (interval under 21 days),
 *закреплено* (21 days or more) and *знаю* (set aside). Filter by stage, sort by weakest or by
 due date. The estimate of memory is computed by the FSRS library, not invented.
@@ -84,13 +90,14 @@ Optional: the tutor, linked from every lesson.
 - **Read** a pasted text, a URL, an `.srt` subtitle or an `.epub`. Every word is analysed and
   coloured by what you know. Click a word to see its analysis, add it as a card, or mark it known.
   Uncertain analyses and fallback glosses are labelled.
-- **Ready-made reading sets.** Library offers sets of real sentences from the dictionary, one set
-  per basic-tier course unit and theme (36 sets in the starter), at an estimated level. Importing is an explicit click;
-  it creates a text, never cards.
+- **Ready-made reading sets.** Library offers, for each basic-tier course unit and theme (36 in
+  the starter), a «Фразы» set of real sentences from the dictionary and a «Диалог» — one short
+  conversation written by an AI, labelled «Написано ИИ, носителем не проверено» (every word is in
+  the dictionary; no native speaker has read it). «Посмотреть» shows every line with its translation
+  before anything is added. Importing is an explicit click; it creates a text, never cards.
 - **Level estimate for texts.** Each text shows the share of its words you already know.
 - **Optional, translator.** A machine-translated crib under a sentence, always labelled with the
   model, never used as a card answer.
-- **Optional, morphology analyser.** Picks the right reading of ambiguous words in context.
 
 ## Listen and Ear
 

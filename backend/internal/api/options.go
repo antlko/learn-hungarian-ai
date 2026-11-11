@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"unicode"
 	"unicode/utf8"
 
 	"tanulom/internal/morph"
@@ -96,12 +97,38 @@ func (s *Server) buildOptions(it srs.QueueItem, now time.Time) []string {
 	if len(distractors) > maxOptions-1 {
 		distractors = distractors[:maxOptions-1]
 	}
-	opts := append([]string{expected}, distractors...)
+	// One casing for the whole card: every option in the lemma's own case, so
+	// no option is marked out by a sentence-initial capital (ADR-071). A form
+	// that collapses onto one already taken is dropped, which keeps them unique.
+	opts := make([]string, 0, maxOptions)
+	taken := map[string]bool{}
+	for _, o := range append([]string{expected}, distractors...) {
+		o = lemmaCase(o, it.Lemma)
+		if k := strings.ToLower(o); !taken[k] {
+			taken[k] = true
+			opts = append(opts, o)
+		}
+	}
 	if len(opts) < minOptions {
 		return nil
 	}
 	rng.Shuffle(len(opts), func(i, j int) { opts[i], opts[j] = opts[j], opts[i] })
 	return opts
+}
+
+// lemmaCase shows a form in its lemma's own case: lowercase unless the
+// dictionary form is itself capitalised (Budapest, Magyarország). A form at the
+// head of a sentence carries the SENTENCE's capital, which is not part of the
+// word and, among options, would mark the answer. Only the first letter is
+// touched — that is the only one a sentence can change. An unresolved lemma
+// leaves the form as it is: nothing to compare against.
+func lemmaCase(form, lemma string) string {
+	lr, _ := utf8.DecodeRuneInString(lemma)
+	fr, n := utf8.DecodeRuneInString(form)
+	if lemma == "" || form == "" || unicode.IsUpper(lr) || !unicode.IsUpper(fr) {
+		return form
+	}
+	return string(unicode.ToLower(fr)) + form[n:]
 }
 
 // admit appends cand when it is usable and not already taken.

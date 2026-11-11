@@ -180,7 +180,7 @@ func (s *Server) exampleRowsByLemmaID(lemmaID int64) (*sql.Rows, error) {
 	return s.pack.DB().Query(`
 		SELECT s.id, s.hu FROM sentence s
 		  JOIN sentence_token t ON t.sentence_id = s.id
-		 WHERE t.lemma_id = ? AND s.len_tokens BETWEEN 3 AND 14
+		 WHERE t.lemma_id = ? AND s.len_tokens BETWEEN 3 AND 14 AND s.source <> 'authored'
 		 ORDER BY s.len_tokens LIMIT ?`, lemmaID, exampleCandidates)
 }
 
@@ -213,6 +213,6 @@ func (s *Server) exampleRowsBySurfaceForm(lemmaID int64) (*sql.Rows, error) {
 	return s.pack.DB().Query(`
 		SELECT s.id, s.hu FROM sentence s
 		  JOIN sentence_token t ON t.sentence_id = s.id
-		 WHERE t.form IN (`+marks+`) AND s.len_tokens BETWEEN 3 AND 14
+		 WHERE t.form IN (`+marks+`) AND s.len_tokens BETWEEN 3 AND 14 AND s.source <> 'authored'
 		 ORDER BY s.len_tokens LIMIT ?`, args...)
 }

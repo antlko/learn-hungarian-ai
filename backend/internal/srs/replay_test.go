@@ -31,7 +31,19 @@ func TestReplayReproducesLiveStateExactly(t *testing.T) {
 			steps = append(steps, ReplayStep{Rating: rating, ReviewTime: now})
 			// Sometimes early, sometimes on time, sometimes late — fuzz kicks in
 			// past 2.5 days, so the gaps must cross that boundary.
-			gap := time.Duration(1+rnd.Intn(21*24)) * time.Hour
+			// Practice answers are reviews too (ADR-064), so gaps of seconds,
+			// minutes and the same day must replay as exactly as the long ones.
+			var gap time.Duration
+			switch rnd.Intn(4) {
+			case 0:
+				gap = time.Duration(1+rnd.Intn(59)) * time.Second
+			case 1:
+				gap = time.Duration(1+rnd.Intn(120)) * time.Minute
+			case 2:
+				gap = time.Duration(1+rnd.Intn(12)) * time.Hour
+			default:
+				gap = time.Duration(1+rnd.Intn(21*24)) * time.Hour
+			}
 			now = now.Add(gap)
 		}
 

@@ -16,18 +16,18 @@ whole file. Each rule is here because breaking it caused a real bug.
 - **The language pack is read-only.** `ATTACH`ed, never written. Learner corrections go to
   `morph_correction` in the user DB and apply as an overlay at lookup time.
 - **Morphology never calls Python at runtime.** Lookup ladder: exact `wordform` → frequency prior
-  (flagged `uncertain`) → suffix fallback (flagged `derived`) → optional HuSpaCy sidecar. See
-  [ADR-002](../.claude/DECISIONS.md#adr-002).
+  (flagged `uncertain`) → suffix fallback (flagged `derived`). The optional context sidecar was
+  removed ([ADR-069](../.claude/DECISIONS.md#adr-069)). See [ADR-002](../.claude/DECISIONS.md#adr-002).
 - **`config.yaml` is mutated only via `Server.updateConfig`** (clone → validate → atomic save →
   swap under lock). Add new `Config` fields to `config/clone.go` too. Never touch `s.cfg`
   directly.
 - **Managed components never block boot and the app never needs them.** `internal/components`
-  installs and supervises `mt`/`nlp` as child processes ([ADR-061](../.claude/DECISIONS.md#adr-061)).
+  installs and supervises `mt` as a child process ([ADR-061](../.claude/DECISIONS.md#adr-061)).
   `AutoStart` runs in a goroutine and only logs; with everything absent (the default, and the whole
   of the distroless image, which ships no Python) the app is exactly what it was. A managed
   service's endpoint is **never stored**: `provider: managed` plus a port that exists only in the
   manager's memory, resolved by `api.resolveService` — every client takes its `config.Service` from
-  it, so do not read `cfg.Services.MT/NLP` directly for a call. Children get an ALLOWLISTED env (never
+  it, so do not read `cfg.Services.MT` directly for a call. `Service.Paused` (ADR-068) is honoured in that same function (paused resolves to `off`; `managedWanted` = managed && !paused), and `PUT /api/settings` must never clear it. Children get an ALLOWLISTED env (never
   `TANULOM_*` or a secret), run only the sources embedded in the binary (`make sync-components` after
   editing `services/<id>/`; a test fails on drift), and no route accepts a URL, path or argument.
   Installs are atomic (`<id>.installing/` renamed on success) and a failure leaves nothing.
@@ -103,7 +103,10 @@ whole file. Each rule is here because breaking it caused a real bug.
   deck and the response echoes what was actually served
   ([ADR-024](../.claude/DECISIONS.md#adr-024)).
 - **«Знаю» is practised, never scheduled.** The button sets a WORD aside — `note.trashed_at`,
-  every direction of it, because hiding one card hands the same word back through another door.
+  every direction of it, because hiding one card hands the same word back through another door,
+  and **every live note of that lemma** (by `note.lemma_id`, one transaction, one `trashed_at`
+  instant — [ADR-071](../.claude/DECISIONS.md#adr-071)); restore brings back the notes set aside at
+  that same instant. Course enrolment never creates or un-trashes a note for a lemma whose status is `known`.
   It is not a delete: the note, its cards, their FSRS state and every `review_log` row survive,
   which is what makes restore return the card *overdue* rather than new, and what keeps undo
   (delete-and-replay over that log) working across a trashing. `scope=trash` is accepted by
@@ -325,7 +328,7 @@ whole file. Each rule is here because breaking it caused a real bug.
   `user_gloss` only as `machine` on an explicit save and a card's back only after «Принять как
   своё» re-saves it `manual`. Its example sentences are illustration, say so on the panel, and
   never become notes. Prompt: `.claude/prompts/word-entry.md`.
-- **Reading sets are pack sentences, imported by a click, never LLM text.** «Живые примеры» (`reading_set`, [ADR-056](../.claude/DECISIONS.md#adr-056)) hold only existing `source='tatoeba'` sentences chosen by `langpack/pipeline/reading_sets.py`; `POST /api/library/sets/:code/import` makes an ordinary text through `Server.ingestText` and creates no note or card.
+- **Reading sets are imported by a click, and the only AI Hungarian in the pack is a labelled dialogue that feeds nothing else.** «Фразы» (`reading_set`, [ADR-056](../.claude/DECISIONS.md#adr-056)) hold only existing `source='tatoeba'` sentences chosen by `langpack/pipeline/reading_sets.py`. «Диалог» sets ([ADR-066](../.claude/DECISIONS.md#adr-066), amended 2026-11-11) hold `source='authored'` lines (written by an AI, build-checked against attested wordforms, never native-checked) and are labelled «Написано ИИ, носителем не проверено» on the card and in the preview; the imported text is `kind: generated`. `authored` is read only by reading sets: every drill, example, practice and course-sentence query filters `source <> 'authored'`, authored sentences carry no tokens and never enter the n-gram attestation index. `POST /api/library/sets/:code/import` makes an ordinary text through `Server.ingestText` and creates no note or card.
 - **Machine translation is display-only, and always says who wrote it.** `services/mt` (NLLB-200)
   generates Russian and English, not Hungarian, so `corpus` attestation cannot help — a wrong
   translation is perfectly well-formed. **Labelling is the entire defence**: `model` travels with
@@ -356,7 +359,7 @@ whole file. Each rule is here because breaking it caused a real bug.
   majority vote on the translation — OpenSubtitles' automatic alignment fails at the head of
   every film, so a translation with no majority is dropped while the sentence is kept.
   `langpack/pipeline/subtitles.py`. `make subtitles` adds them to an existing pack in minutes
-  (the sentence stage never calls HuSpaCy); the **starter pack takes `source='tatoeba'` only**,
+  (the sentence stage never calls a tagger); the **starter pack takes `source='tatoeba'` only**,
   because it is compiled into a binary we publish and OPUS's licence does not cover that.
 - **Verb forms are generated for recognition, never for production.**
   `langpack/pipeline/verbs.py` fills the indicative cells Wiktionary misses (`hoztunk` was

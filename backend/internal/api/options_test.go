@@ -264,3 +264,64 @@ func TestViaIsValidatedAndPracticeAcceptsIt(t *testing.T) {
 		t.Errorf("practice wrote %d review_log rows", n)
 	}
 }
+
+// A blank at the head of a sentence carries the sentence's capital, not the
+// word's: «Szia! Hogy vagy?» asks for «szia». ADR-071.
+func TestLemmaCaseDropsOnlyTheSentenceCapital(t *testing.T) {
+	t.Parallel()
+	for _, c := range []struct{ form, lemma, want string }{
+		{"Szia", "szia", "szia"},
+		{"Ház", "ház", "ház"},
+		{"Érted", "ért", "érted"},                // accented capital
+		{"Budapesten", "Budapest", "Budapesten"}, // proper noun keeps it
+		{"Magyarország", "Magyarország", "Magyarország"},
+		{"házban", "ház", "házban"},
+		{"Szia", "", "Szia"}, // lemma unknown: nothing to compare against
+	} {
+		if got := lemmaCase(c.form, c.lemma); got != c.want {
+			t.Errorf("lemmaCase(%q, %q) = %q, want %q", c.form, c.lemma, got, c.want)
+		}
+	}
+}
+
+func TestOptionsOfASentenceInitialBlankAreAllLowercaseAndUnique(t *testing.T) {
+	t.Parallel()
+	s, _ := newOptionsServer(t)
+	it := optionItem(s, srs.Cloze, "ház", "Házban", 7, t)
+	opts := s.buildOptions(it, time.Now())
+	if opts == nil {
+		t.Fatal("options expected")
+	}
+	seen := map[string]bool{}
+	for _, o := range opts {
+		if o != strings.ToLower(o) {
+			t.Errorf("option %q is not lowercase: a capital marks the answer among %v", o, opts)
+		}
+		if seen[o] {
+			t.Errorf("option %q is duplicated in %v", o, opts)
+		}
+		seen[o] = true
+	}
+	if countOf(opts, "házban") != 1 {
+		t.Errorf("the answer is missing or repeated in %v", opts)
+	}
+	// And the proper noun keeps its capital: the lemma itself is capitalised.
+	proper := optionItem(s, srs.Cloze, "ház", "Házban", 7, t)
+	proper.Lemma = "Ház"
+	if got := s.buildOptions(proper, time.Now()); countOf(got, "Házban") != 1 {
+		t.Errorf("a capitalised lemma lost its capital: %v", got)
+	}
+}
+
+func TestExpectedForAClozeIsShownInTheLemmasCase(t *testing.T) {
+	t.Parallel()
+	if got := expectedFor(srs.Cloze, "szia", "Szia"); got != "szia" {
+		t.Errorf("cloze expected %q, want szia", got)
+	}
+	if got := expectedFor(srs.Cloze, "Budapest", "Budapesten"); got != "Budapesten" {
+		t.Errorf("cloze expected %q, want Budapesten", got)
+	}
+	if got := expectedFor(srs.Produce, "szia", "Szia"); got != "szia" {
+		t.Errorf("produce expected %q, want the dictionary form", got)
+	}
+}

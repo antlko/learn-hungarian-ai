@@ -57,8 +57,8 @@ export const useUiStore = defineStore('ui', () => {
   function readTheme(): Theme {
     const stored = localStorage.getItem(THEME_KEY)
     if (stored === 'dark' || stored === 'light') return stored
-    // Light-first, but honour an explicit OS dark preference.
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    // Light is the default; only an explicit toggle changes it (UX.md principle 7).
+    return 'light'
   }
 
   /**

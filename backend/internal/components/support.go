@@ -23,8 +23,6 @@ type Prober interface {
 	// Alive: the service answered /health with ANY HTTP status. A model still
 	// loading answers 503, and that is "up".
 	Alive(ctx context.Context, port int) bool
-	// Warmup asks the service to fetch its model (POST /warmup).
-	Warmup(ctx context.Context, port int) error
 	// Health reads the service's own account of its model.
 	Health(ctx context.Context, port int) (Health, error)
 }
@@ -55,24 +53,6 @@ func (HTTPProber) Alive(ctx context.Context, port int) bool {
 	}
 	_ = resp.Body.Close()
 	return true
-}
-
-// Warmup implements Prober.
-func (HTTPProber) Warmup(ctx context.Context, port int) error {
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url(port, "/warmup"), nil)
-	if err != nil {
-		return err
-	}
-	resp, err := probeClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 4<<10))
-	if resp.StatusCode >= 500 {
-		return fmt.Errorf("warmup answered %d", resp.StatusCode)
-	}
-	return nil
 }
 
 // Health implements Prober.

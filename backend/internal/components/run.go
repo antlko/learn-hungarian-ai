@@ -25,7 +25,7 @@ var (
 // RunOptions are the CLI's only inputs besides the component id.
 type RunOptions struct {
 	Host string // IP literal; default 0.0.0.0
-	Port int    // 1024-65535; default is the service's own (mt 5003, nlp 5002)
+	Port int    // 1024-65535; default is the service's own (mt 5003)
 	// Out receives the child's output lines (the CLI prints them to stdout).
 	Out func(line string)
 }
@@ -41,7 +41,7 @@ func DefaultPort(id string) int { return specs[id].defPort }
 func ValidateRun(id, host string, port int) (string, int, error) {
 	sp, ok := specs[id]
 	if !ok {
-		return "", 0, fmt.Errorf("%w: unknown component %q (want mt or nlp)", ErrUsage, id)
+		return "", 0, fmt.Errorf("%w: unknown component %q (want mt)", ErrUsage, id)
 	}
 	if host == "" {
 		host = DefaultRunHost
@@ -167,9 +167,7 @@ func (m *Manager) RunForeground(ctx context.Context, id string, ro RunOptions) (
 	}
 }
 
-// foregroundReady waits for the service to answer /health and, for nlp, runs the
-// same warm-up the in-app install does (POST /warmup, then follow /health), so a
-// first start downloads the model. A nil `ready` channel in the caller's select
+// foregroundReady waits for the service to answer /health. A nil `ready` channel in the caller's select
 // blocks forever, which is what we want once it has fired.
 func (m *Manager) foregroundReady(ctx context.Context, c *comp, p Proc, port int) error {
 	deadline := time.Now().Add(m.opt.ReadyTimeout)
@@ -191,11 +189,5 @@ func (m *Manager) foregroundReady(ctx context.Context, c *comp, p Proc, port int
 		}
 	}
 	m.set(c, func(c *comp) { c.state = StateRunning })
-	if c.spec.warmup {
-		slog.Info("components: fetching the model (first start downloads it)", "component", c.spec.id)
-		if key, detail := m.warmup(ctx, c); key != "" && ctx.Err() == nil {
-			return fmt.Errorf("model warm-up failed (%s): %s", key, detail)
-		}
-	}
 	return nil
 }

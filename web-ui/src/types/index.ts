@@ -114,6 +114,8 @@ export interface Service {
   endpoint: string
   model?: string
   voices?: string[]
+  /** Output only: set through `api.setServicePaused`, never through the settings PUT. */
+  paused?: boolean
 }
 
 export interface UpdateSettingsRequest {
@@ -140,7 +142,7 @@ export interface UpdateSettingsResponse {
   clamped?: Clamp[]
 }
 
-export type CapabilityName = 'tts' | 'asr' | 'nlp' | 'llm' | 'mt'
+export type CapabilityName = 'tts' | 'asr' | 'llm' | 'mt'
 
 /**
  * One machine translation.
@@ -175,6 +177,8 @@ export interface Capability {
   reason?: string
   /** What an llm endpoint says it serves (`GET /v1/models`) — the picker's list. */
   models?: string[]
+  /** The admin switched this service off (ADR-068); provider and endpoint are kept. */
+  paused?: boolean
 }
 
 // ─── Review ────────────────────────────────────────────────────────────────
@@ -192,8 +196,6 @@ export interface Analysis {
   certainty: Certainty
   freqRank?: number
   alternatives: number
-  /** 'context' = chosen among the form's readings by the HuSpaCy sidecar; certainty stays 'uncertain'. */
-  via?: 'context'
 }
 
 export interface AnalyzedToken {
@@ -273,6 +275,8 @@ export interface Memory {
    */
   stepsLeft: number
   stepsTotal: number
+  /** 0–100: where the word is now (ADR-070). Falls on a mistake; 100 is about half a year between showings. */
+  progress: number
   /**
    * Whether a «Хорошо» from here would take the card off the minute steps and
    * onto days — asked of the scheduler, not guessed from the interval. False
@@ -419,6 +423,15 @@ export interface PracticeAnswerResponse {
   diff?: Diff
   expected?: string
   acceptedWithAccents?: boolean
+  /** False for «Знаю» words and new cards: the answer was logged but moved nothing (ADR-064). */
+  counted: boolean
+  reason?: 'known' | 'new'
+  rating?: number
+  nextDue?: string
+  intervalDays?: number
+  /** Absent = none. */
+  gradedFeatures?: FeatureGrade[]
+  memory?: Memory
 }
 
 /** Practice volume AND accuracy: a count alone only ever goes up. */
@@ -467,6 +480,8 @@ export interface WordRow {
   reps: number
   stepsLeft: number
   stepsTotal: number
+  /** 0–100; omitted for «Знаю» words (ADR-070). */
+  progress?: number
 }
 
 export type WordStage = 'learning' | 'relearning' | 'young' | 'mature' | 'known'
@@ -575,6 +590,9 @@ export interface AnswerResponse {
   acceptedWithAccents?: boolean
   /** The card's memory AFTER this answer, so the interval change can be shown. */
   memory?: Memory
+  /** Practice only: false when the answer moved nothing (ADR-064). */
+  counted?: boolean
+  reason?: 'known' | 'new'
 }
 
 export interface UndoResult {
@@ -782,18 +800,43 @@ export type LemmaStatus = 'new' | 'learning' | 'known' | 'ignored'
 
 export type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
 
-/** A ready-made reading set of real sentences (GET /api/library/sets). */
+/**
+ * A ready-made reading set (GET /api/library/sets): «Фразы» (real sentences a
+ * person wrote) or «Диалог» (`track: 'dialogue'`, written by an AI, `authored`).
+ */
 export interface LibrarySet {
   code: string
   level: 'A1' | 'A2' | 'B1'
-  track: 'core' | 'theme'
+  track: 'core' | 'theme' | 'dialogue'
   title: string
   titleRu: string
   titleEn: string
   theme: string
   sentences: number
+  /** Written by an AI for the app, not checked by a native speaker: always labelled. */
+  authored: boolean
   imported: boolean
   textId?: number
+}
+
+/** One line of a set in the preview; either translation may be missing. */
+export interface LibrarySetLine {
+  hu: string
+  ru?: string
+  en?: string
+}
+
+/** GET /api/library/sets/:code — the set as it would be imported, in order. */
+export interface LibrarySetDetail {
+  code: string
+  level: 'A1' | 'A2' | 'B1'
+  track: 'core' | 'theme' | 'dialogue'
+  title: string
+  titleRu: string
+  titleEn: string
+  theme: string
+  authored: boolean
+  sentences: LibrarySetLine[]
 }
 
 export interface TextSummary {
@@ -882,6 +925,22 @@ export interface LemmaDetail {
   glosses: Record<string, string[]>
   glossFallback: boolean
   paradigm?: Record<string, string>
+  /** Absent when the word is not in the deck (ADR-070). */
+  memory?: LemmaMemory
+}
+
+/** The word's memory on GET /api/lemma/:id: its best card's figures plus each card. */
+export interface LemmaMemory {
+  progress: number
+  stage: MemoryStage
+  nextDue?: string
+  intervalDays: number
+  reps: number
+  lapses: number
+  retrievability: number
+  /** Newest last, at most eight. */
+  history: boolean[]
+  cards: { direction: DirectionName; progress: number; stage: MemoryStage }[]
 }
 
 // ─── Curriculum & grammar drills ───────────────────────────────────────────
@@ -1365,6 +1424,8 @@ export interface SkippedWord {
   lemma: string
   glossRu: string
   glossEn: string
+  /** Left out because the learner marked the word «Знаю», not for lack of an example. */
+  known?: boolean
 }
 
 export interface EnrolResult {
@@ -1627,7 +1688,7 @@ export interface RestartResponse {
   supervised: boolean
 }
 
-export type ComponentId = 'pack' | 'mt' | 'nlp' | 'tts' | 'asr' | 'llm'
+export type ComponentId = 'pack' | 'mt' | 'tts' | 'asr' | 'llm'
 
 /** GET /api/admin/components. `state` is a word the screen maps to copy. */
 export interface ComponentStatus {
@@ -1643,7 +1704,7 @@ export interface ComponentStatus {
   composeProfile: string
   /** false = this repository does not ship the sidecar yet. */
   built: boolean
-  /** mt and nlp only; absent from an older server — the screen then offers Docker and own-server tabs only. */
+  /** mt only; absent from an older server — the screen then offers Docker and own-server tabs only. */
   managed?: ManagedStatus
 }
 
@@ -1691,4 +1752,6 @@ export interface DeckStages {
   stages: { learning: number; relearning: number; young: number; mature: number; known: number }
   /** In the deck, no reviewed card yet; not also counted in `stages.learning`. */
   new: number
+  /** Ten decile counts (0–9, 10–19 … 90–100) of words with a reviewed card (ADR-070). */
+  progress: number[]
 }

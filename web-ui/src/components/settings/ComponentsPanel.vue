@@ -3,7 +3,6 @@ import InfoTip from '@/components/common/InfoTip.vue'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { api } from '@/api'
 import { describeError } from '@/lib/errors'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import ComponentCard from '@/components/settings/ComponentCard.vue'
 import PackCard from '@/components/settings/PackCard.vue'
@@ -37,17 +36,7 @@ const emit = defineEmits<{
   'save-service': [id: string, patch: Partial<Service>]
 }>()
 
-/*
-  The context analyser (nlp). «Скачать модель» asks the sidecar to fetch its
-  model; progress is the card's own state/progress, re-read every ~2 s ONLY
-  while the sidecar says `loading` and the tab is visible. Timers die with the
-  component. The app works with the sidecar stopped, so a failure is a line here,
-  never a toast storm. Browser flow not exercised.
-*/
-// `byId` must exist before the `watch(nlpLoading, …)` below: a watch reads its
-// source immediately, and a computed declared further down is still in its
-// temporal dead zone — the whole Settings screen died on it.
-const ORDER: ComponentId[] = ['mt', 'nlp', 'llm', 'tts', 'asr']
+const ORDER: ComponentId[] = ['mt', 'llm', 'tts', 'asr']
 
 const byId = computed(() => {
   const m = new Map<ComponentId, ComponentStatus>()
@@ -55,30 +44,8 @@ const byId = computed(() => {
   return m
 })
 
-const nlpWarming = ref(false)
-const nlpError = ref('')
-const nlp = computed(() => byId.value.get('nlp'))
-const nlpLoading = computed(() => nlp.value?.state === 'loading')
-const nlpCanWarm = computed(
-  () => !!nlp.value?.built && nlp.value.configured && !nlpLoading.value && !(nlp.value.reachable && nlp.value.state === 'ready'),
-)
-const nlpPct = computed(() => Math.round((nlp.value?.progress ?? 0) * 100))
-
-async function warmNlp() {
-  nlpWarming.value = true
-  nlpError.value = ''
-  try {
-    await api.nlpWarmup()
-  } catch (e) {
-    nlpError.value = describeError(e)
-  } finally {
-    nlpWarming.value = false
-    emit('pack-refresh')
-  }
-}
-
 /*
-  The built-in copies (mt, nlp). One poll of GET /api/admin/components every 2 s,
+  The built-in copy (mt). One poll of GET /api/admin/components every 2 s,
   ONLY while some copy is installing or starting and the tab is visible; a short
   grace after pressing a button covers the moment before the server reports the
   new state. When the work ends the stored provider may have changed (the server
@@ -91,7 +58,7 @@ let graceTimer: ReturnType<typeof setTimeout> | undefined
 const acting = ref<Partial<Record<ComponentId, boolean>>>({})
 const actionError = ref<Partial<Record<ComponentId, string>>>({})
 
-async function act(id: 'mt' | 'nlp', action: 'install' | 'start' | 'stop' | 'uninstall') {
+async function act(id: 'mt', action: 'install' | 'start' | 'stop' | 'uninstall') {
   acting.value[id] = true
   actionError.value[id] = ''
   try {
@@ -124,11 +91,10 @@ function stopPoll() {
   timer = undefined
 }
 function syncPoll() {
-  if ((nlpLoading.value || anyWorking.value || grace.value) && document.visibilityState === 'visible') {
+  if ((anyWorking.value || grace.value) && document.visibilityState === 'visible') {
     if (!timer) timer = setInterval(() => emit('pack-refresh'), 2000)
   } else stopPoll()
 }
-watch(nlpLoading, syncPoll)
 onMounted(() => {
   document.addEventListener('visibilitychange', syncPoll)
   syncPoll()
@@ -169,37 +135,13 @@ const sidecars = computed(() =>
         :models="c.id === 'llm' ? llmModels : []"
         @check="emit('check')"
         @save="(p) => emit('save-service', c.id, p)"
-        @install="act(c.id as 'mt' | 'nlp', 'install')"
-        @start="act(c.id as 'mt' | 'nlp', 'start')"
-        @stop="act(c.id as 'mt' | 'nlp', 'stop')"
-        @uninstall="act(c.id as 'mt' | 'nlp', 'uninstall')"
+        @install="act(c.id as 'mt', 'install')"
+        @start="act(c.id as 'mt', 'start')"
+        @stop="act(c.id as 'mt', 'stop')"
+        @uninstall="act(c.id as 'mt', 'uninstall')"
       >
         <!-- The translator keeps its own live block (download progress, retry). -->
         <slot v-if="c.id === 'mt'" name="mt" />
-        <div v-if="c.id === 'nlp' && c.built" class="flex flex-col gap-1.5" aria-live="polite">
-          <p v-if="!c.configured" class="text-[11px] leading-relaxed text-muted-foreground">
-            {{ $t('settings.components.nlp.notConfigured') }}
-          </p>
-          <p v-else-if="nlpLoading" class="text-xs text-learning">
-            {{ $t('settings.components.nlp.loadingPct', { pct: nlpPct }) }}
-          </p>
-          <p v-else-if="c.reachable && c.state === 'ready'" class="text-xs text-known">
-            {{ $t('settings.components.nlp.readyLine') }}
-          </p>
-          <p v-else-if="c.configured && !c.reachable" class="text-xs text-uncertain">
-            {{ $t('errors.nlpUnreachable') }}
-          </p>
-          <p v-if="nlpError" class="text-xs text-error">{{ nlpError }}</p>
-          <Button
-            v-if="nlpCanWarm"
-            size="sm"
-            class="self-start"
-            :disabled="nlpWarming"
-            @click="warmNlp"
-          >
-            {{ $t('settings.components.nlp.download') }}
-          </Button>
-        </div>
         <p v-if="c.id === 'llm'" class="text-[11px] leading-relaxed text-muted-foreground">
           {{ $t('settings.components.llm.fields') }}
         </p>

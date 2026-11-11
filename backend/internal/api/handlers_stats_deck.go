@@ -30,6 +30,11 @@ type DeckStages struct {
 	Total  int             `json:"total"`
 	Stages DeckStageCounts `json:"stages"`
 	New    int             `json:"new"`
+	// Progress counts WORDS with a reviewed card (learning, relearning, young,
+	// mature) by the strongest card's progress decile: bucket i holds 10i..10i+9,
+	// 100 goes into bucket 9. It counts words by memory state, not reviews, so
+	// the review numbers still all come from srs.Breakdowns. ADR-070, [R20].
+	Progress [10]int `json:"progress"`
 }
 
 func (s *Server) handleStatsDeck(c fiber.Ctx) error {
@@ -129,7 +134,12 @@ func (s *Server) scanDeckStages(userID int64, now time.Time) (DeckStages, error)
 
 	for id, stt := range status {
 		m, ok := best[id]
-		switch wordStage(stt, m, ok) {
+		stage := wordStage(stt, m, ok)
+		switch stage {
+		case "relearning", "young", "mature":
+			d.Progress[min(m.Progress/10, 9)]++
+		}
+		switch stage {
 		case "known":
 			d.Stages.Known++
 		case "relearning":
@@ -141,6 +151,7 @@ func (s *Server) scanDeckStages(userID int64, now time.Time) (DeckStages, error)
 		case "learning":
 			if ok && m.Stage == srs.StageLearning {
 				d.Stages.Learning++
+				d.Progress[min(m.Progress/10, 9)]++
 			} else {
 				d.New++ // in the deck, no reviewed card yet
 			}

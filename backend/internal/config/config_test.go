@@ -261,3 +261,22 @@ func TestLangPackURLStaysEmptyOnDisk(t *testing.T) {
 		t.Errorf("stored default URL = %q", u)
 	}
 }
+
+func TestPausedSurvivesCloneAndYAML(t *testing.T) {
+	c := Default()
+	c.Services.LLM = Service{Provider: ProviderLocal, Endpoint: "http://x:1", Model: "m", Paused: true}
+	if !c.Clone().Services.LLM.Paused {
+		t.Fatal("Clone dropped Paused")
+	}
+	dir := t.TempDir()
+	if err := Save(dir, c); err != nil {
+		t.Fatal(err)
+	}
+	got, err := Load(dir)
+	if err != nil || !got.Services.LLM.Paused || got.Services.LLM.Endpoint != "http://x:1" {
+		t.Fatalf("%v %+v", err, got.Services.LLM)
+	}
+	if Default().Services.MT.Paused {
+		t.Fatal("paused must have no default")
+	}
+}

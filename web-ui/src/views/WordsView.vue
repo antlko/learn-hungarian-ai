@@ -10,7 +10,9 @@ import { Select } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import StatCard from '@/components/visual/StatCard.vue'
 import { http } from '@/api/http'
-import { Progress } from '@/components/ui/progress'
+import WordProgress from '@/components/common/WordProgress.vue'
+import WordInspector from '@/components/common/WordInspector.vue'
+import BottomSheet from '@/components/common/BottomSheet.vue'
 import { Skeleton } from '@/components/ui/skeleton'
 import EmptyState from '@/components/common/EmptyState.vue'
 import PageHeader from '@/components/common/PageHeader.vue'
@@ -24,9 +26,10 @@ import type { WordRow, WordStage, WordsResponse } from '@/types'
  * «Что выучилось, что нет» — the deck as a readable list, not a percentage.
  *
  * Every column is a measurement: status is the learner's own declaration plus
- * "has a card", the memory bar is the strongest card's retrievability right
- * now (it DECAYS — that is the point of showing it), next due is when the
- * scheduler asks again. Nothing here is a score.
+ * "has a card", the bar is the word's progress, 0–100 (ADR-070: it rises on a
+ * right answer and falls on a mistake; the stages are marks on it), next due is
+ * when the scheduler asks again. The chance of recall lives in the word's
+ * inspector, not here: two percentages on one row read as one thing.
  */
 const { t } = useI18n()
 const ui = useUiStore()
@@ -49,6 +52,9 @@ const status = ref(qp('status') || 'all')
 const stage = ref(STAGES.includes(qp('stage') as WordStage) ? qp('stage') : 'all')
 const sortBy = ref(qp('sort') || 'added')
 const page = ref(1)
+// The word the learner tapped: its memory, forms and examples open in the
+// same sheet the review screen uses (ADR-070).
+const inspected = ref('')
 
 function syncQuery() {
   const query: Record<string, string> = {}
@@ -145,18 +151,6 @@ const STATUS_TONES = {
   new: 'new',
 } as const
 
-/**
- * The ladder is a POSITION, not a score: three rungs, and a word can step back
- * down (relearning sits on the first rung). It has no end and counts nothing.
- * `known` is the learner's own «Знаю» and stands outside the ladder.
- */
-const RUNGS = ['learning', 'young', 'mature'] as const
-function rung(stage: WordRow['stage']): number {
-  if (stage === 'relearning' || stage === 'learning') return 0
-  if (stage === 'young') return 1
-  if (stage === 'mature') return 2
-  return -1
-}
 const inSteps = (w: WordRow) => w.stage === 'learning' || w.stage === 'relearning'
 
 function nextDue(iso?: string): string {
@@ -184,12 +178,6 @@ function facts(w: WordRow): string {
 /** The gloss for the row, marked when it is in the other language (ADR-035). */
 function gloss(w: { glossRu: string; glossEn: string }) {
   return glossLine(w.glossRu, w.glossEn, ui.locale, t('translation.fallbackShort'))
-}
-
-function memoryTone(r: number) {
-  if (r >= 0.9) return 'bg-known'
-  if (r >= 0.7) return 'bg-learning'
-  return 'bg-error'
 }
 
 </script>
@@ -237,6 +225,7 @@ function memoryTone(r: number) {
       <Select v-model="sortBy" class="w-auto" :aria-label="$t('words.sortLabel')">
         <option value="added">{{ $t('words.sort.added') }}</option>
         <option value="word">{{ $t('words.sort.word') }}</option>
+        <option value="progress">{{ $t('words.sort.progress') }}</option>
         <option value="retrievability">{{ $t('words.sort.retrievability') }}</option>
         <option value="due">{{ $t('words.sort.due') }}</option>
       </Select>
@@ -294,7 +283,16 @@ function memoryTone(r: number) {
           :style="{ '--i': wi }"
         >
           <div class="min-w-0">
-            <p class="truncate font-medium" lang="hu">{{ w.lemma || '—' }}</p>
+            <button
+              v-if="w.lemma"
+              type="button"
+              class="block max-w-full cursor-pointer truncate rounded-sm text-left font-medium underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-ring"
+              lang="hu"
+              @click="inspected = w.lemma"
+            >
+              {{ w.lemma }}
+            </button>
+            <p v-else class="truncate font-medium">—</p>
             <p class="truncate text-xs text-muted-foreground">{{ gloss(w) }}</p>
           </div>
 
@@ -302,18 +300,6 @@ function memoryTone(r: number) {
                vs hollow) and text carry it; colour is never the only channel. -->
           <div class="flex flex-wrap items-center gap-2" :aria-label="$t('words.stageStep', { name: w.stage ? $t(`words.stageName.${w.stage}`) : $t(`words.status.${w.status}`) })">
             <template v-if="w.stage && w.stage !== 'known'">
-              <ol class="flex items-center gap-1" aria-hidden="true">
-                <li
-                  v-for="(r, i) in RUNGS"
-                  :key="r"
-                  class="size-2.5 rounded-full border"
-                  :class="
-                    i <= rung(w.stage)
-                      ? 'border-learning bg-learning'
-                      : 'border-border bg-transparent'
-                  "
-                />
-              </ol>
               <span :class="[chipBase, stageTint(w.stage)]">
                 <Check v-if="w.stage === 'mature'" class="size-3" aria-hidden="true" />
                 {{ $t(`words.stageName.${w.stage}`) }}
@@ -329,24 +315,13 @@ function memoryTone(r: number) {
           </div>
 
           <div class="flex min-w-0 flex-col gap-1">
-            <div class="flex items-center gap-2">
-              <!-- Not in the learning steps: the model computes retrievability there against an
-                   interval of minutes and reads ≈100% right after a miss. The step (beside the
-                   stage) and the next review stand in. -->
-              <template v-if="w.retrievability > 0 && !inSteps(w)">
-                <Progress
-                  :value="w.retrievability * 100"
-                  :tone="memoryTone(w.retrievability)"
-                  size="h-1.5"
-                  class="max-w-40"
-                  :label="$t('words.memory')"
-                />
-                <span class="shrink-0 text-xs tabular-nums">
-                  {{ $t('words.memoryWords', { n: Math.round(w.retrievability * 100) }) }}
-                </span>
-              </template>
-              <span v-else-if="!inSteps(w)" class="text-xs text-muted-foreground">{{ $t('words.unreviewed') }}</span>
-            </div>
+            <!-- The word's progress; «Знаю» words have none. -->
+            <WordProgress
+              v-if="w.progress !== undefined && w.stage !== 'known'"
+              :value="w.progress"
+              :stage="w.stage"
+              size="row"
+            />
             <p v-if="w.nextDue" class="text-xs text-muted-foreground">{{ nextDue(w.nextDue) }}</p>
             <p v-if="facts(w)" class="text-xs tabular-nums text-muted-foreground">{{ facts(w) }}</p>
           </div>
@@ -376,4 +351,7 @@ function memoryTone(r: number) {
       </div>
     </template>
   </div>
+  <BottomSheet side="right" :open="!!inspected" :title="inspected" hide-title @close="inspected = ''">
+    <WordInspector v-if="inspected" :key="inspected" :word="inspected" embedded @close="inspected = ''" />
+  </BottomSheet>
 </template>

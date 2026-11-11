@@ -253,14 +253,14 @@ func TestAdminComponentsShape(t *testing.T) {
 		ids = append(ids, d.ID)
 		byID[d.ID] = d
 	}
-	if strings.Join(ids, ",") != "pack,mt,nlp,tts,asr,llm" {
+	if strings.Join(ids, ",") != "pack,mt,tts,asr,llm" {
 		t.Errorf("ids = %v", ids)
 	}
 	if p := byID["pack"]; !p.Reachable || (p.State != "starter" && p.State != "full") {
 		t.Errorf("pack = %+v", p)
 	}
-	if !byID["nlp"].Built || byID["nlp"].State != "off" || byID["nlp"].RAMHint == "" {
-		t.Errorf("nlp = %+v", byID["nlp"])
+	if _, ok := byID["nlp"]; ok {
+		t.Error("the nlp row was removed by ADR-069")
 	}
 	if byID["tts"].State != "device" {
 		t.Errorf("tts = %+v", byID["tts"])

@@ -139,6 +139,8 @@ type ServiceDTO struct {
 	Endpoint string   `json:"endpoint"`
 	Model    string   `json:"model,omitempty"`
 	Voices   []string `json:"voices,omitempty"`
+	// Paused is output only: PUT /api/settings never reads it (ADR-068).
+	Paused bool `json:"paused,omitempty"`
 }
 
 // UpdateSettingsRequest is a partial update. Nil fields are left unchanged.
@@ -212,4 +214,33 @@ type CapabilityDTO struct {
 	// the settings screen to offer; absent for every other service and for an
 	// endpoint that does not answer the route.
 	Models []string `json:"models,omitempty"`
+	// Paused: the admin switched this service off (ADR-068). The row reports
+	// configured=false, reachable=false, detail "paused"; provider is the stored one.
+	Paused bool `json:"paused,omitempty"`
+}
+
+// LemmaMemory is the learner's memory of one word, for the word inspector.
+// It rides on GET /api/lemma/:id as `memory`, and is absent when the word has
+// no card in the learner's deck. Every figure is the BEST card's (highest
+// retrievability, then reps — the Words list's rule), built by
+// srs.Store.CardMemory; Progress is srs.Memory.Progress (ADR-070).
+type LemmaMemory struct {
+	Progress       int     `json:"progress"`
+	Stage          string  `json:"stage"`
+	NextDue        string  `json:"nextDue,omitempty"`
+	IntervalDays   int     `json:"intervalDays"`
+	Reps           int     `json:"reps"`
+	Lapses         int     `json:"lapses"`
+	Retrievability float64 `json:"retrievability"`
+	// History is the best card's last outcomes, most recent LAST, at most 8.
+	History []bool `json:"history"`
+	// Cards lists every card of the word, one row per direction.
+	Cards []LemmaCardMemory `json:"cards"`
+}
+
+// LemmaCardMemory is one card's place on the progress scale.
+type LemmaCardMemory struct {
+	Direction string `json:"direction"`
+	Progress  int    `json:"progress"`
+	Stage     string `json:"stage"`
 }

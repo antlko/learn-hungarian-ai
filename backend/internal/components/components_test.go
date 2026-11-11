@@ -124,17 +124,12 @@ type fakeProber struct {
 	mu     sync.Mutex
 	silent bool
 	health []Health // consumed in order; the last repeats
-	warm   atomic.Int32
 }
 
 func (p *fakeProber) Alive(context.Context, int) bool {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	return !p.silent
-}
-func (p *fakeProber) Warmup(context.Context, int) error {
-	p.warm.Add(1)
-	return nil
 }
 func (p *fakeProber) Health(context.Context, int) (Health, error) {
 	p.mu.Lock()
@@ -237,7 +232,7 @@ func TestPythonMissingMakesComponentUnavailable(t *testing.T) {
 func TestPythonTooOldOrWithoutVenvIsUnavailable(t *testing.T) {
 	h := newHarness(t)
 	h.r.pyOK = false
-	if st := h.m.Status(NLP); st.Available || st.UnavailableKey != KeyNoPython {
+	if st := h.m.Status(MT); st.Available || st.UnavailableKey != KeyNoPython {
 		t.Fatalf("%+v", st)
 	}
 }
@@ -305,9 +300,6 @@ func TestHappyPathMTStateMachineAndCommands(t *testing.T) {
 	if ep := hh.m.Endpoint(MT); ep != "http://127.0.0.1:"+strconv.Itoa(st.Port) {
 		t.Fatalf("endpoint %q", ep)
 	}
-	if hh.m.Endpoint(NLP) != "" {
-		t.Fatal("nlp has an endpoint without being installed")
-	}
 	if len(hh.installs) != 1 || hh.installs[0] != MT {
 		t.Fatalf("OnInstalled = %v", hh.installs)
 	}
@@ -367,42 +359,6 @@ func TestHappyPathMTStateMachineAndCommands(t *testing.T) {
 	}
 }
 
-func TestHappyPathNLPFollowsTheServiceModelDownload(t *testing.T) {
-	h := newHarness(t)
-	h.pr.health = []Health{{Status: "error", Error: "model not downloaded: POST /warmup"}, {Status: "downloading", Progress: 0.5}, {Status: "ready"}}
-	st := h.install(t, NLP)
-	if h.pr.warm.Load() != 1 {
-		t.Fatalf("warmup calls = %d", h.pr.warm.Load())
-	}
-	if st.Progress != 1 {
-		t.Fatalf("%+v", st)
-	}
-	// nlp has no torch step.
-	for _, c := range h.r.runs {
-		if strings.Contains(strings.Join(c.Args, " "), "torch") {
-			t.Fatalf("nlp installed torch: %v", c.Args)
-		}
-	}
-}
-
-func TestNLPModelDownloadFailureLeavesNothing(t *testing.T) {
-	h := newHarness(t)
-	h.pr.health = []Health{{Status: "error", Error: "download failed: Temporary failure in name resolution"}}
-	if err := h.m.Install(context.Background(), NLP); err != nil {
-		t.Fatal(err)
-	}
-	st := h.waitState(t, NLP, StateFailed, true)
-	if st.ErrorKey != KeyNetwork {
-		t.Fatalf("%+v", st)
-	}
-	if _, err := os.Stat(h.m.final(NLP)); err == nil {
-		t.Fatal("a half-installed component was left behind")
-	}
-	if h.m.Endpoint(NLP) != "" || len(h.installs) != 0 {
-		t.Fatal("handed over a failed install")
-	}
-}
-
 func TestFailedPipLeavesNothingBehind(t *testing.T) {
 	h := newHarness(t)
 	h.r.failRun = func(c Cmd) ([]string, error) {
@@ -453,8 +409,8 @@ func TestOtherPipFailureIsInstallFailed(t *testing.T) {
 		}
 		return nil, nil
 	}
-	_ = h.m.Install(context.Background(), NLP)
-	if st := h.waitState(t, NLP, StateFailed, true); st.ErrorKey != KeyInstallFailed {
+	_ = h.m.Install(context.Background(), MT)
+	if st := h.waitState(t, MT, StateFailed, true); st.ErrorKey != KeyInstallFailed {
 		t.Fatalf("%+v", st)
 	}
 }
@@ -474,20 +430,18 @@ func TestInstallIsSingleFlight(t *testing.T) {
 	if err := h.m.Stop(MT); !errors.Is(err, ErrBusy) {
 		t.Fatalf("stop during install = %v", err)
 	}
-	// Manager-wide: a second component may not install at the same time either.
-	if err := h.m.Install(context.Background(), NLP); !errors.Is(err, ErrBusy) {
-		t.Fatalf("concurrent install of another component = %v", err)
-	}
 	close(h.r.block)
 	h.waitState(t, MT, StateRunning, true)
 	// ...and the slot is free again afterwards.
-	h.install(t, NLP)
+	if err := h.m.Uninstall(MT); err != nil {
+		t.Fatalf("uninstall after the install finished = %v", err)
+	}
 }
 
 func TestInstallTwiceIsRefusedWhenInstalled(t *testing.T) {
 	h := newHarness(t)
-	h.install(t, NLP)
-	if err := h.m.Install(context.Background(), NLP); !errors.Is(err, ErrBusy) && !errors.Is(err, ErrInstalled) {
+	h.install(t, MT)
+	if err := h.m.Install(context.Background(), MT); !errors.Is(err, ErrBusy) && !errors.Is(err, ErrInstalled) {
 		t.Fatalf("reinstall = %v", err)
 	}
 }
@@ -577,8 +531,8 @@ func TestCrashRestartsWithBackoffThenFails(t *testing.T) {
 
 func TestAddressInUseRepicksThePortWithoutCountingACrash(t *testing.T) {
 	h := newHarness(t, func(o *Options) { o.MaxRestarts = 1 })
-	h.install(t, NLP)
-	_ = h.m.Stop(NLP)
+	h.install(t, MT)
+	_ = h.m.Stop(MT)
 	h.r.mu.Lock()
 	base := len(h.r.starts)
 	h.r.onStart = func(n int, onLine func(string)) bool {
@@ -589,10 +543,10 @@ func TestAddressInUseRepicksThePortWithoutCountingACrash(t *testing.T) {
 		return false
 	}
 	h.r.mu.Unlock()
-	if err := h.m.Start(NLP); err != nil {
+	if err := h.m.Start(MT); err != nil {
 		t.Fatal(err)
 	}
-	h.waitState(t, NLP, StateRunning, false)
+	h.waitState(t, MT, StateRunning, false)
 	h.r.mu.Lock()
 	defer h.r.mu.Unlock()
 	if len(h.r.starts)-base != 3 {
@@ -601,7 +555,7 @@ func TestAddressInUseRepicksThePortWithoutCountingACrash(t *testing.T) {
 	if h.r.starts[base].Env == nil || h.r.starts[base+1].Env == nil {
 		t.Fatal("no env")
 	}
-	if envOf(h.r.starts[base], "NLP_PORT") == envOf(h.r.starts[base+1], "NLP_PORT") {
+	if envOf(h.r.starts[base], "MT_PORT") == envOf(h.r.starts[base+1], "MT_PORT") {
 		t.Fatal("same port re-used after EADDRINUSE")
 	}
 }
@@ -609,12 +563,11 @@ func TestAddressInUseRepicksThePortWithoutCountingACrash(t *testing.T) {
 func TestShutdownStopsChildren(t *testing.T) {
 	h := newHarness(t)
 	h.install(t, MT)
-	h.install(t, NLP)
-	p1, p2 := h.r.procs[0], h.r.procs[1]
+	p1 := h.r.procs[0]
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	h.m.Shutdown(ctx)
-	for i, p := range []*fakeProc{p1, p2} {
+	for i, p := range []*fakeProc{p1} {
 		select {
 		case <-p.done:
 		default:
@@ -695,9 +648,9 @@ func TestChildEnvironmentIsAnAllowlist(t *testing.T) {
 
 func TestUninstallRemovesEverything(t *testing.T) {
 	h := newHarness(t)
-	h.install(t, NLP)
+	h.install(t, MT)
 	proc := h.r.lastProc()
-	if err := h.m.Uninstall(NLP); err != nil {
+	if err := h.m.Uninstall(MT); err != nil {
 		t.Fatal(err)
 	}
 	select {
@@ -705,14 +658,14 @@ func TestUninstallRemovesEverything(t *testing.T) {
 	default:
 		t.Fatal("child still running after uninstall")
 	}
-	if _, err := os.Stat(h.m.final(NLP)); err == nil {
+	if _, err := os.Stat(h.m.final(MT)); err == nil {
 		t.Fatal("component dir remains")
 	}
-	if st := h.m.Status(NLP); st.State != StateAbsent {
+	if st := h.m.Status(MT); st.State != StateAbsent {
 		t.Fatalf("%+v", st)
 	}
 	// Reinstallable afterwards.
-	h.install(t, NLP)
+	h.install(t, MT)
 }
 
 func TestAutoStartOnlyWhatIsWantedAndInstalled(t *testing.T) {
@@ -728,30 +681,31 @@ func TestAutoStartOnlyWhatIsWantedAndInstalled(t *testing.T) {
 	if st := h.m.Status(MT); st.State != StateInstalled {
 		t.Fatalf("installed-on-disk state = %q", st.State)
 	}
-	h.m.AutoStart(func(id string) bool { return id == NLP })
-	h.waitState(t, NLP, StateRunning, false)
+	h.m.AutoStart(func(string) bool { return false })
 	if st := h.m.Status(MT); st.State != StateInstalled {
-		t.Fatalf("mt must not start: %q", st.State)
+		t.Fatalf("mt must not start when unwanted: %q", st.State)
 	}
+	h.m.AutoStart(func(id string) bool { return id == MT })
+	h.waitState(t, MT, StateRunning, false)
 	// sources were refreshed from the embedded copy.
-	if _, err := os.Stat(filepath.Join(h.m.final(NLP), "src", "app.py")); err != nil {
+	if _, err := os.Stat(filepath.Join(h.m.final(MT), "src", "app.py")); err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestRunSourcesAreReverifiedOnEveryStart(t *testing.T) {
 	h := newHarness(t)
-	h.install(t, NLP)
-	_ = h.m.Stop(NLP)
-	app := filepath.Join(h.m.final(NLP), "src", "app.py")
+	h.install(t, MT)
+	_ = h.m.Stop(MT)
+	app := filepath.Join(h.m.final(MT), "src", "app.py")
 	if err := os.WriteFile(app, []byte("import os; os.system('evil')"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if err := h.m.Start(NLP); err != nil {
+	if err := h.m.Start(MT); err != nil {
 		t.Fatal(err)
 	}
-	h.waitState(t, NLP, StateRunning, false)
-	want, _ := Source(NLP, "app.py")
+	h.waitState(t, MT, StateRunning, false)
+	want, _ := Source(MT, "app.py")
 	got, _ := os.ReadFile(app)
 	if !bytes.Equal(want, got) {
 		t.Fatal("tampered app.py was run instead of being restored")
@@ -769,19 +723,19 @@ func TestEndpointIsNilSafe(t *testing.T) {
 func TestLogsAreRedactedAndBounded(t *testing.T) {
 	h := newHarness(t)
 	h.r.failRun = func(c Cmd) ([]string, error) { return nil, nil }
-	h.install(t, NLP)
-	h.m.addLog(h.m.comps[NLP], "reading /home/alice/.cache/foo and "+h.dir+"/components/nlp/venv/lib x https://pypi.org/simple/x")
+	h.install(t, MT)
+	h.m.addLog(h.m.comps[MT], "reading /home/alice/.cache/foo and "+h.dir+"/components/mt/venv/lib x https://pypi.org/simple/x")
 	for i := 0; i < 500; i++ {
-		h.m.addLog(h.m.comps[NLP], "line "+strconv.Itoa(i))
+		h.m.addLog(h.m.comps[MT], "line "+strconv.Itoa(i))
 	}
-	st := h.m.Status(NLP)
+	st := h.m.Status(MT)
 	if len(st.Log) > 40 {
 		t.Fatalf("log not bounded: %d", len(st.Log))
 	}
-	h.m.addLog(h.m.comps[NLP], "reading /home/alice/.cache/foo and "+h.dir+"/components/nlp/venv/lib x https://pypi.org/simple/x")
-	st = h.m.Status(NLP)
+	h.m.addLog(h.m.comps[MT], "reading /home/alice/.cache/foo and "+h.dir+"/components/mt/venv/lib x https://pypi.org/simple/x")
+	st = h.m.Status(MT)
 	last := st.Log[len(st.Log)-1]
-	if strings.Contains(last, "alice") || strings.Contains(last, "/home/") || !strings.Contains(last, "<data>/components/nlp/venv/lib") || !strings.Contains(last, "https://pypi.org/simple/x") {
+	if strings.Contains(last, "alice") || strings.Contains(last, "/home/") || !strings.Contains(last, "<data>/components/mt/venv/lib") || !strings.Contains(last, "https://pypi.org/simple/x") {
 		t.Fatalf("redaction wrong: %q", last)
 	}
 }
@@ -823,7 +777,7 @@ func TestEmbeddedSourcesMatchServices(t *testing.T) {
 }
 
 func TestEmbeddedAppsBindToTheConfiguredHost(t *testing.T) {
-	for id, host := range map[string]string{MT: "MT_HOST", NLP: "NLP_HOST"} {
+	for id, host := range map[string]string{MT: "MT_HOST"} {
 		b, _ := Source(id, "app.py")
 		if !bytes.Contains(b, []byte(`os.environ.get("`+host+`", "0.0.0.0")`)) {
 			t.Errorf("%s/app.py does not read %s", id, host)
@@ -1032,7 +986,7 @@ func TestBrokenPipFailsFastWithItsOwnKey(t *testing.T) {
 
 func TestVenvIsCreatedIsolated(t *testing.T) {
 	h := newHarness(t)
-	h.install(t, NLP)
+	h.install(t, MT)
 	for _, c := range h.r.runs {
 		if j := strings.Join(c.Args, " "); strings.Contains(j, "-m venv") && !strings.HasPrefix(j, "-I ") {
 			t.Fatalf("venv not created with -I: %s", j)
@@ -1042,21 +996,21 @@ func TestVenvIsCreatedIsolated(t *testing.T) {
 
 func TestUninstallRefusedWhileAStartHoldsTheClaim(t *testing.T) {
 	h := newHarness(t)
-	h.install(t, NLP)
-	_ = h.m.Stop(NLP)
+	h.install(t, MT)
+	_ = h.m.Stop(MT)
 	h.m.mu.Lock()
-	h.m.comps[NLP].claim = true
+	h.m.comps[MT].claim = true
 	h.m.mu.Unlock()
-	if err := h.m.Uninstall(NLP); !errors.Is(err, ErrBusy) {
+	if err := h.m.Uninstall(MT); !errors.Is(err, ErrBusy) {
 		t.Fatalf("uninstall during a start = %v", err)
 	}
-	if err := h.m.Start(NLP); !errors.Is(err, ErrBusy) {
+	if err := h.m.Start(MT); !errors.Is(err, ErrBusy) {
 		t.Fatalf("second start = %v", err)
 	}
 	h.m.mu.Lock()
-	h.m.comps[NLP].claim = false
+	h.m.comps[MT].claim = false
 	h.m.mu.Unlock()
-	if err := h.m.Start(NLP); err != nil {
+	if err := h.m.Start(MT); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -1101,12 +1055,12 @@ func TestStaleChildIsReapedAtManagerStart(t *testing.T) {
 
 func TestPidFileFollowsTheChild(t *testing.T) {
 	h := newHarness(t)
-	h.install(t, NLP)
-	pidf := filepath.Join(h.m.final(NLP), "run.pid")
+	h.install(t, MT)
+	pidf := filepath.Join(h.m.final(MT), "run.pid")
 	if b, err := os.ReadFile(pidf); err != nil || strings.TrimSpace(string(b)) != "4242" {
 		t.Fatalf("pid file: %q %v", b, err)
 	}
-	_ = h.m.Stop(NLP)
+	_ = h.m.Stop(MT)
 	if _, err := os.Stat(pidf); err == nil {
 		t.Fatal("pid file left after a clean stop")
 	}
@@ -1116,7 +1070,7 @@ func TestStatusDoesNotProbeOnEveryPoll(t *testing.T) {
 	h := newHarness(t)
 	for i := 0; i < 25; i++ {
 		h.m.Status(MT)
-		h.m.Status(NLP)
+		h.m.Status(MT)
 	}
 	detects := 0
 	for _, c := range h.r.runs {
@@ -1140,8 +1094,8 @@ func TestFailureDetailsNeverCarryHostPaths(t *testing.T) {
 		}
 		return nil, nil
 	}
-	_ = h.m.Install(context.Background(), NLP)
-	st := h.waitState(t, NLP, StateFailed, true)
+	_ = h.m.Install(context.Background(), MT)
+	st := h.waitState(t, MT, StateFailed, true)
 	if strings.Contains(st.ErrorDetail, "alice") || strings.Contains(st.ErrorDetail, "/Users/") {
 		t.Fatalf("detail: %q", st.ErrorDetail)
 	}
@@ -1149,16 +1103,16 @@ func TestFailureDetailsNeverCarryHostPaths(t *testing.T) {
 
 func TestHungChildIsKilledAndFailedNotRestarted(t *testing.T) {
 	h := newHarness(t, func(o *Options) { o.ReadyTimeout = 40 * time.Millisecond })
-	h.install(t, NLP)
-	_ = h.m.Stop(NLP)
+	h.install(t, MT)
+	_ = h.m.Stop(MT)
 	h.pr.mu.Lock()
 	h.pr.silent = true
 	h.pr.mu.Unlock()
 	base := h.r.startCount()
-	if err := h.m.Start(NLP); err != nil {
+	if err := h.m.Start(MT); err != nil {
 		t.Fatal(err)
 	}
-	st := h.waitState(t, NLP, StateFailed, false)
+	st := h.waitState(t, MT, StateFailed, false)
 	if st.ErrorKey != KeyStartFailed {
 		t.Fatalf("%+v", st)
 	}

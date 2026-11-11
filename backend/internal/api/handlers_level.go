@@ -83,7 +83,7 @@ func (s *Server) handleLLMLevel(c fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "no such text")
 	}
 
-	client, err := llm.New(s.Config().Services.LLM, s.llmKey())
+	client, err := llm.New(s.service("llm"), s.llmKey())
 	if err != nil {
 		// The same honest 503 shape every pack- or service-dependent route uses:
 		// a real state, named, with the place to change it.

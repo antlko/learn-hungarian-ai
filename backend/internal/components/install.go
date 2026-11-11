@@ -236,7 +236,7 @@ func (m *Manager) runInstall(ctx context.Context, c *comp, python string, foregr
 		return
 	}
 
-	// 5. start, and (nlp) fetch the model through the service itself.
+	// 5. start.
 	m.setStep(c, StepStart, 0.88)
 	if err := m.launch(c); err != nil {
 		fail(KeyStartFailed, err.Error())
@@ -245,13 +245,6 @@ func (m *Manager) runInstall(ctx context.Context, c *comp, python string, foregr
 	if err := m.waitRunning(ctx, c); err != nil {
 		fail(KeyStartFailed, err.Error()+"\n"+tail(m.logLines(c), 6))
 		return
-	}
-	if sp.warmup {
-		m.setStep(c, StepModel, 0.9)
-		if key, detail := m.warmup(ctx, c); key != "" {
-			fail(key, detail)
-			return
-		}
 	}
 
 	// 6. hand over: provider=managed.
@@ -308,45 +301,6 @@ func (m *Manager) waitRunning(ctx context.Context, c *comp) error {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-t.C:
-		}
-	}
-}
-
-// warmup has the running service fetch its model and follows /health. Returns
-// an error key, or "" on success.
-func (m *Manager) warmup(ctx context.Context, c *comp) (string, string) {
-	m.mu.Lock()
-	port := c.port
-	m.mu.Unlock()
-	if err := m.opt.Prober.Warmup(ctx, port); err != nil {
-		return KeyStartFailed, err.Error()
-	}
-	deadline := time.Now().Add(m.opt.WarmupTimeout)
-	t := time.NewTicker(m.opt.PollInterval)
-	defer t.Stop()
-	for {
-		h, err := m.opt.Prober.Health(ctx, port)
-		if err == nil {
-			switch h.Status {
-			case "ready":
-				return "", ""
-			case "error":
-				// "model not downloaded: POST /warmup" is the idle state before
-				// the download starts; only a message that is not that is a failure.
-				if h.Error != "" && !strings.Contains(h.Error, "POST /warmup") {
-					return classifyOne(h.Error), m.redact(h.Error)
-				}
-			default:
-				m.progress(c, 0.9+0.1*min(max(h.Progress, 0), 0.99))
-			}
-		}
-		if time.Now().After(deadline) {
-			return KeyNetwork, "the model download did not finish in time"
-		}
-		select {
-		case <-ctx.Done():
-			return KeyInstallFailed, "cancelled"
 		case <-t.C:
 		}
 	}

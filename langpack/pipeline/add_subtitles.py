@@ -126,8 +126,11 @@ def run(pack: Path, archives: dict[str, Path], limit: int, cache: Path | None = 
                 conn.execute("DELETE FROM sentence WHERE source = ?", (SOURCE,))
                 print(f"  replaced {len(old)} rows from a previous run", flush=True)
 
-            next_id = (conn.execute("SELECT COALESCE(MAX(id), 0) FROM sentence")
-                       .fetchone()[0]) + 1
+            # Authored dialogue ids sit far above the corpus (dialogues.ID_BASE):
+            # number the subtitles after the CORPUS, not after them.
+            next_id = (conn.execute(
+                "SELECT COALESCE(MAX(id), 0) FROM sentence WHERE source <> 'authored'")
+                .fetchone()[0]) + 1
             have = {r[0] for r in conn.execute("SELECT hu FROM sentence")}
 
             srows, trows, tokrows = [], [], []
@@ -165,7 +168,8 @@ def run(pack: Path, archives: dict[str, Path], limit: int, cache: Path | None = 
             # and a stale count is a wrong one.
             print("  rebuilding the n-gram attestation index", flush=True)
             counter: Counter[tuple[str, int]] = Counter()
-            for (text,) in conn.execute("SELECT hu FROM sentence"):
+            # Not the authored dialogues: the model must not vouch for its own text.
+            for (text,) in conn.execute("SELECT hu FROM sentence WHERE source <> 'authored'"):
                 t = [x.lower() for x in tokenise(text)]
                 for n in (2, 3):
                     for i in range(len(t) - n + 1):

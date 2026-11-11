@@ -350,6 +350,22 @@ type AnswerResponse struct {
 	Memory *srs.Memory `json:"memory,omitempty"`
 }
 
+// answerOutcome folds the request and the verdict into the srs.Outcome the
+// engine rates. Shared by the review queue and practice (ADR-064), so the two
+// can never rate the same answer differently.
+func answerOutcome(d srs.Direction, req AnswerRequest, g gradedAnswer) srs.Outcome {
+	o := srs.Outcome{
+		UsedHint:         req.UsedHint || g.outcome.UsedHint,
+		Duration:         time.Duration(req.DurationMs) * time.Millisecond,
+		Correct:          g.outcome.Correct,
+		PartiallyCorrect: g.outcome.PartiallyCorrect,
+	}
+	if d.Productive() {
+		o.Typed = strings.TrimSpace(req.Typed)
+	}
+	return o
+}
+
 // gradedAnswer is the verdict on one answer, before anything is scheduled.
 type gradedAnswer struct {
 	outcome             srs.Outcome
@@ -420,7 +436,7 @@ func (s *Server) gradeTyped(d srs.Direction, expected string, req AnswerRequest)
 // inflected form is wrong; a card that grades nothing is broken.
 // See .claude/research/12-retrieval-direction.md and ADR-017.
 func (s *Server) expectedAnswer(d srs.Direction, note srs.Note) string {
-	if d != srs.Produce || note.LemmaID == nil || *note.LemmaID == 0 {
+	if (d != srs.Produce && d != srs.Cloze) || note.LemmaID == nil || *note.LemmaID == 0 {
 		return note.TargetForm
 	}
 	byID, err := s.lemmaData([]int64{*note.LemmaID})
@@ -437,7 +453,15 @@ func (s *Server) expectedAnswer(d srs.Direction, note srs.Note) string {
 // has to be able to show it without grading the card, and a second copy of this
 // three-line rule in the client is exactly how the hint would come to show one
 // string while the grader wanted another.
+//
+// A cloze's form is shown in the LEMMA's case (lemmaCase): a blank at the head
+// of «Szia! Hogy vagy?» is the word «szia», and its capital is the sentence's,
+// not the word's. Grading is case-insensitive (morph.DiffForms), so this changes
+// what the learner reads and never what is accepted.
 func expectedFor(d srs.Direction, lemma, targetForm string) string {
+	if d == srs.Cloze {
+		return lemmaCase(targetForm, lemma)
+	}
 	if d != srs.Produce || lemma == "" {
 		return targetForm
 	}
@@ -485,14 +509,6 @@ func (s *Server) handleAnswer(c fiber.Ctx) error {
 		slog.DebugContext(c.Context(), "review answer by choice", "card", card.ID)
 	}
 
-	outcome := srs.Outcome{
-		UsedHint: req.UsedHint,
-		Duration: time.Duration(req.DurationMs) * time.Millisecond,
-	}
-	if card.Direction.Productive() {
-		outcome.Typed = strings.TrimSpace(req.Typed)
-	}
-
 	var diff *morph.Diff
 	var wrongFeature string
 	var acceptedWithAccents bool
@@ -503,9 +519,7 @@ func (s *Server) handleAnswer(c fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	outcome.Correct = graded.outcome.Correct
-	outcome.PartiallyCorrect = graded.outcome.PartiallyCorrect
-	outcome.UsedHint = outcome.UsedHint || graded.outcome.UsedHint
+	outcome := answerOutcome(card.Direction, req, graded)
 	diff, wrongFeature, acceptedWithAccents = graded.diff, graded.wrongFeature, graded.acceptedWithAccents
 
 	res, err := e.Answer(u.ID, card, note, outcome, wrongFeature, time.Now())
@@ -672,7 +686,7 @@ func directionWeights(cfg config.Config) map[srs.Direction]float64 {
 // the review screen answers it per card — an audio direction on a device with
 // no voice says so instead of presenting a silent card.
 func (s *Server) audioAvailable() bool {
-	tts := s.Config().Services.TTS
+	tts := s.service("tts")
 	switch tts.Provider {
 	case config.ProviderOff:
 		return false

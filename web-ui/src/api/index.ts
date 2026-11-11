@@ -1,6 +1,7 @@
 import { http, ApiError } from './http'
 import type {
   Example,
+  CapabilityName,
   ChangePasswordRequest,
   CreateUserRequest,
   UpdateUserRequest,
@@ -39,6 +40,7 @@ import type {
   TextDetail,
   TextSummary,
   LibrarySet,
+  LibrarySetDetail,
   TrashListResponse,
   TrashResponse,
   MTStatus,
@@ -125,6 +127,9 @@ export const api = {
     http.put<UpdateSettingsResponse>('/api/settings', body),
 
   capabilities: () => http.get<Capability[]>('/api/capabilities'),
+  /** Admin: switch one optional service off/on without losing its settings (ADR-068). Returns the fresh capability list. */
+  setServicePaused: (name: CapabilityName, paused: boolean) =>
+    http.post<Capability[]>(`/api/admin/services/${name}/paused`, { paused }),
 
   // ── accounts ──────────────────────────────────────────────────────────
   users: () => http.get<{ users: User[] }>('/api/users'),
@@ -286,6 +291,10 @@ export const api = {
 
   librarySets: () => http.get<LibrarySet[]>('/api/library/sets'),
 
+  /** Preview of one set, without importing it. */
+  librarySet: (code: string) =>
+    http.get<LibrarySetDetail>(`/api/library/sets/${encodeURIComponent(code)}`),
+
   importLibrarySet: (code: string) =>
     http.post<{ textId: number; created: boolean }>(
       `/api/library/sets/${encodeURIComponent(code)}/import`,
@@ -418,11 +427,9 @@ export const api = {
 
   /** Admin: the pack and every optional sidecar in one list (ADR-049). */
   adminComponents: () => http.get<ComponentStatus[]>('/api/admin/components'),
-  /** Admin: install | start | stop | uninstall the app-run copy of mt or nlp. 202 = started; 409 = a job is running. */
-  componentAction: (id: 'mt' | 'nlp', action: 'install' | 'start' | 'stop' | 'uninstall') =>
+  /** Admin: install | start | stop | uninstall the app-run copy of mt. 202 = started; 409 = a job is running. */
+  componentAction: (id: 'mt', action: 'install' | 'start' | 'stop' | 'uninstall') =>
     http.post<unknown>(`/api/admin/components/${id}/${action}`, {}),
-  /** Admin: ask the nlp sidecar to download/load its model; progress is read back via adminComponents. */
-  nlpWarmup: () => http.post<ComponentStatus>('/api/admin/nlp/warmup', {}),
   /** Admin: start the full-pack download. 422 errors.packNotPublished, 409 busy. */
   packInstallStart: () => http.post<PackInstallStatus>('/api/admin/pack/install', {}),
   packInstallStatus: () => http.get<PackInstallStatus>('/api/admin/pack/install'),

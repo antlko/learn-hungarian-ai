@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"log/slog"
 	"strconv"
 	"time"
 
@@ -20,14 +21,12 @@ import (
 // deck of nothing but new cards. It draws at random from a chosen pile and
 // ignores due dates entirely.
 //
-// It is a SEPARATE MODE, not a second scheduler. A practice answer changes no
-// card state, no feature state, and writes nothing to review_log. Extra
-// retrieval is good for learning [R1], but answering ahead of schedule tells
-// FSRS the learner recalled something at an interval they were never tested at,
-// and discounting the update instead would mean writing scheduling maths of our
-// own — which [ADR-003] forbids. So closing a word stays the review queue's
-// job, and the UI says so rather than leaving the learner to infer it.
-// See ADR-019.
+// A practice answer is a REAL REVIEW [R20] (ADR-064, superseding ADR-019): the
+// same Engine.Answer the queue calls, so FSRS itself discounts an early answer
+// from the real elapsed time — no scheduling maths of ours (ADR-003). Two
+// exceptions stay practice_log-only: words in «Знаю» (nothing about them
+// moves) and NEW cards (a first review would bypass the daily new budget).
+// See .claude/research/20-practice-and-progress.md.
 
 // PracticeQueueResponse is a practice session.
 type PracticeQueueResponse struct {
@@ -114,15 +113,24 @@ func (s *Server) handlePracticeQueue(c fiber.Ctx) error {
 
 // PracticeAnswerResponse is the verdict on one practice answer.
 //
-// Deliberately carries no nextDue and no gradedFeatures: there is nothing
-// scheduled and nothing graded into the second state space, and returning empty
-// fields shaped like the review response would invite the client to render a
-// schedule that does not exist.
+// Counted says whether the answer was a real review. When it was, the
+// scheduling fields are filled with the same shapes as AnswerResponse; when it
+// was not, Reason says why ("known": the word is in «Знаю»; "new": the card has
+// never been reviewed) and the scheduling fields are absent, so the client
+// cannot render a schedule that does not exist.
 type PracticeAnswerResponse struct {
 	Correct             bool        `json:"correct"`
 	Diff                *morph.Diff `json:"diff,omitempty"`
 	Expected            string      `json:"expected,omitempty"`
 	AcceptedWithAccents bool        `json:"acceptedWithAccents,omitempty"`
+
+	Counted        bool               `json:"counted"`
+	Reason         string             `json:"reason,omitempty"`
+	Rating         int                `json:"rating,omitempty"`
+	NextDue        *time.Time         `json:"nextDue,omitempty"`
+	IntervalDays   *uint64            `json:"intervalDays,omitempty"`
+	GradedFeatures []srs.FeatureGrade `json:"gradedFeatures,omitempty"`
+	Memory         *srs.Memory        `json:"memory,omitempty"`
 }
 
 func (s *Server) handlePracticeAnswer(c fiber.Ctx) error {
@@ -151,6 +159,9 @@ func (s *Server) handlePracticeAnswer(c fiber.Ctx) error {
 	if err := checkVia(req, card.Direction); err != nil {
 		return err
 	}
+	if req.Via == viaChoice {
+		req.UsedHint = false
+	}
 
 	// The same verdict the review queue would reach. The modes differ in what
 	// they record, never in what counts as correct.
@@ -160,16 +171,9 @@ func (s *Server) handlePracticeAnswer(c fiber.Ctx) error {
 		return err
 	}
 
+	// One instant for the review_log row and the practice_log row: undo finds
+	// the pair by (card, instant). db.FmtTime formats both.
 	now := time.Now()
-	if err := store.LogPractice(u.ID, card.ID, card.Direction,
-		graded.outcome.Correct, req.DurationMs, now); err != nil {
-		return err
-	}
-	// Minutes count: this is real work, and the ledger measures effort rather
-	// than obedience. The STREAK is untouched by it — that needs the real queue
-	// cleared as well, so practice can never stand in for the day's obligation.
-	_ = stats.NewStore(s.db.DB).RecordPractice(u.ID, localDay(now), req.DurationMs)
-
 	out := PracticeAnswerResponse{
 		Correct:             graded.outcome.Correct,
 		AcceptedWithAccents: graded.acceptedWithAccents,
@@ -177,6 +181,52 @@ func (s *Server) handlePracticeAnswer(c fiber.Ctx) error {
 	if card.Direction.Productive() {
 		out.Diff = graded.diff
 		out.Expected = expected
+	}
+
+	switch {
+	case note.Trashed:
+		out.Reason = "known"
+	case card.State.IsNew():
+		out.Reason = "new"
+	}
+
+	if out.Reason != "" {
+		if err := store.LogPractice(u.ID, card.ID, card.Direction,
+			graded.outcome.Correct, req.DurationMs, now); err != nil {
+			return err
+		}
+		// Minutes count: this is real work, and the ledger measures effort
+		// rather than obedience. The STREAK is untouched by it — that needs the
+		// real queue cleared as well.
+		_ = stats.NewStore(s.db.DB).RecordPractice(u.ID, localDay(now), req.DurationMs)
+		return c.JSON(out)
+	}
+
+	// A real review: the engine path the review queue uses (1 card review +
+	// feature reviews only for the features the item required).
+	e := s.engine()
+	outcome := answerOutcome(card.Direction, req, graded)
+	res, err := e.Answer(u.ID, card, note, outcome, graded.wrongFeature, now)
+	if err != nil {
+		return err
+	}
+	// Best-effort: the review is committed, and the practice tally is a stat.
+	if err := store.LogPractice(u.ID, card.ID, card.Direction,
+		graded.outcome.Correct, req.DurationMs, now); err != nil {
+		slog.WarnContext(c.Context(), "log practice after review", "card", card.ID, "err", err)
+	}
+	s.recordInteraction(u.ID, "review", req.DurationMs)
+
+	if res.GradedFeatures == nil {
+		res.GradedFeatures = []srs.FeatureGrade{}
+	}
+	out.Counted = true
+	out.Rating = int(res.Rating)
+	out.NextDue = &res.NextDue
+	out.IntervalDays = &res.IntervalDays
+	out.GradedFeatures = res.GradedFeatures
+	if m, err := e.Store().CardMemory(card.ID, card.NoteID, res.Card.State, e.Scheduler(), now); err == nil {
+		out.Memory = &m
 	}
 	return c.JSON(out)
 }

@@ -83,7 +83,6 @@ func (s *Server) ingestText(c fiber.Ctx, userID int64, in mining.Ingested, sourc
 	if err != nil {
 		return 0, noCov, noEst, err
 	}
-	s.applyNLPHints(c.Context(), ingestHintsTimeout, in.Body, tokens)
 	stored := toStoredTokens(tokens, sentences)
 
 	cov, err := s.coverageFor(userID, mining.AsTokenViews(stored))

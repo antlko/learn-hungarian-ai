@@ -128,7 +128,8 @@ func (g *Generator) loadAnchors() (*anchors, error) {
 			return
 		}
 		if err := g.pack.DB().QueryRow(
-			`SELECT MIN(id), MAX(id) FROM sentence`).Scan(&g.anchors.minSentID, &g.anchors.maxSentID); err != nil {
+			`SELECT MIN(id), MAX(id) FROM sentence WHERE source <> 'authored'`,
+		).Scan(&g.anchors.minSentID, &g.anchors.maxSentID); err != nil {
 			g.anchors.err = fmt.Errorf("sentence id range: %w", err)
 		}
 	})
@@ -313,21 +314,26 @@ func (g *Generator) sampleSentenceContaining(lemmaIDs []int64, rnd *rand.Rand) (
 	span := an.maxSentID - an.minSentID
 	floor := an.minSentID + rnd.Int63n(span)
 
+	// A drill's sentence is a real corpus sentence. The AI-written dialogue lines
+	// (`source = 'authored'`, ADR-066) are reading material only: filtered here
+	// even though they carry no tokens today, so a future token row cannot let
+	// one into a drill.
 	var sentID int64
 	err = g.pack.DB().QueryRow(`
-		SELECT sentence_id FROM sentence_token
-		 WHERE lemma_id = ? AND sentence_id >= ? LIMIT 1`, lemmaID, floor).Scan(&sentID)
+		SELECT t.sentence_id FROM sentence_token t JOIN sentence s ON s.id = t.sentence_id
+		 WHERE t.lemma_id = ? AND t.sentence_id >= ? AND s.source <> 'authored' LIMIT 1`,
+		lemmaID, floor).Scan(&sentID)
 	if err != nil {
 		// Past the end of this lemma's occurrences: wrap to the beginning.
 		if err2 := g.pack.DB().QueryRow(`
-			SELECT sentence_id FROM sentence_token
-			 WHERE lemma_id = ? LIMIT 1`, lemmaID).Scan(&sentID); err2 != nil {
+			SELECT t.sentence_id FROM sentence_token t JOIN sentence s ON s.id = t.sentence_id
+			 WHERE t.lemma_id = ? AND s.source <> 'authored' LIMIT 1`, lemmaID).Scan(&sentID); err2 != nil {
 			return 0, "", false
 		}
 	}
 	var hu string
 	if err := g.pack.DB().QueryRow(
-		`SELECT hu FROM sentence WHERE id = ?`, sentID).Scan(&hu); err != nil {
+		`SELECT hu FROM sentence WHERE id = ? AND source <> 'authored'`, sentID).Scan(&hu); err != nil {
 		return 0, "", false
 	}
 	return sentID, hu, true

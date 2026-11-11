@@ -10,6 +10,8 @@ note in [`.claude/research/`](.claude/research/README.md).
 Answers to the owner's sixteen points: install clarity, mobile, how the app learns, statistics,
 the roadmap and a plain list of features. Nothing committed or released.
 
+- **Removed** the optional HuSpaCy context sidecar (`nlp`, ADR-069): no measured benefit, ~2.4 GB RAM. Uncertain words keep the frequency prior and the "uncertain" mark.
+
 ### Learner-visible
 - **Estimated level and text coverage** (ADR-047): a chip in the top bar («A2.2», «≈71% слов текста»),
   a card on Today, and a section in Progress, always with its method sentence; it can go down.

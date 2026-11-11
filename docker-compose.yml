@@ -6,7 +6,6 @@
 # features that need them, with a visible reason.
 #
 #   docker compose up -d                                 core only
-#   docker compose --profile nlp up -d                   + HuSpaCy (needs >= 2.4 GB RAM)
 #   docker compose --profile llm up -d                   + a local model
 #   docker compose --profile mt up -d                    + sentence translation
 #
@@ -17,12 +16,12 @@
 # `profiles` marks a service optional: it does not start unless asked for with
 # `--profile X` or COMPOSE_PROFILES. The sidecars publish NO host ports (only
 # `expose:`): they are reachable by service name on the compose network
-# (http://nlp:5002), so they cannot clash with anything on your host. Add `ports:`
+# (http://mt:5003), so they cannot clash with anything on your host. Add `ports:`
 # yourself only if you want to reach one from outside.
 #
 # NOTE: the `speech` services (tts, asr) are NOT BUILT yet and are commented out
-# below, so no profile ever points at a missing build context. `nlp` and `mt`
-# build from source in this repository; `llm` pulls a published Ollama image.
+# below, so no profile ever points at a missing build context. `mt`
+# builds from source in this repository; `llm` pulls a published Ollama image.
 # See services/README.md.
 
 services:
@@ -54,27 +53,6 @@ services:
       # streak day all roll over at local midnight. Unset, the container runs on
       # UTC. The binary embeds tzdata, so any IANA name works.
       # TZ: Europe/Budapest
-    restart: unless-stopped
-
-  # --- optional: Hungarian text analysis (HuSpaCy) --------------------------
-  # Opt-in context disambiguation: for a form the language pack finds ambiguous
-  # (vár = castle / waits) it picks among the pack's OWN readings and the reader
-  # says "по контексту". It never adds an analysis. Without it nothing changes.
-  #
-  # NOT A SMALL CONTAINER. The model (hu_core_news_md, CC BY-SA 4.0, ~127 MB
-  # wheel) is published at ~2.4 GB RAM; that is not measured here, so plan for
-  # at least 2.5-3 GB free. The image is small; the model is fetched on first
-  # use (Settings -> Components, or POST /api/admin/nlp/warmup) into the volume below. Then in
-  # Settings point services.nlp at http://nlp:5002 with provider `local`.
-  nlp:
-    profiles: ['nlp']
-    build: ./services/nlp
-    container_name: tanulom-nlp
-    expose:
-      - '5002'
-    volumes:
-      - tanulom-nlp-models:/models
-    # Suggested guard (uncomment on a shared host): mem_limit: 3g
     restart: unless-stopped
 
   # --- NOT BUILT: speech (tts, asr) -------------------------------------------
@@ -139,5 +117,4 @@ services:
 
 volumes:
   tanulom-data:
-  tanulom-nlp-models:
   tanulom-ollama:

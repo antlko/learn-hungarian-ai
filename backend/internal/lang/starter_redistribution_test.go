@@ -18,6 +18,10 @@ import (
 //
 // A new corpus added to the full pack will fail here until somebody decides,
 // deliberately, that it may ship. That is the intended failure.
+//
+// The one exception is `authored`: the written dialogues (ADR-066), which are
+// not a corpus but text written for tanulom under the pack's own licence,
+// CC BY-SA 4.0. They are checked by their licence column, not waved through.
 func TestStarterPackShipsOnlyRedistributableSentences(t *testing.T) {
 	dir := t.TempDir()
 	version, _, err := EnsurePack(dir)
@@ -45,14 +49,22 @@ func TestStarterPackShipsOnlyRedistributableSentences(t *testing.T) {
 			t.Fatal(err)
 		}
 		total += n
-		if source != allowed {
-			t.Errorf("the embedded pack carries %d sentences from %q; only %q may be "+
-				"redistributed — see langpack/LICENSES.md and pipeline/starter.py",
-				n, source, allowed)
+		if source != allowed && source != "authored" {
+			t.Errorf("the embedded pack carries %d sentences from %q; only %q (and the "+
+				"authored dialogues) may be redistributed — see langpack/LICENSES.md and "+
+				"pipeline/starter.py", n, source, allowed)
 		}
 	}
 	if err := rows.Err(); err != nil {
 		t.Fatal(err)
+	}
+	var foreign int
+	if err := p.DB().QueryRow(`SELECT COUNT(*) FROM sentence
+		WHERE source = 'authored' AND license NOT LIKE 'CC BY-SA 4.0%'`).Scan(&foreign); err != nil {
+		t.Fatal(err)
+	}
+	if foreign != 0 {
+		t.Errorf("%d authored sentences carry a licence other than the pack's CC BY-SA 4.0", foreign)
 	}
 	if total == 0 {
 		t.Error("the starter pack has no sentences at all")

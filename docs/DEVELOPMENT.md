@@ -47,7 +47,7 @@ reads as "the button is still not there".
 | `make audio` | Renders the ear trainer's clips into `data/media/hvpt` with Piper (from the venv) and ffmpeg; `make voices` fetches the three CC0 talkers first. |
 | `make subtitles` / `make verbs` | Add the recurrence-filtered OpenSubtitles sentences / the generated indicative verb cells to an existing pack. |
 | `make tutor-kb` | Regenerates the tutor's reference corpus (`backend/internal/tutor/kb/src-*.md`). |
-| `make sync-components` | Copies `services/{mt,nlp}` sources into `backend/internal/components/src/` (what the binary embeds for managed components, [ADR-061](../.claude/DECISIONS.md#adr-061)); run it after editing a service, `TestEmbeddedSourcesMatchServices` fails otherwise. |
+| `make sync-components` | Copies `services/mt` sources into `backend/internal/components/src/` (what the binary embeds for managed components, [ADR-061](../.claude/DECISIONS.md#adr-061)); run it after editing a service, `TestEmbeddedSourcesMatchServices` fails otherwise. |
 | `make mt` | Runs the translation sidecar locally; weights under `MT_MODEL_DIR` (default `~/.cache/tanulom-mt`). |
 | `make venv` | Creates `langpack/.venv` and installs `langpack/requirements.txt`; `make deps` runs it. |
 | `make starter` | Re-embeds the starter pack into the Go tree. **Commit the result.** |
@@ -164,7 +164,7 @@ reason. Pinned by `spa_cache_test.go`.
 ## Optional sidecars
 
 ```bash
-docker compose --profile nlp --profile speech up -d
+docker compose --profile mt --profile speech up -d
 ```
 
 The app probes them at startup and via `GET /api/capabilities`. **Develop with them stopped at

@@ -14,8 +14,8 @@ mastery heatmap are wrong. Treat the golden test as a release gate.
 
 The best Hungarian analyser (HuSpaCy `hu_core_news_lg`: lemma 97.6%, POS 96.7%) is Python. The
 core is a static Go binary. Resolution: ship a **dictionary** (Wiktionary paradigms plus generated
-forms, in a pack) and resolve words by lookup; HuSpaCy is an optional sidecar for context
-disambiguation at runtime (step 4 below). **The build pipeline does not run HuSpaCy** — it links
+forms, in a pack) and resolve words by lookup; the runtime context sidecar once planned for
+this was removed ([ADR-069](../.claude/DECISIONS.md#adr-069)). **The build pipeline runs no tagger** — it links
 sentence tokens to lemmas through the pack's own `wordform` index and leaves `feats` empty.
 
 **Lookup ladder at runtime** — `internal/morph/lookup.go`:
@@ -25,9 +25,8 @@ sentence tokens to lemmas through the pack's own `wordform` index and leaves `fe
 | 1 | exact `wordform` hit, single analysis | done, `certain` |
 | 2 | exact hit, multiple analyses | frequency prior wins; flagged `uncertain` |
 | 3 | no hit | suffix-stripper from `morph_feature` allomorphs; flagged `derived` |
-| 4 | `nlp` sidecar reachable | HuSpaCy disambiguates in context (`vár` = castle vs. waits) |
 
-Steps 1–3 are fully offline with zero dependencies. Step 4 is an upgrade, never a requirement.
+All steps are fully offline with zero dependencies. An ambiguous word keeps the frequency prior and the `uncertain` mark.
 
 ---
 
@@ -106,7 +105,6 @@ under Settings → Data.
 | [hermitdave/FrequencyWords](https://github.com/hermitdave/FrequencyWords) `hu_50k` | frequency ranks (OpenSubtitles, spoken-register weighted) | CC BY-SA 4.0 |
 | [Hungarian Webcorpus 2.0](https://hlt.bme.hu/en/resources/webcorpus2) | n-gram attestation index, lemma frequency | CC BY-SA 4.0 (Wikipedia subcorpus) |
 | [UD Hungarian](https://github.com/UniversalDependencies/UD_Hungarian) | feature inventory; **golden test data** | CC BY-SA |
-| [HuSpaCy](https://github.com/huspacy/huspacy) `hu_core_news_md` | optional runtime sidecar (`services/nlp`, not yet built); **not used by the build** | Apache-2.0 (models CC BY-SA) |
 | [Common Voice HU](https://commonvoice.mozilla.org/hu/datasets) | **human talkers for HVPT** | CC0 |
 | [Piper hu_HU](https://huggingface.co/rhasspy/piper-voices/tree/main/hu/hu_HU) — anna, berta, imre | synthetic talkers, card audio | MIT |
 | [morphdb.hu](http://mokk.bme.hu/resources/morphdb-hu/) / [emMorph](https://github.com/dlt-rilmta/emMorph) | fallback suffix rules | see repo |
@@ -211,7 +209,7 @@ fetch → normalise → analyse → merge → score → emit
 |---|---|---|
 | fetch | `pipeline/fetch.py` | pinned URLs + SHA256 into `cache/`; **refuses to proceed on checksum mismatch** — reproducibility over convenience |
 | normalise | `wiktionary.py`, `wiktionary_ru.py`, `frequency.py` | JSONL → `lemma`, `lemma_gloss`, `paradigm`, IPA; frequency → ranks |
-| analyse | *(in `build.py`)* | **No HuSpaCy and no `analyse.py`.** Tokens of Tatoeba sentences are linked to lemmas by dictionary lookup (`sentence_token.feats` is empty); `wordform` is Wiktionary paradigms ∪ generated rows (`verbs.py`, attested wins) |
+| analyse | *(in `build.py`)* | **No tagger and no `analyse.py`.** Tokens of Tatoeba sentences are linked to lemmas by dictionary lookup (`sentence_token.feats` is empty); `wordform` is Wiktionary paradigms ∪ generated rows (`verbs.py`, attested wins) |
 | merge | `features.py` | resolve lemma identity across sources; derive `morph_feature` incl. allomorph tables from harmony class |
 | score | `sentences.py`, `minimal_pairs.py`, `curriculum.py`, `lessons.py`, `ngram.py` | sentence difficulty; CEFR estimate per lemma; contrast inventory + audio rendering; topic DAG + lesson text; n-gram counts |
 | emit | `emit.py` | write SQLite, create indexes, `VACUUM`, checksum, `manifest.json` |
@@ -307,7 +305,7 @@ and `course_word`; (c) update `pack_meta.stats`; (d) `reading_sets.build` + `val
 **`make starter` is not optional after either command.** The binary embeds its own pack, so
 skipping it ships last month's lessons ([ADR-010](../.claude/DECISIONS.md#adr-010)).
 
-### Reading sets («Живые примеры»)
+### Reading sets («Фразы» and «Диалог»)
 
 Stage `pipeline/reading_sets.py`, run by `build.py` (after the course), `refresh.py` (it follows the
 course words, so `make refresh-curriculum` recomputes it) and `starter.py` (chosen from what the
@@ -315,7 +313,7 @@ STARTER holds, never copied from the full pack: a full-pack set can name a sente
 lacks). Two tables, `reading_set(code, level, track, ord, title_*, theme_*)` and
 `reading_set_sentence(set_code, sentence_id, ord)` with a UNIQUE index on `sentence_id`.
 
-One set per basic-tier course unit and theme — 36 (24 basic core + 12 themes; the intermediate and advanced tiers have none, ADR-057), titled «Живые примеры: <unit>» / "Real examples:
+One set per basic-tier course unit and theme — 36 (24 basic core + 12 themes; the intermediate and advanced tiers have none, ADR-057), titled «Фразы: <unit>» / "Phrases:
 <unit>", 20-30 sentences each (target 25). Selection is deterministic (ties fall to the sentence id):
 
 1. `source = 'tatoeba'` only — a sentence in the pack is one a person wrote, and the starter takes
@@ -328,14 +326,52 @@ One set per basic-tier course unit and theme — 36 (24 basic core + 12 themes; 
    so the level on a set is an estimate too. Core: months 1-2 → A1, 3-4 → A2, 5-6 → B1. A theme is
    A1 only if ≥ 20% of its words are A1 and the A1 pool fills it; on hu-v1 all twelve come out A2;
 4. each sentence is in at most one set; units are filled scarcest-pool-first;
-5. preference order: 5-12 tokens, more unit words, a Russian translation, an English one, length
+5. ids in `pipeline/reading_sets_exclude.txt` (one sentence id per line, `#` comments; 345 ids
+   after the 2026-11-11 read of all 36 sets) are never selected, and `validate` fails if one is found in a set. Add an id after a
+   human read the dump and rejected the line, then `make starter`;
+6. preference order: 5-12 tokens, more unit words, then the "lively" terms — a conversational
+   sentence first (ends in `?`/`!`, or holds a lemma of `CONVERSATIONAL_LEMMAS`: én, te, mi, ti,
+   ön, maga, szia, sziasztok, helló, köszön, kér, tessék, bocsánat, igen, nem, jó), a sentence with
+   a proper noun (UPOS PROPN: Tom, Mary) after the others — a penalty, not an exclusion, so a
+   scarce unit still fills — then the frequency rank (`lemma.freq_rank`, buckets of 500) of the
+   sentence's rarest content lemma, lower first; then a Russian translation, an English one, length
    near 8. **The starter's sentences are 3-4 tokens almost throughout** (it keeps the shortest of
    the corpus), so on the starter only ~5% of set sentences reach 5 tokens; a full pack with longer
    sentences fills sets with better ones.
 
+7. a candidate whose set of content lemmas equals that of a line already picked is skipped
+   («Esik az eső» / «Esett az eső»): same frame, 25 of them is not a text.
+
+**Order inside a set** is a deterministic greedy chain (`_chain`), not shortest-first: start at
+the shortest line; next is the unused line sharing the most content lemmas with the current one,
+a non-question preferred after a question when they share a lemma; ties by length, then id. The
+chain is what makes neighbours read as one topic.
+
 The token and translation tables are read once into an index (`_Index`) and reused for every unit
 and band — scanning `sentence_token` per unit made a full-pack refresh take minutes. Output is
 identical to the per-query version (`tests/test_reading_sets.py` compares them).
+
+**Dialogues («Диалог: <unit>» / "Dialogue: <unit>").** Besides its «Фразы», each of the 36 units
+has one short written conversation (ADR-066, amended 2026-11-11), authored in
+`pipeline/dialogues_m1..m6.py` and `dialogues_themes.py` and written by `pipeline/dialogues.py`
+inside `reading_sets.build`: 8-14 lines, at most 10 words a line, two speakers, a Russian and an
+English translation per line, vocabulary and grammar at the unit's level. The lines are stored as
+`sentence.source = 'authored'` (ids from 9 000 000, **no `sentence_token` rows**), in
+`reading_set` rows with `track = 'dialogue'`, code `<unit>-dialogue`, `ord` right before the
+unit's «Фразы» (the «Фразы» `ord` is `2 × unit ord`, the dialogue's one less). They are an AI's
+Hungarian that no native speaker has checked: every surface says «Написано ИИ, носителем не
+проверено», and the build can only prove the forms exist. **Build-time validation**
+(`dialogues.problems`, run by `reading_sets.validate`; `python -m pipeline.dialogues PACK` is
+the author's loop): every word is an attested `wordform` (source not `generated`), every content
+lemma is at or below the unit's band or a word the learner has been taught by that unit, the
+shape limits above, no digits or speaker labels. A dialogue set holds authored lines only and a
+«Фразы» set Tatoeba lines only (`validate`); `release.py` and `add_subtitles.py` keep authored
+lines out of the n-gram attestation index, so the model never vouches for its own text. Consumers:
+only the reading sets read `authored`; every drill, example and course-sentence query filters
+`source <> 'authored'` (`internal/drill/definiteness.go`, `internal/api/handlers_examples.go`,
+`handlers_course.go`; tests `authored_sentences_test.go`, `definiteness_authored_test.go`). The
+starter gets its dialogues from `reading_sets.build(dst)`, not copied from a full pack; a
+committed starter is updated by the transplant above (steps (d)-(e) only).
 
 To tune, edit the constants at the top of the module (`MONTH_BAND`, `MIN/MAX/TARGET_SENTENCES`,
 `SHORT_*`, `THEME_A1_SHARE`), then `make refresh-curriculum` and `make starter`. `validate` and
@@ -399,7 +435,7 @@ Measured on `hu-ru`: 10.0M usable pairs → 8.85M distinct sentences → 132,079
 make subtitles                   # ~40 min, no full rebuild
 ```
 
-The sentence stage never calls HuSpaCy — `build.py` links each token through the pack's own
+The sentence stage never calls a tagger — `build.py` links each token through the pack's own
 `wordform` index — so adding sentences to a pack that already has a lexicon is minutes of I/O
 rather than the hours a full `make langpack` costs. `pipeline/add_subtitles.py` is idempotent:
 it owns every `source='opensubtitles'` row and replaces them wholesale, never touching Tatoeba's,

@@ -20,7 +20,7 @@ import (
 	"tanulom/internal/llm"
 )
 
-// Capability probing. Optional services (TTS, ASR, NLP, LLM, MT) are probed so the UI
+// Capability probing. Optional services (TTS, ASR, LLM, MT) are probed so the UI
 // can show their state and disable dependent features with a visible reason.
 //
 // The invariant this supports: the core must remain fully usable with every
@@ -57,18 +57,19 @@ func (s *Server) capabilities(parent context.Context) []CapabilityDTO {
 	services := map[string]config.Service{
 		"tts": cfg.Services.TTS,
 		"asr": cfg.Services.ASR,
-		"nlp": cfg.Services.NLP,
 		"llm": cfg.Services.LLM,
 		"mt":  cfg.Services.MT,
 	}
 	// A managed service has no stored endpoint; its port is resolved here, by
 	// the same function every client uses (resolveService).
 	managed := map[string]bool{}
-	for _, name := range []string{"nlp", "mt"} {
-		if services[name].Provider == config.ProviderManaged {
+	stored := make(map[string]config.Service, len(services))
+	for name, svc := range services {
+		stored[name] = svc
+		if svc.Provider == config.ProviderManaged && !svc.Paused {
 			managed[name] = true
-			services[name] = s.resolveService(name, services[name])
 		}
+		services[name] = s.resolveService(name, svc)
 	}
 
 	// Two probes in sequence for llm (see probe), so the deadline covers both.
@@ -87,6 +88,13 @@ func (s *Server) capabilities(parent context.Context) []CapabilityDTO {
 			key := ""
 			if name == "llm" {
 				key = llmKey
+			}
+			if stored[name].Paused {
+				dto := CapabilityDTO{Name: name, Provider: stored[name].Provider, Detail: "paused", Paused: true}
+				mu.Lock()
+				out = append(out, dto)
+				mu.Unlock()
+				return
 			}
 			dto := probe(ctx, name, svc, key)
 			if managed[name] {

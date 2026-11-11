@@ -225,7 +225,7 @@ refresh-curriculum: ## Rewrite lessons/features/course in an existing pack (seco
 subtitles: ## Add conversational sentences from OPUS to an existing pack (~40 min, no full rebuild)
 	$(call need,$(PYTHON),$(PY_HINT))
 	@test -s '$(PACK)' || { echo 'need $(PACK) first — run: make langpack'; exit 1; }
-# The sentence stage never calls HuSpaCy — it links tokens through the pack's
+# The sentence stage never calls a tagger — it links tokens through the pack's
 # own wordform index — so adding sentences to a pack that already has a lexicon
 # costs minutes of I/O, not a full `make langpack` rebuild. Stop the
 # server first: the app treats a pack as read-only and this writes to one.
@@ -285,9 +285,8 @@ voices: ## Fetch the three Piper voice models the ear trainer renders with (180 
 # outside its package), so services/<id>/ stays the source of truth and the copy
 # under backend/internal/components/src/ is generated. A Go test fails on drift.
 .PHONY: sync-components
-sync-components: ## Copy services/{mt,nlp} sources into the Go package that embeds them (ADR-061)
+sync-components: ## Copy services/mt sources into the Go package that embeds them (ADR-061)
 	cp services/mt/app.py services/mt/requirements.txt services/mt/requirements-convert.txt backend/internal/components/src/mt/
-	cp services/nlp/app.py services/nlp/requirements.txt backend/internal/components/src/nlp/
 
 .PHONY: mt
 mt: ## Run the local translator natively on :5003 (first run downloads ~2.4 GB)

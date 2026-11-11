@@ -67,8 +67,7 @@ func (r *apiFakeRunner) Start(components.Cmd, func(string)) (components.Proc, er
 
 type apiFakeProber struct{}
 
-func (apiFakeProber) Alive(context.Context, int) bool   { return true }
-func (apiFakeProber) Warmup(context.Context, int) error { return nil }
+func (apiFakeProber) Alive(context.Context, int) bool { return true }
 func (apiFakeProber) Health(context.Context, int) (components.Health, error) {
 	return components.Health{Status: "ready"}, nil
 }
@@ -159,7 +158,7 @@ func TestComponentRoutesAreAdminOnly(t *testing.T) {
 	s, admin := newAdmin(t)
 	addUser(t, admin, "bea@example.com", "bea elég hosszú jelszó", "learner")
 	learner := signIn(t, s, "bea@example.com", "bea elég hosszú jelszó")
-	for _, id := range []string{"mt", "nlp", "tts"} {
+	for _, id := range []string{"mt", "tts"} {
 		for _, act := range []string{"install", "start", "stop", "uninstall"} {
 			path := "/api/admin/components/" + id + "/" + act
 			if resp, _ := learner.do(http.MethodPost, path, nil); resp.StatusCode != http.StatusForbidden {
@@ -186,7 +185,7 @@ func TestComponentUnknownIDIs404(t *testing.T) {
 	}
 }
 
-func TestComponentsListCarriesManagedOnMTAndNLPOnly(t *testing.T) {
+func TestComponentsListCarriesManagedOnMTOnly(t *testing.T) {
 	t.Parallel()
 	s, c := newAdmin(t)
 	withFakeManager(t, s, 1, func(o *components.Options) {
@@ -196,7 +195,7 @@ func TestComponentsListCarriesManagedOnMTAndNLPOnly(t *testing.T) {
 	c.json(http.MethodGet, "/api/admin/components", nil, &rows)
 	for _, r := range rows {
 		switch r.ID {
-		case "mt", "nlp":
+		case "mt":
 			m := r.Managed
 			if m == nil || m.Available || m.UnavailableKey != "errors.componentNoPython" || m.State != "absent" || m.DiskNeed == "" || m.RAMNeed == "" {
 				t.Errorf("%s: %+v", r.ID, m)
@@ -218,7 +217,7 @@ func TestComponentInstallRefusedOnFullDisk(t *testing.T) {
 	s, c := newAdmin(t)
 	withFakeManager(t, s, 1, func(o *components.Options) { o.Disk = apiDisk{free: 1 << 20} })
 	var e struct{ Error string }
-	if resp := c.json(http.MethodPost, "/api/admin/components/nlp/install", nil, &e); resp.StatusCode != http.StatusInsufficientStorage || e.Error != "errors.diskFull" {
+	if resp := c.json(http.MethodPost, "/api/admin/components/mt/install", nil, &e); resp.StatusCode != http.StatusInsufficientStorage || e.Error != "errors.diskFull" {
 		t.Fatalf("%d %q", resp.StatusCode, e.Error)
 	}
 }
@@ -331,7 +330,7 @@ func TestStartNeedsAnInstall(t *testing.T) {
 	s, c := newAdmin(t)
 	withFakeManager(t, s, 1)
 	var e struct{ Error string }
-	if resp := c.json(http.MethodPost, "/api/admin/components/nlp/start", nil, &e); resp.StatusCode != http.StatusConflict || e.Error != "errors.componentNotInstalled" {
+	if resp := c.json(http.MethodPost, "/api/admin/components/mt/start", nil, &e); resp.StatusCode != http.StatusConflict || e.Error != "errors.componentNotInstalled" {
 		t.Fatalf("%d %q", resp.StatusCode, e.Error)
 	}
 }
@@ -373,25 +372,25 @@ func TestUninstallResetsManagedProviderAndDeletesFiles(t *testing.T) {
 	t.Parallel()
 	s, c := newAdmin(t)
 	withFakeManager(t, s, childServer(t))
-	c.do(http.MethodPost, "/api/admin/components/nlp/install", nil)
-	waitManaged(t, c, "nlp", "running")
-	if got := serviceOf(t, c, "nlp"); got.Provider != "managed" {
+	c.do(http.MethodPost, "/api/admin/components/mt/install", nil)
+	waitManaged(t, c, "mt", "running")
+	if got := serviceOf(t, c, "mt"); got.Provider != "managed" {
 		t.Fatalf("%+v", got)
 	}
-	dir := filepath.Join(s.dataDir, "components", "nlp")
+	dir := filepath.Join(s.dataDir, "components", "mt")
 	if _, err := os.Stat(dir); err != nil {
 		t.Fatal(err)
 	}
-	if resp, _ := c.do(http.MethodPost, "/api/admin/components/nlp/uninstall", nil); resp.StatusCode != http.StatusAccepted {
+	if resp, _ := c.do(http.MethodPost, "/api/admin/components/mt/uninstall", nil); resp.StatusCode != http.StatusAccepted {
 		t.Fatal(resp.StatusCode)
 	}
-	if got := serviceOf(t, c, "nlp"); got.Provider != "off" || got.Endpoint != "" {
+	if got := serviceOf(t, c, "mt"); got.Provider != "off" || got.Endpoint != "" {
 		t.Fatalf("provider after uninstall: %+v", got)
 	}
 	if _, err := os.Stat(dir); err == nil {
 		t.Fatal("component files remain")
 	}
-	if m := managedOf(t, c, "nlp"); m.State != "absent" {
+	if m := managedOf(t, c, "mt"); m.State != "absent" {
 		t.Fatalf("%+v", m)
 	}
 }

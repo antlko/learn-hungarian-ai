@@ -11,26 +11,37 @@ import (
 	"tanulom/internal/mining"
 )
 
-// Ready-made reading sets: «Живые примеры» (ADR-056).
+// Ready-made reading sets: «Диалог» and «Фразы» (ADR-056, ADR-066).
 //
-// A set is a handful of sentences that ALREADY EXIST in the language pack — a
-// person wrote each one — chosen at build time for one course unit and one
-// CEFR band (langpack/pipeline/reading_sets.py). Importing one makes an
-// ordinary text in the learner's library, through the same ingestion path as a
-// paste. Nothing here writes Hungarian, and nothing here creates a note or a
-// card: mining words out of the text stays the learner's explicit act in the
-// reader.
+// A «Фразы» set is a handful of sentences that ALREADY EXIST in the language
+// pack — a person wrote each one — chosen at build time for one course unit and
+// one CEFR band (langpack/pipeline/reading_sets.py). A «Диалог» set is one short
+// written conversation for the same unit (langpack/pipeline/dialogues.py): its
+// sentences are `source = 'authored'`, written by an AI and not checked by a
+// native speaker, and every surface says so. Importing a set makes an ordinary
+// text in the learner's library, through the same ingestion path as a paste.
+// Nothing here writes Hungarian, and nothing here creates a note or a card:
+// mining words out of the text stays the learner's explicit act in the reader.
+// Authored sentences are reading material only; no drill, example or practice
+// query may return one: each filters `source <> 'authored'`.
 //
 // The pack is read-only. Which sets a learner has imported is recorded on the
 // TEXT itself, as `source_url = "set:<code>"`; no table is added.
 
 const setSourcePrefix = "set:"
 
+// authoredSource is `sentence.source` of an AI-written dialogue line.
+const authoredSource = "authored"
+
+// dialogueTurn is the Hungarian turn marker; the pack stores the line without it.
+const dialogueTurn = "– "
+
 // LibrarySetDTO is one row of GET /api/library/sets.
 type LibrarySetDTO struct {
 	Code  string `json:"code"`
 	Level string `json:"level"`
-	// Track is "core" (one of the 24 course units) or "theme".
+	// Track is "core" (one of the 24 course units), "theme", or "dialogue" (the
+	// written conversation that goes with a unit).
 	Track string `json:"track"`
 	// Title and Theme are in the request's locale; the Ru/En pair is always sent
 	// so the client can fall back without a second request.
@@ -39,10 +50,36 @@ type LibrarySetDTO struct {
 	TitleEN string `json:"titleEn"`
 	Theme   string `json:"theme"`
 	// Sentences is how many sentences the set holds.
-	Sentences int  `json:"sentences"`
-	Imported  bool `json:"imported"`
+	Sentences int `json:"sentences"`
+	// Authored: written by an AI for the app, not checked by a native speaker.
+	// Always shown to the learner as such.
+	Authored bool `json:"authored"`
+	Imported bool `json:"imported"`
 	// TextID is the learner's own copy, present only when Imported.
 	TextID *int64 `json:"textId,omitempty"`
+}
+
+// LibrarySetLineDTO is one line of a set, for the preview. RU and EN are the
+// pack's own translations and may be missing: the client picks one by the
+// learner's gloss language and labels a fallback.
+type LibrarySetLineDTO struct {
+	HU string `json:"hu"`
+	RU string `json:"ru,omitempty"`
+	EN string `json:"en,omitempty"`
+}
+
+// LibrarySetDetailDTO is GET /api/library/sets/:code: the set as it would be
+// imported, without importing it.
+type LibrarySetDetailDTO struct {
+	Code      string              `json:"code"`
+	Level     string              `json:"level"`
+	Track     string              `json:"track"`
+	Title     string              `json:"title"`
+	TitleRU   string              `json:"titleRu"`
+	TitleEN   string              `json:"titleEn"`
+	Theme     string              `json:"theme"`
+	Authored  bool                `json:"authored"`
+	Sentences []LibrarySetLineDTO `json:"sentences"`
 }
 
 // ImportSetResponse is the body of POST /api/library/sets/:code/import.
@@ -111,12 +148,15 @@ func (s *Server) handleLibrarySets(c fiber.Ctx) error {
 	}
 	lang := s.answerLang(c.Query("lang"))
 
-	// Core units first, by their order, then the themes.
+	// By the pack's own order: core units first, then the themes, and each
+	// unit's dialogue right before its «Фразы» (the build numbers them so).
 	rows, err := s.pack.DB().Query(`
 		SELECT r.code, r.level, r.track, r.title_ru, r.title_en, r.theme_ru, r.theme_en,
-		       (SELECT COUNT(*) FROM reading_set_sentence x WHERE x.set_code = r.code)
+		       (SELECT COUNT(*) FROM reading_set_sentence x WHERE x.set_code = r.code),
+		       EXISTS (SELECT 1 FROM reading_set_sentence x JOIN sentence s ON s.id = x.sentence_id
+		                WHERE x.set_code = r.code AND s.source = ?)
 		  FROM reading_set r
-		 ORDER BY (r.track <> 'core'), r.ord, r.code`)
+		 ORDER BY r.ord, r.code`, authoredSource)
 	if err != nil {
 		return err
 	}
@@ -125,7 +165,7 @@ func (s *Server) handleLibrarySets(c fiber.Ctx) error {
 		var d LibrarySetDTO
 		var themeRU, themeEN string
 		if err := rows.Scan(&d.Code, &d.Level, &d.Track, &d.TitleRU, &d.TitleEN,
-			&themeRU, &themeEN, &d.Sentences); err != nil {
+			&themeRU, &themeEN, &d.Sentences, &d.Authored); err != nil {
 			return err
 		}
 		d.Title, d.Theme = d.TitleRU, themeRU
@@ -142,6 +182,61 @@ func (s *Server) handleLibrarySets(c fiber.Ctx) error {
 		return err
 	}
 	return c.JSON(out)
+}
+
+// handleLibrarySet previews one set: every line, in order, with the pack's
+// translations, so a learner can read it before adding it.
+func (s *Server) handleLibrarySet(c fiber.Ctx) error {
+	if _, err := mustUser(c); err != nil {
+		return err
+	}
+	if !s.hasReadingSets() {
+		return fiber.NewError(fiber.StatusNotFound, "no such reading set")
+	}
+	code := c.Params("code")
+	d := LibrarySetDetailDTO{Sentences: []LibrarySetLineDTO{}}
+	var themeRU, themeEN string
+	err := s.pack.DB().QueryRow(
+		`SELECT code, level, track, title_ru, title_en, theme_ru, theme_en
+		   FROM reading_set WHERE code = ?`, code).Scan(
+		&d.Code, &d.Level, &d.Track, &d.TitleRU, &d.TitleEN, &themeRU, &themeEN)
+	if err == sql.ErrNoRows {
+		return fiber.NewError(fiber.StatusNotFound, "no such reading set")
+	}
+	if err != nil {
+		return err
+	}
+	d.Title, d.Theme = d.TitleRU, themeRU
+	if s.answerLang(c.Query("lang")) == "en" {
+		d.Title, d.Theme = d.TitleEN, themeEN
+	}
+
+	rows, err := s.pack.DB().Query(`
+		SELECT s.hu, s.source,
+		       COALESCE((SELECT text FROM sentence_trans WHERE sentence_id = s.id AND lang = 'ru'), ''),
+		       COALESCE((SELECT text FROM sentence_trans WHERE sentence_id = s.id AND lang = 'en'), '')
+		  FROM reading_set_sentence r JOIN sentence s ON s.id = r.sentence_id
+		 WHERE r.set_code = ? ORDER BY r.ord`, code)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var l LibrarySetLineDTO
+		var source string
+		if err := rows.Scan(&l.HU, &source, &l.RU, &l.EN); err != nil {
+			return err
+		}
+		l.HU = strings.TrimSpace(l.HU)
+		if source == authoredSource {
+			d.Authored = true
+		}
+		d.Sentences = append(d.Sentences, l)
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+	return c.JSON(d)
 }
 
 func (s *Server) handleImportLibrarySet(c fiber.Ctx) error {
@@ -183,18 +278,20 @@ func (s *Server) handleImportLibrarySet(c fiber.Ctx) error {
 	}
 
 	rows, err := s.pack.DB().Query(`
-		SELECT s.hu FROM reading_set_sentence r JOIN sentence s ON s.id = r.sentence_id
+		SELECT s.hu, s.source FROM reading_set_sentence r JOIN sentence s ON s.id = r.sentence_id
 		 WHERE r.set_code = ? ORDER BY r.ord`, code)
 	if err != nil {
 		return err
 	}
 	var sentences []string
+	authored := false
 	for rows.Next() {
-		var hu string
-		if err := rows.Scan(&hu); err != nil {
+		var hu, source string
+		if err := rows.Scan(&hu, &source); err != nil {
 			rows.Close()
 			return err
 		}
+		authored = authored || source == authoredSource
 		sentences = append(sentences, strings.TrimSpace(hu))
 	}
 	rows.Close()
@@ -202,14 +299,29 @@ func (s *Server) handleImportLibrarySet(c fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "reading set is empty")
 	}
 
-	// One sentence per paragraph. A blank line always ends a sentence in the
-	// splitter, so a sentence with no closing punctuation cannot swallow the
-	// next one. (The text model has no per-sentence translation slot, so the
+	// «Фразы»: one sentence per paragraph. A blank line always ends a sentence
+	// in the splitter, so a sentence with no closing punctuation cannot swallow
+	// the next one. (The text model has no per-sentence translation slot, so the
 	// pack's Russian is not stored with the text.)
-	in, err := mining.FromPaste(s.setTitle(titleRU, titleEN), strings.Join(sentences, "\n\n"))
+	//
+	// A dialogue: one turn per line, each opened by the Hungarian turn marker
+	// «– », so the reader shows a script. A line break ends a sentence, and the
+	// dash is not a word. It is recorded as kind `generated` — the text model's
+	// existing mark for AI-written text — so the shelf can say so.
+	body := strings.Join(sentences, "\n\n")
+	kind := mining.KindPaste
+	if authored {
+		for i := range sentences {
+			sentences[i] = dialogueTurn + sentences[i]
+		}
+		body = strings.Join(sentences, "\n")
+		kind = mining.KindGenerated
+	}
+	in, err := mining.FromPaste(s.setTitle(titleRU, titleEN), body)
 	if err != nil {
 		return badRequest("%s", err.Error())
 	}
+	in.Kind = kind
 	id, _, _, err := s.ingestText(c, u.ID, in, setSourcePrefix+code)
 	if err != nil {
 		return err

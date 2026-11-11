@@ -483,8 +483,10 @@ func (s *Server) buildApp() *fiber.App {
 	api.Get("/texts/:id", s.requireAuth, s.handleGetText)
 	api.Delete("/texts/:id", s.requireAuth, s.handleDeleteText)
 	api.Get("/texts/:id/next", s.requireAuth, s.handleNextSentences)
-	// Ready-made sets of real pack sentences, imported as ordinary texts. ADR-056.
+	// Ready-made sets (pack sentences, or a labelled written dialogue), imported as
+	// ordinary texts; the preview shows one before it is added. ADR-056, ADR-066.
 	api.Get("/library/sets", s.requireAuth, s.handleLibrarySets)
+	api.Get("/library/sets/:code", s.requireAuth, s.handleLibrarySet)
 	api.Post("/library/sets/:code/import", s.requireAuth, s.handleImportLibrarySet)
 	// A text's estimated level: the learner's own verdict, or a labelled second
 	// opinion from the configured model. ADR-023.
@@ -503,9 +505,9 @@ func (s *Server) buildApp() *fiber.App {
 	// Admin-only: the optional full language pack, the restart that loads it,
 	// and the components overview. The pack's URL and checksum come from
 	// config.yaml, never from these requests. ADR-049.
+	api.Post("/admin/services/:name/paused", s.requireAuth, s.requireAdmin, s.handleServicePaused)
 	api.Post("/admin/pack/install", s.requireAuth, s.requireAdmin, s.handlePackInstallStart)
 	api.Get("/admin/pack/install", s.requireAuth, s.requireAdmin, s.handlePackInstallStatus)
-	api.Post("/admin/nlp/warmup", s.requireAuth, s.requireAdmin, s.handleNLPWarmup)
 	api.Post("/admin/components/:id/install", s.requireAuth, s.requireAdmin, s.handleComponentInstall)
 	api.Post("/admin/components/:id/start", s.requireAuth, s.requireAdmin, s.handleComponentStart)
 	api.Post("/admin/components/:id/stop", s.requireAuth, s.requireAdmin, s.handleComponentStop)

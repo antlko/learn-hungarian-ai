@@ -23,9 +23,6 @@ func (c Config) Clone() Config {
 	if c.Services.ASR.Voices != nil {
 		out.Services.ASR.Voices = append([]string(nil), c.Services.ASR.Voices...)
 	}
-	if c.Services.NLP.Voices != nil {
-		out.Services.NLP.Voices = append([]string(nil), c.Services.NLP.Voices...)
-	}
 	if c.Services.LLM.Voices != nil {
 		out.Services.LLM.Voices = append([]string(nil), c.Services.LLM.Voices...)
 	}

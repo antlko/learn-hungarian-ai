@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { describeError } from '@/lib/errors'
 import { api } from '@/api'
 import { reviewOrder, setSize } from '@/lib/sets'
+import { useAuthStore } from '@/stores/auth'
 import type {
   AnswerResponse,
   Breakdown,
@@ -164,6 +165,20 @@ export const useReviewStore = defineStore('review', () => {
 
   let shownAt = 0
 
+  /**
+   * Local calendar day the sitting began, `''` when none is held. A sitting
+   * survives navigation in memory — never a reload, never a new day (ADR-065).
+   */
+  const sessionDay = ref('')
+  // Whose sitting it is. The store outlives a sign-out (no page reload), so a
+  // sitting is only ever resumed by the account that started it (ADR-065).
+  const sessionUser = ref<number | null>(null)
+  const currentUser = () => useAuthStore().user?.id ?? null
+  const localDay = () => {
+    const d = new Date()
+    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
+  }
+
   const current = computed<QueueItem | null>(() => {
     if (loading.value) return null
     return base.value[pos.value] ?? null
@@ -242,6 +257,10 @@ export const useReviewStore = defineStore('review', () => {
     if (next) scope.value = next
     loading.value = true
     error.value = ''
+    if (!opts?.keepSession) {
+      sessionDay.value = localDay()
+      sessionUser.value = currentUser()
+    }
     // A reload that continues the same sitting — learning steps maturing on
     // the done screen, a change of set size — keeps the summary and the set
     // count; switching piles or arriving fresh starts a new one.
@@ -309,11 +328,15 @@ export const useReviewStore = defineStore('review', () => {
       if (mode.value === 'practice') {
         const p = await api.practiceAnswer(body)
         recordInSession(card, p.correct, p.expected, body.durationMs)
-        // Widened to the review shape so one card component renders both. The
-        // scheduling fields stay absent rather than zeroed: there is no next
-        // due date, and a 0 would render as one.
-        result.value = { ...p, rating: 0, gradedFeatures: [] } as unknown as AnswerResponse
+        // Widened to the review shape so one card component renders both. An
+        // uncounted answer (a «Знаю» word, a new card) leaves the scheduling
+        // fields absent rather than zeroed: a 0 would render as a due date.
+        result.value = { ...p, rating: p.rating ?? 0, gradedFeatures: p.gradedFeatures ?? [] } as unknown as AnswerResponse
         phase.value = 'answer'
+        // ADR-064: a counted practice answer is a real review, so undo is true
+        // ONLY then. After an uncounted one the server's latest answer is some
+        // other card's; undoing it from here would revert the wrong review.
+        canUndo.value = p.counted === true
         return result.value
       }
       const res = await api.answer(body)
@@ -488,9 +511,10 @@ export const useReviewStore = defineStore('review', () => {
    * to reach, and the only previous answers were to fail the card forever or to
    * meet it at the top of every session. See ADR-025.
    *
-   * Removes EVERY card of that note from the running session, not just the one
-   * on screen: the learner set aside a word, and leaving its `produce` sibling
-   * in the queue would hand the same word back through a different door.
+   * Removes EVERY card of that note, and of every other note of the same lemma,
+   * from the running session, not just the one on screen: the learner set aside
+   * a word, and leaving its `produce` sibling or another sentence of it in the
+   * queue would hand the same word back through a different door.
    *
    * The tab strip is refreshed from the server's own Breakdowns rather than by
    * subtracting one here — ADR-021: every review number a learner sees comes
@@ -512,8 +536,14 @@ export const useReviewStore = defineStore('review', () => {
       canUndo.value = false
       const at = pos.value
       // Cards already served stay where they are; the word's cards ahead of
-      // us leave, so the set shrinks rather than the pointer moving.
-      queue.value = queue.value.filter((it, i) => i < at || it.noteId !== card.noteId)
+      // us leave, so the set shrinks rather than the pointer moving. «Знаю» is
+      // about the WORD (ADR-071): the server set aside every note of the lemma,
+      // so every queued card of that lemma leaves too, not only this note's.
+      queue.value = queue.value.filter(
+        (it, i) =>
+          i < at ||
+          (it.noteId !== card.noteId && !(card.lemmaId && it.lemmaId === card.lemmaId)),
+      )
       resetCard()
       // Marking the set's last card known ends the set the way answering it would.
       if (inSets.value && base.value.length > 0 && pos.value >= base.value.length) void finishSet()
@@ -562,6 +592,8 @@ export const useReviewStore = defineStore('review', () => {
     canUndo.value = false
     session.value = { answered: 0, correct: 0, newSeen: 0, activeMs: 0, missed: [] }
     setsDone.value = 0
+    sessionDay.value = localDay()
+    sessionUser.value = currentUser()
     try {
       const res = await api.practiceQueue(practiceScope.value, practiceSize.value, practiceMode.value)
       queue.value = res.items
@@ -579,7 +611,54 @@ export const useReviewStore = defineStore('review', () => {
     }
   }
 
+  /** A held sitting matches this mode and pile, began today, and has a queue (ADR-065). */
+  function canResume(m: 'review' | 'practice', s: QueueScope): boolean {
+    if (mode.value !== m || sessionDay.value !== localDay()) return false
+    if (sessionUser.value === null || sessionUser.value !== currentUser()) return false
+    if (error.value || loading.value || queue.value.length === 0) return false
+    return (m === 'review' ? scope.value : practiceScope.value) === s
+  }
+
+  /**
+   * Pick the held sitting up where it was. Only the answer-latency clock is
+   * reset, so the time spent on another screen is not graded as slowness.
+   */
+  function resume() {
+    shownAt = performance.now()
+    if (done.value && mode.value === 'review') void load(scope.value, { keepSession: true })
+  }
+
+  /** Drop the held sitting; the next load starts fresh. */
+  function discard() {
+    sessionDay.value = ''
+    sessionUser.value = null
+    queue.value = []
+    session.value = { answered: 0, correct: 0, newSeen: 0, activeMs: 0, missed: [] }
+    setsDone.value = 0
+    canUndo.value = false
+    resetSet()
+    resetCard()
+  }
+
+  /** Where the held sitting stands, for the start screen; null when none is resumable. */
+  const resumeSummary = computed(() => {
+    const m = mode.value
+    if (!canResume(m, m === 'review' ? scope.value : practiceScope.value)) return null
+    return {
+      mode: m,
+      scope: m === 'review' ? scope.value : practiceScope.value,
+      set: setsDone.value + 1,
+      answered: summaryOpen.value ? base.value.length : pos.value,
+      size: base.value.length,
+    }
+  })
+
   return {
+    canResume,
+    resume,
+    discard,
+    resumeSummary,
+    sessionDay,
     scope,
     scopes,
     session,

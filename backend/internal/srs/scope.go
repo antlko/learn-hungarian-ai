@@ -26,8 +26,8 @@ const (
 	//
 	// The trash is PRACTISEABLE and never SCHEDULABLE. Free practice accepts
 	// it — a word you set aside is still a word you may want to look at, and
-	// practice schedules nothing (ADR-019), so nothing about the trashed card
-	// moves. `/api/review/queue` refuses it outright: a scope that fed the
+	// a practice answer on a trashed word is logged but never reviewed
+	// (ADR-064), so nothing about the trashed card moves. `/api/review/queue` refuses it outright: a scope that fed the
 	// scheduler would make the trash a place cards come back FROM, which is
 	// the opposite of what the button promised. Getting a word back into
 	// review is one explicit action — restore.

@@ -63,9 +63,21 @@ func TestStatsDeckCountsLemmasByWordsListStage(t *testing.T) {
 	}
 	want := DeckStages{Total: 7, New: 2, Stages: DeckStageCounts{
 		Learning: 1, Relearning: 1, Young: 1, Mature: 1, Known: 1}}
+	// The deciles count WORDS with a reviewed card, so they sum to the four
+	// reviewed stages — and never include the unreviewed `new` word or «Знаю».
+	deciles := got.Progress
+	got.Progress = [10]int{}
 	if got != want {
 		t.Fatalf("deck = %+v, want %+v", got, want)
 	}
+	sum := 0
+	for _, n := range deciles {
+		sum += n
+	}
+	if reviewed := want.Stages.Learning + want.Stages.Relearning + want.Stages.Young + want.Stages.Mature; sum != reviewed {
+		t.Fatalf("progress deciles %v sum to %d, want %d reviewed words", deciles, sum, reviewed)
+	}
+	got.Progress = deciles
 
 	// Consistency with the Words list, status=all.
 	var page WordsResponse
@@ -81,5 +93,101 @@ func TestStatsDeckCountsLemmasByWordsListStage(t *testing.T) {
 		by["young"] != got.Stages.Young || by["mature"] != got.Stages.Mature ||
 		by["known"] != got.Stages.Known {
 		t.Fatalf("words stages %v disagree with deck %+v", by, got)
+	}
+}
+
+// The Words list and the deck histogram read the same best card, so the
+// deciles are the list's progress numbers bucketed.
+func TestDeckProgressDecilesMatchTheWordsList(t *testing.T) {
+	t.Parallel()
+	s, c := newBandedServer(t)
+	for id := int64(1); id <= 4; id++ {
+		declare(t, s, id, "learning")
+	}
+	declare(t, s, 5, "known")
+	declare(t, s, 6, "learning")
+	seedStateCard(t, s, 1, 1, 0, 1, false)
+	seedStateCard(t, s, 2, 3, 0, 4, false)
+	seedStateCard(t, s, 3, 2, 5, 3, false)
+	seedStateCard(t, s, 4, 2, 40, 5, false)
+	seedStateCard(t, s, 6, 0, 0, 0, false)
+
+	var deck DeckStages
+	c.json(http.MethodGet, "/api/stats/deck", nil, &deck)
+	var page WordsResponse
+	c.json(http.MethodGet, "/api/words?status=all&pageSize=200", nil, &page)
+
+	var want [10]int
+	for _, w := range page.Words {
+		if w.Stage == "known" {
+			if w.Progress != nil {
+				t.Errorf("known word %d carries progress %d", w.LemmaID, *w.Progress)
+			}
+			continue
+		}
+		if w.Progress == nil {
+			t.Fatalf("word %d (%s) has no progress", w.LemmaID, w.Stage)
+		}
+		if w.Reps > 0 {
+			want[min(*w.Progress/10, 9)]++
+		} else if *w.Progress != 0 {
+			t.Errorf("unreviewed word %d has progress %d, want 0", w.LemmaID, *w.Progress)
+		}
+	}
+	if deck.Progress != want {
+		t.Errorf("deck deciles %v, words list says %v", deck.Progress, want)
+	}
+}
+
+// The word inspector's memory block: present for a word with a card, with the
+// best card's figures and every card listed; omitted for a word not in the deck.
+func TestLemmaDetailCarriesMemoryOnlyForWordsInTheDeck(t *testing.T) {
+	t.Parallel()
+	s, c := newBandedServer(t)
+	declare(t, s, 4, "learning")
+	seedStateCard(t, s, 4, 2, 40, 5, false)
+
+	var in LemmaDTO
+	if resp := c.json(http.MethodGet, "/api/lemma/4", nil, &in); resp.StatusCode != 200 {
+		t.Fatalf("lemma 4: %d", resp.StatusCode)
+	}
+	if in.Memory == nil {
+		t.Fatal("a word with a card has no memory block")
+	}
+	m := in.Memory
+	if m.Stage != "mature" || m.Progress < 70 || m.Progress > 100 || m.Reps != 5 || len(m.Cards) != 1 ||
+		m.Cards[0].Direction != "recognize" || m.Cards[0].Progress != m.Progress || m.History == nil {
+		t.Errorf("memory = %+v", m)
+	}
+
+	var out LemmaDTO
+	if resp := c.json(http.MethodGet, "/api/lemma/3", nil, &out); resp.StatusCode != 200 {
+		t.Fatalf("lemma 3: %d", resp.StatusCode)
+	}
+	if out.Memory != nil {
+		t.Errorf("a word outside the deck carries memory: %+v", out.Memory)
+	}
+}
+
+func TestWordsSortByProgressLowestFirst(t *testing.T) {
+	t.Parallel()
+	s, c := newBandedServer(t)
+	for id := int64(1); id <= 3; id++ {
+		declare(t, s, id, "learning")
+	}
+	seedStateCard(t, s, 1, 2, 40, 5, false) // mature
+	seedStateCard(t, s, 2, 1, 0, 1, false)  // learning
+	seedStateCard(t, s, 3, 2, 5, 3, false)  // young
+	var page WordsResponse
+	c.json(http.MethodGet, "/api/words?status=all&sort=progress", nil, &page)
+	last := -1
+	for _, w := range page.Words {
+		if w.Progress == nil || *w.Progress < last {
+			t.Fatalf("not ascending by progress: %+v", page.Words)
+		}
+		last = *w.Progress
+	}
+	if len(page.Words) != 3 {
+		t.Fatalf("got %d words", len(page.Words))
 	}
 }

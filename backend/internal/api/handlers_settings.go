@@ -10,7 +10,7 @@ import (
 
 // secretKeys are the settings whose values never leave the server. Only presence
 // is exposed, as SettingsDTO.Secrets.
-var secretKeys = []string{"ttsKey", "asrKey", "nlpKey", "llmKey"}
+var secretKeys = []string{"ttsKey", "asrKey", "llmKey"}
 
 // Note the absence of an "mtKey": the translator is a local sidecar on a
 // private network with no authentication, the same as the other services in
@@ -180,8 +180,6 @@ func serviceField(cfg *config.Config, name string) *config.Service {
 		return &cfg.Services.TTS
 	case "asr":
 		return &cfg.Services.ASR
-	case "nlp":
-		return &cfg.Services.NLP
 	case "llm":
 		return &cfg.Services.LLM
 	case "mt":

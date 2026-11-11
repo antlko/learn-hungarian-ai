@@ -17,14 +17,11 @@ import (
 // an empty queue and a deck of nothing but new cards. So it ignores due dates,
 // ignores the daily new-card budget, and draws at random.
 //
-// What it must NOT do is feed the scheduler. Extra retrieval is genuinely good
-// for learning [R1], but reviewing ahead of schedule tells FSRS the learner
-// recalled something at an interval they were never actually tested at, and the
-// model has no way to know the difference. Discounting the update instead would
-// mean writing scheduling maths of our own, which [ADR-003] forbids. So a
-// practice answer changes NO card state, NO feature state, and writes nothing
-// to review_log — it is recorded as practice, which is what it is.
-// See ADR-019.
+// A practice answer IS a review [R20] (ADR-064, superseding ADR-019): the API
+// handler feeds it to Engine.Answer, and FSRS discounts an early answer by the
+// real elapsed time, so there is no scheduling maths of ours. Two cases stay
+// practice_log-only — words in «Знаю» and NEW cards (which would bypass the
+// daily new budget). LogPractice below is the tally for all of them.
 
 // PracticeQueue draws a random sample of cards from one scope.
 //
@@ -41,8 +38,14 @@ func (s *Store) PracticeQueue(userID int64, scope Scope, limit int) ([]QueueItem
 	}
 	// Over-select so that burying siblings does not leave the session short of
 	// what was asked for.
+	// Seen cards first, still in random order among themselves; new cards only
+	// fill what is left. A practice answer on a new card is not counted
+	// (ADR-064: it would bypass the daily new budget), so a round dealt
+	// blindly from a deck that is mostly new would be a round that moves
+	// nothing — the opposite of what practice is for. This is which cards are
+	// dealt, not when a card is due: no scheduling.
 	items, err := s.selectQueue(userID, scope,
-		` ORDER BY RANDOM() LIMIT ?`, limit*4)
+		` ORDER BY (c.state = 0), RANDOM() LIMIT ?`, limit*4)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +65,7 @@ func (s *Store) PracticeQueue(userID int64, scope Scope, limit int) ([]QueueItem
 // This does not contradict the "random and unweighted" rule above — that rule
 // rejects a HIDDEN agenda. Weak mode is the learner's explicit choice with the
 // criterion printed on screen, which is the opposite of being managed. It
-// still schedules nothing. ADR-024, amending ADR-019.
+// is only about which cards are dealt. ADR-024; answers count since ADR-064.
 //
 // Cards never reviewed have no retrievability to rank; a deck with nothing
 // reviewed yet returns empty, and the handler falls back to random and SAYS so
@@ -156,8 +159,9 @@ func (s *Store) PracticeCount(userID int64, scope Scope) (int, error) {
 
 // LogPractice records one practice answer.
 //
-// This is the whole persistent effect of practising. No card row is touched, no
-// feature row, no review_log entry.
+// This is the practice tally only. Whether the answer also became a review is
+// the caller's decision (ADR-064); for a counted one the review_log row carries
+// the SAME instant, which is how UndoLast finds this row to delete.
 func (s *Store) LogPractice(userID, cardID int64, direction Direction, correct bool, durationMs int64, now time.Time) error {
 	c := 0
 	if correct {

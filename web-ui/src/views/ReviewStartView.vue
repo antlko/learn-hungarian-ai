@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, toRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { BrainCircuit, ChevronDown, CircleHelp, Dumbbell, Play, SlidersHorizontal } from '@lucide/vue'
+import { BrainCircuit, ChevronDown, CircleHelp, Dumbbell, Play, RotateCcw, SlidersHorizontal } from '@lucide/vue'
 import { describeError } from '@/lib/errors'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -117,6 +117,29 @@ function countFor(scope: ReviewScope) {
   )
 }
 
+/**
+ * A sitting held in memory (ADR-065): continue it, or discard it and deal a
+ * fresh one. Both go to the route the sitting was started with.
+ */
+// A sitting nobody has answered in yet is nothing to come back to: the line
+// would only say "0 of 15" above the button that starts the same thing.
+const resumable = computed(() => {
+  const r = store.resumeSummary
+  return r && (r.answered > 0 || r.set > 1) ? r : null
+})
+const resumeTo = computed(() => {
+  const r = store.resumeSummary
+  if (!r) return { path: '/review/session', query: {} }
+  return r.mode === 'practice'
+    ? { path: '/review/session', query: { practice: String(r.scope) } }
+    : { path: '/review/session', query: r.scope === 'all' ? {} : { scope: String(r.scope) } }
+})
+function startOver() {
+  const to = resumeTo.value
+  store.discard()
+  void router.push(to)
+}
+
 /** Bare `/review/session` is the whole deck; the query names anything narrower. */
 function reviewTo(scope: ReviewScope) {
   return { path: '/review/session', query: scope === 'all' ? {} : { scope } }
@@ -162,7 +185,9 @@ onMounted(() => {
   // A round that came from the trash or from one text leaves that pile in the
   // store. Neither has a row here — the trash has its own screen, and a text
   // its own button — so the chips would show nothing chosen.
-  if (!piles.includes(store.practiceScope as ReviewScope)) store.practiceScope = 'all'
+  if (!store.resumeSummary && !piles.includes(store.practiceScope as ReviewScope)) {
+    store.practiceScope = 'all'
+  }
   void load()
   window.addEventListener('keydown', onKey)
 })
@@ -200,6 +225,28 @@ const chipOff = 'hover:bg-accent hover:text-foreground'
       </button>
     </div>
     <HowItWorks :open="howOpen" @close="howOpen = false" />
+
+    <Note v-if="resumable" class="flex flex-wrap items-center gap-x-4 gap-y-2">
+      <p class="min-w-0 flex-1 text-sm tabular-nums">
+        {{
+          $t('review.start.resumeLine', {
+            set: resumable.set,
+            answered: resumable.answered,
+            size: resumable.size,
+          })
+        }}
+      </p>
+      <div class="flex gap-2">
+        <RouterLink :to="resumeTo" :class="buttonVariants({ variant: 'default', size: 'sm' })">
+          <Play class="size-4" aria-hidden="true" />
+          {{ $t('review.start.resumeContinue') }}
+        </RouterLink>
+        <Button size="sm" variant="outline" @click="startOver">
+          <RotateCcw class="size-4" aria-hidden="true" />
+          {{ $t('review.start.resumeRestart') }}
+        </Button>
+      </div>
+    </Note>
 
     <Note v-if="error" variant="error">
       <p>{{ error }}</p>

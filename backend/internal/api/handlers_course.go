@@ -310,6 +310,9 @@ type SkippedWord struct {
 	Lemma   string `json:"lemma"`
 	GlossRU string `json:"glossRu"`
 	GlossEN string `json:"glossEn"`
+	// Known is true when the word was left out because the learner marked it
+	// «Знаю» — not because the pack lacks an example (ADR-071).
+	Known bool `json:"known,omitempty"`
 }
 
 func skippedWord(w course.Word) SkippedWord {
@@ -348,6 +351,20 @@ func (s *Server) handleEnrolUnit(c fiber.Ctx) error {
 		}
 		note.UserID = u.ID
 		note.Source = "course:" + unit.Code
+
+		// A word the learner marked «Знаю» gets no new note and no un-trashing
+		// (ADR-071): enrolling a unit must not hand back what they set aside.
+		// Reported in `skipped`, flagged, so the panel can say why.
+		if note.LemmaID != nil {
+			if status, _, err := store.LemmaState(u.ID, *note.LemmaID, time.Now()); err != nil {
+				return err
+			} else if status == "known" {
+				sk := skippedWord(w)
+				sk.Known = true
+				out.Skipped = append(out.Skipped, sk)
+				continue
+			}
+		}
 
 		if existing, err := store.FindDuplicate(u.ID, note.HU, note.TargetForm); err != nil {
 			return err
@@ -506,7 +523,7 @@ func (s *Server) sentencesByLemmaID(lemmaID int64) (*sql.Rows, error) {
 	return s.pack.DB().Query(`
 		SELECT s.id, s.hu FROM sentence s
 		  JOIN sentence_token t ON t.sentence_id = s.id
-		 WHERE t.lemma_id = ? AND s.len_tokens >= 3
+		 WHERE t.lemma_id = ? AND s.len_tokens >= 3 AND s.source <> 'authored'
 		 ORDER BY s.len_tokens LIMIT 12`, lemmaID)
 }
 
@@ -552,7 +569,7 @@ func (s *Server) sentencesBySurfaceForm(lemmaID int64) (*sql.Rows, error) {
 	return s.pack.DB().Query(`
 		SELECT s.id, s.hu FROM sentence s
 		  JOIN sentence_token t ON t.sentence_id = s.id
-		 WHERE t.form IN (`+marks+`) AND s.len_tokens >= 3
+		 WHERE t.form IN (`+marks+`) AND s.len_tokens >= 3 AND s.source <> 'authored'
 		 ORDER BY s.len_tokens LIMIT 12`, args...)
 }
 

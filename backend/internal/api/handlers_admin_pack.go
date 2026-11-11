@@ -72,7 +72,7 @@ type RestartResponse struct {
 
 // ComponentDTO is one row of GET /api/admin/components.
 type ComponentDTO struct {
-	ID             string  `json:"id"` // pack | mt | nlp | tts | asr | llm
+	ID             string  `json:"id"` // pack | mt | tts | asr | llm
 	Configured     bool    `json:"configured"`
 	Reachable      bool    `json:"reachable"`
 	State          string  `json:"state"`
@@ -82,7 +82,7 @@ type ComponentDTO struct {
 	ComposeProfile string  `json:"composeProfile"`
 	// Built is false for a sidecar this repository does not yet ship.
 	Built bool `json:"built"`
-	// Managed is present on mt and nlp: the binary can install and run them itself.
+	// Managed is present on mt: the binary can install and run it itself.
 	Managed *ManagedDTO `json:"managed,omitempty"`
 }
 
@@ -95,7 +95,6 @@ var componentTable = []struct {
 }{
 	{"pack", "", "", true},
 	{"mt", "mt", "≈2.4 GB model download (RAM not measured)", true},
-	{"nlp", "nlp", "≈2.4 GB (HuSpaCy hu_core_news_md, not measured in a container)", true},
 	{"tts", "speech", "", false},
 	{"asr", "speech", "", false},
 	{"llm", "llm", "", true},
@@ -205,9 +204,6 @@ func (s *Server) handleAdminComponents(c fiber.Ctx) error {
 					}
 				}
 			}
-		case "nlp":
-			d.Managed = managedDTO(s.components.Status("nlp"))
-			s.fillNLPComponent(c.Context(), &d, s.service("nlp"), cp.Configured)
 		case "llm":
 			d.Model = cfg.Services.LLM.Model
 		}

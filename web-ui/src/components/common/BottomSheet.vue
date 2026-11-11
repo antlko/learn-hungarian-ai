@@ -41,6 +41,8 @@ const props = defineProps<{
   side?: 'right'
   /** No scrim, no focus trap, the page behind stays live; see the header note. */
   modeless?: boolean
+  /** Below md, open already at the expanded (~92dvh) height: a long list to read, not a prompt. */
+  tall?: boolean
 }>()
 const emit = defineEmits<{ close: [] }>()
 
@@ -180,6 +182,7 @@ watch(
     if (o) {
       opener = document.activeElement as HTMLElement | null
       rendered.value = true
+      expanded.value = !!props.tall
       document.addEventListener('keydown', onKey)
       await nextTick()
       // A modeless panel leaves focus (and the page's keys) where they were.

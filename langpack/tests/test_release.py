@@ -65,3 +65,27 @@ def test_check_flags_foreign_source(tmp_path):
     c = sqlite3.connect(full)
     assert any("sources" in p for p in release.check(c))
     c.close()
+
+
+def test_derive_keeps_authored_dialogues_but_never_counts_them_as_ngrams(tmp_path):
+    full = tmp_path / "full.sqlite"
+    _fixture(full)
+    c = sqlite3.connect(full)
+    # Two authored lines repeating a bigram that no corpus sentence has.
+    for sid, hu in ((9000001, "zöld alma kell"), (9000002, "zöld alma van")):
+        c.execute("INSERT INTO sentence VALUES (?,?,?,?,?,NULL)", (sid, hu, "authored", "MIT", 3))
+        c.execute("INSERT INTO sentence_trans VALUES (?,?,?)", (sid, "ru", "t"))
+    c.execute("INSERT INTO reading_set VALUES ('s1-dialogue','A1','dialogue',0,'a','a','','')")
+    c.execute("INSERT INTO reading_set_sentence VALUES ('s1-dialogue',9000001,0)")
+    c.commit()
+    c.close()
+
+    r = release.derive(full, tmp_path / "out")
+    assert r["per_source"] == {"authored": 2, "tatoeba": 2}
+    out = sqlite3.connect(r["sqlite"])
+    assert out.execute("SELECT COUNT(*) FROM sentence WHERE source = 'authored'").fetchone() == (2,)
+    # "zöld alma" occurs twice, but only in authored text: it is NOT attested.
+    assert out.execute("SELECT COUNT(*) FROM ngram WHERE gram = 'zöld alma'").fetchone() == (0,)
+    assert out.execute("SELECT count FROM ngram WHERE gram='a ház'").fetchone() == (2,)
+    assert release.check(out) == []
+    out.close()

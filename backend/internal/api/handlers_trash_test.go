@@ -24,7 +24,7 @@ func TestTrashingAWordRemovesItFromTheQueueAndTheCounts(t *testing.T) {
 	t.Parallel()
 	_, c := newPackedServer(t)
 
-	noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
+	noteOn(t, c, map[string]any{"hu": "A könyv jó.", "targetForm": "könyv"})
 	drop := noteOn(t, c, map[string]any{"hu": "Nagy a ház.", "targetForm": "ház"})
 
 	var before QueueResponse
@@ -272,5 +272,102 @@ func TestTheTrashPathStillWorksAndAlsoMarksTheWord(t *testing.T) {
 	trashNote(t, c, n.NoteID)
 	if got := lemmaStatus(t, s, 1, lemma); got != "known" {
 		t.Errorf("lemma status after /trash = %q, want known", got)
+	}
+}
+
+// ── «Знаю» covers the word, not one note (ADR-071) ──────────────────────────
+
+// The reported bug: a word marked «Знаю» came back the same day through
+// another sentence of the same lemma.
+func TestKnowingAWordRemovesEveryNoteOfItFromReviewAndPractice(t *testing.T) {
+	t.Parallel()
+	s, c := newPackedServer(t)
+
+	a := noteOn(t, c, map[string]any{"hu": "Nagy a ház.", "targetForm": "ház"})
+	b := noteOn(t, c, map[string]any{"hu": "A házban van a könyv.", "targetForm": "házban"})
+	other := noteOn(t, c, map[string]any{"hu": "A könyv jó.", "targetForm": "könyv"})
+	if la, lb := noteLemma(t, s, a.NoteID), noteLemma(t, s, b.NoteID); la == 0 || la != lb {
+		t.Fatalf("fixture notes must share a lemma, got %d and %d", la, lb)
+	}
+
+	var out TrashResponse
+	if resp := c.json(http.MethodPost, "/api/notes/"+itoa(a.NoteID)+"/know", nil, &out); resp.StatusCode != http.StatusOK {
+		t.Fatalf("know: %d", resp.StatusCode)
+	}
+	if !out.Changed || out.Trashed != 1 || out.Cards < 2 {
+		t.Fatalf("response %+v: want one word and the cards of both notes", out)
+	}
+
+	var q QueueResponse
+	c.json(http.MethodGet, "/api/review/queue", nil, &q)
+	for _, it := range q.Items {
+		if it.NoteID == a.NoteID || it.NoteID == b.NoteID {
+			t.Errorf("review queue served note %d of a «Знаю» word", it.NoteID)
+		}
+	}
+	var p PracticeQueueResponse
+	c.json(http.MethodGet, "/api/practice/queue", nil, &p)
+	sawOther := false
+	for _, it := range p.Items {
+		if it.NoteID == a.NoteID || it.NoteID == b.NoteID {
+			t.Errorf("practice queue served note %d of a «Знаю» word", it.NoteID)
+		}
+		sawOther = sawOther || it.NoteID == other.NoteID
+	}
+	if !sawOther {
+		t.Error("an unrelated word left the practice queue")
+	}
+
+	var list TrashListResponse
+	c.json(http.MethodGet, "/api/trash", nil, &list)
+	if list.Total != 1 || len(list.Notes) != 1 {
+		t.Errorf("the «Знаю» list shows %d rows / total %d for one word", len(list.Notes), list.Total)
+	}
+
+	// Restore from the OTHER note brings both back.
+	if resp := c.json(http.MethodPost, "/api/notes/"+itoa(b.NoteID)+"/restore", nil, &out); resp.StatusCode != http.StatusOK {
+		t.Fatalf("restore: %d", resp.StatusCode)
+	}
+	if !out.Changed || out.Trashed != 0 {
+		t.Fatalf("restore response %+v", out)
+	}
+	for _, id := range []int64{a.NoteID, b.NoteID} {
+		queueItem(t, c, id)
+	}
+}
+
+// Enrolling a unit must neither mint a note for a word the learner said they
+// know nor un-trash the one they set aside.
+func TestEnrolmentSkipsAKnownWordAndLeavesItTrashed(t *testing.T) {
+	t.Parallel()
+	_, c := newCourseServer(t, true)
+
+	n := noteOn(t, c, map[string]any{"hu": "Nagy a ház.", "targetForm": "ház"})
+	trashNote(t, c, n.NoteID)
+
+	var res EnrolResponse
+	if resp := c.json(http.MethodPost, "/api/course/b1/enrol", nil, &res); resp.StatusCode != http.StatusOK {
+		t.Fatalf("enrol: %d", resp.StatusCode)
+	}
+	var known *SkippedWord
+	for i := range res.Skipped {
+		if res.Skipped[i].Lemma == "ház" {
+			known = &res.Skipped[i]
+		}
+	}
+	if known == nil || !known.Known {
+		t.Fatalf("ház was not reported as skipped-because-known: %+v", res.Skipped)
+	}
+	var list TrashListResponse
+	c.json(http.MethodGet, "/api/trash", nil, &list)
+	if list.Total != 1 {
+		t.Errorf("enrolment changed the «Знаю» list: %+v", list)
+	}
+	var q QueueResponse
+	c.json(http.MethodGet, "/api/review/queue", nil, &q)
+	for _, it := range q.Items {
+		if it.Lemma == "ház" {
+			t.Error("enrolment brought a «Знаю» word back into the queue")
+		}
 	}
 }

@@ -11,6 +11,7 @@ import StatCard from '@/components/visual/StatCard.vue'
 import Note from '@/components/common/Note.vue'
 import LevelPanel from '@/components/progress/LevelPanel.vue'
 import LemmaCurve from '@/components/progress/LemmaCurve.vue'
+import WordProgressChart from '@/components/progress/WordProgressChart.vue'
 import { api } from '@/api'
 import { describeError } from '@/lib/errors'
 import { useCurriculumStore } from '@/stores/curriculum'
@@ -58,6 +59,9 @@ const selectedMastery = computed(
   () => mastery.value.find((m) => m.featureId === selectedFeature.value) ?? null,
 )
 
+/** Decile counts of words by progress (GET /api/stats/deck, ADR-070). */
+const deckProgress = ref<number[] | null>(null)
+
 async function load() {
   try {
     // 365 days: the calendar needs the year; the streak is computed server-side
@@ -69,6 +73,12 @@ async function load() {
     error.value = ''
   } catch (e) {
     error.value = describeError(e)
+  }
+  // An extra: the screen is whole without it, so a failure here is not an error.
+  try {
+    deckProgress.value = (await api.deckStages()).progress ?? null
+  } catch {
+    deckProgress.value = null
   }
 }
 onMounted(() => {
@@ -306,6 +316,16 @@ function cpState(status: 'passed' | 'failed') {
         </CardHeader>
         <CardContent class="pb-6">
           <LemmaCurve :curve="overview.lemmas.curve" :targets="overview.lemmas.targets" />
+        </CardContent>
+      </Card>
+
+      <!-- 2b. Words by progress: the deck's spread over the 0–100 bar (ADR-070) -->
+      <Card v-if="deckProgress" variant="quiet" class="card-in" style="--i: 2">
+        <CardHeader class="pb-3">
+          <CardTitle class="text-base">{{ $t('progress.byProgress.title') }}</CardTitle>
+        </CardHeader>
+        <CardContent class="pb-6">
+          <WordProgressChart :progress="deckProgress" />
         </CardContent>
       </Card>
     </template>

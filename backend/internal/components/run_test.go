@@ -48,8 +48,7 @@ func TestValidateRun(t *testing.T) {
 		bad      bool
 	}{
 		{"mt", "", 0, "0.0.0.0", 5003, false},
-		{"nlp", "", 0, "0.0.0.0", 5002, false},
-		{"nlp", "127.0.0.1", 5099, "127.0.0.1", 5099, false},
+		{"mt", "127.0.0.1", 5099, "127.0.0.1", 5099, false},
 		{"mt", "::1", 1024, "", 0, true},
 		{"mt", "10.0.0.5", 5003, "", 0, true},
 		{"mt", "0.0.0.0", 1024, "0.0.0.0", 1024, false},
@@ -76,10 +75,10 @@ func TestValidateRun(t *testing.T) {
 
 func TestEnsureInstalledInstallsWhenMissingWithoutStarting(t *testing.T) {
 	h := newHarness(t)
-	if _, err := h.m.EnsureInstalled(context.Background(), NLP); err != nil {
+	if _, err := h.m.EnsureInstalled(context.Background(), MT); err != nil {
 		t.Fatal(err)
 	}
-	if !h.m.Installed(NLP) {
+	if !h.m.Installed(MT) {
 		t.Fatal("marker missing after install")
 	}
 	if n := h.r.startCount(); n != 0 {
@@ -88,7 +87,7 @@ func TestEnsureInstalledInstallsWhenMissingWithoutStarting(t *testing.T) {
 	if len(h.installs) != 0 {
 		t.Fatalf("provider hand-over ran in foreground mode: %v", h.installs)
 	}
-	if st := h.m.Status(NLP); st.State != StateInstalled {
+	if st := h.m.Status(MT); st.State != StateInstalled {
 		t.Fatalf("%+v", st)
 	}
 }
@@ -121,8 +120,8 @@ func TestEnsureInstalledRefusesWithoutPython(t *testing.T) {
 		if errKey(err) != want {
 			t.Fatalf("slim=%v fresh: %v", slim, err)
 		}
-		markInstalled(t, h, NLP)
-		_, err = h.m.EnsureInstalled(context.Background(), NLP)
+		markInstalled(t, h, MT)
+		_, err = h.m.EnsureInstalled(context.Background(), MT)
 		if errKey(err) != want {
 			t.Fatalf("slim=%v installed: %v", slim, err)
 		}
@@ -159,44 +158,11 @@ func TestRunForegroundBindsRequestedHostAndKeepsEnvAllowlisted(t *testing.T) {
 	if cmd.Path != filepath.Join(h.m.final(MT), "venv", "bin", "python") {
 		t.Errorf("path %q", cmd.Path)
 	}
-	if h.pr.warm.Load() != 0 {
-		t.Error("mt must not be warmed up through /warmup")
-	}
 	cancel()
 	if code := <-res; code != 0 {
 		t.Fatalf("requested stop exit code %d", code)
 	}
 	_ = got
-}
-
-func TestRunForegroundForwardsSignalAndWarmsUpNLP(t *testing.T) {
-	h := newHarness(t)
-	markInstalled(t, h, NLP)
-	ctx, cancel := context.WithCancel(context.Background())
-	res := make(chan int, 1)
-	go func() {
-		code, _ := h.m.RunForeground(ctx, NLP, RunOptions{Host: "127.0.0.1", Port: 5099})
-		res <- code
-	}()
-	waitFor(t, "warmup", func() bool { return h.pr.warm.Load() == 1 })
-	h.r.mu.Lock()
-	env := strings.Join(h.r.starts[0].Env, "\n")
-	h.r.mu.Unlock()
-	if !strings.Contains(env, "NLP_HOST=127.0.0.1") || !strings.Contains(env, "NLP_PORT=5099") {
-		t.Fatalf("env:\n%s", env)
-	}
-	select {
-	case <-res:
-		t.Fatal("returned before the signal: it must keep running after warm-up")
-	case <-time.After(30 * time.Millisecond):
-	}
-	cancel() // what SIGTERM does in main
-	if code := <-res; code != 0 {
-		t.Fatalf("code %d", code)
-	}
-	if h.r.lastProc().term.Load() != 1 {
-		t.Fatal("SIGTERM was not forwarded to the child")
-	}
 }
 
 func TestRunForegroundReturnsChildExitCode(t *testing.T) {

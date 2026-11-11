@@ -26,12 +26,16 @@ import type { EnrolResult } from '@/types'
 const props = defineProps<{ result: EnrolResult }>()
 const ui = useUiStore()
 
-const skipped = computed(() =>
+const rows = computed(() =>
   props.result.skipped.map((w) => ({
     lemma: w.lemma,
+    known: !!w.known,
     gloss: pickGloss(w.glossRu, w.glossEn, ui.locale),
   })),
 )
+/** No example in the pack (the refusal to invent) vs. the learner already knows it (ADR-071). */
+const skipped = computed(() => rows.value.filter((w) => !w.known))
+const knownSkipped = computed(() => rows.value.filter((w) => w.known))
 
 /** Re-taking a finished unit adds nothing; "0 cards made" is a worse way to say so. */
 const nothingToDo = computed(
@@ -57,9 +61,9 @@ const nothingToDo = computed(
         everywhere else the app declines to guess.
       -->
       <Note
-        v-if="result.skipped.length"
+        v-if="skipped.length"
         variant="limit"
-        :title="$t('plan.report.skipped', { n: result.skipped.length })"
+        :title="$t('plan.report.skipped', { n: skipped.length })"
       >
         <ul class="flex flex-col gap-0.5">
           <li v-for="w in skipped" :key="w.lemma" class="flex flex-wrap items-baseline gap-x-2">
@@ -73,6 +77,17 @@ const nothingToDo = computed(
         </ul>
         <p class="mt-1.5 text-xs leading-relaxed">{{ $t('plan.report.skippedWhy') }}</p>
       </Note>
+
+      <!-- Words the learner marked «Знаю» are not a failure of the pack: they were left out on purpose. -->
+      <div v-if="knownSkipped.length" class="text-muted-foreground">
+        <p>{{ $t('plan.report.knownSkipped', { n: knownSkipped.length }) }}</p>
+        <ul class="mt-1 flex flex-col gap-0.5">
+          <li v-for="w in knownSkipped" :key="w.lemma" class="flex flex-wrap items-baseline gap-x-2">
+            <span class="font-medium text-foreground" lang="hu">{{ w.lemma }}</span>
+            <span class="text-xs">{{ w.gloss.text }}</span>
+          </li>
+        </ul>
+      </div>
     </CardContent>
   </Card>
 </template>

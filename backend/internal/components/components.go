@@ -1,5 +1,5 @@
 // Package components installs and supervises the optional Python sidecars
-// (services/mt, services/nlp) as CHILD PROCESSES of the Go binary — ADR-061.
+// (services/mt) as CHILD PROCESSES of the Go binary — ADR-061.
 //
 // The idea in one paragraph: an administrator presses «Установить», the binary
 // extracts the service source it carries (go:embed), builds a venv under
@@ -38,8 +38,7 @@ import (
 
 // Component ids this package manages.
 const (
-	MT  = "mt"
-	NLP = "nlp"
+	MT = "mt"
 )
 
 // State is the word the Components card draws.
@@ -124,8 +123,6 @@ type spec struct {
 	torch bool
 	// prepare: `python -c <this>` run in src/ with the service's env.
 	prepare string
-	// warmup: the model is fetched by POST /warmup once the service runs.
-	warmup bool
 	// pipExpected: roughly how many "Collecting" lines a full pip run prints;
 	// only used to draw coarse progress.
 	pipExpected int
@@ -140,16 +137,10 @@ var specs = map[string]spec{
 		defPort: 5003, hostEnv: "MT_HOST", portEnv: "MT_PORT", modelEnv: "MT_MODEL_DIR", modelSub: "nllb-ct2",
 		torch: true, prepare: "import app; app.prepare_model()", pipExpected: 30,
 	},
-	NLP: {
-		id: NLP, files: []string{"app.py", "requirements.txt"},
-		diskNeedBytes: gb + gb/2, diskNeed: "≈1.5 GB (estimate)", ramNeed: "≈2.4 GB (published, not measured)",
-		defPort: 5002, hostEnv: "NLP_HOST", portEnv: "NLP_PORT", modelEnv: "NLP_MODEL_DIR", modelSub: "",
-		warmup: true, pipExpected: 18,
-	},
 }
 
 // IDs lists the managed component ids.
-func IDs() []string { return []string{MT, NLP} }
+func IDs() []string { return []string{MT} }
 
 // Status is what GET /api/admin/components reports under `managed`.
 type Status struct {
@@ -196,7 +187,6 @@ type Options struct {
 	MaxRestarts   int           // crashes allowed per RestartWindow, default 5
 	RestartWindow time.Duration // default 10 min
 	ReadyTimeout  time.Duration // child up but /health silent, default 5 min
-	WarmupTimeout time.Duration // nlp model fetch, default 20 min
 }
 
 // Manager owns every managed component. Safe for concurrent use.
@@ -292,9 +282,6 @@ func New(o Options) *Manager {
 	}
 	if o.ReadyTimeout <= 0 {
 		o.ReadyTimeout = 5 * time.Minute
-	}
-	if o.WarmupTimeout <= 0 {
-		o.WarmupTimeout = 20 * time.Minute
 	}
 	m := &Manager{dir: filepath.Join(o.DataDir, "components"), opt: o, comps: map[string]*comp{}}
 	m.ctx, m.cancel = context.WithCancel(context.Background())

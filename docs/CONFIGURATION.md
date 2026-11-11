@@ -95,9 +95,8 @@ curriculum:
 services:                   # endpoints only — keys live in SQLite      [ADR-005]
   tts: {provider: device}   # DEFAULT — the learner's browser speaks it, no endpoint
   asr: {provider: local, endpoint: "http://asr:5001"}
-  nlp: {provider: off,   endpoint: "http://nlp:5002"}   # default off; `local` enables HuSpaCy context disambiguation (ADR-054). `openai` is refused.
   llm: {provider: off,   endpoint: "http://ollama:11434", model: "qwen3:8b"}
-  mt:  {provider: off,   endpoint: "http://mt:5003"}    # `managed` (mt, nlp): installed + run by the binary, no endpoint stored (ADR-061)
+  mt:  {provider: off,   endpoint: "http://mt:5003"}    # `managed` (mt only): installed + run by the binary, no endpoint stored (ADR-061)
 langpack:                   # OVERRIDE for the OPTIONAL full language pack      [ADR-049]
   url: ""                   # EMPTY = the binary's pinned URL (release tag langpack-hu-v1)
   sha256: ""                # hex SHA-256 of the .gz; EMPTY = the binary's pinned digest
@@ -121,13 +120,15 @@ OpenAI paths itself (`{endpoint}/v1/chat/completions`, `{endpoint}/v1/models`), 
 written with the suffix already on it is requested as `/v1/v1/chat/completions` and the tutor
 answers with a 404 under a services row that never went green.
 
-`provider` is one of `off`, `local`, `openai` — and, **for `tts` only**, `device`, **for `mt` and
-`nlp` only**, `managed`. `managed` means the binary installed the service itself and runs it as a
+`provider` is one of `off`, `local`, `openai` — and, **for `tts` only**, `device`, **for `mt`
+only**, `managed`. `managed` means the binary installed the service itself and runs it as a
 child process ([ADR-061](../.claude/DECISIONS.md#adr-061)): the endpoint is **never stored** (any
 `endpoint` sent with it is dropped) because the port is ephemeral and known only to the running
 manager; it is written automatically when an install finishes and reset to `off` by Uninstall.
 Choosing another provider in Settings stops the child; choosing `managed` again starts an installed
-one. `openai` stays refused for `mt` and `nlp`.
+one. `openai` stays refused for `mt`.
+
+`services.<name>.paused: true` (ADR-068; written only by `POST /api/admin/services/:name/paused`, no default, omitted when false) switches a service off while keeping its provider, endpoint and model: it resolves to `off` everywhere, a managed child is stopped and stays stopped across restarts. A `services.nlp` block left in an old `config.yaml` (removed by ADR-069) is ignored on load and gone after the next save.
 
 A sidecar run by `tanulom component run` in a second compose service (SELFHOSTING.md) is the ordinary `local`
 provider with the service's address (`http://tanulom-mt:5003`): it is not `managed`, nothing is stored about it

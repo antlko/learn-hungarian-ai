@@ -8,13 +8,17 @@ import {
   BrainCircuit,
   Captions,
   ClipboardPaste,
+  Eye,
   Globe,
   Headphones,
   Plus,
   Search,
+  Sparkles,
   Trash2,
 } from '@lucide/vue'
 import { describeError } from '@/lib/errors'
+import { pickGloss } from '@/lib/gloss'
+import { useUiStore } from '@/stores/ui'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -24,10 +28,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import EmptyState from '@/components/common/EmptyState.vue'
 import { Illustration } from '@/components/art'
 import PageHero from '@/components/visual/PageHero.vue'
+import BottomSheet from '@/components/common/BottomSheet.vue'
 import InfoTip from '@/components/common/InfoTip.vue'
 import Note from '@/components/common/Note.vue'
 import { api } from '@/api'
-import type { LibrarySet, TextSummary } from '@/types'
+import type { LibrarySet, LibrarySetDetail, TextSummary } from '@/types'
 
 /**
  * The shelf. What you already have comes first and stays findable as it grows:
@@ -40,6 +45,7 @@ const router = useRouter()
 const { t, locale } = useI18n()
 
 const levelStore = useLevelStore()
+const ui = useUiStore()
 const texts = ref<TextSummary[] | null>(null)
 const sets = ref<LibrarySet[] | null>(null)
 const importing = ref('')
@@ -158,11 +164,6 @@ const setGroups = computed(() => {
   )
 })
 
-/** The section is already «Готовые подборки»: drop the «Живые примеры: » prefix in the row. */
-function rowTitle(s: LibrarySet) {
-  return setTitle(s).replace(/^(Живые примеры|Real examples):\s*/i, '')
-}
-
 function setTitle(s: LibrarySet) {
   const loc = (locale.value || '').startsWith('en') ? s.titleEn : s.titleRu
   return loc || s.title
@@ -176,6 +177,42 @@ async function loadSets() {
     sets.value = []
   }
 }
+
+/**
+ * Preview: the lines of a set before it is added. The translation follows the
+ * learner's gloss language (`lib/gloss.ts`); a line that only has the other
+ * language is shown in it, marked, never silently swapped.
+ */
+const previewSet = ref<LibrarySet | null>(null)
+const detail = ref<LibrarySetDetail | null>(null)
+const previewLoading = ref(false)
+const previewError = ref('')
+
+async function openPreview(s: LibrarySet) {
+  previewSet.value = s
+  detail.value = null
+  previewError.value = ''
+  previewLoading.value = true
+  try {
+    const d = await api.librarySet(s.code)
+    if (previewSet.value?.code === s.code) detail.value = d
+  } catch (e) {
+    if (previewSet.value?.code === s.code) previewError.value = describeError(e)
+  } finally {
+    if (previewSet.value?.code === s.code) previewLoading.value = false
+  }
+}
+
+function closePreview() {
+  previewSet.value = null
+  detail.value = null
+  previewError.value = ''
+}
+
+const previewLines = computed(() =>
+  (detail.value?.sentences ?? []).map((l) => ({ hu: l.hu, tr: pickGloss(l.ru, l.en, ui.locale) })),
+)
+const previewHasFallback = computed(() => previewLines.value.some((l) => l.tr.isFallback))
 
 async function openSet(s: LibrarySet) {
   if (s.imported && s.textId) {
@@ -351,11 +388,11 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
           <li
             v-for="s in g.items"
             :key="s.code"
-            class="flex items-center gap-3 rounded-xl border bg-card px-4 py-3"
+            class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border bg-card px-4 py-3"
             :class="bandChip(s.level).split(' ')[0]"
           >
-            <div class="min-w-0 flex-1">
-              <p class="line-clamp-2 text-sm font-medium">{{ rowTitle(s) }}</p>
+            <div class="min-w-0 flex-1 basis-44">
+              <p class="line-clamp-2 text-sm font-medium">{{ setTitle(s) }}</p>
               <p class="flex flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground">
                 <span class="tabular-nums">{{ $t('library.sets.count', { n: s.sentences }) }}</span>
                 <span v-if="s.track === 'theme'">· {{ $t('library.sets.theme') }}</span>
@@ -363,22 +400,33 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
                   · {{ $t('library.sets.fitsNow') }}
                 </span>
               </p>
+              <!-- Written by an AI: said on the card and in the preview. ADR-066 -->
+              <p v-if="s.authored" class="mt-0.5 flex items-center gap-1 text-xs text-uncertain">
+                <Sparkles class="size-3.5 shrink-0" aria-hidden="true" />
+                {{ $t('library.sets.authored') }}
+              </p>
             </div>
-            <Button
-              class="min-h-11 shrink-0"
-              size="sm"
-              :variant="s.imported ? 'outline' : 'default'"
-              :disabled="importing === s.code"
-              @click="openSet(s)"
-            >
-              {{
-                importing === s.code
-                  ? $t('common.saving')
-                  : s.imported
-                    ? $t('library.sets.open')
-                    : $t('library.sets.addRead')
-              }}
-            </Button>
+            <div class="ml-auto flex shrink-0 items-center gap-2">
+              <Button class="min-h-11" size="sm" variant="ghost" @click="openPreview(s)">
+                <Eye class="size-4" aria-hidden="true" />
+                {{ $t('library.sets.preview') }}
+              </Button>
+              <Button
+                class="min-h-11"
+                size="sm"
+                :variant="s.imported ? 'outline' : 'default'"
+                :disabled="importing === s.code"
+                @click="openSet(s)"
+              >
+                {{
+                  importing === s.code
+                    ? $t('common.saving')
+                    : s.imported
+                      ? $t('library.sets.open')
+                      : $t('library.sets.addRead')
+                }}
+              </Button>
+            </div>
           </li>
         </ul>
       </div>
@@ -393,6 +441,80 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
         {{ setsExpanded ? $t('library.sets.showFewer') : $t('library.sets.showAll', { n: sets?.length ?? 0 }) }}
       </Button>
     </section>
+
+    <!-- The preview: every line in order, before anything is added. A full-height
+         sheet on a phone, a centred dialog from md up. -->
+    <BottomSheet
+      :open="!!previewSet"
+      :title="previewSet ? setTitle(previewSet) : ''"
+      dialog
+      tall
+      @close="closePreview"
+    >
+      <p v-if="previewSet" class="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+        <span
+          class="rounded-full border px-2.5 py-0.5 font-semibold text-foreground"
+          :class="bandChip(previewSet.level)"
+        >
+          {{ previewSet.level }}
+        </span>
+        <span class="tabular-nums">{{ $t('library.sets.count', { n: previewSet.sentences }) }}</span>
+      </p>
+      <Note v-if="previewSet?.authored" variant="limit" class="mb-3">
+        <p class="font-medium text-foreground">{{ $t('library.sets.authored') }}</p>
+        <p class="mt-1">{{ $t('library.sets.authoredHint') }}</p>
+      </Note>
+      <div v-if="previewLoading" class="flex flex-col gap-3" role="status" :aria-label="$t('library.sets.previewLoading')">
+        <Skeleton v-for="i in 6" :key="i" class="h-10" />
+      </div>
+      <Note v-else-if="previewError" variant="error">
+        <p>{{ previewError }}</p>
+        <Button size="sm" variant="outline" class="mt-2" @click="previewSet && openPreview(previewSet)">
+          {{ $t('common.retry') }}
+        </Button>
+      </Note>
+      <template v-else-if="detail">
+        <p v-if="previewHasFallback" class="mb-2 text-xs text-uncertain">
+          {{ $t('translation.fallback') }}
+        </p>
+        <ol class="flex flex-col gap-3 pb-2">
+          <li
+            v-for="(l, i) in previewLines"
+            :key="i"
+            class="flex flex-col gap-0.5"
+            :class="detail.authored && i % 2 === 1 ? 'pl-5' : ''"
+          >
+            <p class="text-base leading-snug">
+              <span v-if="detail.authored" class="mr-1 text-muted-foreground" aria-hidden="true">–</span>
+              <span lang="hu">{{ l.hu }}</span>
+            </p>
+            <p v-if="l.tr.text" class="text-sm leading-snug text-muted-foreground">
+              {{ l.tr.text }}
+              <span v-if="l.tr.isFallback" class="text-[10px] text-uncertain">{{ $t('translation.fallbackShort') }}</span>
+            </p>
+          </li>
+        </ol>
+      </template>
+      <template #footer>
+        <div v-if="previewSet" class="flex items-center justify-end gap-2">
+          <Button class="min-h-11" variant="ghost" @click="closePreview">{{ $t('common.close') }}</Button>
+          <Button
+            class="min-h-11"
+            :variant="previewSet.imported ? 'outline' : 'default'"
+            :disabled="importing === previewSet.code"
+            @click="openSet(previewSet)"
+          >
+            {{
+              importing === previewSet.code
+                ? $t('common.saving')
+                : previewSet.imported
+                  ? $t('library.sets.open')
+                  : $t('library.sets.addRead')
+            }}
+          </Button>
+        </div>
+      </template>
+    </BottomSheet>
 
     <template v-if="activeTab !== 'sets'">
       <!-- The finding tools appear once there is something to find. -->

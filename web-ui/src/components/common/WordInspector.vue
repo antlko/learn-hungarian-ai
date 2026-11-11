@@ -7,11 +7,15 @@ import SpeakButton from '@/components/common/SpeakButton.vue'
 import SentenceCrib from '@/components/review/SentenceCrib.vue'
 import AiWordPanel from '@/components/common/AiWordPanel.vue'
 import SavedGloss from '@/components/common/SavedGloss.vue'
+import WordProgress from '@/components/common/WordProgress.vue'
+import { untilInterval } from '@/lib/interval'
+import { useI18n } from 'vue-i18n'
 import { pickGloss, pickGlossList } from '@/lib/gloss'
 import { api } from '@/api'
+import { useCapabilitiesStore } from '@/stores/capabilities'
 import { useFeaturesStore } from '@/stores/features'
 import { useUiStore } from '@/stores/ui'
-import type { Breakdown, Example, LemmaDetail, UserGloss } from '@/types'
+import type { Breakdown, Example, LemmaDetail, Translation, UserGloss } from '@/types'
 
 /**
  * Everything knowable about one word, in a panel beside whatever you clicked.
@@ -35,7 +39,9 @@ const props = defineProps<{ word: string; embedded?: boolean }>()
 const emit = defineEmits<{ close: [] }>()
 
 const ui = useUiStore()
+const { t } = useI18n()
 const catalogue = useFeaturesStore()
+const caps = useCapabilitiesStore()
 
 const breakdown = ref<Breakdown | null>(null)
 const lemma = ref<LemmaDetail | null>(null)
@@ -99,6 +105,39 @@ watch(
 
 const analysis = computed(() => breakdown.value?.analysis ?? null)
 
+/**
+ * Machine translations for the examples that lack the learner's language,
+ * fetched in ONE request however many there are (ADR-067). Silent on failure:
+ * each crib keeps its own button.
+ */
+const machine = ref<Record<string, Translation>>({})
+watch(
+  [examples, () => caps.available('mt')],
+  async () => {
+    if (!caps.available('mt')) return
+    const batch = examples.value
+      .filter((e) => {
+        const p = examplePick(e)
+        return (!p.text || p.isFallback) && !machine.value[e.hu]
+      })
+      .map((e) => e.hu)
+    if (!batch.length) return
+    const word = props.word
+    try {
+      const res = await api.translate(batch, ui.locale === 'ru' ? 'ru' : 'en')
+      if (props.word !== word) return
+      const next = { ...machine.value }
+      batch.forEach((hu, i) => {
+        const t = res.translations[i]
+        if (t?.text) next[hu] = t
+      })
+      machine.value = next
+    } catch {
+      // not now; the cribs still offer the button
+    }
+  },
+)
+
 /** The entry's glosses in the locale, else the other language, labelled (ADR-035). */
 const glosses = computed(() => pickGlossList(lemma.value?.glosses?.ru, lemma.value?.glosses?.en, ui.locale))
 
@@ -114,6 +153,34 @@ const parts = computed(() =>
     rule: ui.locale === 'ru' ? line.ruleRu : line.ruleEn,
   })),
 )
+
+/**
+ * The word's own memory, when it is in the deck (ADR-070): where it is now, when
+ * it comes back, how it has gone. Absent for a word with no card. The chance of
+ * recall lives here and not on the Words row: two percentages on one row read
+ * as one thing.
+ */
+const memory = computed(() => lemma.value?.memory ?? null)
+const memoryChip = computed(() => {
+  switch (memory.value?.stage) {
+    case 'young':
+    case 'mature':
+      return 'border-tint-sage-edge bg-tint-sage'
+    case 'new':
+      return 'border-tint-mist-edge bg-tint-mist'
+    default:
+      return 'border-tint-cream-edge bg-tint-cream'
+  }
+})
+const returnsLine = computed(() => {
+  const iso = memory.value?.nextDue
+  if (!iso) return ''
+  const at = new Date(iso).getTime()
+  if (Number.isNaN(at)) return ''
+  if (at <= Date.now()) return t('inspector.memory.dueNow')
+  const i = untilInterval(iso)
+  return t('inspector.memory.returnsIn', { when: t(`review.units.${i.unit}`, { n: i.n }) })
+})
 
 const uncertain = computed(
   () => analysis.value?.certainty === 'uncertain' || analysis.value?.certainty === 'derived',
@@ -175,10 +242,55 @@ const uncertain = computed(
       <!-- An analysis we are not sure of says so, here as everywhere. ADR-002 -->
       <Note v-if="uncertain" variant="limit" bare class="text-[11px]">
         {{ $t(`reader.certainty.${analysis.certainty}`) }}
-        <span v-if="analysis.via === 'context'" class="mt-1 block" data-testid="via-context">
-          {{ $t('reader.viaContext') }}
-        </span>
       </Note>
+
+      <!-- Where this word stands in memory: only for a word that has a card. -->
+      <div
+        v-if="memory"
+        class="flex flex-col gap-2 rounded-lg border border-border-subtle bg-background px-3 py-2.5"
+        data-testid="inspector-memory"
+      >
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <p class="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+            {{ $t('inspector.memory.title') }}
+          </p>
+          <span
+            class="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium text-foreground"
+            :class="memoryChip"
+          >
+            {{ $t(`review.memory.chip.${memory.stage}`) }}
+          </span>
+        </div>
+        <WordProgress :value="memory.progress" :stage="memory.stage" size="detail" />
+        <p v-if="returnsLine" class="text-xs text-muted-foreground">{{ returnsLine }}</p>
+        <p class="text-xs tabular-nums text-muted-foreground">
+          {{ $t('inspector.memory.counts', { reps: memory.reps, lapses: memory.lapses }) }}
+        </p>
+        <p v-if="memory.retrievability > 0" class="text-xs tabular-nums text-muted-foreground">
+          {{ $t('inspector.memory.recall', { n: Math.round(memory.retrievability * 100) }) }}
+        </p>
+        <!-- The last answers, oldest to newest: filled = right, hollow = a mistake. -->
+        <div v-if="memory.history?.length" class="flex items-center gap-2">
+          <span class="text-xs text-muted-foreground">{{ $t('inspector.memory.history') }}</span>
+          <ol class="flex items-center gap-1">
+            <li
+              v-for="(ok, i) in memory.history"
+              :key="i"
+              class="size-2.5 rounded-full border"
+              :class="ok ? 'border-known bg-known' : 'border-muted-foreground bg-transparent'"
+            >
+              <span class="sr-only">{{ ok ? $t('inspector.memory.right') : $t('inspector.memory.wrong') }}</span>
+            </li>
+          </ol>
+        </div>
+        <!-- More than one card (translate, recall, listen…): each on its own bar. -->
+        <ul v-if="memory.cards.length > 1" class="flex flex-col gap-1 border-t border-border-subtle pt-2">
+          <li v-for="c in memory.cards" :key="c.direction" class="flex items-center gap-2 text-xs">
+            <span class="w-28 shrink-0 truncate text-muted-foreground">{{ $t(`review.directions.${c.direction}`) }}</span>
+            <WordProgress :value="c.progress" :stage="c.stage" size="row" />
+          </li>
+        </ul>
+      </div>
 
       <!-- 2 · the shape THIS form is in -->
       <div v-if="parts.length" class="flex flex-col gap-1.5">
@@ -229,6 +341,8 @@ const uncertain = computed(
               :hu="e.hu"
               :text="examplePick(e).text"
               :is-fallback="examplePick(e).isFallback"
+              :auto="false"
+              :machine="machine[e.hu] ?? null"
             />
           </li>
         </ul>

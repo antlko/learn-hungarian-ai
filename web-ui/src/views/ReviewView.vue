@@ -282,6 +282,8 @@ function toggleAnswerMode() {
 }
 watch(() => store.current?.cardId, () => {
   chosen.value = null
+  // A tapped option still being spoken must not run on over the next card.
+  speech.cancel()
   // A new card always starts at the top. The verdict scrolls the answered card
   // down to its «Дальше» (and the options list can be taller than the screen),
   // and <main> is the scroll container, so without this the NEXT card opened
@@ -292,6 +294,11 @@ watch(() => store.current?.cardId, () => {
 async function pickOption(option: string) {
   if (!choiceActive.value || store.phase !== 'question' || store.submitting) return
   chosen.value = option
+  // The tap IS the committed answer, so hearing the word reveals nothing. Not
+  // awaited and returns false (never throws) when the device has no Hungarian
+  // voice, so the submit is neither delayed nor blocked. The device voice at
+  // the learner's own rate; cancelled with the card or the view, below.
+  speech.speak(option)
   const res = await store.submit(undefined, option)
   if (!res) {
     chosen.value = null
@@ -301,6 +308,17 @@ async function pickOption(option: string) {
   await nextTick()
   document.querySelector<HTMLElement>('[data-next]')?.focus({ preventScroll: true })
 }
+
+/**
+ * The word named in the dictionary line under the revealed sentence. A cloze
+ * shows the server's `expected` — the form in its lemma's own case, so a blank
+ * at the head of «Szia! Hogy vagy?» reads «szia», not the sentence's capital.
+ */
+const dictForm = computed(() => {
+  const c = store.current
+  if (!c) return ''
+  return (c.direction === 'cloze' && c.expected) || c.targetForm
+})
 
 const clozeCue = computed(() => {
   const c = store.current
@@ -957,11 +975,22 @@ const PRACTICE_SCOPE = /^(all|course|reader|trash|text:\d+)$/
 function startFrom(query: LocationQuery) {
   const practice = String(query.practice ?? '')
   if (PRACTICE_SCOPE.test(practice)) {
+    // A sitting held in the store survives navigation (ADR-065).
+    if (store.canResume('practice', practice as QueueScope)) {
+      store.resume()
+      void focusAnswer()
+      return
+    }
     void store.loadPractice(practice as QueueScope).then(focusAnswer)
     return
   }
   const wanted = String(query.scope ?? '')
   const scope = REVIEW_SCOPE.test(wanted) ? (wanted as QueueScope) : 'all'
+  if (store.canResume('review', scope)) {
+    store.resume()
+    void focusAnswer()
+    return
+  }
   void store.load(scope).then(focusAnswer)
 }
 
@@ -1347,9 +1376,9 @@ const ratingKeys = [
         <div class="flex items-center justify-between gap-2">
           <MemoryMeter
             v-if="store.current.memory"
+            :key="store.current.cardId"
             :memory="store.current.memory"
             :after="store.result?.memory ?? null"
-            :scheduled="store.mode === 'review'"
           />
           <!--
             Phone: «Знаю» lives up here, a screen away from «Дальше» and the
@@ -1505,8 +1534,8 @@ const ratingKeys = [
           v-if="store.current.direction !== 'produce' && gloss.text && store.phase === 'answer'"
           class="mt-3 text-center text-sm leading-relaxed text-muted-foreground"
         >
-          <span v-if="store.current.targetForm" class="font-medium text-foreground" lang="hu">
-            {{ store.current.targetForm }}
+          <span v-if="dictForm" class="font-medium text-foreground" lang="hu">
+            {{ dictForm }}
           </span>
           <span class="mx-1">—</span>{{ gloss.text }}
           <span v-if="gloss.isFallback" class="ml-1 text-xs text-uncertain">
@@ -1638,6 +1667,15 @@ const ratingKeys = [
             </p>
 
             <FeatureChips v-if="store.result" :features="store.result.gradedFeatures" />
+
+            <!-- Practice only: an answer that moved nothing says why (ADR-064). -->
+            <p
+              v-if="store.mode === 'practice' && store.result && store.result.counted === false && store.result.reason"
+              class="text-center text-xs leading-relaxed text-muted-foreground"
+              data-testid="practice-uncounted"
+            >
+              {{ $t(`review.practiceUncounted.${store.result.reason}`) }}
+            </p>
 
             <!-- A miss, said calmly, with when it returns (the scheduler's own
                  figure for «Снова» on this card). -->

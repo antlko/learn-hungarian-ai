@@ -90,7 +90,7 @@ type Memory struct {
 	// History is the last outcomes on this card, oldest first, at most
 	// historyLength of them.
 	History []bool `json:"history"`
-	// Preview is absent where nothing is scheduled — free practice.
+	// Preview is absent where the caller asked for none (free practice).
 	Preview *Preview `json:"preview,omitempty"`
 
 	// The learning ladder, so «вернётся через ~10 мин» can say what it means.
@@ -109,8 +109,12 @@ type Memory struct {
 	StepsLeft  int `json:"stepsLeft"`
 	StepsTotal int `json:"stepsTotal"`
 	// GraduatesOnGood is meaningful only alongside Preview: it is computed
-	// from the same dry run, so it is absent for free practice too.
+	// from the same dry run, so it is absent whenever Preview is.
 	GraduatesOnGood bool `json:"graduatesOnGood"`
+
+	// Progress is the word-progress number, 0-100, derived from the stage and
+	// stability above (progress.go, ADR-070). [R20]
+	Progress int `json:"progress"`
 }
 
 // stepsFor returns how many minute-scale steps the card's state has, and how
@@ -150,6 +154,7 @@ func MemoryFor(st CardState, sched *Scheduler, now time.Time, withPreview bool) 
 		History:        []bool{},
 	}
 	m.StepsLeft, m.StepsTotal = stepsFor(st, sched)
+	m.Progress = progressOf(m)
 	if withPreview {
 		if next, err := sched.PreviewNext(st, now); err == nil {
 			m.Preview = &Preview{
@@ -169,9 +174,9 @@ func MemoryFor(st CardState, sched *Scheduler, now time.Time, withPreview bool) 
 // AttachMemory fills Memory for every queue item, in two queries for the whole
 // queue rather than two per card.
 //
-// withPreview is false for free practice: nothing there is scheduled, and a
-// «→ 8 дн» under a practice card would be the screen inventing a schedule
-// (ADR-019).
+// withPreview is false for free practice: the learner picks the order there,
+// and a «→ 8 дн» under a practice card would promise a schedule the answer
+// may not make (new cards and «Знаю» words stay unscheduled; ADR-064).
 func (s *Store) AttachMemory(items []QueueItem, sched *Scheduler, now time.Time, withPreview bool) error {
 	if len(items) == 0 {
 		return nil

@@ -139,7 +139,7 @@ const (
 	// actually be checked.
 	ProviderDevice = "device"
 	// ProviderManaged is a sidecar the binary installs and runs ITSELF as a
-	// child process (internal/components, ADR-061). Valid for mt and nlp only.
+	// child process (internal/components, ADR-061). Valid for mt only.
 	// The endpoint is never stored: it is an ephemeral 127.0.0.1 port that only
 	// the running manager knows, resolved at call time.
 	ProviderManaged = "managed"
@@ -323,7 +323,6 @@ type Curriculum struct {
 type Services struct {
 	TTS Service `yaml:"tts"`
 	ASR Service `yaml:"asr"`
-	NLP Service `yaml:"nlp"`
 	LLM Service `yaml:"llm"`
 	// MT is sentence translation for the reader — a dedicated translation
 	// model, not a chat model. It is deliberately NOT the `llm` slot: what it
@@ -337,6 +336,9 @@ type Service struct {
 	Endpoint string   `yaml:"endpoint"`
 	Model    string   `yaml:"model,omitempty"`
 	Voices   []string `yaml:"voices,omitempty"`
+	// Paused switches the service off WITHOUT forgetting provider, endpoint or
+	// model (ADR-068). No default; set only by POST /api/admin/services/:name/paused.
+	Paused bool `yaml:"paused,omitempty"`
 }
 
 // Default returns a fresh config with every field populated.
@@ -448,7 +450,7 @@ func (c *Config) normalize() {
 	// refuse, not download unverified bytes.
 	// ExamDate has no default on purpose: an exam the learner did not book is
 	// not an exam.
-	for _, s := range []*Service{&c.Services.ASR, &c.Services.NLP, &c.Services.LLM, &c.Services.MT} {
+	for _, s := range []*Service{&c.Services.ASR, &c.Services.LLM, &c.Services.MT} {
 		if s.Provider == "" {
 			s.Provider = ProviderOff
 		}
@@ -568,8 +570,7 @@ func (c *Config) Validate() (clamped []ErrClamped, err error) {
 
 	for name, s := range map[string]Service{
 		"tts": c.Services.TTS, "asr": c.Services.ASR,
-		"nlp": c.Services.NLP, "llm": c.Services.LLM,
-		"mt": c.Services.MT,
+		"llm": c.Services.LLM, "mt": c.Services.MT,
 	} {
 		switch s.Provider {
 		case ProviderOff:
@@ -583,7 +584,7 @@ func (c *Config) Validate() (clamped []ErrClamped, err error) {
 			// The translator speaks its own `/translate`, not the chat API, so
 			// accepting `openai` here would promise a protocol we do not talk.
 			// Point `mt` at services/mt; point `llm` at the OpenAI-compatible box.
-			if name == "mt" || name == "nlp" {
+			if name == "mt" {
 				return nil, fmt.Errorf(
 					"services.%s.provider: want off, local or managed, got %q — %s speaks its own protocol, not the OpenAI one",
 					name, s.Provider, name)
@@ -592,8 +593,8 @@ func (c *Config) Validate() (clamped []ErrClamped, err error) {
 				return nil, fmt.Errorf("services.%s: endpoint required when provider is %q", name, s.Provider)
 			}
 		case ProviderManaged:
-			if name != "mt" && name != "nlp" {
-				return nil, fmt.Errorf("services.%s.provider: %q is only valid for mt and nlp", name, s.Provider)
+			if name != "mt" {
+				return nil, fmt.Errorf("services.%s.provider: %q is only valid for mt", name, s.Provider)
 			}
 		case ProviderLocal:
 			if s.Endpoint == "" {

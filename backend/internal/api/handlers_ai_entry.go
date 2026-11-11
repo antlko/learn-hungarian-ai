@@ -96,8 +96,7 @@ func (s *Server) handleAIEntry(c fiber.Ctx) error {
 		return err
 	}
 
-	cfg := s.Config()
-	client, err := llm.New(cfg.Services.LLM, s.llmKey())
+	client, err := llm.New(s.service("llm"), s.llmKey())
 	if err != nil {
 		// The same key the tutor uses, so one failure has one sentence
 		// wherever it appears. lib/errors.ts turns it into a language.
@@ -336,7 +335,7 @@ func (s *Server) handleAIEntryStatus(c fiber.Ctx) error {
 	if _, err := mustUser(c); err != nil {
 		return err
 	}
-	client, err := llm.New(s.Config().Services.LLM, s.llmKey())
+	client, err := llm.New(s.service("llm"), s.llmKey())
 	if err != nil {
 		return c.JSON(aiEntryStatus{Reason: llmUnavailableKey(err)})
 	}

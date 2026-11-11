@@ -230,6 +230,7 @@
       "duplicate": "Already in your deck, so not duplicated: {n}.",
       "skipped": "No card yet ({n}):",
       "skippedWhy": "A card here is a sentence with a real example, and the language pack has no example for these words. We will not invent one: it would be Hungarian nobody has written. The translation stays with you and the words stay part of the unit — the full language pack may well have examples for them.",
+      "knownSkipped": "Left out, you marked them «I know» ({n}):",
       "none": "Nothing new to add: every word of this unit is already in your deck."
     },
     "syllabus": "The whole plan",
@@ -313,8 +314,7 @@
       },
       "ram": "Memory needed: {ram}",
       "ramHint": {
-        "mt": "≈2.4 GB model download (memory use not measured)",
-        "nlp": "≈2.4 GB RAM per HuSpaCy (not measured in a container)"
+        "mt": "≈2.4 GB model download (memory use not measured)"
       },
       "composeHint": "Started on the server with one command:",
       "state": {
@@ -361,34 +361,24 @@
         "haveFull": "The full pack is installed."
       },
       "mt": {
-        "title": "Sentence translation",
+        "title": "Translation",
         "what": "A neural network translates sentences. The model that translated is always shown beside the text.",
         "without": "Without it only human translations remain. The neural translation (NLLB-200 600M) is shown small, with the model name; it is never graded and never lands on cards by itself."
       },
-      "nlp": {
-        "title": "Context-aware word analysis",
-        "what": "Picks the right reading of an ambiguous word from its sentence.",
-        "without": "Without it: words are analysed from the dictionary, and uncertain cases are marked as uncertain.",
-        "notBuilt": "Not ready yet. When it arrives it will need about 2.4 GB of memory.",
-        "download": "Download the model",
-        "notConfigured": "Not set up. Start the service, enter its address under Services, then press Download model.",
-        "loadingPct": "Loading the model {pct}%",
-        "readyLine": "The model is loaded."
-      },
       "tts": {
-        "title": "Server speech",
+        "title": "Voice",
         "what": "Your own speech-synthesis server instead of your device's voice.",
         "without": "Nothing is lost without it: speech uses your device's voice.",
         "notBuilt": "Not built yet - speech uses your device's voice."
       },
       "asr": {
-        "title": "Speech recognition",
+        "title": "Speech to text",
         "what": "Checks pronunciation: you speak, the app writes what it heard.",
         "without": "Without it, pronunciation is trained by ear, with no automatic check.",
         "notBuilt": "Speech recognition is not built yet."
       },
       "llm": {
-        "title": "Language model (tutor)",
+        "title": "AI tutor",
         "what": "Explains grammar. Needs your Ollama or a compatible server.",
         "without": "Without it the tutor buttons are unavailable; everything else works.",
         "fields": "The address and model are set in Services below."
@@ -535,12 +525,14 @@
     }
   },
   "capabilities": {
-    "tts": "Speech synthesis",
-    "asr": "Speech recognition",
-    "nlp": "Text analysis",
-    "llm": "Language model",
+    "tts": "Voice",
+    "asr": "Speech to text",
+    "llm": "AI tutor",
     "mt": "Translation",
-    "groupLabel": "Status of the optional services (speech, recognition, analysis, model, translation) — not your progress."
+    "groupLabel": "Status of the optional services (voice, speech to text, AI tutor, translation) — not your progress.",
+    "paused": "off",
+    "setUp": "set up",
+    "switchLabel": "{name}: switch on or off"
   },
   "component": {
     "tab": {
@@ -567,12 +559,11 @@
       "model": "Downloading the model",
       "start": "Starting"
     },
-    "need": { "mt": "Downloads and runs the service right here: about 6 GB on disk and 2–3 GB of memory (estimate, not measured).", "nlp": "Downloads and runs the service right here: about 1.5 GB on disk and 2.4 GB of memory (estimate, not measured)." },
+    "need": { "mt": "Downloads and runs the service right here: about 6 GB on disk and 2–3 GB of memory (estimate, not measured)." },
     "managed": {
       "will": "Downloads and runs the service right here: ≈{disk} on disk, ≈{ram} memory — an estimate.",
       "tip": {
-        "mt": "Downloads Python libraries and the NLLB-200 translation model. Everything lives in the app's data folder, and the service listens only inside this computer. Sizes are estimates, not measurements.",
-        "nlp": "Downloads the spaCy library and the HuSpaCy language model. Everything lives in the app's data folder, and the service listens only inside this computer. Sizes are estimates, not measurements."
+        "mt": "Downloads Python libraries and the NLLB-200 translation model. Everything lives in the app's data folder, and the service listens only inside this computer. Sizes are estimates, not measurements."
       },
       "useOther": "Pick another tab: Docker or Docker Compose (the :latest image has Python), or Own server.",
       "keepOpen": "The install runs on the server: you can close this page.",
@@ -621,7 +612,6 @@
     "own": {
       "hint": {
         "mt": "Already run your own translation service? Enter its address.",
-        "nlp": "Already run your own word-analysis service? Enter its address.",
         "llm": "An OpenAI-compatible server address (for example Ollama) and a model name."
       }
     },
@@ -654,8 +644,6 @@
     "packCorrupt": "The downloaded pack is damaged or unreasonably large, so it was discarded. Nothing was changed.",
     "packOlder": "A newer pack version is already installed; this download would not be used.",
     "packInstallBusy": "A pack install is already running.",
-    "nlpNotConfigured": "The text-analysis service (HuSpaCy) is not configured.",
-    "nlpUnreachable": "The text-analysis service (HuSpaCy) is not responding.",
     "diskFull": "There is not enough free disk space to install. Nothing was changed.",
     "componentNoPython": "Python 3.10 or newer with venv and pip was not found — the built-in install is unavailable.",
     "componentNoPythonSlimImage": "This image has no Python. Change the image tag to :latest — your data and account stay (same user, same volume).",
@@ -664,6 +652,7 @@
     "componentNetwork": "No network access: the files could not be downloaded. Nothing was changed.",
     "componentInstallFailed": "The install failed. See the log for details.",
     "componentUnknown": "There is no such component.",
+    "serviceUnknown": "There is no such service.",
     "componentNotInstalled": "Install the component first.",
     "componentInstalled": "The component is already installed.",
     "componentStartFailed": "The component could not be started. See the log for details.",
@@ -778,13 +767,17 @@
     "produceDictionaryForm": "The dictionary form is wanted — the one a dictionary lists, not the one in the sentence. The form inside a sentence is what the “form in a sentence” card asks for.",
     "practice": "Practice",
     "practiceFrom": "Words from",
-    "practiceTip": "Does not affect your review schedule.",
+    "practiceTip": "Answers count as a review.",
     "practiceRoundDone": "Round finished",
-    "practiceRoundDoneBody": "Take another — the words do not run out. It still does not affect the schedule.",
+    "practiceRoundDoneBody": "Take another — the words do not run out. Answers count as a review.",
     "practiceAgain": "Another round",
     "practiceEmpty": "This pile has no words yet. Add some from the Plan or while reading.",
     "practiceStat": "Practice",
-    "practiceStatHint": "Random practice outside the schedule: it does not change when a word comes back.",
+    "practiceStatHint": "Practice counts as a review: a right answer moves the word forward, a mistake moves it back.",
+    "practiceUncounted": {
+      "known": "Not counted: the word is in “Known”",
+      "new": "Not counted: a new word starts counting once it comes up for review"
+    },
     "allDoneForNow": "Done for now",
     "allDoneForNowBody": "Everything answerable right now is answered. A few cards return later today — those are the short learning steps, by design.",
     "dueSoon": "Returning today: {n}",
@@ -800,17 +793,20 @@
       "minutes": "Minutes",
       "missed": "Missed: {n}",
       "missedBody": "These words will come back later, when their learning step comes round. Read them over for now.",
-      "missedBodyPractice": "Practice schedules nothing: these words return to review on their own schedule."
+      "missedBodyPractice": "The misses are counted: these words return to review when their step comes."
     },
     "textScope": "Only words from this text",
     "textScopeLeave": "Remove the text filter",
     "practiceSize": "Words",
     "practiceWeak": "Weak words",
-    "practiceWeakHint": "Words you are least likely to recall come first, by the same memory model as the schedule. The schedule itself does not move.",
+    "practiceWeakHint": "Words you are least likely to recall come first, by the same memory model as the schedule.",
     "practiceWeakFallback": "nothing to rank yet — this round is random",
     "practiceFromText": "This text",
     "practiceEmptyTitle": "Nothing to practise yet",
     "start": {
+      "resumeLine": "You stopped at set {set}, {answered} of {size}",
+      "resumeContinue": "Continue",
+      "resumeRestart": "Start over",
       "begin": "Start",
       "new": "+{n} new",
       "empty": "nothing here",
@@ -827,7 +823,7 @@
       "goRead": "Read something",
       "tune": "Adjust",
       "pile": "What to review",
-      "practiceTip": "Practice never changes your schedule: its answers are not counted."
+      "practiceTip": "Random words, settled ones included. Answers count as a review; before a word is due memory grows less, so it takes more answers."
     },
     "order": {
       "label": "Order",
@@ -893,7 +889,7 @@
         "young": "On day intervals — the word comes back after days, and the gap grows.",
         "mature": "Settled — next shown in three weeks or later. This is not a finish line: the word just comes back less and less often."
       },
-      "stagesNote": "The bar shows where the word is now, not a score. It can step back, and it has no end.",
+      "stagesNote": "The bar from 0 to 100 shows where the word is now; the marks on it are the stages. A mistake takes it down. 100 means about half a year between showings, and the word still comes back.",
       "buttonsTitle": "What each button schedules",
       "button": {
         "again": "Again — the word comes back in about a minute.",
@@ -907,7 +903,7 @@
       "miss": "One miss does not erase a word. It comes back in about a minute, then in ~10 minutes. If you already knew the word before, part of your memory of it is kept.",
       "noRule": "There is no \"N correct in a row\" rule: the next time is worked out from your whole answer history.",
       "missed": "Within a set, misses are not asked again straight away. At the end of the set they are listed with their answers and come back later, when their step comes round. A correct answer is never asked a second time in the same set.",
-      "practice": "Free practice schedules nothing and does not affect timing.",
+      "practice": "Practice is a review too: the answer counts and moves the word. Before a word is due memory grows less. Words in “Known” and new words are not moved by practice.",
       "know": "\"I know it\" sets the word aside: it leaves review and is marked as known. It is not a deletion — you can bring the word back, and your answer history stays.",
       "budget": "The daily limit of new words is shared by the whole app (course and reading together), not one per pile."
     },
@@ -923,6 +919,7 @@
       "unseen": "first time",
       "interval": "interval",
       "intervalChange": "{from} → {to}",
+      "sameDay": "already reviewed today — memory grows from the gaps between showings",
       "preview": "if graded",
       "previewHint": "What each grade would schedule, from the same memory model. In the learning steps Good is the next step, minutes away; Easy graduates straight to days. Approximate: the exact day is decided when you answer."
     },
@@ -986,7 +983,6 @@
       "uncertain": "This form has several readings; the more frequent one was chosen. Check it against the sense.",
       "derived": "Worked out automatically rather than looked up — it may be wrong."
     },
-    "viaContext": "Chosen from the context (HuSpaCy) among this form's readings.",
     "cardExists": "“{word}” is already in your cards",
     "reportWrong": "this analysis is wrong",
     "reportedWrong": "reported as wrong — tap to retract",
@@ -1022,7 +1018,7 @@
   "library": {
     "sets": {
       "title": "Ready-made sets",
-      "intro": "Real sentences written by people. Adding creates a text; you make the cards yourself by tapping words.",
+      "intro": "“Phrases” are real sentences written by people. A “Dialogue” is a short conversation written by an AI (and labelled so). Adding creates a text; you make the cards yourself by tapping words.",
       "count": "{n} sentences",
       "theme": "themed",
       "inLibrary": "in your library",
@@ -1032,6 +1028,11 @@
       "showFewer": "Show fewer sets",
       "addRead": "Add",
       "open": "Open",
+      "preview": "Preview",
+      "previewOf": "Preview: {title}",
+      "previewLoading": "Loading the lines…",
+      "authored": "Written by AI, not checked by a native speaker",
+      "authoredHint": "These lines are not taken from real texts. Only one thing was checked: every word is in the app's dictionary. Whether they sound natural, no native speaker has verified.",
       "added": "Set “{title}” added to your library"
     },
     "addTitle": "Add a text",
@@ -1354,6 +1355,15 @@
     "inDeck": "in the deck",
     "tile": { "inDeck": "Words in deck", "known": "Learned", "solid": "Solid in grammar" },
     "known": "learned",
+    "byProgress": {
+      "title": "Words by progress",
+      "hint": "How many words sit in each tenth of the 0 to 100 scale. The marks are the stage boundaries.",
+      "empty": "No reviewed words yet — the chart appears after the first answers.",
+      "alt": "Bars: how many words sit in each tenth of progress. The same numbers are in the table beside it.",
+      "range": "Progress",
+      "words": "Words",
+      "bar": "{from}–{to}%: {n} words"
+    },
     "noLemmas": "No words in the deck yet — start with reading or with reviews.",
     "targetsCaveat": "The A1–B2 lines are the source plan's target milestones. They are reference points, not judgements, and the CEFR mapping is approximate.",
     "locative": "The locative system",
@@ -1450,7 +1460,27 @@
     "voicesFound": "Hungarian voices on this device: {n}",
     "compactHint": "Sounds robotic? That is the built-in “compact” voice — your system has a better one, it just needs downloading. macOS: Accessibility → Spoken Content → System Voice → Manage Voices, and pick the Hungarian entry marked Enhanced or Premium. Windows: Time & Language → Speech → Manage voices. It appears in the list above once installed. While the voice is a compact one the app reads slightly slower, which makes vowel length easier to hear."
   },
+  "wordProgress": {
+    "label": "progress",
+    "aria": "progress {n} of 100, {stage}",
+    "ariaPlain": "progress {n} of 100",
+    "up": "up by {n}",
+    "down": "down by {n}",
+    "same": "no change"
+  },
   "inspector": {
+    "memory": {
+      "title": "Memory of the word",
+      "returnsIn": "comes back in {when}",
+      "dueNow": "due now",
+      "dueToday": "comes back today",
+      "counts": "reviews {reps} · mistakes {lapses}",
+      "recall": "recall now ≈{n}%",
+      "history": "recent answers",
+      "right": "right",
+      "wrong": "mistake",
+      "cards": "by card"
+    },
     "dictionaryForm": "dictionary form:",
     "thisForm": "what this form is made of",
     "examples": "real examples",
@@ -1531,6 +1561,7 @@
     "sort": {
       "added": "Recent first",
       "word": "Alphabetical",
+      "progress": "By progress",
       "retrievability": "Shakiest first",
       "due": "By next review"
     },
@@ -1710,7 +1741,7 @@
     "language": "Language",
     "theme": "Theme",
     "services": "Services",
-    "servicesHint": "Optional helpers. The app works without them."
+    "servicesHint": "Optional helpers. The app works without them. A switch turns a service off without erasing its settings."
   },
   "visual": {
     "ring": {

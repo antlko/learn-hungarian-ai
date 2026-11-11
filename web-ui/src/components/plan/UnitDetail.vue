@@ -83,7 +83,7 @@ function deckState(w: CourseWord): DeckState {
   // A word the pack cannot attest a sentence for is not merely absent — it will
   // stay absent however many times the learner enrols, and saying "not yet" of
   // it would be a promise the pack cannot keep.
-  if (report.value?.skipped.some((sk) => sk.lemma === w.lemma)) return 'noMaterial'
+  if (report.value?.skipped.some((sk) => sk.lemma === w.lemma && !sk.known)) return 'noMaterial'
   return notInPlay.value.has(w.lemma) ? 'out' : 'in'
 }
 

@@ -19,7 +19,7 @@ Screen by screen. Design principles first, because they explain the individual d
    LLM output and low-confidence ASR are all labelled. Never a confident-looking wrong answer.
 6. **Austerity where it is a drill.** The Ear trainer is two buttons on a blank field. It is
    not an experience; it is 10 minutes of forced-choice repetition.
-7. **Light first**, both themes complete, `prefers-color-scheme` honoured, explicit toggle wins.
+7. **Light first**: light is the default and both themes are complete; only an explicit toggle (stored as `tanulom.theme`) changes it — the OS preference is not consulted.
    A fresh install opens on paper (`:root` carries the light palette; `.dark` is the override) —
    flipped from dark-first when the first learner read the dark default as unfinished rather
    than as a choice. Nothing in a component names a colour, so the flip lives entirely in
@@ -100,8 +100,7 @@ container.
 Below `md` the left menu is replaced by bottom tabs (below). Library is reached from Read; Words
 from the bottom-tab sheet and Progress.
 
-**Capability dots** (now inside the account menu, not the bar) — filled = reachable, hollow = configured but unreachable, absent = off.
-Hovering gives endpoint and latency. Features that need an unreachable service are visibly
+**Capability list** (inside the account menu, `CapabilityList`) — one row per service with the short names «Озвучка», «Речь в текст», «ИИ-учитель», «Перевод» (the same names as the Settings cards); dot filled = reachable, hollow = configured but unreachable, absent = off. **Admins** get a `role="switch"` per configured service (ADR-068: pauses it without losing provider, endpoint or model; the row then reads «выключено» and Settings shows the same word); a service not set up shows a «настроить» link to Settings instead. The device voice (tts `device`, «Голос устройства») has no switch: it is the browser's own. Learners see the read-only list. A failed toggle shows a `describeError` line under the list. Features that need an unreachable service are visibly
 disabled with a one-line reason, never silently missing.
 
 **The shell, as built.** The sidebar orders by the daily loops — Today (which carries the course as a road — there is no Plan item), Review (with the
@@ -120,7 +119,7 @@ sentence (`level.method.v1`, ALWAYS visible, never a tooltip) and a link to `/pr
 answer lands or the learner returns to Today; no polling. While loading it is a skeleton; on a
 failed fetch the chip is absent (never an error, never `e.message`). It is a measurement that can
 go down: no ring, no flame, no points (R14, ADR-047). The **account menu** holds language, theme,
-the optional-service dots and sign-out; the dots left the bar.
+the optional-service list (with admin on/off switches) and sign-out; the dots left the bar.
 
 **Dynamic navigation rules.** Order is fixed. Review's badge is `dueNow`. A small dot sits on the
 row holding today's unmet obligation: cards due → Review; queue clear but the day's minutes not met
@@ -467,6 +466,11 @@ sentence — a sentence read out with one word graded left the learner guessing 
 которое вы слышите?») and carries two buttons: «Слово» (replay) and «В предложении» (the whole sentence,
 as context, on request). Exercised in the browser at 375px and desktop, 2026-11-10.
 
+**A tapped option is spoken.** Tapping an option on a cloze or produce card says that word with the device
+voice (the learner's rate) as the answer is submitted; nothing waits for it, it is silent without a
+Hungarian voice, and it is cancelled with the card or the view. Options and the expected word are shown in the
+lemma's own case — lowercase unless the dictionary form is capitalised (ADR-071); grading is unchanged.
+
 **«Знаю» on a phone / touch screen** sits at the right end of the stage line above the card, not at the
 foot of the page: down there it was a thumb's slip above the pinned «Дальше» (ADR-063). On the options
 question it stays the pinned bar's only button, as before; on desktop it stays under the ratings. The
@@ -619,7 +623,7 @@ on the directions whose reveal carries the sentence, the crib above the answer b
 the answer phase, or the same machine translation stood on the card twice. Where no translation exists,
 the same slot offers to fetch one: a pack translates 19,641 of its sentences and not all, and a
 sentence the learner brought from their own reading has none until the sidecar has seen it, so
-"no translation" has to be an offer rather than a dead end. Nothing is fetched until asked — the
+"no translation" has to be an offer rather than a dead end. Where the crib is already on screen the app fetches one itself (ADR-067) and a failed auto-fetch is silent, with the button left in place; the
 queue itself still only ever reads the cache.
 
 **«Тренировка» is a mode beside the three piles, not a fourth one.** It draws at random from
@@ -640,7 +644,11 @@ on those screens the choice is already made — and the card's progress row read
 текста». A sub-slice of «Тексты» (ADR-022), so the three-pile arithmetic keeps adding up; the
 start screen does not list texts, the library does.
 
-Answering there **schedules nothing**: no due date moves, no feature is graded, no word gets
+**Amended 2026-11-11 ([ADR-064](../.claude/DECISIONS.md#adr-064)): answering there is a
+review** — it moves the word like one (never a «Знаю» word, never a new card), and the copy says
+«Ответы засчитываются как повторение; раньше срока память растёт меньше». The paragraph
+below is the pre-ADR-064 design, kept for the record. Answering there **schedules nothing**: no
+due date moves, no feature is graded, no word gets
 closer to «знаю». That is stated on screen, in a standing notice, for the whole session — this is
 the one screen where an identical-looking card means two different things, and inferring the
 difference from a due date that never moves is not something to ask of a learner. Practice
@@ -688,6 +696,13 @@ queue the server serves — unchanged, every number on it unchanged
   or «вперемешку», a random order that is **stable for the day** so a reload cannot reshuffle
   the remainder. Chosen before the sitting; changing one mid-sitting means going back to the
   start screen. Practice rounds are one set and read neither.
+- **A sitting survives navigation, not a reload** (ADR-065). It stays in the store; opening
+  the tutor or any other screen and returning to the same pile resumes at the same card, with
+  tallies, set number and the typed text intact (only the answer-latency clock restarts).
+  Resume needs the same mode and pile, the same local day, no load error and a loaded queue.
+  The start screen then shows «Вы остановились: подход 2, 3 из 15» with «Продолжить» and
+  «Начать заново» (discards the held sitting, deals a fresh set). Nothing is persisted: a
+  reload starts from the server's queue, the only authority on what is due.
 - **The bar is the set's**, not the day's: «набор 2 из 5 · отвечено: 7 из 15». A set is
   finished when every card in it has been answered once. **Nothing answered in a set comes back
   in it.** A miss returns through the server's queue once the learning step FSRS gave it has
@@ -700,16 +715,30 @@ queue the server serves — unchanged, every number on it unchanged
   a line to read: the set summary and the done screen **list the missed words with their
   answers**.
 - **The stage line** under the progress strip is ONE line (amended 2026-11-09): a chip with the
-  stage the scheduler reports — новая · учу · шаг 2 из 2 · повторяю · закреплено · заново — four
-  tiny rungs beside it, and a «?» that opens the «Как это работает» sheet (`HowItWorks`, the one
+  stage the scheduler reports — новая · учу · шаг 2 из 2 · повторяю · закреплено · заново — the
+  word's **progress bar** beside it (amended 2026-11-11, [ADR-070](../.claude/DECISIONS.md#adr-070):
+  the four rungs are gone), and a «?» that opens the «Как это работает» sheet (`HowItWorks`, the one
   place that explains stages, the four buttons and a miss). It is a POSITION: it can go back
   down, it has no end, nothing on it accumulates ([ADR-039](../.claude/DECISIONS.md#adr-039)).
   The «эта карточка: верно N из M» tally, the outcome marks and the inline «что это значит?»
   panel left this screen (the history lives in the words browser); after the answer
   «интервал 3 дн → 8 дн» appears. The **chance of recalling it now** was taken off the card on
   2026-09-03: in learning steps the model computes it against minutes, so it read «100%» over
-  five crosses. It still stands in the words browser. No bar, no denominator, no target
-  ([R14], [R16 §3]).
+  five crosses. It still stands in the word's inspector ([R14], [R16 §3]).
+  **The progress bar** (`components/common/WordProgress.vue`, sizes `row`/`card`/`detail`) is
+  0–100 from `Memory.progress`: the fill takes the stage chip's tone, two ticks at 20 and 70 are
+  the stage boundaries (named «учу · повторяю · закреплено» on the card and detail sizes, ticks
+  only on rows), «62% прогресс» in `tabular-nums`, `role="progressbar"` with an `aria-valuetext`
+  («прогресс 62 из 100, повторяю»). Before the answer it stands at the queue item's value;
+  after it the fill animates to the response's value (not under reduced motion) and a pill shows
+  the change for ~1.5 s: «+4» in the success tone, a fall as «−58» with a down arrow in the
+  muted tone (never red: it is a fact about the word, not a failure), and when a settled card
+  gives «+0» one quiet line says «сегодня уже повторяли — память растёт от перерывов». It is
+  progress, never a score, points or level; 100 = about half a year between showings and the
+  word still comes back. In **practice** a counted answer shows the same after-state and
+  enables undo (`canUndo` only after a counted answer); an uncounted one says why in one quiet
+  line («Не засчитано: слово в «Знаю»» / «…новое слово начнёт считаться, когда придёт в
+  повторение») ([ADR-064](../.claude/DECISIONS.md#adr-064)).
 - **The verdict takes the answer box's place.** On a typed card the box is the question's; once
   the answer is in, «вы: ala / нужно: aztán» renders exactly where the box was — the eye is
   already there — followed by what the card additionally graded, and only then the sentence as
@@ -938,7 +967,7 @@ do, because a learner who thinks this is a delete will not use it. See
 │  metró vonalán. A járműveket a gyártó a múlt     │ │ ▸ be·jelent·ette │   │
 │  héten szállította le, és a próbaüzem …          │ │                  │   │
 │                                                   │ │ be- перфектив.  │   │
-│  ██ известно  ██ учится  ██ новое  ░░ игнор      │ │    приставка     │   │
+│  ██ известно  ██ учу     ██ новое  ░░ игнор      │ │    приставка     │   │
 │                                                   │ │ jelent  сообщать │   │
 │  ── n+1 (3) ──────────────────────────────────    │ │ -ette   past,    │   │
 │  · A járműveket a múlt héten szállították le.     │ │    Def=Def, 3Sg  │   │
@@ -1048,8 +1077,15 @@ ADR-023; the labelling rule is ADR-014's.
 something (older packs: the segment is not drawn; a failed fetch does the same and never blocks
 the shelf). Compact rows grouped by level A1 · A2 · B1, the set at the learner's level first
 («подходит вам сейчас» is a hint, never a filter or a lock), each with title, «N предложений»,
-and one small button — «Добавить» (`POST …/import`, then the reader) or «Открыть» when already
-imported. The collapse to a few sets («Показать все подборки») stays. What the sets are —
+a «Посмотреть» button and the main one — «Добавить» (`POST …/import`, then the reader) or «Открыть» when already
+imported. Each unit has two rows, «Диалог: X» right before «Фразы: X» (the pack's order); a dialogue
+row carries a visible `Sparkles` line «Написано ИИ, носителем не проверено».
+**«Посмотреть»** opens `BottomSheet dialog tall` (full-height sheet on a phone, a centred dialog from
+md): level chip, count, for a dialogue the limit `Note` repeating the label with one honest sentence,
+then every line in set order, Hungarian `lang="hu"` over its translation in the gloss language (the
+other language only as a labelled fallback, `lib/gloss.ts`); a dialogue is set as a script (turn
+dash, every second line indented). Footer: «Закрыть» and «Добавить»/«Открыть». Skeleton while it
+loads; an error through `describeError` with a retry. The collapse to a few sets («Показать все подборки») stays. What the sets are —
 real sentences written by people, adding creates a text and the cards are the learner's own act
 of tapping words — is an `InfoTip` beside the heading. Browser flow not exercised.
 
@@ -1067,19 +1103,23 @@ Exercised in the browser at 375px, light and dark (2026-11-10).
 
 `/words`, linked from the lemma total on Прогресс («Все слова →» — a total nobody can inspect
 is a claim). Every deck word as a row (a stacked card at 390 px, a three-column row from `md`):
-dictionary form and gloss; the **stage** as three rungs (учится → повторяется → закреплено,
-filled vs hollow plus the stage named in words, so colour is never the only channel);
-«вспоминаем» (relearning) sits on the first rung in a neutral tone, not red — it is a step back,
-not a failure; «знаю» stands outside the ladder. The ladder is a position, not a score: it can
-go down and counts nothing. While a card is on learning steps the row says «шаг N из M». Beside
-it a **memory bar** («память ≈N%», the strongest card's retrievability now, shown only once
-something was reviewed), the next review in words (сегодня / завтра / через N дн.) and the
-card's interval · reviews · misses (only non-zero fields). Stage chips (все · учатся · вспоминаем
+dictionary form and gloss; the **stage** chip named in words (учу · вспоминаем · повторяется ·
+закреплено, so colour is never the only channel) with a **progress bar** (`WordProgress`, `row`
+size: 0–100, ticks at 20 and 70, [ADR-070](../.claude/DECISIONS.md#adr-070)) — it replaced the
+three dots; «вспоминаем» (relearning) is a step back, not a failure; «знаю» has no bar. The bar
+is a position, not a score: it falls on a mistake and counts nothing. The old retrievability bar
+and «память ≈N%» left the row (two percentages read as one thing); the figure now stands in the
+word's inspector. While a card is on learning steps the row says «шаг N из M». Beside it the next review in words (сегодня / завтра / через N дн.) and the
+card's interval · reviews · misses (only non-zero fields). Stage chips (все · учу · вспоминаем
 · молодые · зрелые · знаю) send `?stage=`; they carry no counts because the API returns no
 per-stage totals. A collapsible legend explains the stages (young = interval under 21 days,
 Anki's convention). Stage, status, sort and search persist in the query string. Search goes
 through pack case-variants (never `COLLATE NOCASE`) and matches glosses too; sorts include
-«сначала шаткие», the browsing twin of practice's weak mode. Verified at 390 px: not yet.
+«сначала шаткие», the browsing twin of practice's weak mode, and «по прогрессу». The word
+inspector (`WordInspector`) shows, for a word that has a card, a memory block: the `detail` bar,
+the stage chip, «вернётся через N дн», «повторений R · ошибок L», «вспомнить сейчас ≈93%»,
+up to eight dots of recent answers (filled = right, hollow = a miss; sr-only words) and, with
+more than one card, a compact bar per card. Verified at 390 px: not yet.
 
 **Lively pass (ADR-059; browser NOT exercised).** Four tinted tiles above the list — новое
 (mist) · учу (cream) · повторяю (sage) · закреплено (sage) — count WORDS from
@@ -1437,8 +1477,15 @@ element is keyboard-operable. Section order:
    абзац без остановок») is a plain sentence + checkbox with an InfoTip: the learner checks it,
    the app cannot hear, and the tick does not touch the streak. Button «Проверить». History uses
    shape + word: пройдена / не пройдена.
-6. **Free practice** — only when there is some; schedules nothing (ADR-019). Day bars have
-   screen-reader text, not title-only tooltips.
+6. **Free practice** — only when there is some; its answers count as reviews since
+   [ADR-064](../.claude/DECISIONS.md#adr-064) (volume and accuracy are still read from
+   `practice_log`). Day bars have screen-reader text, not title-only tooltips.
+7. **Words by progress** (`WordProgressChart`, beside the lemma curve, from
+   `GET /api/stats/deck` → `progress`, [ADR-070](../.claude/DECISIONS.md#adr-070)). Ten columns,
+   one per tenth of the 0–100 scale, counts of words with a reviewed card, tinted by band
+   (0–19 / 20–69 / 70–100, the stage-chip tones) with dashed marks at 20 and 70 named «учу ·
+   повторяю · закреплено»; exact counts on the columns and in an sr-only `<table>`; an empty state
+   when every count is zero. Counts go down as well as up; it is a picture, not a target.
 
 The grid, the heatmap rows and the feature panel are the product's argument for itself: no
 tool that treats a wordform as an atom can render them.
@@ -1482,7 +1529,7 @@ direction weighting by goal) · **Grammar drills** (the competence gate, exposed
 **Curriculum** (the exam date) · **Language** (UI locale, gloss language, fallback behaviour) ·
 **Ear trainer** (the talker floor and trials per session — the control the HVPT refusal screen
 has always told people to come here and change, and which did not exist) ·
-**Components** (admin only — see §10.1a) · **Services** (TTS/ASR/NLP/LLM provider, endpoint, key, test button, latency) ·
+**Components** (admin only — see §10.1a) · **Services** (TTS/ASR/LLM/MT provider, endpoint, key, test button, latency) ·
 **About** (version, pack version and edition) · **Speech** and **Sound**, which sit outside the
 settings payload because they are device preferences, not account ones.
 
@@ -1665,7 +1712,7 @@ you lose without it, and a state chip that carries a shape and text (never colou
   when `sizeBytes` is 0); no address or checksum is shown. The setup wizard's step 2 offers only
   «Потом» or «Установлю из настроек» (which lands on Settings after the account is created); it
   never asks for a build command.
-- **Install method tabs** (`ComponentMethods`, for `mt`, `nlp`, `llm`; browser flow NOT exercised, real
+- **Install method tabs** (`ComponentMethods`, for `mt`, `llm`; browser flow NOT exercised, real
   install NOT exercised). Under the one-line description each card has a tablist
   «Из приложения · Docker · Docker Compose · Свой сервер» (arrow keys, Home/End, ≥44 px targets). The default tab
   is the one in use: «Из приложения» when `provider: managed`, else when `managed.available`, else
@@ -1688,16 +1735,16 @@ you lose without it, and a state chip that carries a shape and text (never colou
     work ends, settings are re-read because the server flips the provider itself.
   - **Docker**: the `docker run` command (`:latest`), then «Настройки → Компоненты → Из приложения →
     Установить». «Проверить» re-probes.
-    **For `mt` and `nlp`** (`SIDECARS` in `lib/deploy.ts`, the one source of snippets, ports 5003/5002 and
+    **For `mt`** (`SIDECARS` in `lib/deploy.ts`, the one source of snippets, port 5003 and
     the repo URL `REPO_URL`) this tab instead prints `docker network create tanulom` plus two `docker run`
     lines on that network: the app, and a sidecar from the SAME image (`component run <id>`, own volume
-    `tanulom-<id>`, no `-p`), then the Settings step «Сервисы → Перевод/Разбор текста → Локально» with
+    `tanulom-<id>`, no `-p`), then the Settings step «Сервисы → Перевод → Локально» with
     `http://tanulom-<id>:<port>`.
-  - **Model line** (`SidecarSource`, on the managed, Docker, Compose and Own-server tabs of `mt`/`nlp`): «Будет
+  - **Model line** (`SidecarSource`, on the managed, Docker, Compose and Own-server tabs of `mt`): «Будет
     скачана модель X (licence) с HuggingFace… страница модели · services/<id> в репозитории», both links
-    `target=_blank rel=noopener`. Weights come from the model's author, never from our repo. The nlp
-    HuggingFace id/licence are not re-verified at runtime.
-  - **Docker Compose** (`mt`/`nlp`: the file holds BOTH `tanulom` and `tanulom-<id>` — `expose` not `ports`, own
+    `target=_blank rel=noopener`. Weights come from the model's author, never from our repo. The HuggingFace id/licence
+    are not re-verified at runtime.
+  - **Docker Compose** (`mt`: the file holds BOTH `tanulom` and `tanulom-<id>` — `expose` not `ports`, own
     volume, numbered-free steps, the honest size estimate from `component.need.*`, `docker compose logs -f`):
     a paste-ready `compose.yaml` (one `tanulom` service, named volume), notes about
     keeping an existing volume name and running in a folder holding only that file. The old
@@ -1708,33 +1755,21 @@ you lose without it, and a state chip that carries a shape and text (never colou
   - **Свой сервер**: the address (and, for `llm`, the model with the server's list) moved here from
     the Services card; «Сохранить» uses the ordinary settings update, «Проверить» re-probes.
 - **Services rows follow the tabs.** A `managed` row shows «встроенный · порт N» read-only on a sage
-  tint (no input) and its status is the same polled built-in state; mt/nlp/llm rows otherwise show
+  tint (no input) and its status is the same polled built-in state; mt/llm rows otherwise show
   the address read-only with a pointer to the tab. `managed` is offered in the provider select only
   once something is installed. Switching away is allowed (the server stops the child).
 - **Translator** reuses the Services card's live block (`MtBlock`: download bytes, retry); its
   state still lives in `SettingsView`, so the Services row and this card cannot disagree.
-- **Morphology analyser, speech server, speech recognition** report `built: false` as «пока не
+- **Speech server, speech recognition** report `built: false` as «пока не
   сделано» in the repository's own words — no compose command, no «Проверить», no «на связи».
   The Services row for a component that is not built reads «пока не сделано» too (tts keeps
   «говорит устройство» where the device has a voice, [ADR-012](../.claude/DECISIONS.md#adr-012)).
-- **Context analyser (nlp)** (`built: true`). Explains itself in one paragraph (picks the reading of
-  an ambiguous word from its neighbours; without it everything works and disputed cases say
-  «возможно») and keeps the unmeasured ≈2.4 GB RAM line. Not configured: the compose command plus
-  a pointer to the endpoint field. Configured and not ready: «Скачать модель» calls
-  `POST /api/admin/nlp/warmup`; while the sidecar reports `loading` the panel re-reads
-  `/api/admin/components` every ~2 s **only while the tab is visible** (timers cleared on unmount)
-  and an `aria-live` line reads «загружает модель N%». Unreachable shows `errors.nlpUnreachable`;
-  a failed warmup shows its `describeError` sentence inline.
-- **Reader label.** An analysis with `via: "context"` was chosen among the form's readings by the
-  sidecar; the word inspector keeps the «возможно» note (certainty stays `uncertain`) and adds
-  «По контексту (HuSpaCy)…» (`reader.viaContext`). Uncertainty is never hidden. `WordDetail`
-  (stored tokens carry no `via`) is unchanged.
 - **Language model**: configured/reachable/model; endpoint and model stay editable in Services.
 - **«Проверить»** (every sidecar/llm card, all three tabs) leaves a `role=status` line beside the button: «Проверяю…» while it runs, then «Проверено в 12:03:11 — на связи» or «— нет связи» plus a sentence for the probe's `reason` (`settings.components.reason.*`). A saved `https://` address whose probe says `tlsToPlainHttp` shows that sentence under the field without pressing anything.
 - A component with a `composeProfile` that is built shows a copyable
   `docker compose --profile <x> up -d` and «Проверить», which re-asks every probe.
 
-**Not exercised in a browser:** the nlp warmup/poll and context label, plus the progress, restart-and-reload and focus behaviour were
+**Not exercised in a browser:** the progress, restart-and-reload and focus behaviour were
 type-checked and built, not run end to end.
 
 ---

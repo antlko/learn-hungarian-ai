@@ -34,7 +34,7 @@ const APP_SERVICE = `  tanulom:
  * what those app.py files download.
  */
 export interface Sidecar {
-  id: 'mt' | 'nlp'
+  id: 'mt'
   model: string
   licence: string
   modelUrl: string
@@ -54,16 +54,6 @@ export const SIDECARS: Record<string, Sidecar> = {
     sourceLabel: 'services/mt',
     port: 5003,
     serviceName: 'tanulom-mt',
-  },
-  nlp: {
-    id: 'nlp',
-    model: 'hu_core_news_md',
-    licence: 'CC BY-SA 4.0',
-    modelUrl: 'https://huggingface.co/huspacy/hu_core_news_md',
-    sourceUrl: `${REPO_URL}/tree/main/services/nlp`,
-    sourceLabel: 'services/nlp',
-    port: 5002,
-    serviceName: 'tanulom-nlp',
   },
 }
 

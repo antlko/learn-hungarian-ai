@@ -22,6 +22,7 @@ This is a legal obligation, not a courtesy. This file is surfaced in the app und
 | Source | Used for | Licence | Attribution |
 |---|---|---|---|
 | [Tatoeba](https://tatoeba.org) | example sentences, HU↔EN/RU links | **CC BY 2.0 FR**; some sentences CC0 | "Tatoeba Project contributors" |
+| Authored dialogues (`pipeline/dialogues.py`) | one short conversation per course unit, reading sets only | **CC BY-SA 4.0** (the pack's own licence) | written by an AI for tanulom, **not checked by a native speaker**; labelled so in the UI; never used for drills or the n-gram index |
 | Tatoeba **audio** | HVPT + sentence audio | **per-clip — set by the contributor** | recorded per clip in `pair_audio.license`; clips without a permissive licence are excluded |
 | [hermitdave/FrequencyWords](https://github.com/hermitdave/FrequencyWords) (`hu_50k`, OpenSubtitles) | frequency ranks | **CC BY-SA 4.0** | Hermit Dave; derived from OpenSubtitles via OPUS |
 | [OPUS OpenSubtitles](https://opus.nlpl.eu/OpenSubtitles/) v2018, `hu-ru` and `en-hu` | conversational example sentences and their translations | **free for research use**; the corpus is derived from opensubtitles.org and OPUS asks that the paper be cited rather than granting an explicit content licence | P. Lison and J. Tiedemann, *OpenSubtitles2016: Extracting Large Parallel Corpora from Movie and TV Subtitles*, LREC 2016 |

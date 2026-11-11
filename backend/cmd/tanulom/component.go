@@ -17,14 +17,14 @@ import (
 	"tanulom/internal/state"
 )
 
-const componentUsage = `usage: tanulom component run <mt|nlp> [--port N] [--host IP] [--data-dir DIR]
+const componentUsage = `usage: tanulom component run <mt> [--port N] [--host IP] [--data-dir DIR]
 
 Installs (first start only) and runs one sidecar in the foreground, so a second
 container from the same image can host it:
 
   command: ["component", "run", "mt"]
 
---host defaults to 0.0.0.0 and --port to the service's own (mt 5003, nlp 5002).
+--host defaults to 0.0.0.0 and --port to the service's own (mt 5003).
 The sidecar has no authentication: publish it on the compose network only.`
 
 // componentArgs finds the "component" subcommand. A leading `--data-dir X` (the

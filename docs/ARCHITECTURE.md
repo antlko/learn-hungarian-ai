@@ -10,7 +10,7 @@ is. This document describes the *what*.
 ## 1. Shape
 
 A **static Go binary** embeds the built Vue SPA and serves both the API and the UI on one port.
-Optional sidecars add speech and NLP. Nothing in v1.0 requires a sidecar.
+Optional sidecars add speech, translation and an LLM. Nothing in v1.0 requires a sidecar.
 
 ```
                     ┌──────────────────────────────────────────┐
@@ -28,8 +28,8 @@ Optional sidecars add speech and NLP. Nothing in v1.0 requires a sidecar.
                                │  optional, probed at runtime
               ┌────────────────┼─────────────────┬──────────────┐
               ▼                ▼                 ▼              ▼
-        services/nlp     services/tts      services/asr     any OpenAI-
-        HuSpaCy          Piper             faster-whisper   compatible LLM
+        services/mt      services/tts      services/asr     any OpenAI-
+        NLLB-200         Piper             faster-whisper   compatible LLM
 ```
 
 ---
@@ -153,8 +153,7 @@ cmd/tanulom
               ├── hvpt ── drill, srs, lang, db
               ├── stats ── db
               ├── mt ── config (optional sidecar; a nil client is "switched off")
-              ├── nlp ── config (optional sidecar, same shape)
-              ├── components ── (embeds services/{mt,nlp}; installs + supervises them as children; imports nothing from internal/)
+              ├── components ── (embeds services/mt; installs + supervises it as a child; imports nothing from internal/)
               ├── llm ── config (OpenAI-compatible chat, blocking and streamed)
               ├── tutor ── llm, db (the embedded reference corpus, retrieval, topic inference, the prompt, threads)
               └── web (//go:embed all:dist)
@@ -316,6 +315,14 @@ replay). Two things stand on that property:
 - The **property test** (`replay_test.go`, 200 randomised trials) that catches any change —
   including an FSRS upgrade — breaking the correspondence.
 
+**Practice answers are reviews** ([ADR-064](../.claude/DECISIONS.md#adr-064)): a counted
+`/api/practice/answer` goes through `Engine.Answer` and lands in `review_log` like any other,
+so the replay fuzz covers gaps of seconds, minutes and the same day on Review-state cards, and
+undo also deletes the `practice_log` row written at the same instant. New cards and «Знаю»
+words stay `practice_log`-only. `internal/srs/progress.go` maps a card's stage and stability to
+the 0–100 word-progress number carried on `srs.Memory.Progress`
+([ADR-070](../.claude/DECISIONS.md#adr-070)) — derived from stored state, display-only.
+
 **Bit for bit is a property of one binary on one CPU architecture.** go-fsrs draws its interval
 fuzz from a floating-point generator, and Go fuses multiply-adds on arm64 but not on amd64, so
 the same seed draws a different fuzz on each; stability and difficulty differ in their last bit
@@ -371,19 +378,9 @@ Segment the learner's answer and the target, align morphemes, classify the diver
 `harmony | case | definiteness | possessor | vowel_length | agreement | spelling`. The **class**,
 not the mere fact of being wrong, drives what gets drilled next.
 
-### 5.10a Context disambiguation (ladder step 4) — `internal/nlp`, `morph/context.go`
-
-Opt-in, [ADR-054](../.claude/DECISIONS.md#adr-054). After `AnalyzeText`, if `services.nlp` is
-`local` and some word is `uncertain`, `api.applyNLPHints` posts the whole text once to the sidecar
-(`POST /analyze`, 10 s total budget). `nlp.Client` drops tokens whose byte offsets are outside the
-text or off rune boundaries; `Analyzer.ApplyContextHints` then picks, for each `uncertain` word,
-the pack candidate (from `Lookup`) whose lemma and UPOS equal the sidecar token overlapping that
-span, and sets `Analysis.Via = "context"`. It never adds an analysis; on any error the result is
-exactly what the core produced alone. Used by text ingest and `/api/analyze`.
-
 ### 5.10b Managed components — `internal/components`
 
-[ADR-061](../.claude/DECISIONS.md#adr-061). The binary can install and run `mt` and `nlp` itself.
+[ADR-061](../.claude/DECISIONS.md#adr-061). The binary can install and run `mt` itself.
 `components.Manager` (one per `Server`) owns, per id: an install job, a supervised child and an
 in-memory state `absent → installing → installed → starting → running → failed | stopped` (the
 `managed` object of [API.md](API.md)).
@@ -396,8 +393,7 @@ in-memory state `absent → installing → installed → starting → running �
   the button): python ≥ 3.10 with `venv`+`ensurepip` found (cached 30 s) → free-disk check →
   `<data>/components/<id>.installing/` ← embedded sources → `python -m venv` → `pip install`
   (mt: torch from the CPU index first, removed after) with progress counted from pip's
-  `Collecting` lines → model preparation (mt: `app.prepare_model()`; nlp: `POST /warmup` once the
-  service runs, progress from `/health`) → atomic rename → start → `OnInstalled` (sets
+  `Collecting` lines → model preparation (`app.prepare_model()`) → atomic rename → start → `OnInstalled` (sets
   `provider=managed` through `updateConfig`). Any failure removes `.installing/` — and the final
   directory when it came after the rename — and records `errorKey` (+ a redacted tail).
 - **Supervision.** The child is `venv/bin/python src/app.py` in its own process group with an
@@ -410,7 +406,7 @@ in-memory state `absent → installing → installed → starting → running �
   embedded copy before every start.
 - **One endpoint resolver.** `Manager.Endpoint(id)` is the only source of a managed port;
   `api.resolveService` turns a `managed` service into an ordinary `local` one for the duration of a
-  call, and `mt.New`, `nlp.New`, the capability probe and the Components rows all take their
+  call, and `mt.New`, the capability probe and the Components rows all take their
   `config.Service` from it. Nothing else knows ports exist; config.yaml never holds one.
 - **Lifecycle in `api`.** `api.New` builds the manager and starts `AutoStart` in a goroutine
   after the pack and DB are ready (never blocking boot); `Close` stops the children before the DB
@@ -547,7 +543,7 @@ POST /api/drill/answer  {itemId, answer, durationMs}
 **Capability probing**
 ```
 GET /api/capabilities
-  → parallel HEAD/health to nlp, tts, asr, llm endpoints, 2s timeout
+  → parallel HEAD/health to tts, asr, llm, mt endpoints, 2s timeout
   → {name, configured, reachable, latency_ms, detail}
   → cached 30s; UI renders capability dots and degrades features
 ```
@@ -567,7 +563,7 @@ GET /api/capabilities
 | Change the size of a review set, or what ends one | `web-ui/src/lib/sets.ts` and `stores/review.ts`. Sets are the client's presentation of the served queue; the server, `Breakdowns` and the streak know nothing about them ([ADR-026](../.claude/DECISIONS.md#adr-026)) |
 | Change what the learner chooses before a sitting — pile, set size, order, a practice round's shape | `web-ui/src/views/ReviewStartView.vue` (`/review`). The card at `/review/session` takes its intent from the query (`?scope=`, `?practice=`) and starts nothing on its own ([ADR-028](../.claude/DECISIONS.md#adr-028)) |
 | Change what the grammar tutor is told, reads or may do | `internal/tutor` — `prompts/` (the system text), `prompt.go` (order and budgets), `retrieve.go`, `infer.go` (which lesson a free chat's question is about), `store.go` (threads), `kb/` (the corpus, `make tutor-kb` for the generated half); `handlers_tutor.go` gathers the input and builds the topic index. It must keep explaining and never minting — [`TUTOR.md`](TUTOR.md), [ADR-027](../.claude/DECISIONS.md#adr-027), [ADR-029](../.claude/DECISIONS.md#adr-029). The chat's controls are [ADR-031](../.claude/DECISIONS.md#adr-031): `POST /api/tutor/:id/stop` cancels the flight's context, `replace` on a question truncates and re-asks, and every answer stores the stream's `usage` plus the window Ollama reports on `/api/ps` (`prompt_tokens`, `answer_tokens`, `context_tokens`) for the context meter |
-| Add a way to answer a card that must not schedule | `internal/api/handlers_practice.go` + `internal/srs/practice.go` — and never `review_log`, which replay depends on |
+| Change what a practice answer records | `internal/api/handlers_practice.go` + `internal/srs/practice.go` — a counted answer MUST go through `Engine.Answer` (one `review_log` row, same instant as `practice_log`); new/«Знаю» stay log-only ([ADR-064](../.claude/DECISIONS.md#adr-064)) |
 | Change which sentences a ready-made reading set holds, or its level | `langpack/pipeline/reading_sets.py` (constants at the top), then `make refresh-curriculum` + `make starter`. The API side is `handlers_library_sets.go`; an import goes through `Server.ingestText`, the same path as a paste ([ADR-056](../.claude/DECISIONS.md#adr-056)). Never write a set's Hungarian by hand |
 | Judge a text's difficulty | `internal/mining/level.go` (`EstimateLevel`, pure) + `levelInputs` in `handlers_texts.go`; the LLM second opinion and manual override in `handlers_level.go` ([ADR-023](../.claude/DECISIONS.md#adr-023)). The band table is the pack's `lemma.cefr` — do not fork a third one |
 | Browse the learner's words | `internal/api/handlers_words.go` — status from `lemma_state`, memory figures derived from the CARDS (lemma_state's FSRS columns are dormant) |

@@ -37,6 +37,10 @@ from .add_subtitles import tokenise
 
 PACK_NAME = "langpack-hu-v1.sqlite"
 ALLOWED_SOURCE = "tatoeba"
+# Written for tanulom (pipeline/dialogues.py), CC BY-SA 4.0: ships with the pack, but it
+# is not corpus: it never feeds n-grams, drills or examples.
+AUTHORED_SOURCE = "authored"
+ALLOWED_SOURCES = (ALLOWED_SOURCE, AUTHORED_SOURCE)
 
 # What backend/internal/lang expects to find (pack.go Counts + the readers).
 REQUIRED_TABLES = (
@@ -49,12 +53,13 @@ REQUIRED_TABLES = (
 
 def strip_sentences(conn: sqlite3.Connection) -> int:
     """Delete every non-allowed sentence and everything hanging off it."""
-    drop = "(SELECT id FROM sentence WHERE source <> ?)"
-    n = conn.execute("SELECT COUNT(*) FROM sentence WHERE source <> ?",
-                     (ALLOWED_SOURCE,)).fetchone()[0]
+    marks = ",".join("?" * len(ALLOWED_SOURCES))
+    drop = f"(SELECT id FROM sentence WHERE source NOT IN ({marks}))"
+    n = conn.execute(f"SELECT COUNT(*) FROM sentence WHERE source NOT IN ({marks})",
+                     ALLOWED_SOURCES).fetchone()[0]
     for table in ("sentence_token", "sentence_trans", "reading_set_sentence"):
-        conn.execute(f"DELETE FROM {table} WHERE sentence_id IN {drop}", (ALLOWED_SOURCE,))
-    conn.execute("DELETE FROM sentence WHERE source <> ?", (ALLOWED_SOURCE,))
+        conn.execute(f"DELETE FROM {table} WHERE sentence_id IN {drop}", ALLOWED_SOURCES)
+    conn.execute(f"DELETE FROM sentence WHERE source NOT IN ({marks})", ALLOWED_SOURCES)
     # A set left with no sentence is not a set.
     conn.execute("DELETE FROM reading_set WHERE code NOT IN "
                  "(SELECT set_code FROM reading_set_sentence)")
@@ -63,7 +68,9 @@ def strip_sentences(conn: sqlite3.Connection) -> int:
 
 def rebuild_ngrams(conn: sqlite3.Connection) -> int:
     counter: Counter[tuple[str, int]] = Counter()
-    for (text,) in conn.execute("SELECT hu FROM sentence"):
+    # Authored dialogues are not corpus: the index is what vouches for a model's
+    # Hungarian, and the model must not vouch for its own text.
+    for (text,) in conn.execute("SELECT hu FROM sentence WHERE source <> ?", (AUTHORED_SOURCE,)):
         toks = [t.lower() for t in tokenise(text)]
         for n in (2, 3):
             for i in range(len(toks) - n + 1):
@@ -108,9 +115,9 @@ def check(conn: sqlite3.Connection) -> list[str]:
             problems.append(f"missing table {t}")
     if problems:
         return problems
-    srcs = [r[0] for r in conn.execute("SELECT DISTINCT source FROM sentence")]
-    if srcs != [ALLOWED_SOURCE]:
-        problems.append(f"sentence sources are {srcs}, want only ['{ALLOWED_SOURCE}']")
+    srcs = sorted(r[0] for r in conn.execute("SELECT DISTINCT source FROM sentence"))
+    if not set(srcs) <= set(ALLOWED_SOURCES):
+        problems.append(f"sentence sources are {srcs}, want only {list(ALLOWED_SOURCES)}")
     for table, col in (("sentence_token", "sentence_id"), ("sentence_trans", "sentence_id"),
                        ("reading_set_sentence", "sentence_id")):
         n = conn.execute(

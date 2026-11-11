@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log/slog"
 	"strconv"
 	"time"
 
@@ -23,7 +22,7 @@ import (
 //   - nothing is deleted — the note, its cards, their FSRS state and every row
 //     in review_log survive, which is what makes restore a restore;
 //   - it stays reachable. Free practice accepts `scope=trash`, so a set-aside
-//     word can still be looked at, and practice schedules nothing (ADR-019) so
+//     word can still be looked at, and practice never reviews a trashed word (ADR-064) so
 //     looking at it moves nothing. The review queue REFUSES that scope: a trash
 //     that fed the scheduler would be a pile, not a trash.
 //
@@ -36,7 +35,7 @@ import (
 // review screen speaks.
 type TrashResponse struct {
 	NoteID int64 `json:"noteId"`
-	// Cards is how many directions moved with the word — what the learner just
+	// Cards is how many directions moved with the word — every note of it — what the learner just
 	// took out of (or put back into) the day's workload.
 	Cards int `json:"cards"`
 	// Changed is false when the note was already where the call would put it.
@@ -87,47 +86,24 @@ func (s *Server) moveTrash(c fiber.Ctx, trash bool) error {
 		return fiber.NewError(fiber.StatusNotFound, "no such note")
 	}
 
-	var changed bool
+	// «Знаю» is a claim about the WORD, not about one sentence (ADR-041, ADR-071).
+	//
+	// TrashWord sets aside EVERY live note of the lemma in one transaction with
+	// one instant and marks the lemma `known`; RestoreWord brings back the notes
+	// set aside at that same instant and puts the lemma back to `learning` — the
+	// state a word gets from being added at all, not `new`, which would claim it
+	// had never been seen. A note the pack cannot resolve to a lemma has no
+	// word-level fact to record and moves alone.
+	var moved, cards int
 	if trash {
-		changed, err = store.Trash(u.ID, noteID, time.Now())
+		moved, cards, err = store.TrashWord(u.ID, noteID, time.Now())
 	} else {
-		changed, err = store.Restore(u.ID, noteID)
+		moved, cards, err = store.RestoreWord(u.ID, noteID)
 	}
 	if err != nil {
 		return err
 	}
-
-	// «Знаю» is a claim about the WORD, not only about these cards (ADR-041).
-	//
-	// Setting the note aside stops it being scheduled; marking its lemma
-	// `known` is the other half, and it is the half the learner actually
-	// meant. Without it the reader would go on offering the word as unknown
-	// in its n+1 scoring and the plan would go on counting it as missing,
-	// while the learner had just said they know it.
-	//
-	// Restore puts it back to `learning`, which is the state a word gets from
-	// being added at all — not `new`, which would claim it had never been
-	// seen.
-	//
-	// Only when the note resolves to a lemma. A note the pack cannot resolve
-	// is still set aside; it simply has no word-level fact to record, and
-	// failing the whole request over that would be worse than saying less.
-	if changed {
-		if n, nerr := store.Note(u.ID, noteID); nerr == nil && n.LemmaID != nil {
-			status := "learning"
-			if trash {
-				status = "known"
-			}
-			if serr := store.SetLemmaStatus(u.ID, *n.LemmaID, status); serr != nil {
-				slog.ErrorContext(c.Context(), "could not update lemma status",
-					"user", u.ID, "note", noteID, "status", status, "error", serr)
-			}
-		}
-	}
-	cards, err := store.CardCount(noteID)
-	if err != nil {
-		return err
-	}
+	changed := moved > 0
 	trashed, err := store.TrashCount(u.ID)
 	if err != nil {
 		return err

@@ -12,7 +12,7 @@ import (
 	"tanulom/internal/config"
 )
 
-// Managed components — the binary installs and runs the mt and nlp sidecars
+// Managed components — the binary installs and runs the mt sidecar
 // itself (ADR-061). Settings → Components is the only entry point.
 //
 // Every route is admin-only and takes nothing but an id from the URL: no URL, no
@@ -20,7 +20,7 @@ import (
 // uninstall answer 202 and the card polls GET /api/admin/components, whose
 // `managed` object is the state machine.
 
-// ManagedDTO is `managed` on the mt and nlp rows of GET /api/admin/components.
+// ManagedDTO is `managed` on the mt row of GET /api/admin/components.
 type ManagedDTO struct {
 	Available      bool     `json:"available"`
 	UnavailableKey string   `json:"unavailableKey,omitempty"`
@@ -73,10 +73,13 @@ func (s *Server) newComponents(mods ...func(*components.Options)) *components.Ma
 // resolveService is the ONE place a service's endpoint is decided. A managed
 // service has no stored endpoint: while its child runs it resolves to
 // `http://127.0.0.1:<port>` as an ordinary `local` service, so every client
-// (mt, nlp, the capability probe, the Components rows) goes through here and none
+// (mt, the capability probe, the Components rows) goes through here and none
 // of them learns about ports. Not running resolves to provider `managed` with no
 // endpoint, which every client treats as "not configured right now".
 func (s *Server) resolveService(name string, svc config.Service) config.Service {
+	if svc.Paused {
+		return config.Service{Provider: config.ProviderOff, Paused: true} // ADR-068
+	}
 	if svc.Provider != config.ProviderManaged {
 		return svc
 	}
@@ -84,6 +87,11 @@ func (s *Server) resolveService(name string, svc config.Service) config.Service 
 		return config.Service{Provider: config.ProviderLocal, Endpoint: ep}
 	}
 	return config.Service{Provider: config.ProviderManaged}
+}
+
+// managedWanted: the child should run only for a managed provider that is not paused.
+func managedWanted(svc config.Service) bool {
+	return svc.Provider == config.ProviderManaged && !svc.Paused
 }
 
 // service returns the named service from the live config, endpoint resolved.
@@ -101,13 +109,13 @@ func (s *Server) service(name string) config.Service {
 // choosing it starts an installed one.
 func (s *Server) reconcileManaged(prev, next config.Config) {
 	for _, id := range components.IDs() {
-		a, b := serviceField(&prev, id).Provider, serviceField(&next, id).Provider
+		a, b := managedWanted(*serviceField(&prev, id)), managedWanted(*serviceField(&next, id))
 		switch {
-		case a == config.ProviderManaged && b != config.ProviderManaged:
+		case a && !b:
 			if err := s.components.Stop(id); err != nil {
 				slog.Warn("components: could not stop after provider change", "component", id, "error", err)
 			}
-		case a != config.ProviderManaged && b == config.ProviderManaged:
+		case !a && b:
 			if err := s.components.Start(id); err != nil && !errors.Is(err, components.ErrNotInstalled) {
 				slog.Warn("components: could not start after provider change", "component", id, "error", err)
 			}
@@ -126,7 +134,7 @@ func (s *Server) autoStartComponents() {
 		defer s.bg.Done()
 		comps.AutoStart(func(id string) bool {
 			cfg := s.Config()
-			return serviceField(&cfg, id).Provider == config.ProviderManaged
+			return managedWanted(*serviceField(&cfg, id))
 		})
 	}()
 }

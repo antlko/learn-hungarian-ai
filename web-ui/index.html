@@ -18,17 +18,15 @@
     <title>tanulom</title>
     <!--
       Before the app runs: the theme the learner chose (stores/ui.ts writes it under
-      tanulom.theme), else the OS preference, so a dark install never flashes a light
-      shell while the bundle loads. Same for the interface language on <html lang>.
+      tanulom.theme), else light (the OS preference is not consulted), so the shell
+      never flashes the wrong theme while the bundle loads. Same for the interface language on <html lang>.
       stores/ui.ts applies the same rule again on mount, idempotently.
     -->
     <script>
       ;(function () {
         try {
           var t = localStorage.getItem('tanulom.theme')
-          if (t !== 'dark' && t !== 'light') {
-            t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-          }
+          if (t !== 'dark' && t !== 'light') t = 'light'
           document.documentElement.className = t
           // The learner's choice may differ from the OS: drop the media-scoped pair
           // for one tag that follows the chosen theme.

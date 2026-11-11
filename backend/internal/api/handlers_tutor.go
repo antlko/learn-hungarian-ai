@@ -217,7 +217,7 @@ func (s *Server) threadResponse(lang string, th *tutor.Thread, topic string, msg
 	if s.tutorKB != nil {
 		out.Sources = s.tutorKB.Sources()
 	}
-	client, err := llm.New(s.Config().Services.LLM, s.llmKey())
+	client, err := llm.New(s.service("llm"), s.llmKey())
 	switch {
 	case errors.Is(err, llm.ErrOff):
 		out.Reason = "errors.llmOff"
@@ -619,7 +619,7 @@ func (s *Server) handleTutorAsk(c fiber.Ctx) error {
 	if s.tutorKB == nil {
 		return fiber.NewError(fiber.StatusServiceUnavailable, "errors.tutorCorpus")
 	}
-	client, err := llm.New(s.Config().Services.LLM, s.llmKey())
+	client, err := llm.New(s.service("llm"), s.llmKey())
 	if err != nil {
 		return fiber.NewError(fiber.StatusServiceUnavailable, llmUnavailableKey(err))
 	}

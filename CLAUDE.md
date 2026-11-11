@@ -7,7 +7,7 @@ subagent. Depth lives in `docs/` and `.claude/`; fetch it on demand (see "Contex
 
 **tanulom** — a self-hosted, research-grounded Hungarian trainer. **Go backend** (`backend/`) serves a
 **Vue 3 SPA** (`web-ui/`) plus a JSON API; in production the SPA is embedded into one static binary
-(one Docker container). Optional sidecars (`services/`: NLP, TTS, ASR, MT) are never required.
+(one Docker container). Optional sidecars (`services/`: TTS, ASR, MT) are never required.
 
 **Thesis:** a wordform is not an atom in an agglutinative language. The app tracks **two independent
 FSRS state spaces — lemmas and morphological features** — and derives `n+1` selection, a per-suffix
@@ -104,7 +104,10 @@ One line each; **full text, reasons and ADR links: `docs/INVARIANTS.md`** (grep 
 - Never write scheduling maths: `internal/srs` wraps `go-fsrs/v4` unmodified (ADR-003).
 - Review log replays to stored state bit-for-bit (seeded fuzz; ms `review_time`; keep `remaining_steps`);
   undo = delete-and-replay. Bit-exactness holds per CPU arch.
-- Free practice (`/api/practice/*`) schedules NOTHING: no card state, no `morph_state`, no `review_log`.
+- A practice answer (`/api/practice/*`) is a real review via `Engine.Answer` (ADR-064), except words in «Знаю»
+  and new cards (`practice_log` only, `counted:false`); undo also deletes its `practice_log` row.
+- Word progress 0–100 is display-only (`srs.progressOf`: stage band + stability; marks 20/70; 180 days = 100;
+  ADR-070). It never feeds scheduling and is never called a score.
 - «Знаю» = `note.trashed_at` (+ lemma `known`), never a delete; `scope=trash` refused by the review queue.
 - Every review number a learner sees comes from `srs.Breakdowns`; never show a raw card count.
 - Review scope is a filter, never a second scheduler; the daily new budget stays global.
@@ -129,7 +132,7 @@ One line each; **full text, reasons and ADR links: `docs/INVARIANTS.md`** (grep 
 - A cloze needs a span, not features. Expected answer never leaves the server (`drill/pending.go`).
 
 **Language and text**
-- Morphology never calls Python at runtime (lookup ladder: exact → prior → suffix → optional sidecar).
+- Morphology never calls Python at runtime (lookup ladder: exact → prior → suffix; ADR-069).
 - Offsets are UTF-8 bytes on the server, UTF-16 in the browser — never slice client-side with them.
 - A line break ends a sentence (`morph.SplitSentences` needs the source text).
 - `COLLATE NOCASE` defeats pack indexes — use `caseVariants` + `IN (...)`.
@@ -140,7 +143,8 @@ One line each; **full text, reasons and ADR links: `docs/INVARIANTS.md`** (grep 
 - Tutor explains, mints nothing (no path to `note`/`card`/`user_gloss`/state); labels model + lesson; asking
   never changes a schedule; never write `ONLY` into its prompt; read `docs/TUTOR.md` before touching it.
 - No LLM Hungarian becomes a card without `internal/corpus/attest.go`; AI dictionary entry is a separate
-  path (ADR-042). Reading sets are pack sentences only.
+  path (ADR-042). Reading sets: «Фразы» are Tatoeba pack sentences; «Диалог» sets are the one labelled
+  AI-written Hungarian in the pack (`source='authored'`, ADR-066), filtered out everywhere else.
 - MT is display-only and always labelled with its model; `lib/gloss.ts` picks gloss language.
 - App fully usable with every sidecar stopped; managed components never block boot; endpoints never stored.
 - `services.llm` needs a model name (`llm.New` → `ErrNoModel`).

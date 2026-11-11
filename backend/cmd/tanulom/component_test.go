@@ -11,7 +11,7 @@ func TestComponentArgs(t *testing.T) {
 	if !ok || dir != "" || !reflect.DeepEqual(rest, []string{"run", "mt"}) {
 		t.Fatalf("%v %q %v", rest, dir, ok)
 	}
-	rest, dir, ok = componentArgs([]string{"--data-dir", "/x", "component", "run", "nlp"})
+	rest, dir, ok = componentArgs([]string{"--data-dir", "/x", "component", "run", "mt"})
 	if !ok || dir != "/x" || len(rest) != 2 {
 		t.Fatalf("%v %q %v", rest, dir, ok)
 	}

@@ -44,7 +44,7 @@ const emit = defineEmits<{
 }>()
 
 /** Components with install-method tabs. tts/asr are not built and keep their one line. */
-const tabbed = computed(() => props.comp.built && ['mt', 'nlp', 'llm'].includes(props.comp.id))
+const tabbed = computed(() => props.comp.built && ['mt', 'llm'].includes(props.comp.id))
 /**
  * The built-in copy speaks for this card when it is the chosen provider, or
  * when it exists at all (a half-installed one must not hide behind «не настроен»).
@@ -66,6 +66,7 @@ const ramText = computed(() => {
 const chip = computed(() => {
   const c = props.comp
   const m = mg.value
+  if (props.cap?.paused) return { icon: Square, text: t('capabilities.paused'), cls: 'text-muted-foreground' }
   if (m) {
     const label = t(`component.state.${m.state}`)
     switch (m.state) {

@@ -176,7 +176,7 @@ analyser or translator inside the container (`:latest-full` is an alias of it). 
 distroless image without Python? Use `:latest-slim`; switching tag keeps your data and account.
 
 **The repository's own `docker-compose.yml`** (clone, then `cp .env.example .env`) adds the optional
-sidecars as profiles — `nlp`, `mt` (sentence translation), `llm` (a local Ollama) — none of which the
+sidecars as profiles — `mt` (sentence translation), `llm` (a local Ollama) — none of which the
 app needs. `COMPOSE_PROFILES=` empty runs the core alone; `.env.example` defaults to `mt,llm`.
 
 ### C. From source, no Docker
@@ -247,7 +247,6 @@ start command is always yours.
 | Component | What it is | What it gives you | Cost |
 |---|---|---|---|
 | **Translator** (MT) | NLLB-200-distilled-600M, a small translation model that runs on your CPU | a **labelled** machine crib («машинный перевод, модель …») under Hungarian sentences in the reader, so you need not paste text into someone else's chat. Never used as a card's answer. | `docker compose --profile mt up -d`; ~2.4 GB downloaded on first build, ~600 MB kept, 200–400 MB RAM. Weights are CC-BY-NC. |
-| **Morphology analyser** (HuSpaCy `hu_core_news_md`, "nlp") | a Hungarian language model | for ambiguous words (`vár` = castle / waits) picks the reading that fits the sentence and the reader says "по контексту". It only chooses among readings the dictionary already has; it never invents one. | `docker compose --profile nlp up -d`, then fetch the ~127 MB model from Settings → Components. **Not a small container**: plan ≥ 2.4 GB RAM (published figure; we have not measured it). Not run in CI. |
 | **Tutor model** (LLM) | any OpenAI-compatible endpoint | the grammar tutor and AI dictionary entries. `qwen3:8b` is recommended; a 1.7B model cannot do the job ([docs/TUTOR.md](docs/TUTOR.md)). | Local Ollama via `--profile llm` plus `ollama pull qwen3:8b` (~5 GB, a step nobody does for you), or a hosted API. |
 | **Speech** | text-to-speech / recognition services | nothing yet: `services/tts` and `services/asr` are **not built**. Audio today is your browser's own voices (the `device` provider) plus the ear trainer's clips already in the binary. | n/a |
 
@@ -285,9 +284,7 @@ One static Go binary embeds the built Vue app and serves both the API and the UI
   idiom, `vue-i18n` (RU + EN). Offline review is planned, not shipped.
 - **Language pack** — a versioned read-only SQLite file built offline from Wiktionary, Tatoeba
   and frequency data by a Python pipeline with its own vowel-harmony and inflection engines. The
-  runtime does indexed lookups and needs **no Python at all**; a
-  [HuSpaCy](https://github.com/huspacy/huspacy) sidecar is an optional accuracy upgrade, never a
-  requirement. [`docs/LANGPACK.md`](docs/LANGPACK.md).
+  runtime does indexed lookups and needs **no Python at all**. [`docs/LANGPACK.md`](docs/LANGPACK.md).
 
 Tiny, fast, `amd64` + `arm64` — it runs on a NAS or a Raspberry Pi.
 

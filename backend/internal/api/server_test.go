@@ -338,8 +338,8 @@ func TestCapabilitiesReportUnconfiguredServices(t *testing.T) {
 	if resp := c.json(http.MethodGet, "/api/capabilities", nil, &caps); resp.StatusCode != 200 {
 		t.Fatalf("capabilities: got %d", resp.StatusCode)
 	}
-	if len(caps) != 5 {
-		t.Fatalf("want tts/asr/nlp/llm/mt, got %d: %+v", len(caps), caps)
+	if len(caps) != 4 {
+		t.Fatalf("want tts/asr/llm/mt, got %d: %+v", len(caps), caps)
 	}
 	for _, cap := range caps {
 		if cap.Name == "tts" {

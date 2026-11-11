@@ -97,7 +97,7 @@ const httpsHint = computed(
   () => props.cap?.reason === 'tlsToPlainHttp' && (props.service?.endpoint ?? '').startsWith('https://'),
 )
 const isLlm = computed(() => props.comp.id === 'llm')
-// mt/nlp can run as a second container from the same image; llm cannot.
+// mt can run as a second container from the same image; llm cannot.
 const sidecar = computed(() => SIDECARS[props.comp.id])
 function save() {
   const p = props.service?.provider

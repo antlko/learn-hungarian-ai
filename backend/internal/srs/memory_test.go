@@ -111,8 +111,8 @@ func TestAttachMemoryReadsTheReviewLog(t *testing.T) {
 	}
 }
 
-// Free practice schedules nothing, so its cards carry no preview: a «→ 8 дн»
-// under a practice card would be the screen inventing a schedule (ADR-019).
+// Practice cards carry no grade preview: the round does not offer grades to
+// choose from, so there is nothing to preview (ADR-064 superseded ADR-019).
 func TestAttachMemoryWithoutPreviewForPractice(t *testing.T) {
 	e, uid := newEngine(t)
 	s := e.store
@@ -150,5 +150,47 @@ func TestMemoryHistoryIsBounded(t *testing.T) {
 	}
 	if len(m.History) != historyLength || m.Total != 12 || m.Correct != 6 {
 		t.Errorf("history %d long, tally %d/%d; want %d long, 6/12", len(m.History), m.Correct, m.Total, historyLength)
+	}
+}
+
+// [ADR-064] A practice answer on a new card is not counted, so a random round
+// must deal the cards the learner has already met before it deals new ones;
+// otherwise a deck that is mostly new gives a round that moves nothing.
+func TestPracticeQueueDealsSeenCardsBeforeNewOnes(t *testing.T) {
+	e, uid := newEngine(t)
+	s := e.store
+	now := time.Date(2026, 9, 2, 10, 0, 0, 0, time.UTC)
+	seen := map[int64]bool{}
+	for i, w := range []string{"házban", "kertben", "boltban", "városban", "iskolában", "szobában", "autóban", "vízben"} {
+		cards := noteWith(t, s, uid, w, []Direction{Recognize}, now)
+		if i >= 2 {
+			continue
+		}
+		note, err := s.Note(uid, cards[0].NoteID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := e.Answer(uid, cards[0], note, Outcome{Correct: true}, "", now.Add(time.Minute)); err != nil {
+			t.Fatal(err)
+		}
+		seen[cards[0].ID] = true
+	}
+	for round := 0; round < 5; round++ {
+		items, err := s.PracticeQueue(uid, ScopeAll, 4)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(items) != 4 {
+			t.Fatalf("round of %d, want 4", len(items))
+		}
+		got := 0
+		for _, it := range items {
+			if seen[it.CardID] {
+				got++
+			}
+		}
+		if got != len(seen) {
+			t.Fatalf("round %d dealt %d of the %d seen cards; new cards may only fill what is left", round, got, len(seen))
+		}
 	}
 }

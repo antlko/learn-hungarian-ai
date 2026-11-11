@@ -14,10 +14,9 @@ func TestFreshConfigSpeaksFromTheDevice(t *testing.T) {
 	if c.Services.TTS.Endpoint != "" {
 		t.Errorf("device speech has no endpoint, got %q", c.Services.TTS.Endpoint)
 	}
-	// The other three genuinely need a service someone has to run.
+	// The others genuinely need a service someone has to run.
 	for name, got := range map[string]string{
 		"asr": c.Services.ASR.Provider,
-		"nlp": c.Services.NLP.Provider,
 		"llm": c.Services.LLM.Provider,
 	} {
 		if got != ProviderOff {

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { CircleHelp } from '@lucide/vue'
 import { Check } from '@lucide/vue'
 import HowItWorks from '@/components/review/HowItWorks.vue'
+import WordProgress from '@/components/common/WordProgress.vue'
 import { daysInterval, type Interval } from '@/lib/interval'
 import { useI18n } from 'vue-i18n'
 import type { Memory } from '@/types'
@@ -10,10 +11,12 @@ import type { Memory } from '@/types'
 /**
  * Where this card stands, in one line under the progress strip.
  *
- * [R18 §4] [ADR-039] A POSITION, not a score: the stage the scheduler reports
- * («новая» · «учу · шаг 2 из 2» · «повторяю» · «закреплено»), drawn as a chip
- * with four tiny rungs beside it. It can go back down, it has no end and
- * nothing here accumulates. The tally «верно N из M» lived here and is gone —
+ * [R18 §4] [ADR-039] [ADR-070] A POSITION, not a score: the stage the scheduler
+ * reports («новая» · «учу · шаг 2 из 2» · «повторяю» · «закреплено»), drawn as
+ * a chip with the word's progress bar beside it (0–100, the stages are marks on
+ * it). It goes down on a mistake, 100 is not an end and nothing here
+ * accumulates. After the answer the bar moves to the new value and the change
+ * shows for a moment. The tally «верно N из M» lived here and is gone —
  * it is a history, and history lives in the words browser; the chance of
  * recall was taken off the card earlier (ADR-026, amended 2026-09-03).
  *
@@ -27,7 +30,7 @@ const props = withDefaults(
     memory: Memory
     /** The card's memory AFTER the answer, once there is one. */
     after?: Memory | null
-    /** False in free practice, where nothing is scheduled (ADR-019). */
+    /** Whether the card's grade preview applies (it is absent from practice cards). */
     scheduled?: boolean
   }>(),
   { after: null, scheduled: true },
@@ -73,23 +76,36 @@ const change = computed(() => {
 })
 
 /**
- * Four rungs: new, learning, young, mature. Relearning is the learning rung —
- * the card is back on the minute steps, which is exactly what that rung means.
- * `mature` is the last rung and not a finish line.
+ * The change the answer made, shown for ~1.5 s and then dropped (the bar keeps
+ * the new value). A same-day answer on a settled card gives +0 by the
+ * scheduler's own arithmetic; say so quietly rather than leave a bare «+0».
  */
-const RUNGS = ['new', 'learning', 'young', 'mature'] as const
-const rungIndex = computed(() => {
-  switch (shown.value.stage) {
-    case 'learning':
-    case 'relearning':
-      return 1
-    case 'young':
-      return 2
-    case 'mature':
-      return 3
-  }
-  return 0
-})
+const DELTA_MS = 1500
+const delta = ref<number | null>(null)
+let deltaTimer: number | undefined
+watch(
+  () => props.after,
+  (a) => {
+    window.clearTimeout(deltaTimer)
+    if (!a) {
+      delta.value = null
+      return
+    }
+    delta.value = a.progress - props.memory.progress
+    deltaTimer = window.setTimeout(() => (delta.value = null), DELTA_MS)
+  },
+  { immediate: true },
+)
+onBeforeUnmount(() => window.clearTimeout(deltaTimer))
+
+const settledToday = computed(
+  () =>
+    props.after !== null &&
+    props.after.progress === props.memory.progress &&
+    props.after.stage !== 'learning' &&
+    props.after.stage !== 'relearning' &&
+    props.after.stage !== 'new',
+)
 
 /** «шаг 2 из 2»: `stepsLeft` counts DOWN from `stepsTotal`. Absent once on days. */
 const step = computed(() => {
@@ -111,23 +127,10 @@ const step = computed(() => {
       {{ $t(`review.memory.chip.${shown.stage}`) }}
       <template v-if="step"> · {{ $t('review.memory.stepShort', step) }}</template>
     </span>
-    <!-- Decorative: the chip names the stage in words. -->
-    <span class="flex items-center gap-1" aria-hidden="true">
-      <span
-        v-for="(rung, i) in RUNGS"
-        :key="rung"
-        class="h-1 w-4 rounded-full transition-colors"
-        :class="
-          i < rungIndex
-            ? 'bg-known/50'
-            : i === rungIndex
-              ? shown.stage === 'relearning'
-                ? 'bg-error'
-                : 'bg-primary'
-              : 'bg-border'
-        "
-      />
-    </span>
+    <!-- Where the word is now; the chip above names the stage in words. -->
+    <div class="min-w-64 max-w-96 flex-1">
+      <WordProgress :value="shown.progress" :stage="shown.stage" size="card" :delta="delta" />
+    </div>
     <button
       type="button"
       class="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground/70 hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
@@ -148,5 +151,8 @@ const step = computed(() => {
     >
       {{ $t('review.memory.intervalChange', { from: change.from, to: change.to }) }}
     </span>
+    <p v-if="settledToday" class="animate-tick-up basis-full text-xs text-muted-foreground" data-testid="same-day-note">
+      {{ $t('review.memory.sameDay') }}
+    </p>
   </div>
 </template>

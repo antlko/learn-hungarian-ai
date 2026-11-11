@@ -53,13 +53,13 @@ type OverviewResponse struct {
 	Streak stats.Streak `json:"streak"`
 	Today  stats.Day    `json:"today"`
 	// Practice is free-practice volume and accuracy, reported SEPARATELY from
-	// reviews because it means something different: it schedules nothing, so a
-	// learner reading one number must not mistake it for progress through the
-	// deck. See ADR-019.
+	// reviews because it means something different: it is the trainer's tally (a
+	// counted answer is also a review, ADR-064), so a learner reading one number
+	// must not mistake it for the deck's progress.
 	Practice srs.PracticeStats `json:"practice"`
 	// PracticeDays and PracticeByDirection are the practice series for the
 	// Progress screen — volume AND accuracy, per day and per direction, still
-	// reported apart from reviews and still moving no schedule (ADR-019/024).
+	// reported apart from reviews and apart from the review counts (ADR-024/064).
 	PracticeDays        []srs.PracticeDay       `json:"practiceDays"`
 	PracticeByDirection []srs.PracticeDirection `json:"practiceByDirection"`
 	// Days is the recent daily ledger, newest first — the load sparkline the

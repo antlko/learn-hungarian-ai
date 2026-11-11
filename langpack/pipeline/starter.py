@@ -162,6 +162,12 @@ def build(full: Path, out: Path, *, lemmas: int, sentences: int) -> None:
     # `source = 'tatoeba'` rather than `source != 'opensubtitles'`: an allow-list
     # keeps a future source out by default, which is the safe direction for a
     # test nobody will remember to update.
+    #
+    # This is the CORPUS copy and stays Tatoeba-only. The authored dialogues
+    # (pipeline/dialogues.py, source = 'authored', written for tanulom, CC BY-SA 4.0) are
+    # not copied from the full pack: `reading_sets.build(dst)` below writes them
+    # into the starter itself, after checking them against the starter's own
+    # wordforms.
     dst.execute(
         """
         INSERT INTO keep_sentence
