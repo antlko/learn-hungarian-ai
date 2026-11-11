@@ -290,6 +290,8 @@ export interface QueueItem {
   noteId: number
   /** Course unit code when the note came from enrolling a unit; absent otherwise. Display-only. */
   unit?: string
+  /** A course card whose sentence a model wrote and the learner accepted (ADR-073); the card says so. */
+  aiWritten?: boolean
   direction: DirectionName
   isNew: boolean
   due: string
@@ -1438,6 +1440,19 @@ export interface SkippedWord {
   glossEn: string
   /** Left out because the learner marked the word «Знаю», not for lack of an example. */
   known?: boolean
+}
+
+export interface CourseProposal {
+  hu: string
+  tr: string
+}
+
+/** A model's proposed sentences for one unit word. Nothing here is stored until accepted. */
+export interface CourseProposeResult {
+  lemma: string
+  model: string
+  lang: string
+  proposals: CourseProposal[]
 }
 
 export interface EnrolResult {

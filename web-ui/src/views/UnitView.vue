@@ -10,8 +10,11 @@ import Note from '@/components/common/Note.vue'
 import UnitAction from '@/components/plan/UnitAction.vue'
 import UnitDetail from '@/components/plan/UnitDetail.vue'
 import EnrolReport from '@/components/plan/EnrolReport.vue'
+import UnitReadSets from '@/components/plan/UnitReadSets.vue'
+import AiExampleSheet from '@/components/plan/AiExampleSheet.vue'
 import { UNLOCK_SHARE, computeGate, isSideUnit, learnedOf, unitPhase } from '@/components/roadmap/unitPhase'
 import { describeError } from '@/lib/errors'
+import { pickGloss } from '@/lib/gloss'
 import { api, ApiError } from '@/api'
 import { useCurriculumStore } from '@/stores/curriculum'
 import { useMilestoneStore } from '@/stores/milestone'
@@ -38,6 +41,9 @@ const enrolResult = ref<EnrolResult | null>(null)
 const busy = ref(false)
 const actionError = ref('')
 const phrases = ref<UnitPhrase[]>([])
+/** AI examples (ADR-073): the words the sheet walks through, fixed when it opens. */
+const aiOpen = ref(false)
+const aiLemmas = ref<string[]>([])
 
 const code = computed(() => String(route.params.code ?? ''))
 const state = computed<UnitState | null>(
@@ -91,6 +97,18 @@ async function loadPhrases(c: string) {
     if (c === code.value) phrases.value = []
   }
 }
+
+function openAi(lemma: string | null) {
+  const st = state.value
+  if (!st) return
+  aiLemmas.value = lemma ? [lemma] : [...(st.noExample ?? [])]
+  aiOpen.value = aiLemmas.value.length > 0
+}
+const aiGlosses = computed(() => {
+  const out: Record<string, string> = {}
+  for (const w of state.value?.unit.words ?? []) out[w.lemma] = pickGloss(w.glossRu, w.glossEn, ui.locale).text
+  return out
+})
 
 async function enrol() {
   const c = code.value
@@ -160,6 +178,18 @@ watch(code, (c) => {
         :closed-after="closed ? gateEntry?.prev : null"
         :busy="busy"
         @enrol="enrol"
+        @propose-ai="openAi"
+      >
+        <template #reading><UnitReadSets :unit-code="state.unit.code" /></template>
+      </UnitDetail>
+
+      <AiExampleSheet
+        :open="aiOpen"
+        :unit-code="state.unit.code"
+        :lemmas="aiLemmas"
+        :glosses="aiGlosses"
+        @close="aiOpen = false"
+        @changed="loadPlan"
       />
 
       <!--

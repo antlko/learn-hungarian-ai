@@ -471,6 +471,9 @@ func (s *Server) buildApp() *fiber.App {
 	api.Get("/course", s.requireAuth, s.handleCourse)
 	api.Post("/course/:code/enrol", s.requireAuth, s.handleEnrolUnit)
 	api.Get("/course/units/:code/phrases", s.requireAuth, s.handleUnitPhrases)
+	// AI-written sentences for words the pack cannot illustrate (ADR-073).
+	api.Post("/course/units/:code/words/:lemma/propose", s.requireAuth, s.handleCourseWordPropose)
+	api.Post("/course/units/:code/words/:lemma/accept", s.requireAuth, s.handleCourseWordAccept)
 	api.Get("/resources", s.requireAuth, s.handleResources)
 
 	// Ear trainer.

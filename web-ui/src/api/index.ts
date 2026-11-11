@@ -20,6 +20,8 @@ import type {
   CourseResponse,
   EnrolResult,
   UnitPhrase,
+  CourseProposal,
+  CourseProposeResult,
   Resource,
   CurriculumResponse,
   DrillAnswerRequest,
@@ -270,6 +272,19 @@ export const api = {
 
   enrolUnit: (code: string) =>
     http.post<EnrolResult>(`/api/course/${encodeURIComponent(code)}/enrol`),
+
+  /** Ask the model for example sentences for a word the pack cannot illustrate. Stores nothing. */
+  proposeUnitWord: (code: string, lemma: string, lang: string) =>
+    http.post<CourseProposeResult>(
+      `/api/course/units/${encodeURIComponent(code)}/words/${encodeURIComponent(lemma)}/propose?lang=${lang}`,
+    ),
+
+  /** Accept one proposed sentence: it becomes an AI-labelled card of the unit. */
+  acceptUnitWord: (code: string, lemma: string, body: CourseProposal) =>
+    http.post<{ lemma: string; duplicate: boolean }>(
+      `/api/course/units/${encodeURIComponent(code)}/words/${encodeURIComponent(lemma)}/accept`,
+      body,
+    ),
 
   resources: () => http.get<{ resources: Resource[] }>('/api/resources'),
 

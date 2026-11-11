@@ -318,6 +318,10 @@ whole file. Each rule is here because breaking it caused a real bug.
   the guardrail lands with the LLM in Phase 9; `internal/corpus` does not exist yet and nothing
   generates Hungarian *as material* yet. The tutor's Hungarian is explanation, labelled
   and dictionary-checked, and stays on the screen it was written on.
+  **One narrow, user-approved exception (ADR-073):** for an enrolled-unit word with no attested pack
+  sentence (`noExample`), the learner may have the model propose 1–3 short sentences, READ them and
+  accept one; it becomes a course card labelled AI-written (`QueueItem.aiWritten`; `source='course:<code>'`
+  with no `sentence_id`), never reaches pack sentence queries, and propose stores nothing.
   **The AI dictionary entry is the same kind of thing and a DIFFERENT code path**
   ([ADR-042](../.claude/DECISIONS.md#adr-042)). `handlers_ai_entry.go` is deliberately not a tutor
   route: the tutor mints nothing and a test counts the tables to prove it, so routing this

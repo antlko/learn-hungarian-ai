@@ -1327,6 +1327,14 @@ const ratingKeys = [
               </InfoTip>
             </span>
             <span
+              v-if="store.current.aiWritten"
+              class="inline-flex h-8 items-center rounded-md border border-uncertain/40 bg-uncertain/10 px-1.5 text-[10px] tracking-wide whitespace-nowrap text-uncertain uppercase md:px-2"
+              :title="$t('review.aiWrittenHint')"
+              data-testid="ai-written-badge"
+            >
+              {{ $t('review.aiWritten') }}
+            </span>
+            <span
               v-if="store.current.isNew"
               class="inline-flex max-md:hidden h-8 items-center rounded-md border border-new/40 bg-new/10 px-1.5 text-[10px] tracking-wide whitespace-nowrap text-new uppercase md:px-2"
             >

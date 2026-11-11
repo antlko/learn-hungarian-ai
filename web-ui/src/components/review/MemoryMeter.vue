@@ -117,10 +117,10 @@ const step = computed(() => {
 
 <template>
   <div class="flex min-h-8 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-    <!-- Keyed on the stage so a change animates in rather than swapping silently. -->
+    <!-- Keyed on the stage so a change animates in rather than swapping silently. A fixed minimum width: «новое» → «учу · шаг 1 из 2» used to widen the chip and push the bar to the right the moment the answer landed. -->
     <span
       :key="shown.stage"
-      class="animate-tick-up inline-flex h-8 items-center gap-1 rounded-md border px-2.5 text-xs font-medium text-foreground"
+      class="animate-tick-up inline-flex h-8 min-w-[9.5rem] items-center justify-center gap-1 whitespace-nowrap rounded-md border px-2.5 text-xs font-medium text-foreground"
       :class="stageTint"
     >
       <Check v-if="shown.stage === 'mature'" class="size-3.5" aria-hidden="true" />

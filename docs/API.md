@@ -279,6 +279,15 @@ still cannot illustrate with an attested pack sentence. Derived per request, not
 marked «Знаю» is in play and never listed. The enrol response (`created`=`notesMade`, `duplicate`,
 `skipped[]`) is unchanged.
 
+**AI-written sentences for `noExample` words ([ADR-073](../.claude/DECISIONS.md#adr-073)).**
+`POST /api/course/units/:code/words/:lemma/propose` (`?lang=ru|en`) → `{lemma, model, lang, proposals: [{hu, tr}]}`:
+up to 3 sentences from `services.llm`, each validated server-side (the headword as a token, case-folded,
+1–12 words, one line). Stores nothing. `POST …/accept` with `{hu, tr}` re-validates the same way and creates
+a course note (`source='course:<code>'`, headword span, no features, no `sentence_id`) with cards, marks the lemma
+learning → `{lemma, duplicate}`. Both: 404 unknown unit/word; 409 `errors.courseWordNotEligible` (unit not
+enrolled, word already in the deck or «Знаю», has a pack example, or no dictionary row); 503
+`errors.llmOff`/`errors.llmNoModel`; 502 `errors.courseAIFailed`. A queue item of such a card has `aiWritten: true`.
+
 **A queue item also carries `sentenceRu` / `sentenceEn`.** These translate the WHOLE SENTENCE and
 are distinct from `glossRu` / `glossEn`, which gloss the target WORD. Confusing the two is what
 made the card unreadable — `Jó hírt hoztunk.` under «хороший; добрый», the entry for `jó`, with

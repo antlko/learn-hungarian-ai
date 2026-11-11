@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Circle, CircleCheck, CircleDashed } from '@lucide/vue'
+import { Circle, CircleCheck, CircleDashed, Sparkles } from '@lucide/vue'
 import { buttonVariants } from '@/components/ui/button'
 import InfoTip from '@/components/common/InfoTip.vue'
 import ProgressRing from '@/components/visual/ProgressRing.vue'
@@ -39,7 +39,8 @@ const props = defineProps<{
   closedAfter?: UnitState | null
   busy?: boolean
 }>()
-const emit = defineEmits<{ enrol: [] }>()
+/** `proposeAi`: review AI-written examples for one word, or (null) for every word without one. */
+const emit = defineEmits<{ enrol: []; proposeAi: [lemma: string | null] }>()
 
 const ui = useUiStore()
 
@@ -206,6 +207,8 @@ const gloss = (w: CourseWord) => pickGloss(w.glossRu, w.glossEn, ui.locale)
       </ul>
     </section>
 
+    <slot name="reading" />
+
     <section class="flex flex-col gap-2">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <h2 class="flex items-center text-xs font-semibold tracking-widest text-muted-foreground uppercase">
@@ -226,6 +229,16 @@ const gloss = (w: CourseWord) => pickGloss(w.glossRu, w.glossEn, ui.locale)
       <p v-if="noExampleCount > 0" class="flex items-center text-xs text-muted-foreground">
         {{ $t('plan.noExampleLine', { n: noExampleCount }, noExampleCount) }}
         <InfoTip>{{ $t('plan.noExampleWhy') }}</InfoTip>
+        <Button
+          variant="ghost"
+          size="sm"
+          class="ml-2 min-h-11 gap-1 text-xs text-primary sm:min-h-8"
+          data-testid="ai-propose-all"
+          @click="emit('proposeAi', null)"
+        >
+          <Sparkles class="size-3.5" aria-hidden="true" />
+          {{ $t('plan.aiProposeAll') }}
+        </Button>
       </p>
 
       <!-- Plain page flow, no inner scroll: one line per word, two columns from sm. -->
@@ -251,6 +264,18 @@ const gloss = (w: CourseWord) => pickGloss(w.glossRu, w.glossEn, ui.locale)
             </span>
           </span>
           <InfoTip v-if="w.note" :label="$t('plan.wordNote')">{{ w.note }}</InfoTip>
+          <!-- Always visible (not hover-only): a phone has no hover. -->
+          <Button
+            v-if="noExample.has(w.lemma)"
+            variant="ghost"
+            size="sm"
+            class="size-8 shrink-0 p-0 text-primary max-sm:size-11"
+            :title="$t('plan.aiPropose')"
+            :aria-label="$t('plan.aiPropose')"
+            @click="emit('proposeAi', w.lemma)"
+          >
+            <Sparkles class="size-4" aria-hidden="true" />
+          </Button>
         </li>
       </ul>
       </div>

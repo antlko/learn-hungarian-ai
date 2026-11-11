@@ -35,6 +35,10 @@ type QueueItem struct {
 	// (note.source = 'course:<code>'), empty otherwise. Display-only: it lets the
 	// card say where the word was met and has no effect on scheduling.
 	Unit string `json:"unit,omitempty"`
+	// AIWritten marks a course card whose sentence a model wrote and the learner
+	// accepted (ADR-073): a course note with no pack sentence behind it. The card
+	// says so; nothing else changes.
+	AIWritten bool `json:"aiWritten,omitempty"`
 	// TargetStart/TargetEnd are BYTE offsets into HU and never cross the wire.
 	// A JavaScript client indexes strings in UTF-16 code units, so slicing HU
 	// with them put the blank in the middle of a word on every sentence
@@ -428,6 +432,7 @@ func (s *Store) selectQueue(userID int64, scope Scope, where string, args ...any
 		if !strings.HasPrefix(source.String, "course:") {
 			it.Unit = ""
 		}
+		it.AIWritten = it.Unit != "" && it.SentenceID == nil
 		it.IsNew = it.State == 0
 		it.Due = db.ParseTime(sql.NullString{String: due, Valid: true})
 		it.fsrs.State = it.State

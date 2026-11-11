@@ -349,6 +349,7 @@ text: «Сначала закрепите «<предыдущий>»: N% из 70
 enrols exactly like the primary action — the sticky bar is replaced by it while closed), grammar
 chips, an optional **«Фразы из раздела»** block (≤4 real pack sentences with the gloss in the
 learner's language and a speak button; display only, hidden when empty or when the fetch fails),
+a **«Читать по теме»** block (the unit's reading sets from `api.librarySets()`: «Фразы» = code, «Диалог» = `<code>-dialogue`, the latter keeping the «Написано ИИ» label; one row each, two columns from `sm`, one button «Читать» / «Добавить в чтение» that imports and opens `/read/<id>`; no cards; hidden when none or on fetch failure),
 the words as a compact list (one line per word: deck-state icon, headword, «–», gloss truncated;
 a word's note hides behind a «?» InfoTip; two columns from `sm`), and the **sticky bottom
 dock** (`bottom: var(--bottom-tabs-h)` above the phone tabs).
