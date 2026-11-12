@@ -106,6 +106,71 @@ func (s *Store) Create(userID int64, in Ingested, sourceURL string, tokens []Sto
 	return id, nil
 }
 
+// Replace swaps a text's content in place, in ONE transaction: the tokens are
+// deleted and re-inserted, the title/body/kind and coverage figures rewritten,
+// the audio path cleared and listen_state (a position in audio that no longer
+// matches) dropped. The id, added_at, read_at and note_origin links are kept —
+// the learner's own history with the text survives a new version of it.
+// A level the learner set by hand is kept; any other is replaced by the given
+// estimate. It exists for ready-made sets whose body the pack has rewritten.
+func (s *Store) Replace(userID, textID int64, title, body, kind string,
+	tokens []StoredToken, cov Coverage, level, levelDetail string) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback() //nolint:errcheck // no-op after commit
+
+	var src string
+	if err := tx.QueryRow(`SELECT level_source FROM text WHERE id = ? AND user_id = ?`,
+		textID, userID).Scan(&src); errors.Is(err, sql.ErrNoRows) {
+		return ErrNotFound
+	} else if err != nil {
+		return fmt.Errorf("replace text: %w", err)
+	}
+	if _, err := tx.Exec(`DELETE FROM text_token WHERE text_id = ?`, textID); err != nil {
+		return fmt.Errorf("replace tokens: %w", err)
+	}
+	if _, err := tx.Exec(`DELETE FROM listen_state WHERE text_id = ?`, textID); err != nil {
+		return fmt.Errorf("replace listen state: %w", err)
+	}
+	if _, err := tx.Exec(`
+		UPDATE text SET title = ?, body = ?, kind = ?, audio_path = '',
+		       word_count = ?, lemma_coverage = ?, element_coverage = ?
+		 WHERE id = ? AND user_id = ?`,
+		title, body, kind, cov.Words, cov.LemmaCoverage, cov.ElementCoverage,
+		textID, userID); err != nil {
+		return fmt.Errorf("replace text: %w", err)
+	}
+	if src != "manual" {
+		if _, err := tx.Exec(`
+			UPDATE text SET level = ?, level_source = 'heuristic', level_detail = ?
+			 WHERE id = ? AND user_id = ?`, level, levelDetail, textID, userID); err != nil {
+			return fmt.Errorf("replace level: %w", err)
+		}
+	}
+
+	stmt, err := tx.Prepare(`
+		INSERT INTO text_token (text_id, idx, sent_idx, form, start_b, end_b,
+		                        is_word, lemma_id, feats, certainty)
+		VALUES (?,?,?,?,?,?,?,?,?,?)`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	for _, t := range tokens {
+		var lemma any
+		if t.LemmaID != 0 {
+			lemma = t.LemmaID
+		}
+		if _, err := stmt.Exec(textID, t.Index, t.SentIdx, t.Form, t.Start, t.End,
+			boolInt(t.IsWord), lemma, strings.Join(t.Feats, "|"), t.Certainty); err != nil {
+			return fmt.Errorf("store token %d: %w", t.Index, err)
+		}
+	}
+	return tx.Commit()
+}
+
 // List returns the library, newest first, without bodies.
 func (s *Store) List(userID int64, limit int) ([]Text, error) {
 	if limit <= 0 {

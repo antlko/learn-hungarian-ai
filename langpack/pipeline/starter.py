@@ -29,6 +29,7 @@ from __future__ import annotations
 import argparse
 import gzip
 import json
+import re
 import shutil
 import sqlite3
 from pathlib import Path
@@ -49,6 +50,29 @@ TABLES_COPIED_WHOLE = (
     "pair_audio",
     "ngram",
 )
+
+
+def _keep_story_names(dst: sqlite3.Connection) -> None:
+    """Keep the proper-noun lemmas the authored texts name (Kata, Dani, ...).
+
+    The frequency band drops first names, but the stories and dialogues are
+    checked against the STARTER's wordforms (`reading_sets.validate`), so a name
+    the text uses must be attested there too."""
+    words: set[str] = set()
+    for (hu,) in dst.execute("SELECT hu FROM full.sentence WHERE source = 'authored'"):
+        for tok in re.findall(r"[^\W\d_]+", hu):
+            if tok[:1].isupper():
+                words.add(tok)
+    for tok in sorted(words):
+        dst.execute(
+            """
+            INSERT INTO keep_lemma
+            SELECT DISTINCT l.id FROM full.wordform w JOIN full.lemma l ON l.id = w.lemma_id
+             WHERE w.form = ? AND l.upos = 'PROPN'
+               AND l.id NOT IN (SELECT id FROM keep_lemma)
+            """,
+            (tok,),
+        )
 
 
 def build(full: Path, out: Path, *, lemmas: int, sentences: int) -> None:
@@ -134,6 +158,7 @@ def build(full: Path, out: Path, *, lemmas: int, sentences: int) -> None:
                   JOIN full.lemma l          ON l.id = t.lemma_id
                   JOIN full.course_word cw   ON cw.lemma = l.lemma
                  WHERE s.len_tokens BETWEEN 3 AND 14
+                   AND s.source = 'tatoeba'  -- a pack with OPUS rows must not crowd these out
                  GROUP BY s.id, cw.lemma
             )
             WHERE rn <= 3
@@ -149,6 +174,7 @@ def build(full: Path, out: Path, *, lemmas: int, sentences: int) -> None:
                AND t.lemma_id NOT IN (SELECT id FROM keep_lemma)
             """
         )
+        _keep_story_names(dst)
     else:
         dst.execute("CREATE TEMP TABLE course_sentence (id INTEGER)")
 
@@ -163,8 +189,8 @@ def build(full: Path, out: Path, *, lemmas: int, sentences: int) -> None:
     # keeps a future source out by default, which is the safe direction for a
     # test nobody will remember to update.
     #
-    # This is the CORPUS copy and stays Tatoeba-only. The authored dialogues
-    # (pipeline/dialogues.py, source = 'authored', written for tanulom, CC BY-SA 4.0) are
+    # This is the CORPUS copy and stays Tatoeba-only. The authored stories and
+    # dialogues (pipeline/stories.py, dialogues.py, source = 'authored', written for tanulom, CC BY-SA 4.0) are
     # not copied from the full pack: `reading_sets.build(dst)` below writes them
     # into the starter itself, after checking them against the starter's own
     # wordforms.
@@ -227,7 +253,8 @@ def build(full: Path, out: Path, *, lemmas: int, sentences: int) -> None:
     # Same stage, same rules, so the two editions' sets are each self-contained.
     if "course_unit" in have and "course_word" in have:
         reading_sets.build(dst)
-        problems = reading_sets.validate(dst)
+        # require_all: a release may not ship a unit without its «Рассказ» (ADR-074).
+        problems = reading_sets.validate(dst, require_all=True)
         if problems:
             raise SystemExit("reading sets invalid in the starter:\n  " + "\n  ".join(problems))
 

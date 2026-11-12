@@ -29,8 +29,8 @@ def _fixture(path: Path) -> None:
             c.execute("INSERT INTO sentence_token VALUES (?,?,?,NULL,'')", (i, k, w))
     c.execute("INSERT INTO reading_set VALUES ('s1','A1','core',1,'a','a','','')")
     c.execute("INSERT INTO reading_set VALUES ('s2','A1','core',2,'b','b','','')")
-    c.execute("INSERT INTO reading_set_sentence VALUES ('s1',1,1)")
-    c.execute("INSERT INTO reading_set_sentence VALUES ('s2',3,1)")
+    c.execute("INSERT INTO reading_set_sentence (set_code, sentence_id, ord) VALUES ('s1',1,1)")
+    c.execute("INSERT INTO reading_set_sentence (set_code, sentence_id, ord) VALUES ('s2',3,1)")
     c.commit()
     c.close()
 
@@ -76,7 +76,7 @@ def test_derive_keeps_authored_dialogues_but_never_counts_them_as_ngrams(tmp_pat
         c.execute("INSERT INTO sentence VALUES (?,?,?,?,?,NULL)", (sid, hu, "authored", "MIT", 3))
         c.execute("INSERT INTO sentence_trans VALUES (?,?,?)", (sid, "ru", "t"))
     c.execute("INSERT INTO reading_set VALUES ('s1-dialogue','A1','dialogue',0,'a','a','','')")
-    c.execute("INSERT INTO reading_set_sentence VALUES ('s1-dialogue',9000001,0)")
+    c.execute("INSERT INTO reading_set_sentence (set_code, sentence_id, ord) VALUES ('s1-dialogue',9000001,0)")
     c.commit()
     c.close()
 

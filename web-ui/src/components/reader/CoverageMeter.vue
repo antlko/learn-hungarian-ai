@@ -6,7 +6,8 @@ import type { Coverage, CoverageVerdict } from '@/types'
 /**
  * How much of this text you can actually read.
  *
- * Two numbers, and the second one is the argument the whole product rests on:
+ * One bar (known words) plus a verdict chip. The verdict is computed server-side from the
+ * stricter element coverage, which is no longer drawn as a second bar. The argument behind it:
  * for an agglutinative language, knowing every word in a sentence and being
  * able to read it are different things. `házaimban` is `ház` you know plus
  * three grammatical facts you may not.
@@ -68,7 +69,7 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
         <span class="font-medium" :class="verdictColour">
           {{ $t(`reader.verdict.${verdict}`) }}
         </span>
-        <!-- What the two figures mean: asked for, not printed. -->
+        <!-- What this means: asked for, not printed. -->
         <InfoTip :title="$t('reader.whatThisMeans')" class="-my-1.5 self-center">
           <div class="flex flex-col gap-2">
             <p>{{ $t('reader.coverageExplainWords') }}</p>
@@ -93,25 +94,8 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
       </div>
     </div>
 
-    <!-- ...of which you also know the grammar. The strict figure. -->
-    <div class="flex flex-col gap-1">
-      <p class="flex items-baseline gap-2 text-xs">
-        <span class="font-medium">{{ $t('reader.withGrammar') }}</span>
-        <span class="tabular-nums text-muted-foreground max-sm:hidden">
-          {{ $t('reader.ofWords', { have: coverage.knownElements, total: coverage.words }) }}
-        </span>
-        <span class="ml-auto font-semibold tabular-nums">{{ pct(coverage.elementCoverage) }}</span>
-      </p>
-      <div class="h-2 w-full overflow-hidden rounded-full bg-tint-mist">
-        <div
-          class="h-full rounded-full bg-known transition-[width] duration-300"
-          :style="{ width: pct(coverage.elementCoverage) }"
-        />
-      </div>
-    </div>
-
-    <!-- Words the analyser could not resolve sit in the denominator of both
-         figures and the numerator of neither; the learner is entitled to know. -->
+    <!-- Words the analyser could not resolve sit in the denominator
+         and the numerator of neither; the learner is entitled to know. -->
     <p v-if="coverage.unresolved > 0" class="text-[11px] text-muted-foreground">
       {{ $t('reader.unresolved', { n: coverage.unresolved }) }}
     </p>

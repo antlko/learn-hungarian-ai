@@ -1,8 +1,9 @@
-"""Reading sets: the ready-made «Фразы» (Tatoeba) the starter ships. The
-authored «Диалог» sets are checked in test_dialogues.py.
+"""Reading sets (ADR-074): an authored «Рассказ» and a «Диалог» per unit.
 
-Read the STARTER (the artefact a fresh install gets). Skips, rather than passing
-vacuously, if the file is absent.
+The stories themselves are checked in test_stories.py, the dialogues in
+test_dialogues.py. Here: the sets a build writes into a COPY of the starter (the
+committed starter may predate the stories, so we rebuild rather than read it),
+and `validate`. Skips, rather than passing vacuously, if the starter is absent.
 """
 
 import gzip
@@ -15,237 +16,147 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from pipeline import course, reading_sets
+from pipeline import course, dialogues, reading_sets, stories
 
 STARTER_GZ = (Path(__file__).resolve().parents[2]
               / "backend/internal/lang/starter/langpack-hu-starter.sqlite.gz")
+BASIC = [u for u in course.UNITS if u.get("tier", "basic") == "basic"]
 
 
 @pytest.fixture(scope="module")
-def starter_path(tmp_path_factory):
+def conn(tmp_path_factory):
     if not STARTER_GZ.exists():
         pytest.skip("starter pack not present")
     out = tmp_path_factory.mktemp("starter") / "starter.sqlite"
     with gzip.open(STARTER_GZ, "rb") as fin, open(out, "wb") as fout:
         shutil.copyfileobj(fin, fout)
-    return out
-
-
-@pytest.fixture(scope="module")
-def conn(starter_path):
-    c = sqlite3.connect(f"file:{starter_path}?mode=ro", uri=True)
+    c = sqlite3.connect(out)
+    reading_sets.build(c)
+    c.commit()
     yield c
     c.close()
 
 
-def _sets(conn):
-    """The «Фразы» sets: code -> (level, track). Dialogues are separate."""
-    return {
-        code: (level, track)
-        for code, level, track in conn.execute(
-            "SELECT code, level, track FROM reading_set WHERE track <> 'dialogue'")
-    }
+def _stories(conn):
+    """The «Рассказ» sets: code -> (level, track). Dialogues are separate."""
+    return {code: (level, track) for code, level, track in conn.execute(
+        "SELECT code, level, track FROM reading_set WHERE track <> 'dialogue'")}
 
 
-def test_one_set_per_course_unit(conn):
-    # The basic tier and the themes get a set; the intermediate and advanced
-    # tiers do not (ADR-057: MONTH_BAND stops at month 6).
-    units = {u["code"] for u in course.UNITS if u["tier"] == "basic"}
-    assert set(_sets(conn)) == units
-    assert len(_sets(conn)) == 36
-    # ...and one dialogue per unit, right before it.
+def test_a_story_exists_for_every_unit_that_has_text_and_a_dialogue_for_all(conn):
+    assert set(_stories(conn)) == set(stories.STORIES)
     dlg = {c for (c,) in conn.execute("SELECT code FROM reading_set WHERE track = 'dialogue'")}
-    assert dlg == {f"{u}-dialogue" for u in units}
+    assert dlg == {f"{u['code']}-dialogue" for u in BASIC}
+    assert len(BASIC) == 36
 
 
-def test_core_levels_follow_the_month(conn):
-    for u in course.UNITS:
-        if u["tier"] != "basic":
-            continue
-        if u["track"] == "core":
-            assert _sets(conn)[u["code"]][0] == reading_sets.MONTH_BAND[u["month"]]
+def test_the_story_keeps_the_unit_code_and_track(conn):
+    by_code = {u["code"]: u for u in BASIC}
+    for code, (_level, track) in _stories(conn).items():
+        assert track == by_code[code]["track"]
+
+
+def test_core_levels_follow_the_month_and_themes_are_a2(conn):
+    by_code = {u["code"]: u for u in BASIC}
+    for code, (level, track) in _stories(conn).items():
+        if track == "core":
+            assert level == reading_sets.MONTH_BAND[by_code[code]["month"]]
         else:
-            assert _sets(conn)[u["code"]][0] in ("A1", "A2")
+            assert level == reading_sets.THEME_BAND
 
 
 def test_titles_name_the_unit_in_both_languages(conn):
-    by_code = {u["code"]: u for u in course.UNITS}
+    by_code = {u["code"]: u for u in BASIC}
     for code, ru, en in conn.execute(
             "SELECT code, title_ru, title_en FROM reading_set WHERE track <> 'dialogue'"):
-        assert ru == f"Фразы: {by_code[code]['title_ru']}"
-        assert en == f"Phrases: {by_code[code]['title_en']}"
-        assert "корпус" not in ru.lower()
+        assert ru == f"Рассказ: {by_code[code]['title_ru']}"
+        assert en == f"Story: {by_code[code]['title_en']}"
 
 
-def test_a_dialogue_sorts_right_before_its_phrases_set(conn):
+def test_a_dialogue_sorts_right_before_its_story(conn):
     order = [c for (c,) in conn.execute("SELECT code FROM reading_set ORDER BY ord, code")]
-    for code in _sets(conn):
+    for code in _stories(conn):
         assert order.index(f"{code}-dialogue") + 1 == order.index(code), code
 
 
-def test_validator_is_clean(conn):
+def test_validator_is_clean_and_names_missing_stories_only_when_asked(conn):
     assert reading_sets.validate(conn) == []
+    missing = [p for p in reading_sets.validate(conn, require_all=True) if "no story" in p]
+    assert len(missing) == len(BASIC) - len(stories.STORIES)
 
 
-def test_every_set_is_within_the_size_bounds(conn):
-    for code, n in conn.execute(
-        "SELECT set_code, COUNT(*) FROM reading_set_sentence x JOIN reading_set r "
-        "ON r.code = x.set_code WHERE r.track <> 'dialogue' GROUP BY 1"
-    ):
-        assert reading_sets.MIN_SENTENCES <= n <= reading_sets.MAX_SENTENCES, code
-
-
-def test_no_set_is_empty(conn):
-    for (code,) in conn.execute("SELECT code FROM reading_set"):
-        n = conn.execute(
-            "SELECT COUNT(*) FROM reading_set_sentence WHERE set_code=?", (code,)
-        ).fetchone()[0]
-        assert n > 0, code
+def test_every_reading_sentence_is_authored_and_none_has_tokens(conn):
+    bad = conn.execute(
+        "SELECT x.sentence_id FROM reading_set_sentence x "
+        "LEFT JOIN sentence s ON s.id = x.sentence_id "
+        "WHERE s.id IS NULL OR s.source <> 'authored'").fetchall()
+    assert bad == []
+    assert conn.execute(
+        "SELECT COUNT(*) FROM sentence_token WHERE sentence_id IN "
+        "(SELECT id FROM sentence WHERE source = 'authored')").fetchone() == (0,)
 
 
 def test_a_sentence_is_in_at_most_one_set(conn):
-    dup = conn.execute(
+    assert conn.execute(
         "SELECT sentence_id FROM reading_set_sentence GROUP BY 1 HAVING COUNT(*) > 1"
-    ).fetchall()
-    assert dup == []
+    ).fetchall() == []
 
 
-def test_phrases_sets_are_tatoeba_only_and_dialogues_authored_only(conn):
-    bad = conn.execute(
-        "SELECT r.sentence_id FROM reading_set_sentence r "
-        "JOIN reading_set t ON t.code = r.set_code "
-        "LEFT JOIN sentence s ON s.id = r.sentence_id "
-        "WHERE s.id IS NULL "
-        "OR (t.track <> 'dialogue' AND s.source <> 'tatoeba') "
-        "OR (t.track = 'dialogue' AND s.source <> 'authored')"
-    ).fetchall()
-    assert bad == []
+def test_story_paragraphs_are_stored_in_order(conn):
+    for code in _stories(conn):
+        paras = [p for (p,) in conn.execute(
+            "SELECT para FROM reading_set_sentence WHERE set_code = ? ORDER BY ord", (code,))]
+        assert paras == sorted(paras) and paras[0] == 0, code
+        assert stories.MIN_PARAS <= len(set(paras)) <= stories.MAX_PARAS, code
 
 
-def test_no_phrases_set_holds_two_lines_with_the_same_content_lemmas(conn):
-    ix = reading_sets._Index(conn)
-    for code in _sets(conn):
-        seen = set()
-        for (sid,) in conn.execute(
-                "SELECT sentence_id FROM reading_set_sentence WHERE set_code = ?", (code,)):
-            frame = frozenset(ix.content_lemmas.get(sid, ()))
-            if frame:
-                assert frame not in seen, (code, sid)
-                seen.add(frame)
+def test_no_set_is_outside_the_size_bounds(conn):
+    for code, n in conn.execute(
+            "SELECT set_code, COUNT(*) FROM reading_set_sentence GROUP BY 1"):
+        assert dialogues.MIN_LINES <= n <= dialogues.MAX_LINES, code
 
 
-def test_all_content_lemmas_are_within_the_sets_band(conn):
-    cefr = {i: c for i, c in conn.execute("SELECT id, cefr FROM lemma")}
-    upos = {i: u for i, u in conn.execute("SELECT id, upos FROM lemma")}
-    for code, level, _ in conn.execute(
-            "SELECT code, level, track FROM reading_set WHERE track <> 'dialogue'"):
-        limit = reading_sets.BANDS.index(level)
-        for sid, lid in conn.execute(
-            "SELECT t.sentence_id, t.lemma_id FROM sentence_token t "
-            "JOIN reading_set_sentence r ON r.sentence_id = t.sentence_id "
-            "WHERE r.set_code = ?", (code,)
-        ):
-            assert lid is not None, (code, sid)
-            if upos[lid] in reading_sets.CONTENT_UPOS:
-                assert reading_sets._rank(cefr[lid]) <= limit, (code, sid, lid)
-
-
-def test_every_sentence_carries_a_word_of_its_unit(conn):
-    for u in course.UNITS:
-        words = [w[0] for w in u["words"]]
-        hits = reading_sets._unit_hits(conn, words)
-        ids = [r[0] for r in conn.execute(
-            "SELECT sentence_id FROM reading_set_sentence WHERE set_code=?", (u["code"],))]
-        assert all(i in hits for i in ids), u["code"]
-
-
-def test_sentences_are_within_the_length_window(conn):
-    # The STARTER keeps the shortest sentences of the corpus (3-4 tokens), so
-    # the 5-12 preference can only bite on a full pack; the window is the floor.
-    lo, hi = conn.execute(
-        "SELECT MIN(s.len_tokens), MAX(s.len_tokens) FROM reading_set_sentence r "
-        "JOIN sentence s ON s.id = r.sentence_id WHERE s.source = 'tatoeba'").fetchone()
-    assert reading_sets.WIDE_MIN <= lo and hi <= reading_sets.WIDE_MAX
-
-
-def test_selection_is_deterministic(starter_path, tmp_path):
-    a = tmp_path / "a.sqlite"
-    shutil.copy(starter_path, a)
-    c = sqlite3.connect(a)
-    before = c.execute(
-        "SELECT set_code, sentence_id, ord FROM reading_set_sentence ORDER BY 1,3").fetchall()
-    reading_sets.build(c)
-    after = c.execute(
-        "SELECT set_code, sentence_id, ord FROM reading_set_sentence ORDER BY 1,3").fetchall()
+def test_a_tatoeba_sentence_in_a_set_fails_validation(conn, tmp_path):
+    copy = tmp_path / "p.sqlite"
+    conn.commit()
+    shutil.copy(conn.execute("PRAGMA database_list").fetchone()[2], copy)
+    c = sqlite3.connect(copy)
+    tato = c.execute("SELECT MIN(id) FROM sentence WHERE source = 'tatoeba'").fetchone()[0]
+    sid = c.execute("SELECT MIN(sentence_id) FROM reading_set_sentence "
+                    "WHERE set_code = 'm1-u1-koszones'").fetchone()[0]
+    c.execute("UPDATE reading_set_sentence SET sentence_id = ? WHERE sentence_id = ?", (tato, sid))
+    assert any("not authored" in p for p in reading_sets.validate(c))
     c.close()
-    assert before == after
 
 
-def _legacy_unit_hits(conn, words):
-    """The original per-unit full scan of sentence_token, kept as the oracle."""
-    ph = ",".join("?" * len(words))
-    lemma_ids = [r[0] for r in conn.execute(f"SELECT id FROM lemma WHERE lemma IN ({ph})", words)]
-    forms = {w.lower() for w in words}
-    if lemma_ids:
-        lph = ",".join("?" * len(lemma_ids))
-        forms |= {r[0].lower() for r in conn.execute(
-            f"SELECT form FROM wordform WHERE lemma_id IN ({lph})", lemma_ids)}
-    lset = set(lemma_ids)
-    hit = {}
-    for sid, form, lid in conn.execute("SELECT sentence_id, form, lemma_id FROM sentence_token"):
-        if lid in lset or form.lower() in forms:
-            hit[sid] = hit.get(sid, 0) + 1
-    return hit
+def test_an_unlabelled_title_fails_validation(conn, tmp_path):
+    copy = tmp_path / "p.sqlite"
+    shutil.copy(conn.execute("PRAGMA database_list").fetchone()[2], copy)
+    c = sqlite3.connect(copy)
+    c.execute("UPDATE reading_set SET title_ru = 'Фразы: x' WHERE code = 'm1-u1-koszones'")
+    assert any("title must start" in p for p in reading_sets.validate(c))
+    c.close()
 
 
-def _legacy_eligible(conn, band, lo, hi):
-    limit = reading_sets._rank(band)
-    ok = {r[0] for r in conn.execute("SELECT id, cefr FROM lemma") if reading_sets._rank(r[1]) <= limit}
-    content = {r[0] for r in conn.execute(
-        "SELECT id FROM lemma WHERE upos IN (%s)" % ",".join("?" * len(reading_sets.CONTENT_UPOS)),
-        reading_sets.CONTENT_UPOS)}
-    bad = {sid for sid, lid in conn.execute("SELECT sentence_id, lemma_id FROM sentence_token")
-           if lid is None or (lid in content and lid not in ok)}
-    tr = {}
-    for sid, lang in conn.execute("SELECT sentence_id, lang FROM sentence_trans"):
-        tr.setdefault(sid, set()).add(lang)
-    return {sid: (n, "ru" in tr.get(sid, ()), "en" in tr.get(sid, ()))
-            for sid, n in conn.execute(
-                "SELECT id, len_tokens FROM sentence WHERE source = 'tatoeba' "
-                "AND len_tokens BETWEEN ? AND ?", (lo, hi)) if sid not in bad}
+def test_build_adds_para_to_a_pack_that_lacks_it(tmp_path):
+    c = sqlite3.connect(tmp_path / "old.sqlite")
+    c.executescript("""
+        CREATE TABLE reading_set_sentence (set_code TEXT NOT NULL, sentence_id INTEGER NOT NULL,
+            ord INTEGER NOT NULL, PRIMARY KEY (set_code, sentence_id));
+        INSERT INTO reading_set_sentence VALUES ('x', 1, 0);""")
+    reading_sets.ensure_schema(c)
+    assert c.execute("SELECT para FROM reading_set_sentence").fetchall() == [(0,)]
+    reading_sets.ensure_schema(c)  # idempotent
+    c.close()
 
 
-def test_indexed_selection_matches_the_per_query_scans(conn):
-    """The one-pass index is a speed-up only: same hits, same eligible sentences."""
-    ix = reading_sets._Index(conn)
-    for u in course.UNITS[::5]:
-        words = [w[0] for w in u["words"]]
-        assert reading_sets._unit_hits(conn, words, ix) == _legacy_unit_hits(conn, words), u["code"]
-    for band in ("A1", "A2", "B1"):
-        for lo, hi in ((reading_sets.SHORT_MIN, reading_sets.SHORT_MAX),
-                       (reading_sets.WIDE_MIN, reading_sets.WIDE_MAX)):
-            assert reading_sets._eligible(conn, band, lo, hi, ix) == _legacy_eligible(conn, band, lo, hi)
-
-
-def test_plan_reproduces_the_committed_sets(conn):
-    """The sets the starter ships are exactly what plan() chooses from its sentences."""
-    rows, chosen = reading_sets.plan(conn)
-    stored = {}
-    for code, sid in conn.execute(
-            "SELECT set_code, sentence_id FROM reading_set_sentence x JOIN reading_set r "
-            "ON r.code = x.set_code WHERE r.track <> 'dialogue' ORDER BY x.set_code, x.ord"):
-        stored.setdefault(code, []).append(sid)
-    assert chosen == stored
-
-
-def test_excluded_ids_are_never_selected(conn, tmp_path, monkeypatch):
-    rows, chosen = reading_sets.plan(conn)
-    victim = chosen[next(iter(chosen))][0]
-    f = tmp_path / "ex.txt"
-    f.write_text(f"# header\n{victim}  # rejected\n")
-    monkeypatch.setattr(reading_sets, "EXCLUDE_FILE", f)
-    monkeypatch.setattr(reading_sets, "load_excluded",
-                        lambda path=f, _orig=reading_sets.load_excluded: _orig(path))
-    _, again = reading_sets.plan(conn)
-    assert all(victim not in ids for ids in again.values())
-    assert any("excluded" in p for p in reading_sets.validate(conn))
+def test_selection_is_deterministic(conn, tmp_path):
+    conn.commit()
+    q = "SELECT set_code, sentence_id, ord, para FROM reading_set_sentence ORDER BY 1,3"
+    before = conn.execute(q).fetchall()
+    copy = tmp_path / "p.sqlite"
+    shutil.copy(conn.execute("PRAGMA database_list").fetchone()[2], copy)
+    c = sqlite3.connect(copy)
+    reading_sets.build(c)
+    assert c.execute(q).fetchall() == before
+    c.close()

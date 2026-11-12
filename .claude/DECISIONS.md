@@ -2646,7 +2646,7 @@ topics from `Skill=*` markers (offers what cannot be built); a sixth topic for a
 
 ## ADR-056 — Reading sets are existing pack sentences, imported by an explicit click
 
-**Status:** accepted · 2026-11-08 · builds on [ADR-050](#adr-050) (course units) and [ADR-023](#adr-023) (text level)
+**Status:** accepted · 2026-11-08 · builds on [ADR-050](#adr-050) (course units) and [ADR-023](#adr-023) (text level) · **amended by [ADR-074](#adr-074)**: the Tatoeba picker and the rejection of a generated passage are superseded by the authored «Рассказ»
 
 **Context.** The reader asks the learner to bring a text; a beginner has none at the right level,
 and the gap between the course's words and "read the news" is where extensive reading stalls
@@ -2660,7 +2660,7 @@ imports one on an explicit POST: the body is the set's sentences, one per paragr
 the same path as a paste (`Server.ingestText`) with `source_url = "set:<code>"`; idempotent per
 learner. (3) Importing creates no note and no card — mining stays the learner's act.
 
-**Alternatives rejected.** Generating a graded passage with the LLM (breaks "a sentence in the
+**Alternatives rejected.** *(Amended by [ADR-074](#adr-074): the first item below was reversed.)* Generating a graded passage with the LLM (breaks "a sentence in the
 pack is one a person wrote"); a `set_import` table (the text row already records it); copying the
 full pack's sets into the starter (can name sentences the starter lacks — it recomputes instead).
 
@@ -2942,7 +2942,7 @@ GPU libraries).
 
 ## ADR-066 — Reading sets: curated «Фразы», authored «Диалог», preview before import
 
-**Status:** accepted 2026-11-11, amended 2026-11-11 *(user decision: the original rejection of model-written dialogues is reversed)*.
+**Status:** accepted 2026-11-11, amended 2026-11-11 *(user decision: the original rejection of model-written dialogues is reversed)*; **amended by [ADR-074](#adr-074)**: Decision bullet 1 («Фразы» stay Tatoeba-only) no longer holds, the set under the bare unit code is now an authored «Рассказ».
 
 **Context.** Learner report, 2026-11-11: the shortest-first sets of ADR-056 read as a pile of unrelated fragments, many with names, rare words, morbid or nonsensical lines, and the learner could not see a set before importing it. What a learner wants to read first is what Hungarians really say: short exchanges, the phrases a child hears. No corpus offers that at A1, and Tatoeba lines picked one by one never form a conversation.
 
@@ -3059,3 +3059,20 @@ S is FSRS stability in days. 180 days (`srs.ProgressFullDays`) is a declared dis
 **Marker (no migration).** The note keeps `source = 'course:<code>'` so the unit's in-deck accounting (`fromUnitSet`), `scope=course`, `QueueItem.unit` and «К разделу» treat it like any course card; the word counts as in the deck because accept marks the lemma `learning`. What distinguishes it is `sentence_id IS NULL` (every pack-built course note has one): `aiWritten = unit != "" && sentenceID == nil`. Pack sentence queries read the pack's `sentence` table (`source <> 'authored'`, ADR-066) and never notes, so these sentences cannot appear as examples, drills or reading sets.
 
 **Consequences.** Endpoints in `docs/API.md`; the review card shows a «написано AI» badge; the course unit offers the action beside «без примера» words. The app is fully usable with the LLM off (the action reports it). Still no corpus attestation: a sentence is correct only as far as the learner and a small model are.
+
+## ADR-074 — «Рассказ»: one authored connected text per unit replaces the Tatoeba «Фразы»
+
+**Status:** accepted 2026-11-12 *(user decision)* · amends [ADR-066](#adr-066) (Decision bullet 1) and [ADR-056](#adr-056) (Rejected: generated passage) · research [R21](research/21-graded-authored-texts.md)
+
+**Context.** After ADR-066 the learner still read «Фразы» as 20-30 unrelated corpus lines whose words rarely recurred; the dialogue was the only thing that read as a text. At A1-A2 a connected text at 95%+ coverage ([R6](research/06-lexical-coverage.md)) cannot be picked from a corpus, it has to be written to a vocabulary.
+
+**Decision.**
+- Per basic-tier unit (24 core + 12 themes) one **«Рассказ: X» / "Story: X"**: a narrated mini-scene or caregiver-style monologue, 8-14 sentences of at most 10 words in 2-4 paragraphs, unit words repeated, a Russian and an English translation per sentence. It **takes over the old «Фразы» set code** (the bare unit code, e.g. `m1-u1-koszones`) and its track (`core`/`theme`), so an existing import maps onto it. «Диалог» (`<unit>-dialogue`) stays.
+- Tatoeba picking is deleted from `reading_sets.py` (`plan`, the index, `_chain`), with `reading_sets_exclude.txt` and the tests that only proved it.
+- Stored as `sentence.source = 'authored'`, ids `9 000 000 + unit ord × 100 + 50 + i` (dialogues keep `+0..49`), no `sentence_token` rows; `reading_set_sentence.para` (INTEGER, default 0) marks the paragraph, the app joins sentences with a space and paragraphs with a blank line. Labelled «Написано ИИ, носителем не проверено»; imported as `kind: generated`.
+- Source: `langpack/pipeline/stories_m1..m6.py`, `stories_themes.py`, merged in `stories.py`. Validation reuses `dialogues.check_line` (attested non-generated wordform, lemma in the unit's band or taught earlier) and adds a **frequency gate**: the share of running tokens whose lemma has `freq_rank` ≤ `TOP_N` (500 for months 1-2, 1000 for 3-4, 2000 for 5-6 and themes; the unit's own words and proper nouns exempt) must reach `MIN_TOP_SHARE` (0.85). `python -m pipeline.stories PACK [--brief UNIT]`, `make texts`.
+- Authored text still **never feeds drills, examples, practice or attestation**; the n-gram index ignores it; every non-reading query keeps `source <> 'authored'`.
+
+**Rejected.** (1) Keeping «Фразы» beside «Рассказ»: two sets per unit with one of them the weaker. (2) Letting a story serve as a drill example: ADR-042.
+
+**Consequences.** The INVARIANTS and CLAUDE.md digest line now say: reading sets are the one labelled AI-written Hungarian in the pack. Until every unit has a story the build warns and skips it (`validate(require_all=True)`, used by `make starter`, refuses). No native speaker has read the texts; the thresholds are tuning and may move after reading real output. The Go side reads `para` (0 on old packs).

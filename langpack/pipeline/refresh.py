@@ -11,7 +11,7 @@ nothing that has to be downloaded:
     grammar_topic   the teaching DAG and every lesson
     minimal_pair    the ear trainer's contrasts
     course_unit     the guided course, and course_word with it
-    reading_set     the ready-made reading sets, chosen from the pack's own sentences
+    reading_set     the ready-made reading sets (authored stories and dialogues, written from pipeline/stories*.py, dialogues*.py)
 
 This command rewrites exactly those, in place, in an existing pack. Everything
 else in the file is untouched.

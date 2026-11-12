@@ -221,6 +221,13 @@ refresh-curriculum: ## Rewrite lessons/features/course in an existing pack (seco
 # app treats a pack as read-only and this is a build step writing to one.
 	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.refresh --pack '$(PACK)'
 
+.PHONY: texts
+texts: ## Check the authored stories and dialogues against $(PACK), read-only (prints frequency reports)
+	$(call need,$(PYTHON),$(PY_HINT))
+	@test -s '$(PACK)' || { echo 'need $(PACK) first — run: make langpack'; exit 1; }
+	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.stories '$(abspath $(PACK))'
+	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.dialogues '$(abspath $(PACK))'
+
 .PHONY: subtitles
 subtitles: ## Add conversational sentences from OPUS to an existing pack (~40 min, no full rebuild)
 	$(call need,$(PYTHON),$(PY_HINT))

@@ -207,12 +207,13 @@ CREATE TABLE resource (
     ord         INTEGER NOT NULL DEFAULT 0
 );
 
--- Ready-made reading sets («Фразы» and «Диалог»): sentences that already exist
+-- Ready-made reading sets («Рассказ» and «Диалог»): sentences that already exist
 -- in `sentence`, grouped by course unit and CEFR band. Written by
--- pipeline/reading_sets.py and pipeline/dialogues.py; the app only reads them
+-- pipeline/stories.py and pipeline/dialogues.py; the app only reads them
 -- and never writes Hungarian of its own into a set. `level` is estimated from
--- lemma.cefr. `track` is core | theme («Фразы», Tatoeba sentences) or dialogue
--- (AI-written, `sentence.source = 'authored'`, labelled; ADR-066).
+-- lemma.cefr. `track` is core | theme («Рассказ», code = the unit code) or
+-- dialogue; both are AI-written, `sentence.source = 'authored'`, labelled
+-- (ADR-066, ADR-074). `para` is the paragraph of a story line (0 on a dialogue).
 CREATE TABLE reading_set (
     code     TEXT PRIMARY KEY,
     level    TEXT NOT NULL,
@@ -225,6 +226,7 @@ CREATE TABLE reading_set_sentence (
     set_code    TEXT NOT NULL REFERENCES reading_set(code),
     sentence_id INTEGER NOT NULL REFERENCES sentence(id),
     ord         INTEGER NOT NULL,
+    para        INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (set_code, sentence_id)
 );
 -- a sentence belongs to at most one set

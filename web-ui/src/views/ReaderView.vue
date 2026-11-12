@@ -212,8 +212,8 @@ function tokenClass(tk: StoredToken) {
   const status = detail.value?.known[String(tk.lemmaId)]
   if (status === 'known') return base
   if (status === 'ignored') return `${base} text-ignored`
-  if (status === 'learning')
-    return `${base} bg-tint-cream underline decoration-learning decoration-1 underline-offset-2`
+  // A learning word already has a card and counts as known: no highlight.
+  if (status === 'learning') return base
   return `${base} bg-tint-mist underline decoration-new decoration-dotted decoration-2 underline-offset-2`
 }
 

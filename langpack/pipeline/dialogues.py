@@ -1,9 +1,9 @@
 """Authored dialogues: one short, labelled conversation per course unit.
 
-The «Фразы» sets (reading_sets.py) are real Tatoeba sentences, which read as a
-bag: a person wrote each line alone. A dialogue is the other thing a learner
-wants to read first -- two people, one everyday situation, the phrases a child
-hears all day -- and no corpus offers that at A1, so we write them.
+A dialogue is one of the two things a learner wants to read first -- two
+people, one everyday situation, the phrases a child hears all day (the other is
+the unit's «Рассказ», stories.py) -- and no corpus offers that at A1, so we
+write them.
 
 PROVENANCE, stated everywhere the text is shown: «Написано ИИ, носителем не
 проверено» (ADR-066, amended 2026-11-11). These lines are not corpus sentences:
@@ -16,7 +16,7 @@ PROVENANCE, stated everywhere the text is shown: «Написано ИИ, нос
     `source <> 'authored'` (backend tests prove it), and the n-gram attestation
     index never counts them -- the model must not vouch for its own text;
   * they live only in `reading_set` rows with `track = 'dialogue'`, code
-    `<unit>-dialogue`, ordered right before the unit's «Фразы» set.
+    `<unit>-dialogue`, ordered right before the unit's «Рассказ» set.
 
 What the build checks (a failure fails the pack build; `validate` -> `problems`):
 
@@ -161,8 +161,9 @@ def _basic_units() -> list[dict]:
 
 
 def build(conn: sqlite3.Connection, rows: list[dict]) -> dict[str, int]:
-    """Write every unit's dialogue after `reading_sets.build` wrote the «Фразы»
-    sets (`rows`, whose `level` the dialogue shares). Idempotent."""
+    """Write every unit's dialogue (`rows` from `reading_sets.unit_rows`, whose
+    `level` the dialogue shares). Clears EVERY authored sentence first, so
+    `stories.build` runs after it. Idempotent."""
     conn.execute("DELETE FROM reading_set_sentence WHERE set_code IN "
                  "(SELECT code FROM reading_set WHERE track = ?)", (TRACK,))
     conn.execute("DELETE FROM reading_set WHERE track = ?", (TRACK,))
@@ -229,7 +230,7 @@ def problems(conn: sqlite3.Connection) -> list[str]:
     units = {u["code"]: u for u in _basic_units()}
     for code in units:
         if code in have and set_code(code) not in have:
-            out.append(f"{code}: has «Фразы» but no dialogue")
+            out.append(f"{code}: has a «Рассказ» but no dialogue")
     lex = Lexicon(conn)
     for code, level in conn.execute(
             "SELECT code, level FROM reading_set WHERE track = ? ORDER BY ord", (TRACK,)):
@@ -288,15 +289,8 @@ def main(argv: list[str]) -> int:
 
 
 def _bands(conn: sqlite3.Connection) -> dict[str, str]:
-    """The band of each unit's «Фразы» set, as the pack carries it (fall back
-    to the month's band when the pack has no sets yet)."""
-    out = {}
-    have = {c: lv for c, lv in conn.execute(
-        "SELECT code, level FROM reading_set WHERE track <> ?", (TRACK,))}
-    for u in _basic_units():
-        out[u["code"]] = have.get(
-            u["code"], rs.MONTH_BAND.get(u["month"], "A2") if u["track"] == "core" else "A2")
-    return out
+    """The band of each unit, as `reading_sets.unit_band` decides it."""
+    return {u["code"]: rs.unit_band(conn, u) for u in _basic_units()}
 
 
 if __name__ == "__main__":

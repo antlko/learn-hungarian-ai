@@ -305,80 +305,76 @@ and `course_word`; (c) update `pack_meta.stats`; (d) `reading_sets.build` + `val
 **`make starter` is not optional after either command.** The binary embeds its own pack, so
 skipping it ships last month's lessons ([ADR-010](../.claude/DECISIONS.md#adr-010)).
 
-### Reading sets («Фразы» and «Диалог»)
+### Reading sets («Рассказ» and «Диалог»)
 
 Stage `pipeline/reading_sets.py`, run by `build.py` (after the course), `refresh.py` (it follows the
-course words, so `make refresh-curriculum` recomputes it) and `starter.py` (chosen from what the
-STARTER holds, never copied from the full pack: a full-pack set can name a sentence the starter
-lacks). Two tables, `reading_set(code, level, track, ord, title_*, theme_*)` and
-`reading_set_sentence(set_code, sentence_id, ord)` with a UNIQUE index on `sentence_id`.
+course words, so `make refresh-curriculum` recomputes it) and `starter.py` (written into the
+STARTER, never copied from the full pack). Two tables, `reading_set(code, level, track, ord,
+title_*, theme_*)` and `reading_set_sentence(set_code, sentence_id, ord, para)` with a UNIQUE index
+on `sentence_id`. `para` is the paragraph of a story line (0 on a dialogue and on a pack built before
+ADR-074; `ensure_schema` adds the column to an existing pack with a guarded `ALTER TABLE`). The app
+joins the sentences of a paragraph with a space and paragraphs with a blank line.
 
-One set per basic-tier course unit and theme — 36 (24 basic core + 12 themes; the intermediate and advanced tiers have none, ADR-057), titled «Фразы: <unit>» / "Phrases:
-<unit>", 20-30 sentences each (target 25). Selection is deterministic (ties fall to the sentence id):
+Per basic-tier unit and theme (36 = 24 core + 12 themes; the intermediate and advanced tiers have
+none, ADR-057) **two authored sets, both labelled «Написано ИИ, носителем не проверено»** (ADR-074
+replaced the Tatoeba «Фразы» picker; nothing in the pipeline picks corpus sentences for reading any
+more, and `reading_sets_exclude.txt` is gone):
 
-1. `source = 'tatoeba'` only — a sentence in the pack is one a person wrote, and the starter takes
-   nothing else. The stage writes no Hungarian;
-2. the sentence contains a word of the unit — by lemma id **or** by surface form of the unit
-   lemma's wordforms (the tagger's lemma and the dictionary's disagree);
-3. every CONTENT lemma (noun, verb, adjective, adverb, numeral, interjection) has `lemma.cefr` at
-   or below the set's band; a lemma with no band counts as above every band; every token resolves.
-   `lemma.cefr` is an estimate from frequency rank ([R6](../.claude/research/06-lexical-coverage.md)),
-   so the level on a set is an estimate too. Core: months 1-2 → A1, 3-4 → A2, 5-6 → B1. A theme is
-   A1 only if ≥ 20% of its words are A1 and the A1 pool fills it; on hu-v1 all twelve come out A2;
-4. each sentence is in at most one set; units are filled scarcest-pool-first;
-5. ids in `pipeline/reading_sets_exclude.txt` (one sentence id per line, `#` comments; 345 ids
-   after the 2026-11-11 read of all 36 sets) are never selected, and `validate` fails if one is found in a set. Add an id after a
-   human read the dump and rejected the line, then `make starter`;
-6. preference order: 5-12 tokens, more unit words, then the "lively" terms — a conversational
-   sentence first (ends in `?`/`!`, or holds a lemma of `CONVERSATIONAL_LEMMAS`: én, te, mi, ti,
-   ön, maga, szia, sziasztok, helló, köszön, kér, tessék, bocsánat, igen, nem, jó), a sentence with
-   a proper noun (UPOS PROPN: Tom, Mary) after the others — a penalty, not an exclusion, so a
-   scarce unit still fills — then the frequency rank (`lemma.freq_rank`, buckets of 500) of the
-   sentence's rarest content lemma, lower first; then a Russian translation, an English one, length
-   near 8. **The starter's sentences are 3-4 tokens almost throughout** (it keeps the shortest of
-   the corpus), so on the starter only ~5% of set sentences reach 5 tokens; a full pack with longer
-   sentences fills sets with better ones.
+- **«Рассказ: <unit>» / "Story: <unit>"** — one connected text, a narrated mini-scene or a
+  caregiver-style monologue (here-and-now, repetition, a short frame reused with one slot changed;
+  [R21](../.claude/research/21-graded-authored-texts.md)). The set code is the **bare unit code**
+  (it took over the old «Фразы» code and `track` core/theme, so an earlier import maps onto it).
+  8-14 sentences of at most 10 words in 2-4 paragraphs, `ord` = `2 × unit ord`.
+- **«Диалог: <unit>» / "Dialogue: <unit>"** — code `<unit>-dialogue`, `track = 'dialogue'`, 8-14
+  lines, two speakers, `ord` one less than its story (ADR-066).
 
-7. a candidate whose set of content lemmas equals that of a line already picked is skipped
-   («Esik az eső» / «Esett az eső»): same frame, 25 of them is not a text.
+Levels: core months 1-2 → A1, 3-4 → A2, 5-6 → B1; a theme is A2 (estimates from frequency rank,
+[R6](../.claude/research/06-lexical-coverage.md)).
 
-**Order inside a set** is a deterministic greedy chain (`_chain`), not shortest-first: start at
-the shortest line; next is the unused line sharing the most content lemmas with the current one,
-a non-question preferred after a question when they share a lemma; ties by length, then id. The
-chain is what makes neighbours read as one topic.
+**Source and ids.** Stories: `pipeline/stories_m1..m6.py` and `stories_themes.py`, merged by
+`stories.py`: `STORIES = {unit_code: [[(hu, ru, en), ...], [...]]}`, a list of paragraphs, each a
+list of sentence tuples. Dialogues: `dialogues_m1..m6.py`, `dialogues_themes.py` (a flat line list).
+Both are stored as `sentence.source = 'authored'`, licence CC BY-SA 4.0, with `sentence_trans` ru/en and
+**no `sentence_token` rows**. Ids from 9 000 000: `unit ord × 100 + i` for dialogue lines (i < 50),
+`unit ord × 100 + 50 + i` for story sentences. `reading_sets.build` runs `dialogues.build` (which
+clears every authored sentence) and then `stories.build`; a unit with no story yet is skipped with
+a printed warning, so the pack can be built while texts are being written.
 
-The token and translation tables are read once into an index (`_Index`) and reused for every unit
-and band — scanning `sentence_token` per unit made a full-pack refresh take minutes. Output is
-identical to the per-query version (`tests/test_reading_sets.py` compares them).
-
-**Dialogues («Диалог: <unit>» / "Dialogue: <unit>").** Besides its «Фразы», each of the 36 units
-has one short written conversation (ADR-066, amended 2026-11-11), authored in
-`pipeline/dialogues_m1..m6.py` and `dialogues_themes.py` and written by `pipeline/dialogues.py`
-inside `reading_sets.build`: 8-14 lines, at most 10 words a line, two speakers, a Russian and an
-English translation per line, vocabulary and grammar at the unit's level. The lines are stored as
-`sentence.source = 'authored'` (ids from 9 000 000, **no `sentence_token` rows**), in
-`reading_set` rows with `track = 'dialogue'`, code `<unit>-dialogue`, `ord` right before the
-unit's «Фразы» (the «Фразы» `ord` is `2 × unit ord`, the dialogue's one less). They are an AI's
-Hungarian that no native speaker has checked: every surface says «Написано ИИ, носителем не
-проверено», and the build can only prove the forms exist. **Build-time validation**
-(`dialogues.problems`, run by `reading_sets.validate`; `python -m pipeline.dialogues PACK` is
-the author's loop): every word is an attested `wordform` (source not `generated`), every content
-lemma is at or below the unit's band or a word the learner has been taught by that unit, the
-shape limits above, no digits or speaker labels. A dialogue set holds authored lines only and a
-«Фразы» set Tatoeba lines only (`validate`); `release.py` and `add_subtitles.py` keep authored
-lines out of the n-gram attestation index, so the model never vouches for its own text. Consumers:
-only the reading sets read `authored`; every drill, example and course-sentence query filters
+**Build-time validation** (`reading_sets.validate` → `dialogues.problems` + `stories.problems`):
+every reading set is authored and labelled (title prefix «Рассказ:» / «Диалог:»), 8-14 sentences,
+a ru and an en translation each; every word is an attested `wordform` (source not `generated`);
+every content lemma is at or below the unit's band or taught by that unit or earlier
+(`dialogues.check_line`); at most 10 words a sentence, no digits or speaker labels; and for a
+story the **frequency gate**: the share of running tokens whose lemma has `lemma.freq_rank` ≤
+`TOP_N` (500 for months 1-2, 1000 for 3-4, 2000 for 5-6 and themes) must reach `MIN_TOP_SHARE`
+(0.85). The unit's own words and proper nouns are exempt (not counted), so a unit with many words
+(m1-u1 has 58) is gated on very few tokens. These thresholds are our tuning
+([R21](../.claude/research/21-graded-authored-texts.md)), printed per text so they can be revised.
+`validate(conn, require_all=True)` — used by `starter.py`, so `make starter` — also fails a unit
+with no story; the default only skips it. Authored lines stay out of the n-gram attestation index
+(`release.py`, `add_subtitles.py`), and every drill, example and course-sentence query filters
 `source <> 'authored'` (`internal/drill/definiteness.go`, `internal/api/handlers_examples.go`,
-`handlers_course.go`; tests `authored_sentences_test.go`, `definiteness_authored_test.go`). The
-starter gets its dialogues from `reading_sets.build(dst)`, not copied from a full pack; a
-committed starter is updated by the transplant above (steps (d)-(e) only).
+`handlers_course.go`; tests `authored_sentences_test.go`, `definiteness_authored_test.go`).
 
-To tune, edit the constants at the top of the module (`MONTH_BAND`, `MIN/MAX/TARGET_SENTENCES`,
-`SHORT_*`, `THEME_A1_SHARE`), then `make refresh-curriculum` and `make starter`. `validate` and
-`tests/test_reading_sets.py` gate size, level, uniqueness and provenance. A pack without these
-tables (built before ADR-056) serves an empty list; the app opens a pack read-only and cannot
-add them, so `refresh` is the upgrade path. Evidence base: extensive reading at the right level
-([R11](../.claude/research/11-extensive-reading.md)).
+**Writing or regenerating the texts** (by hand or with a neural net). Read-only against the pack:
+
+1. `cd langpack && .venv/bin/python -m pipeline.stories ../data/langpack-hu-v1.sqlite --brief <unit>` prints the unit's title,
+   band, taught words with glosses, up to 400 allowed lemmas by frequency rank (`*` = taught
+   earlier), the rules and its existing dialogue. Paste it to the model.
+2. Put the answer into `pipeline/stories_mN.py` (or `stories_themes.py`) in the tuple format above.
+3. `make texts` checks stories and dialogues against `$(PACK)` and prints, for each text, the
+   frequency share, the rarest lemma with its rank, what falls beyond top-N and any problem;
+   dialogues get the same report as a flag only. `python -m pipeline.stories PACK --require-all`
+   also fails a unit without a story.
+4. `make refresh` (rewrites the sets in an existing pack; stop the server first), then
+   `make starter`, which refuses while a unit has no story.
+
+The tests (`tests/test_reading_sets.py`, `test_stories.py`, `test_dialogues.py`) gate shape, ids,
+levels, provenance and the gate itself. A pack without these tables (built before ADR-056) serves
+an empty list; the app opens a pack read-only and cannot add them, so `refresh` is the upgrade
+path. Evidence: [R6](../.claude/research/06-lexical-coverage.md),
+[R11](../.claude/research/11-extensive-reading.md),
+[R21](../.claude/research/21-graded-authored-texts.md).
 
 ### Growing the grammar
 

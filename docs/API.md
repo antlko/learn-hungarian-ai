@@ -385,12 +385,13 @@ stayed invisible. See [ADR-025](../.claude/DECISIONS.md#adr-025).
 
 ### `GET /api/library/sets` · `GET /api/library/sets/:code` · `POST /api/library/sets/:code/import`
 
-Ready-made reading sets, «Фразы» and «Диалог» ([ADR-056](../.claude/DECISIONS.md#adr-056), [ADR-066](../.claude/DECISIONS.md#adr-066)). Signed-in.
+Ready-made reading sets, «Рассказ» and «Диалог» ([ADR-074](../.claude/DECISIONS.md#adr-074), [ADR-066](../.claude/DECISIONS.md#adr-066); the Tatoeba «Фразы» of ADR-056 are gone). Signed-in.
 
 `GET` → a bare array (never `null`), core units first by order, then themes:
 `[{code, level, track, title, titleRu, titleEn, theme, sentences, authored, imported, textId?}]`.
 `track` is `core`, `theme` or `dialogue`; each unit's `dialogue` set sorts right before its
-«Фразы». `authored: true` = written by an AI, not checked by a native speaker (always labelled).
+story (title «Рассказ: …», code = the bare unit code, `track` `core`/`theme`). `authored: true` (every set,
+stories and dialogues alike) = written by an AI, not checked by a native speaker (always labelled).
 `title`/`theme` follow `?lang=ru|en`, else the configured UI locale; `textId` is present only when
 `imported`. A pack without the tables answers `200 []` — not an error.
 

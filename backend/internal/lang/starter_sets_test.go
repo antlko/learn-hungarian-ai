@@ -5,8 +5,8 @@ import (
 )
 
 // The starter carries ready-made reading sets (ADR-056, ADR-066) for every
-// course unit: «Фразы» sets of Tatoeba sentences that already exist in it, and
-// one written «Диалог» per unit (AI-written, `source = 'authored'`). A set that
+// course unit: one authored «Рассказ» (ADR-074) and one authored «Диалог» per unit
+// (AI-written, `source = 'authored'`). A set that
 // names a sentence the starter does not hold, or the wrong kind of one, would
 // import as an empty or mislabelled text.
 func TestStarterCarriesReadingSetsWithinBounds(t *testing.T) {
@@ -44,10 +44,7 @@ func TestStarterCarriesReadingSetsWithinBounds(t *testing.T) {
 		if err := rows.Scan(&code, &level, &track, &n); err != nil {
 			t.Fatal(err)
 		}
-		lo, hi := 20, 30 // «Фразы»
-		if track == "dialogue" {
-			lo, hi = 8, 14
-		}
+		lo, hi := 8, 14 // «Рассказ» and «Диалог» alike
 		if n < lo || n > hi {
 			t.Errorf("set %s has %d sentences, want %d-%d", code, n, lo, hi)
 		}
@@ -58,22 +55,21 @@ func TestStarterCarriesReadingSetsWithinBounds(t *testing.T) {
 		}
 	}
 
-	// «Фразы» are Tatoeba only; a dialogue is authored only. Never mixed.
+	// Every set holds authored lines only (ADR-074): stories and dialogues.
 	var bad int
 	if err := db.QueryRow(`
 		SELECT COUNT(*) FROM reading_set_sentence x
 		  JOIN reading_set r ON r.code = x.set_code
 		  LEFT JOIN sentence s ON s.id = x.sentence_id
 		 WHERE s.id IS NULL
-		    OR (r.track <> 'dialogue' AND s.source <> 'tatoeba')
-		    OR (r.track = 'dialogue' AND s.source <> 'authored')`).Scan(&bad); err != nil {
+		    OR s.source <> 'authored'`).Scan(&bad); err != nil {
 		t.Fatal(err)
 	}
 	if bad != 0 {
-		t.Errorf("%d set sentences are missing or of the wrong provenance (Фразы: tatoeba, Диалог: authored)", bad)
+		t.Errorf("%d set sentences are missing or of the wrong provenance (all must be authored)", bad)
 	}
 
-	// Authored lines exist only as dialogue lines and carry no tokens, so no
+	// Authored lines exist only as story and dialogue lines and carry no tokens, so no
 	// token-reading query can reach them.
 	var stray, tokens int
 	db.QueryRow(`SELECT COUNT(*) FROM sentence WHERE source = 'authored' AND id NOT IN
@@ -81,7 +77,7 @@ func TestStarterCarriesReadingSetsWithinBounds(t *testing.T) {
 	db.QueryRow(`SELECT COUNT(*) FROM sentence_token WHERE sentence_id IN
 		(SELECT id FROM sentence WHERE source = 'authored')`).Scan(&tokens)
 	if stray != 0 || tokens != 0 {
-		t.Errorf("authored sentences outside a dialogue: %d, with token rows: %d", stray, tokens)
+		t.Errorf("authored sentences outside a set: %d, with token rows: %d", stray, tokens)
 	}
 
 	var dup int

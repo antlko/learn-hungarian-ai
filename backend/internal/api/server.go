@@ -146,6 +146,7 @@ func New(dataDir string) (*Server, error) {
 	s.reconcileStepsOnce()
 	s.backfillNoteOriginsOnce()
 	s.loadPack()
+	s.syncSetTextsOnce()
 	if kb, err := tutor.LoadKB(); err != nil {
 		slog.Error("tutor corpus unavailable", "error", err)
 	} else {

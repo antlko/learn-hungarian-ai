@@ -144,8 +144,8 @@ One line each; **full text, reasons and ADR links: `docs/INVARIANTS.md`** (grep 
   never changes a schedule; never write `ONLY` into its prompt; read `docs/TUTOR.md` before touching it.
 - No LLM Hungarian becomes a card without `internal/corpus/attest.go` — except learner-reviewed, labelled
   AI sentences for unillustrated course words (ADR-073); AI dictionary entry is a separate
-  path (ADR-042). Reading sets: «Фразы» are Tatoeba pack sentences; «Диалог» sets are the one labelled
-  AI-written Hungarian in the pack (`source='authored'`, ADR-066), filtered out everywhere else.
+  path (ADR-042). Reading sets are the one labelled AI-written Hungarian in the pack
+  (`source='authored'`: «Рассказ» ADR-074, «Диалог» ADR-066), filtered out everywhere else.
 - MT is display-only and always labelled with its model; `lib/gloss.ts` picks gloss language.
 - App fully usable with every sidecar stopped; managed components never block boot; endpoints never stored.
 - `services.llm` needs a model name (`llm.New` → `ErrNoModel`).

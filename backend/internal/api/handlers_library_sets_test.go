@@ -331,24 +331,25 @@ func TestEveryStarterSetImportsAsOneSentencePerParagraph(t *testing.T) {
 	var list []LibrarySetDTO
 	c.json(http.MethodGet, "/api/library/sets", nil, &list)
 	if len(list) != 72 {
-		t.Fatalf("%d sets listed, want 72 (36 «Фразы» + 36 dialogues)", len(list))
+		t.Fatalf("%d sets listed, want 72 (36 «Рассказ» + 36 dialogues)", len(list))
 	}
-	// Each unit's dialogue sits right before its «Фразы»; themes come last.
+	// Each unit's dialogue sits right before its «Рассказ»; themes come last.
 	if list[0].Code != "m1-u1-koszones-dialogue" || list[1].Code != "m1-u1-koszones" ||
 		list[len(list)-1].Track != "theme" {
 		t.Errorf("order: %s, %s ... %s", list[0].Code, list[1].Code, list[len(list)-1].Code)
 	}
 	authored := 0
 	for _, set := range list {
-		if set.Authored != (set.Track == "dialogue") {
-			t.Errorf("%s: authored=%v but track=%s", set.Code, set.Authored, set.Track)
+		// Stories and dialogues are both authored (ADR-074): no Tatoeba set remains.
+		if !set.Authored {
+			t.Errorf("%s: authored=false but track=%s", set.Code, set.Track)
 		}
 		if set.Authored {
 			authored++
 		}
 	}
-	if authored != 36 {
-		t.Errorf("%d authored sets, want 36", authored)
+	if authored != 72 {
+		t.Errorf("%d authored sets, want 72", authored)
 	}
 	for _, set := range list {
 		var out ImportSetResponse

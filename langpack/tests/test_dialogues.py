@@ -82,7 +82,7 @@ def test_dialogue_sets_are_authored_only_with_no_tokens(conn):
         "(SELECT sentence_id FROM reading_set_sentence)").fetchone() == (0,)
 
 
-def test_a_dialogue_shares_the_level_of_its_phrases_set(conn):
+def test_a_dialogue_shares_the_level_of_its_unit(conn):
     for code, level in conn.execute("SELECT code, level FROM reading_set WHERE track <> 'dialogue'"):
         assert conn.execute(
             "SELECT level FROM reading_set WHERE code = ?", (f"{code}-dialogue",)
@@ -141,6 +141,7 @@ def test_build_is_idempotent(conn, tmp_path):
     copy = tmp_path / "p.sqlite"
     shutil.copy(conn.execute("PRAGMA database_list").fetchone()[2], copy)
     c = sqlite3.connect(copy)
+    reading_sets.build(c)  # the committed starter may predate the stories
     q = ("SELECT set_code, sentence_id, ord FROM reading_set_sentence ORDER BY 1,3",
          "SELECT id, hu, source FROM sentence WHERE source = 'authored' ORDER BY id",
          "SELECT sentence_id, lang, text FROM sentence_trans WHERE sentence_id >= ? ORDER BY 1,2")

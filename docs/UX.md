@@ -349,7 +349,7 @@ text: «Сначала закрепите «<предыдущий>»: N% из 70
 enrols exactly like the primary action — the sticky bar is replaced by it while closed), grammar
 chips, an optional **«Фразы из раздела»** block (≤4 real pack sentences with the gloss in the
 learner's language and a speak button; display only, hidden when empty or when the fetch fails),
-a **«Читать по теме»** block (the unit's reading sets from `api.librarySets()`: «Фразы» = code, «Диалог» = `<code>-dialogue`, the latter keeping the «Написано ИИ» label; one row each, two columns from `sm`, one button «Читать» / «Добавить в чтение» that imports and opens `/read/<id>`; no cards; hidden when none or on fetch failure),
+a **«Читать по теме»** block (the unit's reading sets from `api.librarySets()`: «Рассказ» = code, «Диалог» = `<code>-dialogue`, both keeping the «Написано ИИ» label; one row each, two columns from `sm`, one button «Читать» / «Добавить в чтение» that imports and opens `/read/<id>`; no cards; hidden when none or on fetch failure),
 the words as a compact list (one line per word: deck-state icon, headword, «–», gloss truncated;
 a word's note hides behind a «?» InfoTip; two columns from `sm`), and the **sticky bottom
 dock** (`bottom: var(--bottom-tabs-h)` above the phone tabs).
@@ -984,7 +984,7 @@ do, because a learner who thinks this is a delete will not use it. See
 │  metró vonalán. A járműveket a gyártó a múlt     │ │ ▸ be·jelent·ette │   │
 │  héten szállította le, és a próbaüzem …          │ │                  │   │
 │                                                   │ │ be- перфектив.  │   │
-│  ██ известно  ██ учу     ██ новое  ░░ игнор      │ │    приставка     │   │
+│  ░░ новое (пунктир)   ░░ игнор                    │ │    приставка     │   │
 │                                                   │ │ jelent  сообщать │   │
 │  ── n+1 (3) ──────────────────────────────────    │ │ -ette   past,    │   │
 │  · A járműveket a múlt héten szállították le.     │ │    Def=Def, 3Sg  │   │
@@ -1005,8 +1005,9 @@ do, because a learner who thinks this is a delete will not use it. See
   caveat. `по леммам 14% · по элементам 14%` answered none of "14% of what", "why two", "what
   moves either".
 
-  Now two named bars with counts — «Знакомых слов 111 из 785 · 14%» and «…из них с разобранной
-  грамматикой 110 из 785 · 14%» — «не разобрано слов: 21» as its own line, and a disclosure
+  Now one named bar with counts — «Знакомых слов 111 из 785 · 14%» — plus the verdict chip;
+  the stricter element figure (grammar too) is no longer drawn as a second bar, it only feeds
+  the verdict server-side (the InfoTip says so) — «не разобрано слов: 21» as its own line, and a disclosure
   carrying the mechanism. **The second figure needed explaining most**, because it is not
   intuitive: a word counts only when every feature on it is at `mining.knownThreshold`
   retrievability, and `morph_state` is written by exactly two things — cloze cards
@@ -1095,15 +1096,15 @@ something (older packs: the segment is not drawn; a failed fetch does the same a
 the shelf). Compact rows grouped by level A1 · A2 · B1, the set at the learner's level first
 («подходит вам сейчас» is a hint, never a filter or a lock), each with title, «N предложений»,
 a «Посмотреть» button and the main one — «Добавить» (`POST …/import`, then the reader) or «Открыть» when already
-imported. Each unit has two rows, «Диалог: X» right before «Фразы: X» (the pack's order); a dialogue
-row carries a visible `Sparkles` line «Написано ИИ, носителем не проверено».
+imported. Each unit has two rows, «Диалог: X» right before «Рассказ: X» (the pack's order; ADR-074 replaced the old «Фразы»); both
+rows carry a visible `Sparkles` line «Написано ИИ, носителем не проверено».
 **«Посмотреть»** opens `BottomSheet dialog tall` (full-height sheet on a phone, a centred dialog from
-md): level chip, count, for a dialogue the limit `Note` repeating the label with one honest sentence,
+md): level chip, count, the limit `Note` (every set is authored, ADR-074) repeating the label with one honest sentence,
 then every line in set order, Hungarian `lang="hu"` over its translation in the gloss language (the
 other language only as a labelled fallback, `lib/gloss.ts`); a dialogue is set as a script (turn
-dash, every second line indented). Footer: «Закрыть» and «Добавить»/«Открыть». Skeleton while it
+dash, every second line indented), a story as paragraphs (`para`). Footer: «Закрыть» and «Добавить»/«Открыть». Skeleton while it
 loads; an error through `describeError` with a retry. The collapse to a few sets («Показать все подборки») stays. What the sets are —
-real sentences written by people, adding creates a text and the cards are the learner's own act
+texts written by an AI, adding creates a text and the cards are the learner's own act
 of tapping words — is an `InfoTip` beside the heading. Browser flow not exercised.
 
 **The reader on a phone.** A compact header: title, the two coverage figures as one line each over
@@ -2241,8 +2242,9 @@ Visual only; no behaviour, route or gate logic changed. Browser **not** exercise
   sage / blush wash and ink text (no red text on tint).
 - **Library / Reader** — `PageHero` with the Chain Bridge; tabs tinted; rows are soft cards;
   CEFR chips tinted by band (A1 sage, A2 mist, B1 cream, B2 blush; the level text is always
-  inside). Reader: cream paper surface, unknown words get a mist wash plus a dotted underline,
-  learning words a cream wash plus a solid underline (never colour alone); the word sheet has a
+  inside). Reader: cream paper surface, one highlight only: words not yet known (new or no row)
+  get a mist wash plus a dotted underline (never colour alone); known, learning (already a card)
+  and ignored words carry none; the word sheet has a
   mist header and the «Знаю» button is sage. No illustration on the reading surface.
 - **Settings** — each section title carries a small tinted icon chip (`SectionChip`, decorative).
   Component cards are tinted by state (ready sage, installing mist with a ring and percentage,

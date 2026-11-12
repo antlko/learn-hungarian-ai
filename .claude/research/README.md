@@ -49,6 +49,7 @@ In Vue, the same convention in a `<!-- -->` or `//` comment above the component 
 | R17 | [17-hungarian-nlp-stack.md](17-hungarian-nlp-stack.md) | The Hungarian NLP/speech resources this app is built on | n/a (engineering) |
 | R18 | [18-sessions-and-progress.md](18-sessions-and-progress.md) | Relearn to one correct recall per sitting; near goals sustain effort; measured progress is feedback, points are rewards | Medium |
 | R19 | [19-grounded-tutor.md](19-grounded-tutor.md) | A small model explains grammar acceptably only when grounded, short-context and labelled | Medium-Low |
+| R21 | [21-graded-authored-texts.md](21-graded-authored-texts.md) | A connected, graded, authored text per unit beats a bag of corpus sentences at A1–A2; labelled AI-written | Medium |
 
 ## Confidence scale
 

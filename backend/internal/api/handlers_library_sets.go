@@ -254,14 +254,12 @@ func (s *Server) handleImportLibrarySet(c fiber.Ctx) error {
 	}
 	code := c.Params("code")
 
-	var titleRU, titleEN string
-	err = s.pack.DB().QueryRow(
-		`SELECT title_ru, title_en FROM reading_set WHERE code = ?`, code).Scan(&titleRU, &titleEN)
-	if err == sql.ErrNoRows {
-		return fiber.NewError(fiber.StatusNotFound, "no such reading set")
-	}
+	title, body, kind, ok, err := s.setBody(code)
 	if err != nil {
 		return err
+	}
+	if !ok {
+		return fiber.NewError(fiber.StatusNotFound, "no such reading set")
 	}
 
 	mu := importLock(u.ID, code)
@@ -277,56 +275,107 @@ func (s *Server) handleImportLibrarySet(c fiber.Ctx) error {
 		return c.JSON(ImportSetResponse{TextID: id, Created: false})
 	}
 
-	rows, err := s.pack.DB().Query(`
-		SELECT s.hu, s.source FROM reading_set_sentence r JOIN sentence s ON s.id = r.sentence_id
-		 WHERE r.set_code = ? ORDER BY r.ord`, code)
-	if err != nil {
-		return err
-	}
-	var sentences []string
-	authored := false
-	for rows.Next() {
-		var hu, source string
-		if err := rows.Scan(&hu, &source); err != nil {
-			rows.Close()
-			return err
-		}
-		authored = authored || source == authoredSource
-		sentences = append(sentences, strings.TrimSpace(hu))
-	}
-	rows.Close()
-	if len(sentences) == 0 {
-		return fiber.NewError(fiber.StatusNotFound, "reading set is empty")
-	}
-
-	// «Фразы»: one sentence per paragraph. A blank line always ends a sentence
-	// in the splitter, so a sentence with no closing punctuation cannot swallow
-	// the next one. (The text model has no per-sentence translation slot, so the
-	// pack's Russian is not stored with the text.)
-	//
-	// A dialogue: one turn per line, each opened by the Hungarian turn marker
-	// «– », so the reader shows a script. A line break ends a sentence, and the
-	// dash is not a word. It is recorded as kind `generated` — the text model's
-	// existing mark for AI-written text — so the shelf can say so.
-	body := strings.Join(sentences, "\n\n")
-	kind := mining.KindPaste
-	if authored {
-		for i := range sentences {
-			sentences[i] = dialogueTurn + sentences[i]
-		}
-		body = strings.Join(sentences, "\n")
-		kind = mining.KindGenerated
-	}
-	in, err := mining.FromPaste(s.setTitle(titleRU, titleEN), body)
+	in, err := mining.FromPaste(title, body)
 	if err != nil {
 		return badRequest("%s", err.Error())
 	}
-	in.Kind = kind
+	in.Kind = mining.Kind(kind)
 	id, _, _, err := s.ingestText(c, u.ID, in, setSourcePrefix+code)
 	if err != nil {
 		return err
 	}
 	return c.Status(fiber.StatusCreated).JSON(ImportSetResponse{TextID: id, Created: true})
+}
+
+// packHasParaColumn reports whether reading_set_sentence carries `para`, the
+// paragraph index a story's sentences are grouped by (ADR-074). An older pack
+// does not: every sentence is then its own paragraph, as before.
+func (s *Server) packHasParaColumn() bool {
+	var n int
+	err := s.pack.DB().QueryRow(
+		`SELECT COUNT(*) FROM pragma_table_info('reading_set_sentence') WHERE name = 'para'`).Scan(&n)
+	return err == nil && n > 0
+}
+
+// setBody builds the text a set imports as, from the CURRENT pack: its title (in
+// the UI language), body and text kind. ok is false for an unknown or empty set.
+//
+// A dialogue: one turn per line, each opened by the Hungarian turn marker «– »,
+// so the reader shows a script; a line break ends a sentence and the dash is not
+// a word. Any other set is a story (or, on an older pack, a list of pack
+// sentences): sentences of one paragraph are joined by a space, paragraphs by a
+// blank line, which always ends a sentence in the splitter, so a sentence with
+// no closing punctuation cannot swallow the next one. Text with any authored
+// sentence is kind `generated` — the text model's mark for AI-written text — so
+// the shelf can say so; pack sentences stay `paste`. The text model has no
+// per-sentence translation slot, so the pack's Russian is not stored with it.
+func (s *Server) setBody(code string) (title, body, kind string, ok bool, err error) {
+	if s.pack == nil || !s.hasReadingSets() {
+		return "", "", "", false, nil
+	}
+	var titleRU, titleEN, track string
+	switch e := s.pack.DB().QueryRow(
+		`SELECT title_ru, title_en, track FROM reading_set WHERE code = ?`, code).Scan(&titleRU, &titleEN, &track); {
+	case e == sql.ErrNoRows:
+		return "", "", "", false, nil
+	case e != nil:
+		return "", "", "", false, e
+	}
+	paraCol := "0"
+	if s.packHasParaColumn() {
+		paraCol = "r.para"
+	}
+	rows, qerr := s.pack.DB().Query(`
+		SELECT s.hu, s.source, `+paraCol+` FROM reading_set_sentence r JOIN sentence s ON s.id = r.sentence_id
+		 WHERE r.set_code = ? ORDER BY r.ord`, code)
+	if qerr != nil {
+		return "", "", "", false, qerr
+	}
+	defer rows.Close()
+	var sentences []string
+	var paras []int
+	authored := false
+	for rows.Next() {
+		var hu, source string
+		var para int
+		if err := rows.Scan(&hu, &source, &para); err != nil {
+			return "", "", "", false, err
+		}
+		authored = authored || source == authoredSource
+		sentences = append(sentences, strings.TrimSpace(hu))
+		paras = append(paras, para)
+	}
+	if err := rows.Err(); err != nil {
+		return "", "", "", false, err
+	}
+	if len(sentences) == 0 {
+		return "", "", "", false, nil
+	}
+
+	kind = string(mining.KindPaste)
+	if authored {
+		kind = string(mining.KindGenerated)
+	}
+	switch {
+	case track == "dialogue":
+		for i := range sentences {
+			sentences[i] = dialogueTurn + sentences[i]
+		}
+		body = strings.Join(sentences, "\n")
+	case paraCol == "0":
+		body = strings.Join(sentences, "\n\n")
+	default:
+		var groups []string
+		for i, sent := range sentences {
+			if i > 0 && paras[i] == paras[i-1] {
+				groups[len(groups)-1] += " " + sent
+			} else {
+				groups = append(groups, sent)
+			}
+		}
+		body = strings.Join(groups, "\n\n")
+	}
+	return s.setTitle(titleRU, titleEN), body, kind, true, nil
 }
 
 // setTitle names the imported text in the UI language the learner has set.

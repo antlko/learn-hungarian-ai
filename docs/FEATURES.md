@@ -91,8 +91,8 @@ Optional: the tutor, linked from every lesson.
   coloured by what you know. Click a word to see its analysis, add it as a card, or mark it known.
   Uncertain analyses and fallback glosses are labelled.
 - **Ready-made reading sets.** Library offers, for each basic-tier course unit and theme (36 in
-  the starter), a «Фразы» set of real sentences from the dictionary and a «Диалог» — one short
-  conversation written by an AI, labelled «Написано ИИ, носителем не проверено» (every word is in
+  the starter), a «Рассказ» (one short connected text) and a «Диалог» — one short
+  conversation, both written by an AI, labelled «Написано ИИ, носителем не проверено» (every word is in
   the dictionary; no native speaker has read it). «Посмотреть» shows every line with its translation
   before anything is added. Importing is an explicit click; it creates a text, never cards.
 - **Level estimate for texts.** Each text shows the share of its words you already know.
