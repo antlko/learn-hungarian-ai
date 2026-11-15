@@ -231,6 +231,22 @@ async function load() {
   }
 }
 
+/**
+ * The coverage bar and its verdict are computed on the server, once per load.
+ * After a word changes status they went stale («17 из 31» stayed 17), so ask
+ * for them again and swap in only the coverage: the words already coloured
+ * here are the learner's latest decisions and must not be overwritten.
+ */
+async function refreshCoverage() {
+  const id = Number(route.params.id)
+  try {
+    const fresh = await api.text(id)
+    if (detail.value && detail.value.text.id === id) detail.value.coverage = fresh.coverage
+  } catch {
+    // The bar stays as it was; nothing the learner did is lost.
+  }
+}
+
 async function setStatus(lemmaId: number, status: LemmaStatus) {
   if (!detail.value) return
   const previous = detail.value.known[String(lemmaId)]
@@ -238,6 +254,7 @@ async function setStatus(lemmaId: number, status: LemmaStatus) {
   detail.value.known[String(lemmaId)] = status
   try {
     await api.setKnown(lemmaId, status)
+    void refreshCoverage()
   } catch (e) {
     if (previous) detail.value.known[String(lemmaId)] = previous
     else delete detail.value.known[String(lemmaId)]
@@ -336,6 +353,7 @@ async function addCard(tk: StoredToken, gloss = '') {
     // every time they re-added it.
     if (res.lemmaStatus && tk.lemmaId) {
       detail.value.known[String(tk.lemmaId)] = res.lemmaStatus
+      void refreshCoverage()
     }
     // Keep the header's «повторить слова из текста» count honest without a
     // refetch. A duplicate may still gain THIS text's link server-side; the
