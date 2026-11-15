@@ -16,7 +16,7 @@ SOURCE FORMAT (stories_m1.py ... stories_m6.py, stories_themes.py):
 
 a list of paragraphs, each a list of sentence tuples. 2-4 paragraphs, 8-14
 sentences in all, at most MAX_TOKENS words a sentence, a ru and an en
-translation each. Ids: ID_BASE + unit_ord * 100 + 50 + i (dialogues own +0..49).
+translation each. Ids: dialogues.line_id(unit_ord, 50 + i) (dialogues own 0..49 of the legacy block).
 
 WHAT THE BUILD CHECKS (`problems`): the dialogue rules (every word an attested,
 non-'generated' wordform; every content lemma in the unit's band or taught
@@ -45,7 +45,7 @@ TRACK_DIALOGUE = dialogues.TRACK
 SOURCE = dialogues.SOURCE
 LICENSE = dialogues.LICENSE
 ID_BASE = dialogues.ID_BASE
-ID_OFFSET = 50
+ID_OFFSET = 50  # inside the unit's legacy block (dialogues.LEGACY_OFFSET)
 MIN_SENTENCES, MAX_SENTENCES = 8, 14
 MIN_PARAS, MAX_PARAS = 2, 4
 MAX_TOKENS = dialogues.MAX_TOKENS
@@ -83,7 +83,7 @@ def set_code(unit_code: str) -> str:
 
 
 def sentence_id(unit_ord: int, i: int) -> int:
-    return ID_BASE + unit_ord * 100 + ID_OFFSET + i
+    return dialogues.line_id(unit_ord, ID_OFFSET + i)
 
 
 def top_n(unit: dict) -> int:
@@ -170,10 +170,11 @@ def build(conn: sqlite3.Connection, rows: list[dict]) -> dict[str, int]:
             missing.append(row["code"])
             continue
         conn.execute(
-            "INSERT INTO reading_set (code, level, track, ord, title_ru, title_en, theme_ru, theme_en) "
-            "VALUES (?,?,?,?,?,?,?,?)",
-            (set_code(row["code"]), row["level"], row["track"], row["ord"],
-             row["title_ru"], row["title_en"], row["theme_ru"], row["theme_en"]))
+            "INSERT INTO reading_set (code, level, track, ord, title_ru, title_en, theme_ru, "
+            "theme_en, tier, genre, words, checked) VALUES (?,?,?,?,?,?,?,?,'medium','',?,'ai')",
+            (set_code(row["code"]), row["level"], row["track"], row["ord"] + 2,
+             row["title_ru"], row["title_en"], row["theme_ru"], row["theme_en"],
+             sum(len(dialogues._WORD.findall(hu)) for _p, hu, _r, _e in flatten(paras))))
         for i, (para, hu, ru, en) in enumerate(flatten(paras)):
             sid = sentence_id(unit["ord"], i)
             conn.execute(
@@ -244,14 +245,16 @@ def problems(conn: sqlite3.Connection, require_all: bool = False) -> list[str]:
     """Everything wrong with the stories a pack carries; empty is good."""
     out = data_problems()
     units = {u["code"]: u for u in _basic_units()}
+    # Legacy sets only: three-tier sets (genre <> '') are texts.problems' business.
     have = {r[0]: r[1] for r in conn.execute(
-        "SELECT code, level FROM reading_set WHERE track <> ?", (TRACK_DIALOGUE,))}
+        f"SELECT code, level FROM reading_set WHERE track <> ? {rs.legacy_filter(conn)}",
+        (TRACK_DIALOGUE,))}
     if require_all:
         for code in units:
             if code not in STORIES:
                 out.append(f"{code}: no story written")
             elif code not in have:
-                out.append(f"{code}: the pack has no story set for it")
+                out.append(f"{code}: the pack has no legacy story set for it")
     lex = FreqLexicon(conn)
     # A pack from before the stories has no `para`; `reading_sets.build` adds it.
     para_col = "x.para" if "para" in {r[1] for r in conn.execute(

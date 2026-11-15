@@ -1,0 +1,426 @@
+{
+  "short": {
+    "genre": "note",
+    "checked": "ai",
+    "title": {
+      "ru": "Записка на холодильнике",
+      "en": "A note on the fridge"
+    },
+    "names": [
+      "Péter",
+      "Anna"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Péter! Anna vagyok.",
+          "ru": "Привет, Петер! Это Анна.",
+          "en": "Hi, Péter! It's Anna."
+        },
+        {
+          "hu": "Ma korán mentem el, és a mobilom otthon van.",
+          "ru": "Сегодня я ушла рано, а мобильный остался дома.",
+          "en": "I left early today, and my mobile is at home."
+        },
+        {
+          "hu": "Ezért nem tudsz elérni, de hagyj üzenetet a telefonon.",
+          "ru": "Поэтому ты не сможешь до меня дозвониться, но оставь сообщение.",
+          "en": "So you cannot reach me, but leave a message on the phone."
+        },
+        {
+          "hu": "Nem baj, ha későn hívsz, este is fogadom a hívást.",
+          "ru": "Ничего, если позвонишь поздно, вечером я тоже отвечу на звонок.",
+          "en": "It doesn't matter if you call late, I'll take the call in the evening too."
+        }
+      ],
+      [
+        {
+          "hu": "A fogorvos telefonszáma a tévé mellett van.",
+          "ru": "Номер телефона стоматолога лежит рядом с телевизором.",
+          "en": "The dentist's phone number is next to the TV."
+        },
+        {
+          "hu": "Telefonálni kell, és időpontot foglalni a következő hétre.",
+          "ru": "Нужно позвонить и записаться на приём на следующую неделю.",
+          "en": "You need to call and book an appointment for next week."
+        },
+        {
+          "hu": "Kedden vagy szerdán jó nekem, csütörtökön nem.",
+          "ru": "Мне подходит вторник или среда, четверг нет.",
+          "en": "Tuesday or Wednesday suits me, Thursday does not."
+        },
+        {
+          "hu": "Ha foglalt, várj egy kicsit, és hívd ismét.",
+          "ru": "Если занято, подожди немного и позвони снова.",
+          "en": "If it is busy, wait a little and call again."
+        },
+        {
+          "hu": "Ne siess, ráérsz, de ne felejts el hívni. Nagyon köszönöm!",
+          "ru": "Не спеши, время есть, но не забудь позвонить. Спасибо!",
+          "en": "Don't hurry, you have time, but don't forget to call. Thanks a lot!"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "Звонок в приёмную врача",
+      "en": "A call to the doctor's office"
+    },
+    "names": [
+      "Kovács",
+      "Péter"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Halló, jó napot kívánok! Kovács Péter vagyok.",
+          "ru": "Алло, добрый день! Это Петер Ковач.",
+          "en": "Hello, good day! This is Péter Kovács."
+        },
+        {
+          "hu": "Jó napot kívánok! Tessék, hallgatom.",
+          "ru": "Добрый день! Слушаю вас внимательно.",
+          "en": "Good day! Go ahead, I'm listening carefully."
+        },
+        {
+          "hu": "Bocsánat, az utcán vagyok. Most jobban hallja a hangomat?",
+          "ru": "Простите, я на улице. Теперь вы лучше слышите мой голос?",
+          "en": "Sorry, I am out in the street. Can you hear my voice better now?"
+        },
+        {
+          "hu": "Igen, most már jól hallom. Az előbb nagyon hangos volt a vonal.",
+          "ru": "Да, теперь я хорошо слышу. Только что на линии был сильный шум.",
+          "en": "Yes, I can hear you well now. A moment ago the line was very loud."
+        },
+        {
+          "hu": "Időpontot szeretnék foglalni a doktornőhöz a következő hétre. Ráér a doktornő?",
+          "ru": "Я хотел бы записаться к врачу на следующую неделю. Врач свободна?",
+          "en": "I would like to book an appointment with the doctor for next week. Is the doctor free?"
+        },
+        {
+          "hu": "Egy pillanat, megnézem. Hétfőn már foglalt, de kedden tízkor ráér.",
+          "ru": "Минуту, посмотрю. В понедельник уже занято, но во вторник в десять она свободна.",
+          "en": "One moment, I'll check. Monday is already taken, but on Tuesday at ten she is free."
+        },
+        {
+          "hu": "Kedden tízkor nem felel meg, mert akkor megbeszélésem van. Esetleg szerdán?",
+          "ru": "Во вторник в десять мне не подходит, у меня тогда встреча. Может быть, в среду?",
+          "en": "Tuesday at ten does not suit me, because I have a meeting then. Maybe on Wednesday?"
+        },
+        {
+          "hu": "Szerdán nyolckor tud jönni? Az még korán van, tudom.",
+          "ru": "В среду в восемь вы можете прийти? Это ещё рано, я знаю.",
+          "en": "Can you come on Wednesday at eight? That is still early, I know."
+        },
+        {
+          "hu": "Nem baj, korán is jó. Ez megfelel.",
+          "ru": "Ничего, и рано хорошо. Это подходит.",
+          "en": "That's fine, early is good too. That suits me."
+        },
+        {
+          "hu": "Akkor szerdán nyolckor. Mi a telefonszáma?",
+          "ru": "Тогда в среду в восемь. Какой у вас номер телефона?",
+          "en": "Then Wednesday at eight. What is your phone number?"
+        },
+        {
+          "hu": "Ugyanaz a számom, mint tavaly. Nem változik.",
+          "ru": "Номер тот же, что и в прошлом году. Он не меняется.",
+          "en": "It is the same number as last year. It has not changed."
+        },
+        {
+          "hu": "Köszönöm. Mi a baj, fáj valami?",
+          "ru": "Спасибо. В чём дело, что-то болит?",
+          "en": "Thank you. What is the matter, does something hurt?"
+        },
+        {
+          "hu": "Nem nagy a baj, csak a fogam fáj egy kicsit, de tudok még várni.",
+          "ru": "Ничего серьёзного, только немного болит зуб, но я могу подождать.",
+          "en": "It is nothing serious, only my tooth hurts a little, but I can wait."
+        },
+        {
+          "hu": "Rendben, köszönöm, megvan. Ha lemondja az időpontot, kérjük, előre szóljon.",
+          "ru": "Хорошо, спасибо, всё записано. Если отмените приём, пожалуйста, предупредите заранее.",
+          "en": "Fine, thank you, I have it. If you cancel the appointment, please tell us in advance."
+        },
+        {
+          "hu": "Köszönöm. Még egy kérdés. Ha későn érek oda, hogyan tudom jelezni?",
+          "ru": "Спасибо. Ещё вопрос. Если я приду поздно, как мне сообщить?",
+          "en": "Thank you. One more question. If I get there late, how can I let you know?"
+        },
+        {
+          "hu": "Ez a telefonszám egész nap elérhető. Ha foglalt a vonal, hamarosan ismét szabad.",
+          "ru": "Этот номер доступен весь день. Если линия занята, скоро она снова освободится.",
+          "en": "This number is available all day. If the line is busy, it will soon be free again."
+        },
+        {
+          "hu": "Jó, akkor hívom, ha késni fogok.",
+          "ru": "Хорошо, тогда я позвоню, если опоздаю.",
+          "en": "Good, then I will call if I am going to be late."
+        },
+        {
+          "hu": "Rendben, akkor várjuk Önt.",
+          "ru": "Хорошо, тогда ждём вас.",
+          "en": "Fine, then we will expect you."
+        },
+        {
+          "hu": "Köszönöm. És hol van a rendelő pontosan?",
+          "ru": "Спасибо. А где именно находится кабинет?",
+          "en": "Thank you. And where exactly is the surgery?"
+        },
+        {
+          "hu": "A rendelő a posta mellett van, az utca végén, jobbra.",
+          "ru": "Кабинет рядом с почтой, в конце улицы, справа.",
+          "en": "The surgery is next to the post office, at the end of the street, on the right."
+        },
+        {
+          "hu": "Köszönöm szépen a segítséget, viszontlátásra!",
+          "ru": "Большое спасибо за помощь, до свидания!",
+          "en": "Thank you very much for your help, goodbye!"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "myday",
+    "checked": "ai",
+    "title": {
+      "ru": "Мой день у телефона",
+      "en": "My day on the phone"
+    },
+    "names": [
+      "Kati"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Péntek reggel hétkor csörög a mobilom.",
+          "ru": "В пятницу утром в семь звонит мой мобильный.",
+          "en": "On Friday morning at seven my mobile rings."
+        },
+        {
+          "hu": "Anyám telefonál, és a hangja nagyon jó.",
+          "ru": "Звонит мама, и голос у неё очень бодрый.",
+          "en": "My mother is calling, and her voice sounds very good."
+        },
+        {
+          "hu": "Nem hallom jól, mert a rádió hangos.",
+          "ru": "Я плохо слышу, потому что радио громкое.",
+          "en": "I cannot hear well, because the radio is loud."
+        },
+        {
+          "hu": "Nem hallgatom tovább a rádiót, csak anyámat hallgatom.",
+          "ru": "Я больше не слушаю радио, слушаю только маму.",
+          "en": "I do not listen to the radio any more, I only listen to my mother."
+        },
+        {
+          "hu": "Anyám szombaton ráér, ezért megbeszéljük a hétvégét.",
+          "ru": "В субботу у мамы есть время, поэтому мы договариваемся о выходных.",
+          "en": "My mother is free on Saturday, so we arrange the weekend."
+        }
+      ],
+      [
+        {
+          "hu": "Nyolckor a számítógép előtt ülök.",
+          "ru": "В восемь я сижу за компьютером.",
+          "en": "At eight I sit in front of the computer."
+        },
+        {
+          "hu": "Az interneten megnézem a fogorvos oldalát.",
+          "ru": "В интернете я смотрю страницу стоматолога.",
+          "en": "On the internet I look at the dentist's page."
+        },
+        {
+          "hu": "Időpontot csak telefonon lehet foglalni.",
+          "ru": "Записаться можно только по телефону.",
+          "en": "You can only book an appointment by phone."
+        },
+        {
+          "hu": "Először foglalt a vonal, ezért várok öt percet.",
+          "ru": "Сначала линия занята, и я жду пять минут.",
+          "en": "At first the line is busy, so I wait five minutes."
+        },
+        {
+          "hu": "Aztán ismét telefonálok, és egy női hang fogadja a hívást.",
+          "ru": "Потом я снова звоню, и женский голос принимает звонок.",
+          "en": "Then I call again, and a woman's voice takes the call."
+        },
+        {
+          "hu": "Kérdezem, hogy a következő héten van-e hely.",
+          "ru": "Я спрашиваю, есть ли место на следующей неделе.",
+          "en": "I ask whether there is a slot the following week."
+        },
+        {
+          "hu": "Csütörtökön délután ráér a doktor, mondja a hölgy.",
+          "ru": "В четверг после обеда врач свободен, говорит женщина.",
+          "en": "The doctor is free on Thursday afternoon, says the lady."
+        },
+        {
+          "hu": "Ez megfelel nekem, ezért foglalom az időpontot.",
+          "ru": "Мне это подходит, поэтому я записываюсь.",
+          "en": "That suits me, so I book the appointment."
+        },
+        {
+          "hu": "A hölgy azt mondja, hogy ezt előre jelezni kell, ha lemondom.",
+          "ru": "Женщина говорит, что об отмене нужно сообщать заранее.",
+          "en": "The lady says that I have to let them know in advance if I cancel."
+        },
+        {
+          "hu": "Persze, jelezni fogok, ha változtatni kell.",
+          "ru": "Конечно, я сообщу, если нужно будет что-то изменить.",
+          "en": "Of course, I will let them know if I have to change something."
+        }
+      ],
+      [
+        {
+          "hu": "Tízkor megbeszélésem van a főnökkel.",
+          "ru": "В десять у меня встреча с начальником.",
+          "en": "At ten I have a meeting with my boss."
+        },
+        {
+          "hu": "Elfoglalt vagyok, ezért nem fogadom a hívásokat.",
+          "ru": "Я занята, поэтому не принимаю звонки.",
+          "en": "I am busy, so I do not take any calls."
+        },
+        {
+          "hu": "Délben Kati telefonál, de nem érem el.",
+          "ru": "В полдень звонит Кати, но я не могу ответить.",
+          "en": "At noon Kati calls, but I cannot be reached."
+        },
+        {
+          "hu": "Üzenetet hagy, hogy neki inkább kedden lenne jó.",
+          "ru": "Она оставляет сообщение, что ей было бы лучше во вторник.",
+          "en": "She leaves a message saying that Tuesday would be better for her."
+        },
+        {
+          "hu": "Kedden nem vagyok szabad, csak szerdán.",
+          "ru": "Во вторник я не свободна, только в среду.",
+          "en": "I am not free on Tuesday, only on Wednesday."
+        },
+        {
+          "hu": "Ezért azonnal telefonálok, és megbeszéljük a szerdát.",
+          "ru": "Поэтому я сразу звоню, и мы договариваемся на среду.",
+          "en": "So I call right away, and we agree on Wednesday."
+        },
+        {
+          "hu": "Kati azt mondja, hogy szerdán neki pont jó.",
+          "ru": "Кати говорит, что в среду ей как раз удобно.",
+          "en": "Kati says Wednesday suits her just fine."
+        }
+      ],
+      [
+        {
+          "hu": "Délután egy ügyfél telefonál az irodába.",
+          "ru": "После обеда в офис звонит клиент.",
+          "en": "In the afternoon a client phones the office."
+        },
+        {
+          "hu": "Szeretne érdeklődni a következő hétről, de én nem tudom.",
+          "ru": "Он хочет узнать о следующей неделе, но я не знаю.",
+          "en": "He would like to enquire about next week, but I do not know."
+        },
+        {
+          "hu": "Azonnal kapcsolom a kollégámhoz, aki most ráér.",
+          "ru": "Я сразу соединяю его с коллегой, который сейчас свободен.",
+          "en": "I put him through to my colleague at once, who is free now."
+        },
+        {
+          "hu": "A kolléga pontosan tudja, mi a gond, és segít.",
+          "ru": "Коллега точно знает, в чём дело, и помогает.",
+          "en": "My colleague knows exactly what the problem is, and helps."
+        },
+        {
+          "hu": "Az ügyfél nagyon örül, és ismét megköszöni a hívást.",
+          "ru": "Клиент очень рад и ещё раз благодарит за звонок.",
+          "en": "The client is very happy and thanks me for the call once more."
+        }
+      ],
+      [
+        {
+          "hu": "Délután korán megyek haza.",
+          "ru": "После обеда я рано иду домой.",
+          "en": "In the afternoon I go home early."
+        },
+        {
+          "hu": "Nem sietek, mert van időm.",
+          "ru": "Я не спешу, потому что у меня есть время.",
+          "en": "I am not in a hurry, because I have time."
+        },
+        {
+          "hu": "Otthon a telefonom hamarosan ismét csörög.",
+          "ru": "Дома мой телефон скоро снова звонит.",
+          "en": "At home my phone soon rings again."
+        },
+        {
+          "hu": "Ez az utolsó hívás, és anyám hangja nagyon boldog.",
+          "ru": "Это последний звонок, и голос мамы очень счастливый.",
+          "en": "This is the last call, and my mother's voice is very happy."
+        },
+        {
+          "hu": "Elérhető vagyok, mondom neki, de nem szeretek későn beszélgetni.",
+          "ru": "Я на связи, говорю ей, но не люблю поздно болтать.",
+          "en": "I am available, I tell her, but I do not like chatting late."
+        },
+        {
+          "hu": "Ezért inkább korán beszélgetünk, és pont ez jó.",
+          "ru": "Поэтому мы лучше разговариваем рано, и это как раз хорошо.",
+          "en": "So we rather chat early, and that is just right."
+        }
+      ],
+      [
+        {
+          "hu": "Este üzenetet kapok a fogorvostól.",
+          "ru": "Вечером я получаю сообщение от стоматолога.",
+          "en": "In the evening I get a message from the dentist."
+        },
+        {
+          "hu": "A doktor csütörtökön korán kezd, ezért az időpont reggel van.",
+          "ru": "Врач в четверг начинает рано, поэтому приём утром.",
+          "en": "The doctor starts early on Thursday, so the appointment is in the morning."
+        },
+        {
+          "hu": "Ez nekem nem felel meg, mert reggel elfoglalt vagyok.",
+          "ru": "Мне это не подходит, потому что утром я занята.",
+          "en": "That does not suit me, because I am busy in the morning."
+        },
+        {
+          "hu": "Azonnal telefonálok, de a vonal megint foglalt.",
+          "ru": "Я сразу звоню, но линия снова занята.",
+          "en": "I call right away, but the line is busy again."
+        },
+        {
+          "hu": "Várok egy kicsit, aztán ismét hívom.",
+          "ru": "Я немного жду, потом звоню снова.",
+          "en": "I wait a little, then call again."
+        },
+        {
+          "hu": "Végre elérem a hölgyet, és ő azt mondja, hogy ez nem gond.",
+          "ru": "Наконец я дозваниваюсь до женщины, и она говорит, что это не проблема.",
+          "en": "At last I reach the lady, and she says it is no problem."
+        },
+        {
+          "hu": "Este a tévét nézem, és egy videót is nézek.",
+          "ru": "Вечером я смотрю телевизор и ещё смотрю видео.",
+          "en": "In the evening I watch TV and a video too."
+        },
+        {
+          "hu": "Az előző hét nehéz volt, de ez a nap jó.",
+          "ru": "Прошлая неделя была тяжёлой, но этот день хорош.",
+          "en": "Last week was hard, but this day is good."
+        },
+        {
+          "hu": "Holnap korán kelek, mert nem akarok későn indulni.",
+          "ru": "Завтра встану рано, потому что не хочу поздно выезжать.",
+          "en": "Tomorrow I will get up early because I don't want to set off late."
+        },
+        {
+          "hu": "Szombaton jó idő lesz, ezért nagyon örülök.",
+          "ru": "В субботу будет хорошая погода, и я очень рада.",
+          "en": "It will be nice weather on Saturday, so I am really glad."
+        }
+      ]
+    ]
+  }
+}

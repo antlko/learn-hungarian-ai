@@ -1,0 +1,475 @@
+{
+  "short": {
+    "genre": "note",
+    "checked": "ai",
+    "title": {
+      "ru": "Peti, bocsánat!",
+      "en": "Sorry, Peti!"
+    },
+    "names": [
+      "Peti",
+      "Dóri"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Peti, bocsánat!",
+          "ru": "Пети, прости!",
+          "en": "Peti, sorry!"
+        },
+        {
+          "hu": "Tegnap nem hívtam a nagymamát, mert sokáig dolgoztam.",
+          "ru": "Вчера я не позвонила бабушке, потому что долго работала.",
+          "en": "Yesterday I did not phone Grandma, because I worked for a long time."
+        },
+        {
+          "hu": "Közben váratlanul jött egy fontos munka, és rögtön kellett.",
+          "ru": "Тем временем неожиданно пришла важная работа, и она была нужна сразу.",
+          "en": "Meanwhile an important job came in unexpectedly, and it was needed at once."
+        },
+        {
+          "hu": "Szerencsére te meglátogattad őt, ugye?",
+          "ru": "К счастью, ты её навестил, да?",
+          "en": "Luckily you visited her, didn't you?"
+        }
+      ],
+      [
+        {
+          "hu": "Nemrég beszéltem vele, de ő most egyedül van.",
+          "ru": "Я недавно говорила с ней, но сейчас она одна.",
+          "en": "I spoke to her recently, but she is alone now."
+        },
+        {
+          "hu": "Régen sokat voltunk nála, azóta csak egyszer.",
+          "ru": "Раньше мы часто бывали у неё, а с тех пор только раз.",
+          "en": "We used to be at her place a lot, and since then only once."
+        },
+        {
+          "hu": "Utoljára tavasszal voltunk nála, és azóta nem látott minket.",
+          "ru": "В последний раз мы были у неё весной, и с тех пор она нас не видела.",
+          "en": "We were last at her place in spring, and since then she has not seen us."
+        },
+        {
+          "hu": "Azt írta, hogy már régen vár ránk.",
+          "ru": "Она написала, что давно ждёт нас.",
+          "en": "She wrote that she has been waiting for us for a long time."
+        },
+        {
+          "hu": "Ha hazaérsz, kérlek, hívd fel rögtön.",
+          "ru": "Когда придёшь домой, пожалуйста, сразу позвони ей.",
+          "en": "When you get home, please call her at once."
+        },
+        {
+          "hu": "Vasárnap meglátogatjuk őt, és ott maradunk ebédre.",
+          "ru": "В воскресенье мы её навестим и останемся там на обед.",
+          "en": "On Sunday we will visit her and stay there for lunch."
+        },
+        {
+          "hu": "Dóri",
+          "ru": "Дори",
+          "en": "Dóri"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "email",
+    "checked": "ai",
+    "title": {
+      "ru": "Miért nem mentem be tegnap",
+      "en": "Why I did not come yesterday"
+    },
+    "names": [
+      "Zoltán",
+      "Gábor"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Kedves Zoltán!",
+          "ru": "Дорогой Золтан!",
+          "en": "Dear Zoltán,"
+        },
+        {
+          "hu": "Elnézést kérek, mert tegnap nem mentem be dolgozni.",
+          "ru": "Прошу прощения, ведь вчера я не пришёл на работу.",
+          "en": "I am sorry, because yesterday I did not come in to work."
+        },
+        {
+          "hu": "Elmondom, mi történt, mert az egész váratlanul jött.",
+          "ru": "Расскажу, что случилось, потому что всё это вышло неожиданно.",
+          "en": "Let me tell you what happened, because it all came unexpectedly."
+        }
+      ],
+      [
+        {
+          "hu": "Tegnap reggel éppen elindultam otthonról, és még minden jó volt.",
+          "ru": "Вчера утром я как раз вышел из дома, и всё ещё было хорошо.",
+          "en": "Yesterday morning I had just set off from home, and everything was still fine."
+        },
+        {
+          "hu": "Egy héttel ezelőtt még minden rendben volt a kocsival.",
+          "ru": "Неделю назад с машиной ещё всё было в порядке.",
+          "en": "A week ago everything was still fine with the car."
+        },
+        {
+          "hu": "Azelőtt sosem volt baleset, és nem is féltem.",
+          "ru": "Раньше аварий не было, и я не боялся.",
+          "en": "There had never been an accident before, and I was not afraid."
+        },
+        {
+          "hu": "Először nem történt semmi, de aztán hirtelen baleset lett.",
+          "ru": "Сначала ничего не случилось, но потом вдруг произошла авария.",
+          "en": "At first nothing happened, but then suddenly there was an accident."
+        },
+        {
+          "hu": "Éppen akkor váratlanul jött egy másik kocsi.",
+          "ru": "Как раз тогда неожиданно выехала другая машина.",
+          "en": "Just then another car came unexpectedly."
+        },
+        {
+          "hu": "Emlékszem, hogy először csak egy nagy hangot hallottam.",
+          "ru": "Помню, что сначала я услышал только громкий звук.",
+          "en": "I remember that at first I only heard a loud sound."
+        },
+        {
+          "hu": "Szerencsére nem lett nagy baj, de a kocsi nem ment tovább.",
+          "ru": "К счастью, ничего страшного не случилось, но машина не поехала дальше.",
+          "en": "Luckily it was nothing serious, but the car did not go any further."
+        },
+        {
+          "hu": "Ilyen baleset előfordul, de nekem ez az első esemény.",
+          "ru": "Такая авария случается, но для меня это первый подобный случай.",
+          "en": "An accident like this occurs, but for me this is the first such event."
+        }
+      ],
+      [
+        {
+          "hu": "Nem tudtam rögtön felhívni a rendőrséget, de végül sikerült.",
+          "ru": "Я не смог сразу позвонить в полицию, но в конце концов получилось.",
+          "en": "I could not phone the police at once, but in the end I managed."
+        },
+        {
+          "hu": "Közben nem volt időm felhívni a feleségemet.",
+          "ru": "Тем временем у меня не было времени позвонить жене.",
+          "en": "Meanwhile I had no time to phone my wife."
+        },
+        {
+          "hu": "Felhívni téged nem sikerült, mert nem volt jel.",
+          "ru": "Позвонить тебе не получилось, потому что не было сигнала.",
+          "en": "I could not manage to phone you, because there was no signal."
+        },
+        {
+          "hu": "Azután egy másik ember is jött, és nagy segítség volt.",
+          "ru": "Потом пришёл ещё один человек, и это была большая помощь.",
+          "en": "After that another person came too, and was a great help."
+        },
+        {
+          "hu": "Szerencsére egy ember megtalálta a táskámat az úton.",
+          "ru": "К счастью, один человек нашёл мою сумку на дороге.",
+          "en": "Luckily a man found my bag on the road."
+        },
+        {
+          "hu": "Sokáig vártam, és a rendőr csak végül jött.",
+          "ru": "Я долго ждал, и полицейский пришёл только в конце концов.",
+          "en": "I waited for a long time, and the policeman only came in the end."
+        },
+        {
+          "hu": "Miután a rendőr elment, még sokáig maradtam a kocsinál.",
+          "ru": "После того как полицейский уехал, я ещё долго оставался у машины.",
+          "en": "After the policeman left, I stayed by the car for a long time."
+        }
+      ],
+      [
+        {
+          "hu": "Végül taxival tudtam hazaérni, és este befejeztem a munkát.",
+          "ru": "В конце концов я смог добраться домой на такси и вечером закончил работу.",
+          "en": "In the end I managed to get home by taxi, and in the evening I finished the job."
+        },
+        {
+          "hu": "Mielőtt aludni mentem, még megtudtam, hogy a kocsi rendben lesz.",
+          "ru": "Прежде чем лечь спать, я ещё узнал, что с машиной всё будет в порядке.",
+          "en": "Before I slept I found out that the car would be all right."
+        },
+        {
+          "hu": "Múltkor te is mondtad, hogy ilyen megtörténik.",
+          "ru": "В прошлый раз ты и сам говорил, что такое случается.",
+          "en": "Last time you said yourself that such things happen."
+        },
+        {
+          "hu": "Ilyen esemény egyszer előfordul az életben.",
+          "ru": "Такое событие раз в жизни случается.",
+          "en": "An event like this occurs once in a lifetime."
+        },
+        {
+          "hu": "Nem akartam elfelejteni, hogy ma kezdődik a nagy munka.",
+          "ru": "Я не хотел забыть, что сегодня начинается большая работа.",
+          "en": "I did not want to forget that the big job begins today."
+        },
+        {
+          "hu": "Ma már itt vagyok, és mindent elmondok.",
+          "ru": "Сегодня я уже здесь и всё расскажу.",
+          "en": "Today I am here already, and I will tell you everything."
+        },
+        {
+          "hu": "Nem fogom elfelejteni ezt a napot.",
+          "ru": "Я не забуду этот день.",
+          "en": "I will not forget this day."
+        },
+        {
+          "hu": "Gábor",
+          "ru": "Габор",
+          "en": "Gábor"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "story",
+    "checked": "ai",
+    "title": {
+      "ru": "Egy nyári kaland",
+      "en": "A summer adventure"
+    },
+    "names": [
+      "Misi"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Régen, gyerekkoromban, minden nyáron a nagyapámnál voltam.",
+          "ru": "Давным-давно, в детстве, каждое лето я жил у дедушки.",
+          "en": "Long ago, in my childhood, I spent every summer at my grandfather's."
+        },
+        {
+          "hu": "Akkoriban iskolás voltam, és a vakáció volt a legjobb.",
+          "ru": "Тогда я был школьником, и каникулы были лучше всего.",
+          "en": "Back then I was a schoolchild, and the holiday was the best part."
+        },
+        {
+          "hu": "Ősszel, télen és tavasszal iskolában voltam, nyáron pedig nála.",
+          "ru": "Осенью, зимой и весной я был в школе, а летом у него.",
+          "en": "In autumn, winter and spring I was at school, and in summer at his place."
+        },
+        {
+          "hu": "Tavasszal vártam a nyarat, és ősszel kezdődött az iskola.",
+          "ru": "Весной я ждал лета, а осенью начиналась школа.",
+          "en": "In spring I waited for summer, and in autumn school began."
+        },
+        {
+          "hu": "Télen mindig hívtam nagyapát, és sokat beszéltünk.",
+          "ru": "Зимой я всегда звонил дедушке, и мы много разговаривали.",
+          "en": "In winter I always phoned grandpa, and we talked a lot."
+        },
+        {
+          "hu": "A gyerekkor szép volt, de a nyár volt a legszebb.",
+          "ru": "Детство было хорошим, но лето было самым лучшим.",
+          "en": "Childhood was lovely, but summer was the loveliest."
+        },
+        {
+          "hu": "A tél is szép volt, de a nyár volt a nagy kaland.",
+          "ru": "Зима тоже была хороша, но лето было большим приключением.",
+          "en": "Winter was nice too, but summer was the big adventure."
+        },
+        {
+          "hu": "Emlékszem, hogy a kert nagy volt, a ház pedig kicsi.",
+          "ru": "Помню, что сад был большой, а дом маленький.",
+          "en": "I remember that the garden was big, and the house small."
+        },
+        {
+          "hu": "Ez a történet sok évvel ezelőtt kezdődött.",
+          "ru": "Эта история началась много лет назад.",
+          "en": "This story began many years ago."
+        },
+        {
+          "hu": "Ez volt a gyerekkorom legnagyobb eseménye.",
+          "ru": "Это было самое большое событие моего детства.",
+          "en": "It was the biggest event of my childhood."
+        }
+      ],
+      [
+        {
+          "hu": "Egyszer reggel éppen elindultam a barátommal, Misivel.",
+          "ru": "Однажды утром я как раз отправился с другом, Миши.",
+          "en": "One morning I was just setting off with my friend, Misi."
+        },
+        {
+          "hu": "Misi is iskolás volt, és ő is a faluban élt.",
+          "ru": "Миши тоже был школьником и тоже жил в деревне.",
+          "en": "Misi was a schoolchild too, and he also lived in the village."
+        },
+        {
+          "hu": "Misi az ősz óta lakott ott, és még nem ismerte az erdőt.",
+          "ru": "Миши жил там с осени и ещё не знал леса.",
+          "en": "Misi had lived there since autumn and did not know the forest yet."
+        },
+        {
+          "hu": "Először csak a kertben játszottunk.",
+          "ru": "Сначала мы просто играли в саду.",
+          "en": "At first we just played in the garden."
+        },
+        {
+          "hu": "Hirtelen láttuk, hogy a kapu nyitva van.",
+          "ru": "Вдруг мы увидели, что калитка открыта.",
+          "en": "Suddenly we saw that the gate was open."
+        },
+        {
+          "hu": "Misi rögtön elment a kapun át, és én utána.",
+          "ru": "Миши сразу вышел за калитку, а я за ним.",
+          "en": "Misi went out through the gate at once, and I followed."
+        },
+        {
+          "hu": "Ő elfelejtett szólni otthon, és én is.",
+          "ru": "Он забыл сказать дома, и я тоже.",
+          "en": "He forgot to tell anyone at home, and so did I."
+        }
+      ],
+      [
+        {
+          "hu": "Az erdőben sokáig mentünk, és jól éreztük magunkat.",
+          "ru": "В лесу мы долго шли и хорошо проводили время.",
+          "en": "In the forest we walked for a long time and had a good time."
+        },
+        {
+          "hu": "Közben nem néztük az utat.",
+          "ru": "Тем временем мы не смотрели на дорогу.",
+          "en": "Meanwhile we did not watch the way."
+        },
+        {
+          "hu": "Hirtelen nem tudtuk, hol vagyunk.",
+          "ru": "Вдруг мы не знали, где мы.",
+          "en": "Suddenly we did not know where we were."
+        },
+        {
+          "hu": "Misi félt, én is féltem egy kicsit.",
+          "ru": "Миши боялся, и я тоже немного боялся.",
+          "en": "Misi was scared, and I was a little scared too."
+        },
+        {
+          "hu": "Azelőtt nem féltem az erdőtől, de azután igen.",
+          "ru": "Раньше я не боялся леса, а потом боялся.",
+          "en": "Before that I was not afraid of the forest, but after that I was."
+        },
+        {
+          "hu": "Sokáig kerestük az utat, de nem sikerült megtalálni.",
+          "ru": "Мы долго искали дорогу, но найти не получилось.",
+          "en": "We looked for the way for a long time, but we did not manage to find it."
+        },
+        {
+          "hu": "Szerencsére egy öreg ember jött, és előbb csak nézett minket.",
+          "ru": "К счастью, пришёл старик и сначала просто смотрел на нас.",
+          "en": "Luckily an old man came and at first he just looked at us."
+        }
+      ],
+      [
+        {
+          "hu": "Az öreg ember végül megtudta, hogy a nagyapám unokája vagyok.",
+          "ru": "Старик в конце концов узнал, что я внук моего дедушки.",
+          "en": "The old man finally found out that I was my grandfather's grandson."
+        },
+        {
+          "hu": "Vele elindultunk, és hazaérni nem volt nehéz.",
+          "ru": "Мы пошли с ним, и добраться домой было нетрудно.",
+          "en": "We set off with him, and getting home was not hard."
+        },
+        {
+          "hu": "Nagyapa mindent észrevesz, ezért már a kapuban várt.",
+          "ru": "Дедушка всё замечает, поэтому уже ждал у калитки.",
+          "en": "Grandpa notices everything, so he was already waiting at the gate."
+        },
+        {
+          "hu": "Miután megtudta, hogy minden rendben van, nem volt mérges.",
+          "ru": "Узнав, что всё в порядке, он не сердился.",
+          "en": "After he found out that all was well, he was not angry."
+        },
+        {
+          "hu": "Előbb azt mondta, hogy ilyen előfordul, aztán nevetett.",
+          "ru": "Сначала он сказал, что такое случается, а потом смеялся.",
+          "en": "First he said that this happens, then he laughed."
+        },
+        {
+          "hu": "Azután sokáig beszéltünk arról, mi történt.",
+          "ru": "Потом мы долго говорили о том, что случилось.",
+          "en": "After that we talked for a long time about what had happened."
+        },
+        {
+          "hu": "Miután nagyapa elment aludni, Misi és én még beszéltünk.",
+          "ru": "Когда дедушка ушёл спать, мы с Миши ещё разговаривали.",
+          "en": "After grandpa went to sleep, Misi and I still talked."
+        }
+      ],
+      [
+        {
+          "hu": "Ez volt az első kalandom, és nagyon szép élmény.",
+          "ru": "Это было моё первое приключение, и очень хорошее воспоминание.",
+          "en": "It was my first adventure, and a really nice experience."
+        },
+        {
+          "hu": "Azóta mindig szólok, mielőtt elindulok.",
+          "ru": "С тех пор я всегда говорю, прежде чем отправиться.",
+          "en": "Since then I always say so before I set off."
+        },
+        {
+          "hu": "Mielőtt elindulunk, mindig nézzük az utat.",
+          "ru": "Прежде чем отправиться, мы всегда смотрим на дорогу.",
+          "en": "Before we set off, we always watch the way."
+        },
+        {
+          "hu": "Misi is emlékszik arra a napra.",
+          "ru": "Миши тоже помнит тот день.",
+          "en": "Misi remembers that day too."
+        },
+        {
+          "hu": "Ez a történet nekem a legszebb élmény.",
+          "ru": "Эта история для меня самое лучшее воспоминание.",
+          "en": "This story is the loveliest experience for me."
+        },
+        {
+          "hu": "Az érettségi előtt még egyszer elmentem oda.",
+          "ru": "Перед выпускными экзаменами я ещё раз съездил туда.",
+          "en": "Before the school-leaving exam I went there once more."
+        },
+        {
+          "hu": "Az utolsó vakáció is nagy élmény volt.",
+          "ru": "Последние каникулы тоже были большим впечатлением.",
+          "en": "The last holiday was a great experience too."
+        },
+        {
+          "hu": "Az érettségi után egyetemre mentem, de nyáron mindig ott voltam.",
+          "ru": "После выпускных экзаменов я поступил в университет, но летом всегда был там.",
+          "en": "After the school-leaving exam I went to university, but in summer I was always there."
+        },
+        {
+          "hu": "Misi azután elment a városba dolgozni.",
+          "ru": "Потом Миши уехал работать в город.",
+          "en": "Later Misi went to the city to work."
+        },
+        {
+          "hu": "Az elmúlt években ritkán maradtam ott, de a tavalyi nyáron igen.",
+          "ru": "В последние годы я редко оставался там, а прошлым летом да.",
+          "en": "In the past years I seldom stayed there, but last summer I did."
+        },
+        {
+          "hu": "Utoljára a tavalyi nyáron meglátogattam a falut.",
+          "ru": "В последний раз я навестил деревню прошлым летом.",
+          "en": "I last visited the village last summer."
+        },
+        {
+          "hu": "Régen nem gondoltam, hogy ez ilyen szép történet lesz.",
+          "ru": "Раньше я не думал, что это будет такая хорошая история.",
+          "en": "In those days I did not think this would be such a nice story."
+        },
+        {
+          "hu": "Nyáron meglátogatom a falut, és ott maradok egy hétig.",
+          "ru": "Летом я навещаю деревню и остаюсь там на неделю.",
+          "en": "In summer I visit the village and stay there for a week."
+        },
+        {
+          "hu": "Nemrég megszületett a lányom, egyszer neki is megmutatom.",
+          "ru": "Недавно родилась моя дочь, когда-нибудь покажу ей деревню.",
+          "en": "My daughter was born recently, one day I will show her the village."
+        }
+      ]
+    ]
+  }
+}

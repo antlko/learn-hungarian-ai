@@ -1,0 +1,377 @@
+{
+  "talk": {
+    "genre": "phone",
+    "checked": "ai",
+    "title": {
+      "ru": "Звонок новому соседу",
+      "en": "A call to the new neighbour"
+    },
+    "names": [
+      "Kata",
+      "Péter"
+    ],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Halló?",
+          "ru": "Алло?",
+          "en": "Hello?"
+        },
+        {
+          "who": "B",
+          "hu": "Szia! Itt Kata. Te vagy Péter?",
+          "ru": "Привет! Это Ката. Ты Петер?",
+          "en": "Hi! This is Kata. Are you Péter?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, én vagyok. Szia, Kata!",
+          "ru": "Да, это я. Привет, Ката!",
+          "en": "Yes, it's me. Hi, Kata!"
+        },
+        {
+          "who": "B",
+          "hu": "Bocsi, hogy hívlak. Új szomszéd vagyok.",
+          "ru": "Прости, что звоню. Я новая соседка.",
+          "en": "Sorry to call. I am the new neighbour."
+        },
+        {
+          "who": "A",
+          "hu": "Aha, persze! Te vagy az új szomszéd. Örvendek!",
+          "ru": "Ага, конечно! Это ты новая соседка. Очень приятно!",
+          "en": "Aha, of course! You are the new neighbour. Pleased to meet you!"
+        },
+        {
+          "who": "B",
+          "hu": "Én is, nagyon örülök. Mondd, este itt vagy? Megyek hozzád.",
+          "ru": "Мне тоже, очень рада. Скажи, ты вечером дома? Зайду к тебе.",
+          "en": "Me too, very glad. Tell me, are you here in the evening?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, este itt vagyok.",
+          "ru": "Да, вечером я дома.",
+          "en": "Yes, I am here in the evening."
+        },
+        {
+          "who": "B",
+          "hu": "Szuper! Akkor este találkozunk.",
+          "ru": "Супер! Тогда увидимся вечером.",
+          "en": "Great! Then we will meet in the evening."
+        },
+        {
+          "who": "A",
+          "hu": "Jó. Hány órakor jössz?",
+          "ru": "Хорошо. Во сколько придёшь?",
+          "en": "Okay. What time are you coming?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem tudom még. Majd hívlak.",
+          "ru": "Ещё не знаю. Я тебе позвоню.",
+          "en": "I don't know yet. I will call you."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben. Köszi, hogy hívsz!",
+          "ru": "Хорошо. Спасибо, что позвонила!",
+          "en": "All right. Thanks for calling!"
+        },
+        {
+          "who": "B",
+          "hu": "Szívesen! Szia!",
+          "ru": "Пожалуйста! Пока!",
+          "en": "You're welcome! Bye!"
+        },
+        {
+          "who": "A",
+          "hu": "Szia, szia!",
+          "ru": "Пока, пока!",
+          "en": "Bye, bye!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "lepcsohaz",
+      "title": {
+        "ru": "На лестнице",
+        "en": "On the stairs"
+      },
+      "scene": {
+        "ru": "Утром на лестнице, соседи на «вы».",
+        "en": "Morning on the stairs, neighbours on formal terms."
+      },
+      "names": [
+        "Kata",
+        "Péter"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó reggelt!",
+          "ru": "Доброе утро!",
+          "en": "Good morning!"
+        },
+        {
+          "who": "B",
+          "hu": "Jó reggelt! Ön az új szomszéd?",
+          "ru": "Доброе утро! Вы наша новая соседка?",
+          "en": "Good morning! Are you the new neighbour?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen. Kata vagyok.",
+          "ru": "Да. Я Ката.",
+          "en": "Yes. I am Kata."
+        },
+        {
+          "who": "B",
+          "hu": "Örvendek! Péter vagyok.",
+          "ru": "Очень приятно! Я Петер.",
+          "en": "Pleased to meet you! I am Péter."
+        },
+        {
+          "who": "A",
+          "hu": "Én is örvendek.",
+          "ru": "Мне тоже приятно.",
+          "en": "Pleased to meet you too."
+        }
+      ]
+    },
+    {
+      "slug": "parkban",
+      "title": {
+        "ru": "В парке",
+        "en": "In the park"
+      },
+      "scene": {
+        "ru": "Двое соседей знакомятся в парке у дома.",
+        "en": "Two neighbours meet in the park by the house."
+      },
+      "names": [
+        "Kata",
+        "Péter"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia! Te itt laksz?",
+          "ru": "Привет! Ты здесь живёшь?",
+          "en": "Hi! Do you live here?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen. Péter vagyok.",
+          "ru": "Да. Я Петер.",
+          "en": "Yes. I am Péter."
+        },
+        {
+          "who": "A",
+          "hu": "Én Kata. Örvendek!",
+          "ru": "Я Ката. Очень приятно!",
+          "en": "I am Kata. Pleased to meet you!"
+        },
+        {
+          "who": "B",
+          "hu": "Én is örvendek!",
+          "ru": "И мне приятно!",
+          "en": "Pleased to meet you too!"
+        },
+        {
+          "who": "A",
+          "hu": "Na, szia! Szép nap van!",
+          "ru": "Ну, пока! Хороший день!",
+          "en": "Well, bye! It is a nice day!"
+        }
+      ]
+    },
+    {
+      "slug": "bolt-bucsu",
+      "title": {
+        "ru": "Прощание в магазине",
+        "en": "Leaving the shop"
+      },
+      "scene": {
+        "ru": "У кассы магазина, продавец и покупатель прощаются.",
+        "en": "At the shop counter, the seller and customer say goodbye."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "B",
+          "hu": "Tessék, itt van.",
+          "ru": "Пожалуйста, вот.",
+          "en": "Here you are."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm szépen! Viszlát!",
+          "ru": "Большое спасибо! До свидания!",
+          "en": "Thank you very much! Bye!"
+        },
+        {
+          "who": "B",
+          "hu": "Viszlát! Szép napot!",
+          "ru": "До свидания! Хорошего дня!",
+          "en": "Bye! Have a nice day!"
+        },
+        {
+          "who": "A",
+          "hu": "Önnek is!",
+          "ru": "И вам!",
+          "en": "You too!"
+        },
+        {
+          "who": "B",
+          "hu": "Köszönöm!",
+          "ru": "Спасибо!",
+          "en": "Thank you!"
+        }
+      ]
+    },
+    {
+      "slug": "jatszoter",
+      "title": {
+        "ru": "На детской площадке",
+        "en": "At the playground"
+      },
+      "scene": {
+        "ru": "Девочка знакомится с мальчиком, рядом мама.",
+        "en": "A girl meets a boy, her mum is nearby."
+      },
+      "names": [
+        "Zsófi",
+        "Bence"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia! Hogy hívnak?",
+          "ru": "Привет! Как тебя зовут?",
+          "en": "Hi! What is your name?"
+        },
+        {
+          "who": "B",
+          "hu": "Zsófi vagyok. És te?",
+          "ru": "Я Жофи. А ты?",
+          "en": "I am Zsófi. And you?"
+        },
+        {
+          "who": "A",
+          "hu": "Bence. Itt lakom.",
+          "ru": "Бенце. Я здесь живу.",
+          "en": "Bence. I live here."
+        },
+        {
+          "who": "B",
+          "hu": "Anya, ő Bence!",
+          "ru": "Мама, это Бенце!",
+          "en": "Mum, this is Bence!"
+        },
+        {
+          "who": "C",
+          "hu": "Szia, Bence! Zsófi, gyere!",
+          "ru": "Привет, Бенце! Жофи, иди сюда!",
+          "en": "Hi, Bence! Zsófi, come here!"
+        }
+      ]
+    },
+    {
+      "slug": "iroda",
+      "title": {
+        "ru": "Новая коллега",
+        "en": "The new colleague"
+      },
+      "scene": {
+        "ru": "Первый день в офисе, коллеги на «ты».",
+        "en": "First day in the office, colleagues on informal terms."
+      },
+      "names": [
+        "Péter",
+        "Olga"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Helló! Te vagy az új kolléga?",
+          "ru": "Привет! Ты новая коллега?",
+          "en": "Hello! Are you the new colleague?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, Olga vagyok.",
+          "ru": "Да, я Ольга.",
+          "en": "Yes, I am Olga."
+        },
+        {
+          "who": "A",
+          "hu": "Péter. Orosz vagy?",
+          "ru": "Петер. Ты русская?",
+          "en": "Péter. Are you Russian?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, de már itt lakom.",
+          "ru": "Да, но уже живу здесь.",
+          "en": "Yes, but I live here now."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper! Örülök.",
+          "ru": "Супер! Рад.",
+          "en": "Great! I am glad."
+        }
+      ]
+    },
+    {
+      "slug": "rossz-hivas",
+      "title": {
+        "ru": "Не туда попали",
+        "en": "A wrong call"
+      },
+      "scene": {
+        "ru": "Телефонный звонок, звонящий ошибся.",
+        "en": "A phone call, the caller dialled wrong."
+      },
+      "names": [
+        "Kata",
+        "Péter"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Halló! Kata?",
+          "ru": "Алло! Ката?",
+          "en": "Hello! Kata?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, Péter vagyok.",
+          "ru": "Нет, я Петер.",
+          "en": "No, I am Péter."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, bocsánat! Rossz szám.",
+          "ru": "Ой, простите! Ошиблась номером.",
+          "en": "Oh, sorry! Wrong number."
+        },
+        {
+          "who": "B",
+          "hu": "Semmi baj. Szia!",
+          "ru": "Ничего. Пока!",
+          "en": "No problem. Bye!"
+        }
+      ]
+    }
+  ]
+}

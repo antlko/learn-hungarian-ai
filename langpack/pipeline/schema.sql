@@ -207,20 +207,29 @@ CREATE TABLE resource (
     ord         INTEGER NOT NULL DEFAULT 0
 );
 
--- Ready-made reading sets («Рассказ» and «Диалог»): sentences that already exist
--- in `sentence`, grouped by course unit and CEFR band. Written by
--- pipeline/stories.py and pipeline/dialogues.py; the app only reads them
+-- LEGACY, EMPTY IN A NEW PACK (ADR-076): the reading texts now ship in the binary's
+-- catalogue (backend/internal/readsets/catalog.json); these tables stay only so older
+-- binaries and packs open. Historic note: three authored texts per unit (short, medium, long;
+-- ADR-075), grouped by course unit and CEFR band. Written by pipeline/texts.py
+-- (legacy: stories.py, dialogues.py); the app only reads them
 -- and never writes Hungarian of its own into a set. `level` is estimated from
--- lemma.cefr. `track` is core | theme («Рассказ», code = the unit code) or
--- dialogue; both are AI-written, `sentence.source = 'authored'`, labelled
--- (ADR-066, ADR-074). `para` is the paragraph of a story line (0 on a dialogue).
+-- lemma.cefr. `track` is the unit's track core | theme (a legacy «Диалог» keeps
+-- 'dialogue'); the text is AI-written, `sentence.source = 'authored'`, provenance
+-- kept in data, no UI badge (ADR-066, ADR-075). Codes: <unit>-dialogue short,
+-- <unit> medium, <unit>-long long; they never reach learners. `para` is the paragraph of a story line (0 on a dialogue).
 CREATE TABLE reading_set (
     code     TEXT PRIMARY KEY,
     level    TEXT NOT NULL,
     track    TEXT NOT NULL DEFAULT 'core',
     ord      INTEGER NOT NULL,
     title_ru TEXT NOT NULL, title_en TEXT NOT NULL,
-    theme_ru TEXT NOT NULL DEFAULT '', theme_en TEXT NOT NULL DEFAULT ''
+    theme_ru TEXT NOT NULL DEFAULT '', theme_en TEXT NOT NULL DEFAULT '',
+    -- ADR-075: short|medium|long, a genre id (pipeline/texts.py GENRES), the word
+    -- count, and who vetted the text ('ai' until a human does). '' / 0 = legacy set.
+    tier     TEXT NOT NULL DEFAULT '',
+    genre    TEXT NOT NULL DEFAULT '',
+    words    INTEGER NOT NULL DEFAULT 0,
+    checked  TEXT NOT NULL DEFAULT 'ai'
 );
 CREATE TABLE reading_set_sentence (
     set_code    TEXT NOT NULL REFERENCES reading_set(code),

@@ -34,8 +34,6 @@ import shutil
 import sqlite3
 from pathlib import Path
 
-from . import reading_sets
-
 # Tuned against the real pack: 4000 lemmas covers the frequency band the first
 # six months of the course lives in, and keeps the gzipped artefact small enough
 # that nobody thinks twice about it being in the repo.
@@ -53,26 +51,50 @@ TABLES_COPIED_WHOLE = (
 
 
 def _keep_story_names(dst: sqlite3.Connection) -> None:
-    """Keep the proper-noun lemmas the authored texts name (Kata, Dani, ...).
+    """Keep the lemmas the authored reading texts use (Kata, Dani, ...).
 
-    The frequency band drops first names, but the stories and dialogues are
-    checked against the STARTER's wordforms (`reading_sets.validate`), so a name
-    the text uses must be attested there too."""
+    The texts are not in the pack (ADR-076: the embedded catalogue), but the reader
+    analyses them against the STARTER's wordforms, so a name or a rare word they use
+    must be attested there too. Read from langpack/texts, not from the pack."""
+    from . import texts
+
     words: set[str] = set()
-    for (hu,) in dst.execute("SELECT hu FROM full.sentence WHERE source = 'authored'"):
-        for tok in re.findall(r"[^\W\d_]+", hu):
-            if tok[:1].isupper():
-                words.add(tok)
+    loaded, _bad = texts.load()
+    for tiers in loaded.values():
+        for t in tiers.values():
+            for s in texts.lines_of(t):
+                words.update(re.findall(r"[^\W\d_]+", s["hu"]))
     for tok in sorted(words):
-        dst.execute(
-            """
-            INSERT INTO keep_lemma
-            SELECT DISTINCT l.id FROM full.wordform w JOIN full.lemma l ON l.id = w.lemma_id
-             WHERE w.form = ? AND l.upos = 'PROPN'
-               AND l.id NOT IN (SELECT id FROM keep_lemma)
-            """,
-            (tok,),
-        )
+        # Names: any capitalised token naming a PROPN. Everything else: only when
+        # the starter's kept lemmas do not already attest the form (the authored
+        # texts use rare words, e.g. numerals and trades, outside the band).
+        if tok[:1].isupper():
+            dst.execute(
+                """
+                INSERT INTO keep_lemma
+                SELECT DISTINCT l.id FROM full.wordform w JOIN full.lemma l ON l.id = w.lemma_id
+                 WHERE w.form = ? AND l.upos = 'PROPN'
+                   AND l.id NOT IN (SELECT id FROM keep_lemma)
+                """,
+                (tok,),
+            )
+        forms = {tok, tok.lower()}
+        have = dst.execute(
+            "SELECT 1 FROM full.wordform w WHERE w.form IN (?, ?) "
+            "AND w.lemma_id IN (SELECT id FROM keep_lemma) LIMIT 1",
+            (tok, tok.lower()),
+        ).fetchone()
+        if have:
+            continue
+        for form in forms:
+            dst.execute(
+                """
+                INSERT INTO keep_lemma
+                SELECT DISTINCT w.lemma_id FROM full.wordform w
+                 WHERE w.form = ? AND w.lemma_id NOT IN (SELECT id FROM keep_lemma)
+                """,
+                (form,),
+            )
 
 
 def build(full: Path, out: Path, *, lemmas: int, sentences: int) -> None:
@@ -189,11 +211,8 @@ def build(full: Path, out: Path, *, lemmas: int, sentences: int) -> None:
     # keeps a future source out by default, which is the safe direction for a
     # test nobody will remember to update.
     #
-    # This is the CORPUS copy and stays Tatoeba-only. The authored stories and
-    # dialogues (pipeline/stories.py, dialogues.py, source = 'authored', written for tanulom, CC BY-SA 4.0) are
-    # not copied from the full pack: `reading_sets.build(dst)` below writes them
-    # into the starter itself, after checking them against the starter's own
-    # wordforms.
+    # This is the CORPUS copy and stays Tatoeba-only. Authored reading texts are not
+    # in any pack (ADR-076: backend/internal/readsets/catalog.json).
     dst.execute(
         """
         INSERT INTO keep_sentence
@@ -248,16 +267,6 @@ def build(full: Path, out: Path, *, lemmas: int, sentences: int) -> None:
             "WHERE sentence_id IN (SELECT id FROM keep_sentence)"
         )
 
-    # Reading sets are chosen from what the STARTER holds, not copied from the
-    # full pack: a full-pack set can name a sentence this file does not carry.
-    # Same stage, same rules, so the two editions' sets are each self-contained.
-    if "course_unit" in have and "course_word" in have:
-        reading_sets.build(dst)
-        # require_all: a release may not ship a unit without its «Рассказ» (ADR-074).
-        problems = reading_sets.validate(dst, require_all=True)
-        if problems:
-            raise SystemExit("reading sets invalid in the starter:\n  " + "\n  ".join(problems))
-
     # The starter says what it is, so the UI can offer the upgrade honestly.
     dst.execute(
         "INSERT OR REPLACE INTO pack_meta (key, value) VALUES ('edition', 'starter')"
@@ -288,7 +297,6 @@ def build(full: Path, out: Path, *, lemmas: int, sentences: int) -> None:
         for t in (
             "lemma", "wordform", "sentence", "sentence_token", "minimal_pair",
             "ngram", "course_unit", "course_word", "resource",
-            "reading_set", "reading_set_sentence",
         )
         if t in have_out
     }

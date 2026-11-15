@@ -1,0 +1,374 @@
+{
+  "talk": {
+    "genre": "phone",
+    "checked": "ai",
+    "title": {
+      "ru": "Звонок по объявлению о квартире",
+      "en": "A call about a flat ad"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Halló, jó napot! A lakás miatt hívom.",
+          "ru": "Алло, добрый день! Я звоню насчёт квартиры.",
+          "en": "Hello, good day! I'm calling about the flat."
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot! Igen, még szabad.",
+          "ru": "Добрый день! Да, она ещё свободна.",
+          "en": "Good day! Yes, it's still free."
+        },
+        {
+          "who": "A",
+          "hu": "Jó. Hány szoba van?",
+          "ru": "Хорошо. Сколько там комнат?",
+          "en": "Good. How many rooms are there?"
+        },
+        {
+          "who": "B",
+          "hu": "Két szoba, konyha és fürdőszoba.",
+          "ru": "Две комнаты, кухня и ванная.",
+          "en": "Two rooms, a kitchen and a bathroom."
+        },
+        {
+          "who": "A",
+          "hu": "Melyik emeleten van? És van kert?",
+          "ru": "На каком она этаже? И сад есть?",
+          "en": "Which floor is it on? And is there a garden?"
+        },
+        {
+          "who": "B",
+          "hu": "A harmadikon. Van lift. Kert nincs.",
+          "ru": "На третьем. Лифт есть. Сада нет.",
+          "en": "On the third. There is a lift. No garden."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper! Mosógép is van?",
+          "ru": "Супер! Стиральная машина тоже есть?",
+          "en": "Great! Is there a washing machine too?"
+        },
+        {
+          "who": "B",
+          "hu": "Mosógép van, hűtő is.",
+          "ru": "Стиральная машина есть, холодильник тоже.",
+          "en": "There's a washing machine, and a fridge."
+        },
+        {
+          "who": "A",
+          "hu": "Jó. Mennyi a lakbér?",
+          "ru": "Сколько стоит аренда?",
+          "en": "Good. How much is the rent?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem sok. Holnap meg tudja nézni?",
+          "ru": "Немного. Завтра вы сможете посмотреть?",
+          "en": "Not much. Can you see it tomorrow?"
+        },
+        {
+          "who": "A",
+          "hu": "Persze. Mikor?",
+          "ru": "Конечно. Когда можно посмотреть?",
+          "en": "Sure. When can I see it?"
+        },
+        {
+          "who": "B",
+          "hu": "Délután hat órakor jó?",
+          "ru": "В шесть часов вечера подойдёт?",
+          "en": "Is six in the afternoon okay?"
+        },
+        {
+          "who": "A",
+          "hu": "Rendben. Köszönöm, viszlát!",
+          "ru": "Хорошо. Спасибо, до свидания!",
+          "en": "All right. Thank you, bye!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "nappali-konyha",
+      "title": {
+        "ru": "Показываем квартиру",
+        "en": "Showing the flat"
+      },
+      "scene": {
+        "ru": "Друг осматривает новую квартиру.",
+        "en": "A friend looks around the new flat."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Na, ez a nappali.",
+          "ru": "Ну, вот гостиная.",
+          "en": "Well, this is the living room."
+        },
+        {
+          "who": "B",
+          "hu": "Szép! Nagy az ablak.",
+          "ru": "Красиво! Большое окно.",
+          "en": "Nice! The window is big."
+        },
+        {
+          "who": "A",
+          "hu": "És itt a konyha.",
+          "ru": "А здесь кухня.",
+          "en": "And here is the kitchen."
+        },
+        {
+          "who": "B",
+          "hu": "Van hűtő?",
+          "ru": "Холодильник есть?",
+          "en": "Is there a fridge?"
+        },
+        {
+          "who": "A",
+          "hu": "Persze. Mosógép is.",
+          "ru": "Конечно. И стиральная машина тоже.",
+          "en": "Of course. And a washing machine too."
+        },
+        {
+          "who": "B",
+          "hu": "Szuper!",
+          "ru": "Супер!",
+          "en": "Great!"
+        }
+      ]
+    },
+    {
+      "slug": "a-kulcs",
+      "title": {
+        "ru": "Ключ",
+        "en": "The key"
+      },
+      "scene": {
+        "ru": "Хозяин отдаёт ключ новому жильцу.",
+        "en": "The owner hands over the key."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot! Itt a kulcs.",
+          "ru": "Добрый день! Вот ключ.",
+          "en": "Good day! Here is the key."
+        },
+        {
+          "who": "B",
+          "hu": "Köszönöm. Csak egy van?",
+          "ru": "Спасибо. Только один?",
+          "en": "Thank you. Only one?"
+        },
+        {
+          "who": "A",
+          "hu": "Nem, kettő. Tessék.",
+          "ru": "Нет, два. Пожалуйста.",
+          "en": "No, two. Here you are."
+        },
+        {
+          "who": "B",
+          "hu": "Aha. Rendben, köszönöm.",
+          "ru": "Ага. Хорошо, спасибо.",
+          "en": "I see. All right, thanks."
+        }
+      ]
+    },
+    {
+      "slug": "a-csap",
+      "title": {
+        "ru": "Течёт кран",
+        "en": "The tap leaks"
+      },
+      "scene": {
+        "ru": "Звонок хозяину: сломался кран.",
+        "en": "A call to the landlord: the tap is broken."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Halló! Elromlott a csap.",
+          "ru": "Алло! Сломался кран.",
+          "en": "Hello! The tap has broken."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj! Mi a baj vele?",
+          "ru": "Ой! Что с ним?",
+          "en": "Oh! What is wrong with it?"
+        },
+        {
+          "who": "A",
+          "hu": "Folyik a víz.",
+          "ru": "Течёт вода.",
+          "en": "Water is running."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. Holnap javítom.",
+          "ru": "Хорошо. Завтра починю.",
+          "en": "All right. I'll fix it tomorrow."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm. Viszlát!",
+          "ru": "Спасибо. До свидания!",
+          "en": "Thank you. Bye!"
+        }
+      ]
+    },
+    {
+      "slug": "a-lift",
+      "title": {
+        "ru": "Лифт",
+        "en": "The lift"
+      },
+      "scene": {
+        "ru": "Соседи у лифта.",
+        "en": "Neighbours by the lift."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jaj, a lift megint nem megy.",
+          "ru": "Ой, лифт опять не работает.",
+          "en": "Oh, the lift is not working again."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, de rossz! Hányadikra mész?",
+          "ru": "Ой, как неприятно! Тебе на какой?",
+          "en": "Oh, what a pain! Which floor are you going to?"
+        },
+        {
+          "who": "A",
+          "hu": "A harmadikra.",
+          "ru": "На третий.",
+          "en": "To the third."
+        },
+        {
+          "who": "B",
+          "hu": "Hát, segítek. Add ide!",
+          "ru": "Ну, помогу. Давай сюда!",
+          "en": "Well, I'll help. Give it here!"
+        },
+        {
+          "who": "A",
+          "hu": "Köszi, nagyon kedves.",
+          "ru": "Спасибо, очень мило.",
+          "en": "Thanks, very kind."
+        }
+      ]
+    },
+    {
+      "slug": "uj-szomszed",
+      "title": {
+        "ru": "Новый сосед",
+        "en": "The new neighbour"
+      },
+      "scene": {
+        "ru": "На лестнице знакомятся соседи.",
+        "en": "Neighbours meet on the stairs."
+      },
+      "names": [
+        "Márk",
+        "Éva"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia! Te vagy az új szomszéd?",
+          "ru": "Привет! Ты новый сосед?",
+          "en": "Hi! Are you the new neighbour?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen. Márk vagyok.",
+          "ru": "Да. Я Марк.",
+          "en": "Yes. I'm Márk."
+        },
+        {
+          "who": "A",
+          "hu": "Éva. Én ott lakom.",
+          "ru": "Ева. Я живу вон там.",
+          "en": "Éva. I live over there."
+        },
+        {
+          "who": "B",
+          "hu": "Örülök! Most költözöm.",
+          "ru": "Приятно! Я как раз переезжаю.",
+          "en": "Nice to meet you! I'm just moving in."
+        },
+        {
+          "who": "A",
+          "hu": "Ha kell valami, szólj.",
+          "ru": "Если что-то нужно, скажи.",
+          "en": "If you need anything, say so."
+        },
+        {
+          "who": "B",
+          "hu": "Köszi, jó tudni.",
+          "ru": "Спасибо, хорошо знать.",
+          "en": "Thanks, good to know."
+        }
+      ]
+    },
+    {
+      "slug": "dobozok",
+      "title": {
+        "ru": "Коробки",
+        "en": "The boxes"
+      },
+      "scene": {
+        "ru": "Друг помогает носить коробки.",
+        "en": "A friend helps carry boxes."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jaj, ez nagyon nehéz!",
+          "ru": "Ой, это очень тяжёлое!",
+          "en": "Oh, this is very heavy!"
+        },
+        {
+          "who": "B",
+          "hu": "Add ide. Hova vigyem?",
+          "ru": "Давай сюда. Куда нести?",
+          "en": "Give it here. Where shall I take it?"
+        },
+        {
+          "who": "A",
+          "hu": "A hálószobába.",
+          "ru": "В спальню.",
+          "en": "To the bedroom."
+        },
+        {
+          "who": "B",
+          "hu": "Oké. És az asztal?",
+          "ru": "Окей. А стол?",
+          "en": "Okay. And the table?"
+        },
+        {
+          "who": "A",
+          "hu": "Az majd holnap.",
+          "ru": "Это уже завтра.",
+          "en": "That's for tomorrow."
+        }
+      ]
+    }
+  ]
+}

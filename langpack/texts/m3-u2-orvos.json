@@ -1,0 +1,482 @@
+{
+  "short": {
+    "genre": "sms",
+    "checked": "ai",
+    "title": {
+      "ru": "SMS врачу",
+      "en": "A text to the doctor"
+    },
+    "names": [
+      "Anna",
+      "Szabó"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Jó napot, doktor úr! Anna vagyok, a páciense.",
+          "ru": "Добрый день, доктор! Это Анна, ваша пациентка.",
+          "en": "Good day, doctor! This is Anna, your patient."
+        },
+        {
+          "hu": "Ön a háziorvosom, ezért írok.",
+          "ru": "Вы мой участковый врач, поэтому я пишу.",
+          "en": "You are my family doctor, that is why I am writing."
+        },
+        {
+          "hu": "Tegnap óta beteg vagyok.",
+          "ru": "Со вчерашнего дня я больна.",
+          "en": "Since yesterday I have been ill."
+        },
+        {
+          "hu": "Fáj a torkom, és köhögök.",
+          "ru": "Болит горло, и я кашляю.",
+          "en": "My throat hurts, and I cough."
+        },
+        {
+          "hu": "Nátha is van, és a fejem is fáj.",
+          "ru": "Ещё насморк, и голова болит.",
+          "en": "I have a cold too, and my head hurts as well."
+        },
+        {
+          "hu": "Ma már láz is van, és nagy a fejfájás.",
+          "ru": "Сегодня уже и температура, и сильная головная боль.",
+          "en": "Today I have a fever too, and the headache is bad."
+        }
+      ],
+      [
+        {
+          "hu": "Sok páciens van ma a rendelőben?",
+          "ru": "Сегодня в кабинете много пациентов?",
+          "en": "Are there many patients at the surgery today?"
+        },
+        {
+          "hu": "Mikor van rendelés?",
+          "ru": "Когда приём?",
+          "en": "When are the consulting hours?"
+        },
+        {
+          "hu": "Nem sürgős, de nem alszom jól.",
+          "ru": "Не срочно, но я плохо сплю.",
+          "en": "It is not urgent, but I do not sleep well."
+        },
+        {
+          "hu": "Köszönöm, Szabó Anna.",
+          "ru": "Спасибо, Анна Сабо.",
+          "en": "Thank you, Anna Szabó."
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "У участкового врача",
+      "en": "At the family doctor"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Jó napot, doktor úr! Beteg vagyok, fáj a hasam.",
+          "ru": "Добрый день, доктор! Я болен, у меня болит живот.",
+          "en": "Good day, doctor! I am ill, my belly hurts."
+        },
+        {
+          "hu": "Jó napot! Mióta fáj, és hol?",
+          "ru": "Добрый день! С каких пор болит и где?",
+          "en": "Good day! Since when does it hurt, and where?"
+        },
+        {
+          "hu": "Tegnap óta. A fájdalom a hasamban van.",
+          "ru": "Со вчерашнего дня. Боль у меня в животе.",
+          "en": "Since yesterday. The pain is in my belly."
+        },
+        {
+          "hu": "A gyomrom is fáj, és hányinger is van.",
+          "ru": "Желудок тоже болит, и ещё тошнота.",
+          "en": "My stomach hurts too, and there is nausea as well."
+        },
+        {
+          "hu": "Van láza? Szédül?",
+          "ru": "Есть температура? Голова кружится?",
+          "en": "Do you have a fever? Are you dizzy?"
+        },
+        {
+          "hu": "Láz nincs, de szédülök, és fáj a fejem.",
+          "ru": "Температуры нет, но голова кружится и болит.",
+          "en": "No fever, but I feel dizzy, and my head hurts."
+        },
+        {
+          "hu": "Mióta van fejfájása?",
+          "ru": "С каких пор у вас головная боль?",
+          "en": "Since when have you had a headache?"
+        },
+        {
+          "hu": "Két napja. Hétfő óta nem alszom jól.",
+          "ru": "Два дня. С понедельника я плохо сплю.",
+          "en": "Two days. Since Monday I have not slept well."
+        },
+        {
+          "hu": "Vizsgálom a hasát, és mérem a vérnyomását.",
+          "ru": "Осматриваю ваш живот и меряю давление.",
+          "en": "I examine your belly and measure your blood pressure."
+        },
+        {
+          "hu": "Itt fáj? És itt?",
+          "ru": "Здесь болит? А здесь?",
+          "en": "Does it hurt here? And here?"
+        },
+        {
+          "hu": "Igen, itt nagy a fájdalom. A hányinger reggel a legrosszabb.",
+          "ru": "Да, здесь сильная боль. Тошнота хуже всего по утрам.",
+          "en": "Yes, here the pain is bad. The nausea is worst in the morning."
+        },
+        {
+          "hu": "Allergiás valamire? Szed gyógyszert?",
+          "ru": "Есть аллергия? Принимаете лекарства?",
+          "en": "Are you allergic to anything? Do you take any medicine?"
+        },
+        {
+          "hu": "Nem vagyok allergiás, és nem szedek gyógyszert.",
+          "ru": "У меня нет аллергии, и лекарств я не принимаю.",
+          "en": "I am not allergic, and I do not take any medicine."
+        },
+        {
+          "hu": "Nem veszélyes, ez csak egy kis baj.",
+          "ru": "Это не опасно, это просто небольшая болезнь.",
+          "en": "It is not dangerous, it is only a small trouble."
+        },
+        {
+          "hu": "A vizsgálat után írok receptet. Kap tablettát és cseppet.",
+          "ru": "После осмотра выпишу рецепт. Получите таблетки и капли.",
+          "en": "After the examination I write a prescription. You get tablets and drops."
+        },
+        {
+          "hu": "A receptet a gyógyszertárban váltom ki?",
+          "ru": "Рецепт я получу в аптеке?",
+          "en": "Do I get it at the pharmacy with the prescription?"
+        },
+        {
+          "hu": "Igen. A gyógyszertár ma is nyitva van.",
+          "ru": "Да. Аптека сегодня тоже открыта.",
+          "en": "Yes. The pharmacy is open today too."
+        },
+        {
+          "hu": "A tablettát reggel és este kell szedni.",
+          "ru": "Таблетку нужно принимать утром и вечером.",
+          "en": "The tablet has to be taken in the morning and in the evening."
+        },
+        {
+          "hu": "A kezelés három nap. Pihenni kell, és sokat inni.",
+          "ru": "Лечение три дня. Нужно отдыхать и много пить.",
+          "en": "The treatment is three days. You need to rest and drink a lot."
+        },
+        {
+          "hu": "Mikor leszek egészséges?",
+          "ru": "Когда я буду здоров?",
+          "en": "When will I be healthy?"
+        },
+        {
+          "hu": "Három nap múlva. Ha sürgős, hívja a mentőt.",
+          "ru": "Через три дня. Если срочно, вызывайте скорую.",
+          "en": "In three days. If it is urgent, call the ambulance."
+        },
+        {
+          "hu": "Köszönöm. Remélem, gyorsan jobban leszek.",
+          "ru": "Спасибо. Надеюсь, мне скоро станет лучше.",
+          "en": "Thank you. I hope I get better soon."
+        },
+        {
+          "hu": "Úgy lesz. Jó egészséget!",
+          "ru": "Так и будет. Здоровья вам!",
+          "en": "It will be so. Good health to you!"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "myday",
+    "checked": "ai",
+    "title": {
+      "ru": "Мой день: участковый врач",
+      "en": "My day: a family doctor"
+    },
+    "names": [
+      "Péter",
+      "Nagy",
+      "Éva",
+      "Laci",
+      "Kovács"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Nagy Péter vagyok, háziorvos.",
+          "ru": "Я Петер Надь, участковый врач.",
+          "en": "I am Péter Nagy, a family doctor."
+        },
+        {
+          "hu": "Reggel hétkor már a rendelőben vagyok.",
+          "ru": "В семь утра я уже в кабинете.",
+          "en": "At seven in the morning I am already at the surgery."
+        },
+        {
+          "hu": "A rendelés nyolckor van.",
+          "ru": "Приём в восемь.",
+          "en": "Consulting hours are at eight."
+        },
+        {
+          "hu": "Már tíz páciens vár a rendelőben.",
+          "ru": "В кабинете уже ждут десять пациентов.",
+          "en": "Ten patients are already waiting at the surgery."
+        },
+        {
+          "hu": "Mindenkinek sürgős, de a betegek várnak.",
+          "ru": "Всем срочно, но больные ждут.",
+          "en": "It is urgent for everyone, but the patients wait."
+        },
+        {
+          "hu": "Az egészség mindenkinek fontos.",
+          "ru": "Здоровье важно для всех.",
+          "en": "Health matters to everyone."
+        }
+      ],
+      [
+        {
+          "hu": "Az első beteg Éva néni.",
+          "ru": "Первая больная тётя Эва.",
+          "en": "The first patient is Éva néni."
+        },
+        {
+          "hu": "A hátam és a lábam is fáj, mondja.",
+          "ru": "У меня болят и спина, и нога, говорит она.",
+          "en": "My back and my leg hurt, she says."
+        },
+        {
+          "hu": "Éva néni mutatja, hol fáj a háta.",
+          "ru": "Тётя Эва показывает, где у неё болит спина.",
+          "en": "Éva néni shows where her back hurts."
+        },
+        {
+          "hu": "Szed gyógyszert? Egy tablettát, mondja.",
+          "ru": "Принимаете лекарства? Одну таблетку, говорит она.",
+          "en": "Do you take any medicine? One tablet, she says."
+        },
+        {
+          "hu": "Mióta fáj, és nagy a fájdalom?",
+          "ru": "С каких пор болит, и сильная ли боль?",
+          "en": "Since when does it hurt, and is the pain bad?"
+        },
+        {
+          "hu": "Vizsgálom a hátát, és mérem a vérnyomását.",
+          "ru": "Осматриваю спину и меряю давление.",
+          "en": "I examine her back and measure her blood pressure."
+        },
+        {
+          "hu": "A vizsgálat nem hosszú.",
+          "ru": "Осмотр недолгий.",
+          "en": "The examination is not long."
+        },
+        {
+          "hu": "A vérnyomás magas, de nincs nagy baj.",
+          "ru": "Давление высокое, но ничего страшного.",
+          "en": "The blood pressure is high, but nothing serious."
+        },
+        {
+          "hu": "Írok receptet, és kenőcsöt is kap.",
+          "ru": "Выписываю рецепт, и она получает ещё мазь.",
+          "en": "I write a prescription, and she gets an ointment too."
+        },
+        {
+          "hu": "A kenőcsöt este használja.",
+          "ru": "Мазь она использует вечером.",
+          "en": "She uses the ointment in the evening."
+        },
+        {
+          "hu": "A gyógyszertárban minden van.",
+          "ru": "В аптеке есть всё.",
+          "en": "At the pharmacy there is everything."
+        }
+      ],
+      [
+        {
+          "hu": "Aztán a kis Laci jön, és az apja is.",
+          "ru": "Потом приходит маленький Лаци, и его отец тоже.",
+          "en": "Then little Laci comes, and his father too."
+        },
+        {
+          "hu": "Laci keze nagyon fáj, és nagy seb van rajta.",
+          "ru": "У Лаци очень болит рука, и на ней большая рана.",
+          "en": "Laci's hand hurts a lot, and there is a big wound on it."
+        },
+        {
+          "hu": "A lába is fáj, nem tud állni.",
+          "ru": "Нога тоже болит, он не может стоять.",
+          "en": "His leg hurts too, he cannot stand."
+        },
+        {
+          "hu": "Ez nem kis seb, ez komoly sérülés.",
+          "ru": "Это не царапина, это серьёзная травма.",
+          "en": "This is not a scratch, it is a serious injury."
+        },
+        {
+          "hu": "A sebre kenőcs kell, és injekció.",
+          "ru": "На рану нужны мазь и укол.",
+          "en": "The wound needs ointment, and an injection."
+        },
+        {
+          "hu": "Laci fél az injekciótól, de az injekció nem fáj sokáig.",
+          "ru": "Лаци боится укола, но укол недолго болит.",
+          "en": "Laci is afraid of the injection, but the injection does not hurt for long."
+        },
+        {
+          "hu": "A seb nagy, és a fertőzés rossz.",
+          "ru": "Рана большая, а инфекция — это плохо.",
+          "en": "The wound is big, and an infection is bad."
+        },
+        {
+          "hu": "Éjjel nem alszik jól, mondja az apja.",
+          "ru": "Ночью он плохо спит, говорит отец.",
+          "en": "He does not sleep well at night, says his father."
+        },
+        {
+          "hu": "A fájdalom nagy, ezért a kezelés sürgős.",
+          "ru": "Боль сильная, поэтому лечение срочное.",
+          "en": "The pain is bad, so the treatment is urgent."
+        },
+        {
+          "hu": "A láb nagyon fáj, ezért röntgen kell.",
+          "ru": "Нога очень болит, поэтому нужен рентген.",
+          "en": "The leg hurts a lot, so an X-ray is needed."
+        },
+        {
+          "hu": "Hívom a mentőt, és a mentő a kórházba viszi.",
+          "ru": "Вызываю скорую, и она везёт его в больницу.",
+          "en": "I call the ambulance, and the ambulance takes him to the hospital."
+        },
+        {
+          "hu": "A kórházban röntgen és vizsgálat vár rá.",
+          "ru": "В больнице его ждут рентген и осмотр.",
+          "en": "At the hospital an X-ray and an examination await him."
+        }
+      ],
+      [
+        {
+          "hu": "Aztán Kovács úr jön.",
+          "ru": "Потом приходит господин Ковач.",
+          "en": "Then Mr Kovács comes."
+        },
+        {
+          "hu": "Szédül, és fáj a szíve, mondja.",
+          "ru": "У него кружится голова и болит сердце, говорит он.",
+          "en": "He feels dizzy and his heart hurts, he says."
+        },
+        {
+          "hu": "Erős a fejfájása is.",
+          "ru": "И сильно болит голова.",
+          "en": "He has a bad headache too."
+        },
+        {
+          "hu": "Ez sürgős, a szív nem vár.",
+          "ru": "Это срочно, сердце ждать не может.",
+          "en": "This is urgent, the heart does not wait."
+        },
+        {
+          "hu": "A szívet a szakorvos vizsgálja meg.",
+          "ru": "Сердце осмотрит специалист.",
+          "en": "The specialist will examine the heart."
+        },
+        {
+          "hu": "Vért veszek, és a szakorvos a kórházban vizsgálja a szívét.",
+          "ru": "Беру кровь, а врач-специалист в больнице осмотрит сердце.",
+          "en": "I take blood, and the specialist at the hospital examines his heart."
+        },
+        {
+          "hu": "Röntgen is kell, mondom.",
+          "ru": "Нужен и рентген, говорю я.",
+          "en": "An X-ray is needed too, I say."
+        },
+        {
+          "hu": "A kezelés nem könnyű, de Kovács úr gyógyul.",
+          "ru": "Лечение нелёгкое, но господин Ковач выздоравливает.",
+          "en": "The treatment is not easy, but Mr Kovács is getting better."
+        }
+      ],
+      [
+        {
+          "hu": "Délben egy lány jön, és fáj a foga.",
+          "ru": "В полдень приходит девушка, и у неё болит зуб.",
+          "en": "At noon a girl comes, and her tooth hurts."
+        },
+        {
+          "hu": "A fog nagyon fáj, mondja a lány.",
+          "ru": "Зуб очень болит, говорит девушка.",
+          "en": "The tooth hurts a lot, says the girl."
+        },
+        {
+          "hu": "Neki nem a háziorvoshoz kell menni, hanem a fogorvoshoz.",
+          "ru": "Ей нужно не к участковому врачу, а к зубному.",
+          "en": "She should go not to the family doctor but to the dentist."
+        },
+        {
+          "hu": "A fogorvos a másik rendelőben van.",
+          "ru": "Зубной врач в другом кабинете.",
+          "en": "The dentist is in the other surgery."
+        },
+        {
+          "hu": "Egy fiú is jön, mert köhög és beteg.",
+          "ru": "Потом приходит мальчик, он кашляет и болеет.",
+          "en": "Then a boy comes, he coughs and is ill."
+        },
+        {
+          "hu": "Ez csak nátha, nem fertőzés.",
+          "ru": "Это просто насморк, а не инфекция.",
+          "en": "This is just a cold, not an infection."
+        },
+        {
+          "hu": "Allergiás valamire? Nem, mondja.",
+          "ru": "Есть аллергия? Нет, говорит он.",
+          "en": "Allergic to anything? No, he says."
+        },
+        {
+          "hu": "Sokat kell pihenni, és tablettát szedni.",
+          "ru": "Нужно много отдыхать и принимать таблетки.",
+          "en": "He needs to rest a lot and take tablets."
+        }
+      ],
+      [
+        {
+          "hu": "Két órakor vége a rendelésnek.",
+          "ru": "В два часа приём заканчивается.",
+          "en": "At two o'clock the consulting hours end."
+        },
+        {
+          "hu": "Fáradt vagyok, de szeretem a munkát.",
+          "ru": "Я устал, но люблю свою работу.",
+          "en": "I am tired, but I love my work."
+        },
+        {
+          "hu": "A betegek gyógyulnak, és ez a legjobb.",
+          "ru": "Больные выздоравливают, и это лучше всего.",
+          "en": "The patients get better, and that is the best part."
+        },
+        {
+          "hu": "Én is beteg leszek, ha sokat dolgozom.",
+          "ru": "Я тоже заболею, если буду много работать.",
+          "en": "I will get ill too if I work a lot."
+        },
+        {
+          "hu": "Holnap én is fogorvoshoz megyek, mert fáj a fogam.",
+          "ru": "Завтра и я иду к зубному, потому что болит зуб.",
+          "en": "Tomorrow I go to the dentist too, because my tooth hurts."
+        },
+        {
+          "hu": "Most én is pihenek, mert az egészség nekem is fontos.",
+          "ru": "Теперь отдыхаю и я, ведь здоровье и мне важно.",
+          "en": "Now I rest too, because health matters to me as well."
+        }
+      ]
+    ]
+  }
+}

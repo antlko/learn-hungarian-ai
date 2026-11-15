@@ -385,30 +385,44 @@ stayed invisible. See [ADR-025](../.claude/DECISIONS.md#adr-025).
 
 ### `GET /api/library/sets` · `GET /api/library/sets/:code` · `POST /api/library/sets/:code/import`
 
-Ready-made reading sets, «Рассказ» and «Диалог» ([ADR-074](../.claude/DECISIONS.md#adr-074), [ADR-066](../.claude/DECISIONS.md#adr-066); the Tatoeba «Фразы» of ADR-056 are gone). Signed-in.
+Ready-made reading texts, read from the **catalogue embedded in the binary** (`internal/readsets`,
+one committed `catalog.json`; [ADR-076](../.claude/DECISIONS.md#adr-076)) — never from the language
+pack, which carries none and is never written. A new binary is the whole update path for the full and
+the starter edition. A malformed embedded catalogue stops boot. Signed-in.
 
-`GET` → a bare array (never `null`), core units first by order, then themes:
-`[{code, level, track, title, titleRu, titleEn, theme, sentences, authored, imported, textId?}]`.
-`track` is `core`, `theme` or `dialogue`; each unit's `dialogue` set sorts right before its
-story (title «Рассказ: …», code = the bare unit code, `track` `core`/`theme`). `authored: true` (every set,
-stories and dialogues alike) = written by an AI, not checked by a native speaker (always labelled).
-`title`/`theme` follow `?lang=ru|en`, else the configured UI locale; `textId` is present only when
-`imported`. A pack without the tables answers `200 []` — not an error.
+`GET` → a bare array (never `null`) in catalogue order (core units first, themes last):
+`[{code, unit, level, track, register, title, titleRu, titleEn, theme, sentences, authored, tier?, genre?, words?, checked?, imported, textId?}]`.
+
+```jsonc
+{ "code": "m1-u1-dialogue", "unit": "m1-u1-koszones", "level": "A1", "track": "core",
+  "register": "standard", "title": "Диалог: Привет", "titleRu": "Диалог: Привет",
+  "titleEn": "Dialogue: Hello", "theme": "знакомство", "sentences": 8, "authored": true,
+  "tier": "short", "genre": "dialogue", "words": 41, "checked": "ai", "imported": false }
+```
+
+`unit` is the unit (or theme) code; texts of one unit share it. `tier` is `short` | `medium` | `long`
+(codes `<unit>-dialogue`, `<unit>`, `<unit>-long`) or the colloquial `talk` (`<unit>-talk`, one per unit; genre `dialogue`|`phone`|`chat`|`voicemsg`) | `mini` (`<unit>-talk-<slug>`, 5–10 per unit, genre `dialogue`).
+`register` is `standard` or `colloquial`. `sentences` = number of lines. `authored: true` (always) =
+written by an AI, not checked by a native speaker (always labelled). `genre` is the genre id (`sms`,
+`dialogue`, `story`, …), `words` the word count, `checked` who vetted it (`ai` until a human does).
+`scene` (minis only, optional) is the one-line situation, shown in the UI and never imported; `scene` follows the same locale as `title`; `sceneRu`/`sceneEn` are always sent so the client picks like `titleRu`/`titleEn`. The register filter is client-side: `register` is the only field it reads (absent = `standard`). A text imports as a script (one turn per line, «– ») for tier `mini` or genre `dialogue`/`phone`/`chat`; `voicemsg` and the rest import as prose. `title`/`theme` follow `?lang=ru|en`, else the configured UI locale; `textId` is present only when `imported`.
 
 `GET …/:code` (preview, nothing is imported) →
-`{code, level, track, title, titleRu, titleEn, theme, authored, sentences: [{hu, ru?, en?}]}`, the
-lines in set order with the pack's own translations (either may be absent; the client picks by the
-gloss language and labels a fallback). `404` unknown code or a pack without the tables.
+`{code, unit, level, track, register, title, titleRu, titleEn, theme, scene?, sceneRu?, sceneEn?, authored, tier?, genre?, words?, checked?, sentences: [{hu, ru?, en?, who?}]}`,
+the lines in order with the catalogue's own translations (either may be absent; the client picks by the
+gloss language and labels a fallback). `ETag` = catalogue content hash + language; `If-None-Match` → `304`.
+`404` unknown code.
 
-`POST …/import` → `{textId, created}`. Builds the text from the set's pack sentences, one per
-paragraph (a blank line always ends a sentence; a dialogue: one turn per line, opened by «– »,
-`kind: generated`), and stores it through the same ingestion path as
-`POST /api/texts` (`kind: paste`, title = the set title in the UI locale, `source_url = "set:<code>"`
-— a marker, not a link). `201 created:true` the first time; `200 created:false` with the existing
-`textId` thereafter (per learner; deleting the text allows a fresh import). `404` unknown code,
-`503 errors.packMissing` when the pack has no sets table. It creates **no** note, card or state:
-mining words stays the learner's act in the reader. The pack's Russian translation is not stored
-with the text — the text model has no per-sentence translation slot.
+`POST …/import` → `{textId, created}`. Builds the text from the set's lines — a dialogue-form set
+(`genre: dialogue` or `tier: mini`): one turn per line opened by «– »; any other: sentences of a paragraph
+joined by a space, paragraphs by a blank line (which always ends a sentence) — and stores it through the
+same ingestion path as `POST /api/texts` (`kind: generated`, title = the set title in the UI locale,
+`source_url = "set:<code>"` — a marker, not a link). The pack is needed only for the morphology
+analyser (`503 errors.packMissing` without one). `201 created:true` the first time; `200 created:false`
+with the existing `textId` thereafter (per learner; deleting the text allows a fresh import). `404` unknown
+code. It creates **no** note, card or state: mining words stays the learner's act in the reader.
+At boot a background sync replaces, in place (id, read date and mined-word links kept), every
+`set:<code>` copy whose title or body differs from the catalogue; an unknown code is left untouched.
 
 ### `GET/PUT/DELETE /api/glosses/:form`
 

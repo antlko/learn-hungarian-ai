@@ -1,0 +1,489 @@
+{
+ "short": {
+  "genre": "note",
+  "checked": "ai",
+  "title": {
+   "ru": "Записка соседке",
+   "en": "A note to a neighbour"
+  },
+  "names": [
+   "Éva",
+   "Gábor"
+  ],
+  "paras": [
+   [
+    {
+     "hu": "Kedves Éva!",
+     "ru": "Дорогая Эва!",
+     "en": "Dear Éva!"
+    },
+    {
+     "hu": "Nem voltál otthon, úgyhogy a csomag nálam van.",
+     "ru": "Тебя не было дома, так что посылка у меня.",
+     "en": "You were not at home, so the parcel is with me."
+    },
+    {
+     "hu": "Szóval gyere át, amint tudsz, vagy írj nekem.",
+     "ru": "Так что заходи, как только сможешь, или напиши мне.",
+     "en": "So come over as soon as you can, or write to me."
+    },
+    {
+     "hu": "A csomag nem nehéz, de elég nagy, nem fér el nálam.",
+     "ru": "Посылка нетяжёлая, но большая, у меня ей нет места.",
+     "en": "The parcel is not heavy, but quite big, it does not fit at my place."
+    },
+    {
+     "hu": "Egyébként nézd, a lift megint rossz, ráadásul a kapu is.",
+     "ru": "Кстати, смотри, лифт опять сломан, и ворота вдобавок.",
+     "en": "By the way, look, the lift is broken again, and the gate too."
+    }
+   ],
+   [
+    {
+     "hu": "Állítólag holnap jön a szerelő, de ki tudja.",
+     "ru": "Говорят, завтра придёт мастер, но кто знает.",
+     "en": "Supposedly the repairman comes tomorrow, but who knows."
+    },
+    {
+     "hu": "Valószínűleg délután, legalábbis ezt mondták.",
+     "ru": "Вероятно, после обеда, по крайней мере так сказали.",
+     "en": "Probably in the afternoon, at least that is what they said."
+    },
+    {
+     "hu": "Mindenesetre én itthon vagyok, mivel ma nem dolgozom.",
+     "ru": "Во всяком случае, я дома, так как сегодня не работаю.",
+     "en": "Anyway, I am at home, since I am not working today."
+    },
+    {
+     "hu": "Különösen este vigyázz, ugyanis nincs lámpa a lépcsőn.",
+     "ru": "Особенно вечером будь осторожна, ведь на лестнице нет света.",
+     "en": "Be careful especially in the evening, since there is no light on the stairs."
+    },
+    {
+     "hu": "Tehát várlak, hátha ma még van időd, vagy legalábbis írsz.",
+     "ru": "Так что жду тебя, а вдруг сегодня ещё будет время, или хотя бы напиши.",
+     "en": "So I will wait for you, maybe you will still have time today, or at least write."
+    },
+    {
+     "hu": "Hiszen te is tudod, hogy általában otthon vagyok.",
+     "ru": "Ведь ты и сама знаешь, что я обычно дома.",
+     "en": "After all, you know I am usually at home."
+    },
+    {
+     "hu": "Ha nem tudsz jönni, akkor mindjárt hozom a csomagot.",
+     "ru": "Если не сможешь прийти, я сейчас сам принесу посылку.",
+     "en": "If you cannot come, I will bring the parcel right away."
+    },
+    {
+     "hu": "Gábor",
+     "ru": "Габор",
+     "en": "Gábor"
+    }
+   ]
+  ]
+ },
+ "medium": {
+  "genre": "dialogue",
+  "checked": "ai",
+  "title": {
+   "ru": "Лифт опять сломан",
+   "en": "The lift is broken again"
+  },
+  "names": [
+   "Gábor"
+  ],
+  "paras": [
+   [
+    {
+     "hu": "Szia, Gábor! Képzeld, megint rossz a lift, és nem tudom, mi történt.",
+     "ru": "Привет, Габор! Представь, лифт опять сломан, и я не знаю, что случилось.",
+     "en": "Hi, Gábor! Guess what, the lift is broken again, and I do not know what happened."
+    },
+    {
+     "hu": "Tényleg? Én ezt nem is tudtam, mivel reggel korán mentem el.",
+     "ru": "Правда? Я даже не знал, так как рано утром ушёл.",
+     "en": "Really? I did not even know, since I left early in the morning."
+    },
+    {
+     "hu": "Nagyjából tegnap este óta, állítólag a kábel rossz, vagyis egy kis hiba.",
+     "ru": "Примерно со вчерашнего вечера, говорят, плох кабель, то есть мелкая поломка.",
+     "en": "Roughly since last night, supposedly the cable is bad, that is, a small fault."
+    },
+    {
+     "hu": "Igazából szinte mindig van valami baja, tulajdonképpen minden hónapban.",
+     "ru": "Вообще-то с ним почти всегда что-то не так, собственно говоря, каждый месяц.",
+     "en": "Actually there is almost always something wrong with it, strictly speaking every month."
+    },
+    {
+     "hu": "Eleinte én is hívtam őket, de hiába, mert sosem jöttek.",
+     "ru": "Поначалу я тоже им звонил, но напрасно, потому что они не приходили.",
+     "en": "At first I called them too, but in vain, because they never came."
+    },
+    {
+     "hu": "Vajon mikor jön a szerelő? Hátha ma még jön, legalábbis ezt mondták.",
+     "ru": "Интересно, когда придёт мастер? А вдруг ещё сегодня, по крайней мере так сказали.",
+     "en": "I wonder when the repairman comes. Maybe today, at least that is what they said."
+    },
+    {
+     "hu": "Egyelőre csupán egy papír van az ajtón, és ennyi.",
+     "ru": "Пока на двери лишь бумажка, и всё.",
+     "en": "For now there is only a piece of paper on the door, and that is all."
+    },
+    {
+     "hu": "Nézd, ha akarod, akár ketten is megkérdezzük őket, hiszen mi is itt lakunk.",
+     "ru": "Слушай, если хочешь, можем спросить их и вдвоём, ведь мы тоже здесь живём.",
+     "en": "Look, if you like, we can ask them together, after all we live here too."
+    },
+    {
+     "hu": "Jó ötlet. Főleg nekem rossz, mivel magasan lakom, ráadásul a lábam fáj.",
+     "ru": "Хорошая мысль. Особенно мне плохо, поскольку я живу высоко, к тому же болит нога.",
+     "en": "Good idea. It is especially bad for me, since I live high up, and on top of that my leg hurts."
+    },
+    {
+     "hu": "Tulajdonképpen én is így vagyok. Ma kétszer mentem lépcsőn, pedig fáradt vagyok.",
+     "ru": "Собственно, я тоже так. Сегодня дважды шёл по лестнице, хотя я устал.",
+     "en": "Actually I am the same. Today I took the stairs twice, although I am tired."
+    },
+    {
+     "hu": "Egyébként általában te is lifttel jössz, ugye?",
+     "ru": "Кстати, ты обычно тоже ездишь на лифте, да?",
+     "en": "By the way, you usually take the lift too, right?"
+    },
+    {
+     "hu": "Igen, egyszerűen nem szeretem a lépcsőt, főleg este.",
+     "ru": "Да, я просто не люблю лестницу, особенно вечером.",
+     "en": "Yes, I simply do not like the stairs, especially in the evening."
+    },
+    {
+     "hu": "Ráadásul a táska is nehéz, a gyerekeknek különösen.",
+     "ru": "К тому же сумка тяжёлая, особенно для детей.",
+     "en": "On top of that the bag is heavy, especially for the children."
+    },
+    {
+     "hu": "Amúgy mit viszel? Izé, a táskád elég nagy.",
+     "ru": "Кстати, что ты несёшь? Э-э, у тебя довольно большая сумка.",
+     "en": "By the way, what are you carrying? Um, your bag is quite big."
+    },
+    {
+     "hu": "Csak almát, mindössze egy kilót, de az viszont nehéz.",
+     "ru": "Только яблоки, всего килограмм, но они зато тяжёлые.",
+     "en": "Just apples, merely a kilo, but that is heavy all the same."
+    },
+    {
+     "hu": "Különben holnap is gyalog megyünk, vagyis ugyanúgy, mint ma, ha nem jönnek.",
+     "ru": "Иначе завтра тоже пойдём пешком, то есть так же, как сегодня, если они не придут.",
+     "en": "Otherwise tomorrow we will walk again, that is, just like today, if they do not come."
+    },
+    {
+     "hu": "Nézd, a papíron egy telefonszám van.",
+     "ru": "Смотри, на бумаге телефонный номер.",
+     "en": "Look, on the paper there is a phone number."
+    },
+    {
+     "hu": "Valóban? Képzeld, én ezt nem is láttam. Izé, hol a szám?",
+     "ru": "Правда? Представь, я этого даже не видела. Э-э, где номер?",
+     "en": "Really? Guess what, I did not even see it. Um, where is the number?"
+    },
+    {
+     "hu": "Itt lent. Szóval hívjuk őket, úgyhogy add ide a telefont.",
+     "ru": "Вот здесь внизу. Так что позвоним им, давай телефон.",
+     "en": "Down here. So let us call them, give me the phone."
+    },
+    {
+     "hu": "Tessék, mindössze egy perc, csupán a számot kell hívni.",
+     "ru": "Пожалуйста, это всего минута, нужно лишь набрать номер.",
+     "en": "Here you go, it takes merely a minute, you only have to dial the number."
+    },
+    {
+     "hu": "Na jó, hívom őket, különben nem jönnek.",
+     "ru": "Ну ладно, звоню им, иначе не придут.",
+     "en": "All right, I am calling them, otherwise they will not come."
+    },
+    {
+     "hu": "Remek, azt mondták, valószínűleg holnap jön, bár biztosan nem tudják.",
+     "ru": "Отлично, сказали, что вероятно придёт завтра, хотя наверняка не знают.",
+     "en": "Great, they said he probably comes tomorrow, though they do not know for sure."
+    },
+    {
+     "hu": "Vajon a szomszédok is szóltak nekik? Sőt, ugyanúgy szóltak, mégis semmi.",
+     "ru": "Интересно, соседи тоже им говорили? Более того, они говорили так же, и всё равно ничего.",
+     "en": "I wonder whether the neighbours told them too? In fact they told them just the same, and still nothing."
+    },
+    {
+     "hu": "Akkor szólunk nekik is, azért elsősorban az idős szomszéd miatt.",
+     "ru": "Тогда скажем и им, всё же прежде всего из-за пожилого соседа.",
+     "en": "Then we will tell them too, still first of all because of the elderly neighbour."
+    },
+    {
+     "hu": "Jó, különösen neki kell a lift, gyakorlatilag nem tud lépcsőn menni.",
+     "ru": "Хорошо, особенно ему нужен лифт, практически он не может ходить по лестнице.",
+     "en": "Good, he especially needs the lift, practically he cannot use the stairs."
+    },
+    {
+     "hu": "Rendben, akkor amint tudok valamit, írok neked.",
+     "ru": "Хорошо, тогда как только что-то узнаю, напишу тебе.",
+     "en": "All right, then as soon as I know something, I will write to you."
+    }
+   ]
+  ]
+ },
+ "long": {
+  "genre": "diary",
+  "checked": "ai",
+  "title": {
+   "ru": "Дневник: бумаги и очереди",
+   "en": "A diary of papers and queues"
+  },
+  "names": [],
+  "paras": [
+   [
+    {
+     "hu": "Tegnap reggel elmentem a hivatalba, hogy új igazolványt kérjek.",
+     "ru": "Вчера утром я пошла в учреждение, чтобы попросить новое удостоверение.",
+     "en": "Yesterday morning I went to the office to ask for a new ID card."
+    },
+    {
+     "hu": "Eleinte minden jól ment, bár a sor már hosszú volt.",
+     "ru": "Поначалу всё шло хорошо, хотя очередь уже была длинной.",
+     "en": "At first everything went well, although the queue was already long."
+    },
+    {
+     "hu": "Általában ilyenkor csak néhány ember van, de tegnap szinte mindenki ott volt.",
+     "ru": "Обычно в это время людей мало, но вчера там были почти все.",
+     "en": "Usually there are only a few people at this time, but yesterday almost everyone was there."
+    },
+    {
+     "hu": "Valószínűleg a hónap vége miatt, vagyis mindenki az utolsó napra hagyta.",
+     "ru": "Вероятно, из-за конца месяца, то есть все оставили это на последний день.",
+     "en": "Probably because of the end of the month, that is, everyone left it to the last day."
+    },
+    {
+     "hu": "Ezért egy órát vártam, de nem baj, mivel hoztam egy könyvet.",
+     "ru": "Поэтому я ждала час, но ничего, ведь я взяла книгу.",
+     "en": "So I waited an hour, but never mind, since I had brought a book."
+    }
+   ],
+   [
+    {
+     "hu": "Szinte mindenki a képernyőt nézte, vagy egyszerűen csak állt.",
+     "ru": "Почти все смотрели на экран или просто стояли.",
+     "en": "Almost everyone looked at a screen, or simply just stood there."
+    },
+    {
+     "hu": "Végre sorra kerültem, és a hölgy kedvesen nézett rám.",
+     "ru": "Наконец подошла моя очередь, и дама приветливо посмотрела на меня.",
+     "en": "At last it was my turn, and the lady looked at me kindly."
+    },
+    {
+     "hu": "Szóval, mondtam, szeretnék egy új igazolványt kérni.",
+     "ru": "Итак, сказала я, я хотела бы попросить новое удостоверение.",
+     "en": "So, I said, I would like to ask for a new ID card."
+    },
+    {
+     "hu": "Izé, azt hiszem, jó ablaknál vagyok.",
+     "ru": "Э-э, кажется, я у правильного окна.",
+     "en": "Um, I think I am at the right window."
+    },
+    {
+     "hu": "Nézze, mondta a hölgy, ehhez egy másik papír is kell.",
+     "ru": "Послушайте, сказала дама, для этого нужна ещё одна бумага.",
+     "en": "Look, said the lady, you need another paper for this."
+    },
+    {
+     "hu": "Ugyanis az ön neve más volt a régi papíron.",
+     "ru": "Дело в том, что ваше имя в старой бумаге было другим.",
+     "en": "You see, your name was different on the old paper."
+    },
+    {
+     "hu": "Egyszerűen nem volt nálam az a papír.",
+     "ru": "У меня просто не было этой бумаги.",
+     "en": "I simply did not have that paper with me."
+    },
+    {
+     "hu": "Tulajdonképpen azt sem tudtam, hogy kell.",
+     "ru": "Собственно, я даже не знала, что она нужна.",
+     "en": "Actually I did not even know it was needed."
+    },
+    {
+     "hu": "Úgyhogy kedvesen megkérdeztem, mit tegyek.",
+     "ru": "Так что я вежливо спросила, что мне делать.",
+     "en": "So I kindly asked what I should do."
+    },
+    {
+     "hu": "Ezért kérdeztem még egyszer, mert valóban nem értettem.",
+     "ru": "Поэтому я спросила ещё раз, ведь я действительно не поняла.",
+     "en": "So I asked once more, because I really did not understand."
+    },
+    {
+     "hu": "Akkor a hölgy azt mondta, hogy a szabály az szabály, viszont ő is sajnálja.",
+     "ru": "Тогда дама сказала, что правило есть правило, но ей и самой жаль.",
+     "en": "Then the lady said that a rule is a rule, but she is sorry too."
+    },
+    {
+     "hu": "Hátha van egy másik lehetőség, vagy legalábbis egy egyszerűbb mód.",
+     "ru": "А вдруг есть другой вариант, или по крайней мере способ попроще.",
+     "en": "Maybe there is another option, or at least a simpler way."
+    },
+    {
+     "hu": "Nagyjából egy perc múlva azt mondta, holnap talán lehet.",
+     "ru": "Примерно через минуту она сказала, что завтра, возможно, получится.",
+     "en": "After roughly a minute she said it might be possible tomorrow."
+    },
+    {
+     "hu": "Mindössze egy papír hiányzik, csupán a régi, és mindjárt kész.",
+     "ru": "Не хватает всего одной бумаги, лишь старой, и сразу будет готово.",
+     "en": "Only one paper is missing, merely the old one, and it will be done right away."
+    },
+    {
+     "hu": "Egyelőre ma nem lehet, mondta, hiába kérem.",
+     "ru": "Пока сегодня нельзя, сказала она, как ни проси.",
+     "en": "For now it cannot be done today, she said, asking is in vain."
+    }
+   ],
+   [
+    {
+     "hu": "Na, gondoltam, ez nem a világ vége.",
+     "ru": "Ну, подумала я, это не конец света.",
+     "en": "Well, I thought, this is not the end of the world."
+    },
+    {
+     "hu": "Hazafelé találkoztam a szomszéddal, és elmondtam neki, mi történt.",
+     "ru": "По дороге домой я встретила соседа и рассказала ему, что случилось.",
+     "en": "On the way home I ran into the neighbour and told him what had happened."
+    },
+    {
+     "hu": "Ő nevetett, mert állítólag eleinte ő is így járt.",
+     "ru": "Он смеялся, потому что говорят, поначалу и с ним было так же.",
+     "en": "He laughed, because supposedly at first the same happened to him."
+    },
+    {
+     "hu": "Képzeld, mondtam neki, azt sem tudtam, hogy kell egy másik papír.",
+     "ru": "Представь, сказала я ему, я даже не знала, что нужна ещё одна бумага.",
+     "en": "Guess what, I told him, I did not even know another paper was needed."
+    },
+    {
+     "hu": "Hiszen ugyanez volt velem is, mondta, főleg az első évben.",
+     "ru": "Ведь то же было и со мной, сказал он, особенно в первый год.",
+     "en": "After all the same happened to me, he said, especially in the first year."
+    },
+    {
+     "hu": "Nézd, mondta, a hivatalban elsősorban a papír számít, nem az ember.",
+     "ru": "Слушай, сказал он, в учреждении прежде всего важна бумага, а не человек.",
+     "en": "Look, he said, in the office the paper matters first of all, not the person."
+    },
+    {
+     "hu": "A hölgyek bár kedvesek, mégis szigorúak.",
+     "ru": "Дамы хоть и приветливы, всё-таки строги.",
+     "en": "The ladies, though kind, are strict all the same."
+    },
+    {
+     "hu": "Ráadásul a hivatal gyakorlatilag mindig zárva van, amikor kellene.",
+     "ru": "Вдобавок учреждение практически всегда закрыто, когда оно нужно.",
+     "en": "On top of that the office is practically always closed when you need it."
+    },
+    {
+     "hu": "Leginkább türelem kell, különben nem kapsz semmit, mondta.",
+     "ru": "Больше всего нужно терпение, иначе ничего не получишь, сказал он.",
+     "en": "Mostly you need patience, otherwise you get nothing, he said."
+    },
+    {
+     "hu": "Elsősorban a név volt a gond, nem az igazolvány, hanem a papír.",
+     "ru": "Прежде всего проблема была в имени, не в удостоверении, а в бумаге.",
+     "en": "The problem was first of all the name, not the ID card but the paper."
+    },
+    {
+     "hu": "Hiába tervez az ember, mindig van egy papír, ami hiányzik.",
+     "ru": "Сколько ни планируй, всегда не хватает какой-нибудь бумаги.",
+     "en": "However much one plans, there is always a paper that is missing."
+    },
+    {
+     "hu": "Mégis jó, hogy van, aki elmondja, hogyan megy ez.",
+     "ru": "И всё же хорошо, что есть тот, кто объяснит, как это делается.",
+     "en": "Still, it is good that there is someone who explains how this works."
+    },
+    {
+     "hu": "Én ugyanúgy dühös voltam, sőt egy kicsit szomorú is.",
+     "ru": "Я была так же зла, более того, немного грустна.",
+     "en": "I was just as angry, in fact a little sad too."
+    },
+    {
+     "hu": "Ugyanakkor tudtam, hogy igaza van, és ugyanakkor hálás voltam.",
+     "ru": "В то же время я знала, что он прав, и была благодарна.",
+     "en": "At the same time I knew he was right, and I was grateful too."
+    },
+    {
+     "hu": "Nem a hölgy hibás, hanem a papír, tehát nem érdemes dühösnek lenni.",
+     "ru": "Виновата не дама, а бумага, так что сердиться не стоит.",
+     "en": "It is not the lady's fault but the paper's, so there is no point in being angry."
+    }
+   ],
+   [
+    {
+     "hu": "Ma reggel megtaláltam a papírt, és valóban ott volt a szekrényben.",
+     "ru": "Сегодня утром я нашла бумагу, и она действительно лежала в шкафу.",
+     "en": "This morning I looked for the paper, and indeed it was in the cupboard."
+    },
+    {
+     "hu": "Azért ez nem nagy baj, ezért nem vagyok dühös.",
+     "ru": "Всё же это не большая беда, поэтому я не злюсь.",
+     "en": "Still this is no great trouble, so I am not angry."
+    },
+    {
+     "hu": "Tehát ma reggel mindent ellenőriztem, nagyjából húsz perc alatt.",
+     "ru": "Итак, сегодня утром я всё проверила, примерно за двадцать минут.",
+     "en": "So this morning I checked everything, in roughly twenty minutes."
+    },
+    {
+     "hu": "Pedig tegnap este úgy hittem, hogy minden rendben van.",
+     "ru": "А ведь вчера вечером я думала, что всё в порядке.",
+     "en": "Yet last night I thought everything was fine."
+    },
+    {
+     "hu": "Vajon most már minden jó lesz? Biztosan, mert mindent viszek.",
+     "ru": "Интересно, теперь всё будет хорошо? Наверняка, ведь я беру всё.",
+     "en": "I wonder, will everything be fine now? Surely, because I am taking everything."
+    },
+    {
+     "hu": "Például a régi igazolványt, a másolatot és egy fényképet.",
+     "ru": "Например, старое удостоверение, копию и фотографию.",
+     "en": "For example the old ID, the copy and a photo."
+    },
+    {
+     "hu": "Főleg a fénykép fontos, különösen, ha nem a mai.",
+     "ru": "Особенно важна фотография, в частности если она не сегодняшняя.",
+     "en": "The photo especially matters, particularly if it is not today's."
+    },
+    {
+     "hu": "Akár három órát is várok, mert nem akarok újra jönni.",
+     "ru": "Я готова ждать хоть три часа, потому что не хочу приходить снова.",
+     "en": "I will wait even three hours, because I do not want to come again."
+    },
+    {
+     "hu": "Mindenesetre amint megvan a papír, mindjárt indulok.",
+     "ru": "Во всяком случае, как только бумага найдена, я сразу выхожу.",
+     "en": "In any case, as soon as I have the paper, I set off right away."
+    },
+    {
+     "hu": "Egyelőre csak az izgat, hogy nyitva lesz-e, hátha zárva van.",
+     "ru": "Пока меня волнует лишь то, будет ли открыто, а вдруг закрыто.",
+     "en": "For now I am only worried whether it will be open, what if it is closed."
+    },
+    {
+     "hu": "Azért nem ment el a kedvem, pedig tegnap majdnem otthon maradtam.",
+     "ru": "И всё же настроение не пропало, хотя вчера я почти осталась дома.",
+     "en": "Still, I did not lose heart, although yesterday I almost stayed at home."
+    },
+    {
+     "hu": "Amúgy a szomszéd is velem jön, egyébként úgyis arra megy.",
+     "ru": "Кстати, сосед тоже идёт со мной, он вообще-то и так идёт туда.",
+     "en": "By the way, the neighbour is coming with me, he is going that way anyway."
+    },
+    {
+     "hu": "Így van ez, viszont mindenesetre együtt könnyebb, ugye?",
+     "ru": "Так оно и есть, но во всяком случае вместе легче, правда?",
+     "en": "That is how it is, but in any case it is easier together, right?"
+    }
+   ]
+  ]
+ }
+}

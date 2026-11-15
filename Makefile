@@ -222,11 +222,21 @@ refresh-curriculum: ## Rewrite lessons/features/course in an existing pack (seco
 	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.refresh --pack '$(PACK)'
 
 .PHONY: texts
-texts: ## Check the authored stories and dialogues against $(PACK), read-only (prints frequency reports)
+texts: ## Validate langpack/texts/*.json against $(PACK) (read-only) and export backend/internal/readsets/catalog.json
+# ADR-076: the reading texts are NOT in the pack; the Go binary embeds the committed
+# catalogue. Flow: edit langpack/texts -> make texts -> commit -> deploy. The pack is
+# only the lexicon the validator checks words against. Author's brief:
+# python -m pipeline.texts $(PACK) --brief UNIT --tier short|medium|long|talk|mini
+# The colloquial talk text and mini dialogues (langpack/talk, ADR-077) are validated and
+# exported by the same target; add --require-talk to demand them for every unit.
 	$(call need,$(PYTHON),$(PY_HINT))
 	@test -s '$(PACK)' || { echo 'need $(PACK) first — run: make langpack'; exit 1; }
-	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.stories '$(abspath $(PACK))'
-	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.dialogues '$(abspath $(PACK))'
+	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.texts '$(abspath $(PACK))' --export
+
+.PHONY: texts-check
+texts-check: ## Fail when the committed catalogue differs from a fresh export of langpack/texts (no pack needed)
+	$(call need,$(PYTHON),$(PY_HINT))
+	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.texts --check-export
 
 .PHONY: subtitles
 subtitles: ## Add conversational sentences from OPUS to an existing pack (~40 min, no full rebuild)

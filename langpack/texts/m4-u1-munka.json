@@ -1,0 +1,461 @@
+{
+  "short": {
+    "genre": "notice",
+    "checked": "ai",
+    "title": {
+      "ru": "Объявление о вакансии",
+      "en": "Job vacancy notice"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Állás a cégnél!",
+          "ru": "Работа в фирме!",
+          "en": "A job at the company!"
+        },
+        {
+          "hu": "Új munkavállalót keresünk, titkárt vagy programozót.",
+          "ru": "Мы ищем нового работника, секретаря или программиста.",
+          "en": "We are looking for a new employee, a secretary or a programmer."
+        },
+        {
+          "hu": "A vállalat munkást és ápolót is felvesz.",
+          "ru": "Компания принимает на работу также рабочих и санитаров.",
+          "en": "The company also hires workers and nurses."
+        },
+        {
+          "hu": "Állandó munka, jó kereset, prémium.",
+          "ru": "Постоянная работа, хороший заработок, премия.",
+          "en": "A steady job, good earnings, a bonus."
+        }
+      ],
+      [
+        {
+          "hu": "A munkaidő reggel hattól délig tart.",
+          "ru": "Рабочее время с шести утра до полудня.",
+          "en": "Working hours are from six in the morning to noon."
+        },
+        {
+          "hu": "Túlóra nincs, szabadnap minden héten van.",
+          "ru": "Сверхурочных нет, выходной каждую неделю.",
+          "en": "There is no overtime, there is a day off every week."
+        },
+        {
+          "hu": "Kérünk önéletrajzot és bizonyítványt.",
+          "ru": "Просим прислать резюме и аттестат.",
+          "en": "Please send a CV and a certificate."
+        },
+        {
+          "hu": "Jelentkezni a vezetőnél lehet.",
+          "ru": "Откликнуться можно у руководителя.",
+          "en": "You can apply to the manager."
+        },
+        {
+          "hu": "Az állásinterjú az irodában lesz.",
+          "ru": "Собеседование будет в офисе.",
+          "en": "The job interview will be in the office."
+        },
+        {
+          "hu": "Vár az új csapat!",
+          "ru": "Вас ждёт новая команда!",
+          "en": "The manager and the team are waiting for you!"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "email",
+    "checked": "ai",
+    "title": {
+      "ru": "Письмо о работе",
+      "en": "An email about a job"
+    },
+    "names": [
+      "Kovács",
+      "Bence"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Tisztelt Kovács úr!",
+          "ru": "Уважаемый господин Ковач!",
+          "en": "Dear Mr Kovács,"
+        },
+        {
+          "hu": "A hirdetést az újságban láttam.",
+          "ru": "Ваше объявление я увидел в газете.",
+          "en": "I saw your advertisement in the newspaper."
+        },
+        {
+          "hu": "Az állás nagyon érdekel, ezért jelentkezem.",
+          "ru": "Эта должность мне очень интересна, поэтому я откликаюсь.",
+          "en": "The job interests me a lot, so I am applying."
+        },
+        {
+          "hu": "Az önéletrajzot elküldöm.",
+          "ru": "Резюме я отправляю.",
+          "en": "I am sending my CV."
+        }
+      ],
+      [
+        {
+          "hu": "Bence vagyok, a szakmám mérnök.",
+          "ru": "Меня зовут Бенце, моя специальность инженер.",
+          "en": "I am Bence, my trade is engineer."
+        },
+        {
+          "hu": "A végzettségem jó, van diplomám és bizonyítványom.",
+          "ru": "Образование у меня хорошее, есть диплом и аттестат.",
+          "en": "My education is good, I have a degree and a certificate."
+        },
+        {
+          "hu": "Sok tapasztalatom van, mert már öt éve dolgozom.",
+          "ru": "У меня большой опыт, ведь я работаю уже пять лет.",
+          "en": "I have a lot of experience, because I have been working for five years."
+        },
+        {
+          "hu": "Most egy gyárban vagyok, műszakban dolgozom.",
+          "ru": "Сейчас я на заводе, работаю посменно.",
+          "en": "Now I am in a factory, I work in shifts."
+        },
+        {
+          "hu": "Ott sok a túlóra, de kevés a bér.",
+          "ru": "Там много сверхурочных, а зарплата маленькая.",
+          "en": "There is a lot of overtime there, but the pay is low."
+        },
+        {
+          "hu": "A nyelvtudásom is jó, németül és angolul beszélek.",
+          "ru": "Языки я тоже знаю, говорю по-немецки и по-английски.",
+          "en": "My language skills are good too, I speak German and English."
+        },
+        {
+          "hu": "Felelős ember vagyok, és szívesen vállalok új feladatot.",
+          "ru": "Я ответственный человек и охотно беру новые задачи.",
+          "en": "I am a responsible person, and I gladly take on new tasks."
+        },
+        {
+          "hu": "Szeretek csapatban dolgozni, a munka így jó.",
+          "ru": "Я люблю работать в команде, так работа идёт хорошо.",
+          "en": "I like to work in a team, that is how work is good."
+        }
+      ],
+      [
+        {
+          "hu": "Az állandó munkakör nekem nagyon fontos.",
+          "ru": "Постоянная должность для меня очень важна.",
+          "en": "A permanent job role is very important to me."
+        },
+        {
+          "hu": "Hol van az iroda, és milyen a munkaidő?",
+          "ru": "Где офис и какое рабочее время?",
+          "en": "Where is the office and what are the working hours?"
+        },
+        {
+          "hu": "A bér nettó vagy bruttó?",
+          "ru": "Зарплата чистая или брутто?",
+          "en": "Is the pay net or gross?"
+        },
+        {
+          "hu": "Van szabadság is?",
+          "ru": "И отпуск есть?",
+          "en": "Is there leave too?"
+        }
+      ],
+      [
+        {
+          "hu": "A barátom is Önöknél dolgozik; szerinte jó a munkahely.",
+          "ru": "Мой друг тоже работает у вас; по его словам, место хорошее.",
+          "en": "My friend works with you too; he says the workplace is good."
+        },
+        {
+          "hu": "A munkáltató fontos, ezért jó vállalatot keresek.",
+          "ru": "Работодатель важен, поэтому я ищу хорошую компанию.",
+          "en": "The employer is important, so I am looking for a good company."
+        },
+        {
+          "hu": "A munkakör és a munkaszerződés érdekel, a feladat is.",
+          "ru": "Должность и трудовой договор меня интересуют, задача тоже.",
+          "en": "The job role and the employment contract interest me, and the task too."
+        },
+        {
+          "hu": "A bruttó bér és a nettó bér is fontos.",
+          "ru": "Зарплата брутто и зарплата на руки тоже важны.",
+          "en": "The gross pay and the net pay are important too."
+        },
+        {
+          "hu": "A szabadság és a műszak is fontos nekem.",
+          "ru": "Отпуск и смена тоже важны для меня.",
+          "en": "Leave and the shift are important to me too."
+        },
+        {
+          "hu": "A cég felvesz engem?",
+          "ru": "Фирма примет меня на работу?",
+          "en": "Will the company hire me?"
+        },
+        {
+          "hu": "Az állásinterjúra szívesen jövök.",
+          "ru": "На собеседование я с удовольствием приду.",
+          "en": "I will gladly come to the job interview."
+        },
+        {
+          "hu": "Mikor van?",
+          "ru": "Когда оно?",
+          "en": "When is it?"
+        },
+        {
+          "hu": "Köszönöm a választ!",
+          "ru": "Спасибо за ответ!",
+          "en": "Thank you for your reply!"
+        },
+        {
+          "hu": "Bence",
+          "ru": "Бенце",
+          "en": "Bence"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "story",
+    "checked": "ai",
+    "title": {
+      "ru": "Как я искал работу",
+      "en": "How I looked for a job"
+    },
+    "names": [
+      "Kovács",
+      "Anna",
+      "Péter",
+      "Zoli",
+      "Bence"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "A családom egy munkás család.",
+          "ru": "Моя семья рабочая.",
+          "en": "My family is a working family."
+        },
+        {
+          "hu": "Az apám munkás egy gyárban, a bátyám sofőr.",
+          "ru": "Мой отец рабочий на заводе, старший брат водитель.",
+          "en": "My father is a worker in a factory, my brother is a driver."
+        },
+        {
+          "hu": "Az anyám ápoló, a nővérem ügyvéd.",
+          "ru": "Мама санитарка, сестра адвокат.",
+          "en": "My mother is a nurse, my sister is a lawyer."
+        },
+        {
+          "hu": "A nagyapám nyugdíjas, régen szakács volt.",
+          "ru": "Дедушка пенсионер, раньше был поваром.",
+          "en": "My grandfather is a pensioner, he used to be a cook."
+        },
+        {
+          "hu": "Péter, a barátom, titkár egy üzletben.",
+          "ru": "Мой друг Петер секретарь в одном магазине.",
+          "en": "My friend Péter is a secretary in a shop."
+        },
+        {
+          "hu": "Mindenkinek más a szakmája.",
+          "ru": "У каждого своя профессия.",
+          "en": "Everyone has a different trade."
+        },
+        {
+          "hu": "Az én szakmám mérnök.",
+          "ru": "Моя профессия инженер.",
+          "en": "My trade is engineer."
+        }
+      ],
+      [
+        {
+          "hu": "Egy évig egy üzemben dolgoztam, műszakban.",
+          "ru": "Год я работал на предприятии, посменно.",
+          "en": "For a year I worked in a plant, in shifts."
+        },
+        {
+          "hu": "Sok volt a túlóra, a kereset kevés.",
+          "ru": "Сверхурочных было много, а заработок маленький.",
+          "en": "There was a lot of overtime, and the earnings were low."
+        },
+        {
+          "hu": "Nem volt prémium, és szabadnap is ritkán volt.",
+          "ru": "Премий не было, и выходные случались редко.",
+          "en": "There was no bonus, and days off were rare too."
+        },
+        {
+          "hu": "Ezért felmondtam, mert a munka nem volt jó.",
+          "ru": "Поэтому я уволился, ведь работа была нехорошая.",
+          "en": "So I resigned, because the work was not good."
+        },
+        {
+          "hu": "Az üzemben nem alkalmaznak több embert.",
+          "ru": "На предприятии больше не нанимают людей.",
+          "en": "The plant is not hiring any more people."
+        },
+        {
+          "hu": "Új munkahelyet kerestem.",
+          "ru": "Я искал новое место работы.",
+          "en": "I looked for a new workplace."
+        },
+        {
+          "hu": "Nem volt könnyű, mert nagyon sok munkavállaló keres állást.",
+          "ru": "Это было нелегко, ведь очень много работников ищут работу.",
+          "en": "It was not easy, because very many employees are looking for a job."
+        },
+        {
+          "hu": "Először egy tanfolyamra mentem.",
+          "ru": "Сначала я пошёл на курсы.",
+          "en": "First I went to a course."
+        },
+        {
+          "hu": "A képzés két hónapig tartott, és sokat tanultam.",
+          "ru": "Обучение длилось два месяца, и я многому научился.",
+          "en": "The training lasted two months, and I learned a lot."
+        }
+      ],
+      [
+        {
+          "hu": "Aztán írtam egy önéletrajzot.",
+          "ru": "Потом я написал резюме.",
+          "en": "Then I wrote a CV."
+        },
+        {
+          "hu": "Az önéletrajzban van a végzettségem, a diplomám és a tapasztalatom.",
+          "ru": "В резюме указаны моё образование, диплом и опыт.",
+          "en": "My CV has my education, my degree and my experience."
+        },
+        {
+          "hu": "Jó nyelvtudásom is van, és sok a tapasztalatom.",
+          "ru": "У меня и хорошее владение языками, и много опыта.",
+          "en": "I have good language skills too, and a lot of experience."
+        },
+        {
+          "hu": "A hirdetést az újságban találtam.",
+          "ru": "Объявление я нашёл в газете.",
+          "en": "I found the advertisement in the newspaper."
+        },
+        {
+          "hu": "Egy vállalat új programozót és mérnököt keresett.",
+          "ru": "Одна компания искала нового программиста и инженера.",
+          "en": "A company was looking for a new programmer and an engineer."
+        },
+        {
+          "hu": "Jelentkeztem, és elküldtem az önéletrajzot.",
+          "ru": "Я откликнулся и отправил резюме.",
+          "en": "I applied and sent off my CV."
+        },
+        {
+          "hu": "Egy hét múlva választ kaptam Kovács úrtól, a vezetőtől.",
+          "ru": "Через неделю я получил ответ от господина Ковача, руководителя.",
+          "en": "A week later I got an answer from Mr Kovács, the manager."
+        }
+      ],
+      [
+        {
+          "hu": "Az állásinterjú az irodában volt.",
+          "ru": "Собеседование было в офисе.",
+          "en": "The job interview was in the office."
+        },
+        {
+          "hu": "A csapat is ott volt, Anna, Péter és Zoli.",
+          "ru": "Команда тоже была там, Анна, Петер и Золи.",
+          "en": "The team was there too, Anna, Péter and Zoli."
+        },
+        {
+          "hu": "A munkáltató nem titkárt keres, hanem mérnököt.",
+          "ru": "Работодатель ищет не секретаря, а инженера.",
+          "en": "The employer is not looking for a secretary but for an engineer."
+        },
+        {
+          "hu": "Kovács úr azt mondta, hogy a cég alkalmaz engem.",
+          "ru": "Господин Ковач сказал, что фирма берёт меня.",
+          "en": "Mr Kovács said that the company is hiring me."
+        },
+        {
+          "hu": "A munkaszerződés állandó, a munkaidő nyolctól négyig tart.",
+          "ru": "Трудовой договор постоянный, рабочее время с восьми до четырёх.",
+          "en": "The employment contract is permanent, working hours are from eight to four."
+        },
+        {
+          "hu": "Túlóra nincs, a prémium és a szabadság jó.",
+          "ru": "Сверхурочных нет, премия и отпуск хорошие.",
+          "en": "There is no overtime, the bonus and the leave are good."
+        },
+        {
+          "hu": "A munkáltató a cég, én a munkavállaló vagyok.",
+          "ru": "Работодатель это фирма, а я работник.",
+          "en": "The employer is the company, and I am the employee."
+        }
+      ],
+      [
+        {
+          "hu": "Anna titkár, Péter mérnök, Zoli sofőr, az alkalmazottak jó csapat.",
+          "ru": "Анна секретарь, Петер инженер, Золи водитель, сотрудники хорошая команда.",
+          "en": "Anna is a secretary, Péter an engineer, Zoli a driver, the employees are a good team."
+        },
+        {
+          "hu": "Sok feladatot vállalok, és felelős vagyok az ügyfelekért.",
+          "ru": "Я беру много задач и отвечаю за клиентов.",
+          "en": "I take on many tasks, and I am responsible for the clients."
+        },
+        {
+          "hu": "A fizetés jó.",
+          "ru": "Зарплата хорошая.",
+          "en": "The pay is good."
+        },
+        {
+          "hu": "Jövőre még egy tanfolyamot tervezek.",
+          "ru": "В следующем году я планирую ещё одни курсы.",
+          "en": "Next year I am planning another course."
+        },
+        {
+          "hu": "Este az egész család nálunk volt.",
+          "ru": "Вечером вся семья собралась у нас.",
+          "en": "In the evening the whole family was at our place."
+        },
+        {
+          "hu": "Apám a gyárról beszélt, a bátyám a sofőr munkáról.",
+          "ru": "Отец говорил о заводе, брат о работе водителя.",
+          "en": "My father talked about the factory, my brother about the driver's job."
+        },
+        {
+          "hu": "A nővérem az ügyvéd szakmáról, anyám az ápoló munkáról.",
+          "ru": "Сестра о профессии адвоката, мама о работе санитарки.",
+          "en": "My sister talked about the lawyer's trade, my mother about the nurse's work."
+        },
+        {
+          "hu": "A nyugdíjas nagyapám, a szakács, jó ételt hozott.",
+          "ru": "Дедушка пенсионер, повар, принёс вкусную еду.",
+          "en": "My pensioner grandfather, the cook, brought good food."
+        },
+        {
+          "hu": "Mind örültek az új munkakörnek és a szerződésnek.",
+          "ru": "Все радовались моей новой должности и договору.",
+          "en": "Everyone was happy about my new job role and the contract."
+        },
+        {
+          "hu": "A kereset jó, a szabadság és a műszak is rendben van.",
+          "ru": "Заработок хороший, отпуск и смены тоже в порядке.",
+          "en": "The earnings are good, the leave and the shifts are fine too."
+        },
+        {
+          "hu": "A hirdetés, a tanfolyam és a képzés után az állás az enyém.",
+          "ru": "После объявления, курсов и обучения должность стала моей.",
+          "en": "After the advertisement, the course and the training the job became mine."
+        },
+        {
+          "hu": "Ha nem jó, felmondok, de ezt nem tervezem.",
+          "ru": "Если будет плохо, я уволюсь, но этого я не планирую.",
+          "en": "If it is not good, I will resign, but I am not planning that."
+        },
+        {
+          "hu": "Holnap lesz az első munkanapom, és nagyon örülök.",
+          "ru": "Завтра мой первый рабочий день, и я очень рад.",
+          "en": "Tomorrow is my first working day and I am very happy."
+        }
+      ]
+    ]
+  }
+}

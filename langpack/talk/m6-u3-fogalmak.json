@@ -1,0 +1,581 @@
+{
+ "talk": {
+  "genre": "dialogue",
+  "checked": "ai",
+  "title": {
+   "ru": "В конторе: опоздание и договор",
+   "en": "At the office: being late and the contract"
+  },
+  "names": [],
+  "paras": [
+   [
+    {
+     "who": "B",
+     "hu": "Jó reggelt! Elnézést, hogy késtem.",
+     "ru": "Доброе утро! Извините, что опоздал.",
+     "en": "Good morning! Sorry that I am late."
+    },
+    {
+     "who": "A",
+     "hu": "Jó reggelt. Mi volt a probléma?",
+     "ru": "Доброе утро. В чём была проблема?",
+     "en": "Good morning. What was the problem?"
+    },
+    {
+     "who": "B",
+     "hu": "A busz nem jött, és nem volt más lehetőség.",
+     "ru": "Автобус не пришёл, и других вариантов не было.",
+     "en": "The bus did not come, and there was no other option."
+    },
+    {
+     "who": "A",
+     "hu": "Nem volt taxi?",
+     "ru": "Такси не было?",
+     "en": "There was no taxi?"
+    },
+    {
+     "who": "B",
+     "hu": "Volt, de nagyon drága.",
+     "ru": "Было, но очень дорого.",
+     "en": "There was, but very expensive."
+    },
+    {
+     "who": "A",
+     "hu": "Értem. Legközelebb szóljon előbb, kérem.",
+     "ru": "Понятно. В следующий раз предупредите заранее, пожалуйста.",
+     "en": "I see. Next time please tell me earlier."
+    },
+    {
+     "who": "B",
+     "hu": "Persze, igaz. Legközelebb azonnal szólok.",
+     "ru": "Конечно, верно. В следующий раз сразу скажу.",
+     "en": "Of course, true. Next time I will tell you at once."
+    },
+    {
+     "who": "A",
+     "hu": "Jó. Most nézzük a szerződést. Itt van a feltétel.",
+     "ru": "Хорошо. Теперь посмотрим договор. Вот условие.",
+     "en": "Good. Now let us look at the contract. Here is the condition."
+    },
+    {
+     "who": "B",
+     "hu": "Melyik rész a fontos?",
+     "ru": "Какая часть важная?",
+     "en": "Which part is the important one?"
+    },
+    {
+     "who": "A",
+     "hu": "A lényeg az, hogy a munka két évre szól.",
+     "ru": "Суть в том, что работа на два года.",
+     "en": "The point is that the job is for two years."
+    },
+    {
+     "who": "B",
+     "hu": "Két év hosszú idő. Mi változik a fizetésben?",
+     "ru": "Два года это долго. Что изменится в зарплате?",
+     "en": "Two years is a long time. What changes in the pay?"
+    },
+    {
+     "who": "A",
+     "hu": "Az első évben ugyanannyi, utána több. Az első hónap csak próba.",
+     "ru": "В первый год столько же, потом больше. Первый месяц только пробный.",
+     "en": "The first year is the same, then more. The first month is only a trial."
+    },
+    {
+     "who": "B",
+     "hu": "Az mit jelent? Ha nem jó, akkor vége?",
+     "ru": "Что это значит? Если не подойдёт, то конец?",
+     "en": "What does that mean? If it is not good, is it over?"
+    },
+    {
+     "who": "A",
+     "hu": "Nem baj, nálunk ez a szokás.",
+     "ru": "Ничего, у нас так принято.",
+     "en": "It is fine, that is our custom."
+    },
+    {
+     "who": "B",
+     "hu": "Értem. Ez nem rossz. És a szabadság?",
+     "ru": "Понятно. Это неплохо. А отпуск?",
+     "en": "I see. That is not bad. And holiday?"
+    },
+    {
+     "who": "A",
+     "hu": "Az is benne van. Nincs semmi gond.",
+     "ru": "Это тоже там есть. Никаких проблем.",
+     "en": "That is in it too. No problem at all."
+    },
+    {
+     "who": "B",
+     "hu": "És hány órát kell dolgozni?",
+     "ru": "А сколько часов надо работать?",
+     "en": "And how many hours do I have to work?"
+    },
+    {
+     "who": "A",
+     "hu": "Negyven órát hetente. Néha szombaton is.",
+     "ru": "Сорок часов в неделю. Иногда и по субботам.",
+     "en": "Forty hours a week. Sometimes on Saturdays too."
+    },
+    {
+     "who": "B",
+     "hu": "Értem. Hol van az iroda?",
+     "ru": "Понятно. Где находится офис?",
+     "en": "I see. Where is the office?"
+    },
+    {
+     "who": "A",
+     "hu": "A belvárosban, a metró mellett. Könnyen megtalálja.",
+     "ru": "В центре, рядом с метро. Вы легко найдёте.",
+     "en": "In the city centre, next to the metro. You will find it easily."
+    },
+    {
+     "who": "B",
+     "hu": "Szuper. Akkor meddig van időm a döntésre?",
+     "ru": "Супер. Тогда до каких пор у меня есть время на решение?",
+     "en": "Great. So how long do I have to decide?"
+    },
+    {
+     "who": "A",
+     "hu": "Gondolja át nyugodtan. Holnapig van ideje.",
+     "ru": "Обдумайте спокойно. У вас есть время до завтра.",
+     "en": "Think it over calmly. You have until tomorrow."
+    },
+    {
+     "who": "B",
+     "hu": "Rendben. Köszönöm a lehetőséget, és még egyszer elnézést.",
+     "ru": "Хорошо. Спасибо за возможность и ещё раз извините.",
+     "en": "All right. Thank you for the opportunity, and sorry once more."
+    },
+    {
+     "who": "A",
+     "hu": "Szívesen. Holnap találkozunk!",
+     "ru": "Пожалуйста. До завтра!",
+     "en": "You are welcome. See you tomorrow!"
+    }
+   ]
+  ]
+ },
+ "dialogues": [
+  {
+   "slug": "koltozes",
+   "title": {
+    "ru": "Куда переезжать",
+    "en": "Where to move"
+   },
+   "scene": {
+    "ru": "Двое друзей выбирают, где снимать квартиру.",
+    "en": "Two friends weigh where to rent a flat."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Na, döntöttél már a lakásról?",
+     "ru": "Ну что, ты уже решил насчёт квартиры?",
+     "en": "So, have you decided about the flat?"
+    },
+    {
+     "who": "B",
+     "hu": "Még nem. Két lehetőség van.",
+     "ru": "Ещё нет. Есть два варианта.",
+     "en": "Not yet. There are two options."
+    },
+    {
+     "who": "A",
+     "hu": "Melyik a jobb?",
+     "ru": "Какой лучше?",
+     "en": "Which one is better?"
+    },
+    {
+     "who": "B",
+     "hu": "A belváros szuper, de drága.",
+     "ru": "Центр отличный, но дорого.",
+     "en": "The city centre is great, but expensive."
+    },
+    {
+     "who": "A",
+     "hu": "És a másik?",
+     "ru": "А другой?",
+     "en": "And the other one?"
+    },
+    {
+     "who": "B",
+     "hu": "Messze van, de olcsóbb és nagyobb.",
+     "ru": "Далеко, но дешевле и больше.",
+     "en": "It is far, but cheaper and bigger."
+    },
+    {
+     "who": "A",
+     "hu": "Szerintem ez a jobb döntés.",
+     "ru": "По-моему, это лучшее решение.",
+     "en": "I think that is the better decision."
+    },
+    {
+     "who": "B",
+     "hu": "Hát, az ár fontos, tényleg.",
+     "ru": "Ну да, цена важна, правда.",
+     "en": "Well, the price matters, true."
+    },
+    {
+     "who": "A",
+     "hu": "Akkor nézd meg holnap, és szólj.",
+     "ru": "Тогда посмотри её завтра и скажи мне.",
+     "en": "Then go and see it tomorrow, and tell me."
+    },
+    {
+     "who": "B",
+     "hu": "Jó, megnézem. Ha tetszik, azonnal igent mondok.",
+     "ru": "Хорошо, посмотрю. Если понравится, сразу скажу да.",
+     "en": "Okay, I will. If I like it, I say yes at once."
+    }
+   ]
+  },
+  {
+   "slug": "munkahelyi-gond",
+   "title": {
+    "ru": "Беда с отчётом",
+    "en": "Trouble with the report"
+   },
+   "scene": {
+    "ru": "Коллеги утром перед сдачей отчёта.",
+    "en": "Two colleagues the morning a report is due."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Jaj, baj van a jelentéssel.",
+     "ru": "Ой, беда с отчётом.",
+     "en": "Oh no, there is trouble with the report."
+    },
+    {
+     "who": "B",
+     "hu": "Mi a probléma?",
+     "ru": "В чём проблема?",
+     "en": "What is the problem?"
+    },
+    {
+     "who": "A",
+     "hu": "A számok nem jók. Egy rész hiányzik.",
+     "ru": "Цифры неверные. Одной части не хватает.",
+     "en": "The numbers are wrong. One part is missing."
+    },
+    {
+     "who": "B",
+     "hu": "Hú, mikorra kell a főnöknek?",
+     "ru": "Ух, к какому времени он нужен начальнику?",
+     "en": "Wow, when does the boss need it?"
+    },
+    {
+     "who": "A",
+     "hu": "Délre. Mi lesz most, ha nem lesz kész?",
+     "ru": "К полудню. Что теперь будет, если не будет готово?",
+     "en": "By noon. What happens now, if it is not ready?"
+    },
+    {
+     "who": "B",
+     "hu": "Nyugi, segítek. Együtt gyorsan megvan. Mi volt az ok?",
+     "ru": "Спокойно, помогу. Вместе быстро. В чём была причина?",
+     "en": "Easy, I will help. Together it is quick. What was the cause?"
+    },
+    {
+     "who": "A",
+     "hu": "Valaki rossz fájlt küldött. Köszi, hogy segítesz.",
+     "ru": "Кто-то прислал не тот файл. Спасибо, что помогаешь.",
+     "en": "Someone sent the wrong file. Thanks for helping."
+    },
+    {
+     "who": "B",
+     "hu": "Na, akkor nem a te hibád.",
+     "ru": "Ну, значит, это не твоя вина.",
+     "en": "Well, then it is not your fault."
+    }
+   ]
+  },
+  {
+   "slug": "utazasi-eselyem",
+   "title": {
+    "ru": "Шанс поехать",
+    "en": "A chance to travel"
+   },
+   "scene": {
+    "ru": "Подруги болтают: на работе предложили поездку.",
+    "en": "Two friends chat; work offers a trip."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Képzeld, megyek Olaszországba!",
+     "ru": "Представь, я еду в Италию!",
+     "en": "Guess what, I am going to Italy!"
+    },
+    {
+     "who": "B",
+     "hu": "Nahát! Hogyhogy?",
+     "ru": "Ого! Как так?",
+     "en": "Wow! How come?"
+    },
+    {
+     "who": "A",
+     "hu": "A cég küld egy tanfolyamra, két hétre.",
+     "ru": "Фирма посылает на курсы на две недели.",
+     "en": "The firm sends me on a course for two weeks."
+    },
+    {
+     "who": "B",
+     "hu": "Király! És mi a feltétel?",
+     "ru": "Круто! А какое условие?",
+     "en": "Awesome! And what is the condition?"
+    },
+    {
+     "who": "A",
+     "hu": "Csak az, hogy írok róla jelentést.",
+     "ru": "Только то, что я напишу о ней отчёт.",
+     "en": "Only that I write a report on it."
+    },
+    {
+     "who": "B",
+     "hu": "Akkor ez nagy lehetőség. Mikor döntesz?",
+     "ru": "Тогда это большая возможность. Когда решишь?",
+     "en": "Then it is a great opportunity. When will you decide?"
+    },
+    {
+     "who": "A",
+     "hu": "Már döntöttem. Megyek!",
+     "ru": "Я уже решила. Еду!",
+     "en": "I have decided already. I am going!"
+    },
+    {
+     "who": "B",
+     "hu": "Jó, akkor én viszem sétálni a kutyádat.",
+     "ru": "Хорошо, тогда я буду гулять с твоей собакой.",
+     "en": "Fine, then I will walk your dog."
+    },
+    {
+     "who": "A",
+     "hu": "Köszi, te vagy a legjobb. Ezért szeretlek.",
+     "ru": "Спасибо, ты лучшая. За это я тебя и люблю.",
+     "en": "Thanks, you are the best. That is why I love you."
+    },
+    {
+     "who": "B",
+     "hu": "Hozz majd valami jó kaját!",
+     "ru": "Привези потом какую-нибудь вкусную еду!",
+     "en": "Bring back some good food later!"
+    }
+   ]
+  },
+  {
+   "slug": "titok",
+   "title": {
+    "ru": "Секрет",
+    "en": "The secret"
+   },
+   "scene": {
+    "ru": "Подруга доверяет другу новость.",
+    "en": "A friend trusts another with news."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Tudsz titkot tartani?",
+     "ru": "Ты умеешь хранить секреты?",
+     "en": "Can you keep a secret?"
+    },
+    {
+     "who": "B",
+     "hu": "Persze. Nálam biztonságban van, nyugi.",
+     "ru": "Конечно. У меня оно в безопасности, спокойно.",
+     "en": "Of course. It is safe with me, relax."
+    },
+    {
+     "who": "A",
+     "hu": "Ez nagy dolog, csak neked mondom.",
+     "ru": "Это важно, говорю только тебе.",
+     "en": "This is big, I am telling only you."
+    },
+    {
+     "who": "B",
+     "hu": "Senkinek nem mondom el.",
+     "ru": "Никому не скажу.",
+     "en": "I will not tell anyone."
+    },
+    {
+     "who": "A",
+     "hu": "Tényleg? Anya mindig mindent kérdez.",
+     "ru": "Правда? Мама всегда всё выспрашивает.",
+     "en": "Really? Mum always asks about everything."
+    },
+    {
+     "who": "B",
+     "hu": "Anyának sem mondom el, ne félj.",
+     "ru": "Маме тоже не скажу, не бойся.",
+     "en": "I will not tell Mum either, do not worry."
+    },
+    {
+     "who": "A",
+     "hu": "Jó. Szóval új munkát kaptam, egy másik cégnél.",
+     "ru": "Ладно. Короче, я получил новую работу в другой фирме.",
+     "en": "Okay. So I got a new job at another firm."
+    },
+    {
+     "who": "B",
+     "hu": "Szuper! De miért titok?",
+     "ru": "Супер! Но почему секрет?",
+     "en": "Great! But why a secret?"
+    },
+    {
+     "who": "A",
+     "hu": "A főnök még nem tudja, hogy elmegyek.",
+     "ru": "Начальник ещё не знает, что я ухожу.",
+     "en": "The boss does not know yet that I am leaving."
+    },
+    {
+     "who": "B",
+     "hu": "Értem. Hallgatok, mint a sír.",
+     "ru": "Понял. Буду молчать как рыба.",
+     "en": "Got it. I will keep silent."
+    }
+   ]
+  },
+  {
+   "slug": "vizsga-eredmeny",
+   "title": {
+    "ru": "Результат экзамена",
+    "en": "The exam result"
+   },
+   "scene": {
+    "ru": "Сын звонит маме с результатом экзамена.",
+    "en": "A son phones his mother with an exam result."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Anya, itt az eredmény!",
+     "ru": "Мама, вот результат!",
+     "en": "Mum, here is the result!"
+    },
+    {
+     "who": "B",
+     "hu": "Mondd már, sikerült?",
+     "ru": "Ну говори, получилось?",
+     "en": "Come on, tell me, did it work?"
+    },
+    {
+     "who": "A",
+     "hu": "Igen, sikerült, de csak épp. Nagyon féltem tőle.",
+     "ru": "Да, получилось, но еле-еле. Очень боялся.",
+     "en": "Yes, it worked, but only just. I was so scared."
+    },
+    {
+     "who": "B",
+     "hu": "Az is eredmény! Büszke vagyok rád, fiam.",
+     "ru": "Это тоже результат! Горжусь тобой, сынок.",
+     "en": "That is a result too! I am proud of you, son."
+    },
+    {
+     "who": "A",
+     "hu": "Dehát az elején alig tanultam.",
+     "ru": "Но ведь я сначала почти не учился.",
+     "en": "But at the start I hardly studied."
+    },
+    {
+     "who": "B",
+     "hu": "Hát, legközelebb kezdd korábban. Akkor nem lesz ilyen nehéz.",
+     "ru": "Ну, в следующий раз начни раньше. Тогда не будет так тяжело.",
+     "en": "Well, next time start earlier. Then it will not be so hard."
+    },
+    {
+     "who": "A",
+     "hu": "Jó, jó. Ígérem, anya.",
+     "ru": "Ладно, ладно. Обещаю, мама.",
+     "en": "Okay, okay. I promise, Mum."
+    },
+    {
+     "who": "B",
+     "hu": "Este főzök valami finomat. Mit szeretnél?",
+     "ru": "Вечером приготовлю что-нибудь вкусное. Что хочешь?",
+     "en": "I will cook something nice tonight. What would you like?"
+    },
+    {
+     "who": "A",
+     "hu": "Bármi jó lesz, anya. Köszi, nagyon!",
+     "ru": "Всё подойдёт, мама. Спасибо!",
+     "en": "Anything is fine, Mum. Thanks!"
+    }
+   ]
+  },
+  {
+   "slug": "elmarado-kirandulas",
+   "title": {
+    "ru": "Сорвавшийся план",
+    "en": "The plan that fell through"
+   },
+   "scene": {
+    "ru": "Пара смотрит в окно: поход отменяется.",
+    "en": "A couple looks out of the window: the hike is off."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Szóval nem megyünk sehova?",
+     "ru": "Значит, никуда не идём?",
+     "en": "So we are not going anywhere?"
+    },
+    {
+     "who": "B",
+     "hu": "Nem megyünk. Esik az eső.",
+     "ru": "Нет. Идёт дождь.",
+     "en": "No. It is raining."
+    },
+    {
+     "who": "A",
+     "hu": "Pedig jó lett volna elmenni.",
+     "ru": "А ведь было бы здорово поехать.",
+     "en": "And it would have been nice to go."
+    },
+    {
+     "who": "B",
+     "hu": "Nem tudom, talán itthon is jó lesz.",
+     "ru": "Не знаю, может, и дома будет хорошо.",
+     "en": "I do not know, maybe home will be fine too."
+    },
+    {
+     "who": "A",
+     "hu": "Jaj, ne! Menjünk inkább moziba.",
+     "ru": "Ой, нет! Пойдём лучше в кино.",
+     "en": "Oh no! Let us go to the cinema instead."
+    },
+    {
+     "who": "B",
+     "hu": "Jó ötlet. Legalább van valami terv.",
+     "ru": "Хорошая идея. Хоть какой-то план.",
+     "en": "Good idea. At least there is a plan."
+    },
+    {
+     "who": "A",
+     "hu": "Nem baj. Ráadásul a film új, még nem láttuk.",
+     "ru": "Ничего. К тому же фильм новый, мы его ещё не видели.",
+     "en": "Never mind. Besides, the film is new, we have not seen it."
+    },
+    {
+     "who": "B",
+     "hu": "Igaz. Legalább szárazak maradunk, és otthon majd sütök valamit.",
+     "ru": "Верно. Зато останемся сухими, а дома я что-нибудь испеку.",
+     "en": "True. At least we stay dry, and at home I will bake something."
+    }
+   ]
+  }
+ ]
+}

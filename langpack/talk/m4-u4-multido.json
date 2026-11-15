@@ -1,0 +1,502 @@
+{
+  "talk": {
+    "genre": "phone",
+    "checked": "ai",
+    "title": {
+      "ru": "Звонок после болезни",
+      "en": "A call after being ill"
+    },
+    "names": [
+      "Gábor",
+      "Eszter"
+    ],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Halló, Eszter? Itt Gábor.",
+          "ru": "Алло, Эстер? Это Габор.",
+          "en": "Hello, Eszter? It is Gábor."
+        },
+        {
+          "who": "B",
+          "hu": "Szia, Gábor! Hol voltál tegnap?",
+          "ru": "Привет, Габор! Где ты был вчера?",
+          "en": "Hi, Gábor! Where were you yesterday?"
+        },
+        {
+          "who": "A",
+          "hu": "Bocsi, nem szóltam. Beteg voltam.",
+          "ru": "Прости, что не предупредил. Я болел.",
+          "en": "Sorry, I did not let you know. I was ill."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj! Mi történt?",
+          "ru": "Ой! Что случилось?",
+          "en": "Oh! What happened?"
+        },
+        {
+          "who": "A",
+          "hu": "Reggel még jól voltam, de hirtelen rosszul lettem.",
+          "ru": "Утром мне было ещё хорошо, но вдруг стало плохо.",
+          "en": "I was still fine in the morning, but suddenly I felt ill."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj! És aztán?",
+          "ru": "Ой! И что потом?",
+          "en": "Oh! And then?"
+        },
+        {
+          "who": "A",
+          "hu": "Rögtön otthon maradtam, egész nap az ágyban voltam.",
+          "ru": "Сразу остался дома, весь день был в постели.",
+          "en": "I stayed home right away, I was in bed all day."
+        },
+        {
+          "who": "B",
+          "hu": "Voltál orvosnál?",
+          "ru": "Ты был у врача?",
+          "en": "Did you go to the doctor?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, délután. Azt mondta, maradjak otthon.",
+          "ru": "Да, днём. Он сказал, чтобы я остался дома.",
+          "en": "Yes, in the afternoon. He told me to stay at home."
+        },
+        {
+          "who": "B",
+          "hu": "És most hogy vagy? Jobban?",
+          "ru": "А сейчас как ты? Лучше?",
+          "en": "And how are you now? Better?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, már jobban vagyok. Szerencsére nem volt nagy baj.",
+          "ru": "Да, мне уже лучше. К счастью, ничего серьёзного.",
+          "en": "Yes, I am better now. Luckily it was nothing serious."
+        },
+        {
+          "who": "B",
+          "hu": "Jó, hogy jobban vagy. Itt nem volt gond.",
+          "ru": "Хорошо, что тебе лучше. Тут всё было нормально.",
+          "en": "Good that you are better. All was fine here."
+        },
+        {
+          "who": "A",
+          "hu": "Köszi! Amúgy mi történt itt tegnap?",
+          "ru": "Спасибо! Кстати, что было здесь вчера?",
+          "en": "Thanks! By the way, what happened here yesterday?"
+        },
+        {
+          "who": "B",
+          "hu": "Semmi különös. Sokat dolgoztunk, csak ennyi.",
+          "ru": "Ничего особенного. Много работали, вот и всё.",
+          "en": "Nothing special. We worked a lot, that is all."
+        },
+        {
+          "who": "A",
+          "hu": "Szerencsére a főnök nem kérdezett semmit, ugye?",
+          "ru": "К счастью, начальник ничего не спрашивал, да?",
+          "en": "Luckily the boss did not ask anything, did he?"
+        },
+        {
+          "who": "B",
+          "hu": "Dehogy. Azt mondta, a munka csak holnap kell.",
+          "ru": "Что вы, нет. Он сказал, что работа нужна только завтра.",
+          "en": "Not at all. He said the work is only needed tomorrow."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper. Holnap már bent leszek.",
+          "ru": "Супер. Завтра уже буду на месте.",
+          "en": "Great. I will be in tomorrow."
+        },
+        {
+          "who": "B",
+          "hu": "Jó, akkor addig pihenj még egy kicsit! Szia!",
+          "ru": "Хорошо, тогда пока ещё немного отдохни! Пока!",
+          "en": "Good, then rest a little more until then! Bye!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "hetvege",
+      "title": {
+        "ru": "Как выходные",
+        "en": "How was the weekend"
+      },
+      "scene": {
+        "ru": "Двое друзей в понедельник утром.",
+        "en": "Two friends on Monday morning."
+      },
+      "names": [
+        "Dani"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia! Mit csináltál tegnap?",
+          "ru": "Привет! Что делал вчера?",
+          "en": "Hi! What did you do yesterday?"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, nálam volt a család.",
+          "ru": "Ну, у меня была семья.",
+          "en": "Well, my family was at mine."
+        },
+        {
+          "who": "A",
+          "hu": "Aha. Egész nap?",
+          "ru": "Ага. Весь день?",
+          "en": "I see. All day?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, sokáig ettünk. Te?",
+          "ru": "Да, долго ели. А ты?",
+          "en": "Yes, we ate for a long time. You?"
+        },
+        {
+          "who": "A",
+          "hu": "Én Danival a városban voltam.",
+          "ru": "А я был в городе с Дани.",
+          "en": "I was in town with Dani."
+        },
+        {
+          "who": "B",
+          "hu": "Király! Mit csináltatok?",
+          "ru": "Круто! Что вы делали?",
+          "en": "Cool! What did you do?"
+        },
+        {
+          "who": "A",
+          "hu": "Beszélgettünk. Jó volt, csak nagyon meleg.",
+          "ru": "Болтали. Было хорошо, только очень жарко.",
+          "en": "We chatted. It was good, only very hot."
+        }
+      ]
+    },
+    {
+      "slug": "lekestem",
+      "title": {
+        "ru": "Опоздал",
+        "en": "I was late"
+      },
+      "scene": {
+        "ru": "Опоздавший коллега у кофемашины.",
+        "en": "A late colleague by the coffee machine."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia! Már fél kilenc van.",
+          "ru": "Привет! Уже половина девятого.",
+          "en": "Hi! It is already half past eight."
+        },
+        {
+          "who": "B",
+          "hu": "Tudom, bocsi. Nem értem el a buszt.",
+          "ru": "Знаю, прости. Не успел на автобус.",
+          "en": "I know, sorry. I did not catch the bus."
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg? Mikor indultál el?",
+          "ru": "Правда? Когда ты вышел?",
+          "en": "Really? When did you set off?"
+        },
+        {
+          "who": "B",
+          "hu": "Nyolckor. A következő busz késett.",
+          "ru": "В восемь. Следующий автобус опоздал.",
+          "en": "At eight. The next bus was late."
+        },
+        {
+          "who": "A",
+          "hu": "Hát, ez rossz. Szóltál a főnöknek?",
+          "ru": "Ну, плохо. Ты сказал начальнику?",
+          "en": "Well, that is bad. Did you tell the boss?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, írtam neki. Nem baj, mondta.",
+          "ru": "Да, написал ему. Ничего, сказал он.",
+          "en": "Yes, I wrote to him. Never mind, he said."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper. Kérsz kávét?",
+          "ru": "Супер. Хочешь кофе?",
+          "en": "Great. Want some coffee?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, kérek. Köszi!",
+          "ru": "Да, хочу. Спасибо!",
+          "en": "Yes, please. Thanks!"
+        }
+      ]
+    },
+    {
+      "slug": "kulcs",
+      "title": {
+        "ru": "Потерянный ключ",
+        "en": "The lost key"
+      },
+      "scene": {
+        "ru": "Соседи по квартире вечером у двери.",
+        "en": "Flatmates at the door in the evening."
+      },
+      "names": [
+        "Bence"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jaj, nem találom a kulcsot!",
+          "ru": "Ой, не могу найти ключ!",
+          "en": "Oh, I cannot find the key!"
+        },
+        {
+          "who": "B",
+          "hu": "Mikor láttad utoljára?",
+          "ru": "Когда ты видел его в последний раз?",
+          "en": "When did you last see it?"
+        },
+        {
+          "who": "A",
+          "hu": "Reggel. Hát, nem tudom.",
+          "ru": "Утром. Ну, не знаю.",
+          "en": "This morning. Well, I don't know."
+        },
+        {
+          "who": "B",
+          "hu": "Nézd meg a táskádban.",
+          "ru": "Посмотри в сумке.",
+          "en": "Check your bag."
+        },
+        {
+          "who": "A",
+          "hu": "Ott van! Tényleg, megtaláltam.",
+          "ru": "Вот он! Правда, нашёл.",
+          "en": "Here it is! Really, I found it."
+        },
+        {
+          "who": "B",
+          "hu": "Szerencsére. Én már hívtam Bencét.",
+          "ru": "К счастью. Я уже позвонил Бенце.",
+          "en": "Luckily. I had already called Bence."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, bocsi. Mit mondott?",
+          "ru": "Ой, прости. Что он сказал?",
+          "en": "Oh, sorry. What did he say?"
+        },
+        {
+          "who": "B",
+          "hu": "Nyugi, van neki másik kulcsa.",
+          "ru": "Спокойно, у него есть другой ключ.",
+          "en": "Relax, he has another key."
+        }
+      ]
+    },
+    {
+      "slug": "tegnap-este",
+      "title": {
+        "ru": "Вчера вечером",
+        "en": "Last evening"
+      },
+      "scene": {
+        "ru": "Подруги по телефону в воскресенье.",
+        "en": "Two friends on the phone on Sunday."
+      },
+      "names": [
+        "Anna"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia, Anna! Hívtalak tegnap este.",
+          "ru": "Привет, Анна! Я звонила тебе вчера вечером.",
+          "en": "Hi, Anna! I called you last evening."
+        },
+        {
+          "who": "B",
+          "hu": "Tudom, bocsi. Nem hallottam.",
+          "ru": "Знаю, прости. Не слышала.",
+          "en": "I know, sorry. I did not hear it."
+        },
+        {
+          "who": "A",
+          "hu": "Hát, hol voltál?",
+          "ru": "Ну, где ты была?",
+          "en": "Well, where were you?"
+        },
+        {
+          "who": "B",
+          "hu": "Egy bulin. Csak reggel értem haza.",
+          "ru": "На вечеринке. Вернулась только утром.",
+          "en": "At a party. I only got home in the morning."
+        },
+        {
+          "who": "A",
+          "hu": "Nahát! Milyen volt?",
+          "ru": "Ничего себе! Как было?",
+          "en": "Well, well! What was it like?"
+        },
+        {
+          "who": "B",
+          "hu": "Szuper. Végül mindenki ott maradt.",
+          "ru": "Супер. В конце все остались.",
+          "en": "Great. In the end everyone stayed there."
+        },
+        {
+          "who": "A",
+          "hu": "Ühüm. Akkor ma pihensz?",
+          "ru": "Угу. Значит, сегодня отдыхаешь?",
+          "en": "Uh-huh. So you are resting today?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze. Hívlak este, jó?",
+          "ru": "Конечно. Позвоню вечером, хорошо?",
+          "en": "Sure. I'll call you in the evening, OK?"
+        }
+      ]
+    },
+    {
+      "slug": "utazas-utan",
+      "title": {
+        "ru": "Звонок после поездки",
+        "en": "A call after the trip"
+      },
+      "scene": {
+        "ru": "Сын звонит маме после поездки.",
+        "en": "A son calls his mother after a trip."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Halló, anya! Már otthon vagyok.",
+          "ru": "Алло, мама! Я уже дома.",
+          "en": "Hello, Mum! I am home already."
+        },
+        {
+          "who": "B",
+          "hu": "Na végre! Hogy ment az út?",
+          "ru": "Ну наконец! Как прошла дорога?",
+          "en": "At last! How was the journey?"
+        },
+        {
+          "who": "A",
+          "hu": "Jól. Csak a vonat késett.",
+          "ru": "Хорошо. Только поезд опоздал.",
+          "en": "Fine. Only the train was late."
+        },
+        {
+          "who": "B",
+          "hu": "Hány órát vártál?",
+          "ru": "Сколько часов ты ждал?",
+          "en": "How many hours did you wait?"
+        },
+        {
+          "who": "A",
+          "hu": "Egyet. Közben ettem valamit.",
+          "ru": "Один. Пока ждал, что-то съел.",
+          "en": "One. Meanwhile I ate something."
+        },
+        {
+          "who": "B",
+          "hu": "Jó. Aludj sokat, kicsim.",
+          "ru": "Хорошо. Выспись, малыш.",
+          "en": "Good. Sleep a lot, sweetheart."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben. Most megyek, késő van.",
+          "ru": "Хорошо. Пойду, уже поздно.",
+          "en": "All right. I'll go, it is late."
+        },
+        {
+          "who": "B",
+          "hu": "Jó, holnap hívlak. Pá!",
+          "ru": "Хорошо, завтра позвоню. Пока!",
+          "en": "Good, I will call tomorrow. Bye!"
+        }
+      ]
+    },
+    {
+      "slug": "bocsanat",
+      "title": {
+        "ru": "Не пришёл на встречу",
+        "en": "Missed the meeting"
+      },
+      "scene": {
+        "ru": "Приятель извиняется, что не пришёл.",
+        "en": "A friend apologises for not turning up."
+      },
+      "names": [
+        "Marci"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Marci, bocsi! Nem jöttem el.",
+          "ru": "Марци, прости! Я не пришёл.",
+          "en": "Marci, sorry! I did not go."
+        },
+        {
+          "who": "B",
+          "hu": "Hú, én egy órát vártam.",
+          "ru": "Ух, я ждал целый час.",
+          "en": "Phew, I waited for an hour."
+        },
+        {
+          "who": "A",
+          "hu": "Tudom. Nagyon sajnálom.",
+          "ru": "Знаю. Мне очень жаль.",
+          "en": "I know. I am very sorry."
+        },
+        {
+          "who": "B",
+          "hu": "Mi történt? Miért nem szóltál?",
+          "ru": "Что случилось? Почему не сказал?",
+          "en": "What happened? Why did you not say?"
+        },
+        {
+          "who": "A",
+          "hu": "Dolgoztam, és nem néztem az órát.",
+          "ru": "Работал и не смотрел на часы.",
+          "en": "I was working and did not look at the clock."
+        },
+        {
+          "who": "B",
+          "hu": "Hát, jó. Nem baj.",
+          "ru": "Ну ладно. Ничего страшного.",
+          "en": "Well, fine. Never mind."
+        },
+        {
+          "who": "A",
+          "hu": "Köszi! Holnap én hívlak meg kávéra.",
+          "ru": "Спасибо! Завтра я приглашаю тебя на кофе.",
+          "en": "Thanks! Tomorrow I will treat you to coffee."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,586 @@
+{
+  "talk": {
+    "genre": "phone",
+    "checked": "ai",
+    "title": {
+      "ru": "Когда будет вечеринка",
+      "en": "When is the party"
+    },
+    "names": [
+      "Dóri",
+      "Bence",
+      "Kata"
+    ],
+    "paras": [
+      [
+        {
+          "who": "B",
+          "hu": "Halló?",
+          "ru": "Алло?",
+          "en": "Hello?"
+        },
+        {
+          "who": "A",
+          "hu": "Szia, Dóri! Itt Bence. Zavarlak?",
+          "ru": "Привет, Дори! Это Бенце. Не отвлекаю?",
+          "en": "Hi, Dóri! It is Bence. Am I disturbing you?"
+        },
+        {
+          "who": "B",
+          "hu": "Dehogy. Épp most jöttem haza. Mi újság?",
+          "ru": "Ну что ты. Я только что пришла домой. Что нового?",
+          "en": "Not at all. I just got home. What is new?"
+        },
+        {
+          "who": "A",
+          "hu": "Semmi új. Szóval, szombaton buli lesz nálunk.",
+          "ru": "Ничего нового. Так вот, в субботу у нас будет вечеринка.",
+          "en": "Nothing new. So, there is a party at our place on Saturday."
+        },
+        {
+          "who": "B",
+          "hu": "Tényleg? Nem is tudtam. Melyik szombaton?",
+          "ru": "Правда? Я и не знала. В какую субботу?",
+          "en": "Really? I did not even know. Which Saturday?"
+        },
+        {
+          "who": "A",
+          "hu": "Ezen a szombaton, este nyolckor. Jössz?",
+          "ru": "В эту субботу, в восемь вечера. Придёшь?",
+          "en": "This Saturday, at eight in the evening. Are you coming?"
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, bocsi, de szombaton dolgozom. Egész nap.",
+          "ru": "Ой, прости, но в субботу я работаю. Весь день.",
+          "en": "Oh, sorry, but I work on Saturday. All day."
+        },
+        {
+          "who": "A",
+          "hu": "Egész nap? Hát ez nagy kár.",
+          "ru": "Весь день? Ну, очень жаль.",
+          "en": "All day? Well, that is a great pity."
+        },
+        {
+          "who": "B",
+          "hu": "Igen, ebben a hónapban nagy a munka.",
+          "ru": "Да, в этом месяце много работы.",
+          "en": "Yes, there is a lot of work this month."
+        },
+        {
+          "who": "A",
+          "hu": "Nyugi, van ötletem. Pénteken este szabad vagy?",
+          "ru": "Спокойно, у меня есть идея. В пятницу вечером ты свободна?",
+          "en": "Easy, I have an idea. Are you free on Friday evening?"
+        },
+        {
+          "who": "B",
+          "hu": "Pénteken igen. Hét órától már szabad vagyok.",
+          "ru": "В пятницу да. С семи часов я уже свободна.",
+          "en": "On Friday, yes. From seven o'clock I am already free."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper! Akkor legyen péntek. Kata is jön, ő hoz kaját.",
+          "ru": "Супер! Тогда пусть будет пятница. Ката тоже придёт, она принесёт еду.",
+          "en": "Great! Then let it be Friday. Kata is coming too, she brings food."
+        },
+        {
+          "who": "B",
+          "hu": "Hűha, akkor én hozok valami édeset.",
+          "ru": "Ух ты, тогда я принесу что-нибудь сладкое.",
+          "en": "Wow, then I will bring something sweet."
+        },
+        {
+          "who": "A",
+          "hu": "Köszi, az király! Gyere hétkor, vagy kicsit később.",
+          "ru": "Спасибо, это круто! Приходи в семь или чуть позже.",
+          "en": "Thanks, that is cool! Come at seven or a little later."
+        },
+        {
+          "who": "B",
+          "hu": "Jó, hétkor ott vagyok. Szólj, ha mindenki jön!",
+          "ru": "Хорошо, в семь буду. Скажи, если все придут!",
+          "en": "OK, I will be there at seven. Tell me if everyone is coming!"
+        },
+        {
+          "who": "A",
+          "hu": "Persze. Hozol valami italt is? Abból sosem elég a buliban.",
+          "ru": "Конечно. Принесёшь и что-нибудь попить? Этого на вечеринке всегда мало.",
+          "en": "Sure. Will you bring something to drink too? There is never enough at a party."
+        },
+        {
+          "who": "B",
+          "hu": "Hozok kettőt. Meddig tart a buli?",
+          "ru": "Принесу два. До какого часа вечеринка?",
+          "en": "I will bring two. How long does the party last?"
+        },
+        {
+          "who": "A",
+          "hu": "Éjfélig. Vasárnap viszont mindenki alszik, szóval nem sokáig.",
+          "ru": "До полуночи. А в воскресенье все спят, так что недолго.",
+          "en": "Until midnight. On Sunday everybody sleeps, so not long."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. Szombaton dolgozom, pénteken buli, vasárnap pihenek.",
+          "ru": "Хорошо. В субботу работаю, в пятницу вечеринка, в воскресенье отдыхаю.",
+          "en": "All right. Saturday I work, Friday party, Sunday I rest."
+        },
+        {
+          "who": "A",
+          "hu": "Remek hét lesz! Hétfőn már újra dolgozunk.",
+          "ru": "Отличная будет неделя! В понедельник уже снова работаем.",
+          "en": "It will be a great week! On Monday we work again."
+        },
+        {
+          "who": "B",
+          "hu": "Igen, de addig még van két nap.",
+          "ru": "Да, но до этого ещё два дня.",
+          "en": "Yes, but until then there are still two days."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben, még ma este írok. Köszi, Dóri!",
+          "ru": "Хорошо, сегодня вечером ещё напишу. Спасибо, Дори!",
+          "en": "All right, I will write this evening. Thanks, Dóri!"
+        },
+        {
+          "who": "B",
+          "hu": "Szívesen. Szia!",
+          "ru": "Пожалуйста. Пока!",
+          "en": "You are welcome. Bye!"
+        },
+        {
+          "who": "A",
+          "hu": "Szia!",
+          "ru": "Пока!",
+          "en": "Bye!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "szulinap-ajandek",
+      "title": {
+        "ru": "Когда день рождения",
+        "en": "When is the birthday"
+      },
+      "scene": {
+        "ru": "Двое друзей выбирают подарок.",
+        "en": "Two friends pick a present."
+      },
+      "names": [
+        "Zsófi"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Zsófi, mikor van a szülinapod?",
+          "ru": "Жофи, когда у тебя день рождения?",
+          "en": "Zsófi, when is your birthday?"
+        },
+        {
+          "who": "B",
+          "hu": "Májusban. Miért kérdezed?",
+          "ru": "В мае. А почему ты спрашиваешь?",
+          "en": "In May. Why do you ask?"
+        },
+        {
+          "who": "A",
+          "hu": "Mert tudni akarom! Mit kérsz ajándékba?",
+          "ru": "Хочу знать! Что хочешь в подарок?",
+          "en": "Because I want to know! What do you want as a gift?"
+        },
+        {
+          "who": "B",
+          "hu": "Nincs ötletem. Talán egy jó könyv?",
+          "ru": "Нет идей. Может, хорошая книга?",
+          "en": "I have no idea. Maybe a good book?"
+        },
+        {
+          "who": "A",
+          "hu": "Jó ötlet. És hol ünnepelsz?",
+          "ru": "Хорошая идея. А где ты празднуешь?",
+          "en": "Good idea. And where do you celebrate?"
+        },
+        {
+          "who": "B",
+          "hu": "Itthon. Lesz sok kaja, gyere!",
+          "ru": "Дома. Будет много еды, приходи!",
+          "en": "At home. There will be lots of food, come!"
+        },
+        {
+          "who": "A",
+          "hu": "Persze! Melyik nap lesz?",
+          "ru": "Конечно! В какой день будет?",
+          "en": "Of course! Which day will it be?"
+        },
+        {
+          "who": "B",
+          "hu": "Szombaton, ha jön a család.",
+          "ru": "В субботу, если приедет семья.",
+          "en": "On Saturday, if the family comes."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper, megnézem a naptárt. Szombaton szabad vagyok.",
+          "ru": "Супер, посмотрю в календаре. В субботу я свободен.",
+          "en": "Great, I will check the calendar. I am free on Saturday."
+        },
+        {
+          "who": "B",
+          "hu": "Akkor várlak! Gyere este hétkor.",
+          "ru": "Тогда жду! Приходи в семь вечера.",
+          "en": "Then I will wait for you! Come at seven in the evening."
+        }
+      ]
+    },
+    {
+      "slug": "aprilis-ido",
+      "title": {
+        "ru": "Какая погода в апреле",
+        "en": "The weather in April"
+      },
+      "scene": {
+        "ru": "Соседи в лифте, на «вы».",
+        "en": "Neighbours in the lift, formal terms."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Hideg van ma, ugye?",
+          "ru": "Здравствуйте! Сегодня холодно, да?",
+          "en": "Good day! It is cold today, isn't it?"
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot! Igen, pedig már április.",
+          "ru": "Здравствуйте! Да, а ведь уже апрель.",
+          "en": "Good day! Yes, and it is already April."
+        },
+        {
+          "who": "A",
+          "hu": "Igen, áprilisban sosem lehet tudni. Tegnap meleg volt.",
+          "ru": "Да, в апреле никогда не знаешь. Вчера было тепло.",
+          "en": "Yes, you never know in April. Yesterday it was warm."
+        },
+        {
+          "who": "B",
+          "hu": "Mondják, hétvégén már meleg lesz.",
+          "ru": "Говорят, в выходные уже будет тепло.",
+          "en": "They say it will be warm at the weekend."
+        },
+        {
+          "who": "A",
+          "hu": "Jó hír! Akkor sétálok a városban.",
+          "ru": "Хорошая новость! Тогда погуляю по городу.",
+          "en": "Good news! Then I will walk in the city."
+        },
+        {
+          "who": "B",
+          "hu": "Hát, májusban talán jobb lesz.",
+          "ru": "Ну, в мае, может, будет лучше.",
+          "en": "Well, in May it will perhaps be better."
+        },
+        {
+          "who": "A",
+          "hu": "Remélem. A nyár nekem a legjobb évszak.",
+          "ru": "Надеюсь. Лето для меня лучшее время года.",
+          "en": "I hope so. Summer is the best season for me."
+        },
+        {
+          "who": "B",
+          "hu": "Nekem is. Télen mindig nagyon hideg van.",
+          "ru": "Мне тоже. Зимой всегда очень холодно.",
+          "en": "Me too. In winter it is always very cold."
+        },
+        {
+          "who": "A",
+          "hu": "Igen, igaz. Jó hétvégét kívánok!",
+          "ru": "Да, верно. Хороших выходных!",
+          "en": "True. Have a good weekend!"
+        },
+        {
+          "who": "B",
+          "hu": "Köszönöm, viszlát! Önnek is.",
+          "ru": "Спасибо, до свидания! И вам.",
+          "en": "Thank you, goodbye! You too."
+        }
+      ]
+    },
+    {
+      "slug": "suli-hetvege",
+      "title": {
+        "ru": "Завтра суббота",
+        "en": "Tomorrow is Saturday"
+      },
+      "scene": {
+        "ru": "Дома утром, мама и сын.",
+        "en": "At home in the morning, mother and son."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Anya, holnap is kell suliba menni?",
+          "ru": "Мам, завтра тоже надо идти в школу?",
+          "en": "Mum, do I have to go to school tomorrow too?"
+        },
+        {
+          "who": "B",
+          "hu": "Dehogy, holnap szombat van. Hétvége!",
+          "ru": "Ну что ты, завтра суббота. Выходные!",
+          "en": "Of course not, tomorrow is Saturday. Weekend!"
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, de jó! Hétfőn megint suli, ugye?",
+          "ru": "Ой, как хорошо! В понедельник опять школа, да?",
+          "en": "Oh, great! On Monday school again, right?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, hétfőtől péntekig. Hétvégén pihenünk.",
+          "ru": "Да, с понедельника по пятницу. В выходные отдыхаем.",
+          "en": "Yes, from Monday to Friday. At the weekend we rest."
+        },
+        {
+          "who": "A",
+          "hu": "És szombaton mit csinálunk?",
+          "ru": "А что мы делаем в субботу?",
+          "en": "And what do we do on Saturday?"
+        },
+        {
+          "who": "B",
+          "hu": "Délelőtt vásárolunk, délután megyünk a városba, este otthon vagyunk.",
+          "ru": "Утром покупки, днём едем в город, вечером дома.",
+          "en": "In the morning we shop, in the afternoon we go to town, in the evening we are at home."
+        },
+        {
+          "who": "A",
+          "hu": "És hétfőn korán kell kelni?",
+          "ru": "А в понедельник рано вставать?",
+          "en": "And on Monday do I have to get up early?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, hétkor. Szombaton viszont nem kell korán kelni.",
+          "ru": "Да, в семь. А в субботу рано вставать не надо.",
+          "en": "Yes, at seven. But on Saturday you need not get up early."
+        },
+        {
+          "who": "A",
+          "hu": "Hát jó, na.",
+          "ru": "Ну ладно уж.",
+          "en": "Oh well, all right."
+        }
+      ]
+    },
+    {
+      "slug": "heti-rutin",
+      "title": {
+        "ru": "Моя неделя",
+        "en": "My week"
+      },
+      "scene": {
+        "ru": "Коллеги за кофе, на «ты».",
+        "en": "Colleagues over coffee, on first-name terms."
+      },
+      "names": [
+        "Tamás"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Tamás, hetente hányszor úszol?",
+          "ru": "Тамаш, а ты сколько раз в неделю плаваешь?",
+          "en": "Tamás, how many times a week do you swim?"
+        },
+        {
+          "who": "B",
+          "hu": "Hetente kétszer. Hétfőn és pénteken.",
+          "ru": "Два раза в неделю. В понедельник и пятницу.",
+          "en": "Twice a week. On Monday and Friday."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper! Én csak vasárnap úszom, reggel.",
+          "ru": "Супер! А я плаваю только в воскресенье, утром.",
+          "en": "Great! I only swim on Sunday, in the morning."
+        },
+        {
+          "who": "B",
+          "hu": "Az is jó. Szombaton mit csinálsz?",
+          "ru": "И это хорошо. А что делаешь в субботу?",
+          "en": "That is good too. What do you do on Saturday?"
+        },
+        {
+          "who": "A",
+          "hu": "Bevásárolok, aztán alszom egész délután.",
+          "ru": "Хожу за покупками, потом сплю весь день.",
+          "en": "I do the shopping, then I sleep all afternoon."
+        },
+        {
+          "who": "B",
+          "hu": "Ühüm, ismerős. Jössz hétfőn velem úszni?",
+          "ru": "Угу, знакомо. Пойдёшь со мной в понедельник плавать?",
+          "en": "Uh-huh, familiar. Coming to swim with me on Monday?"
+        },
+        {
+          "who": "A",
+          "hu": "Naná! Mikor kezdődik?",
+          "ru": "Ещё бы! Когда начинается?",
+          "en": "Of course! When does it start?"
+        },
+        {
+          "who": "B",
+          "hu": "Reggel hatkor. Nyugi, utána kávé is lesz.",
+          "ru": "В шесть утра. Спокойно, потом будет и кофе.",
+          "en": "At six in the morning. Easy, there will be coffee afterwards."
+        },
+        {
+          "who": "A",
+          "hu": "Hú, hatkor? Hát jó, de te hozol kávét!",
+          "ru": "Ух, в шесть? Ну ладно, но кофе несёшь ты!",
+          "en": "Phew, at six? Oh well, but you bring the coffee!"
+        }
+      ]
+    },
+    {
+      "slug": "rendeles-napja",
+      "title": {
+        "ru": "Когда принимает врач",
+        "en": "The doctor's days"
+      },
+      "scene": {
+        "ru": "В регистратуре, на «вы».",
+        "en": "At the reception desk, formal terms."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Időpontot szeretnék kérni a doktorhoz.",
+          "ru": "Здравствуйте! Хочу записаться на приём к доктору.",
+          "en": "Good day! I would like to make an appointment with the doctor."
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot! Melyik napra?",
+          "ru": "Здравствуйте! На какой день?",
+          "en": "Good day! For which day?"
+        },
+        {
+          "who": "A",
+          "hu": "Pénteken jó lenne, ha lehet.",
+          "ru": "В пятницу было бы хорошо, если можно.",
+          "en": "Friday would be good, if possible."
+        },
+        {
+          "who": "B",
+          "hu": "Sajnos pénteken nincs rendelés. A doktor hétfőn van itt.",
+          "ru": "К сожалению, в пятницу приёма нет. Доктор бывает в понедельник.",
+          "en": "Unfortunately there is no surgery on Friday. The doctor is here on Monday."
+        },
+        {
+          "who": "A",
+          "hu": "Hát, akkor hétfőre. Délelőtt lehet?",
+          "ru": "Ну, тогда на понедельник. Можно утром?",
+          "en": "Well, then for Monday. Is the morning possible?"
+        },
+        {
+          "who": "B",
+          "hu": "Tízkor van szabad hely. Jó lesz?",
+          "ru": "В десять есть место. Подойдёт?",
+          "en": "There is a free slot at ten. Will that do?"
+        },
+        {
+          "who": "A",
+          "hu": "Persze, köszönöm szépen. És mennyi ideig tart?",
+          "ru": "Конечно, большое спасибо. А сколько это длится?",
+          "en": "Of course, thank you very much. And how long does it take?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem sokáig, tíz perc. Viszlát hétfőn!",
+          "ru": "Недолго, десять минут. До свидания, до понедельника!",
+          "en": "Not long, ten minutes. Goodbye, see you Monday!"
+        }
+      ]
+    },
+    {
+      "slug": "szoba-egy-hetre",
+      "title": {
+        "ru": "Номер на неделю",
+        "en": "A room for a week"
+      },
+      "scene": {
+        "ru": "По телефону, бронь на «вы».",
+        "en": "On the phone, booking, formal terms."
+      },
+      "names": [
+        "Nagy",
+        "Péter"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Egy hétre szeretnék szobát kérni.",
+          "ru": "Здравствуйте! Хочу номер на неделю.",
+          "en": "Good day! I would like a room for a week."
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot! Melyik hétre?",
+          "ru": "Здравствуйте! На какую неделю?",
+          "en": "Good day! For which week?"
+        },
+        {
+          "who": "A",
+          "hu": "Augusztusban, az első hétre. Szombattól szombatig.",
+          "ru": "В августе, на первую неделю. С субботы до субботы.",
+          "en": "In August, for the first week. From Saturday to Saturday."
+        },
+        {
+          "who": "B",
+          "hu": "Egy pillanat, mindjárt nézem. Szombaton sajnos nincs szabad szoba.",
+          "ru": "Минутку, сейчас посмотрю. В субботу, к сожалению, свободных номеров нет.",
+          "en": "One moment, I am just looking. On Saturday there is unfortunately no free room."
+        },
+        {
+          "who": "A",
+          "hu": "Hát, akkor vasárnaptól vasárnapig is jó lenne.",
+          "ru": "Ну, тогда с воскресенья до воскресенья тоже подойдёт.",
+          "en": "Well, then from Sunday to Sunday would also be fine."
+        },
+        {
+          "who": "B",
+          "hu": "Vasárnaptól van szabad szoba. Mi a neve?",
+          "ru": "С воскресенья есть свободный номер. Как вас зовут?",
+          "en": "From Sunday there is a free room. What is your name?"
+        },
+        {
+          "who": "A",
+          "hu": "Nagy Péter vagyok. Köszönöm, szuper!",
+          "ru": "Я Петер Надь. Спасибо, отлично!",
+          "en": "I am Péter Nagy. Thank you, great!"
+        },
+        {
+          "who": "B",
+          "hu": "Szívesen. Szép napot, viszlát augusztusban!",
+          "ru": "Пожалуйста. Хорошего дня, до свидания в августе!",
+          "en": "You are welcome. Have a nice day, see you in August!"
+        }
+      ]
+    }
+  ]
+}

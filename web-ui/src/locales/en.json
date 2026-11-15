@@ -271,8 +271,9 @@
     "wordNote": "Note on this word",
     "phrases": "Phrases from this unit",
     "readTitle": "Read on this topic",
-    "readKindPhrases": "Phrases",
-    "readKindDialogue": "Dialogue",
+    "talkTitle": "Everyday speech",
+    "talkMore": "{n} more",
+    "talkFewer": "Show fewer",
     "readAdd": "Add to reading",
     "readOpen": "Read"
   },
@@ -1052,8 +1053,13 @@
   "library": {
     "sets": {
       "title": "Ready-made sets",
-      "intro": "“Phrases” are real sentences written by people. A “Dialogue” is a short conversation written by an AI (and labelled so). Adding creates a text; you make the cards yourself by tapping words.",
+      "intro": "Each topic has three texts of different length — short, medium and long. Adding creates a text; you make the cards yourself by tapping words.",
       "count": "{n} sentences",
+      "words": "~{n} word | ~{n} words",
+      "tier": {"short": "Short", "medium": "Medium", "long": "Long", "talk": "Talk", "mini": "Scene"},
+      "filter": {"label": "Filter sets", "all": "All", "short": "Short", "medium": "Medium", "long": "Long", "colloquial": "Colloquial"},
+      "colloquial": "Colloquial",
+      "conversations": "Conversations · {n}",
       "theme": "themed",
       "inLibrary": "in your library",
       "notAdded": "not added",
@@ -1065,10 +1071,9 @@
       "preview": "Preview",
       "previewOf": "Preview: {title}",
       "previewLoading": "Loading the lines…",
-      "authored": "Written by AI, not checked by a native speaker",
-      "authoredHint": "These lines are not taken from real texts. Only one thing was checked: every word is in the app's dictionary. Whether they sound natural, no native speaker has verified.",
       "added": "Set “{title}” added to your library"
     },
+    "genre": {"sms": "Text message", "note": "Note", "notice": "Notice", "postcard": "Postcard", "list": "List", "dialogue": "Dialogue", "email": "Email", "description": "Description", "chat": "Chat", "timetable": "Timetable", "myday": "My day", "story": "Story", "diary": "Diary", "blog": "Blog", "phone": "Phone call", "voicemsg": "Voice message"},
     "addTitle": "Add a text",
     "title": "Title",
     "titleHint": "optional — we take the opening words",

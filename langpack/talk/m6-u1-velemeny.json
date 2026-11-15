@@ -1,0 +1,591 @@
+{
+ "talk": {
+  "genre": "phone",
+  "checked": "ai",
+  "title": {
+   "ru": "Совет по телефону",
+   "en": "Advice on the phone"
+  },
+  "names": [
+   "Dani"
+  ],
+  "paras": [
+   [
+    {
+     "who": "A",
+     "hu": "Szia, Dani! Zavarlak? Kellene a véleményed egy dologban.",
+     "ru": "Привет, Дани! Я не отвлекаю? Мне нужно твоё мнение по одному вопросу.",
+     "en": "Hi, Dani! Am I disturbing you? I need your opinion on something."
+    },
+    {
+     "who": "B",
+     "hu": "Persze, mondd! Most nem sietek.",
+     "ru": "Конечно, говори! Сейчас я не спешу.",
+     "en": "Sure, go ahead! I am not in a hurry now."
+    },
+    {
+     "who": "A",
+     "hu": "Új munkát ajánlottak. Nagyobb a fizetés, de messzebb van.",
+     "ru": "Мне предложили работу. Зарплата больше, но она дальше.",
+     "en": "I got a job offer. A bigger salary, but it is farther away."
+    },
+    {
+     "who": "B",
+     "hu": "Hú, ez érdekes. Mennyivel messzebb?",
+     "ru": "Ух, интересно. Насколько дальше?",
+     "en": "Wow, that is interesting. How much farther?"
+    },
+    {
+     "who": "A",
+     "hu": "Egy óra oda, egy óra vissza. Szerintem ez túl sok.",
+     "ru": "Час туда, час обратно. По-моему, это слишком много.",
+     "en": "An hour there, an hour back. I think that is too much."
+    },
+    {
+     "who": "B",
+     "hu": "Hát, én nem így gondolom. Vonaton van időd.",
+     "ru": "Ну, я думаю иначе. В поезде у тебя есть время.",
+     "en": "Well, I do not see it that way. On the train you have time."
+    },
+    {
+     "who": "A",
+     "hu": "Igaz, de este fáradt vagyok. Nem akarok vitatkozni, csak bizonytalan vagyok.",
+     "ru": "Правда, но вечером я устаю. Я не хочу спорить, я просто не уверена.",
+     "en": "True, but I am tired in the evening. I do not want to argue, I am just unsure."
+    },
+    {
+     "who": "B",
+     "hu": "Nem vitatkozunk. Szerintem jó ötlet, érdemes megpróbálni.",
+     "ru": "Мы не спорим. По-моему, хорошая идея, стоит попробовать.",
+     "en": "We are not arguing. I think it is a good idea, worth trying."
+    },
+    {
+     "who": "A",
+     "hu": "Mennyivel kapok többet? Majdnem húsz százalékkal.",
+     "ru": "На сколько больше я получу? Почти на двадцать процентов.",
+     "en": "How much more would I get? Almost twenty percent."
+    },
+    {
+     "who": "B",
+     "hu": "Na, akkor ez nem kis dolog! Szerintem nem szabad nemet mondani.",
+     "ru": "Ну, тогда это немало! По-моему, нельзя говорить нет.",
+     "en": "Well, then that is not small! I think you should not say no."
+    },
+    {
+     "who": "A",
+     "hu": "És a család? Anya szerint maradjak itt.",
+     "ru": "А семья? Мама считает, что мне надо остаться здесь.",
+     "en": "And the family? Mum says I should stay here."
+    },
+    {
+     "who": "B",
+     "hu": "Őszintén, anyukád mindig ezt mondja. Ez az ő szempontja.",
+     "ru": "Честно говоря, твоя мама всегда так говорит. Это её точка зрения.",
+     "en": "Honestly, your mum always says that. That is her point of view."
+    },
+    {
+     "who": "A",
+     "hu": "Jogos. Akkor mit tegyek?",
+     "ru": "Справедливо. Тогда что мне делать?",
+     "en": "Fair. So what should I do?"
+    },
+    {
+     "who": "B",
+     "hu": "Kérdezd meg, lehet-e otthonról dolgozni egy napot.",
+     "ru": "Спроси, можно ли один день работать из дома.",
+     "en": "Ask whether you can work from home one day."
+    },
+    {
+     "who": "A",
+     "hu": "Ez nagyon jó javaslat! Nem is gondoltam rá.",
+     "ru": "Это очень хорошее предложение! Я даже не подумала об этом.",
+     "en": "That is a very good suggestion! I had not even thought of it."
+    },
+    {
+     "who": "B",
+     "hu": "Na látod. Ha igen, akkor elfogadod.",
+     "ru": "Ну вот видишь. Если можно, тогда соглашаешься.",
+     "en": "There you see. If yes, then you accept it."
+    },
+    {
+     "who": "A",
+     "hu": "És ha nem lehet? Akkor mi lesz?",
+     "ru": "А если нельзя? Тогда что будет?",
+     "en": "And if it is not possible? Then what?"
+    },
+    {
+     "who": "B",
+     "hu": "Akkor még mindig van időd gondolkodni. Nem kell sietni.",
+     "ru": "Тогда у тебя всё ещё есть время подумать. Спешить не надо.",
+     "en": "Then you still have time to think. There is no need to hurry."
+    },
+    {
+     "who": "A",
+     "hu": "Rendben, holnap hívom őket. Köszi, tényleg sokat segítettél!",
+     "ru": "Хорошо, завтра им позвоню. Спасибо, ты правда очень помог!",
+     "en": "All right, I will call them tomorrow. Thanks, you really helped a lot!"
+    },
+    {
+     "who": "B",
+     "hu": "Szívesen. Szólj, ha tudod az eredményt. Szia!",
+     "ru": "Пожалуйста. Скажи, когда узнаешь результат. Пока!",
+     "en": "You are welcome. Let me know when you know the result. Bye!"
+    },
+    {
+     "who": "A",
+     "hu": "Szia, pápá!",
+     "ru": "Пока, пока-пока!",
+     "en": "Bye, bye-bye!"
+    }
+   ]
+  ]
+ },
+ "dialogues": [
+  {
+   "slug": "filmvalasztas",
+   "title": {
+    "ru": "Melyik filmet nézzük?",
+    "en": "Which film shall we watch?"
+   },
+   "scene": {
+    "ru": "Két barát otthon választ filmet.",
+    "en": "Two friends choose a film at home."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Na, melyik filmet nézzük meg ma este?",
+     "ru": "Ну, какой фильм посмотрим сегодня вечером?",
+     "en": "So, which film shall we watch tonight?"
+    },
+    {
+     "who": "B",
+     "hu": "Szerintem az újat. Az nagyon jó.",
+     "ru": "По-моему, новый. Он очень хороший.",
+     "en": "I think the new one. It is really good."
+    },
+    {
+     "who": "A",
+     "hu": "Nekem nem tetszik. A színészek nem jók.",
+     "ru": "Мне не нравится. Актёры не очень.",
+     "en": "I do not like it. The actors are not good."
+    },
+    {
+     "who": "B",
+     "hu": "Tényleg? Akkor mit javasolsz?",
+     "ru": "Правда? Тогда что предлагаешь?",
+     "en": "Really? Then what do you suggest?"
+    },
+    {
+     "who": "A",
+     "hu": "Szerintem a régi film jobb ötlet.",
+     "ru": "По-моему, старый фильм лучше.",
+     "en": "I think the old film is a better idea."
+    },
+    {
+     "who": "B",
+     "hu": "Jó, na, de a múltkor te választottál.",
+     "ru": "Ну ладно, но в прошлый раз выбирал ты.",
+     "en": "Well, okay, but last time you chose."
+    },
+    {
+     "who": "A",
+     "hu": "Igaz, ez jogos. Akkor legyen az új.",
+     "ru": "Верно, это справедливо. Тогда пусть будет новый.",
+     "en": "True, that is fair. Then let it be the new one."
+    },
+    {
+     "who": "B",
+     "hu": "Szuper! Majd te hozod a kaját.",
+     "ru": "Супер! Тогда ты принесёшь еду.",
+     "en": "Great! Then you bring the food."
+    },
+    {
+     "who": "A",
+     "hu": "Rendben, megegyeztünk.",
+     "ru": "Хорошо, договорились.",
+     "en": "All right, deal."
+    }
+   ]
+  },
+  {
+   "slug": "autoval-vagy-nem",
+   "title": {
+    "ru": "Autóval vagy máshogy?",
+    "en": "By car or not?"
+   },
+   "scene": {
+    "ru": "Két kolléga ebédnél beszélget az utazásról.",
+    "en": "Two colleagues talk about commuting over lunch."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Szerintem Budapesten kocsival lehetetlen közlekedni.",
+     "ru": "По-моему, в Будапеште на машине ездить невозможно.",
+     "en": "I think driving in Budapest is impossible."
+    },
+    {
+     "who": "B",
+     "hu": "Én nem így gondolom. Nekem gyorsabb.",
+     "ru": "Я думаю иначе. Мне так быстрее.",
+     "en": "I do not think so. It is faster for me."
+    },
+    {
+     "who": "A",
+     "hu": "Komolyan? Mindig nagy a forgalom!",
+     "ru": "Серьёзно? Всегда же большое движение!",
+     "en": "Seriously? The traffic is always heavy!"
+    },
+    {
+     "who": "B",
+     "hu": "Reggel igen, de délután nincs.",
+     "ru": "Утром да, но днём нет.",
+     "en": "In the morning yes, but not in the afternoon."
+    },
+    {
+     "who": "A",
+     "hu": "Hát, az lehet. Te mikor indulsz?",
+     "ru": "Ну, может быть. А ты когда выезжаешь?",
+     "en": "Well, maybe. When do you set off?"
+    },
+    {
+     "who": "B",
+     "hu": "Hét előtt. Akkor még üres az út.",
+     "ru": "Раньше семи. Тогда дорога ещё пустая.",
+     "en": "Before seven. Then the road is still empty."
+    },
+    {
+     "who": "A",
+     "hu": "Jó, de az nekem túl korán van.",
+     "ru": "Ладно, но для меня это слишком рано.",
+     "en": "Okay, but that is too early for me."
+    },
+    {
+     "who": "B",
+     "hu": "Értem. Mindenkinek más a szempontja.",
+     "ru": "Понятно. У каждого своя точка зрения.",
+     "en": "I see. Everyone has a different point of view."
+    },
+    {
+     "who": "A",
+     "hu": "Jó, akkor holnap veled megyek. Hétkor?",
+     "ru": "Ладно, тогда завтра поеду с тобой. В семь?",
+     "en": "Okay, then tomorrow I will come with you. At seven?"
+    },
+    {
+     "who": "B",
+     "hu": "Rendben, hétkor a ház előtt.",
+     "ru": "Хорошо, в семь у дома.",
+     "en": "All right, at seven in front of the house."
+    }
+   ]
+  },
+  {
+   "slug": "hetvegi-terv",
+   "title": {
+    "ru": "Hétvégi terv",
+    "en": "Weekend plan"
+   },
+   "scene": {
+    "ru": "Két barát telefonon vitatkozik a szombatról.",
+    "en": "Two friends debate Saturday on the phone."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Szombaton elmegyünk a hegyekbe? Szép idő lesz.",
+     "ru": "В субботу поедем в горы? Погода будет хорошая.",
+     "en": "Shall we go to the hills on Saturday? The weather will be nice."
+    },
+    {
+     "who": "B",
+     "hu": "Nem tudom. Én inkább otthon maradnék.",
+     "ru": "Не знаю. Я бы лучше остался дома.",
+     "en": "I do not know. I would rather stay at home."
+    },
+    {
+     "who": "A",
+     "hu": "Ne már! Mindig otthon vagy.",
+     "ru": "Да ладно! Ты всё время дома.",
+     "en": "Come on! You are always at home."
+    },
+    {
+     "who": "B",
+     "hu": "Fáradt vagyok, egész héten dolgoztam.",
+     "ru": "Я устал, всю неделю работал.",
+     "en": "I am tired, I worked all week."
+    },
+    {
+     "who": "A",
+     "hu": "Pont ezért kell elmenni! Az jót tesz.",
+     "ru": "Именно поэтому надо выйти! Это полезно.",
+     "en": "That is exactly why we must go out! It does you good."
+    },
+    {
+     "who": "B",
+     "hu": "Hát, ebben igazad van.",
+     "ru": "Ну, тут ты права.",
+     "en": "Well, you are right about that."
+    },
+    {
+     "who": "A",
+     "hu": "Na látod! Korán indulunk, nyolc órakor.",
+     "ru": "Ну вот видишь! Выезжаем рано, в восемь часов.",
+     "en": "There you see! We leave early, at eight o'clock."
+    },
+    {
+     "who": "B",
+     "hu": "Nyolc óra? Az kizárt! Legyen kilenc.",
+     "ru": "Восемь часов? Исключено! Пусть будет девять.",
+     "en": "Eight o'clock? Out of the question! Make it nine."
+    },
+    {
+     "who": "A",
+     "hu": "Jó, legyen kilenc.",
+     "ru": "Ладно, пусть будет девять.",
+     "en": "Okay, nine it is."
+    },
+    {
+     "who": "B",
+     "hu": "Jó. Hozok kaját is, nyugi.",
+     "ru": "Ладно. И еды принесу, спокойно.",
+     "en": "Fine. I will bring food too, relax."
+    }
+   ]
+  },
+  {
+   "slug": "meccs",
+   "title": {
+    "ru": "Egy meccs után",
+    "en": "After a match"
+   },
+   "scene": {
+    "ru": "Két barát vitatkozik a tegnapi meccsről.",
+    "en": "Two friends argue about yesterday's match."
+   },
+   "names": [
+    "Fradi"
+   ],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Láttad a meccset tegnap? Szörnyű volt!",
+     "ru": "Смотрел вчера матч? Ужас!",
+     "en": "Did you see the match yesterday? It was awful!"
+    },
+    {
+     "who": "B",
+     "hu": "Dehogy! Szerintem jól játszottak.",
+     "ru": "Да ну! По-моему, они хорошо играли.",
+     "en": "Not at all! I think they played well."
+    },
+    {
+     "who": "A",
+     "hu": "Jól? A bíró volt jó, nem ők.",
+     "ru": "Хорошо? Хорош был судья, а не они.",
+     "en": "Well? The referee was good, not them."
+    },
+    {
+     "who": "B",
+     "hu": "Ne már, ez nem igaz! Az első rész szuper volt.",
+     "ru": "Да ладно, это неправда! Первая половина была супер.",
+     "en": "Come on, that is not true! The first half was great."
+    },
+    {
+     "who": "A",
+     "hu": "Jó, az első igen. A második nem.",
+     "ru": "Ладно, первый да. Второй нет.",
+     "en": "Okay, the first yes. The second no."
+    },
+    {
+     "who": "B",
+     "hu": "Igaz. Szerinted ki nyer a hétvégén?",
+     "ru": "Верно. А как думаешь, кто выиграет на выходных?",
+     "en": "True. Who do you think wins at the weekend?"
+    },
+    {
+     "who": "A",
+     "hu": "Szerintem a Fradi, kettő egy.",
+     "ru": "По-моему, Фради, два один.",
+     "en": "I think Fradi, two one."
+    },
+    {
+     "who": "B",
+     "hu": "Nem hiszem. Szerintem a másik csapat nyer.",
+     "ru": "Не думаю. По-моему, выиграет другая команда.",
+     "en": "I do not think so. I think the other team wins."
+    },
+    {
+     "who": "A",
+     "hu": "Oké, akinek nincs igaza, az fizet egy sört.",
+     "ru": "Окей, кто окажется неправ, платит за пиво.",
+     "en": "Okay, whoever is wrong pays for a beer."
+    },
+    {
+     "who": "B",
+     "hu": "Áll az alku! Egy sör.",
+     "ru": "По рукам! Одно пиво.",
+     "en": "Deal! One beer."
+    }
+   ]
+  },
+  {
+   "slug": "heti-megbeszeles",
+   "title": {
+    "ru": "Egy ötlet a megbeszélésen",
+    "en": "An idea in the meeting"
+   },
+   "scene": {
+    "ru": "Két kolléga a heti megbeszélés előtt.",
+    "en": "Two colleagues before the weekly meeting."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Nekem lenne egy ötletem a hétfői megbeszéléshez.",
+     "ru": "У меня есть идея насчёт понедельничного совещания.",
+     "en": "I have an idea about the Monday meeting."
+    },
+    {
+     "who": "B",
+     "hu": "Mondd csak.",
+     "ru": "Говори.",
+     "en": "Go on."
+    },
+    {
+     "who": "A",
+     "hu": "Szerintem rövidebb is jó lenne. Negyven perc nagyon sok.",
+     "ru": "По-моему, оно могло бы быть короче. Сорок минут это лишнее.",
+     "en": "I think it could be shorter. Forty minutes is unnecessary."
+    },
+    {
+     "who": "B",
+     "hu": "Hát, nem tudom. Mindenki akar beszélni.",
+     "ru": "Ну, не знаю. Все хотят говорить.",
+     "en": "Well, I do not know. Everyone wants to talk."
+    },
+    {
+     "who": "A",
+     "hu": "Igen, de sokan csak ülnek.",
+     "ru": "Да, но многие просто сидят.",
+     "en": "Yes, but many just sit."
+    },
+    {
+     "who": "B",
+     "hu": "Ebben igazad van. Mit javasolsz?",
+     "ru": "Тут ты прав. Что предлагаешь?",
+     "en": "You are right there. What do you suggest?"
+    },
+    {
+     "who": "A",
+     "hu": "Fél óra, és mindenki egy percet beszél.",
+     "ru": "Полчаса, и каждый говорит по минуте.",
+     "en": "Half an hour, and everyone speaks for one minute."
+    },
+    {
+     "who": "B",
+     "hu": "Ez ésszerű. Egy hónapig megnézzük.",
+     "ru": "Это разумно. Месяц посмотрим.",
+     "en": "That is reasonable. We will see for a month."
+    },
+    {
+     "who": "A",
+     "hu": "Köszi a segítséget.",
+     "ru": "Спасибо за помощь.",
+     "en": "Thanks for the help."
+    },
+    {
+     "who": "B",
+     "hu": "Szívesen. Szólok a főnöknek is.",
+     "ru": "Пожалуйста. Скажу и начальнику.",
+     "en": "You are welcome. I will tell the boss too."
+    }
+   ]
+  },
+  {
+   "slug": "uj-kabat",
+   "title": {
+    "ru": "Az új kabát",
+    "en": "The new coat"
+   },
+   "scene": {
+    "ru": "Két barát találkozik, az egyiken új kabát van.",
+    "en": "Two friends meet, one wears a new coat."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Hűha, új kabát? Nagyon jól áll!",
+     "ru": "Ух ты, новое пальто? Тебе очень идёт!",
+     "en": "Wow, a new coat? It really suits you!"
+    },
+    {
+     "who": "B",
+     "hu": "Köszi! Tegnap vettem a boltban.",
+     "ru": "Спасибо! Вчера купила в магазине.",
+     "en": "Thanks! I bought it yesterday in a shop."
+    },
+    {
+     "who": "A",
+     "hu": "Szerintem a színe szuper. Mennyibe került?",
+     "ru": "По-моему, цвет супер. Сколько стоило?",
+     "en": "I think the colour is great. How much was it?"
+    },
+    {
+     "who": "B",
+     "hu": "Sok volt. Szerintem túl drága.",
+     "ru": "Много. По-моему, слишком дорого.",
+     "en": "A lot. I think too expensive."
+    },
+    {
+     "who": "A",
+     "hu": "Nem tudom. Szerintem normális ár.",
+     "ru": "Не знаю. По-моему, нормальная цена.",
+     "en": "I do not know. I think it is a normal price."
+    },
+    {
+     "who": "B",
+     "hu": "Te mindig ezt mondod! Én nem vagyok biztos.",
+     "ru": "Ты всегда так говоришь! А я не уверена.",
+     "en": "You always say that! I am not sure."
+    },
+    {
+     "who": "A",
+     "hu": "Sokáig jó lesz, megéri.",
+     "ru": "Он долго прослужит, оно того стоит.",
+     "en": "It will last a long time, it is worth it."
+    },
+    {
+     "who": "B",
+     "hu": "Lehet, hogy igazad van. Remélem.",
+     "ru": "Возможно, ты права. Надеюсь.",
+     "en": "Maybe you are right. I hope so."
+    },
+    {
+     "who": "A",
+     "hu": "Na, kérsz egy kávét?",
+     "ru": "Ну что, хочешь кофе?",
+     "en": "So, would you like a coffee?"
+    },
+    {
+     "who": "B",
+     "hu": "Jó ötlet, én fizetek.",
+     "ru": "Хорошая идея, я плачу.",
+     "en": "Good idea, I pay."
+    }
+   ]
+  }
+ ]
+}

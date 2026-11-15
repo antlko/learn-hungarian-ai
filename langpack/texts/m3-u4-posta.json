@@ -1,0 +1,354 @@
+{
+  "short": {
+    "genre": "notice",
+    "checked": "ai",
+    "title": {
+      "ru": "Извещение из почтового ящика",
+      "en": "A notice from the letterbox"
+    },
+    "names": [
+      "Éva"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Értesítés Éva részére.",
+          "ru": "Извещение для Евы.",
+          "en": "Notice for Éva."
+        },
+        {
+          "hu": "Ma itt volt a postás, de nem volt otthon senki.",
+          "ru": "Сегодня приходил почтальон, но никого не было дома.",
+          "en": "The postman was here today, but nobody was at home."
+        },
+        {
+          "hu": "Egy ajánlott levél érkezett, a feladó Anna.",
+          "ru": "Пришло заказное письмо, отправитель Анна.",
+          "en": "A registered letter arrived, the sender is Anna."
+        },
+        {
+          "hu": "A levélért személyesen kell jönni a postára.",
+          "ru": "За письмом нужно прийти лично на почту.",
+          "en": "You have to come to the post office in person for the letter."
+        }
+      ],
+      [
+        {
+          "hu": "Hozd az igazolványt, és ne felejtsd az értesítést!",
+          "ru": "Возьми удостоверение и не забудь извещение!",
+          "en": "Bring your ID, and do not forget the notice!"
+        },
+        {
+          "hu": "A posta hétfőtől péntekig nyitva van.",
+          "ru": "Почта открыта с понедельника по пятницу.",
+          "en": "The post office is open from Monday to Friday."
+        },
+        {
+          "hu": "Ha öt munkanap után nem veszed át, a levelet vissza kell küldeni.",
+          "ru": "Если за пять рабочих дней ты не заберёшь, письмо нужно отправить обратно.",
+          "en": "If you do not collect it after five working days, the letter has to be sent back."
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "На почте",
+      "en": "At the post office"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Jó napot kívánok, egy ajánlott levélért jöttem.",
+          "ru": "Добрый день, я пришла за заказным письмом.",
+          "en": "Good day, I have come for a registered letter."
+        },
+        {
+          "hu": "Jó napot! Megvan az értesítés?",
+          "ru": "Добрый день! Извещение у вас есть?",
+          "en": "Good day! Do you have the notice?"
+        },
+        {
+          "hu": "Igen, itt van. A postás tegnapelőtt jött, de nem voltam otthon.",
+          "ru": "Да, вот. Почтальон приходил позавчера, но меня не было дома.",
+          "en": "Yes, here it is. The postman came the day before yesterday, but I was not at home."
+        },
+        {
+          "hu": "Értem. Kérem az igazolványt. A címzett Ön, ugye?",
+          "ru": "Понятно. Прошу удостоверение. Получатель Вы, да?",
+          "en": "I see. Your ID, please. You are the addressee, right?"
+        },
+        {
+          "hu": "Igen, én vagyok a címzett. A feladó a barátnőm.",
+          "ru": "Да, я получатель. Отправитель моя подруга.",
+          "en": "Yes, I am the addressee. The sender is my friend."
+        },
+        {
+          "hu": "Tessék a levél. Itt kérem aláírni, ez a tértivevény.",
+          "ru": "Вот письмо. Пожалуйста, распишитесь здесь, это уведомление о вручении.",
+          "en": "Here is the letter. Please sign here, it is the acknowledgement of receipt."
+        },
+        {
+          "hu": "Köszönöm. Külföldre is fel akarok adni egy levelet.",
+          "ru": "Спасибо. Я хочу ещё отправить письмо за границу.",
+          "en": "Thank you. I also want to post a letter abroad."
+        },
+        {
+          "hu": "Mehet légi vagy tengeri úton?",
+          "ru": "Отправлять воздушной или морской почтой?",
+          "en": "Should it go by air or by sea?"
+        },
+        {
+          "hu": "Légi, kérem, mert gyors kell. Mennyi a súly?",
+          "ru": "Воздушной, пожалуйста, мне нужно быстро. Какой вес?",
+          "en": "By air, please, because I need it fast. What is the weight?"
+        },
+        {
+          "hu": "Nem sok. A borítékra kell egy bélyeg és az irányítószám.",
+          "ru": "Немного. На конверт нужна марка и индекс.",
+          "en": "Not much. The envelope needs a stamp and the postcode."
+        },
+        {
+          "hu": "Itt van a bélyeg, ragasztom. A levél hány munkanap alatt megy?",
+          "ru": "Вот марка, я клею. За сколько рабочих дней дойдёт письмо?",
+          "en": "Here is the stamp, I am sticking it on. How many working days will the letter take?"
+        },
+        {
+          "hu": "Három-négy munkanap. A tengeri lassú, az sok hét.",
+          "ru": "Три-четыре рабочих дня. Морская медленная, это много недель.",
+          "en": "Three or four working days. The sea one is slow, it is many weeks."
+        }
+      ],
+      [
+        {
+          "hu": "Mi van a borítékban?",
+          "ru": "Что в конверте?",
+          "en": "What is in the envelope?"
+        },
+        {
+          "hu": "Csak egy képeslap és egy levél, nincs benne vám.",
+          "ru": "Только открытка и письмо, таможенной пошлины нет.",
+          "en": "Only a postcard and a letter, there is no customs duty in it."
+        },
+        {
+          "hu": "Akkor nem kell címke a küldeményre?",
+          "ru": "Тогда на отправление не нужна этикетка?",
+          "en": "Then the item does not need a label?"
+        },
+        {
+          "hu": "De igen, a feladó is kell, és a címzett is.",
+          "ru": "Нужна, и отправитель, и получатель.",
+          "en": "It does, the sender is needed too, and the addressee."
+        },
+        {
+          "hu": "Itt a feladó, ott a címzett, így jó?",
+          "ru": "Здесь отправитель, там получатель, так хорошо?",
+          "en": "Here is the sender, there is the addressee, is that right?"
+        },
+        {
+          "hu": "Így jó, tessék a nyugta.",
+          "ru": "Так хорошо, вот квитанция.",
+          "en": "That is right, here is the receipt."
+        },
+        {
+          "hu": "Köszönöm szépen a segítséget!",
+          "ru": "Большое спасибо за помощь!",
+          "en": "Thank you very much for your help!"
+        },
+        {
+          "hu": "Szívesen! Viszontlátásra, jó napot!",
+          "ru": "Пожалуйста! До свидания, хорошего дня!",
+          "en": "You are welcome! Goodbye, have a good day!"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "myday",
+    "checked": "ai",
+    "title": {
+      "ru": "Утро на почте",
+      "en": "A morning at the post office"
+    },
+    "names": [
+      "Anna"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Tegnap egész délelőtt a postán voltam.",
+          "ru": "Вчера я всё утро была на почте.",
+          "en": "Yesterday I was at the post office all morning."
+        },
+        {
+          "hu": "Reggel megnéztem a postaládát, és ott volt egy értesítés.",
+          "ru": "Утром я посмотрела почтовый ящик, и там было извещение.",
+          "en": "In the morning I looked in the letterbox, and there was a notice."
+        },
+        {
+          "hu": "Egy ajánlott levél jött, de a postás nem talált otthon.",
+          "ru": "Пришло заказное письмо, но почтальон не застал меня дома.",
+          "en": "A registered letter came, but the postman did not find me at home."
+        },
+        {
+          "hu": "A feladó Anna volt, a régi barátnőm.",
+          "ru": "Отправителем была Анна, моя старая подруга.",
+          "en": "The sender was Anna, my old friend."
+        },
+        {
+          "hu": "Nagyon örültem, mert tavaly nem írt.",
+          "ru": "Я очень обрадовалась, ведь в прошлом году она не писала.",
+          "en": "I was very glad, because last year she did not write."
+        }
+      ],
+      [
+        {
+          "hu": "A postán sokan várakoztak, így én is vártam.",
+          "ru": "На почте многие ждали, и я тоже ждала.",
+          "en": "Many people were waiting at the post office, so I waited too."
+        },
+        {
+          "hu": "Egy férfi egy törékeny küldeményt adott fel.",
+          "ru": "Один мужчина отправлял хрупкое отправление.",
+          "en": "A man was posting a fragile item."
+        },
+        {
+          "hu": "A pultnál egy kedves hölgy dolgozott.",
+          "ru": "За стойкой работала приятная женщина.",
+          "en": "A nice lady was working at the counter."
+        },
+        {
+          "hu": "A címkén ott volt a címzett és az irányítószám.",
+          "ru": "На этикетке были получатель и индекс.",
+          "en": "The label had the addressee and the postcode on it."
+        },
+        {
+          "hu": "Aztán rám került a sor, és megkaptam a levelet.",
+          "ru": "Потом подошла моя очередь, и я получила письмо.",
+          "en": "Then it was my turn, and I collected the letter."
+        },
+        {
+          "hu": "Személyesen kellett aláírni, ez a tértivevény.",
+          "ru": "Нужно было расписаться лично, это уведомление о вручении.",
+          "en": "I had to sign in person, this is the acknowledgement of receipt."
+        },
+        {
+          "hu": "A hölgy megnézte az igazolványomat, és kedves volt.",
+          "ru": "Дама посмотрела моё удостоверение и была любезна.",
+          "en": "The lady looked at my ID and was kind."
+        },
+        {
+          "hu": "Utána még megkérdeztem, mikor nyit a posta holnap.",
+          "ru": "Потом я ещё спросила, когда завтра открывается почта.",
+          "en": "Afterwards I asked when the post office opens tomorrow."
+        }
+      ],
+      [
+        {
+          "hu": "A borítékban egy képeslap volt, tengeri kép.",
+          "ru": "В конверте была открытка с морским видом.",
+          "en": "In the envelope there was a postcard, a picture of the sea."
+        },
+        {
+          "hu": "Anna írta, hogy a levél korábban elveszett.",
+          "ru": "Анна написала, что письмо раньше пропало.",
+          "en": "Anna wrote that the letter had been lost before."
+        },
+        {
+          "hu": "Az első küldemény késett, és a postás nem találta a címzettet.",
+          "ru": "Первое отправление задержалось, и почтальон не нашёл получателя.",
+          "en": "The first item was delayed, and the postman did not find the addressee."
+        },
+        {
+          "hu": "Ezért Anna panaszt írt, és megígérte, hogy újra küld.",
+          "ru": "Поэтому Анна написала жалобу и пообещала отправить снова.",
+          "en": "So Anna wrote a complaint and promised to send it again."
+        },
+        {
+          "hu": "A második levél gyors volt, mert légi úton ment.",
+          "ru": "Второе письмо было быстрым, потому что шло воздушной почтой.",
+          "en": "The second letter was fast, because it went by air."
+        }
+      ],
+      [
+        {
+          "hu": "Utána én is feladtam egy küldeményt Annának.",
+          "ru": "Потом я тоже отправила Анне отправление.",
+          "en": "After that I posted an item to Anna too."
+        },
+        {
+          "hu": "A borítékon már volt bélyeg, és a súlyt is megnéztük.",
+          "ru": "На конверте уже была марка, и мы ещё проверили вес.",
+          "en": "The envelope already had a stamp, and we checked the weight too."
+        },
+        {
+          "hu": "A posta szállítása nem drága, de a tengeri lassú.",
+          "ru": "Доставка почты недорогая, но морская медленная.",
+          "en": "The post office delivery is not expensive, but the sea one is slow."
+        },
+        {
+          "hu": "A kiadás kevés volt, ezért légi úton feladtam.",
+          "ru": "Расходы были небольшие, поэтому я отправила воздушной почтой.",
+          "en": "The expense was small, so I sent it by air."
+        }
+      ],
+      [
+        {
+          "hu": "Útközben megálltam a boltnál, és vettem egy kis kenyeret.",
+          "ru": "По дороге я остановилась у магазина и купила немного хлеба.",
+          "en": "On the way home I stopped at the shop and bought a little bread."
+        },
+        {
+          "hu": "Otthon újra megnéztem a postaládát, de már üres volt.",
+          "ru": "Дома я снова посмотрела почтовый ящик, но он был уже пуст.",
+          "en": "At home I looked in the letterbox again, but it was already empty."
+        },
+        {
+          "hu": "A levél és a képeslap az asztalon volt.",
+          "ru": "Письмо и открытка лежали на столе.",
+          "en": "The letter and the postcard were on the table."
+        },
+        {
+          "hu": "Elolvastam a levelet, és sokáig néztem a képeslapot.",
+          "ru": "Я прочитала письмо и долго смотрела на открытку.",
+          "en": "I read the letter and looked at the postcard for a long time."
+        },
+        {
+          "hu": "Anna jól van, és nyáron meglátogat.",
+          "ru": "У Анны всё хорошо, и летом она приедет в гости.",
+          "en": "Anna is well, and she will visit me in the summer."
+        },
+        {
+          "hu": "Sokat nevettem, mert a levél nagyon vicces volt.",
+          "ru": "Я много смеялась, потому что письмо было очень смешным.",
+          "en": "I laughed a lot, because the letter was very funny."
+        },
+        {
+          "hu": "Délután főztem egy kávét, és még egyszer elolvastam.",
+          "ru": "Днём я сварила кофе и прочитала ещё раз.",
+          "en": "In the afternoon I made a coffee and read it once more."
+        },
+        {
+          "hu": "Annának még írtam egy sort.",
+          "ru": "Анне я написала ещё пару строк.",
+          "en": "I wrote Anna another line."
+        },
+        {
+          "hu": "Este hívtam, és ő is örült a levélnek.",
+          "ru": "Вечером я позвонила ей, и она тоже обрадовалась письму.",
+          "en": "In the evening I called her, and she was glad of the letter too."
+        }
+      ],
+      [
+        {
+          "hu": "Jó nap volt, a posta nem rossz hely.",
+          "ru": "Это был хороший день, почта не плохое место.",
+          "en": "It was a good day, the post office is not a bad place."
+        }
+      ]
+    ]
+  }
+}

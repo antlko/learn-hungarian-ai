@@ -1,0 +1,540 @@
+{
+  "talk": {
+    "genre": "phone",
+    "checked": "ai",
+    "title": {
+      "ru": "Запись в салон",
+      "en": "Booking the salon"
+    },
+    "names": [
+      "Szabó",
+      "Anna"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szépségszalon, jó napot kívánok!",
+          "ru": "Салон красоты, здравствуйте!",
+          "en": "Beauty salon, good day!",
+          "who": "A"
+        },
+        {
+          "hu": "Jó napot! Időpontot szeretnék foglalni hajvágásra, ha lehet.",
+          "ru": "Здравствуйте! Хочу записаться на стрижку, если можно.",
+          "en": "Hello! I would like to book a haircut, if possible.",
+          "who": "B"
+        },
+        {
+          "hu": "Persze. Melyik napon lenne jó önnek?",
+          "ru": "Конечно. В какой день вам было бы удобно?",
+          "en": "Of course. Which day would be good for you?",
+          "who": "A"
+        },
+        {
+          "hu": "Szerdán vagy csütörtökön, de csak délután tudok jönni.",
+          "ru": "В среду или четверг, но прийти могу только после обеда.",
+          "en": "Wednesday or Thursday, but I can only come in the afternoon.",
+          "who": "B"
+        },
+        {
+          "hu": "Szerdán van egy szabad időpont, délután két órakor.",
+          "ru": "В среду есть свободное время, в два часа дня.",
+          "en": "On Wednesday there is a free slot, at two in the afternoon.",
+          "who": "A"
+        },
+        {
+          "hu": "Hát, az nekem kicsit korán van. Későbbi nincs?",
+          "ru": "Ну, для меня это рановато. Попозже нет?",
+          "en": "Well, that is a bit early for me. Nothing later?",
+          "who": "B"
+        },
+        {
+          "hu": "Várjon, megnézem. Csütörtökön öt órakor van hely. Megfelel?",
+          "ru": "Подождите, посмотрю. В четверг в пять есть место. Подойдёт?",
+          "en": "Wait, I will check. On Thursday at five there is room. Does that suit you?",
+          "who": "A"
+        },
+        {
+          "hu": "Igen, az jó lesz. Mennyi ideig tart ez általában?",
+          "ru": "Да, это подойдёт. Сколько это обычно длится?",
+          "en": "Yes, that will be fine. How long does it usually take?",
+          "who": "B"
+        },
+        {
+          "hu": "Körülbelül egy óra, talán egy kicsit több. Milyen névre írjam az időpontot?",
+          "ru": "Около часа. На какое имя записать?",
+          "en": "About an hour. What name shall I put it under?",
+          "who": "A"
+        },
+        {
+          "hu": "Szabó Anna. A telefonszámomat is mondjam?",
+          "ru": "Анна Сабо. Номер телефона тоже назвать?",
+          "en": "Anna Szabó. Shall I give my phone number too?",
+          "who": "B"
+        },
+        {
+          "hu": "Igen, kérem. Egy nappal előtte üzenetet küldünk.",
+          "ru": "Да, пожалуйста. За день пришлём сообщение.",
+          "en": "Yes, please. We will send a message a day before.",
+          "who": "A"
+        },
+        {
+          "hu": "Szuper, köszönöm. Ha kések, azonnal hívom.",
+          "ru": "Супер, спасибо. Если опоздаю, сразу позвоню.",
+          "en": "Great, thanks. If I am late, I will call at once.",
+          "who": "B"
+        },
+        {
+          "hu": "Persze, nincs gond. Csak szóljon, hogy tudjuk, mikor várjuk.",
+          "ru": "Конечно, без проблем. Просто дайте знать, чтобы мы знали, когда вас ждать.",
+          "en": "Of course, no problem. Just let us know, so we know when to expect you.",
+          "who": "A"
+        },
+        {
+          "hu": "Rendben. Hajat festeni is lehet?",
+          "ru": "Хорошо. А покраска волос возможна?",
+          "en": "All right. Is hair colouring possible?",
+          "who": "B"
+        },
+        {
+          "hu": "Persze, de akkor két órát kell számolni. Inkább szóljon előre.",
+          "ru": "Конечно, но тогда нужно считать два часа. Лучше предупредите заранее.",
+          "en": "Of course, but then count on two hours. Better tell us in advance.",
+          "who": "A"
+        },
+        {
+          "who": "B",
+          "hu": "És mennyibe kerül a festés?",
+          "ru": "А сколько стоит покраска?",
+          "en": "And how much does the colouring cost?"
+        },
+        {
+          "who": "A",
+          "hu": "Az a hajtól függ, de nem sok.",
+          "ru": "Это зависит от волос, но не много.",
+          "en": "That depends on the hair, but not much."
+        },
+        {
+          "hu": "Jó, akkor csütörtökön majd megbeszéljük. Köszönöm szépen!",
+          "ru": "Хорошо, тогда в четверг обсудим. Большое спасибо!",
+          "en": "Fine, then we will discuss it on Thursday. Thank you very much!",
+          "who": "B"
+        },
+        {
+          "hu": "Akkor csütörtökön öt órakor várjuk, Anna!",
+          "ru": "Тогда ждём вас в четверг в пять, Анна!",
+          "en": "Then we expect you on Thursday at five, Anna!",
+          "who": "A"
+        },
+        {
+          "hu": "Köszönöm, pontosan ott leszek. Nagyon kedves.",
+          "ru": "Спасибо, буду вовремя. Вы очень любезны.",
+          "en": "Thanks, I'll be there on time. You are very kind.",
+          "who": "B"
+        },
+        {
+          "hu": "Köszönjük, további szép napot!",
+          "ru": "Спасибо, всего доброго!",
+          "en": "Thank you, have a nice day!",
+          "who": "A"
+        },
+        {
+          "hu": "Önnek is, további szép napot!",
+          "ru": "И вам, хорошего дня!",
+          "en": "You too, have a nice day!",
+          "who": "B"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "orvosi-idopont",
+      "title": {
+        "ru": "Запись к врачу",
+        "en": "Booking the doctor"
+      },
+      "scene": {
+        "ru": "Звонок в приёмную: пациент и регистратор (на «вы»).",
+        "en": "A call to a surgery: patient and receptionist (formal)."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Rendelő, jó napot kívánok!",
+          "ru": "Приёмная, здравствуйте!",
+          "en": "Surgery, good day!"
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot! Időpontot kérnék holnapra, ha van szabad hely.",
+          "ru": "Здравствуйте! Хотел бы записаться на завтра, если есть место.",
+          "en": "Hello! I would like an appointment for tomorrow, if there is a free slot."
+        },
+        {
+          "who": "A",
+          "hu": "Holnapra sajnos már nincs hely. Kedden ráér?",
+          "ru": "На завтра, к сожалению, мест нет. Во вторник вы свободны?",
+          "en": "Unfortunately there is no room for tomorrow. Are you free on Tuesday?"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, kedden dolgozom, de pénteken reggel szabad vagyok.",
+          "ru": "Ну, во вторник я работаю, а в пятницу утром свободен.",
+          "en": "Well, I work on Tuesday, but I am free on Friday morning."
+        },
+        {
+          "who": "A",
+          "hu": "Pénteken tízkor van egy szabad időpont. Megfelel?",
+          "ru": "В пятницу в десять есть свободное время. Подходит?",
+          "en": "On Friday at ten there is a free slot. Does that suit you?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, az jó lesz. Kell valamit hozni magammal?",
+          "ru": "Да, подойдёт. Нужно что-нибудь взять с собой?",
+          "en": "Yes, that will be fine. Do I need to bring anything with me?"
+        },
+        {
+          "who": "A",
+          "hu": "Csak a kártyáját és a korábbi leleteket, kérem.",
+          "ru": "Только вашу карту и прежние результаты, пожалуйста.",
+          "en": "Just your card and the earlier results, please."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben, köszönöm szépen. További szép napot!",
+          "ru": "Хорошо, большое спасибо. Хорошего дня!",
+          "en": "All right, thank you very much. Have a nice day!"
+        }
+      ]
+    },
+    {
+      "slug": "fogorvos-atteves",
+      "title": {
+        "ru": "Перенос приёма",
+        "en": "Moving the dentist"
+      },
+      "scene": {
+        "ru": "Пациентка просит перенести приём к стоматологу (на «вы»).",
+        "en": "A patient asks to move a dentist appointment (formal)."
+      },
+      "names": [
+        "Kovács"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot, Kovács vagyok. Hétfőre van időpontom a doktornál.",
+          "ru": "Здравствуйте, это Ковач. У меня запись к доктору на понедельник.",
+          "en": "Hello, this is Kovács. I have an appointment with the doctor for Monday."
+        },
+        {
+          "who": "B",
+          "hu": "Igen, hétfőn tízkor. Valami baj van?",
+          "ru": "Да, в понедельник в десять. Что-то случилось?",
+          "en": "Yes, Monday at ten. Is something wrong?"
+        },
+        {
+          "who": "A",
+          "hu": "Sajnos nem tudok jönni, dolgom van. Át tudjuk tenni?",
+          "ru": "К сожалению, не смогу прийти, у меня дела. Можно перенести?",
+          "en": "Unfortunately I cannot come, I have things to do. Can we reschedule?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze. A következő héten ráér valamikor?",
+          "ru": "Конечно. На следующей неделе вы когда-нибудь свободны?",
+          "en": "Of course. Are you free sometime the following week?"
+        },
+        {
+          "who": "A",
+          "hu": "Szerdán délután jó lenne, vagy csütörtökön reggel.",
+          "ru": "Хорошо бы в среду после обеда или в четверг утром.",
+          "en": "Wednesday afternoon would be good, or Thursday morning."
+        },
+        {
+          "who": "B",
+          "hu": "Szerdán van szabad időpont, délután ötre.",
+          "ru": "В среду есть свободное время, на пять часов дня.",
+          "en": "On Wednesday there is a free slot, for five in the afternoon."
+        },
+        {
+          "who": "A",
+          "hu": "Az tökéletes, köszönöm szépen. Elnézést, hogy most szólok!",
+          "ru": "Это идеально, большое спасибо. Извините, что говорю только сейчас!",
+          "en": "That is perfect, thank you very much. Sorry for telling you only now!"
+        },
+        {
+          "who": "B",
+          "hu": "Semmi gond. Szerdán találkozunk, viszlát!",
+          "ru": "Ничего страшного. Увидимся в среду, до свидания!",
+          "en": "No problem. See you on Wednesday, goodbye!"
+        }
+      ]
+    },
+    {
+      "slug": "keso-vagyok",
+      "title": {
+        "ru": "Опаздываю",
+        "en": "Running late"
+      },
+      "scene": {
+        "ru": "Подруги: одна опаздывает на встречу в кафе (на «ты»).",
+        "en": "Two friends: one is late to meet at a café (informal)."
+      },
+      "names": [
+        "Kata"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Halló, Kata! Hol vagy már? Itt vagyok a kávézónál.",
+          "ru": "Алло, Ката! Ты где уже? Я у кафе.",
+          "en": "Hello, Kata! Where are you already? I'm at the café."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, bocsi! Dugó van, és nem megy a busz.",
+          "ru": "Ой, прости! Пробка, и автобус не едет.",
+          "en": "Oh, sorry! There's a traffic jam and the bus isn't moving."
+        },
+        {
+          "who": "A",
+          "hu": "Nyugi, semmi gond. Mennyit késel még?",
+          "ru": "Спокойно, ничего страшного. Сколько ещё будешь опаздывать?",
+          "en": "Relax, no problem. How much longer will you be late?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem tudom, talán tíz percet. Már megy a busz, látom.",
+          "ru": "Не знаю, минут десять, может. Уже едет автобус, вижу.",
+          "en": "Dunno, maybe ten minutes. The bus is moving now, I see."
+        },
+        {
+          "who": "A",
+          "hu": "Oké. Addig rendelek neked egy kávét, jó?",
+          "ru": "Ладно. Пока закажу тебе кофе, хорошо?",
+          "en": "Okay. Meanwhile I'll order you a coffee, all right?"
+        },
+        {
+          "who": "B",
+          "hu": "Király, köszi! Kávét kérek tejjel.",
+          "ru": "Здорово, спасибо! Мне кофе с молоком.",
+          "en": "Great, thanks! A coffee with milk, please."
+        },
+        {
+          "who": "A",
+          "hu": "Hát persze. Én az ablaknál ülök, ott van hely.",
+          "ru": "Ну конечно. Я сижу у окна, там есть место.",
+          "en": "Well of course. I'm sitting by the window, there's a seat there."
+        },
+        {
+          "who": "B",
+          "hu": "Szuper. Mindjárt ott vagyok, pá!",
+          "ru": "Супер. Скоро буду, пока!",
+          "en": "Great. I'll be there soon, bye!"
+        }
+      ]
+    },
+    {
+      "slug": "hetvegi-talalkozo",
+      "title": {
+        "ru": "Договориться о встрече",
+        "en": "Arranging to meet"
+      },
+      "scene": {
+        "ru": "Двое друзей по телефону выбирают день для встречи (на «ты»).",
+        "en": "Two friends on the phone choose a day to meet (informal)."
+      },
+      "names": [
+        "Bence"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia, Bence! Mi lesz hétvégén? Megyünk valahova?",
+          "ru": "Привет, Бенце! Что на выходных? Пойдём куда-нибудь?",
+          "en": "Hi, Bence! What about the weekend? Shall we go somewhere?"
+        },
+        {
+          "who": "B",
+          "hu": "Szia! Jó. Mikor jó neked?",
+          "ru": "Привет! Хорошо. Когда тебе удобно?",
+          "en": "Hi! Fine. When suits you?"
+        },
+        {
+          "who": "A",
+          "hu": "Szombaton nem tudok, dolgozom. Vasárnap szabad vagy?",
+          "ru": "В субботу не могу, работаю. В воскресенье ты свободен?",
+          "en": "I can't on Saturday, I'm working. Are you free on Sunday?"
+        },
+        {
+          "who": "B",
+          "hu": "Vasárnap igen! Mondjuk, ebéd után?",
+          "ru": "В воскресенье да! Скажем, после обеда?",
+          "en": "Sunday yes! Say, after lunch, in the afternoon?"
+        },
+        {
+          "who": "A",
+          "hu": "Jó, az jó nekem. Mondjuk két órakor a téren?",
+          "ru": "Хорошо, мне подходит. Скажем, в два часа на площади?",
+          "en": "Fine, that suits me. Say at two in the square?"
+        },
+        {
+          "who": "B",
+          "hu": "Inkább három órakor, mert vasárnap későn kelek.",
+          "ru": "Лучше в три, потому что в воскресенье я поздно встаю.",
+          "en": "Rather at three, because on Sunday I get up late."
+        },
+        {
+          "who": "A",
+          "hu": "Oké, három órakor. Szombaton még írok neked, jó?",
+          "ru": "Ладно, в три. В субботу ещё напишу тебе, хорошо?",
+          "en": "Okay, at three. On Saturday I'll text you again, all right?"
+        },
+        {
+          "who": "B",
+          "hu": "Szuper. Akkor vasárnap, pá!",
+          "ru": "Супер. Тогда в воскресенье, пока!",
+          "en": "Great. Then Sunday, bye!"
+        }
+      ]
+    },
+    {
+      "slug": "uzleti-megerosites",
+      "title": {
+        "ru": "Деловой звонок",
+        "en": "A business call"
+      },
+      "scene": {
+        "ru": "Коллега по телефону подтверждает время встречи (на «вы»).",
+        "en": "A colleague confirms a meeting time by phone (formal)."
+      },
+      "names": [
+        "Horváth"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot, Horváth vagyok. A holnapi megbeszélés miatt hívom.",
+          "ru": "Здравствуйте, это Хорват. Звоню по поводу завтрашней встречи.",
+          "en": "Hello, this is Horváth. I'm calling about tomorrow's meeting."
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot! Igen, tízkor kezdünk, ugye?",
+          "ru": "Здравствуйте! Да, мы начинаем в десять, верно?",
+          "en": "Hello! Yes, we start at ten, right?"
+        },
+        {
+          "who": "A",
+          "hu": "Vagyis inkább egy órával később. Az megfelel önnek?",
+          "ru": "То есть скорее на час позже. Вам это подходит?",
+          "en": "That is, rather an hour later. Does that suit you?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze, az nekem is jobb. Köszönöm, hogy jelezte.",
+          "ru": "Конечно, мне так тоже лучше. Спасибо, что сообщили.",
+          "en": "Of course, that is better for me too. Thank you for letting me know."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper. A teremben várjuk önt.",
+          "ru": "Отлично. Ждём вас в зале.",
+          "en": "Great. We expect you in the room."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. Hozzam a laptopot is?",
+          "ru": "Хорошо. Взять и ноутбук?",
+          "en": "All right. Shall I bring the laptop too?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, kérem, és legyen pontos.",
+          "ru": "Да, пожалуйста, и будьте вовремя.",
+          "en": "Yes, please, and be on time."
+        },
+        {
+          "who": "B",
+          "hu": "Persze. Köszönöm a hívást, további szép napot!",
+          "ru": "Конечно. Спасибо за звонок, хорошего дня!",
+          "en": "Sure. Thank you for the call, have a nice day!"
+        }
+      ]
+    },
+    {
+      "slug": "asztal-lemondas",
+      "title": {
+        "ru": "Отмена брони",
+        "en": "Cancelling a table"
+      },
+      "scene": {
+        "ru": "Звонок в ресторан: гость вежливо отменяет столик (на «вы»).",
+        "en": "A call to a restaurant: a guest politely cancels a table (formal)."
+      },
+      "names": [
+        "Nagy"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Étterem, jó estét kívánok!",
+          "ru": "Ресторан, добрый вечер!",
+          "en": "Restaurant, good evening!"
+        },
+        {
+          "who": "B",
+          "hu": "Jó estét! Nagy vagyok, szombatra foglaltam egy asztalt.",
+          "ru": "Добрый вечер! Это Надь, я бронировал столик на субботу.",
+          "en": "Good evening! This is Nagy, I booked a table for Saturday."
+        },
+        {
+          "who": "A",
+          "hu": "Igen, négyen lesznek, hétkor.",
+          "ru": "Да, четыре человека, в семь.",
+          "en": "Yes, four of you, at seven."
+        },
+        {
+          "who": "B",
+          "hu": "Elnézést, sajnos lemondjuk a foglalást, mert beteg a gyerek.",
+          "ru": "Извините, к сожалению, мы отменяем бронь, потому что ребёнок болен.",
+          "en": "Sorry, unfortunately we are cancelling the booking, because the child is ill."
+        },
+        {
+          "who": "A",
+          "hu": "Semmi gond. Esetleg másik napra, vagy később?",
+          "ru": "Ничего. Может, на другой день или позже?",
+          "en": "No problem. Maybe another day, or later?"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, még nem tudom. Majd hívjuk, ha tudjuk, rendben?",
+          "ru": "Ну, пока не знаю. Мы позвоним, когда будем знать, хорошо?",
+          "en": "Well, I do not know yet. We will call when we know, all right?"
+        },
+        {
+          "who": "A",
+          "hu": "Rendben. Köszönjük, hogy szólt, nagyon kedves.",
+          "ru": "Хорошо. Спасибо, что предупредили, очень любезно.",
+          "en": "All right. Thank you for letting us know, very kind."
+        },
+        {
+          "who": "B",
+          "hu": "Köszönöm szépen. További szép estét!",
+          "ru": "Большое спасибо. Хорошего вечера!",
+          "en": "Thank you very much. Have a nice evening!"
+        }
+      ]
+    }
+  ]
+}

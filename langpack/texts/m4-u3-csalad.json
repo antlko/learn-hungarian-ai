@@ -1,0 +1,522 @@
+{
+  "short": {
+    "genre": "sms",
+    "checked": "ai",
+    "title": {
+      "ru": "Ma este jön a család",
+      "en": "The family is coming tonight"
+    },
+    "names": [
+      "Kata"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, drágám! Ma este jön a család.",
+          "ru": "Привет, дорогой! Сегодня вечером придёт семья.",
+          "en": "Hi, darling! The family is coming tonight."
+        },
+        {
+          "hu": "Jön anya és apa, a szüleim.",
+          "ru": "Придут мама и папа, мои родители.",
+          "en": "Mum and dad are coming, my parents."
+        },
+        {
+          "hu": "Jön a húgom is, a legkisebb testvér.",
+          "ru": "Придёт и моя младшая сестра, самая младшая из нас.",
+          "en": "My younger sister is coming too, the youngest sibling."
+        },
+        {
+          "hu": "Jön a nővérem és a férje, a sógorom.",
+          "ru": "Придут моя старшая сестра и её муж, мой зять.",
+          "en": "My sister is coming, and her husband, my brother-in-law."
+        },
+        {
+          "hu": "A nagymama is jön, mert ma van a születésnapja.",
+          "ru": "Бабушка тоже придёт, ведь у неё сегодня день рождения.",
+          "en": "Grandma is coming too, because it is her birthday today."
+        },
+        {
+          "hu": "Jönnek a másik nagyszülők is, nagyapa és nagymama.",
+          "ru": "Придут и другие дедушка с бабушкой.",
+          "en": "The other grandparents are coming too, grandpa and grandma."
+        }
+      ],
+      [
+        {
+          "hu": "Az unokatestvérem is itt lesz, és a kis baba.",
+          "ru": "Моя двоюродная сестра тоже будет, и малыш.",
+          "en": "My cousin will be here too, and the little baby."
+        },
+        {
+          "hu": "Jön a nagybácsi és a nagynéni is.",
+          "ru": "Придут и дядя с тётей.",
+          "en": "Our uncle and aunt are coming too."
+        },
+        {
+          "hu": "Egy ismerős és a barátnőm is jön.",
+          "ru": "Придут один знакомый и моя подруга.",
+          "en": "An acquaintance and my friend are coming too."
+        },
+        {
+          "hu": "Kérlek, vegyél valamit enni.",
+          "ru": "Пожалуйста, купи что-нибудь поесть.",
+          "en": "Please buy something to eat."
+        },
+        {
+          "hu": "Ma sokat dolgozom, de este otthon vagyok.",
+          "ru": "Я сегодня много работаю, но вечером буду дома.",
+          "en": "I am working a lot today, but I will be home in the evening."
+        },
+        {
+          "hu": "Szeretlek, Kata",
+          "ru": "Люблю тебя, Ката",
+          "en": "Love you, Kata"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "Van családod?",
+      "en": "Do you have a family?"
+    },
+    "names": [
+      "Zsuzsa",
+      "Gábor"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Zsuzsa! Ez a családom fotója, nézd!",
+          "ru": "Привет, Жужа! Вот фото моей семьи, смотри!",
+          "en": "Hi, Zsuzsa! This is a photo of my family, look!"
+        },
+        {
+          "hu": "Nagyon szép! Ő a feleséged, ugye?",
+          "ru": "Очень красиво! Это твоя жена, да?",
+          "en": "Lovely! That is your wife, isn't it?"
+        },
+        {
+          "hu": "Igen, ő a feleségem, és ő a fiam, a kis baba.",
+          "ru": "Да, это моя жена, а это мой сын, малыш.",
+          "en": "Yes, that is my wife, and that is my son, the little baby."
+        },
+        {
+          "hu": "A baba nagyon hasonlít rád! Ő is alacsony?",
+          "ru": "Малыш очень похож на тебя! Он тоже невысокий?",
+          "en": "The baby looks a lot like you! Is he short too?"
+        },
+        {
+          "hu": "Nem, ő barna, mint én.",
+          "ru": "Нет, он тёмноволосый, как я.",
+          "en": "No, he is brown-haired, like me."
+        },
+        {
+          "hu": "A feleséged is barna?",
+          "ru": "Твоя жена тоже тёмноволосая?",
+          "en": "Is your wife brown-haired too?"
+        },
+        {
+          "hu": "Nem, ő szőke és sovány.",
+          "ru": "Нет, она светловолосая и худенькая.",
+          "en": "No, she is blond and thin."
+        },
+        {
+          "hu": "Mikor született a baba?",
+          "ru": "Когда родился малыш?",
+          "en": "When was the baby born?"
+        },
+        {
+          "hu": "Tavaly, és már nagyon nagy.",
+          "ru": "В прошлом году, и он уже очень большой.",
+          "en": "Last year, and he is already very big."
+        },
+        {
+          "hu": "Ki hasonlít még rád a családban?",
+          "ru": "Кто ещё в семье похож на тебя?",
+          "en": "Who else in the family looks like you?"
+        },
+        {
+          "hu": "A húgom, mert ő is alacsony, mint az anyám.",
+          "ru": "Сестра, потому что она тоже невысокая, как наша мама.",
+          "en": "My sister, because she is short too, like my mother."
+        },
+        {
+          "hu": "Jó! És ő ki? Az idős férfi szemüveggel és szakállal.",
+          "ru": "Хорошо! А он кто? Пожилой мужчина в очках и с бородой.",
+          "en": "Nice! And who is he? The elderly man with glasses and a beard."
+        },
+        {
+          "hu": "Ő az apósom, a feleségem apja. Szigorú, de barátságos.",
+          "ru": "Это мой тесть, отец моей жены. Строгий, но приветливый.",
+          "en": "He is my father-in-law, my wife's father. Strict, but friendly."
+        },
+        {
+          "hu": "És az anyósod? Ő is szigorú?",
+          "ru": "А твоя тёща? Она тоже строгая?",
+          "en": "And your mother-in-law? Is she strict too?"
+        },
+        {
+          "hu": "Nem, ő türelmes és nagyon vicces. Szeretem őket.",
+          "ru": "Нет, она терпеливая и очень весёлая. Я их люблю.",
+          "en": "No, she is patient and very funny. I like them."
+        },
+        {
+          "hu": "A szüleid is itt élnek, ugye?",
+          "ru": "Твои родители тоже живут здесь, да?",
+          "en": "Your parents live here too, don't they?"
+        },
+        {
+          "hu": "Igen, ők már idősek, és nagyon szeretik az unokát.",
+          "ru": "Да, они уже в возрасте и очень любят внука.",
+          "en": "Yes, they are elderly now and love their grandson very much."
+        },
+        {
+          "hu": "Jó a gyerekeknek, ha van nagyszülő. Van testvéred?",
+          "ru": "Детям хорошо, когда есть бабушка и дедушка. У тебя есть брат или сестра?",
+          "en": "It is good for children to have grandparents. Have you got siblings?"
+        },
+        {
+          "hu": "Van egy bátyám, egy öcsém és egy húgom.",
+          "ru": "У меня есть старший брат, младший брат и младшая сестра.",
+          "en": "I have an elder brother, a younger brother and a younger sister."
+        },
+        {
+          "hu": "Mind házasok?",
+          "ru": "Все в браке?",
+          "en": "Are they all married?"
+        },
+        {
+          "hu": "A bátyám nős, a húgom házas, az öcsém egyedülálló.",
+          "ru": "Старший брат женат, сестра замужем, младший не женат.",
+          "en": "My elder brother is married, my sister is married, my younger brother is single."
+        },
+        {
+          "hu": "Jó! És a sógorod milyen?",
+          "ru": "Хорошо! А какой твой зять?",
+          "en": "Nice! And what is your brother-in-law like?"
+        },
+        {
+          "hu": "Fiatal, vicces és nagyon barátságos.",
+          "ru": "Молодой, весёлый и очень приветливый.",
+          "en": "Young, funny and very friendly."
+        },
+        {
+          "hu": "Én elvált vagyok, de van egy lányom.",
+          "ru": "Я разведена, но у меня есть дочь.",
+          "en": "I am divorced, but I have a daughter."
+        },
+        {
+          "hu": "Nálatok is nagy a család, ugye?",
+          "ru": "У вас тоже большая семья, да?",
+          "en": "Your family is big too, isn't it?"
+        },
+        {
+          "hu": "Igen, a nagymama és a nagyapa is velünk él.",
+          "ru": "Да, и бабушка, и дедушка живут с нами.",
+          "en": "Yes, grandma and grandpa live with us too."
+        },
+        {
+          "hu": "Szerintem a család a legfontosabb.",
+          "ru": "По-моему, семья важнее всего.",
+          "en": "I think family is the most important thing."
+        },
+        {
+          "hu": "Szerelmesek vagytok még a feleségeddel?",
+          "ru": "Вы с женой ещё влюблены?",
+          "en": "Are you and your wife still in love?"
+        },
+        {
+          "hu": "Persze, a szerelem és a házasság szép dolog.",
+          "ru": "Конечно, любовь и брак прекрасная вещь.",
+          "en": "Of course, love and marriage are lovely things."
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "description",
+    "checked": "ai",
+    "title": {
+      "ru": "Nagyapa születésnapja",
+      "en": "Grandpa's birthday"
+    },
+    "names": [
+      "Eszter",
+      "Laci",
+      "Péter",
+      "Bence",
+      "Anna",
+      "Kovács",
+      "Réka",
+      "Tamás"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Ma van nagyapa születésnapja, és itt van az egész család.",
+          "ru": "Сегодня день рождения дедушки, и здесь вся семья.",
+          "en": "Today is grandpa's birthday, and the whole family is here."
+        },
+        {
+          "hu": "Nagyapa öreg, de nagyon vicces, és sokat nevet.",
+          "ru": "Дедушка старый, но очень весёлый и много смеётся.",
+          "en": "Grandpa is old, but very funny, and he laughs a lot."
+        },
+        {
+          "hu": "Neki szemüvege és szakálla van.",
+          "ru": "У него очки и борода.",
+          "en": "He has glasses and a beard."
+        },
+        {
+          "hu": "Az unokák nagyapának és nagymamának hívják őket.",
+          "ru": "Внуки зовут их дедушкой и бабушкой.",
+          "en": "The grandchildren call them grandpa and grandma."
+        },
+        {
+          "hu": "A nagymama, a felesége, mellette ül.",
+          "ru": "Бабушка, его жена, сидит рядом.",
+          "en": "Grandma, his wife, sits next to him."
+        },
+        {
+          "hu": "Ő türelmes, és mindig segít a gyerekeknek.",
+          "ru": "Она терпеливая и всегда помогает детям.",
+          "en": "She is patient and always helps the children."
+        },
+        {
+          "hu": "Az élet szép nekik, mert nagy a család.",
+          "ru": "Жизнь у них хорошая, ведь семья большая.",
+          "en": "Life is good for them, because the family is big."
+        },
+        {
+          "hu": "Nagyszülőnek lenni nagyon jó, mondja nagyapa.",
+          "ru": "Быть дедушкой и бабушкой очень хорошо, говорит дедушка.",
+          "en": "Being a grandparent is very good, says grandpa."
+        },
+        {
+          "hu": "A nagyszülők házassága nagyon hosszú.",
+          "ru": "Брак дедушки и бабушки очень долгий.",
+          "en": "The grandparents' marriage is very long."
+        }
+      ],
+      [
+        {
+          "hu": "Én Eszter vagyok, és ő a bátyám, Péter.",
+          "ru": "Я Эстер, а это мой старший брат Петер.",
+          "en": "I am Eszter, and this is my elder brother, Péter."
+        },
+        {
+          "hu": "Péter nős, és a felesége, Réka, szőke és fiatal.",
+          "ru": "Петер женат, а его жена Река светловолосая и молодая.",
+          "en": "Péter is married, and his wife, Réka, is blond and young."
+        },
+        {
+          "hu": "Péternek is van szakálla, és szemüveget visel.",
+          "ru": "У Петера тоже борода, и он носит очки.",
+          "en": "Péter has a beard too, and wears glasses."
+        },
+        {
+          "hu": "Nekik van egy kisfiuk, Bence.",
+          "ru": "У них есть маленький сын Бенце.",
+          "en": "They have a little son, Bence."
+        },
+        {
+          "hu": "Péter és én testvérek vagyunk, Laci is a testvérem.",
+          "ru": "Мы с Петером брат и сестра, Лаци тоже мой брат.",
+          "en": "Péter and I are siblings, Laci is my brother too."
+        },
+        {
+          "hu": "Én vagyok a húguk, a legkisebb testvér.",
+          "ru": "Я их младшая сестра, самая младшая из нас.",
+          "en": "I am their younger sister, the youngest sibling."
+        },
+        {
+          "hu": "Bence a nagyapa unokája, és ő a legfiatalabb.",
+          "ru": "Бенце внук дедушки, и он самый младший.",
+          "en": "Bence is grandpa's grandson, and he is the youngest."
+        },
+        {
+          "hu": "Nagyon hasonlít Péterre, mert ő is alacsony.",
+          "ru": "Он очень похож на Петера, ведь тоже невысокий.",
+          "en": "He looks a lot like Péter, because he is short too."
+        },
+        {
+          "hu": "Bence tavaly született, és most már felnő.",
+          "ru": "Бенце родился в прошлом году и теперь растёт.",
+          "en": "Bence was born last year, and now he is growing up."
+        }
+      ],
+      [
+        {
+          "hu": "Itt van a bátyám, Laci is. Ő még egyedülálló.",
+          "ru": "Здесь и мой старший брат Лаци. Он пока не женат.",
+          "en": "My older brother Laci is here too. He is still single."
+        },
+        {
+          "hu": "De a barátnője, Anna, is itt van.",
+          "ru": "Но его девушка Анна тоже здесь.",
+          "en": "But his girlfriend, Anna, is here too."
+        },
+        {
+          "hu": "Anna barna és sovány, Laci pedig szőke.",
+          "ru": "Анна тёмноволосая и стройная, а Лаци светловолосый.",
+          "en": "Anna is brown-haired and slim, and Laci is blond."
+        },
+        {
+          "hu": "Szerintem Laci nagyon szerelmes.",
+          "ru": "По-моему, Лаци очень влюблён.",
+          "en": "I think Laci is very much in love."
+        },
+        {
+          "hu": "Anna is szerelmes, és a szerelmük új.",
+          "ru": "Анна тоже очень влюблена, и их любовь новая.",
+          "en": "Anna is very much in love too, and their love is new."
+        },
+        {
+          "hu": "Talán lesz esküvő is, és szép házasság.",
+          "ru": "Может быть, будет и свадьба, и хороший брак.",
+          "en": "Maybe there will be a wedding, and a good marriage."
+        },
+        {
+          "hu": "Az esküvő talán hamarosan lesz.",
+          "ru": "Свадьба, может быть, будет скоро.",
+          "en": "The wedding will perhaps be soon."
+        },
+        {
+          "hu": "A szerelem szép dolog, mondja nagymama.",
+          "ru": "Любовь прекрасная вещь, говорит бабушка.",
+          "en": "Love is a lovely thing, says grandma."
+        },
+        {
+          "hu": "De a szeretet még szebb, mondja nagyapa.",
+          "ru": "Но нежная привязанность ещё прекраснее, говорит дедушка.",
+          "en": "But affection is even lovelier, says grandpa."
+        }
+      ],
+      [
+        {
+          "hu": "Én már házas vagyok, a férjem is itt van.",
+          "ru": "Я уже замужем, мой муж тоже здесь.",
+          "en": "I am married already, my husband is here too."
+        },
+        {
+          "hu": "Tamás a sógoraival beszél, és mindenki nevet.",
+          "ru": "Тамаш разговаривает со своими шуринами, и все смеются.",
+          "en": "Tamás is talking to his brothers-in-law, and everybody is laughing."
+        },
+        {
+          "hu": "Az apósom és az anyósom másik városban élnek.",
+          "ru": "Мои свёкор и свекровь живут в другом городе.",
+          "en": "My father-in-law and mother-in-law live in another city."
+        },
+        {
+          "hu": "Az após szigorú, az anyós pedig nagyon vicces.",
+          "ru": "Свёкор строгий, а свекровь очень весёлая.",
+          "en": "My father-in-law is strict, and my mother-in-law is very funny."
+        },
+        {
+          "hu": "Anya és apa is itt vannak, ők a szüleim.",
+          "ru": "Здесь и мама с папой, мои родители.",
+          "en": "Mum and dad are here too, they are my parents."
+        },
+        {
+          "hu": "Anya szőke, apa pedig kopasz és sovány.",
+          "ru": "Мама светловолосая, а папа лысый и худой.",
+          "en": "Mum is blond, and dad is bald and thin."
+        },
+        {
+          "hu": "Apa szigorú, de szereti a gyerekeket.",
+          "ru": "Папа строгий, но любит детей.",
+          "en": "Dad is strict, but he loves children."
+        }
+      ],
+      [
+        {
+          "hu": "Most jön a nagybácsi és a nagynéni.",
+          "ru": "Сейчас приходят дядя и тётя.",
+          "en": "Now our uncle and aunt are arriving."
+        },
+        {
+          "hu": "A nagybácsi kopasz és barátságos, a nagynéni türelmes.",
+          "ru": "Дядя лысый и приветливый, тётя терпеливая.",
+          "en": "Our uncle is bald and friendly, our aunt is patient."
+        },
+        {
+          "hu": "Az unokatestvérem alacsony, mint a nagybácsi.",
+          "ru": "Моя двоюродная сестра невысокая, как дядя.",
+          "en": "My cousin is short, like our uncle."
+        },
+        {
+          "hu": "Velük jön egy ismerős is.",
+          "ru": "С ними приходит и один знакомый.",
+          "en": "An acquaintance comes with them too."
+        },
+        {
+          "hu": "Anya nővére elvált, de a volt férje ma is jó barát.",
+          "ru": "Сестра мамы развелась, но её бывший муж и сегодня добрый друг.",
+          "en": "Mum's sister is divorced, but her ex-husband is still a good friend today."
+        },
+        {
+          "hu": "Nagyapa testvére özvegy, és ő is itt van.",
+          "ru": "Брат дедушки вдовец, и он тоже здесь.",
+          "en": "Grandpa's brother is a widower, and he is here too."
+        },
+        {
+          "hu": "Anya másik nővére is özvegy, de ő nagyon boldog.",
+          "ru": "Другая сестра мамы тоже вдова, но она очень счастлива.",
+          "en": "Mum's other sister is a widow too, but she is very happy."
+        },
+        {
+          "hu": "Az ismerős elvált, ma már egyedülálló, de boldog.",
+          "ru": "Знакомый развёлся, теперь он не в браке, но счастлив.",
+          "en": "The acquaintance got divorced, is single now, but happy."
+        },
+        {
+          "hu": "Péter barátja is itt van, és a barátnője is.",
+          "ru": "Друг Петера тоже здесь, и его подруга тоже.",
+          "en": "Péter's friend is here too, and his girlfriend as well."
+        },
+        {
+          "hu": "Sok rokon van itt.",
+          "ru": "Здесь много родственников.",
+          "en": "There are many relatives here."
+        }
+      ],
+      [
+        {
+          "hu": "Nagymama három gyereket szült, és mind felnőttek.",
+          "ru": "Бабушка родила троих детей, и все выросли.",
+          "en": "Grandma gave birth to three children, and they all grew up."
+        },
+        {
+          "hu": "A családnak jó, ha baba születik.",
+          "ru": "Семье хорошо, когда рождается малыш.",
+          "en": "It is good for a family when a baby is born."
+        },
+        {
+          "hu": "Este mindenki együtt eszik, és jól érzi magát.",
+          "ru": "Вечером все едят вместе и чувствуют себя хорошо.",
+          "en": "In the evening everybody eats together and has a good time."
+        },
+        {
+          "hu": "Nagyapa nevet, és azt mondja, hogy ez az élet.",
+          "ru": "Дедушка смеётся и говорит, что это и есть жизнь.",
+          "en": "Grandpa laughs and says that this is life."
+        },
+        {
+          "hu": "Szerintem igaza van, mert a család a legfontosabb.",
+          "ru": "По-моему, он прав, ведь семья важнее всего.",
+          "en": "I think he is right, because family is the most important thing."
+        },
+        {
+          "hu": "A szeretet a legfontosabb, és ez a legjobb születésnap.",
+          "ru": "Любовь важнее всего, и это лучший день рождения.",
+          "en": "Love is the most important thing, and this is the best birthday."
+        }
+      ]
+    ]
+  }
+}

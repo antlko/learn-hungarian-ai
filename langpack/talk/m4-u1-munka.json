@@ -1,0 +1,476 @@
+{
+  "talk": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "В понедельник утром",
+      "en": "Monday morning"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Szia! Na, mi újság?",
+          "ru": "Привет! Ну, что нового?",
+          "en": "Hi! So, what's new?"
+        },
+        {
+          "who": "B",
+          "hu": "Semmi. Te hogy vagy?",
+          "ru": "Ничего. А ты как?",
+          "en": "Nothing. How are you?"
+        },
+        {
+          "who": "A",
+          "hu": "Megvagyok, de hétfő van.",
+          "ru": "Нормально, но сегодня понедельник.",
+          "en": "I'm all right, but it's Monday."
+        },
+        {
+          "who": "B",
+          "hu": "Hát igen. Mit csináltál tegnap?",
+          "ru": "Ну да. Что делал вчера?",
+          "en": "Well, yes. What did you do yesterday?"
+        },
+        {
+          "who": "A",
+          "hu": "Pihentem. Egész nap otthon voltam. Te?",
+          "ru": "Отдыхал. Весь день был дома. А ты?",
+          "en": "I rested. I was at home all day. You?"
+        },
+        {
+          "who": "B",
+          "hu": "Én dolgoztam egy kicsit, sajnos.",
+          "ru": "А я немного поработал, к сожалению.",
+          "en": "I worked a little, unfortunately."
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg? Egész nap?",
+          "ru": "Правда? Весь день?",
+          "en": "Really? All day?"
+        },
+        {
+          "who": "B",
+          "hu": "Majdnem. A főnök adott egy feladatot.",
+          "ru": "Почти. Начальник дал задание.",
+          "en": "Almost. The boss gave me a task."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, nem baj. Kész már?",
+          "ru": "Ой, ничего. Уже готово?",
+          "en": "Oh, never mind. Is it done yet?"
+        },
+        {
+          "who": "B",
+          "hu": "Kész, elküldtem ma reggel.",
+          "ru": "Готово, отправил сегодня утром.",
+          "en": "Done, I sent it this morning."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper. Amúgy, jó itt dolgozni?",
+          "ru": "Супер. Кстати, тебе здесь нравится работать?",
+          "en": "Great. By the way, is it good working here?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze, jó a csapat. Te?",
+          "ru": "Конечно, команда хорошая. А ты?",
+          "en": "Sure, the team is good. You?"
+        },
+        {
+          "who": "A",
+          "hu": "Én is. Jó ez a cég, csak sok a túlóra.",
+          "ru": "Я тоже. Хорошая фирма, только много сверхурочных.",
+          "en": "Me too. It's a good company, only a lot of overtime."
+        },
+        {
+          "who": "B",
+          "hu": "Akkor ma nyugi van, ugye?",
+          "ru": "Тогда сегодня спокойный день, да?",
+          "en": "So today is easy, right?"
+        },
+        {
+          "who": "A",
+          "hu": "Hát, délután jön a vezető az irodába.",
+          "ru": "Ну, после обеда начальник придёт в офис.",
+          "en": "Well, the manager comes to the office in the afternoon."
+        },
+        {
+          "who": "B",
+          "hu": "Ja, tényleg. Mikor?",
+          "ru": "А, точно. Когда?",
+          "en": "Oh, right. When?"
+        },
+        {
+          "who": "A",
+          "hu": "Három órakor. Nincs túlóra, remélem.",
+          "ru": "В три часа. Сверхурочных нет, надеюсь.",
+          "en": "At three o'clock. No overtime, I hope."
+        },
+        {
+          "who": "B",
+          "hu": "Remélem is. Hat órakor megyek haza.",
+          "ru": "Я тоже надеюсь. В шесть иду домой.",
+          "en": "I hope so too. I go home at six."
+        },
+        {
+          "who": "A",
+          "hu": "Jó, akkor együtt indulunk, ugye?",
+          "ru": "Хорошо, тогда выходим вместе, да?",
+          "en": "Good, so we leave together, right?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze! Addig kávé?",
+          "ru": "Конечно! А пока кофе?",
+          "en": "Sure! Coffee until then?"
+        },
+        {
+          "who": "A",
+          "hu": "Naná, jöhet! Én fizetek.",
+          "ru": "Ещё бы, давай! Я плачу.",
+          "en": "Of course, sure! I'm paying."
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "kavegep",
+      "title": {
+        "ru": "У кофемата",
+        "en": "At the coffee machine"
+      },
+      "scene": {
+        "ru": "Двое коллег у кофемата утром.",
+        "en": "Two colleagues at the coffee machine in the morning."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia! Elromlott a gép? Nem jön a kávé.",
+          "ru": "Привет! Кофемат сломался? Кофе не идёт.",
+          "en": "Hi! Is the machine broken? No coffee comes."
+        },
+        {
+          "who": "B",
+          "hu": "Nem, csak lassú. Várj egy percet.",
+          "ru": "Нет, просто медленный. Подожди минуту.",
+          "en": "No, it's just slow. Wait a minute."
+        },
+        {
+          "who": "A",
+          "hu": "Hát, nincs időm. Mindjárt jön a vezető.",
+          "ru": "Ну, у меня нет времени. Сейчас придёт начальник.",
+          "en": "Well, I have no time. The manager is coming soon."
+        },
+        {
+          "who": "B",
+          "hu": "Nyugi, mindjárt kész.",
+          "ru": "Спокойно, сейчас будет.",
+          "en": "Relax, it's nearly ready."
+        },
+        {
+          "who": "A",
+          "hu": "Jé, már jön is! Köszi.",
+          "ru": "О, уже идёт! Спасибо.",
+          "en": "Oh, here it comes! Thanks."
+        },
+        {
+          "who": "B",
+          "hu": "Tessék, kész. Cukrot kérsz?",
+          "ru": "Пожалуйста, готово. Сахар будешь?",
+          "en": "Here you are. Want sugar?"
+        }
+      ]
+    },
+    {
+      "slug": "ebedszunet",
+      "title": {
+        "ru": "Обеденный перерыв",
+        "en": "Lunch break"
+      },
+      "scene": {
+        "ru": "Коллеги решают, где пообедать.",
+        "en": "Colleagues decide where to have lunch."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Na, éhes vagy? Jössz enni?",
+          "ru": "Ну, голодный? Пойдёшь есть?",
+          "en": "So, are you hungry? Coming to eat?"
+        },
+        {
+          "who": "B",
+          "hu": "Jövök, adj öt percet.",
+          "ru": "Иду, дай пять минут.",
+          "en": "Coming, give me five minutes."
+        },
+        {
+          "who": "A",
+          "hu": "Na, hová megyünk? Messzire?",
+          "ru": "Ну, куда идём? Далеко?",
+          "en": "So, where are we going? Far?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, messze van. Inkább itt eszünk, jó?",
+          "ru": "Нет, далеко. Лучше поедим здесь, ладно?",
+          "en": "No, it's far. Let's eat here instead, okay?"
+        },
+        {
+          "who": "A",
+          "hu": "Jó, itt is nagyon finom a kaja.",
+          "ru": "Ладно, здесь тоже очень вкусная еда.",
+          "en": "Fine, the food here is really good too."
+        },
+        {
+          "who": "B",
+          "hu": "Szuper, akkor megyünk!",
+          "ru": "Супер, тогда идём!",
+          "en": "Great, then let's go!"
+        }
+      ]
+    },
+    {
+      "slug": "betegseg",
+      "title": {
+        "ru": "Больничный по телефону",
+        "en": "Calling in sick"
+      },
+      "scene": {
+        "ru": "Сотрудница звонит начальнику утром.",
+        "en": "An employee phones the boss in the morning."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Halló, jó reggelt kívánok!",
+          "ru": "Алло, доброе утро!",
+          "en": "Hello, good morning!"
+        },
+        {
+          "who": "B",
+          "hu": "Jó reggelt! Valami baj van?",
+          "ru": "Доброе утро! Что-то случилось?",
+          "en": "Good morning! Is something wrong?"
+        },
+        {
+          "who": "A",
+          "hu": "Sajnos beteg vagyok, lázam van.",
+          "ru": "К сожалению, я больна, у меня температура.",
+          "en": "Unfortunately I'm ill, I have a fever."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, sajnálom. Orvoshoz megy?",
+          "ru": "Ой, жаль. Вы пойдёте к врачу?",
+          "en": "Oh, I'm sorry. Are you going to the doctor?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, ma délelőtt. Elnézést!",
+          "ru": "Да, сегодня до обеда. Извините!",
+          "en": "Yes, this morning. Sorry!"
+        },
+        {
+          "who": "B",
+          "hu": "Nem baj. Maradjon otthon, ma nincs sok munka.",
+          "ru": "Ничего. Оставайтесь дома, сегодня не так много работы.",
+          "en": "Never mind. Stay at home, there isn't much work today."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm szépen. Szép napot!",
+          "ru": "Большое спасибо. Хорошего дня!",
+          "en": "Thank you very much. Have a nice day!"
+        }
+      ]
+    },
+    {
+      "slug": "szabadnap",
+      "title": {
+        "ru": "Просьба о выходном",
+        "en": "Asking for a day off"
+      },
+      "scene": {
+        "ru": "Сотрудник просит у начальника свободный день.",
+        "en": "An employee asks the boss for a day off."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, van egy perce?",
+          "ru": "Извините, у вас есть минутка?",
+          "en": "Excuse me, do you have a minute?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze, tessék. Miről van szó?",
+          "ru": "Конечно, пожалуйста. В чём дело?",
+          "en": "Of course, go ahead. What is it about?"
+        },
+        {
+          "who": "A",
+          "hu": "Szabadnapot szeretnék kérni holnapra.",
+          "ru": "Хотел бы попросить выходной на завтра.",
+          "en": "I'd like to ask for a day off tomorrow."
+        },
+        {
+          "who": "B",
+          "hu": "Holnapra? Sok a munka, de rendben.",
+          "ru": "На завтра? Много работы, но хорошо.",
+          "en": "Tomorrow? Lots of work, but all right."
+        },
+        {
+          "who": "A",
+          "hu": "Nagyon köszönöm. Nem lesz gond a munkával.",
+          "ru": "Большое спасибо. С работой проблем не будет.",
+          "en": "Thank you very much. There will be no problem with the work."
+        },
+        {
+          "who": "B",
+          "hu": "Szívesen. Péter vagyok, szia!",
+          "ru": "Не за что. Я Петер, привет!",
+          "en": "You're welcome. I'm Péter, hi!"
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm, nagyon kedves. Gábor vagyok.",
+          "ru": "Спасибо, очень мило. Я Габор.",
+          "en": "Thanks, that's kind. I'm Gábor."
+        }
+      ]
+    },
+    {
+      "slug": "allasinterju",
+      "title": {
+        "ru": "Собеседование",
+        "en": "Job interview"
+      },
+      "scene": {
+        "ru": "Короткий разговор в начале собеседования.",
+        "en": "A short exchange at the start of a job interview."
+      },
+      "names": [
+        "Kovács",
+        "Éva"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Kovács Éva vagyok.",
+          "ru": "Здравствуйте! Я Эва Ковач.",
+          "en": "Good day! I'm Éva Kovács."
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot! Üljön le. Hozta az önéletrajzot?",
+          "ru": "Здравствуйте! Садитесь. Резюме принесли?",
+          "en": "Hello! Sit down. Did you bring the CV?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, tessék. A diplomám is itt van.",
+          "ru": "Да, пожалуйста. Диплом тоже здесь.",
+          "en": "Yes, here you are. My degree is here too."
+        },
+        {
+          "who": "B",
+          "hu": "Van tapasztalata ebben a munkakörben?",
+          "ru": "У вас есть опыт на этой должности?",
+          "en": "Do you have experience in this role?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, három évig dolgoztam egy cégnél.",
+          "ru": "Да, три года работала в одной фирме.",
+          "en": "Yes, I worked at a company for three years."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. Mikor tud kezdeni?",
+          "ru": "Хорошо. Когда вы можете начать?",
+          "en": "All right. When can you start?"
+        },
+        {
+          "who": "A",
+          "hu": "Hát, jövő héten, ha jó önnek.",
+          "ru": "Ну, на следующей неделе, если вам удобно.",
+          "en": "Well, next week, if that suits you."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. Akkor szólunk.",
+          "ru": "Хорошо. Мы вам сообщим.",
+          "en": "All right. We'll let you know."
+        }
+      ]
+    },
+    {
+      "slug": "hatarido",
+      "title": {
+        "ru": "Шутка про срок",
+        "en": "A deadline joke"
+      },
+      "scene": {
+        "ru": "Коллеги шутят про срок сдачи отчёта.",
+        "en": "Colleagues joke about a report deadline."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Na, kész a jelentés?",
+          "ru": "Ну, отчёт готов?",
+          "en": "So, is the report done?"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, majdnem. Még egy kicsit kell, és kész.",
+          "ru": "Ну, почти. Ещё немного, и готово.",
+          "en": "Well, almost. A little more and it's done."
+        },
+        {
+          "who": "A",
+          "hu": "Mikorra kell elküldeni? Holnapra?",
+          "ru": "К какому сроку отправить? К завтрашнему?",
+          "en": "By when must it be sent? Tomorrow?"
+        },
+        {
+          "who": "B",
+          "hu": "Ma estére! Szóval nincs idő.",
+          "ru": "К сегодняшнему вечеру! Так что времени нет.",
+          "en": "By tonight! So there is no time."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, ne már! Segítek, nyugi.",
+          "ru": "Ой, да ладно! Помогу, спокойно.",
+          "en": "Oh, come on! I'll help, relax."
+        },
+        {
+          "who": "B",
+          "hu": "Köszi, te vagy a legjobb!",
+          "ru": "Спасибо, ты лучший!",
+          "en": "Thanks, you're the best!"
+        }
+      ]
+    }
+  ]
+}

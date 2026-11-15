@@ -2942,7 +2942,7 @@ GPU libraries).
 
 ## ADR-066 — Reading sets: curated «Фразы», authored «Диалог», preview before import
 
-**Status:** accepted 2026-11-11, amended 2026-11-11 *(user decision: the original rejection of model-written dialogues is reversed)*; **amended by [ADR-074](#adr-074)**: Decision bullet 1 («Фразы» stay Tatoeba-only) no longer holds, the set under the bare unit code is now an authored «Рассказ».
+**Status:** accepted 2026-11-11, amended 2026-11-11 *(user decision: the original rejection of model-written dialogues is reversed)*; **amended by [ADR-075](#adr-075)**: Decision bullet 3 ("Provenance is stated everywhere": the UI badge is gone, provenance stays in data) no longer holds. **Amended by [ADR-074](#adr-074)**: Decision bullet 1 («Фразы» stay Tatoeba-only) no longer holds, the set under the bare unit code is now an authored «Рассказ».
 
 **Context.** Learner report, 2026-11-11: the shortest-first sets of ADR-056 read as a pile of unrelated fragments, many with names, rare words, morbid or nonsensical lines, and the learner could not see a set before importing it. What a learner wants to read first is what Hungarians really say: short exchanges, the phrases a child hears. No corpus offers that at A1, and Tatoeba lines picked one by one never form a conversation.
 
@@ -3062,7 +3062,7 @@ S is FSRS stability in days. 180 days (`srs.ProgressFullDays`) is a declared dis
 
 ## ADR-074 — «Рассказ»: one authored connected text per unit replaces the Tatoeba «Фразы»
 
-**Status:** accepted 2026-11-12 *(user decision)* · amends [ADR-066](#adr-066) (Decision bullet 1) and [ADR-056](#adr-056) (Rejected: generated passage) · research [R21](research/21-graded-authored-texts.md)
+**Status:** accepted 2026-11-12 *(user decision)* · amends [ADR-066](#adr-066) (Decision bullet 1) and [ADR-056](#adr-056) (Rejected: generated passage); **amended by [ADR-075](#adr-075)** (three texts per unit, the token rule V1, no UI badge) · research [R21](research/21-graded-authored-texts.md)
 
 **Context.** After ADR-066 the learner still read «Фразы» as 20-30 unrelated corpus lines whose words rarely recurred; the dialogue was the only thing that read as a text. At A1-A2 a connected text at 95%+ coverage ([R6](research/06-lexical-coverage.md)) cannot be picked from a corpus, it has to be written to a vocabulary.
 
@@ -3076,3 +3076,57 @@ S is FSRS stability in days. 180 days (`srs.ProgressFullDays`) is a declared dis
 **Rejected.** (1) Keeping «Фразы» beside «Рассказ»: two sets per unit with one of them the weaker. (2) Letting a story serve as a drill example: ADR-042.
 
 **Consequences.** The INVARIANTS and CLAUDE.md digest line now say: reading sets are the one labelled AI-written Hungarian in the pack. Until every unit has a story the build warns and skips it (`validate(require_all=True)`, used by `make starter`, refuses). No native speaker has read the texts; the thresholds are tuning and may move after reading real output. The Go side reads `para` (0 on old packs).
+
+## ADR-075 — Three authored reading texts per unit (short, medium, long), no UI "AI-written" badge
+
+**Status:** accepted 2026-11-12 *(user decision)* · amends [ADR-066](#adr-066) (Decision bullet 3, "Provenance is stated everywhere") and [ADR-074](#adr-074) (one text per unit, the token rule) · research [R22](research/22-text-length-and-genre.md), [R6](research/06-lexical-coverage.md), [R11](research/11-extensive-reading.md), [R21](research/21-graded-authored-texts.md)
+
+**Context.** One «Рассказ» and one «Диалог» per unit are the same size and nearly the same register; a learner who wants more to read at a unit's level, or a different kind of text (a note, a notice, a story), has nothing. Narrow reading (several texts, one topic, different genres) is what [R11](research/11-extensive-reading.md) supports. The user also decided the "AI-written" label on every card and preview is noise.
+
+**Decision.**
+- Every basic-tier unit (24 core + 12 themes = 36) gets **three authored texts of different size AND genre**: short, medium, long. Codes stay `<unit>-dialogue` = short, `<unit>` = medium, `<unit>-long` = long, so imports sync in place; the codes never reach learners. `reading_set` gains `tier` (short|medium|long), `genre` (id from `pipeline/texts.py` `GENRES`), `words`, `checked` ('ai'|'native'), with a guarded `ALTER` for existing packs; `track` is the unit's track for new-format sets (legacy dialogue sets keep `'dialogue'` during the transition), `ord = unit ord × 10 + 1/2/3`. The title is «<genre label>: <the text's own title>» (the unit name stays in `theme_*`).
+- Source: `langpack/texts/<unit>.json` (`short|medium|long` → genre, title ru/en, `names`, `checked`, paragraphs of `{hu, ru, en}`; a `dialogue` entry is one turn). A tier with no JSON falls back to the legacy `stories_*.py` (medium) / `dialogues_*.py` (short) so the pack builds during the pilot; `--require-all` (`make starter`) accepts no legacy text and refuses a unit without a full valid triplet. Authoring: `python -m pipeline.texts PACK --brief UNIT --tier T`.
+- **Token rule V1** replaces "attested non-generated wordform only": a word passes if it is (a) an attested non-generated wordform, (b) a `generated` paradigm form (allowed because reading is recognition; the count per text is reported), (c) in `pipeline/texts_allow.tsv` (form, lemma, upos, unit-or-`*`, reason; the lemma feeds the band and frequency gates), or (d) a name in the text's `names`. (b)-(d) are never written to `wordform`. V2 band/taught-earlier gate and V3 frequency gate (`TOP_N` 500/1000/2000, share 0.85, unit words exempt) are unchanged and hard. V4 size by band (A1 short 30-70, medium 90-160, long 180-280 words; months 3-4 50-100/140-220/250-380; months 5-6 and themes 70-130/180-300/320-480 — an inference, R22), sentence cap 10/12/14, paragraphs 1-2/2-4/3-6 (a `dialogue` has no paragraph rule). V5 (require-all): three different genres, at most one dialogue, long = connected prose. V6: ru and en for every sentence. Recycling (target ≥70% of a unit's words ≥3×) is report-only.
+- Ids `9 000 000 + unit ord × 1000 + slot × 300 + i` (slot 0 short, 1 medium, 2 long); the legacy modules moved into the unit's 900-999 block (dialogue +0..49, story +50..99), which would otherwise have collided with the new range; the build asserts every non-authored id is below 9 000 000. No user data stores an authored sentence id: an import keeps text, not ids; notes point only at pack sentences reached through tokens, which authored sentences do not have.
+- **Honest labelling changes (user decision):** the UI no longer shows an "AI-written" label on reading sets. Provenance stays in data (`sentence.source = 'authored'`, `reading_set.checked`, imported kind `generated`). Authored text still feeds **only** reading: every non-reading query keeps `source <> 'authored'`, no tokens, never in the n-gram index.
+
+**Amendment (V2 band exemptions, 2026-11-12).** The pack's CEFR labels are estimated from frequency and misfile everyday lemmas (weekdays B1, `kenyér` B1, numeral compounds C1), and a unit about time cannot avoid them. `pipeline/texts_allow.tsv` therefore also has a `[band-exempt]` section: a row (lemma, upos or `*`, unit or `*`, reason ≥ 10 characters) exempts that lemma from the V2 band check only; V3 still counts it. The default stays strict; rare words are not exempted, and each row states why.
+
+**Rejected.** (1) One longer text per unit: no genre variety. (2) Keeping the "attested non-generated only" rule: it forbade inflected forms any beginner text needs. (3) Letting the allow-list or generated forms enter `wordform`: it would turn the model's own output into evidence.
+
+**Consequences.** Docs: `docs/LANGPACK.md` "Reading sets", UX §5.1, FEATURES, INVARIANTS, the CLAUDE.md digest line. The Go layer joins a `dialogue`-genre text with turn markers; the Vue layer keeps a ru/en label per genre id. `make starter` fails until all 36 units have their JSON; pilot units first. Starter validation checks the STARTER's wordforms, so a text relying on generated forms of lemmas the starter does not keep must be checked against that file (open).
+
+## ADR-076 — The reading texts live in the binary's catalogue, not in the language pack
+
+**Status:** accepted 2026-11-14 *(user decision)* · amends [ADR-074](#adr-074) and [ADR-075](#adr-075) (storage, ids, the `para` column) · research [R22](research/22-text-length-and-genre.md)
+
+**Context.** ADR-075 wrote the 108 texts into the pack as `source='authored'` sentences plus `reading_set*` rows. Changing one word meant `make refresh` on the full pack, `make starter`, a 40 MB committed gzip diff, and a learner's existing full pack stayed stale until they rebuilt it. The texts are small (about 0.6 MB), authored in this repo, and need nothing from the pack at read time.
+
+**Decision.**
+- `make texts` validates `langpack/texts/*.json` against a pack's lexicon (read-only, V1-V6 unchanged) and then **exports one committed, deterministic file, `backend/internal/readsets/catalog.json`**, which the Go binary `//go:embed`s. Plain JSON, UTF-8, `{"format":1,"sets":[...]}`, one set per line, sorted keys, trailing newline, ordered by `ord` then `code`. A set: `code, unit, unitOrd, level, track, register (standard|colloquial), tier (short|medium|long|talk|mini), genre, ord, titleRu/En, themeRu/En, checked, words, lines[{hu, ru, en, para, who?}]`. Export refuses while validation has problems; `make texts-check` and the pytest `test_catalog_in_sync` fail on drift.
+- **Codes** stay `<unit>-dialogue` / `<unit>` / `<unit>-long` (so texts imported earlier keep syncing by code); the planned colloquial tiers use `<unit>-talk` and `<unit>-talk-<slug>` (exporter and tests support them; no text yet). **`ord`** = `unitOrd × 100 + {short 1, medium 2, long 3, talk 4, mini 10+i}`. Unit metadata (order, band, titles) comes from the course tables in `pipeline/course*.py`.
+- **The pack carries no reading sets any more.** `reading_sets.build`, `validate`, `ensure_schema` and the authored-sentence ids (9 000 000 + ...) are gone from `build.py`, `refresh.py` and `starter.py`; `starter.py` no longer validates sets, but still keeps the lemmas the texts use (read from `langpack/texts`) so the reader can analyse them in the starter edition. The `reading_set*` tables stay in `schema.sql` (empty) so older binaries and packs open. The legacy `stories*.py` / `dialogues*.py` modules are out of the build path; `texts.py` reuses their helpers.
+- New flow: edit `langpack/texts` → `make texts` → commit → deploy. A new image updates the texts of both editions; no `make refresh`, no pack rewrite. The Docker build needs no Python because the catalogue is committed.
+- The `para` of ADR-074 is now a field of each catalogue line. An imported set is still an ordinary text (`Server.ingestText`); no user data stores a sentence id of the texts.
+
+**Rejected.** (1) Keeping the texts in the pack (stale after every edit, large binary diffs). (2) A separate downloadable text pack (a second artefact to version for 0.6 MB). (3) Generating the catalogue in the Docker build (would put Python and the 357 MB pack into the image build).
+
+**Consequences.** `docs/LANGPACK.md` "Reading sets", `docs/DEVELOPMENT.md` (make targets), INVARIANTS and the CLAUDE.md digest line. The Go side (`internal/readsets`, the library and unit-page handlers) reads the catalogue instead of the pack tables. An old full pack's `source='authored'` rows stay filtered out of every non-reading query.
+
+## ADR-077 — A colloquial register: one talk text and 5-10 mini dialogues per unit
+
+**Status:** accepted 2026-11-14 *(user decision)* · extends [ADR-075](#adr-075) (token rule V1) and [ADR-076](#adr-076) (catalogue, the `talk`/`mini` tiers) · research [R23](research/23-colloquial-register.md), [R22](research/22-text-length-and-genre.md), [R11](research/11-extensive-reading.md)
+
+**Context.** The three standard texts of ADR-075 are written Hungarian a textbook would print. A learner who walks out of the door meets *hát, na, ugye, köszi, nemtom, suli*, clipped words and short exchanges. The user asked for a 4th text per unit in real spoken colloquial Hungarian (street, shop, work, the dog park; explicitly not literary) plus 5-10 short mini dialogues, easy at easy levels and harder higher, authenticity first, vulgar words banned.
+
+**Decision.**
+- Source `langpack/talk/<unit>.json` (`talk` + `dialogues`; schema in LANGPACK.md "Colloquial talk texts and mini dialogues"). Export through the ADR-076 catalogue: `<unit>-talk` (tier `talk`, genre `dialogue|phone|voicemsg|chat`, `ord` +4) and `<unit>-talk-<slug>` (tier `mini`, genre `dialogue`, `ord` +10+i), `register: colloquial`; a mini also exports `sceneRu/En`, turns carry `who` (`A|B|C`). `make texts` / `--check-export` / the drift pytest cover them; `--require-talk` (separate from `--require-all`) demands a talk text and ≥ 5 minis per unit.
+- **V4c sizes** (inference, as V4): mini A1 2-6 turns ≤ 6 words 12-40 words; A2 4-8 / ≤ 8 / 30-70; B1 6-10 / ≤ 10 / 50-110; talk 60-120 / 100-180 / 150-260 words; 5-10 minis a unit; unique slugs; no turn repeated across a unit's minis.
+- **Colloquial lexicon** `pipeline/texts_colloquial.tsv`: `[allowed]` rows (form, lemma or `-`, upos, kind, level A1|A2|B1, ru, en, reason) extend V1 as clause (c'); a row above the text's band **fails**, so an A1 text only uses A1 items. Lemma `-` is exempt from V2/V3. For talk and mini, colloquial rows and lemmas taught earlier are V3-exempt (0.85 otherwise unchanged); every text needs ≥ 1 marker and at most 20% of its words (greeting-kind rows excluded) may be markers.
+- **`[banned]`** stems (prefix; `stem$` = exact) fail in every text, standard included, even if the pack attests the form. Seeded with the common vulgar words and slurs; exact forms where a stem would hit an innocent word (szarvas, szarka, faszekrény).
+- Validator ergonomics: a rejected token prints the closest pack lemmas and the exact `texts_allow.tsv` row to paste. `--brief UNIT --tier talk|mini` is the author's brief.
+- All colloquial content is `checked: "ai"`; no UI badge (as ADR-075). The lexicon is seeded only with items we are sure are real, common and non-vulgar.
+
+**Rejected.** (1) Letting colloquial words in through `texts_allow.tsv`: no level gate, no marker count, no banned list. (2) Hard-coding a "colloquial" flag per text without a lexicon: nothing would stop an A1 text from using B1 slang. (3) Writing colloquial text straight into the standard tiers: a learner could not tell which register they read, and the word-frequency gate would block most particles.
+
+**Consequences.** The evidence base is thin ([R23](research/23-colloquial-register.md)): the level of each particle and the marker thresholds are our judgement; a native speaker must review the lexicon and every text before they are called authentic. Docs: LANGPACK.md, `langpack/talk/README.md`. The Go and Vue layers read `register`, `tier`, `who` and `scene*` from the catalogue (other agents). Open: native review; retuning sizes, the 20% cap and levels after reading real output.

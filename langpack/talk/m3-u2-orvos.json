@@ -1,0 +1,469 @@
+{
+  "talk": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "Спина болит",
+      "en": "A bad back"
+    },
+    "names": [
+      "Bence",
+      "Kata"
+    ],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Szia, Kata! Rosszul nézel ki.",
+          "ru": "Привет, Ката! Выглядишь плохо.",
+          "en": "Hi, Kata! You look bad."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, tudom. Nem alszom jól, és fáj a hátam.",
+          "ru": "Ой, знаю. Плохо сплю, и болит спина.",
+          "en": "Oh, I know. I do not sleep well, and my back hurts."
+        },
+        {
+          "who": "A",
+          "hu": "Mióta fáj?",
+          "ru": "С каких пор болит?",
+          "en": "Since when does it hurt?"
+        },
+        {
+          "who": "B",
+          "hu": "Egy hete. Hát, sokat ülök, és sokat dolgozom.",
+          "ru": "Неделю. Ну, я много сижу и много работаю.",
+          "en": "A week. Well, I sit a lot and work a lot."
+        },
+        {
+          "who": "A",
+          "hu": "Egy hete fáj, és nincs időd? Ez nem jó.",
+          "ru": "Неделю болит, и нет времени? Это нехорошо.",
+          "en": "It has hurt for a week, and you have no time? That is not good."
+        },
+        {
+          "who": "B",
+          "hu": "Igazad van. Tényleg nagyon fáj.",
+          "ru": "Ты права. Правда, очень болит.",
+          "en": "You are right. It really hurts a lot."
+        },
+        {
+          "who": "A",
+          "hu": "Voltál már orvosnál?",
+          "ru": "Ты уже была у врача?",
+          "en": "Have you been to a doctor yet?"
+        },
+        {
+          "who": "B",
+          "hu": "Még nem. Nincs időm.",
+          "ru": "Ещё нет. У меня нет времени.",
+          "en": "Not yet. I have no time."
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg? Az egészség fontos! Hívd fel a háziorvost.",
+          "ru": "Правда? Здоровье важно! Позвони участковому врачу.",
+          "en": "Really? Health is important! Call the family doctor."
+        },
+        {
+          "who": "B",
+          "hu": "Jó, de a rendelés csak délelőtt van.",
+          "ru": "Ладно, но приём только до обеда.",
+          "en": "Fine, but the consulting hours are only in the morning."
+        },
+        {
+          "who": "A",
+          "hu": "Akkor menj holnap reggel. Kérj időpontot most!",
+          "ru": "Тогда иди завтра утром. Запишись прямо сейчас!",
+          "en": "Then go tomorrow morning. Make an appointment now!"
+        },
+        {
+          "who": "B",
+          "hu": "Oké, hívom a háziorvost. Nem akarok beteg lenni.",
+          "ru": "Окей, звоню участковому. Не хочу болеть.",
+          "en": "Okay, I am calling the family doctor. I do not want to be ill."
+        },
+        {
+          "who": "A",
+          "hu": "Pihenj sokat, és ne ülj egész nap!",
+          "ru": "Побольше отдыхай и не сиди весь день!",
+          "en": "Rest a lot, and do not sit all day!"
+        },
+        {
+          "who": "B",
+          "hu": "Jó, jó, na. Nem ülök egész nap.",
+          "ru": "Ладно, ладно. Не буду сидеть весь день.",
+          "en": "Fine, fine, come on. I will not sit all day."
+        },
+        {
+          "who": "A",
+          "hu": "Ha kell, szólj. Aztán mondd el, mit mond a doktor.",
+          "ru": "Если надо, скажи. Потом расскажи, что скажет врач.",
+          "en": "If you need anything, tell me. Then tell me what the doctor says."
+        },
+        {
+          "who": "B",
+          "hu": "Persze. Köszi, hogy szólsz, Bence.",
+          "ru": "Конечно. Спасибо, что сказал, Бенце.",
+          "en": "Sure. Thanks for speaking up, Bence."
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "idopont-telefonon",
+      "title": {
+        "ru": "Время на приём",
+        "en": "Booking a slot"
+      },
+      "scene": {
+        "ru": "Звонок в кабинет участкового врача.",
+        "en": "A phone call to the GP's surgery."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Rendelő, jó napot kívánok!",
+          "ru": "Приёмная, добрый день!",
+          "en": "Surgery, good day!"
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot! Időpontot kérek holnapra.",
+          "ru": "Здравствуйте! Запишите меня на завтра.",
+          "en": "Hello! I would like an appointment for tomorrow."
+        },
+        {
+          "who": "A",
+          "hu": "Holnapra nincs hely. Ma jó lesz?",
+          "ru": "На завтра мест нет. Сегодня подойдёт?",
+          "en": "No place for tomorrow. Will today do?"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, ma jó. Két napja fáj a hátam.",
+          "ru": "Ну, сегодня хорошо. Два дня болит спина.",
+          "en": "Well, today is fine. My back has hurt for two days."
+        },
+        {
+          "who": "A",
+          "hu": "Akkor jöjjön ma, két órára.",
+          "ru": "Тогда приходите сегодня к двум.",
+          "en": "Then come today at two."
+        },
+        {
+          "who": "B",
+          "hu": "Köszönöm szépen, ott leszek.",
+          "ru": "Большое спасибо, буду.",
+          "en": "Thank you very much, I will be there."
+        }
+      ]
+    },
+    {
+      "slug": "varoterem",
+      "title": {
+        "ru": "В очереди к врачу",
+        "en": "In the waiting room"
+      },
+      "scene": {
+        "ru": "Двое незнакомых пациентов ждут у кабинета.",
+        "en": "Two strangers wait outside the surgery."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, ön az utolsó?",
+          "ru": "Извините, вы последний?",
+          "en": "Excuse me, are you the last one?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, én vagyok.",
+          "ru": "Да, я.",
+          "en": "Yes, that is me."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm. Sokat kell még várni?",
+          "ru": "Спасибо. Ещё долго ждать?",
+          "en": "Thank you. Is there a long wait still?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem tudom. Már egy órája itt vagyok.",
+          "ru": "Не знаю. Я здесь уже час.",
+          "en": "I do not know. I have been here for an hour."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, nekem nincs sok időm.",
+          "ru": "Ой, у меня мало времени.",
+          "en": "Oh, I do not have much time."
+        },
+        {
+          "who": "B",
+          "hu": "Nem baj, a doktor úr gyors.",
+          "ru": "Ничего, доктор быстрый.",
+          "en": "Never mind, the doctor is quick."
+        },
+        {
+          "who": "A",
+          "hu": "Remélem. Köszönöm.",
+          "ru": "Надеюсь. Спасибо.",
+          "en": "I hope so. Thank you."
+        }
+      ]
+    },
+    {
+      "slug": "rendeles",
+      "title": {
+        "ru": "У врача",
+        "en": "At the consultation"
+      },
+      "scene": {
+        "ru": "Приём у участкового врача.",
+        "en": "A visit to the family doctor."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot! Mi a baj?",
+          "ru": "Добрый день! Что случилось?",
+          "en": "Good day! What is the matter?"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, fáj a torkom, és köhögök.",
+          "ru": "Ну, болит горло, и я кашляю.",
+          "en": "Well, my throat hurts, and I cough."
+        },
+        {
+          "who": "A",
+          "hu": "Allergiás valamire? Szed gyógyszert?",
+          "ru": "Есть аллергия? Принимаете лекарства?",
+          "en": "Are you allergic to anything? Do you take any medicine?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, semmire.",
+          "ru": "Нет, ни на что.",
+          "en": "No, to nothing."
+        },
+        {
+          "who": "A",
+          "hu": "Kap egy receptet. Tabletta lesz. Este is egy.",
+          "ru": "Получите рецепт. Будут таблетки. И одну вечером.",
+          "en": "You get a prescription. Tablets. One in the evening too."
+        },
+        {
+          "who": "B",
+          "hu": "Köszönöm. Sokat kell pihenni?",
+          "ru": "Спасибо. Нужно много отдыхать?",
+          "en": "Thank you. Do I have to rest a lot?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, sokat. Viszlát!",
+          "ru": "Да, побольше. До свидания!",
+          "en": "Yes, a lot. Goodbye!"
+        }
+      ]
+    },
+    {
+      "slug": "patika",
+      "title": {
+        "ru": "В аптеке",
+        "en": "At the pharmacy"
+      },
+      "scene": {
+        "ru": "У аптечного окошка.",
+        "en": "At the pharmacy counter."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Tessék.",
+          "ru": "Добрый день! Слушаю вас.",
+          "en": "Good day! Yes, please?"
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot! Ez a recept, kérem.",
+          "ru": "Здравствуйте! Вот рецепт, пожалуйста.",
+          "en": "Hello! Here is the prescription, please."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm. Még valamit kér?",
+          "ru": "Спасибо. Что-нибудь ещё?",
+          "en": "Thank you. Anything else?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, valamit a náthára.",
+          "ru": "Да, что-нибудь от насморка.",
+          "en": "Yes, something for a cold."
+        },
+        {
+          "who": "A",
+          "hu": "Arra nem kell recept. Tessék.",
+          "ru": "На это рецепт не нужен. Пожалуйста.",
+          "en": "That needs no prescription. Here you are."
+        },
+        {
+          "who": "B",
+          "hu": "Ühüm. Hogyan kell szedni?",
+          "ru": "Угу. Как принимать?",
+          "en": "Uh-huh. How do I take them?"
+        },
+        {
+          "who": "A",
+          "hu": "Reggel és este, egyet.",
+          "ru": "Утром и вечером, по одной.",
+          "en": "Morning and evening, one."
+        },
+        {
+          "who": "B",
+          "hu": "Értem. Köszönöm, viszlát!",
+          "ru": "Понятно. Спасибо, до свидания!",
+          "en": "I see. Thank you, goodbye!"
+        }
+      ]
+    },
+    {
+      "slug": "nathas-barat",
+      "title": {
+        "ru": "Простуда",
+        "en": "A friend with a cold"
+      },
+      "scene": {
+        "ru": "Двое друзей говорят по телефону.",
+        "en": "Two friends talk on the phone."
+      },
+      "names": [
+        "Bence",
+        "Kata"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia, Kata! Jössz ma hozzám?",
+          "ru": "Привет, Ката! Придёшь сегодня ко мне?",
+          "en": "Hi, Kata! Are you coming over to mine today?"
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, nem tudok. Beteg vagyok.",
+          "ru": "Ой, не могу. Я болею.",
+          "en": "Oh, I cannot. I am ill."
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg? Mi van veled?",
+          "ru": "Правда? Что с тобой?",
+          "en": "Really? What is wrong with you?"
+        },
+        {
+          "who": "B",
+          "hu": "Nátha, és fáj a torkom.",
+          "ru": "Насморк, и болит горло.",
+          "en": "A cold, and my throat hurts."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, ne! Van lázad?",
+          "ru": "Ой, нет! У тебя температура?",
+          "en": "Oh no! Do you have a fever?"
+        },
+        {
+          "who": "B",
+          "hu": "Nincs, csak nagyon fáj a fejem.",
+          "ru": "Нет, только сильно болит голова.",
+          "en": "No, my head just hurts a lot."
+        },
+        {
+          "who": "A",
+          "hu": "Pihenj! Este hozok neked valamit.",
+          "ru": "Отдыхай! Вечером принесу тебе кое-что.",
+          "en": "Rest! This evening I will bring you something."
+        },
+        {
+          "who": "B",
+          "hu": "Király, köszi!",
+          "ru": "Здорово, спасибо!",
+          "en": "Great, thanks!"
+        }
+      ]
+    },
+    {
+      "slug": "lazas-gyerek",
+      "title": {
+        "ru": "Температура у ребёнка",
+        "en": "A child with a fever"
+      },
+      "scene": {
+        "ru": "Мама звонит папе. Дочку зовут Zsófi.",
+        "en": "A mother calls the father. The daughter is Zsófi."
+      },
+      "names": [
+        "Zsófi"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Halló! Zsófinak nagy láza van.",
+          "ru": "Алло! У Жофи высокая температура.",
+          "en": "Hello! Zsófi has a high fever."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj! Eszik valamit?",
+          "ru": "Ой! Она что-нибудь ест?",
+          "en": "Oh! Is she eating anything?"
+        },
+        {
+          "who": "A",
+          "hu": "Semmit. Csak alszik, és köhög.",
+          "ru": "Ничего. Только спит и кашляет.",
+          "en": "Nothing. She only sleeps and coughs."
+        },
+        {
+          "who": "B",
+          "hu": "Hívd a háziorvost! Mindjárt jövök.",
+          "ru": "Позвони участковому! Я сейчас приду.",
+          "en": "Call the family doctor! I am coming now."
+        },
+        {
+          "who": "A",
+          "hu": "Már hívtam. Négyre kaptunk időpontot.",
+          "ru": "Уже звонила. Нам дали время на четыре.",
+          "en": "I already called. We got an appointment for four."
+        },
+        {
+          "who": "B",
+          "hu": "Jó, nyugi. Ott találkozunk a rendelőnél.",
+          "ru": "Хорошо, не волнуйся. Встретимся у кабинета.",
+          "en": "Good, relax. We will meet there at the surgery."
+        },
+        {
+          "who": "A",
+          "hu": "Köszi, gyere gyorsan!",
+          "ru": "Спасибо, приходи скорее!",
+          "en": "Thanks, come quickly!"
+        }
+      ]
+    }
+  ]
+}

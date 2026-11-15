@@ -90,11 +90,12 @@ Optional: the tutor, linked from every lesson.
 - **Read** a pasted text, a URL, an `.srt` subtitle or an `.epub`. Every word is analysed and
   coloured by what you know. Click a word to see its analysis, add it as a card, or mark it known.
   Uncertain analyses and fallback glosses are labelled.
-- **Ready-made reading sets.** Library offers, for each basic-tier course unit and theme (36 in
-  the starter), a «Рассказ» (one short connected text) and a «Диалог» — one short
-  conversation, both written by an AI, labelled «Написано ИИ, носителем не проверено» (every word is in
-  the dictionary; no native speaker has read it). «Посмотреть» shows every line with its translation
-  before anything is added. Importing is an explicit click; it creates a text, never cards.
+- **Ready-made reading sets.** Library offers, for each basic-tier course unit and theme (36, in both editions), **three texts on its topic**: a short one (a note, an SMS, a notice, a short
+  dialogue), a medium one (a longer dialogue, an email, a description) and a long one (a day in
+  the life, a story, a diary entry), each with its size and kind shown. They are written by an AI
+  from the unit's own words and checked against the dictionary and frequency lists, and ship inside the app itself; no native
+  speaker has read them. «Посмотреть» shows every line with its translation before anything is
+  added. Importing is an explicit click; it creates a text, never cards.
 - **Level estimate for texts.** Each text shows the share of its words you already know.
 - **Optional, translator.** A machine-translated crib under a sentence, always labelled with the
   model, never used as a card answer.

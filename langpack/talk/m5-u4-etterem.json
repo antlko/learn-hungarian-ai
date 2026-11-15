@@ -1,0 +1,585 @@
+{
+  "talk": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "Кофе с подругой",
+      "en": "Coffee with a friend"
+    },
+    "names": [
+      "Dani"
+    ],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Szia, Dani, bocsi, kicsit késtem! Régóta vársz?",
+          "ru": "Привет, Дани, прости, я немного опоздала! Давно ждёшь?",
+          "en": "Hi, Dani, sorry, I am a bit late! Have you been waiting long?"
+        },
+        {
+          "who": "B",
+          "hu": "Dehogy, csak öt perce jöttem. Már rendeltem kávét.",
+          "ru": "Да нет, я всего пять минут как пришёл. Я уже заказал кофе.",
+          "en": "Not at all, I only got here five minutes ago. I already ordered coffee."
+        },
+        {
+          "who": "A",
+          "hu": "Köszi! Hú, de éhes vagyok. Van valami édesség?",
+          "ru": "Спасибо! Ух, как я голодна. Есть что-нибудь сладкое?",
+          "en": "Thanks! Wow, I am hungry. Is there anything sweet?"
+        },
+        {
+          "who": "B",
+          "hu": "Van torta és palacsinta. A palacsinta nagyon finom.",
+          "ru": "Есть торт и блинчики. Блинчики очень вкусные.",
+          "en": "There is cake and pancakes. The pancakes are very good."
+        },
+        {
+          "who": "A",
+          "hu": "Akkor palacsinta. Te nem kérsz semmit?",
+          "ru": "Тогда блинчики. А ты ничего не будешь?",
+          "en": "Then pancakes. Are you not having anything?"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, inkább csak egy kávét. Nem vagyok éhes.",
+          "ru": "Ну, лучше только кофе. Я не голоден.",
+          "en": "Well, just a coffee. I am not hungry."
+        },
+        {
+          "who": "A",
+          "hu": "Szóval mi volt a hétvégén? Mondd el!",
+          "ru": "Итак, что было на выходных? Расскажи!",
+          "en": "So what happened at the weekend? Tell me!"
+        },
+        {
+          "who": "B",
+          "hu": "Semmi extra, otthon maradtam. És te? Voltál valahol?",
+          "ru": "Ничего особенного, остался дома. А ты? Куда-нибудь ходила?",
+          "en": "Nothing special, I stayed at home. And you? Did you go anywhere?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen! Szombaton a barátokkal voltunk egy új étteremben.",
+          "ru": "Да! В субботу мы были с друзьями в новом ресторане.",
+          "en": "Yes! On Saturday we went to a new restaurant with friends."
+        },
+        {
+          "who": "B",
+          "hu": "Jó volt? Mit rendeltél?",
+          "ru": "Хорошо было? Что ты заказала?",
+          "en": "Was it good? What did you order?"
+        },
+        {
+          "who": "A",
+          "hu": "Sült marhahúst, de nagyon csípős volt. Alig tudtam enni.",
+          "ru": "Жареную говядину, но она была очень острая. Я еле ела.",
+          "en": "Roast beef, but it was very spicy. I could hardly eat it."
+        },
+        {
+          "who": "B",
+          "hu": "Ja, te nem szereted a csípőset. Szóltál a pincérnek?",
+          "ru": "А, ты же не любишь острое. Ты сказала официанту?",
+          "en": "Oh, you do not like spicy food. Did you tell the waiter?"
+        },
+        {
+          "who": "A",
+          "hu": "Nem, dehogy. Egész este csak vizet ittam, tényleg!",
+          "ru": "Нет, что ты. Весь вечер пила только воду, правда!",
+          "en": "No, of course not. All evening I only drank water, really!"
+        },
+        {
+          "who": "B",
+          "hu": "Szegény! Legközelebb kérdezd meg, mi van benne.",
+          "ru": "Бедняжка! В следующий раз спроси, что в нём.",
+          "en": "Poor you! Next time ask what is in it."
+        },
+        {
+          "who": "A",
+          "hu": "Igazad van. Jaj, itt jön a pincér! Elnézést, még egy kávét kérünk.",
+          "ru": "Ты права. Ой, вот идёт официант! Извините, нам ещё кофе.",
+          "en": "You are right. Oh, here comes the waiter! Excuse me, one more coffee please."
+        },
+        {
+          "who": "B",
+          "hu": "Jó ötlet. Legközelebb én hívlak meg, jó?",
+          "ru": "Хорошая идея. В следующий раз я угощаю, ладно?",
+          "en": "Good idea. Next time it's on me, okay?"
+        },
+        {
+          "who": "A",
+          "hu": "Rendben, köszi! Szuper.",
+          "ru": "Хорошо, спасибо! Супер.",
+          "en": "Okay, thanks! Great."
+        },
+        {
+          "who": "B",
+          "hu": "Akkor jövő héten ebédelünk együtt?",
+          "ru": "Тогда на следующей неделе пообедаем вместе?",
+          "en": "Then shall we have lunch together next week?"
+        },
+        {
+          "who": "A",
+          "hu": "Persze! Szólj, hogy mikor jó neked.",
+          "ru": "Конечно! Скажи, когда тебе удобно.",
+          "en": "Sure! Tell me when it suits you."
+        },
+        {
+          "who": "B",
+          "hu": "Szerdán nagyon jó lenne. A menü olcsó, azt kérjük.",
+          "ru": "В среду было бы здорово. Комплексный обед дешёвый, возьмём его.",
+          "en": "Wednesday would be great. The set menu is cheap, let's have it."
+        },
+        {
+          "who": "A",
+          "hu": "Persze, és ott a leves is finom. Oké, szerda!",
+          "ru": "Конечно, и суп там вкусный. Хорошо, среда!",
+          "en": "Sure, and the soup is good there too. Okay, Wednesday!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "telefonos-foglalas",
+      "title": {
+        "ru": "Бронь столика по телефону",
+        "en": "Booking a table by phone"
+      },
+      "scene": {
+        "ru": "По телефону: гость и ресторан.",
+        "en": "On the phone: a guest and a restaurant."
+      },
+      "names": [
+        "Kovács"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Halló, jó napot kívánok! Asztalt szeretnék foglalni.",
+          "ru": "Алло, добрый день! Хочу забронировать столик.",
+          "en": "Hello, good day! I would like to book a table."
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot! Mikorra és hány főre?",
+          "ru": "Добрый день! На какое время и на сколько человек?",
+          "en": "Good day! For when and for how many people?"
+        },
+        {
+          "who": "A",
+          "hu": "Holnap estére, hat főre.",
+          "ru": "На завтра вечером, на шестерых.",
+          "en": "For tomorrow evening, for six people."
+        },
+        {
+          "who": "B",
+          "hu": "Mikor jönnének?",
+          "ru": "Когда вы придёте?",
+          "en": "When would you come?"
+        },
+        {
+          "who": "A",
+          "hu": "Hétre, ha lehet.",
+          "ru": "К семи, если можно.",
+          "en": "For seven, if possible."
+        },
+        {
+          "who": "B",
+          "hu": "Hétkor sajnos nincs hely. Fél nyolc jó?",
+          "ru": "В семь, к сожалению, нет мест. Полвосьмого подойдёт?",
+          "en": "Unfortunately there is no room at seven. Is half past seven good?"
+        },
+        {
+          "who": "A",
+          "hu": "Persze, az is jó. Egy vendég nem eszik mogyorót.",
+          "ru": "Конечно, это тоже подойдёт. Один гость не ест арахис.",
+          "en": "Sure, that is fine too. One guest does not eat peanuts."
+        },
+        {
+          "who": "B",
+          "hu": "Ez nem gond, szólunk a konyhának. Milyen névre lesz?",
+          "ru": "Не проблема, скажем на кухне. На какую фамилию?",
+          "en": "No problem, we will tell the kitchen. Under what name?"
+        },
+        {
+          "who": "A",
+          "hu": "Kovács. Köszönöm, további szép napot!",
+          "ru": "Ковач. Спасибо, всего доброго!",
+          "en": "Kovács. Thank you, have a nice day!"
+        }
+      ]
+    },
+    {
+      "slug": "napi-menu",
+      "title": {
+        "ru": "Комплексный обед",
+        "en": "The daily set menu"
+      },
+      "scene": {
+        "ru": "Столовая в обед, у раздачи.",
+        "en": "A canteen at lunchtime, at the counter."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot! Mi a mai menü?",
+          "ru": "Добрый день! Что сегодня в меню?",
+          "en": "Good day! What is today's set menu?"
+        },
+        {
+          "who": "B",
+          "hu": "Leves, utána rántott sertés vagy sült marhahús.",
+          "ru": "Суп, потом свинина в панировке или жареная говядина.",
+          "en": "Soup, then breaded pork or roast beef."
+        },
+        {
+          "who": "A",
+          "hu": "A rántottat kérem. Csípős a leves?",
+          "ru": "Свинину в панировке, пожалуйста. Суп острый?",
+          "en": "The breaded one, please. Is the soup spicy?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, de van bors az asztalon. Jöhet a leves?",
+          "ru": "Нет, но на столе есть перец. Суп подавать?",
+          "en": "No, but there is pepper on the table. Shall I bring the soup?"
+        },
+        {
+          "who": "A",
+          "hu": "Jó, jöhet. Desszert van?",
+          "ru": "Хорошо, давайте. Десерт есть?",
+          "en": "Fine, go on. Is there dessert?"
+        },
+        {
+          "who": "B",
+          "hu": "Palacsinta van. Kér egyet?",
+          "ru": "Блинчики есть. Хотите один?",
+          "en": "There are pancakes. Would you like one?"
+        },
+        {
+          "who": "A",
+          "hu": "Hát, az is jöhet. Mennyi lesz?",
+          "ru": "Ну, и они пусть будут. Сколько с меня?",
+          "en": "Well, that can come too. How much will it be?"
+        },
+        {
+          "who": "B",
+          "hu": "Ezer lesz. Jó étvágyat!",
+          "ru": "С вас тысяча. Приятного аппетита!",
+          "en": "That's a thousand. Enjoy your meal!"
+        },
+        {
+          "who": "A",
+          "hu": "Tessék, itt az ezer. Köszi, szintén!",
+          "ru": "Вот тысяча. Спасибо, и вам!",
+          "en": "Here is the thousand. Thanks, you too!"
+        }
+      ]
+    },
+    {
+      "slug": "nem-ezt-rendeltem",
+      "title": {
+        "ru": "Я заказывал не это",
+        "en": "Not what I ordered"
+      },
+      "scene": {
+        "ru": "В ресторане, гость и официант.",
+        "en": "In a restaurant, a guest and a waiter."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, ez nem az, amit rendeltem.",
+          "ru": "Извините, это не то, что я заказал.",
+          "en": "Excuse me, this is not what I ordered."
+        },
+        {
+          "who": "B",
+          "hu": "Tényleg? Mit kért?",
+          "ru": "Правда? Что вы заказывали?",
+          "en": "Really? What did you order?"
+        },
+        {
+          "who": "A",
+          "hu": "Sült marhahúst kértem, ez sertés.",
+          "ru": "Я просил жареную говядину, а это свинина.",
+          "en": "I asked for roast beef, this is pork."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, bocsánat! Azonnal cserélem.",
+          "ru": "Ой, простите! Сейчас заменю.",
+          "en": "Oh, sorry! I will change it at once."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm. Nem sietek, nem baj, várok.",
+          "ru": "Спасибо. Я не спешу, ничего страшного, подожду.",
+          "en": "Thank you. I'm in no hurry, it's fine, I'll wait."
+        },
+        {
+          "who": "B",
+          "hu": "Kér addig valamit inni?",
+          "ru": "Хотите пока что-нибудь выпить?",
+          "en": "Would you like something to drink meanwhile?"
+        },
+        {
+          "who": "A",
+          "hu": "Egy üdítőt kérek, nagyon szomjas vagyok.",
+          "ru": "Один напиток, пожалуйста, я очень хочу пить.",
+          "en": "A soft drink, please, I am very thirsty."
+        },
+        {
+          "who": "B",
+          "hu": "Persze, és mindjárt jön a marhahús.",
+          "ru": "Конечно, а говядина сейчас будет.",
+          "en": "Sure, and the beef is coming right away."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm. Előfordul, semmi gond, tényleg.",
+          "ru": "Спасибо. Бывает, ничего страшного, правда.",
+          "en": "Thank you. It happens, no problem, really."
+        },
+        {
+          "who": "B",
+          "hu": "Még egyszer bocsánat, jó étvágyat kívánok!",
+          "ru": "Ещё раз простите, приятного аппетита!",
+          "en": "Sorry again, enjoy your meal!"
+        }
+      ]
+    },
+    {
+      "slug": "hideg-a-leves",
+      "title": {
+        "ru": "Суп холодный",
+        "en": "The soup is cold"
+      },
+      "scene": {
+        "ru": "В ресторане, гость и официант.",
+        "en": "In a restaurant, a guest and a waiter."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, a leves kicsit hideg.",
+          "ru": "Извините, суп немного холодный.",
+          "en": "Excuse me, the soup is a bit cold."
+        },
+        {
+          "who": "B",
+          "hu": "Tényleg? Hozok másikat.",
+          "ru": "Правда? Принесу другой.",
+          "en": "Really? I will bring another one."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm. És sajnos nagyon sós is.",
+          "ru": "Спасибо. И, к сожалению, очень солёный.",
+          "en": "Thank you. And unfortunately it is very salty too."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, sajnálom. Szólok a konyhának.",
+          "ru": "Ой, сожалею. Скажу на кухне.",
+          "en": "Oh, I'm sorry. I'll tell the kitchen."
+        },
+        {
+          "who": "A",
+          "hu": "Nem nagy baj, csak szóltam.",
+          "ru": "Ничего страшного, я просто сказал.",
+          "en": "It is not a big problem, I just said."
+        },
+        {
+          "who": "B",
+          "hu": "Dehogy, jól tette. Most forró levest hozok.",
+          "ru": "Ну что вы, правильно сделали. Сейчас принесу горячий суп.",
+          "en": "Not at all, you did well. I will bring hot soup now."
+        },
+        {
+          "who": "A",
+          "hu": "Az nagyon jó lesz, köszönöm.",
+          "ru": "Это будет очень хорошо, спасибо.",
+          "en": "That will be very good, thank you."
+        },
+        {
+          "who": "B",
+          "hu": "Kér mellé egy kis kenyeret?",
+          "ru": "Хотите к нему немного хлеба?",
+          "en": "Would you like a little bread with it?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, jó ötlet. Nagyon kedves.",
+          "ru": "Да, хорошая идея. Очень любезно.",
+          "en": "Yes, good idea. Very kind."
+        },
+        {
+          "who": "B",
+          "hu": "Szívesen. Jó étvágyat kívánok!",
+          "ru": "Пожалуйста. Приятного аппетита!",
+          "en": "My pleasure. Enjoy your meal!"
+        }
+      ]
+    },
+    {
+      "slug": "kulon-fizetunk",
+      "title": {
+        "ru": "Платим раздельно",
+        "en": "Paying separately"
+      },
+      "scene": {
+        "ru": "Друзья расплачиваются, официант спрашивает.",
+        "en": "Friends pay, the waiter asks."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Na, fizetünk?",
+          "ru": "Ну что, расплачиваемся?",
+          "en": "Well, shall we pay?"
+        },
+        {
+          "who": "B",
+          "hu": "Jó. Elnézést, kérjük a számlát!",
+          "ru": "Давай. Извините, счёт, пожалуйста!",
+          "en": "Okay. Excuse me, the bill please!"
+        },
+        {
+          "who": "C",
+          "hu": "Együtt vagy külön?",
+          "ru": "Вместе или раздельно?",
+          "en": "Together or separately?"
+        },
+        {
+          "who": "A",
+          "hu": "Külön. Én csak a levest és a bort.",
+          "ru": "Раздельно. Я только суп и вино.",
+          "en": "Separately. I only had the soup and the wine."
+        },
+        {
+          "who": "B",
+          "hu": "Én a pizzát és egy üdítőt.",
+          "ru": "Я пиццу и напиток.",
+          "en": "I had the pizza and a soft drink."
+        },
+        {
+          "who": "C",
+          "hu": "Rendben. Kártyával vagy készpénzzel?",
+          "ru": "Хорошо. Картой или наличными?",
+          "en": "All right. By card or in cash?"
+        },
+        {
+          "who": "A",
+          "hu": "Kártyával. Jaj, nincs nálam a telefon!",
+          "ru": "Картой. Ой, у меня нет с собой телефона!",
+          "en": "By card. Oh, I do not have my phone with me!"
+        },
+        {
+          "who": "B",
+          "hu": "Nyugi, kifizetem. Holnap te fizeted a kávét.",
+          "ru": "Спокойно, я заплачу. Завтра ты платишь за кофе.",
+          "en": "Relax, I'll pay. Tomorrow you pay for the coffee."
+        },
+        {
+          "who": "A",
+          "hu": "Király, köszi! Akkor holnap ebéd is nálam.",
+          "ru": "Круто, спасибо! Тогда и обед завтра за мной.",
+          "en": "Great, thanks! Then lunch tomorrow is on me too."
+        },
+        {
+          "who": "B",
+          "hu": "Na jó, megegyeztünk!",
+          "ru": "Ну ладно, договорились!",
+          "en": "All right, deal!"
+        }
+      ]
+    },
+    {
+      "slug": "borravalo",
+      "title": {
+        "ru": "Чаевые",
+        "en": "The tip"
+      },
+      "scene": {
+        "ru": "Оплата наличными в конце ужина.",
+        "en": "Paying cash at the end of dinner."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, kérem a számlát.",
+          "ru": "Извините, счёт, пожалуйста.",
+          "en": "Excuse me, the bill please."
+        },
+        {
+          "who": "B",
+          "hu": "Tessék. Kártyával vagy készpénzzel?",
+          "ru": "Пожалуйста. Картой или наличными?",
+          "en": "Here you are. By card or in cash?"
+        },
+        {
+          "who": "A",
+          "hu": "Készpénzzel. Mennyi lesz összesen?",
+          "ru": "Наличными. Сколько с меня всего?",
+          "en": "Cash. How much is it altogether?"
+        },
+        {
+          "who": "B",
+          "hu": "Ezer lesz.",
+          "ru": "С вас тысяча.",
+          "en": "That's a thousand."
+        },
+        {
+          "who": "A",
+          "hu": "Tessék, ezer meg ötszáz. Így jó.",
+          "ru": "Вот, тысяча и ещё пятьсот. Сдачи не надо.",
+          "en": "Here, a thousand and five hundred. Keep the change."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, köszönöm szépen, nagyon kedves!",
+          "ru": "Ой, большое спасибо, очень мило!",
+          "en": "Oh, thank you very much, that's very kind!"
+        },
+        {
+          "who": "A",
+          "hu": "Mindig ide jövök, nagyon szeretem ezt a kis helyet.",
+          "ru": "Я всегда прихожу сюда, очень люблю это уютное место.",
+          "en": "I always come here, I really like this little place."
+        },
+        {
+          "who": "B",
+          "hu": "Örülünk, jöjjön máskor is!",
+          "ru": "Рады, приходите ещё!",
+          "en": "Glad to hear it, come again!"
+        },
+        {
+          "who": "A",
+          "hu": "Nagyon finom volt az ebéd, a leves is. Szép napot!",
+          "ru": "Обед был очень вкусный, суп тоже. Хорошего дня!",
+          "en": "The lunch was very good, the soup too. Have a nice day!"
+        },
+        {
+          "who": "B",
+          "hu": "Viszontlátásra, és szép napot!",
+          "ru": "До свидания, и вам хорошего дня!",
+          "en": "Goodbye, and have a nice day too!"
+        }
+      ]
+    }
+  ]
+}

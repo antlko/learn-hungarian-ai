@@ -1,0 +1,563 @@
+{
+  "talk": {
+    "genre": "phone",
+    "checked": "ai",
+    "title": {
+      "ru": "Звонок мастеру: течёт кран",
+      "en": "Calling the plumber: a leaking tap"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Halló, jó napot kívánok! Ön a szerelő?",
+          "ru": "Алло, добрый день! Вы мастер?",
+          "en": "Hello, good day! Are you the repairman?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, tessék. Mi a gond?",
+          "ru": "Да, слушаю. В чём проблема?",
+          "en": "Yes, go ahead. What is the problem?"
+        },
+        {
+          "who": "A",
+          "hu": "Csöpög a csap a konyhában, és a vezeték is ereszt.",
+          "ru": "Капает кран на кухне, и труба тоже подтекает.",
+          "en": "The tap in the kitchen is dripping, and the pipe is leaking too."
+        },
+        {
+          "who": "B",
+          "hu": "Régóta csöpög? Milyen csap az, régi vagy új?",
+          "ru": "Давно капает? Какой это кран, старый или новый?",
+          "en": "Has it been dripping long? What kind of tap is it, old or new?"
+        },
+        {
+          "who": "A",
+          "hu": "Régi, húsz éve van meg. Szerintem az egész hibás.",
+          "ru": "Старый, ему лет двадцать. По-моему, он весь неисправный.",
+          "en": "Old, it's twenty years old. I think the whole thing is faulty."
+        },
+        {
+          "who": "B",
+          "hu": "Lehet, hogy csak az alkatrész rossz. Mikor kezdte?",
+          "ru": "Возможно, только запчасть сломана. Когда началось?",
+          "en": "Maybe only the part is broken. When did it start?"
+        },
+        {
+          "who": "A",
+          "hu": "Tegnap este kezdte, de reggelre már folyik a víz.",
+          "ru": "Вчера вечером началось, а к утру вода уже течёт.",
+          "en": "It started last night, and by morning the water is running."
+        },
+        {
+          "who": "B",
+          "hu": "Értem. Van otthon vödör?",
+          "ru": "Понятно. Дома есть ведро?",
+          "en": "I see. Do you have a bucket at home?"
+        },
+        {
+          "who": "A",
+          "hu": "Van, már alatta van.",
+          "ru": "Есть, оно уже стоит под ним.",
+          "en": "Yes, it is already under it."
+        },
+        {
+          "who": "B",
+          "hu": "Először zárja el a vizet. Tudja, hol van?",
+          "ru": "Сначала перекройте воду. Вы знаете, где?",
+          "en": "First turn off the water. Do you know where?"
+        },
+        {
+          "who": "A",
+          "hu": "Hát, nem tudom. Valahol a fürdőszobában, azt hiszem.",
+          "ru": "Ну, не знаю. Где-то в ванной, наверное.",
+          "en": "Well, I don't know. Somewhere in the bathroom, I think."
+        },
+        {
+          "who": "B",
+          "hu": "Nézze meg a mosdó alatt. Ott van egy kis piros szerkezet.",
+          "ru": "Посмотрите под раковиной. Там небольшой красный механизм.",
+          "en": "Look under the sink. There is a small red mechanism there."
+        },
+        {
+          "who": "A",
+          "hu": "Megvan! Most már nem folyik semmi, csak a padló vizes.",
+          "ru": "Нашёл! Теперь ничего не течёт, только пол мокрый.",
+          "en": "Got it! Now nothing is running, only the floor is wet."
+        },
+        {
+          "who": "B",
+          "hu": "Szuper. Akkor délután kimegyek, és megnézem.",
+          "ru": "Отлично. Тогда днём приеду и посмотрю.",
+          "en": "Great. Then I'll come out in the afternoon and have a look."
+        },
+        {
+          "who": "A",
+          "hu": "Mennyi ideig tart a munka?",
+          "ru": "Сколько времени займёт работа?",
+          "en": "How long will the job take?"
+        },
+        {
+          "who": "B",
+          "hu": "Egy-két óra. Az alkatrész nálam van.",
+          "ru": "Час-два. Деталь у меня есть.",
+          "en": "An hour or two. I have the part."
+        },
+        {
+          "who": "A",
+          "hu": "Jó. Otthon legyek?",
+          "ru": "Хорошо. Мне быть дома?",
+          "en": "Fine. Should I be at home?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, legyen otthon háromig, kérem.",
+          "ru": "Да, будьте дома до трёх, пожалуйста.",
+          "en": "Yes, please be at home until three."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm. És mennyibe kerül körülbelül?",
+          "ru": "Спасибо. А сколько это примерно будет стоить?",
+          "en": "Thanks. And roughly how much will it cost?"
+        },
+        {
+          "who": "B",
+          "hu": "Majd megmondom, ha láttam. Addig ne használja a csapot.",
+          "ru": "Скажу, когда увижу. А пока не пользуйтесь краном.",
+          "en": "I'll tell you once I've seen it. Until then don't use the tap."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben, nem használom. Akkor várom önt. Köszönöm, további szép napot!",
+          "ru": "Хорошо, не буду пользоваться. Тогда жду вас. Спасибо, хорошего дня!",
+          "en": "All right, I won't use it. Then I'll expect you. Thank you, have a nice day!"
+        },
+        {
+          "who": "B",
+          "hu": "Önnek is, délután találkozunk.",
+          "ru": "И вам. До встречи днём.",
+          "en": "Same to you, see you in the afternoon."
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "mosogep",
+      "title": {
+        "ru": "Стиральная машина сломалась",
+        "en": "The washing machine is broken"
+      },
+      "scene": {
+        "ru": "Двое живут вместе, машина сломалась.",
+        "en": "Two flatmates, the washing machine is dead."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jaj, a mosógép megint rossz! Nem működik semmi.",
+          "ru": "Ой, стиральная машина опять сломана! Ничего не работает.",
+          "en": "Oh no, the washing machine is broken again! Nothing works."
+        },
+        {
+          "who": "B",
+          "hu": "Megint? Mit ír ki a gép?",
+          "ru": "Опять? Что она показывает?",
+          "en": "Again? What does the machine show?"
+        },
+        {
+          "who": "A",
+          "hu": "Semmit. Csak büdös, és tele van vízzel.",
+          "ru": "Ничего. Только воняет, и полна воды.",
+          "en": "Nothing. It just smells, and it is full of water."
+        },
+        {
+          "who": "B",
+          "hu": "Hú, ez nem jó. Jó a kábel? Csatlakozik?",
+          "ru": "Ух, это нехорошо. Кабель в порядке? Подключена?",
+          "en": "Phew, that's not good. Is the cable fine? Is it connected?"
+        },
+        {
+          "who": "A",
+          "hu": "Persze, jó. Mégsem működik.",
+          "ru": "Конечно, в порядке. И всё равно не работает.",
+          "en": "Of course, it's fine. Still it doesn't work."
+        },
+        {
+          "who": "B",
+          "hu": "Hívjuk a szerelőt, vagy van még garancia?",
+          "ru": "Позовём мастера или ещё есть гарантия?",
+          "en": "Shall we call a repairman, or is there still a warranty?"
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg, van! Még egy évig.",
+          "ru": "Точно, есть! Ещё год.",
+          "en": "Right, there is! For one more year."
+        },
+        {
+          "who": "B",
+          "hu": "Akkor ingyen megoldják. Nyugi.",
+          "ru": "Тогда решат бесплатно. Спокойно.",
+          "en": "Then they'll sort it out for free. Relax."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper, megkeresem a számlát, és hívom őket.",
+          "ru": "Супер, поищу чек и позвоню им.",
+          "en": "Great, I'll look for the receipt and call them."
+        }
+      ]
+    },
+    {
+      "slug": "visszavitel",
+      "title": {
+        "ru": "Возврат в магазине",
+        "en": "Returning an item"
+      },
+      "scene": {
+        "ru": "Покупательница несёт в магазин неисправный прибор.",
+        "en": "A customer brings a faulty appliance back to the shop."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, ezt a lámpát vettem tegnap.",
+          "ru": "Извините, я вчера купил эту лампу.",
+          "en": "Excuse me, I bought this lamp yesterday."
+        },
+        {
+          "who": "B",
+          "hu": "Tessék, mi a gond vele, kérem?",
+          "ru": "Слушаю, что с ней не так?",
+          "en": "Go ahead, what is wrong with it, please?"
+        },
+        {
+          "who": "A",
+          "hu": "Hibás. Nem világít, sötét marad.",
+          "ru": "Неисправна. Не светит, остаётся темно.",
+          "en": "It is faulty. It does not light up, it stays dark."
+        },
+        {
+          "who": "B",
+          "hu": "Hát, az nem jó. Megvan a számla is, ugye?",
+          "ru": "Ну, это плохо. Чек у вас тоже есть?",
+          "en": "Well, that is not good. Do you have the receipt too?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, itt van.",
+          "ru": "Да, вот.",
+          "en": "Yes, here it is."
+        },
+        {
+          "who": "B",
+          "hu": "Akkor cserélünk. Ugyanilyen termék kell?",
+          "ru": "Тогда меняем. Нужен такой же товар?",
+          "en": "Then we'll exchange it. Do you want the same product?"
+        },
+        {
+          "who": "A",
+          "hu": "Inkább másikat, ez hibás.",
+          "ru": "Лучше другой, этот неисправен.",
+          "en": "Rather another one, this is faulty."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. Hozok egy újat.",
+          "ru": "Хорошо. Принесу новый.",
+          "en": "All right. I'll bring a new one."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm szépen. Viszlát!",
+          "ru": "Большое спасибо. До свидания!",
+          "en": "Thank you very much. Goodbye!"
+        },
+        {
+          "who": "B",
+          "hu": "Szívesen. További szép napot kívánok!",
+          "ru": "Пожалуйста. Всего доброго!",
+          "en": "You are welcome. Have a nice day!"
+        }
+      ]
+    },
+    {
+      "slug": "internet",
+      "title": {
+        "ru": "Нет интернета",
+        "en": "The internet is down"
+      },
+      "scene": {
+        "ru": "Двое коллег в офисе.",
+        "en": "Two colleagues in the office."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia! Neked működik az internet?",
+          "ru": "Привет! У тебя работает интернет?",
+          "en": "Hi! Does the internet work for you?"
+        },
+        {
+          "who": "B",
+          "hu": "Nekem nem. Nincs semmi, csak a lámpa világít.",
+          "ru": "У меня нет. Ничего нет, только лампочка горит.",
+          "en": "Not for me. Nothing, only the light is on."
+        },
+        {
+          "who": "A",
+          "hu": "A kábel jó, a gép is be van kapcsolva.",
+          "ru": "Кабель в порядке, компьютер тоже включён.",
+          "en": "The cable is fine, the computer is on too."
+        },
+        {
+          "who": "B",
+          "hu": "Hívjuk őket?",
+          "ru": "Позвоним им?",
+          "en": "Shall we call them?"
+        },
+        {
+          "who": "A",
+          "hu": "Hívtam már. Hiba van az utcában, mondták.",
+          "ru": "Уже звонил. Сказали, авария на улице.",
+          "en": "I already did. They said there is a fault in the street."
+        },
+        {
+          "who": "B",
+          "hu": "Hát, és mikor lesz kész?",
+          "ru": "Ну и когда будет готово?",
+          "en": "Well, and when will it be done?"
+        },
+        {
+          "who": "A",
+          "hu": "Estére megoldják, szerintük. De nem biztos.",
+          "ru": "К вечеру решат, по их словам. Но не точно.",
+          "en": "They'll solve it by the evening, they say. But not for sure."
+        },
+        {
+          "who": "B",
+          "hu": "Akkor jó. Addig telefonon dolgozom.",
+          "ru": "Тогда ладно. А пока поработаю по телефону.",
+          "en": "Then fine. Until then I'll work on my phone."
+        },
+        {
+          "who": "A",
+          "hu": "Jó ötlet, én is. Majd szólok, ha működik.",
+          "ru": "Хорошая идея, я тоже. Скажу, когда заработает.",
+          "en": "Good idea, me too. I'll tell you when it works."
+        }
+      ]
+    },
+    {
+      "slug": "nem-indul",
+      "title": {
+        "ru": "Машина не заводится",
+        "en": "The car will not start"
+      },
+      "scene": {
+        "ru": "Утром звонок другу.",
+        "en": "A phone call to a friend in the morning."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Bocsi, késni fogok. Nem indul a kocsi.",
+          "ru": "Прости, опоздаю. Машина не заводится.",
+          "en": "Sorry, I'll be late. The car won't start."
+        },
+        {
+          "who": "B",
+          "hu": "Mi történt? Csak kattog a motor?",
+          "ru": "Что случилось? Только мотор щёлкает?",
+          "en": "What happened? Is the engine just clicking?"
+        },
+        {
+          "who": "A",
+          "hu": "Semmi hang. Nem tudom, mi baja.",
+          "ru": "Ни звука. Не знаю, что с ней.",
+          "en": "No sound. I don't know what's wrong with it."
+        },
+        {
+          "who": "B",
+          "hu": "Van kábelem. Jöjjek érted?",
+          "ru": "У меня есть провода для прикуривания. Приехать?",
+          "en": "I have jump leads. Shall I come?"
+        },
+        {
+          "who": "A",
+          "hu": "Persze, ha van öt perced.",
+          "ru": "Конечно, если у тебя есть пять минут.",
+          "en": "Sure, if you have five minutes."
+        },
+        {
+          "who": "B",
+          "hu": "Tíz perc, és ott vagyok. Hol vagy?",
+          "ru": "Десять минут, и я там. Где ты?",
+          "en": "Ten minutes and I'm there. Where are you?"
+        },
+        {
+          "who": "A",
+          "hu": "A ház előtt. Köszi, tényleg!",
+          "ru": "Перед домом. Спасибо, правда!",
+          "en": "In front of the house. Thanks, really!"
+        },
+        {
+          "who": "B",
+          "hu": "Nyugi, majd te hívsz meg egy kávéra.",
+          "ru": "Не парься, ты потом угостишь меня кофе.",
+          "en": "No worries, you can buy me a coffee later."
+        },
+        {
+          "who": "A",
+          "hu": "Persze, még kettőre is!",
+          "ru": "Конечно, даже на два!",
+          "en": "Sure, even two!"
+        }
+      ]
+    },
+    {
+      "slug": "furo",
+      "title": {
+        "ru": "Одолжить инструмент",
+        "en": "Borrowing a tool"
+      },
+      "scene": {
+        "ru": "Соседи на лестничной площадке вечером.",
+        "en": "Neighbours on the landing in the evening."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó estét! Elnézést, kérek valamit.",
+          "ru": "Добрый вечер! Извините, мне кое-что нужно.",
+          "en": "Good evening! Sorry, I need something."
+        },
+        {
+          "who": "B",
+          "hu": "Mondja csak, mi kell?",
+          "ru": "Говорите, что нужно?",
+          "en": "Go on, what do you need?"
+        },
+        {
+          "who": "A",
+          "hu": "Kellene egy fúró, de nekem nincs.",
+          "ru": "Нужна дрель, а у меня её нет.",
+          "en": "I need a drill, but I do not have one."
+        },
+        {
+          "who": "B",
+          "hu": "Nekem van. Mit szeretne vele?",
+          "ru": "У меня есть. Что вы хотите с ней делать?",
+          "en": "I have one. What would you like to do with it?"
+        },
+        {
+          "who": "A",
+          "hu": "A falra kell egy kép. Fél óra az egész.",
+          "ru": "Нужно повесить картину на стену. Всего полчаса.",
+          "en": "A picture has to go on the wall. Half an hour in all."
+        },
+        {
+          "who": "B",
+          "hu": "Tessék, de vigyázzon vele, nagyon nehéz.",
+          "ru": "Вот, но осторожно с ней, она тяжёлая.",
+          "en": "Here you are, but be careful with it, it is very heavy."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm. Mindjárt hozom vissza.",
+          "ru": "Спасибо. Сейчас верну.",
+          "en": "Thank you. I will bring it right back."
+        },
+        {
+          "who": "B",
+          "hu": "Holnap is jó. Csak este tízig!",
+          "ru": "Можно и завтра. Только до десяти вечера!",
+          "en": "Tomorrow is fine too. Just until ten in the evening!"
+        },
+        {
+          "who": "A",
+          "hu": "Persze, nem sokáig kell. Nagyon szépen köszönöm!",
+          "ru": "Конечно, ненадолго. Огромное спасибо!",
+          "en": "Sure, not for long. Thank you very much!"
+        }
+      ]
+    },
+    {
+      "slug": "lift",
+      "title": {
+        "ru": "Лифт опять сломан",
+        "en": "The lift is broken again"
+      },
+      "scene": {
+        "ru": "Соседи встречаются у лифта утром.",
+        "en": "Two neighbours meet by the lift in the morning."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó reggelt! Megint nem működik a lift.",
+          "ru": "Доброе утро! Лифт опять не работает.",
+          "en": "Good morning! The lift isn't working again."
+        },
+        {
+          "who": "B",
+          "hu": "Hát, ez már a harmadik hét, hogy rossz.",
+          "ru": "Ну, это уже третья неделя, как он сломан.",
+          "en": "Well, it has been broken for three weeks now."
+        },
+        {
+          "who": "A",
+          "hu": "Szóltak a közös képviselőnek?",
+          "ru": "Сказали председателю дома?",
+          "en": "Has anyone told the building manager?"
+        },
+        {
+          "who": "B",
+          "hu": "Szóltam. Azt mondja, jön a szerelő.",
+          "ru": "Я сказал. Он говорит, придёт мастер.",
+          "en": "I did. He says the repairman is coming."
+        },
+        {
+          "who": "A",
+          "hu": "Mikor? Egy hete is ezt mondta nekem.",
+          "ru": "Когда? Неделю назад он мне говорил то же.",
+          "en": "When? He told me that a week ago too."
+        },
+        {
+          "who": "B",
+          "hu": "Pénteken, mondjuk. De ki tudja.",
+          "ru": "В пятницу, допустим. Но кто знает.",
+          "en": "On Friday, let's say. But who knows."
+        },
+        {
+          "who": "A",
+          "hu": "Addig gyalog megyünk a hatodikra.",
+          "ru": "А пока ходим пешком на шестой.",
+          "en": "Until then we walk up to the sixth floor."
+        },
+        {
+          "who": "B",
+          "hu": "Hú, hát legalább jó a mozgás, nem igaz?",
+          "ru": "Ух, ну хоть полезно двигаться, правда?",
+          "en": "Phew, well, at least it's good exercise, isn't it?"
+        }
+      ]
+    }
+  ]
+}

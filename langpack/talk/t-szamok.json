@@ -1,0 +1,635 @@
+{
+ "talk": {
+  "genre": "dialogue",
+  "checked": "ai",
+  "title": {
+   "ru": "Игра в числа",
+   "en": "A number quiz"
+  },
+  "names": [],
+  "paras": [
+   [
+    {
+     "who": "A",
+     "hu": "Anya, játsszunk valamit! Számolni fogunk.",
+     "ru": "Мама, давай во что-нибудь поиграем! Будем считать.",
+     "en": "Mum, let's play something! We will count."
+    },
+    {
+     "who": "B",
+     "hu": "Jó, de csak tíz percet. Kezdd!",
+     "ru": "Хорошо, но только десять минут. Начинай!",
+     "en": "Okay, but only ten minutes. You start!"
+    },
+    {
+     "who": "A",
+     "hu": "Mennyi kettő meg három?",
+     "ru": "Сколько будет два плюс три?",
+     "en": "How much is two and three?"
+    },
+    {
+     "who": "B",
+     "hu": "Öt. Ez könnyű volt. Most én kérdezek.",
+     "ru": "Пять. Это было легко. Теперь спрашиваю я.",
+     "en": "Five. That was easy. Now I ask."
+    },
+    {
+     "who": "A",
+     "hu": "Jó, hallgatlak.",
+     "ru": "Хорошо, слушаю.",
+     "en": "Okay, I'm listening."
+    },
+    {
+     "who": "B",
+     "hu": "Mennyi hat meg hat?",
+     "ru": "Сколько будет шесть плюс шесть?",
+     "en": "How much is six and six?"
+    },
+    {
+     "who": "A",
+     "hu": "Hát, tizenkettő! Az egy tucat, ugye?",
+     "ru": "Ну, двенадцать! Это дюжина, да?",
+     "en": "Well, twelve! That is a dozen, right?"
+    },
+    {
+     "who": "B",
+     "hu": "Szuper, jól tudod! Hány nap van egy héten?",
+     "ru": "Супер, хорошо знаешь! Сколько дней в неделе?",
+     "en": "Great, you know it! How many days are in a week?"
+    },
+    {
+     "who": "A",
+     "hu": "Hét! Ez nagyon könnyű.",
+     "ru": "Семь! Это очень легко.",
+     "en": "Seven! That's very easy."
+    },
+    {
+     "who": "B",
+     "hu": "És hány óra van egy napban?",
+     "ru": "А сколько часов в сутках?",
+     "en": "And how many hours are in a day?"
+    },
+    {
+     "who": "A",
+     "hu": "Hát, huszonnégy?",
+     "ru": "Ну, двадцать четыре?",
+     "en": "Well, twenty-four?"
+    },
+    {
+     "who": "B",
+     "hu": "Igen! Hűha, ügyes vagy.",
+     "ru": "Да! Ого, ты молодец.",
+     "en": "Yes! Wow, you're clever."
+    },
+    {
+     "who": "A",
+     "hu": "Jöhet nehezebb is! Nem félek.",
+     "ru": "Можно и посложнее! Я не боюсь.",
+     "en": "Bring on a harder one! I'm not afraid."
+    },
+    {
+     "who": "B",
+     "hu": "Mennyi kétszer tíz?",
+     "ru": "Сколько будет дважды десять?",
+     "en": "How much is twice ten?"
+    },
+    {
+     "who": "A",
+     "hu": "Húsz! Ez is könnyű.",
+     "ru": "Двадцать! Это тоже легко.",
+     "en": "Twenty! That's easy too."
+    },
+    {
+     "who": "B",
+     "hu": "És mennyi tizenöt meg tizenöt?",
+     "ru": "А сколько будет пятнадцать плюс пятнадцать?",
+     "en": "And how much is fifteen and fifteen?"
+    },
+    {
+     "who": "A",
+     "hu": "Várj, mindjárt megvan. Harminc!",
+     "ru": "Подожди, сейчас. Тридцать!",
+     "en": "Wait, I almost have it. Thirty!"
+    },
+    {
+     "who": "B",
+     "hu": "Tényleg jó vagy. Hány pont van?",
+     "ru": "Ты правда молодец. Сколько очков?",
+     "en": "You really are good. How many points?"
+    },
+    {
+     "who": "A",
+     "hu": "Hat pont. Én nyertem?",
+     "ru": "Шесть очков. Я выиграл?",
+     "en": "Six points. Did I win?"
+    },
+    {
+     "who": "B",
+     "hu": "Nem, hat és hat. Egyenlő!",
+     "ru": "Нет, шесть и шесть. Поровну!",
+     "en": "No, six and six. Equal!"
+    },
+    {
+     "who": "A",
+     "hu": "Akkor még egy kör! Ha nyerek, kapok fagyit?",
+     "ru": "Тогда ещё один круг! Если выиграю, получу мороженое?",
+     "en": "Then one more round! If I win, do I get ice cream?"
+    },
+    {
+     "who": "B",
+     "hu": "Persze, ha nyersz, jár a fagyi.",
+     "ru": "Конечно, если выиграешь, будет мороженое.",
+     "en": "Sure, if you win, you get ice cream."
+    },
+    {
+     "who": "A",
+     "hu": "Király! Kérdezz már valamit!",
+     "ru": "Круто! Ну спрашивай уже!",
+     "en": "Cool! Go on, ask something!"
+    },
+    {
+     "who": "B",
+     "hu": "Mennyi kétszer négy?",
+     "ru": "Сколько будет дважды четыре?",
+     "en": "How much is twice four?"
+    },
+    {
+     "who": "A",
+     "hu": "Nyolc! Ugye nyertem? Fagyi, fagyi!",
+     "ru": "Восемь! Я ведь выиграл? Мороженое, мороженое!",
+     "en": "Eight! I won, right? Ice cream, ice cream!"
+    },
+    {
+     "who": "B",
+     "hu": "Nyugi, még egy kérdés.",
+     "ru": "Спокойно, ещё один вопрос.",
+     "en": "Easy, one more question."
+    },
+    {
+     "who": "A",
+     "hu": "Jó, de ez legyen nehéz! Ugye tudsz nehezet?",
+     "ru": "Ладно, но пусть будет трудный! Ты ведь знаешь трудные?",
+     "en": "Okay, but make it hard! You do know hard ones, right?"
+    },
+    {
+     "who": "B",
+     "hu": "Hát jó. Figyelj jól! Mennyi háromszor négy?",
+     "ru": "Ну ладно. Слушай внимательно! Сколько будет трижды четыре?",
+     "en": "Well okay. Listen well! How much is three times four?"
+    },
+    {
+     "who": "A",
+     "hu": "Tizenkettő! Megint egy tucat!",
+     "ru": "Двенадцать! Опять дюжина!",
+     "en": "Twelve! A dozen again!"
+    },
+    {
+     "who": "B",
+     "hu": "Nahát, nyertél! Ez nagyon jó volt. Mehet a fagyi.",
+     "ru": "Ничего себе, ты выиграл! Это было очень хорошо. Идём за мороженым.",
+     "en": "Well, well, you won! That was very good. Off for ice cream."
+    }
+   ]
+  ]
+ },
+ "dialogues": [
+  {
+   "slug": "telefonszam",
+   "title": {
+    "ru": "Не шесть, а семь",
+    "en": "Six or seven"
+   },
+   "scene": {
+    "ru": "Двое друзей обмениваются номерами.",
+    "en": "Two friends swap phone numbers."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Szia, add meg a számod, kérlek.",
+     "ru": "Привет, дай мне свой номер, пожалуйста.",
+     "en": "Hi, give me your number, please."
+    },
+    {
+     "who": "B",
+     "hu": "Persze. Húsz, harminc, négy, hét, nyolc, kilenc.",
+     "ru": "Конечно. Двадцать, тридцать, четыре, семь, восемь, девять.",
+     "en": "Sure. Twenty, thirty, four, seven, eight, nine."
+    },
+    {
+     "who": "A",
+     "hu": "Hűha, lassabban! Húsz, harminc, négy?",
+     "ru": "Ого, помедленнее! Двадцать, тридцать, четыре?",
+     "en": "Whoa, slower! Twenty, thirty, four?"
+    },
+    {
+     "who": "B",
+     "hu": "Igen. Aztán hét, nyolc, kilenc.",
+     "ru": "Да. Потом семь, восемь, девять.",
+     "en": "Yes. Then seven, eight, nine."
+    },
+    {
+     "who": "A",
+     "hu": "Oké. Húsz, harminc, négy, hat, nyolc, kilenc?",
+     "ru": "Окей. Двадцать, тридцать, четыре, шесть, восемь, девять?",
+     "en": "Okay. Twenty, thirty, four, six, eight, nine?"
+    },
+    {
+     "who": "B",
+     "hu": "Nem hat, hanem hét! Hét!",
+     "ru": "Не шесть, а семь! Семь!",
+     "en": "Not six, seven! Seven!"
+    },
+    {
+     "who": "A",
+     "hu": "Jaj, bocsi. Rossz ez a telefon, nem hallom jól.",
+     "ru": "Ой, прости. Этот телефон плохой, я плохо слышу.",
+     "en": "Oops, sorry. This phone is bad, I can't hear well."
+    },
+    {
+     "who": "B",
+     "hu": "Nyugi, semmi baj. Most már jó?",
+     "ru": "Спокойно, ничего страшного. Теперь правильно?",
+     "en": "Easy, no problem. Is it right now?"
+    },
+    {
+     "who": "A",
+     "hu": "Igen, most jó. Majd hívlak este.",
+     "ru": "Да, теперь правильно. Позвоню тебе вечером.",
+     "en": "Yes, now it's right. I'll call you tonight."
+    },
+    {
+     "who": "B",
+     "hu": "Rendben, várom! Szia!",
+     "ru": "Хорошо, жду! Пока!",
+     "en": "All right, I'll wait! Bye!"
+    }
+   ]
+  },
+  {
+   "slug": "futar",
+   "title": {
+    "ru": "Какой этаж",
+    "en": "Which floor"
+   },
+   "scene": {
+    "ru": "Курьер звонит клиенту.",
+    "en": "A courier phones a customer."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Halló, jó napot! Itt a futár.",
+     "ru": "Алло, добрый день! Это курьер.",
+     "en": "Hello, good afternoon! It's the courier."
+    },
+    {
+     "who": "B",
+     "hu": "Jó napot! Mindjárt jövök.",
+     "ru": "Добрый день! Сейчас приду.",
+     "en": "Good afternoon! I'm coming in a moment."
+    },
+    {
+     "who": "A",
+     "hu": "Várjon, hányadik emelet? Én megyek fel.",
+     "ru": "Подождите, какой этаж? Я поднимусь.",
+     "en": "Wait, which floor? I will come up."
+    },
+    {
+     "who": "B",
+     "hu": "Ötödik emelet, a lakás tizenkettő.",
+     "ru": "Пятый этаж, квартира двенадцать.",
+     "en": "Fifth floor, flat twelve."
+    },
+    {
+     "who": "A",
+     "hu": "Van lift? Sok csomag van nálam.",
+     "ru": "Лифт есть? У меня много посылок.",
+     "en": "Is there a lift? I have many parcels."
+    },
+    {
+     "who": "B",
+     "hu": "Sajnos nincs. De a csomagot nagyon várom!",
+     "ru": "К сожалению, нет. Но я очень жду посылку!",
+     "en": "No, I am afraid not. But I am really waiting for that parcel!"
+    },
+    {
+     "who": "A",
+     "hu": "Nem baj, megyek. Jó kis edzés lesz.",
+     "ru": "Ничего, иду. Будет хорошая тренировка.",
+     "en": "No problem, I am coming. Good workout."
+    },
+    {
+     "who": "B",
+     "hu": "Köszönöm! Nyitva az ajtó, jöhet be.",
+     "ru": "Спасибо! Дверь открыта, заходите.",
+     "en": "Thanks! The door is open, come in."
+    },
+    {
+     "who": "A",
+     "hu": "Két perc, és ott vagyok.",
+     "ru": "Две минуты, и я на месте.",
+     "en": "Two minutes and I'm there."
+    }
+   ]
+  },
+  {
+   "slug": "busz",
+   "title": {
+    "ru": "Какой автобус",
+    "en": "Which bus"
+   },
+   "scene": {
+    "ru": "Прохожий спрашивает дорогу.",
+    "en": "A passer-by asks the way."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Elnézést, melyik busz megy a piacra?",
+     "ru": "Извините, какой автобус идёт на рынок?",
+     "en": "Excuse me, which bus goes to the market?"
+    },
+    {
+     "who": "B",
+     "hu": "Tizenhárom. Ott jön, látja?",
+     "ru": "Тринадцатый. Вон едет, видите?",
+     "en": "Number thirteen. There it comes, see?"
+    },
+    {
+     "who": "A",
+     "hu": "Igen, látom. Tizenhárom, biztos?",
+     "ru": "Да, вижу. Тринадцать, точно?",
+     "en": "Yes, I see. Thirteen, sure?"
+    },
+    {
+     "who": "B",
+     "hu": "Biztos. Hat megálló, aztán leszáll. Ott a piac.",
+     "ru": "Точно. Шесть остановок, потом выходите. Там рынок.",
+     "en": "Sure. Six stops, then you get off. The market is there."
+    },
+    {
+     "who": "A",
+     "hu": "Köszönöm! Jegyet hol veszek?",
+     "ru": "Спасибо! Где купить билет?",
+     "en": "Thanks! Where do I buy a ticket?"
+    },
+    {
+     "who": "B",
+     "hu": "A sofőrnél, vagy az automatánál.",
+     "ru": "У водителя или в автомате.",
+     "en": "From the driver or at the machine."
+    },
+    {
+     "who": "A",
+     "hu": "És mennyibe kerül?",
+     "ru": "А сколько стоит?",
+     "en": "And how much is it?"
+    },
+    {
+     "who": "B",
+     "hu": "Nem sok. Kétszáz forint körül van, nem drága.",
+     "ru": "Немного. Около двухсот форинтов, не дорого.",
+     "en": "Not much. It is around two hundred forints, not expensive."
+    },
+    {
+     "who": "A",
+     "hu": "Köszönöm szépen!",
+     "ru": "Большое спасибо!",
+     "en": "Thank you very much!"
+    },
+    {
+     "who": "B",
+     "hu": "Szívesen! Jó utat, és szép napot!",
+     "ru": "Пожалуйста! Счастливого пути и хорошего дня!",
+     "en": "You are welcome! Have a good trip, and a nice day!"
+    }
+   ]
+  },
+  {
+   "slug": "visszajaro",
+   "title": {
+    "ru": "Сдача",
+    "en": "The change"
+   },
+   "scene": {
+    "ru": "Покупка в магазине, кассирша и покупатель.",
+    "en": "At a shop till, cashier and customer."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Jó napot! Kétszáz forint lesz.",
+     "ru": "Добрый день! С вас двести форинтов.",
+     "en": "Good afternoon! That will be two hundred forints."
+    },
+    {
+     "who": "B",
+     "hu": "Tessék, itt az ötszáz.",
+     "ru": "Пожалуйста, вот пятьсот.",
+     "en": "Here you are, here's the five hundred."
+    },
+    {
+     "who": "A",
+     "hu": "Aprója nincs? Nem baj.",
+     "ru": "Мелких нет? Ничего.",
+     "en": "No small change? Never mind."
+    },
+    {
+     "who": "B",
+     "hu": "Sajnos nincs. Csak ez van nálam.",
+     "ru": "К сожалению, нет. Только это у меня.",
+     "en": "Sorry, no. This is all I have."
+    },
+    {
+     "who": "A",
+     "hu": "Tessék, itt a pénze.",
+     "ru": "Вот ваша сдача.",
+     "en": "Here is your change."
+    },
+    {
+     "who": "B",
+     "hu": "Kétszáz? Ez így nem jó.",
+     "ru": "Двести? Так неправильно.",
+     "en": "Two hundred? That's not right."
+    },
+    {
+     "who": "A",
+     "hu": "Hoppá! Tényleg, háromszáz jár vissza.",
+     "ru": "Опа! Правда, вам положено триста.",
+     "en": "Oops! Right, you get three hundred back."
+    },
+    {
+     "who": "B",
+     "hu": "Semmi gond, mindenki téved néha.",
+     "ru": "Ничего страшного, все иногда ошибаются.",
+     "en": "No problem, everybody slips up sometimes."
+    },
+    {
+     "who": "A",
+     "hu": "Bocsánat, rosszul számoltam. Nagyon sok ember van ma.",
+     "ru": "Простите, я неправильно посчитала. Сегодня очень много людей.",
+     "en": "Sorry, I counted wrong. There are so many people today."
+    },
+    {
+     "who": "B",
+     "hu": "Semmi baj. Köszönöm, viszlát!",
+     "ru": "Ничего. Спасибо, до свидания!",
+     "en": "No problem. Thanks, goodbye!"
+    }
+   ]
+  },
+  {
+   "slug": "lotto",
+   "title": {
+    "ru": "Лотерейный билет",
+    "en": "The lottery ticket"
+   },
+   "scene": {
+    "ru": "Два приятеля шутят про лотерею.",
+    "en": "Two friends joke about the lottery."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Képzeld, vettem lottót tegnap.",
+     "ru": "Представь, вчера я купил лотерею.",
+     "en": "Imagine, I bought a lottery ticket yesterday."
+    },
+    {
+     "who": "B",
+     "hu": "Tényleg? Milyen számokat írtál?",
+     "ru": "Правда? Какие числа ты написал?",
+     "en": "Really? Which numbers did you write?"
+    },
+    {
+     "who": "A",
+     "hu": "Hét, tizenhárom, tizenöt, hatvan, nyolcvan.",
+     "ru": "Семь, тринадцать, пятнадцать, шестьдесят, восемьдесят.",
+     "en": "Seven, thirteen, fifteen, sixty, eighty."
+    },
+    {
+     "who": "B",
+     "hu": "Szuper! Hány szám lett meg?",
+     "ru": "Супер! Сколько чисел совпало?",
+     "en": "Great! How many numbers matched?"
+    },
+    {
+     "who": "A",
+     "hu": "Csak egy. A hét. Hát, nem sok, de van.",
+     "ru": "Только одно. Семь. Ну, немного, но есть.",
+     "en": "Just one. The seven. Well, not much, but there is one."
+    },
+    {
+     "who": "B",
+     "hu": "Legalább egy. Mennyit nyertél?",
+     "ru": "Хотя бы одно. Сколько ты выиграл?",
+     "en": "At least one. How much did you win?"
+    },
+    {
+     "who": "A",
+     "hu": "Semmit. De a számok szépek voltak.",
+     "ru": "Ничего. Зато числа были красивые.",
+     "en": "Nothing. But the numbers were pretty."
+    },
+    {
+     "who": "B",
+     "hu": "Na persze! Szép számok, kevés pénz.",
+     "ru": "Ну конечно! Красивые числа, мало денег.",
+     "en": "Oh sure! Pretty numbers, little money."
+    },
+    {
+     "who": "A",
+     "hu": "Nem baj. Jövő héten megint veszek egyet.",
+     "ru": "Ничего. На следующей неделе куплю ещё один.",
+     "en": "Never mind. Next week I'll buy another one."
+    }
+   ]
+  },
+  {
+   "slug": "szulinap",
+   "title": {
+    "ru": "Сколько будет гостей",
+    "en": "How many guests"
+   },
+   "scene": {
+    "ru": "Дедушка и внук обсуждают день рождения.",
+    "en": "Grandad and grandson talk about a birthday."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Nagypapa, hány éves vagy?",
+     "ru": "Дедушка, сколько тебе лет?",
+     "en": "Grandad, how old are you?"
+    },
+    {
+     "who": "B",
+     "hu": "Hetven. Jövő hónapban hetvenegy leszek.",
+     "ru": "Семьдесят. В следующем месяце будет семьдесят один.",
+     "en": "Seventy. Next month I'll be seventy-one."
+    },
+    {
+     "who": "A",
+     "hu": "Hűha, az nagyon sok!",
+     "ru": "Ого, это очень много!",
+     "en": "Wow, that's a lot!"
+    },
+    {
+     "who": "B",
+     "hu": "Dehogy sok! Te hány éves vagy?",
+     "ru": "Вовсе не много! А тебе сколько лет?",
+     "en": "Not at all! How old are you?"
+    },
+    {
+     "who": "A",
+     "hu": "Nyolc. Holnap kilenc leszek!",
+     "ru": "Восемь. Завтра мне будет девять!",
+     "en": "Eight. Tomorrow I'll be nine!"
+    },
+    {
+     "who": "B",
+     "hu": "Szuper! Hány gyerek jön a szülinapra?",
+     "ru": "Здорово! Сколько детей придёт на день рождения?",
+     "en": "Great! How many kids come to the birthday?"
+    },
+    {
+     "who": "A",
+     "hu": "Tizenkettő! Mind a suliból jön.",
+     "ru": "Двенадцать! Все из школы.",
+     "en": "Twelve! They all come from school."
+    },
+    {
+     "who": "B",
+     "hu": "Hú, ennyi gyereknek sok torta kell!",
+     "ru": "Ух, для стольких детей нужно много торта!",
+     "en": "Phew, that many kids need a lot of cake!"
+    },
+    {
+     "who": "A",
+     "hu": "Anya már vett egy nagyot.",
+     "ru": "Мама уже купила большой.",
+     "en": "Mum already bought a big one."
+    },
+    {
+     "who": "B",
+     "hu": "Jó, akkor nincs baj. Én is jövök.",
+     "ru": "Хорошо, тогда всё в порядке. Я тоже приду.",
+     "en": "Good, then no problem. I'm coming too."
+    }
+   ]
+  }
+ ]
+}

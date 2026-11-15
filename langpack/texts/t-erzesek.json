@@ -1,0 +1,506 @@
+{
+  "short": {
+    "genre": "sms",
+    "checked": "ai",
+    "title": {
+      "ru": "Эсэмэс перед большим днём",
+      "en": "Texts before the big day"
+    },
+    "names": [
+      "Dani",
+      "Kata"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Dani! Remegek, és nagy a szorongásom.",
+          "ru": "Привет, Дани! Я дрожу, и мне очень тревожно.",
+          "en": "Hi, Dani! I am trembling, and my anxiety is big."
+        },
+        {
+          "hu": "Holnap van a nagy nap, és nincs kedvem semmihez.",
+          "ru": "Завтра большой день, и мне ничего не хочется.",
+          "en": "Tomorrow is the big day, and I do not feel like anything."
+        },
+        {
+          "hu": "Nem vagyok jókedvű, inkább álmos és türelmetlen.",
+          "ru": "Я не в хорошем настроении, скорее сонная и нетерпеливая.",
+          "en": "I am not cheerful, more sleepy and impatient."
+        },
+        {
+          "hu": "Szégyellem magam, de még egy kis pánik is van bennem.",
+          "ru": "Мне стыдно, но во мне есть ещё и немного паники.",
+          "en": "I am ashamed, but there is a bit of panic in me too."
+        }
+      ],
+      [
+        {
+          "hu": "A szorongás borzasztó, és a pánik félelmetes.",
+          "ru": "Тревога ужасна, а паника страшна.",
+          "en": "The anxiety is dreadful, and the panic is frightening."
+        },
+        {
+          "hu": "Nagyon álmos vagyok, de nem tudok aludni.",
+          "ru": "Я очень хочу спать, но не могу уснуть.",
+          "en": "I am very sleepy, but I cannot sleep."
+        },
+        {
+          "hu": "Bátorság kell, de most nincs bátorságom.",
+          "ru": "Нужна смелость, но сейчас у меня её нет.",
+          "en": "I need courage, but right now I have none."
+        },
+        {
+          "hu": "Anya azt mondja, hogy kell egy kis kitartás.",
+          "ru": "Мама говорит, что нужно немного упорства.",
+          "en": "Mum says you need a little perseverance."
+        },
+        {
+          "hu": "Reménykedem, de félek, hogy minden rossz lesz.",
+          "ru": "Я надеюсь, но боюсь, что всё будет плохо.",
+          "en": "I hope, but I am afraid everything will go badly."
+        },
+        {
+          "hu": "Te mindig ilyen kedves vagy, köszönöm a kedvességedet!",
+          "ru": "Ты всегда такой добрый, спасибо за твою доброту!",
+          "en": "You are always so kind, thank you for your kindness!"
+        },
+        {
+          "hu": "Szerencsés leszek? Vagy szerencsétlen?",
+          "ru": "Мне повезёт? Или нет?",
+          "en": "Will I be lucky? Or unlucky?"
+        },
+        {
+          "hu": "Holnap este egy mosollyal írok neked, igaz?",
+          "ru": "Завтра вечером я напишу тебе с улыбкой, правда?",
+          "en": "Tomorrow evening I will write to you with a smile, right?"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "Бенце идёт на вечеринку",
+      "en": "Bence goes to a party"
+    },
+    "names": [
+      "Bence",
+      "Eszter"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Bence! Miért vagy ilyen szomorú?",
+          "ru": "Привет, Бенце! Почему ты такой грустный?",
+          "en": "Hi, Bence! Why are you so sad?"
+        },
+        {
+          "hu": "Szia, Eszter! Ma este buli van, de nincs kedvem menni.",
+          "ru": "Привет, Эстер! Сегодня вечером вечеринка, но мне не хочется идти.",
+          "en": "Hi, Eszter! There is a party tonight, but I do not feel like going."
+        },
+        {
+          "hu": "Miért nincs kedved? Én nagyon lelkes vagyok!",
+          "ru": "Почему не хочется? А я очень воодушевлена!",
+          "en": "Why do you not feel like it? I am very enthusiastic!"
+        },
+        {
+          "hu": "Én szégyenlős vagyok, és egy kicsit szégyellem magam.",
+          "ru": "Я стеснительный, и мне немного стыдно за себя.",
+          "en": "I am bashful, and I am a little ashamed of myself."
+        },
+        {
+          "hu": "Miért szégyelled magad? Te kedves ember vagy.",
+          "ru": "Почему тебе стыдно? Ты добрый человек.",
+          "en": "Why are you ashamed? You are a kind person."
+        },
+        {
+          "hu": "Mindenki ott lesz, és én nem ismerek senkit.",
+          "ru": "Там будут все, а я никого не знаю.",
+          "en": "Everyone will be there, and I do not know anybody."
+        },
+        {
+          "hu": "Dehogy nem! Ott lesz Dani, és ő is szégyenlős.",
+          "ru": "Как это не знаешь! Там будет Дани, а он тоже стеснительный.",
+          "en": "Of course you do! Dani will be there, and he is bashful too."
+        },
+        {
+          "hu": "Tényleg? Akkor talán nem unatkozom egyedül.",
+          "ru": "Правда? Тогда, может, мне не будет скучно одному.",
+          "en": "Really? Then maybe I will not be bored alone."
+        },
+        {
+          "hu": "Persze! Gyere, élvezni fogod a zenét, és te is mosolyogsz majd.",
+          "ru": "Конечно! Пойдём, тебе понравится музыка, и ты тоже улыбнёшься.",
+          "en": "Of course! Come, you will enjoy the music, and you will smile too."
+        },
+        {
+          "hu": "Tegnap otthon unatkoztam, és egy kicsit irigy voltam.",
+          "ru": "Вчера дома мне было скучно, и я немного завидовал.",
+          "en": "Yesterday I was bored at home, and I was a little envious."
+        },
+        {
+          "hu": "Irigy? Kire?",
+          "ru": "Завидовал? Кому?",
+          "en": "Envious? Of whom?"
+        },
+        {
+          "hu": "Rád. Te mindig lelkes vagy, és sosem szégyelled magad.",
+          "ru": "Тебе. Ты всегда воодушевлена и никогда не стыдишься.",
+          "en": "Of you. You are always enthusiastic and never ashamed."
+        },
+        {
+          "hu": "Dehogy! Én is szégyenlős voltam, de a nevetés segít.",
+          "ru": "Вовсе нет! Я тоже была стеснительной, но смех помогает.",
+          "en": "Not at all! I was bashful too, but laughter helps."
+        },
+        {
+          "hu": "Egy kicsit féltékeny is vagyok, mert te mindenkit ismersz.",
+          "ru": "Я даже немного ревную, потому что ты всех знаешь.",
+          "en": "I am even a little jealous, because you know everybody."
+        },
+        {
+          "hu": "Ne légy türelmetlen magaddal, egy kis kitartás elég.",
+          "ru": "Не будь нетерпелив к себе, немного упорства достаточно.",
+          "en": "Do not be impatient with yourself, a little perseverance is enough."
+        },
+        {
+          "hu": "Néha túl érzékeny vagyok, és nem vagyok olyan jókedvű, mint te.",
+          "ru": "Иногда я слишком чувствительный и не такой весёлый, как ты.",
+          "en": "Sometimes I am too sensitive, and not as cheerful as you."
+        },
+        {
+          "hu": "Nem baj, van elég bátorságod, és én is ott leszek.",
+          "ru": "Ничего, у тебя достаточно смелости, и я тоже буду там.",
+          "en": "Never mind, you have enough courage, and I will be there too."
+        },
+        {
+          "hu": "Jó lesz, ugye? Reménykedem.",
+          "ru": "Будет хорошо, правда? Я надеюсь.",
+          "en": "It will be good, right? I hope so."
+        },
+        {
+          "hu": "Igen! A lelkesedésem elég neked is.",
+          "ru": "Да! Моего энтузиазма хватит и тебе.",
+          "en": "Yes! My enthusiasm is enough for you too."
+        },
+        {
+          "hu": "Egy rossz szó, és nagy a sértés. Félek ettől.",
+          "ru": "Одно плохое слово, и обида большая. Я боюсь этого.",
+          "en": "One bad word, and the insult is big. I am afraid of that."
+        },
+        {
+          "hu": "Ott nincs rossz szó, csak kedvesség és mosoly.",
+          "ru": "Там нет плохих слов, только доброта и улыбки.",
+          "en": "There are no bad words there, only kindness and smiles."
+        },
+        {
+          "hu": "Akkor jó. Egy kicsit álmos vagyok, de megyek.",
+          "ru": "Тогда хорошо. Я немного хочу спать, но иду.",
+          "en": "Then good. I am a little sleepy, but I am coming."
+        },
+        {
+          "hu": "Nálunk nincs sértés, csak nevetés. Szerintem a buli nagy élvezet!",
+          "ru": "У нас нет обид, только смех. По-моему, вечеринка это большое удовольствие!",
+          "en": "There are no insults with us, only laughter. I think a party is a great pleasure!"
+        },
+        {
+          "hu": "Köszönöm, Eszter. Szerencsés vagyok, mert te vagy a barátom.",
+          "ru": "Спасибо, Эстер. Мне повезло, ведь ты мой друг.",
+          "en": "Thank you, Eszter. I am lucky, because you are my friend."
+        },
+        {
+          "hu": "Én is szerencsés vagyok. Na, gyere!",
+          "ru": "Мне тоже повезло. Ну, пойдём!",
+          "en": "I am lucky too. Come on!"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "diary",
+    "checked": "ai",
+    "title": {
+      "ru": "Плохая неделя, хороший конец",
+      "en": "A bad week, a good end"
+    },
+    "names": [
+      "Anna",
+      "Zsófi",
+      "Márk"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Hétfőn borzasztó napom volt.",
+          "ru": "В понедельник у меня был ужасный день.",
+          "en": "On Monday I had a dreadful day."
+        },
+        {
+          "hu": "Reggel álmos voltam, és nem volt kedvem dolgozni.",
+          "ru": "Утром я была сонной, и мне не хотелось работать.",
+          "en": "In the morning I was sleepy and did not feel like working."
+        },
+        {
+          "hu": "A főnök türelmetlen volt, és sokat kérdezett.",
+          "ru": "Начальник был нетерпелив и много спрашивал.",
+          "en": "The boss was impatient and asked a lot."
+        },
+        {
+          "hu": "Egy rossz szó után minden fájdalmas volt.",
+          "ru": "После одного плохого слова всё было болезненным.",
+          "en": "After one bad word, everything was painful."
+        },
+        {
+          "hu": "Ez a sértés nagyon fájt, mert én érzékeny vagyok.",
+          "ru": "Эта обида очень ранила, ведь я чувствительная.",
+          "en": "That insult hurt a lot, because I am sensitive."
+        },
+        {
+          "hu": "Úgy éreztem, hogy minden reménytelen.",
+          "ru": "Мне казалось, что всё безнадёжно.",
+          "en": "I felt that everything was hopeless."
+        },
+        {
+          "hu": "Délben nem ettem, mert nem volt kedvem semmihez.",
+          "ru": "В полдень я не ела, потому что мне ничего не хотелось.",
+          "en": "At noon I did not eat, because I did not feel like anything."
+        },
+        {
+          "hu": "Este egyedül voltam otthon, és egész este remegtem.",
+          "ru": "Вечером я была дома одна и весь вечер дрожала.",
+          "en": "In the evening I was home alone, and I trembled all evening."
+        }
+      ],
+      [
+        {
+          "hu": "Kedden is jött a magány.",
+          "ru": "Во вторник снова пришло одиночество.",
+          "en": "On Tuesday loneliness came again."
+        },
+        {
+          "hu": "Boldogtalan voltam, és egy könny a földre esett.",
+          "ru": "Я была несчастна, и слеза упала на пол.",
+          "en": "I was unhappy, and a tear fell on the floor."
+        },
+        {
+          "hu": "Zsófi, a kolléga, mindig jókedvű és szerencsés.",
+          "ru": "Жофи, коллега, всегда в хорошем настроении и удачлива.",
+          "en": "Zsófi, my colleague, is always cheerful and lucky."
+        },
+        {
+          "hu": "Egy kicsit irigy voltam, sőt féltékeny is.",
+          "ru": "Я немного завидовала, даже ревновала.",
+          "en": "I was a little envious, even jealous."
+        },
+        {
+          "hu": "Aztán bűntudatom lett, és a lelkiismeretem nem hagyott aludni.",
+          "ru": "Потом мне стало совестно, и совесть не давала мне спать.",
+          "en": "Then I felt guilty, and my conscience did not let me sleep."
+        },
+        {
+          "hu": "A bűntudat borzasztó érzés, és a lelkiismeret nem alszik.",
+          "ru": "Чувство вины ужасно, а совесть не спит.",
+          "en": "Guilt is a dreadful feeling, and the conscience does not sleep."
+        },
+        {
+          "hu": "Zsófi nem rossz ember, és nincs benne gyűlölet.",
+          "ru": "Жофи не плохой человек, и в ней нет ненависти.",
+          "en": "Zsófi is not a bad person, and there is no hatred in her."
+        },
+        {
+          "hu": "Bennem sincs gyűlölet, csak szorongás.",
+          "ru": "И во мне нет ненависти, только тревога.",
+          "en": "There is no hatred in me either, only anxiety."
+        },
+        {
+          "hu": "Néha azt gondolom, hogy a többiek nem szeretnek.",
+          "ru": "Иногда я думаю, что другие меня не любят.",
+          "en": "Sometimes I think the others do not like me."
+        },
+        {
+          "hu": "Ilyenkor az ember gyanakszik mindenkire.",
+          "ru": "В такие минуты человек подозревает всех.",
+          "en": "At such times one suspects everybody."
+        },
+        {
+          "hu": "Ez nagyon kényelmetlen érzés, és szégyellem is.",
+          "ru": "Это очень неприятное чувство, и мне ещё и стыдно.",
+          "en": "That is a very uncomfortable feeling, and I am ashamed of it too."
+        },
+        {
+          "hu": "Szégyenlős vagyok, ezért senkinek sem mondom el.",
+          "ru": "Я стеснительная, поэтому никому об этом не рассказываю.",
+          "en": "I am bashful, so I do not tell anyone."
+        }
+      ],
+      [
+        {
+          "hu": "Szerdán Anna írt nekem.",
+          "ru": "В среду мне написала Анна.",
+          "en": "On Wednesday Anna wrote to me."
+        },
+        {
+          "hu": "Ő a barátom, és mindig van benne részvét.",
+          "ru": "Она моя подруга, и в ней всегда есть сочувствие.",
+          "en": "She is my friend, and there is always sympathy in her."
+        },
+        {
+          "hu": "Nem volt benne sajnálat, csak kedvesség.",
+          "ru": "В ней не было жалости, только доброта.",
+          "en": "There was no pity in it, only kindness."
+        },
+        {
+          "hu": "Azt írta, hogy a gyűlölet és a magány nem segít senkinek.",
+          "ru": "Она написала, что ненависть и одиночество никому не помогают.",
+          "en": "She wrote that hatred and loneliness do not help anybody."
+        },
+        {
+          "hu": "Kell az embernek egy kis részvét, és ő ezt tudja.",
+          "ru": "Человеку нужно немного сочувствия, и она это знает.",
+          "en": "A person needs a little sympathy, and she knows it."
+        },
+        {
+          "hu": "A részvét nekem sokat jelent.",
+          "ru": "Сочувствие много значит для меня.",
+          "en": "Sympathy means a lot to me."
+        },
+        {
+          "hu": "Szerinte kell egy kis kitartás és egy kis bátorság.",
+          "ru": "По её мнению, нужны немного упорства и немного смелости.",
+          "en": "In her view, you need a little perseverance and a little courage."
+        },
+        {
+          "hu": "Azt is írta, hogy a szégyen nem jelent semmit.",
+          "ru": "Ещё она написала, что стыд ничего не значит.",
+          "en": "She also wrote that shame means nothing."
+        },
+        {
+          "hu": "Azt mondta, hogy a bűntudat sem segít.",
+          "ru": "Она сказала, что и чувство вины не помогает.",
+          "en": "She said that guilt does not help either."
+        },
+        {
+          "hu": "Akkor még remegtem, de már reménykedtem.",
+          "ru": "Тогда я ещё дрожала, но уже надеялась.",
+          "en": "I was still trembling then, but I already hoped."
+        },
+        {
+          "hu": "Csütörtökön nem unatkoztam, mert sok munkám volt.",
+          "ru": "В четверг мне не было скучно, потому что было много работы.",
+          "en": "On Thursday I was not bored, because I had a lot of work."
+        }
+      ],
+      [
+        {
+          "hu": "Pénteken Annával a városban voltam.",
+          "ru": "В пятницу я была с Анной в городе.",
+          "en": "On Friday I was in the city with Anna."
+        },
+        {
+          "hu": "Egy kis helyen ültünk, és sokat beszéltünk.",
+          "ru": "Мы сидели в одном небольшом месте и много разговаривали.",
+          "en": "We sat in a small place and talked a lot."
+        },
+        {
+          "hu": "Anna nagyon lelkes volt, és én is lelkes lettem.",
+          "ru": "Анна была очень воодушевлена, и я тоже воодушевилась.",
+          "en": "Anna was very enthusiastic, and I became enthusiastic too."
+        },
+        {
+          "hu": "A lelkesedés jó dolog, mert nem kell hozzá pénz.",
+          "ru": "Энтузиазм это хорошо, ведь для него не нужны деньги.",
+          "en": "Enthusiasm is a good thing, because you need no money for it."
+        },
+        {
+          "hu": "Ez a lelkesedés jól esett.",
+          "ru": "Этот энтузиазм был мне приятен.",
+          "en": "That enthusiasm did me good."
+        },
+        {
+          "hu": "Hirtelen jött a nevetés, és nem volt más vágyam.",
+          "ru": "Вдруг пришёл смех, и у меня не было другого желания.",
+          "en": "Suddenly laughter came, and I had no other wish."
+        },
+        {
+          "hu": "Élveztem a mosolyt és az estét.",
+          "ru": "Я наслаждалась улыбкой и вечером.",
+          "en": "I enjoyed the smile and the evening."
+        },
+        {
+          "hu": "Ez az élvezet olyan egyszerű volt, és mégis nagy.",
+          "ru": "Это удовольствие было таким простым и всё же большим.",
+          "en": "That pleasure was so simple and yet great."
+        },
+        {
+          "hu": "Már nem unatkoztam, és nem szégyelltem magam.",
+          "ru": "Мне уже не было скучно, и мне не было стыдно за себя.",
+          "en": "I was no longer bored, and I was no longer ashamed of myself."
+        },
+        {
+          "hu": "Már nem gyanakszom Zsófira, ő nagyon kedves.",
+          "ru": "Я больше не подозреваю Жофи, она очень милая.",
+          "en": "I no longer suspect Zsófi, she is very nice."
+        },
+        {
+          "hu": "Zsófi is ott volt, és jókedvű volt velem.",
+          "ru": "Жофи тоже была там и была со мной в хорошем настроении.",
+          "en": "Zsófi was there too, and she was cheerful with me."
+        },
+        {
+          "hu": "Már nem voltam irigy, és nem voltam féltékeny.",
+          "ru": "Я больше не завидовала и не ревновала.",
+          "en": "I was no longer envious, and no longer jealous."
+        }
+      ],
+      [
+        {
+          "hu": "Már nem voltam türelmetlen, és nem voltam álmos sem.",
+          "ru": "Я больше не была нетерпеливой и не хотела спать.",
+          "en": "I was no longer impatient, and I was not sleepy either."
+        },
+        {
+          "hu": "Egy kis kitartás, és a hét jó lett.",
+          "ru": "Немного упорства, и неделя стала хорошей.",
+          "en": "A little perseverance, and the week turned out good."
+        },
+        {
+          "hu": "Este Márk is írt nekem.",
+          "ru": "Вечером мне написал и Марк.",
+          "en": "In the evening Márk wrote to me too."
+        },
+        {
+          "hu": "Azt írta, hogy a félelmetes hétnek végre vége.",
+          "ru": "Он написал, что страшной неделе наконец конец.",
+          "en": "He wrote that the scary week is finally over."
+        },
+        {
+          "hu": "Igaza van, a pánik elment, és nem jött vissza.",
+          "ru": "Он прав, паника ушла и не вернулась.",
+          "en": "He is right, the panic went away and did not come back."
+        },
+        {
+          "hu": "Szerencsés vagyok, mert vannak barátaim.",
+          "ru": "Мне повезло, ведь у меня есть друзья.",
+          "en": "I am lucky because I have friends."
+        },
+        {
+          "hu": "Szerencsétlen nap is van, de nem minden nap szerencsétlen.",
+          "ru": "Бывают и несчастливые дни, но не каждый день несчастлив.",
+          "en": "There are unlucky days too, but not every day is unlucky."
+        },
+        {
+          "hu": "A gyűlölet és a magány nem marad.",
+          "ru": "Ненависть и одиночество не остаются.",
+          "en": "Hatred and loneliness do not stay."
+        },
+        {
+          "hu": "Holnap talán még jobb lesz.",
+          "ru": "Завтра, может быть, будет ещё лучше.",
+          "en": "Tomorrow it may be even better."
+        }
+      ]
+    ]
+  }
+}

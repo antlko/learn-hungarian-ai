@@ -1,0 +1,467 @@
+{
+  "talk": {
+    "genre": "phone",
+    "checked": "ai",
+    "title": {
+      "ru": "Квитанция и срок",
+      "en": "The slip and the deadline"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Halló, jó napot kívánok! Tessék.",
+          "ru": "Алло, здравствуйте! Слушаю.",
+          "en": "Hello, good day! Go ahead."
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot! Csekket kaptam az első rezsiről.",
+          "ru": "Здравствуйте! Я получила квитанцию за первую коммуналку.",
+          "en": "Good day! I got a bill for my first utilities."
+        },
+        {
+          "who": "A",
+          "hu": "Értem. Mi a kérdése?",
+          "ru": "Понятно. Какой у вас вопрос?",
+          "en": "I see. What is your question?"
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, meddig kell fizetni? Nem értem a határidőt.",
+          "ru": "Ой, до какого числа платить? Не понимаю срок.",
+          "en": "Oh, by when do I have to pay? I do not understand the deadline."
+        },
+        {
+          "who": "A",
+          "hu": "Meg tudja mondani az azonosítót?",
+          "ru": "Можете назвать номер клиента?",
+          "en": "Can you tell me the customer number?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze, egy pillanat. Itt van.",
+          "ru": "Конечно, одну минуту. Вот он.",
+          "en": "Of course, one moment. Here it is."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm. A határidő péntek.",
+          "ru": "Спасибо. Крайний срок пятница.",
+          "en": "Thank you. The deadline is Friday."
+        },
+        {
+          "who": "B",
+          "hu": "Hát, az már holnap! Mennyit kell fizetni?",
+          "ru": "Ну, это уже завтра! Сколько платить?",
+          "en": "Well, that is already tomorrow! How much to pay?"
+        },
+        {
+          "who": "A",
+          "hu": "Az összeg a csekken van, ott lent.",
+          "ru": "Сумма на квитанции, там внизу.",
+          "en": "The amount is on the bill, down there."
+        },
+        {
+          "who": "B",
+          "hu": "Hát jó. És ha késem?",
+          "ru": "Ну ладно. А если опоздаю?",
+          "en": "Well all right. And if I am late?"
+        },
+        {
+          "who": "A",
+          "hu": "Akkor bírságot kell fizetni, de nem sokat.",
+          "ru": "Тогда нужно платить штраф, но небольшой.",
+          "en": "Then you have to pay a fine, but not much."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj! Akkor ma fizetek. Kártyával lehet?",
+          "ru": "Ой! Тогда сегодня заплачу. Картой можно?",
+          "en": "Oh! Then I will pay today. Can I use a card?"
+        },
+        {
+          "who": "A",
+          "hu": "Persze, az automatánál is, vagy utalással.",
+          "ru": "Конечно, и в автомате, или переводом.",
+          "en": "Sure, at the machine too, or by transfer."
+        },
+        {
+          "who": "B",
+          "hu": "Meddig tart az utalás?",
+          "ru": "Сколько идёт перевод?",
+          "en": "How long does a transfer take?"
+        },
+        {
+          "who": "A",
+          "hu": "Egy nap. Ma még jó, de holnap késő.",
+          "ru": "Один день. Сегодня ещё хорошо, а завтра поздно.",
+          "en": "One day. Today is still fine, but tomorrow is too late."
+        },
+        {
+          "who": "B",
+          "hu": "Hát, akkor inkább megyek az automatához. Köszi!",
+          "ru": "Ну, тогда лучше пойду к банкомату. Спасибо!",
+          "en": "Well, then I would rather go to the machine. Thanks!"
+        },
+        {
+          "who": "A",
+          "hu": "Szívesen. Szép napot kívánok!",
+          "ru": "Пожалуйста. Всего хорошего!",
+          "en": "You are welcome. Have a nice day!"
+        },
+        {
+          "who": "B",
+          "hu": "Viszlát!",
+          "ru": "До свидания!",
+          "en": "Goodbye!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "szamlanyitas",
+      "title": {
+        "ru": "Открыть счёт",
+        "en": "Opening an account"
+      },
+      "scene": {
+        "ru": "В банке, у окошка.",
+        "en": "At the bank counter."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Bankszámlát szeretnék nyitni.",
+          "ru": "Здравствуйте! Я хочу открыть счёт.",
+          "en": "Good day! I would like to open an account."
+        },
+        {
+          "who": "B",
+          "hu": "Az igazolványát kérem.",
+          "ru": "Ваше удостоверение, пожалуйста.",
+          "en": "Your ID, please."
+        },
+        {
+          "who": "A",
+          "hu": "Tessék. Itt van az igazolványom.",
+          "ru": "Пожалуйста. Вот моё удостоверение.",
+          "en": "Here you are. Here is my ID."
+        },
+        {
+          "who": "B",
+          "hu": "Köszönöm. A lakcím is kell.",
+          "ru": "Спасибо. Нужен ещё адрес.",
+          "en": "Thank you. We also need your address."
+        },
+        {
+          "who": "A",
+          "hu": "Hoppá, az nincs nálam.",
+          "ru": "Опа, при мне его нет.",
+          "en": "Whoops, I do not have it on me."
+        },
+        {
+          "who": "B",
+          "hu": "Nem baj, holnap is lehet.",
+          "ru": "Ничего, можно прийти и завтра.",
+          "en": "No problem, you can come tomorrow too."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben. Akkor holnap jövök. Viszlát!",
+          "ru": "Хорошо. Тогда приду завтра. До свидания!",
+          "en": "All right. Then I will come tomorrow. Goodbye!"
+        }
+      ]
+    },
+    {
+      "slug": "bevette-a-kartyat",
+      "title": {
+        "ru": "Автомат съел карту",
+        "en": "The machine kept my card"
+      },
+      "scene": {
+        "ru": "В банке, у окошка, раздражённый клиент.",
+        "en": "At the bank counter, a worried customer."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, a kártyám bent maradt az automatában.",
+          "ru": "Извините, моя карта осталась в банкомате.",
+          "en": "Excuse me, my card stayed in the machine."
+        },
+        {
+          "who": "B",
+          "hu": "Mikor történt?",
+          "ru": "Когда это случилось?",
+          "en": "When did it happen?"
+        },
+        {
+          "who": "A",
+          "hu": "Most. Jaj, rosszul írtam be a kódot.",
+          "ru": "Сейчас. Ой, я неправильно ввёл код.",
+          "en": "Just now. Oh, I typed the code wrong."
+        },
+        {
+          "who": "B",
+          "hu": "Semmi baj. Ma kiveszem a gépből.",
+          "ru": "Ничего страшного. Сегодня достану из автомата.",
+          "en": "No problem. I will take it out of the machine today."
+        },
+        {
+          "who": "A",
+          "hu": "És a pénzem? Rajta van a számlán?",
+          "ru": "А мои деньги? Они на счёте?",
+          "en": "And my money? Is it on the account?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze, a pénz a számlán van.",
+          "ru": "Конечно, деньги на счёте.",
+          "en": "Of course, the money is in the account."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm. Mikor kapom vissza?",
+          "ru": "Спасибо. Когда я получу её обратно?",
+          "en": "Thank you. When can I come for it?"
+        },
+        {
+          "who": "B",
+          "hu": "Holnap reggel. Az igazolvány is kell.",
+          "ru": "Завтра утром. Нужно и удостоверение.",
+          "en": "Tomorrow morning. You need your ID too."
+        }
+      ]
+    },
+    {
+      "slug": "valtas",
+      "title": {
+        "ru": "Обмен евро",
+        "en": "Changing euros"
+      },
+      "scene": {
+        "ru": "В обменном пункте.",
+        "en": "At an exchange counter."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Eurót szeretnék váltani.",
+          "ru": "Здравствуйте! Я хочу поменять евро.",
+          "en": "Good day! I would like to change euros."
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot! Mennyit szeretne?",
+          "ru": "Здравствуйте! Сколько хотите?",
+          "en": "Good day! How much would you like?"
+        },
+        {
+          "who": "A",
+          "hu": "Először is, mi ma az árfolyam?",
+          "ru": "Сначала скажите, какой сегодня курс?",
+          "en": "First of all, what is the rate today?"
+        },
+        {
+          "who": "B",
+          "hu": "Ma elég jó. Nézze, itt van.",
+          "ru": "Сегодня довольно хороший. Смотрите, вот он.",
+          "en": "Quite good today. Look, here it is."
+        },
+        {
+          "who": "A",
+          "hu": "Hát, nem rossz. Száz eurót váltok.",
+          "ru": "Ну, неплохо. Меняю сто евро.",
+          "en": "Well, not bad. I am changing a hundred euros."
+        },
+        {
+          "who": "B",
+          "hu": "Tessék a pénz, és itt a nyugta.",
+          "ru": "Пожалуйста, деньги, и вот чек.",
+          "en": "Here is the money, and here is the receipt."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm szépen. Viszlát!",
+          "ru": "Большое спасибо. До свидания!",
+          "en": "Thank you very much. Goodbye!"
+        }
+      ]
+    },
+    {
+      "slug": "kolcson",
+      "title": {
+        "ru": "Одолжить немного",
+        "en": "Borrowing a little"
+      },
+      "scene": {
+        "ru": "Двое друзей на улице.",
+        "en": "Two friends in the street."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Bocsi, adsz kölcsön egy kis pénzt?",
+          "ru": "Прости, одолжишь немного денег?",
+          "en": "Sorry, could you lend me a bit of money?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze. Mennyi kell?",
+          "ru": "Конечно. Сколько нужно?",
+          "en": "Sure. How much do you need?"
+        },
+        {
+          "who": "A",
+          "hu": "Nem sok. Csak a bérletre.",
+          "ru": "Немного. Только на проездной.",
+          "en": "Not much. Just for the travel pass."
+        },
+        {
+          "who": "B",
+          "hu": "Mikor adod vissza?",
+          "ru": "Когда вернёшь?",
+          "en": "When will you give it back?"
+        },
+        {
+          "who": "A",
+          "hu": "Pénteken, mert akkor jön a fizetés.",
+          "ru": "В пятницу, потому что тогда зарплата.",
+          "en": "On Friday, because that is when my salary comes."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. Átutalom, vagy kell készpénz?",
+          "ru": "Хорошо. Переведу или нужны наличные?",
+          "en": "All right. I will transfer it, or do you need cash?"
+        },
+        {
+          "who": "A",
+          "hu": "Utalás jó. Köszi, király vagy!",
+          "ru": "Переводом хорошо. Спасибо, ты супер!",
+          "en": "A transfer is fine. Thanks, you are great!"
+        }
+      ]
+    },
+    {
+      "slug": "fizetes-telefonnal",
+      "title": {
+        "ru": "Счёт на двоих",
+        "en": "Splitting the bill"
+      },
+      "scene": {
+        "ru": "Двое друзей после кафе.",
+        "en": "Two friends after a cafe."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Hú, ez nem volt olcsó! Mennyi lett?",
+          "ru": "Ух, это было недёшево! Сколько получилось?",
+          "en": "Wow, that was not cheap! How much was it?"
+        },
+        {
+          "who": "B",
+          "hu": "Ennyi. Én fizetek, te küldesz pénzt.",
+          "ru": "Вот столько. Я плачу, а ты пришлёшь деньги.",
+          "en": "This much. I pay, you send me money."
+        },
+        {
+          "who": "A",
+          "hu": "Persze. Mennyit küldjek?",
+          "ru": "Конечно. Сколько прислать?",
+          "en": "Sure. How much should I send?"
+        },
+        {
+          "who": "B",
+          "hu": "A felét. Jó lesz?",
+          "ru": "Половину. Нормально?",
+          "en": "Half. Is that all right?"
+        },
+        {
+          "who": "A",
+          "hu": "Jó. Már küldöm is.",
+          "ru": "Хорошо. Уже отправляю.",
+          "en": "Fine. I am sending it now."
+        },
+        {
+          "who": "B",
+          "hu": "Köszi! Jaj, a következő kávét én fizetem!",
+          "ru": "Спасибо! Ой, следующий кофе плачу я!",
+          "en": "Thanks! Oh, the next coffee is on me!"
+        }
+      ]
+    },
+    {
+      "slug": "bank-telefon",
+      "title": {
+        "ru": "Звонок из банка",
+        "en": "A call from the bank"
+      },
+      "scene": {
+        "ru": "Телефонный звонок незнакомого человека.",
+        "en": "A phone call from a stranger."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Halló?",
+          "ru": "Алло?",
+          "en": "Hello?"
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot! A bankból hívom. Kérem a kódot.",
+          "ru": "Здравствуйте! Звоню из банка. Мне нужен ваш код.",
+          "en": "Good day! I am calling from the bank. I need your code."
+        },
+        {
+          "who": "A",
+          "hu": "A kódomat? Hát, azt nem mondom meg.",
+          "ru": "Мой код? Ну, его я не скажу.",
+          "en": "My code? Well, I will not tell you that."
+        },
+        {
+          "who": "B",
+          "hu": "Csak a biztonság miatt kérem.",
+          "ru": "Я прошу только из-за безопасности.",
+          "en": "I only ask for security reasons."
+        },
+        {
+          "who": "A",
+          "hu": "A bank nem kér kódot telefonon. Ez csalás.",
+          "ru": "Банк не просит код по телефону. Это мошенничество.",
+          "en": "The bank does not ask for a code on the phone. This is fraud."
+        },
+        {
+          "who": "B",
+          "hu": "Nem, dehogy, én csak segítek.",
+          "ru": "Нет, что вы, я только помогаю.",
+          "en": "No, of course not, I am only helping."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm, nem kell. Viszlát!",
+          "ru": "Спасибо, не нужно. До свидания!",
+          "en": "Thanks, no need. Goodbye!"
+        }
+      ]
+    }
+  ]
+}

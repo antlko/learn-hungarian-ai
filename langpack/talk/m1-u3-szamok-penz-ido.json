@@ -1,0 +1,374 @@
+{
+  "talk": {
+    "genre": "phone",
+    "checked": "ai",
+    "title": {
+      "ru": "Звонок: ты где?",
+      "en": "A call: where are you?"
+    },
+    "names": [
+      "Anna",
+      "Péter"
+    ],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Halló, Péter? Hol vagy már?",
+          "ru": "Алло, Петер? Ты где уже?",
+          "en": "Hello, Péter? Where are you already?"
+        },
+        {
+          "who": "B",
+          "hu": "Szia, Anna! Jövök már, bocsi!",
+          "ru": "Привет, Анна! Уже иду, прости!",
+          "en": "Hi, Anna! I'm coming, sorry!"
+        },
+        {
+          "who": "A",
+          "hu": "Már fél hat van, Péter!",
+          "ru": "Уже половина шестого, Петер!",
+          "en": "It's already half past five, Péter!"
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, bocsi! Tíz perc, és ott vagyok.",
+          "ru": "Ой, прости! Десять минут, и я там.",
+          "en": "Oh, sorry! Ten minutes and I'm there."
+        },
+        {
+          "who": "A",
+          "hu": "Öt órakor találkozunk, Péter!",
+          "ru": "Мы же в пять встречаемся!",
+          "en": "We said five!"
+        },
+        {
+          "who": "B",
+          "hu": "Tudom, bocsi! Tíz perc, nem több.",
+          "ru": "Знаю, прости! Десять минут, не больше.",
+          "en": "I know, sorry! Ten minutes, no more."
+        },
+        {
+          "who": "A",
+          "hu": "Jó, várok. De itt minden drága.",
+          "ru": "Ладно, жду. Но тут всё дорого.",
+          "en": "OK, I'll wait. But everything's expensive here."
+        },
+        {
+          "who": "B",
+          "hu": "Semmi gond, én fizetek.",
+          "ru": "Ничего, я заплачу.",
+          "en": "No problem, I'll pay."
+        },
+        {
+          "who": "A",
+          "hu": "Köszi! Akkor itt várlak, Péter.",
+          "ru": "Спасибо! Тогда жду здесь, Петер.",
+          "en": "Thanks! Then I'll wait here, Péter."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben, Anna, mindjárt ott vagyok!",
+          "ru": "Хорошо, Анна, сейчас буду!",
+          "en": "All right, Anna, I'll be there in a moment!"
+        },
+        {
+          "who": "A",
+          "hu": "Jó, de gyere gyorsan, kérlek!",
+          "ru": "Ладно, но приходи скорее, пожалуйста!",
+          "en": "OK, but come quickly, please!"
+        },
+        {
+          "who": "B",
+          "hu": "Jövök, jövök! Szia!",
+          "ru": "Иду, иду! Пока!",
+          "en": "Coming, coming! Bye!"
+        },
+        {
+          "who": "A",
+          "hu": "Szia, pá!",
+          "ru": "Пока, пока!",
+          "en": "Bye, bye!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "mennyibe-kerul-ez",
+      "title": {
+        "ru": "Сколько это стоит",
+        "en": "How much is this"
+      },
+      "scene": {
+        "ru": "В пекарне, покупатель и продавец на «Вы».",
+        "en": "At a bakery, customer and seller, formal."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot! Mennyibe kerül ez?",
+          "ru": "Здравствуйте! Сколько это стоит?",
+          "en": "Hello! How much is this?"
+        },
+        {
+          "who": "B",
+          "hu": "Ötven forint.",
+          "ru": "Пятьдесят форинтов.",
+          "en": "Fifty forints."
+        },
+        {
+          "who": "A",
+          "hu": "Jó, kérek kettőt.",
+          "ru": "Хорошо, дайте два.",
+          "en": "OK, I'll have two."
+        },
+        {
+          "who": "B",
+          "hu": "Összesen száz forint. Kártyával?",
+          "ru": "Итого сто форинтов. Картой?",
+          "en": "A hundred forints in total. By card?"
+        },
+        {
+          "who": "A",
+          "hu": "Kártyával. Köszönöm!",
+          "ru": "Картой. Спасибо!",
+          "en": "By card. Thanks!"
+        },
+        {
+          "who": "B",
+          "hu": "Viszlát!",
+          "ru": "До свидания!",
+          "en": "Goodbye!"
+        }
+      ]
+    },
+    {
+      "slug": "hany-ora-van",
+      "title": {
+        "ru": "Который час",
+        "en": "What time is it"
+      },
+      "scene": {
+        "ru": "Двое друзей спешат утром.",
+        "en": "Two friends in a hurry in the morning."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia! Hány óra van?",
+          "ru": "Привет! Который час?",
+          "en": "Hi! What time is it?"
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, már fél kilenc!",
+          "ru": "Ой, уже половина девятого!",
+          "en": "Oh, it's already half past eight!"
+        },
+        {
+          "who": "A",
+          "hu": "Hát, kilenc órakor suli!",
+          "ru": "Ну, в девять школа!",
+          "en": "Well, school is at nine!"
+        },
+        {
+          "who": "B",
+          "hu": "Akkor gyorsan, szia!",
+          "ru": "Тогда быстро, пока!",
+          "en": "Then hurry, bye!"
+        },
+        {
+          "who": "A",
+          "hu": "Gyorsan! Szia!",
+          "ru": "Быстро! Пока!",
+          "en": "Quick! Bye!"
+        }
+      ]
+    },
+    {
+      "slug": "mennyi-az-ido",
+      "title": {
+        "ru": "Сколько времени",
+        "en": "What time is it"
+      },
+      "scene": {
+        "ru": "На улице, незнакомый человек спрашивает время.",
+        "en": "In the street, a stranger asks the time."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, mennyi az idő?",
+          "ru": "Извините, который час?",
+          "en": "Excuse me, what time is it?"
+        },
+        {
+          "who": "B",
+          "hu": "Tizenegy óra húsz perc.",
+          "ru": "Одиннадцать часов двадцать минут.",
+          "en": "Eleven twenty."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, késő van! Köszönöm!",
+          "ru": "Ой, уже поздно! Спасибо!",
+          "en": "Oh, it's late! Thank you!"
+        },
+        {
+          "who": "B",
+          "hu": "Szívesen.",
+          "ru": "Пожалуйста.",
+          "en": "You're welcome."
+        }
+      ]
+    },
+    {
+      "slug": "nyitva-vagy-zarva",
+      "title": {
+        "ru": "Открыто или закрыто",
+        "en": "Open or closed"
+      },
+      "scene": {
+        "ru": "У двери магазина, прохожий спрашивает.",
+        "en": "At a shop door, a passer-by asks."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Bocsánat, ma nyitva van?",
+          "ru": "Простите, сегодня открыто?",
+          "en": "Sorry, is it open today?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, ma zárva. Holnap nyitva.",
+          "ru": "Нет, сегодня закрыто. Завтра открыто.",
+          "en": "No, closed today. Open tomorrow."
+        },
+        {
+          "who": "A",
+          "hu": "Hány órakor?",
+          "ru": "Во сколько?",
+          "en": "At what time?"
+        },
+        {
+          "who": "B",
+          "hu": "Kilenc órakor.",
+          "ru": "В девять часов.",
+          "en": "At nine o'clock."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben, köszönöm!",
+          "ru": "Хорошо, спасибо!",
+          "en": "All right, thank you!"
+        }
+      ]
+    },
+    {
+      "slug": "a-szamod",
+      "title": {
+        "ru": "Какой у тебя номер",
+        "en": "What is your number"
+      },
+      "scene": {
+        "ru": "Двое знакомых обмениваются номерами.",
+        "en": "Two friends swap phone numbers."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Mi a számod?",
+          "ru": "Какой у тебя номер?",
+          "en": "What's your number?"
+        },
+        {
+          "who": "B",
+          "hu": "Négy hat nyolc, egy egy.",
+          "ru": "Четыре шесть восемь, один один.",
+          "en": "Four six eight, one one."
+        },
+        {
+          "who": "A",
+          "hu": "Négy hat hét?",
+          "ru": "Четыре шесть семь?",
+          "en": "Four six seven?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, nyolc! Nyolc!",
+          "ru": "Нет, восемь! Восемь!",
+          "en": "No, eight! Eight!"
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, bocsi. Oké, köszi!",
+          "ru": "Ой, прости. Ладно, спасибо!",
+          "en": "Oh, sorry. OK, thanks!"
+        }
+      ]
+    },
+    {
+      "slug": "apropenz",
+      "title": {
+        "ru": "Мелочь",
+        "en": "Small change"
+      },
+      "scene": {
+        "ru": "В киоске, покупатель платит мелочью.",
+        "en": "At a kiosk, paying in small coins."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Ez száz forint?",
+          "ru": "Это сто форинтов?",
+          "en": "Is this a hundred forints?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, száz.",
+          "ru": "Да, сто.",
+          "en": "Yes, a hundred."
+        },
+        {
+          "who": "A",
+          "hu": "Aprópénzzel lehet?",
+          "ru": "Можно мелочью?",
+          "en": "Can I pay in small change?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze, tessék.",
+          "ru": "Конечно, пожалуйста.",
+          "en": "Of course, go ahead."
+        },
+        {
+          "who": "A",
+          "hu": "Ötven és ötven.",
+          "ru": "Пятьдесят и пятьдесят.",
+          "en": "Fifty and fifty."
+        },
+        {
+          "who": "B",
+          "hu": "Pont jó, köszi!",
+          "ru": "Как раз, спасибо!",
+          "en": "Exactly right, thanks!"
+        }
+      ]
+    }
+  ]
+}

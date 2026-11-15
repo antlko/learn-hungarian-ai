@@ -1,0 +1,448 @@
+{
+  "short": {
+    "genre": "list",
+    "checked": "ai",
+    "title": {
+      "ru": "Что в календаре",
+      "en": "What is in the calendar"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Januárban újév, és a téli fesztivál a városban.",
+          "ru": "В январе Новый год и зимний фестиваль в городе.",
+          "en": "In January the New Year, and the winter festival in the city."
+        },
+        {
+          "hu": "Februárban nincs ünnep, csak hideg van.",
+          "ru": "В феврале праздников нет, только холод.",
+          "en": "In February there is no holiday, only cold."
+        },
+        {
+          "hu": "Márciusban nemzeti ünnep, ott leszünk a városban.",
+          "ru": "В марте национальный праздник, мы будем в городе.",
+          "en": "In March the national holiday, we will be in the city."
+        },
+        {
+          "hu": "Áprilisban húsvét, a család jön hozzánk.",
+          "ru": "В апреле Пасха, семья приедет к нам.",
+          "en": "In April Easter, the family is coming to us."
+        },
+        {
+          "hu": "Májusban az évforduló, kell egy ajándék!",
+          "ru": "В мае годовщина, нужен подарок!",
+          "en": "In May the anniversary, we need a present!"
+        },
+        {
+          "hu": "Júniusban a nyári ünnepség.",
+          "ru": "В июне летний праздник.",
+          "en": "In June the summer celebration."
+        },
+        {
+          "hu": "Júliusban és augusztusban sok szabad hétvége.",
+          "ru": "В июле и в августе много свободных выходных.",
+          "en": "In July and August a lot of free weekends."
+        }
+      ],
+      [
+        {
+          "hu": "Szeptemberben az őszi munka kezdődik.",
+          "ru": "В сентябре начинается осенняя работа.",
+          "en": "In September the autumn work begins."
+        },
+        {
+          "hu": "Októberben nemzeti ünnep, és egy hosszú hétvége.",
+          "ru": "В октябре национальный праздник и долгие выходные.",
+          "en": "In October the national holiday, and a long weekend."
+        },
+        {
+          "hu": "Novemberben nincs semmi, csak a heti dolgok.",
+          "ru": "В ноябре ничего нет, только дела на неделе.",
+          "en": "In November there is nothing, only the weekly things."
+        },
+        {
+          "hu": "Decemberben karácsony és szilveszter, és mindenki ünnepel.",
+          "ru": "В декабре Рождество и Сильвестр, и все празднуют.",
+          "en": "In December Christmas and New Year's Eve, and everybody celebrates."
+        },
+        {
+          "hu": "Hetente nézzük a naptárt, havonta írunk új dátumot.",
+          "ru": "Каждую неделю мы смотрим на календарь, каждый месяц пишем новую дату.",
+          "en": "Every week we look at the calendar, every month we write a new date."
+        },
+        {
+          "hu": "Évente egyszer jön a meghívó is, és a dátum mindig fontos.",
+          "ru": "Раз в год приходит и приглашение, и дата всегда важна.",
+          "en": "Once a year the invitation comes too, and the date is always important."
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "description",
+    "checked": "ai",
+    "title": {
+      "ru": "Мой год в календаре",
+      "en": "My year in the calendar"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Egy évben négy évszak van, és minden évszakban három hónap.",
+          "ru": "В году четыре времени года, и в каждом времени года три месяца.",
+          "en": "A year has four seasons, and every season has three months."
+        },
+        {
+          "hu": "A tavaszi hónapok március, április és május.",
+          "ru": "Весенние месяцы — март, апрель и май.",
+          "en": "The spring months are March, April and May."
+        },
+        {
+          "hu": "A nyári hónapok június, július és augusztus.",
+          "ru": "Летние месяцы — июнь, июль и август.",
+          "en": "The summer months are June, July and August."
+        },
+        {
+          "hu": "Az őszi hónapok szeptember, október és november.",
+          "ru": "Осенние месяцы — сентябрь, октябрь и ноябрь.",
+          "en": "The autumn months are September, October and November."
+        },
+        {
+          "hu": "A téli hónapok pedig december, január és február.",
+          "ru": "А зимние месяцы — декабрь, январь и февраль.",
+          "en": "And the winter months are December, January and February."
+        }
+      ],
+      [
+        {
+          "hu": "Én a nyarat szeretem a legjobban.",
+          "ru": "Лето я люблю больше всего.",
+          "en": "I like summer best."
+        },
+        {
+          "hu": "Júliusban és augusztusban sok a szabad idő, és a nyári hétvégék hosszúak.",
+          "ru": "В июле и в августе много свободного времени, а летние выходные долгие.",
+          "en": "In July and August there is a lot of free time, and the summer weekends are long."
+        },
+        {
+          "hu": "A tavaszi hétvégék is szépek.",
+          "ru": "Весенние выходные тоже красивые.",
+          "en": "The spring weekends are nice too."
+        },
+        {
+          "hu": "Szeptemberben van egy nagy fesztivál a városban, és az már az ősz.",
+          "ru": "В сентябре в городе большой фестиваль, и это уже осень.",
+          "en": "In September there is a big festival in the city, and that is already autumn."
+        },
+        {
+          "hu": "A téli hónapok nem nagyon jók, de decemberben ott a karácsony.",
+          "ru": "Зимние месяцы не очень хороши, но в декабре есть Рождество.",
+          "en": "The winter months are not very good, but in December there is Christmas."
+        }
+      ],
+      [
+        {
+          "hu": "Szilveszterre sok meghívó jön, és minden dátum a naptárba kerül.",
+          "ru": "К Сильвестру приходит много приглашений, и каждая дата попадает в календарь.",
+          "en": "Before New Year's Eve many invitations come, and every date goes into the calendar."
+        },
+        {
+          "hu": "Nálunk sok ünnep van.",
+          "ru": "У нас много праздников.",
+          "en": "We have a lot of holidays."
+        },
+        {
+          "hu": "Márciusban van egy nemzeti ünnep, tavasszal pedig húsvét.",
+          "ru": "В марте есть национальный праздник, а весной ещё и Пасха.",
+          "en": "In March there is a national holiday, and in spring there is also Easter."
+        },
+        {
+          "hu": "Télen jön a karácsony, aztán a szilveszter és az újév.",
+          "ru": "Зимой приходит Рождество, потом Сильвестр и Новый год.",
+          "en": "In winter comes Christmas, then New Year's Eve and the New Year."
+        },
+        {
+          "hu": "Ilyenkor mindenki ünnepel, és mindenki ajándékot kér vagy ad.",
+          "ru": "В эти дни все празднуют, и все просят или дарят подарки.",
+          "en": "At these times everybody celebrates, and everybody asks for or gives presents."
+        },
+        {
+          "hu": "A karácsonyi ünnepség után jön az évforduló, mert mi decemberben találkoztunk.",
+          "ru": "После рождественского праздника наша годовщина, ведь мы встретились в декабре.",
+          "en": "After the Christmas celebration comes our anniversary, because we met in December."
+        }
+      ],
+      [
+        {
+          "hu": "Nekem van egy nagy naptáram az ajtón.",
+          "ru": "У меня на двери висит большой календарь.",
+          "en": "I have a big calendar on the door."
+        },
+        {
+          "hu": "Reggel megnézem a mai dátumot, aztán a tegnapi és a holnapi napot.",
+          "ru": "Утром я смотрю на сегодняшнюю дату, потом на вчерашний и завтрашний день.",
+          "en": "In the morning I look at today's date, then at yesterday and tomorrow."
+        },
+        {
+          "hu": "Naponta írom be a napi dolgokat.",
+          "ru": "Каждый день я записываю дела на день.",
+          "en": "Every day I write in the things for the day."
+        },
+        {
+          "hu": "Hetente nézem a heti munkát és a hétvégét is.",
+          "ru": "Каждую неделю я смотрю на рабочие дела на неделю и на выходные тоже.",
+          "en": "Every week I look at the work for the week and the weekend too."
+        },
+        {
+          "hu": "Havonta egyszer nézem az egész hónapot, évente egyszer az egész évet.",
+          "ru": "Раз в месяц я смотрю на весь месяц, раз в год — на весь год.",
+          "en": "Once a month I look at the whole month, once a year at the whole year."
+        },
+        {
+          "hu": "Szerintem egy jó naptár a legjobb ajándék.",
+          "ru": "По-моему, хороший календарь — лучший подарок.",
+          "en": "I think a good calendar is the best present."
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "diary",
+    "checked": "ai",
+    "title": {
+      "ru": "Мой год, месяц за месяцем",
+      "en": "My year, month by month"
+    },
+    "names": [
+      "Anna",
+      "Péter",
+      "Kata"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Ma szilveszter van, és végre van időm.",
+          "ru": "Сегодня Сильвестр, и наконец у меня есть время.",
+          "en": "It is New Year's Eve today, and at last I have time."
+        },
+        {
+          "hu": "A tegnapi nap csendes volt.",
+          "ru": "Вчерашний день был тихим.",
+          "en": "Yesterday was quiet."
+        },
+        {
+          "hu": "A mai dátum is szép, mert ez az év utolsó napja.",
+          "ru": "Сегодняшняя дата тоже красивая, ведь это последний день года.",
+          "en": "Today's date is nice too, because it is the last day of the year."
+        },
+        {
+          "hu": "Itt van előttem a naptár, és nézem az egész évet.",
+          "ru": "Передо мной календарь, и я смотрю на весь год.",
+          "en": "The calendar is in front of me, and I am looking at the whole year."
+        },
+        {
+          "hu": "Minden hónapban volt valami jó.",
+          "ru": "В каждом месяце было что-то хорошее.",
+          "en": "Every month had something good in it."
+        },
+        {
+          "hu": "Ez az egyik kedvenc napom, mert ilyenkor nincs munka.",
+          "ru": "Это один из моих любимых дней, ведь в этот день нет работы.",
+          "en": "This is one of my favourite days, because there is no work today."
+        },
+        {
+          "hu": "Most elmondom, mi volt.",
+          "ru": "Сейчас расскажу, что было.",
+          "en": "Now I will tell you what it was like."
+        }
+      ],
+      [
+        {
+          "hu": "Januárban sokat dolgoztam, és a hétvégék nagyon rövidek voltak.",
+          "ru": "В январе я много работал, и выходные были очень короткими.",
+          "en": "In January I worked a lot, and the weekends were very short."
+        },
+        {
+          "hu": "Hetente és havonta is írtam a naptárba, évente csak egyszer olvasom végig.",
+          "ru": "Каждую неделю и каждый месяц я писал в календарь, а целиком читаю его только раз в год.",
+          "en": "Every week and every month I wrote in the calendar, and I read it through only once a year."
+        },
+        {
+          "hu": "A téli hónapok mindig hosszúak, és én már a nyarat vártam.",
+          "ru": "Зимние месяцы всегда длинные, и я уже ждал лета.",
+          "en": "The winter months are always long, and I was already waiting for summer."
+        },
+        {
+          "hu": "Februárban Anna beteg volt, ezért otthon maradtunk.",
+          "ru": "В феврале Анна болела, поэтому мы остались дома.",
+          "en": "In February Anna was ill, so we stayed at home."
+        },
+        {
+          "hu": "A hétvége is csendes volt, a tavaszi napokat vártuk.",
+          "ru": "Выходные тоже были тихими, мы ждали весенних дней.",
+          "en": "The weekend was quiet too, and we waited for the spring days."
+        },
+        {
+          "hu": "Márciusban volt a nemzeti ünnep, és a városban nagy ünnepség volt.",
+          "ru": "В марте был национальный праздник, и в городе было большое торжество.",
+          "en": "In March there was the national holiday, and a big celebration in the city."
+        },
+        {
+          "hu": "A tavaszi nap szép volt, és mindenki nevetett.",
+          "ru": "Весенний день был красивым, и все смеялись.",
+          "en": "The spring day was nice, and everybody laughed."
+        },
+        {
+          "hu": "Mi is mentünk, mert Anna szereti az ilyen napokat.",
+          "ru": "Мы тоже пошли, потому что Анна любит такие дни.",
+          "en": "We went too, because Anna likes days like that."
+        },
+        {
+          "hu": "Áprilisban jött a húsvét, a család nálunk volt, és együtt ünnepeltünk.",
+          "ru": "В апреле пришла Пасха, семья была у нас, и мы праздновали вместе.",
+          "en": "In April Easter came, the family was at our place, and we celebrated together."
+        },
+        {
+          "hu": "Mindenki hozott valami ajándékot a gyerekeknek.",
+          "ru": "Каждый принёс какой-нибудь подарок для детей.",
+          "en": "Everybody brought some present for the children."
+        },
+        {
+          "hu": "Májusban volt az évfordulónk, és Anna egy szép ajándékot kapott tőlem.",
+          "ru": "В мае была наша годовщина, и Анна получила от меня красивый подарок.",
+          "en": "In May it was our anniversary, and Anna got a nice present from me."
+        }
+      ],
+      [
+        {
+          "hu": "Júniusban már nagyon szép nyári idő volt.",
+          "ru": "В июне уже была очень красивая летняя погода.",
+          "en": "In June the summer weather was already very nice."
+        },
+        {
+          "hu": "A nyári hétvégéken sokat voltunk együtt a barátainkkal.",
+          "ru": "По летним выходным мы много бывали вместе с друзьями.",
+          "en": "On the summer weekends we were together with our friends a lot."
+        },
+        {
+          "hu": "Júliusban nagyon meleg volt, és nem akartam dolgozni.",
+          "ru": "В июле было очень жарко, и я не хотел работать.",
+          "en": "In July it was very hot, and I did not want to work."
+        },
+        {
+          "hu": "Augusztusban volt a nemzeti ünnep is, és egy nagy fesztivál a városban.",
+          "ru": "В августе был ещё национальный праздник и большой фестиваль в городе.",
+          "en": "In August there was the national holiday too, and a big festival in the city."
+        },
+        {
+          "hu": "Egész hétvégén ott voltunk, és Anna sokat nevetett.",
+          "ru": "Мы были там все выходные, и Анна много смеялась.",
+          "en": "We were there the whole weekend, and Anna laughed a lot."
+        }
+      ],
+      [
+        {
+          "hu": "Szeptemberben jött az ősz, és újra sok munka volt.",
+          "ru": "В сентябре пришла осень, и снова было много работы.",
+          "en": "In September autumn came, and again there was a lot of work."
+        },
+        {
+          "hu": "Szeptemberben naponta dolgoztam, hétvégén is.",
+          "ru": "В сентябре я работал каждый день, даже по выходным.",
+          "en": "In September I worked every day, even at the weekend."
+        },
+        {
+          "hu": "Októberben a nemzeti ünnep után hosszú hétvége volt.",
+          "ru": "В октябре после национального праздника были долгие выходные.",
+          "en": "In October after the national holiday there was a long weekend."
+        },
+        {
+          "hu": "Novemberben hideg volt, és mindenki otthon maradt.",
+          "ru": "В ноябре было холодно, и все остались дома.",
+          "en": "In November it was cold, and everybody stayed at home."
+        }
+      ],
+      [
+        {
+          "hu": "Decemberben megint jött a karácsony.",
+          "ru": "В декабре снова пришло Рождество.",
+          "en": "In December Christmas came again."
+        },
+        {
+          "hu": "Anna már novemberben keresett karácsonyi ajándékot.",
+          "ru": "Анна искала рождественские подарки уже в ноябре.",
+          "en": "Anna was already looking for Christmas presents in November."
+        },
+        {
+          "hu": "A karácsonyi fesztivál a városban is nagyon szép volt.",
+          "ru": "Рождественский фестиваль в городе тоже был очень красивым.",
+          "en": "The Christmas festival in the city was very nice too."
+        },
+        {
+          "hu": "Karácsonykor a család együtt volt, és mindenki jól érezte magát.",
+          "ru": "На Рождество семья была вместе, и всем было хорошо.",
+          "en": "At Christmas the family was together, and everybody had a good time."
+        },
+        {
+          "hu": "Szilveszterre Péter és Kata küldött nekünk egy meghívót.",
+          "ru": "На Сильвестр Петер и Ката прислали нам приглашение.",
+          "en": "Péter and Kata sent us an invitation for New Year's Eve."
+        },
+        {
+          "hu": "A meghívó szép volt, és a dátum is jó volt nekünk.",
+          "ru": "Приглашение было красивым, и дата нам тоже подошла.",
+          "en": "The invitation was nice, and the date suited us too."
+        },
+        {
+          "hu": "Az ünnepség ma este lesz, és már nagyon várom.",
+          "ru": "Праздник будет сегодня вечером, и я его очень жду.",
+          "en": "The celebration is tonight, and I am really looking forward to it."
+        }
+      ],
+      [
+        {
+          "hu": "A holnapi nap újév, és az is szabad nap lesz.",
+          "ru": "Завтрашний день Новый год, и он тоже будет выходным.",
+          "en": "Tomorrow is New Year's Day, and that will be a free day too."
+        },
+        {
+          "hu": "Újév után megint jön a munka, de a heti munka nem nagy baj.",
+          "ru": "После Нового года снова работа, но рабочая неделя не беда.",
+          "en": "After the New Year the work comes again, but the working week is no big problem."
+        },
+        {
+          "hu": "Ebben az évben egy dolgot tanultam a naptárról.",
+          "ru": "В этом году я кое-чему научился с календарём.",
+          "en": "This year I learned one thing about the calendar."
+        },
+        {
+          "hu": "A tegnapi nap már régi.",
+          "ru": "Вчерашний день уже старый.",
+          "en": "Yesterday is already old."
+        },
+        {
+          "hu": "A mai nap az enyém, a holnapi nap új.",
+          "ru": "Сегодняшний мой, а завтрашний новый.",
+          "en": "Today is mine, and tomorrow is new."
+        },
+        {
+          "hu": "Az új évben is naponta nézem a naptárt.",
+          "ru": "И в новом году я буду каждый день смотреть на календарь.",
+          "en": "In the new year too I will look at the calendar every day."
+        },
+        {
+          "hu": "Hetente írom be a fontos dolgokat.",
+          "ru": "Раз в неделю буду записывать важные дела.",
+          "en": "I will write in the important things every week."
+        },
+        {
+          "hu": "Havonta egyszer nézem az egész hónapot, évente egyszer az egész évet.",
+          "ru": "Раз в месяц я смотрю на весь месяц, раз в год — на весь год.",
+          "en": "Once a month I look at the whole month, once a year at the whole year."
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,450 @@
+{
+  "short": {
+    "genre": "postcard",
+    "checked": "ai",
+    "title": {
+      "ru": "Привет с моря",
+      "en": "Greetings from the sea"
+    },
+    "names": [
+      "Eszter"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Kedves Anya és Apa!",
+          "ru": "Дорогие мама и папа!",
+          "en": "Dear Mum and Dad!"
+        },
+        {
+          "hu": "Végre nyaralunk, és a tenger nagyon szép!",
+          "ru": "Наконец-то мы отдыхаем, и море очень красивое!",
+          "en": "We are finally on holiday, and the sea is so beautiful!"
+        },
+        {
+          "hu": "A szálloda a tengerparton van, a strand pedig közel.",
+          "ru": "Гостиница на берегу моря, а пляж совсем рядом.",
+          "en": "The hotel is on the seaside, and the beach is close."
+        },
+        {
+          "hu": "A homok meleg, a napszemüveg mindig nálam van.",
+          "ru": "Песок тёплый, солнечные очки всегда со мной.",
+          "en": "The sand is warm, and my sunglasses are always with me."
+        },
+        {
+          "hu": "A repülő jó volt, az érkezés pontosan délben.",
+          "ru": "Самолёт был хороший, прилетели точно в полдень.",
+          "en": "The plane was good, and the arrival was exactly at noon."
+        }
+      ],
+      [
+        {
+          "hu": "Tegnap hajóval utaztunk a szigetre, a komp a kikötőből indult.",
+          "ru": "Вчера мы плыли на остров на корабле, паром отправился из порта.",
+          "en": "Yesterday we travelled to the island by ship, the ferry left from the harbour."
+        },
+        {
+          "hu": "Ma csónakkal megyünk, holnap a múzeumba.",
+          "ru": "Сегодня мы поедем на лодке, а завтра в музей.",
+          "en": "Today we are going by boat, and tomorrow to the museum."
+        },
+        {
+          "hu": "A bőrönd és a hátizsák a szállodában maradt.",
+          "ru": "Чемодан и рюкзак остались в гостинице.",
+          "en": "The suitcase and the rucksack stayed at the hotel."
+        },
+        {
+          "hu": "A víz tiszta, és a tenger nem hideg.",
+          "ru": "Вода чистая, и море не холодное.",
+          "en": "The water is clean and the sea is not cold."
+        },
+        {
+          "hu": "A szállás jó, és sok turista van itt.",
+          "ru": "Жильё хорошее, и здесь много туристов.",
+          "en": "The accommodation is good, and there are many tourists here."
+        },
+        {
+          "hu": "Az utazás hosszú volt, de a nyaralás nagyon szép.",
+          "ru": "Дорога была долгая, но отпуск очень хороший.",
+          "en": "The journey was long, but the holiday is very nice."
+        },
+        {
+          "hu": "Szeretettel, Eszter",
+          "ru": "С любовью, Эстер",
+          "en": "With love, Eszter"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "email",
+    "checked": "ai",
+    "title": {
+      "ru": "План поездки",
+      "en": "The plan for the trip"
+    },
+    "names": [
+      "Eszter",
+      "Tamás"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Eszter!",
+          "ru": "Привет, Эстер!",
+          "en": "Hi, Eszter!"
+        },
+        {
+          "hu": "Itt a terv a nagy utazásra.",
+          "ru": "Вот план нашей большой поездки.",
+          "en": "Here is the plan for the big trip."
+        },
+        {
+          "hu": "A repülő szombaton tízkor indul, az érkezés a fővárosban délben van.",
+          "ru": "Самолёт вылетает в субботу в десять, прибытие в столицу в полдень.",
+          "en": "The plane leaves on Saturday at ten, and the arrival in the capital is at noon."
+        },
+        {
+          "hu": "A repülőtérre busszal megyünk, a menetrend szerint a busz hétkor indul.",
+          "ru": "В аэропорт мы поедем на автобусе, по расписанию он отправляется в семь.",
+          "en": "We go to the airport by bus, and according to the timetable the bus leaves at seven."
+        },
+        {
+          "hu": "Kérlek, a bőrönd este legyen kész, és a hátizsák legyen kicsi.",
+          "ru": "Пожалуйста, пусть чемодан вечером будет готов, а рюкзак маленьким.",
+          "en": "Please have the suitcase ready in the evening, and keep the rucksack small."
+        },
+        {
+          "hu": "A poggyász ne legyen nehéz, mert a repülő kicsi.",
+          "ru": "Багаж пусть не будет тяжёлым, ведь самолёт маленький.",
+          "en": "The luggage should not be heavy, because the plane is small."
+        }
+      ],
+      [
+        {
+          "hu": "A fővárosból vonattal utazunk a tóhoz.",
+          "ru": "Из столицы мы поедем на поезде к озеру.",
+          "en": "From the capital we travel to the lake by train."
+        },
+        {
+          "hu": "A menetrend szerint az indulás két órakor van, az érkezés pedig négy órakor.",
+          "ru": "По расписанию отправление в два часа, а прибытие в четыре.",
+          "en": "According to the timetable the departure is at two o'clock, and the arrival at four."
+        },
+        {
+          "hu": "A vonat a harmadik vágányról indul, a peron a nagy óra mellett van.",
+          "ru": "Поезд отправляется с третьего пути, платформа рядом с большими часами.",
+          "en": "The train leaves from the third track, and the platform is next to the big clock."
+        },
+        {
+          "hu": "A kalauz mindig kedves, és sok utas kérdez tőle.",
+          "ru": "Кондуктор всегда любезен, и многие пассажиры его о чём-то спрашивают.",
+          "en": "The conductor is always kind, and many passengers ask him things."
+        },
+        {
+          "hu": "Az utasok sokan lesznek, ezért a peronon várunk.",
+          "ru": "Пассажиров будет много, поэтому мы будем ждать на платформе.",
+          "en": "There will be many passengers, so we wait on the platform."
+        },
+        {
+          "hu": "Az indulás előtt a menetrendet még egyszer nézzük.",
+          "ru": "Перед отправлением мы ещё раз посмотрим расписание.",
+          "en": "Before the departure we check the timetable once more."
+        }
+      ],
+      [
+        {
+          "hu": "A szálloda a tó mellett van, a szállás nem drága.",
+          "ru": "Гостиница рядом с озером, а жильё недорогое.",
+          "en": "The hotel is next to the lake, and the accommodation is not expensive."
+        },
+        {
+          "hu": "A strand közel van, de a tó még hideg.",
+          "ru": "Пляж рядом, но озеро ещё холодное.",
+          "en": "The beach is close, but the lake is still cold."
+        },
+        {
+          "hu": "A tó nem tenger, de a nyaralás itt is szép.",
+          "ru": "Озеро не море, но отпуск и здесь хорош.",
+          "en": "A lake is not the sea, but the holiday is nice here too."
+        },
+        {
+          "hu": "Az idegenvezető szerint a hegy és az erdő nagyon szép.",
+          "ru": "По словам гида, гора и лес очень красивы.",
+          "en": "According to the guide, the mountain and the forest are very beautiful."
+        },
+        {
+          "hu": "Sok látnivaló van, a múzeum, a kikötő, és a hajó is.",
+          "ru": "Достопримечательностей много, музей, порт и даже корабль.",
+          "en": "There are many sights, the museum, the harbour, and the ship too."
+        },
+        {
+          "hu": "A turisták a kikötőből a szigetre mennek, a hajó és a komp is indul.",
+          "ru": "Туристы едут из порта на остров, и корабль, и паром отправляются.",
+          "en": "The tourists go from the harbour to the island, and both the ship and the ferry leave."
+        },
+        {
+          "hu": "Egy kis helikopter is megy a tóhoz, de a helikopter drága.",
+          "ru": "К озеру ходит и маленький вертолёт, но он дорогой.",
+          "en": "A small helicopter also goes to the lake, but it is expensive."
+        },
+        {
+          "hu": "A turista itt sokat nyaral, mert a nyaralás olcsó.",
+          "ru": "Туристы здесь часто отдыхают, потому что отпуск недорогой.",
+          "en": "Tourists often holiday here, because a holiday is cheap."
+        }
+      ],
+      [
+        {
+          "hu": "Hozd a napszemüveget is.",
+          "ru": "Захвати и солнечные очки.",
+          "en": "Bring your sunglasses too."
+        },
+        {
+          "hu": "Nem kell másik kontinensre utazni, hogy szép legyen a nyaralás.",
+          "ru": "Не надо ехать на другой континент, чтобы отпуск получился хорошим.",
+          "en": "You do not need to travel to another continent for a nice holiday."
+        },
+        {
+          "hu": "Írj gyorsan, kérlek!",
+          "ru": "Напиши скорее, пожалуйста!",
+          "en": "Write soon, please!"
+        },
+        {
+          "hu": "Tamás",
+          "ru": "Тамаш",
+          "en": "Tamás"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "story",
+    "checked": "ai",
+    "title": {
+      "ru": "Поход в горы",
+      "en": "A hike in the mountains"
+    },
+    "names": [
+      "Bence",
+      "Dóra"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szombaton túrára mentünk Dórával a hegyre.",
+          "ru": "В субботу мы с Дорой пошли в поход на гору.",
+          "en": "On Saturday Dóra and I went on a hike up the mountain."
+        },
+        {
+          "hu": "Új volt a jogosítványom, ezért én vezettem.",
+          "ru": "Права у меня были новые, поэтому за рулём был я.",
+          "en": "My driving licence was new, so I drove."
+        },
+        {
+          "hu": "A hátizsák nehéz volt, a sátor még nehezebb.",
+          "ru": "Рюкзак был тяжёлый, а палатка ещё тяжелее.",
+          "en": "The rucksack was heavy, and the tent even heavier."
+        },
+        {
+          "hu": "Az autópályán gyorsan mentünk.",
+          "ru": "По автостраде мы ехали быстро.",
+          "en": "We drove fast on the motorway."
+        },
+        {
+          "hu": "Az autópálya hosszú volt, a határ pedig messze.",
+          "ru": "Автострада была длинная, а граница далеко.",
+          "en": "The motorway was long, and the border was far."
+        },
+        {
+          "hu": "A benzinkútnál meg kellett állni, mert nem volt elég üzemanyag.",
+          "ru": "На заправке пришлось остановиться, потому что топлива не хватало.",
+          "en": "We had to stop at the petrol station, because there was not enough fuel."
+        },
+        {
+          "hu": "Dóra a benzinért fizetett, én pedig a kávéért.",
+          "ru": "Дора заплатила за бензин, а я за кофе.",
+          "en": "Dóra paid for the petrol, and I paid for the coffee."
+        }
+      ],
+      [
+        {
+          "hu": "Egy óra múlva a kerék rossz lett.",
+          "ru": "Через час колесо спустило.",
+          "en": "An hour later the wheel went flat."
+        },
+        {
+          "hu": "Nem a jogosítvány volt a baj, hanem a kerék.",
+          "ru": "Дело было не в правах, а в колесе.",
+          "en": "The problem was not the driving licence, but the wheel."
+        },
+        {
+          "hu": "Szerencsére egy férfi ott volt, és a kerék hamar jó lett.",
+          "ru": "К счастью, там оказался мужчина, и колесо скоро было в порядке.",
+          "en": "Luckily a man was there, and the wheel was soon fine."
+        },
+        {
+          "hu": "A határ közel volt, de mi a hegynél maradtunk.",
+          "ru": "Граница была близко, но мы остались у горы.",
+          "en": "The border was close, but we stayed by the mountain."
+        },
+        {
+          "hu": "A hegy alatt volt egy kis szállás és egy benzinkút.",
+          "ru": "Под горой были небольшое жильё и заправка.",
+          "en": "Below the mountain there was a small guesthouse and a petrol station."
+        },
+        {
+          "hu": "Ott egy idegenvezető csoportot vitt a hegyre.",
+          "ru": "Там один гид вёл группу в горы.",
+          "en": "There a guide was taking a group up the mountain."
+        },
+        {
+          "hu": "Sok turista volt, és ő mutatta az útvonalat.",
+          "ru": "Туристов было много, и он показал нам маршрут.",
+          "en": "There were many tourists, and he showed us the route."
+        },
+        {
+          "hu": "Az útvonal három óra volt, a túra nem volt nehéz.",
+          "ru": "Маршрут занимал три часа, поход был нетрудным.",
+          "en": "The route took three hours, and the hike was not hard."
+        },
+        {
+          "hu": "A látnivaló a hegyen a tó és a barlang volt.",
+          "ru": "Достопримечательностью на горе были озеро и пещера.",
+          "en": "The sights on the mountain were the lake and the cave."
+        },
+        {
+          "hu": "Egy turista nem értett magyarul, ezért tolmács kellett.",
+          "ru": "Один турист не понимал по-венгерски, поэтому нужен был переводчик.",
+          "en": "A tourist did not understand Hungarian, so an interpreter was needed."
+        },
+        {
+          "hu": "Én voltam a tolmács, és a turista nagyon örült.",
+          "ru": "Переводчиком был я, и турист очень обрадовался.",
+          "en": "I was the interpreter, and the tourist was very happy."
+        },
+        {
+          "hu": "Egy tolmács sokat segít a túrán.",
+          "ru": "Переводчик очень помогает в походе.",
+          "en": "An interpreter helps a lot on a hike."
+        }
+      ],
+      [
+        {
+          "hu": "Az ösvény az erdőben ment, aztán fel a dombra, a folyó mellett.",
+          "ru": "Тропа шла через лес, потом вверх на холм, вдоль реки.",
+          "en": "The path went through the forest, then up the hill, beside the river."
+        },
+        {
+          "hu": "A folyó a völgyben folyt, az ösvény pedig a domb mellett.",
+          "ru": "Река текла в долине, а тропа шла у холма.",
+          "en": "The river flowed in the valley, and the path ran by the hill."
+        },
+        {
+          "hu": "A völgy szép volt, a szikla pedig nagyon nagy.",
+          "ru": "Долина была красивая, а скала очень большая.",
+          "en": "The valley was beautiful, and the rock very big."
+        },
+        {
+          "hu": "A sziklánál találtunk egy kis barlangot.",
+          "ru": "У скалы мы нашли маленькую пещеру.",
+          "en": "By the rock we found a small cave."
+        },
+        {
+          "hu": "A szikla mellett az ösvény nehéz volt, de szép.",
+          "ru": "У скалы тропа была трудной, но красивой.",
+          "en": "By the rock the path was hard, but beautiful."
+        },
+        {
+          "hu": "A barlangban sötét volt, ezért gyorsan elmentünk.",
+          "ru": "В пещере было темно, поэтому мы быстро ушли.",
+          "en": "It was dark in the cave, so we quickly left."
+        },
+        {
+          "hu": "A hegyen a hátizsák nagyon nehéz lett.",
+          "ru": "На горе рюкзак стал очень тяжёлым.",
+          "en": "On the mountain the rucksack got very heavy."
+        },
+        {
+          "hu": "Egy helikopter ment a hegy fölött, nagyon közel.",
+          "ru": "Над горой летел вертолёт, совсем низко.",
+          "en": "A helicopter flew over the mountain, very low."
+        },
+        {
+          "hu": "Magasan egy repülő is ment, talán a repülőtérre.",
+          "ru": "Высоко пролетел и самолёт, наверное, в аэропорт.",
+          "en": "High up a plane flew too, maybe to the airport."
+        },
+        {
+          "hu": "A helikopter lent a folyónál állt, a pilóta kávét ivott.",
+          "ru": "Вертолёт стоял внизу у реки, пилот пил кофе.",
+          "en": "The helicopter stood down by the river, and the pilot was drinking coffee."
+        }
+      ],
+      [
+        {
+          "hu": "Este a tónál állítottuk fel a sátrat.",
+          "ru": "Вечером мы поставили палатку у озера.",
+          "en": "In the evening we put up the tent by the lake."
+        },
+        {
+          "hu": "Nem volt szálloda, csak a sátor, a tó és az erdő.",
+          "ru": "Гостиницы не было, только палатка, озеро и лес.",
+          "en": "There was no hotel, only the tent, the lake and the forest."
+        },
+        {
+          "hu": "A sátor kicsi volt, de a túra után nagyon jó.",
+          "ru": "Палатка была маленькая, но после похода очень хорошая.",
+          "en": "The tent was small, but very good after the hike."
+        },
+        {
+          "hu": "Dóra nevetett, hogy ez nem sivatag, és nem is másik kontinens.",
+          "ru": "Дора смеялась, что это не пустыня и не другой континент.",
+          "en": "Dóra laughed that this was no desert, and not another continent either."
+        },
+        {
+          "hu": "Csak egy kis hegy, de az utazás nagyon jó volt.",
+          "ru": "Просто небольшая гора, но поездка была очень хорошей.",
+          "en": "Just a small mountain, but the trip was very good."
+        },
+        {
+          "hu": "Én nem szeretem a sivatagot, a hegy jobb.",
+          "ru": "Я не люблю пустыню, гора лучше.",
+          "en": "I do not like the desert, the mountain is better."
+        },
+        {
+          "hu": "Egy kontinensen sok hely szép, de ez a hely a miénk.",
+          "ru": "На континенте много красивых мест, но это место наше.",
+          "en": "On a continent many places are beautiful, but this place is ours."
+        },
+        {
+          "hu": "Szerintem a túra a legjobb nyaralás.",
+          "ru": "По-моему, поход лучший отпуск.",
+          "en": "I think a hike is the best holiday."
+        }
+      ],
+      [
+        {
+          "hu": "Jövőre a tengerhez utazunk, a tengerpartra.",
+          "ru": "В следующем году мы поедем к морю, на побережье.",
+          "en": "Next year we are travelling to the sea, to the seaside."
+        },
+        {
+          "hu": "A repülőtérre a fővárosból vonattal megyünk.",
+          "ru": "В аэропорт мы поедем из столицы на поезде.",
+          "en": "We go to the airport from the capital by train."
+        },
+        {
+          "hu": "Ott lesz strand, homok és nap.",
+          "ru": "Там будут пляж, песок и солнце.",
+          "en": "There will be a beach, sand and sun."
+        },
+        {
+          "hu": "A hajó a kikötőből a szigetre megy, és a nyaralás szép lesz.",
+          "ru": "Корабль идёт из порта на остров, и отпуск будет прекрасным.",
+          "en": "The ship goes from the harbour to the island, and the holiday will be lovely."
+        }
+      ]
+    ]
+  }
+}

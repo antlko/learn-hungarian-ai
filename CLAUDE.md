@@ -142,10 +142,10 @@ One line each; **full text, reasons and ADR links: `docs/INVARIANTS.md`** (grep 
 **LLM, MT, sidecars**
 - Tutor explains, mints nothing (no path to `note`/`card`/`user_gloss`/state); labels model + lesson; asking
   never changes a schedule; never write `ONLY` into its prompt; read `docs/TUTOR.md` before touching it.
+- Authored reading content lives in the embedded catalogue (`backend/internal/readsets`, ADR-076; `make texts` exports it), never in the pack; colloquial talk/mini texts (ADR-077) obey a level-gated lexicon and a banned-word list.
 - No LLM Hungarian becomes a card without `internal/corpus/attest.go` — except learner-reviewed, labelled
   AI sentences for unillustrated course words (ADR-073); AI dictionary entry is a separate
-  path (ADR-042). Reading sets are the one labelled AI-written Hungarian in the pack
-  (`source='authored'`: «Рассказ» ADR-074, «Диалог» ADR-066), filtered out everywhere else.
+  path (ADR-042). Reading-set texts (short/medium/long per unit) are the one AI-written Hungarian shipped (in the catalogue; legacy packs: `source='authored'`, ADR-066/075), filtered out everywhere else; provenance is kept in data, no UI badge.
 - MT is display-only and always labelled with its model; `lib/gloss.ts` picks gloss language.
 - App fully usable with every sidecar stopped; managed components never block boot; endpoints never stored.
 - `services.llm` needs a model name (`llm.New` → `ErrNoModel`).
@@ -153,7 +153,7 @@ One line each; **full text, reasons and ADR links: `docs/INVARIANTS.md`** (grep 
 **Motivation and honesty**
 - No XP, levels, leagues, gems, lootboxes; allowed surface = streak, lemma curve, heatmap, checkpoints,
   exam countdown, estimated level. Hours/streaks accumulate, never claimed. Drawings are chrome, not metrics.
-- Uncertain analyses, fallback glosses, unattested output, low-confidence ASR are labelled in the UI;
+- Uncertain analyses, fallback glosses, unattested output, low-confidence ASR are labelled in the UI (not reading-set texts, ADR-075);
   "we have not built this" is a supported outcome; the guided course is finite (24+20+20 core units).
 - Export is a full dump, never `.apkg`; import replaces for the acting user only.
 - HVPT contrasts are never "complete"; every minimal-pair member must be a dictionary word.

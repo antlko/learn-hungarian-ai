@@ -1,0 +1,402 @@
+{
+  "short": {
+    "genre": "notice",
+    "checked": "ai",
+    "title": {
+      "ru": "Объявление в деревне",
+      "en": "A notice in the village"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Kedves szomszédok!",
+          "ru": "Дорогие соседи!",
+          "en": "Dear neighbours!"
+        },
+        {
+          "hu": "Szombaton nagy közösségi nap lesz a faluban.",
+          "ru": "В субботу в деревне будет большой праздник для всех.",
+          "en": "On Saturday there will be a big community day in the village."
+        },
+        {
+          "hu": "Ez jó alkalom a találkozásra, a barátságra és a beszélgetésre.",
+          "ru": "Это хороший случай встретиться, подружиться и поговорить.",
+          "en": "It is a good occasion to meet, to make friends and to talk."
+        },
+        {
+          "hu": "Az ok és a szándék egyszerű, jó együtt lenni.",
+          "ru": "Причина и намерение простые, хорошо быть вместе.",
+          "en": "The reason and the intention are simple, it is good to be together."
+        },
+        {
+          "hu": "A falu változik, de a hagyomány marad.",
+          "ru": "Деревня меняется, но традиция остаётся.",
+          "en": "The village changes, but the tradition stays."
+        }
+      ],
+      [
+        {
+          "hu": "A téma a történelem, a hagyomány és a kultúra.",
+          "ru": "Тема история, традиция и культура.",
+          "en": "The themes are history, tradition and culture."
+        },
+        {
+          "hu": "A művészet is ott lesz, a gyerekek képei látszanak.",
+          "ru": "Будет и искусство, видны будут картины детей.",
+          "en": "There will be art too, the children's pictures can be seen."
+        },
+        {
+          "hu": "A tudomány és a természet is szót kap.",
+          "ru": "Слово получат и наука, и природа.",
+          "en": "Science and nature will have their say too."
+        },
+        {
+          "hu": "A cél a jövő, a biztonság, a béke és a jó emlék.",
+          "ru": "Цель будущее, мир и добрая память.",
+          "en": "The goal is the future, peace and a good memory."
+        },
+        {
+          "hu": "Egy régi emlék, egy kép vagy egy szó is jó.",
+          "ru": "Подойдут старое воспоминание, картина или слово.",
+          "en": "An old memory, a picture or a word is fine too."
+        },
+        {
+          "hu": "Ingyenes, a helyszín a régi iskola, tízkor kezdünk.",
+          "ru": "Бесплатно, место — старая школа, начинаем в десять.",
+          "en": "It is free, the place is the old school, we start at ten."
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "У врача",
+      "en": "At the doctor's"
+    },
+    "names": [
+      "Szabó"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Jó napot, Szabó úr! Mi a panasza?",
+          "ru": "Добрый день, господин Сабо! На что жалуетесь?",
+          "en": "Good day, Mr Szabó! What seems to be the problem?"
+        },
+        {
+          "hu": "Fáj a hátam, nem tudom, mi az ok, és a helyzet rossz.",
+          "ru": "У меня болит спина, я не знаю причину, и положение плохое.",
+          "en": "My back hurts, I do not know the cause, and the situation is bad."
+        },
+        {
+          "hu": "Sokat ül? Ebben az esetben az ok a rossz szokás lehet.",
+          "ru": "Вы много сидите? В этом случае причиной может быть плохая привычка.",
+          "en": "Do you sit a lot? In this case the cause may be a bad habit."
+        },
+        {
+          "hu": "Nyolc órát ülök, ez a szokás, nincs más mód.",
+          "ru": "Я сижу по восемь часов, это привычка, другого способа нет.",
+          "en": "I sit eight hours, that is the habit, there is no other way."
+        },
+        {
+          "hu": "A probléma gyakori. Két lehetőség van, a gyógyszer és a séta.",
+          "ru": "Проблема частая. Есть два варианта, лекарство и прогулки.",
+          "en": "The problem is common. There are two options, medicine and walking."
+        },
+        {
+          "hu": "És mi a különbség? Melyik a jobb módszer?",
+          "ru": "А в чём разница? Какой метод лучше?",
+          "en": "And what is the difference? Which is the better method?"
+        },
+        {
+          "hu": "A gyógyszer gyors, de a hatás rövid. A séta lassú.",
+          "ru": "Лекарство быстрое, но эффект короткий. Прогулки медленные.",
+          "en": "The medicine is fast, but the effect is short. Walking is slow."
+        },
+        {
+          "hu": "És mi az esély, hogy tényleg jobb lesz?",
+          "ru": "А какой шанс, что станет действительно лучше?",
+          "en": "And what is the chance that it will really get better?"
+        },
+        {
+          "hu": "Jó az esély, ha minden nap sétál. Ez a feltétel.",
+          "ru": "Шанс хороший, если гулять каждый день. Таково условие.",
+          "en": "The chance is good if you walk every day. That is the condition."
+        },
+        {
+          "hu": "Van következménye, ha nem sétálok? Vagy nincs szükség gyógyszerre?",
+          "ru": "Будут ли последствия, если я не буду гулять? Или лекарство не нужно?",
+          "en": "Is there a consequence if I do not walk? Or is there no need for medicine?"
+        },
+        {
+          "hu": "A fájdalom marad.",
+          "ru": "Боль останется.",
+          "en": "The pain stays."
+        },
+        {
+          "hu": "Van értelme sétálni, ha esik az eső?",
+          "ru": "Есть ли смысл гулять, если идёт дождь?",
+          "en": "Does it make sense to walk if it rains?"
+        },
+        {
+          "hu": "Persze, az eső nem baj. Csak vegyen kabátot.",
+          "ru": "Конечно, дождь не беда. Только возьмите куртку.",
+          "en": "Of course, rain is no problem. Just take a coat."
+        },
+        {
+          "hu": "A választás az enyém, ugye? Akkor a döntésem a séta.",
+          "ru": "Выбор за мной, да? Тогда моё решение прогулки.",
+          "en": "The choice is mine, right? Then my decision is walking."
+        },
+        {
+          "hu": "Jó döntés! A felelősség az öné, de az eredmény látszik.",
+          "ru": "Хорошее решение! Ответственность ваша, но результат виден.",
+          "en": "A good decision! The responsibility is yours, but the result shows."
+        },
+        {
+          "hu": "Mikor látom az első eredményt? Mi a lényeg, mi a módszer?",
+          "ru": "Когда я увижу первый результат? В чём суть, какой метод?",
+          "en": "When will I see the first result? What is the point, what is the method?"
+        },
+        {
+          "hu": "Egy hónap múlva már látszik az eredmény, ha minden nap sétál.",
+          "ru": "Через месяц уже виден результат, если гулять каждый день.",
+          "en": "In a month the result already shows, if you walk every day."
+        },
+        {
+          "hu": "Ebben az esetben a helyzet tényleg változik, ha döntök?",
+          "ru": "В этом случае ситуация действительно меняется, если я решу?",
+          "en": "In this case does the situation really change if I decide?"
+        },
+        {
+          "hu": "A lényeg a módszer. A feltétel ugyanaz, a választás az öné.",
+          "ru": "Суть в методе. Условие то же, выбор за вами.",
+          "en": "The point is the method. The condition is the same, the choice is yours."
+        },
+        {
+          "hu": "Köszönöm a választ, doktor úr! Viszontlátásra!",
+          "ru": "Спасибо за ответ, доктор! До свидания!",
+          "en": "Thank you for the answer, doctor! Goodbye!"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "story",
+    "checked": "ai",
+    "title": {
+      "ru": "Опоздание",
+      "en": "Running late"
+    },
+    "names": [
+      "Kata",
+      "Éva",
+      "Pál"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Kata hétfő reggel későn ért be az irodába.",
+          "ru": "В понедельник утром Ката опоздала в офис.",
+          "en": "On Monday morning Kata got to the office late."
+        },
+        {
+          "hu": "Az ok egyszerű volt, a busz nem jött.",
+          "ru": "Причина была проста: автобус не пришёл.",
+          "en": "The reason was simple, the bus did not come."
+        },
+        {
+          "hu": "Kata nem tudta, mi a probléma, és ideges lett.",
+          "ru": "Ката не знала, в чём проблема, и занервничала.",
+          "en": "Kata did not know what the problem was, and she got nervous."
+        },
+        {
+          "hu": "Tizenöt percig várt a megállóban, de nem látott buszt.",
+          "ru": "Пятнадцать минут она ждала на остановке, но автобуса не было.",
+          "en": "She waited fifteen minutes at the stop, but saw no bus."
+        },
+        {
+          "hu": "Senki nem tudta a választ, és a telefon sem segített.",
+          "ru": "Никто не знал ответа, и телефон тоже не помогал.",
+          "en": "Nobody knew the answer, and the phone did not help either."
+        },
+        {
+          "hu": "A helyzet nem lett jobb, mert esett az eső.",
+          "ru": "Положение не улучшилось, потому что шёл дождь.",
+          "en": "The situation did not get better, because it was raining."
+        }
+      ],
+      [
+        {
+          "hu": "Katának két lehetősége volt, gyalog megy, vagy taxit hív.",
+          "ru": "У Каты было два варианта: идти пешком или вызвать такси.",
+          "en": "Kata had two options, to walk or to call a taxi."
+        },
+        {
+          "hu": "Dönteni kellett, és a döntés nem volt könnyű.",
+          "ru": "Нужно было решать, и решение было непростым.",
+          "en": "She had to decide, and the decision was not easy."
+        },
+        {
+          "hu": "Kata azt gondolta, hogy a felelősség az övé, mert későn indult.",
+          "ru": "Ката подумала, что ответственность на ней, ведь она вышла поздно.",
+          "en": "Kata thought the responsibility was hers, because she had set off late."
+        },
+        {
+          "hu": "Ezért ő fizette a taxit, és nem kért pénzt senkitől.",
+          "ru": "Поэтому такси оплатила она сама и ни у кого не просила денег.",
+          "en": "So she paid for the taxi herself and asked nobody for money."
+        },
+        {
+          "hu": "Gyalog túl messze volt, ezért a taxi volt a jobb választás.",
+          "ru": "Пешком было слишком далеко, поэтому такси оказалось лучшим выбором.",
+          "en": "On foot it was too far, so the taxi was the better choice."
+        },
+        {
+          "hu": "A taxi drága volt, de az idő is érték.",
+          "ru": "Такси было дорогим, но и время ценность.",
+          "en": "The taxi was expensive, but time is a value too."
+        }
+      ],
+      [
+        {
+          "hu": "Pál úr, a főnök, az ajtónál várt rá.",
+          "ru": "Господин Пал, начальник, ждал её у двери.",
+          "en": "Pál úr, the boss, was waiting for her at the door."
+        },
+        {
+          "hu": "Mi volt a probléma, kérdezte.",
+          "ru": "В чём была проблема, спросил он.",
+          "en": "What was the problem, he asked."
+        },
+        {
+          "hu": "Kata az igazat mondta, mert a hazugság nem segít.",
+          "ru": "Ката сказала правду, ведь ложь не помогает.",
+          "en": "Kata told the truth, because a lie does not help."
+        },
+        {
+          "hu": "Pál úr tudta, hogy Kata nem késik gyakran.",
+          "ru": "Господин Пал знал, что Ката опаздывает нечасто.",
+          "en": "Pál úr knew that Kata is not often late."
+        },
+        {
+          "hu": "A bizalom fontos a munkában, mondta.",
+          "ru": "Доверие важно в работе, сказал он.",
+          "en": "Trust is important at work, he said."
+        },
+        {
+          "hu": "A munkában a jó szándék sokat számít, mondta még.",
+          "ru": "В работе добрые намерения много значат, добавил он.",
+          "en": "Good intentions count for a lot at work, he added."
+        },
+        {
+          "hu": "Pál úr mosolygott, és ez nagy segítség volt.",
+          "ru": "Господин Пал улыбался, и это очень помогло.",
+          "en": "Pál úr smiled, and that was a big help."
+        },
+        {
+          "hu": "Ez egyszer nincs következmény, a feltétel csak az, hogy legközelebb szóljon előre.",
+          "ru": "В этот раз последствий нет, условие лишь в том, чтобы в следующий раз она предупредила заранее.",
+          "en": "This time there is no consequence, the only condition is that next time she tells him in advance."
+        },
+        {
+          "hu": "Kata megköszönte, és gyorsan leült az asztalához.",
+          "ru": "Ката поблагодарила и быстро села за свой стол.",
+          "en": "Kata thanked him and quickly sat down at her desk."
+        },
+        {
+          "hu": "Az első órában sok dolga volt, de az eredmény jó lett.",
+          "ru": "В первый час у неё было много дел, но результат вышел хороший.",
+          "en": "In the first hour she had a lot to do, but the result was good."
+        }
+      ],
+      [
+        {
+          "hu": "Délben Kata a barátnőjével, Évával ebédet evett.",
+          "ru": "В полдень Ката пообедала с подругой Евой.",
+          "en": "At noon Kata had lunch with her friend Éva."
+        },
+        {
+          "hu": "Éva régi barátnő, és a barátságuk nagyon fontos Katának.",
+          "ru": "Эва давняя подруга, и их дружба очень важна для Каты.",
+          "en": "Éva is an old friend, and their friendship matters a lot to Kata."
+        },
+        {
+          "hu": "Kata elmondta a reggeli történetet, és Éva nevetett.",
+          "ru": "Ката рассказала утреннюю историю, и Эва засмеялась.",
+          "en": "Kata told the story of the morning, and Éva laughed."
+        },
+        {
+          "hu": "Éva azt kérdezte, hogy mi a különbség a busz és a taxi között.",
+          "ru": "Эва спросила, в чём разница между автобусом и такси.",
+          "en": "Éva asked what the difference was between the bus and the taxi."
+        },
+        {
+          "hu": "Kata azt mondta, hogy a busz olcsó, a taxi viszont gyors.",
+          "ru": "Ката сказала, что автобус дешёвый, а такси зато быстрое.",
+          "en": "Kata said that the bus is cheap, but the taxi is fast."
+        },
+        {
+          "hu": "Egy jó döntés néha több pénzbe kerül, mondta Éva.",
+          "ru": "Хорошее решение иногда стоит дороже, сказала Эва.",
+          "en": "A good decision sometimes costs more money, said Éva."
+        },
+        {
+          "hu": "Éva szerint egy rossz reggel nem nagy probléma.",
+          "ru": "По мнению Эвы, одно плохое утро не большая проблема.",
+          "en": "Éva thought one bad morning was not a big problem."
+        },
+        {
+          "hu": "A lényeg az, hogy a nap mégis jó lett.",
+          "ru": "Главное, что день всё-таки получился хорошим.",
+          "en": "The point is that the day turned out good after all."
+        },
+        {
+          "hu": "Az ebéd után ők együtt sétáltak vissza az irodához.",
+          "ru": "После обеда они вместе пошли обратно в офис.",
+          "en": "After lunch they walked back to the office together."
+        }
+      ],
+      [
+        {
+          "hu": "Este a megállóban Kata látta, hogy változás van.",
+          "ru": "Вечером на остановке Ката увидела, что есть изменение.",
+          "en": "In the evening at the stop Kata saw that there was a change."
+        },
+        {
+          "hu": "Az új busz korábban indul, ez volt az ok.",
+          "ru": "Новый автобус отправляется раньше, в этом и была причина.",
+          "en": "The new bus leaves earlier, that was the reason."
+        },
+        {
+          "hu": "Kata szándéka az, hogy holnap korán indul.",
+          "ru": "Намерение Каты в том, чтобы завтра выйти пораньше.",
+          "en": "Kata intends to set off early tomorrow."
+        },
+        {
+          "hu": "A célja egyszerű, nem késik többet.",
+          "ru": "Её цель проста: больше не опаздывать.",
+          "en": "Her goal is simple, she will not be late again."
+        },
+        {
+          "hu": "Otthon még papírra írta a tervét.",
+          "ru": "Дома она ещё записала свой план на бумаге.",
+          "en": "At home she also wrote her plan on paper."
+        },
+        {
+          "hu": "A lényeg, hogy az ember mindig legyen kész a változásra.",
+          "ru": "Главное, чтобы человек всегда был готов к переменам.",
+          "en": "The point is that one should always be ready for change."
+        },
+        {
+          "hu": "Ez a reggel jó emlék lett, és kicsi lecke is.",
+          "ru": "Это утро стало хорошим воспоминанием и небольшим уроком.",
+          "en": "That morning became a good memory, and a small lesson too."
+        }
+      ]
+    ]
+  }
+}

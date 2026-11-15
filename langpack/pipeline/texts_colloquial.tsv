@@ -1,0 +1,134 @@
+# Colloquial lexicon for the talk texts and mini dialogues (ADR-077), plus the banned list.
+# Tab-separated; lines starting with # and blank lines are ignored.
+#
+# [allowed] -- spoken words a text may use although the pack may not attest them
+# (token rule V1 (c)). One row per form:
+#   form, lemma or '-', upos or '-', kind, level, ru gloss, en gloss, reason (>= 10 chars)
+#   kind  = particle | interjection | greeting | clipping | contraction | ellipsis | chat
+#           (`greeting` also covers thanks and apology formulas; it counts as a marker for
+#           the "at least one" rule but not toward the 20% caricature cap)
+#   level = A1 | A2 | B1: a text may only use rows up to its band (an A1 text: A1 rows).
+# A row with lemma '-' (or a lemma the pack lacks) is exempt from the V2/V3 gates; it
+# still counts as a colloquial MARKER (every mini needs >= 1, markers <= 20% of words).
+# Single words only (a phrase such as "ne mar" is two rows of the pack's own words).
+# Seeded ONLY with items that are real, common and non-vulgar; the evidence is thin
+# (research/23-colloquial-register.md) and a native speaker has not read the list.
+#
+# [banned] -- vulgar or inappropriate words. A lower-case stem matches every token that
+# STARTS with it; a trailing $ means that exact form only (so szar$ does not ban szarvas
+# or szarka, and fasz$ does not ban faszekrény). A banned word fails in EVERY
+# text, standard ones too, even when the pack attests it.
+[allowed]
+form	lemma	upos	kind	level	ru	en	reason
+hát	-	-	particle	A1	ну, так	well (turn opener)	most frequent spoken discourse word; neutral register
+na	-	-	particle	A1	ну, вот	well, come on	spoken attention and mood marker; very common
+jaj	-	-	interjection	A1	ой, ах	oh, oops	spoken sympathy or regret interjection
+jé	-	-	interjection	A2	ой, ого	oh (surprise)	mild spoken surprise at a discovery
+hopp	-	-	interjection	A2	опа	oops	spoken interjection for a small slip or sudden event
+hoppá	-	-	interjection	A2	опа	whoops	variant of hopp; spoken interjection
+aha	-	-	interjection	A1	ага	aha, I see	spoken sign of understanding
+ühüm	-	-	interjection	A1	угу	uh-huh	spoken backchannel yes
+naná	-	-	interjection	A2	ещё бы	of course	spoken emphatic yes; common
+nahát	-	-	interjection	A2	ничего себе	well, well	spoken surprise; common
+persze	-	-	particle	A1	конечно	of course, sure	very common spoken answer
+oké	-	-	particle	A1	окей	okay	informal agreement, common everywhere
+jó	-	-	particle	A1	ладно, хорошо	okay, fine	spoken agreement as a one-word answer
+rendben	-	-	particle	A1	хорошо, договорились	all right, agreed	neutral agreement in speech and service talk
+ja	-	-	particle	A2	а, понятно	oh, I see	informal spoken sign of understanding
+dehogy	-	-	particle	A2	ну что вы, нет	of course not	spoken emphatic denial; common
+tök	-	-	particle	A2	очень, супер	really, very	everyday intensifier (tök jó); not vulgar
+szóval	-	-	particle	A2	итак, значит	so, well	spoken topic opener or resumer
+ugye	-	-	particle	A2	ведь, правда	right? isn't it?	spoken tag particle; very common
+mondjuk	-	-	particle	B1	скажем, допустим	let's say	spoken hedge for examples and concessions
+amúgy	-	-	particle	A2	кстати, вообще	by the way	colloquial counterpart of egyébként
+egyébként	-	-	particle	B1	кстати, вообще-то	by the way, anyway	one of the most frequent spoken discourse markers
+mármint	-	-	particle	B1	то есть, в смысле	I mean	spoken self-repair marker
+vagyis	-	-	particle	B1	то есть	that is	spoken self-repair marker
+izé	-	-	particle	A2	это самое	whatchamacallit	common spoken placeholder for a forgotten word
+öö	-	-	interjection	A2	э-э	um, er	written hesitation sound in speech
+szia	-	-	greeting	A1	привет, пока	hi, bye	standard informal greeting and farewell
+sziasztok	-	-	greeting	A1	всем привет	hi all	plural of szia
+szervusz	-	-	greeting	A1	здравствуй	hello	informal greeting, older-sounding but common
+helló	-	-	greeting	A1	привет	hello	informal greeting
+heló	-	-	greeting	A1	привет	hello	spelling variant of helló
+halló	-	-	interjection	A1	алло	hello (phone)	phone greeting and attention call
+üdv	-	-	greeting	A2	привет, здравствуйте	hi, regards	informal short greeting, also a chat sign-off
+csókolom	-	-	greeting	A2	здравствуйте (старшим)	hello (to an older person)	child or young speaker greeting an older woman
+viszlát	-	-	greeting	A1	до свидания	bye	informal farewell
+pá	-	-	greeting	A1	пока	bye	informal farewell, common
+pápá	-	-	greeting	A1	пока-пока	bye-bye	informal farewell, child and family talk
+csá	-	-	greeting	B1	чао, здорово	hey	peer-only greeting; keep to friends and chat
+mizu	-	-	greeting	B1	как дела?	what's up	youth greeting from mi újság; informal, not vulgar
+puszi	-	-	chat	A2	целую	kiss, xoxo	common closing in friendly messages
+kösz	-	-	greeting	A1	спасибо	thanks	clipped köszönöm, informal
+köszi	-	-	greeting	A1	спасибо	thanks	clipped köszönöm, informal, very common
+bocsi	-	-	greeting	A1	прости, извини	sorry	clipped bocsánat, informal, very common
+bocs	-	-	greeting	A1	прости	sorry	clipped bocsánat, informal
+bocsánat	-	-	greeting	A1	извините	sorry, excuse me	standard apology, spoken everywhere
+elnézést	-	-	greeting	A1	извините	excuse me	standard polite apology
+szuper	-	-	particle	A1	супер	great, super	spoken praise
+király	-	-	particle	A2	круто	cool, awesome	spoken praise; also the word 'king'
+tényleg	-	-	particle	A2	правда, на самом деле	really	spoken reaction and question particle
+hűha	-	-	interjection	A2	ух ты	wow	spoken surprise
+hú	-	-	interjection	A2	ух	phew, wow	spoken surprise or effort
+nyugi	-	-	clipping	A2	спокойно	relax, easy	clipped nyugodt, common in speech
+dehát	-	-	particle	B1	но ведь	but then	spoken fixed compound of de and hát
+suli	-	-	clipping	A1	школа	school	clipped iskola; neutral colloquial
+ovi	-	-	clipping	A2	детский сад	kindergarten	clipped óvoda, common in family talk
+kaja	-	-	clipping	A1	еда	food	colloquial word for food; very common
+szülinap	-	-	clipping	A2	день рождения	birthday	clipped születésnap; used by all ages
+buli	-	-	clipping	A2	вечеринка	party	colloquial party; common
+cuki	-	-	clipping	A2	милый	cute	colloquial cute; common
+gimi	-	-	clipping	B1	гимназия	secondary school	clipped gimnázium; common
+uni	-	-	clipping	B1	универ	university	clipped egyetem; common
+nemtom	-	-	contraction	A2	не знаю	dunno	spoken contraction of nem tudom; informal
+mittudomén	-	-	contraction	B1	мало ли что, не знаю	whatever, who knows	spoken contraction of mit tudom én; informal filler
+kéne	-	-	contraction	A2	надо бы	should	spoken contraction of kellene
+sztem	-	-	chat	B1	по-моему	imo	chat abbreviation of szerintem; written only
+
+[banned]
+# stem or exact form$	note
+kurv	kurva and derived; vulgar
+bazd	bazdmeg; vulgar
+bazmeg	vulgar
+geci	vulgar
+fasz$	vulgar (exact: fa+sz compounds such as faszekrény are not hit)
+fasza$	vulgar in this sense; avoid
+faszt$	vulgar
+faszom	vulgar
+faszkalap	vulgar
+faszfej	vulgar
+faszba	vulgar
+faszos	vulgar
+faszság	vulgar
+lófasz	vulgar
+szar$	vulgar (exact: szarvas, szarka are fine)
+szart$	vulgar
+szarok$	vulgar
+szaros	vulgar
+szarul$	vulgar
+szarság	vulgar
+szarház	vulgar
+picsa	vulgar
+pina$	vulgar
+pinát$	vulgar
+pöcs	vulgar
+baszd	vulgar
+bassz	vulgar (also basszus)
+baszki	vulgar
+baszik	vulgar
+baszni	vulgar
+baszt	vulgar
+baszás	vulgar
+kibasz	vulgar
+segg	vulgar (seggfej, seggnyaló)
+fos$	vulgar
+szopd	vulgar
+szopj	vulgar
+buzi	slur
+buzer	slur
+ribanc	slur
+kuraf	vulgar
+rohadék	insult
+retard	slur
+nigg	slur

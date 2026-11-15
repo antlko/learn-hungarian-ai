@@ -1,0 +1,575 @@
+{
+  "talk": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "У школьных ворот",
+      "en": "At the school gate"
+    },
+    "names": [
+      "Dóri",
+      "Peti",
+      "Gergő",
+      "Bence",
+      "Erika"
+    ],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Szia, Dóri! Te is korán jöttél?",
+          "ru": "Привет, Дори! Ты тоже рано пришла?",
+          "en": "Hi, Dóri! Did you come early too?"
+        },
+        {
+          "who": "B",
+          "hu": "Szia, Peti! Hát, tegnap elkéstem, és Gergő nagyon mérges volt.",
+          "ru": "Привет, Пети! Ну, вчера я опоздала, и Гергё очень сердился.",
+          "en": "Hi, Peti! Well, I was late yesterday and Gergő was really cross."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, ismerem! Bence is nagyon szomorú lesz, ha nem én várom az ajtónál.",
+          "ru": "Ой, знаю! Бенце тоже очень грустит, если его у двери жду не я.",
+          "en": "Oh, I know! Bence gets very sad too if I am not the one waiting at the door."
+        },
+        {
+          "who": "B",
+          "hu": "Nyugi, mindjárt kijönnek. Amúgy kaptál üzenetet a kirándulásról?",
+          "ru": "Спокойно, сейчас выйдут. Кстати, ты получил сообщение об экскурсии?",
+          "en": "Relax, they are coming out soon. By the way, did you get the message about the trip?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, pénteken mennek. Szóval kell víz, ebéd és egy kis táska.",
+          "ru": "Да, они едут в пятницу. Значит, нужны вода, обед и небольшая сумка.",
+          "en": "Yes, they go on Friday. So they need water, lunch and a small bag."
+        },
+        {
+          "who": "B",
+          "hu": "Király. És pénzt is kell adni?",
+          "ru": "Круто. А деньги нужно давать?",
+          "en": "Cool. And do we have to give money too?"
+        },
+        {
+          "who": "A",
+          "hu": "Nem tudom, azt írták, hogy ingyen van, de megkérdezem a tanítónőt.",
+          "ru": "Не знаю, написали, что бесплатно, но я спрошу учительницу.",
+          "en": "I don't know, they wrote that it is free, but I will ask the teacher."
+        },
+        {
+          "who": "B",
+          "hu": "Jó. Egyébként a szülői értekezlet is jövő héten lesz, ugye?",
+          "ru": "Хорошо. Кстати, родительское собрание тоже на следующей неделе, да?",
+          "en": "Okay. By the way, the parents' meeting is next week too, right?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, csütörtökön. Én tényleg nem tudok menni, mert dolgozom.",
+          "ru": "Да, в четверг. Я правда не смогу пойти, потому что работаю.",
+          "en": "Yes, on Thursday. I really cannot go, because I am working."
+        },
+        {
+          "who": "B",
+          "hu": "Persze, elmegyek én. Majd elmondom, mi volt.",
+          "ru": "Конечно, я схожу. Потом расскажу, как всё прошло.",
+          "en": "Sure, I will go. I will tell you afterwards what happened."
+        },
+        {
+          "who": "A",
+          "hu": "Köszi, nagyon jó vagy! Hú, nézd, Bence már jön is!",
+          "ru": "Спасибо, ты очень добрая! Ух, смотри, Бенце уже идёт!",
+          "en": "Thanks, you are very kind! Wow, look, Bence is coming already!"
+        },
+        {
+          "who": "C",
+          "hu": "Jó napot! Bence ma nagyon ügyes volt, csak sokat beszélt.",
+          "ru": "Добрый день! Бенце сегодня был очень молодец, только много болтал.",
+          "en": "Good afternoon! Bence was very good today, he just talked a lot."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm, Erika néni, majd beszélek vele. Hát, ez a Bence!",
+          "ru": "Спасибо, тётя Эрика, я поговорю с ним. Ну, этот Бенце!",
+          "en": "Thank you, Erika néni, I will talk to him. Well, that Bence!"
+        },
+        {
+          "who": "B",
+          "hu": "Nézd, Gergő is jön. Szia, Gergő! Milyen napod volt?",
+          "ru": "Смотри, Гергё тоже идёт. Привет, Гергё! Как прошёл день?",
+          "en": "Look, Gergő is coming too. Hi, Gergő! How was your day?"
+        },
+        {
+          "who": "A",
+          "hu": "Nézd, mosolyognak és futnak. Boldogok!",
+          "ru": "Смотри, улыбаются и бегут. Счастливы!",
+          "en": "Look, they are smiling and running. Happy!"
+        },
+        {
+          "who": "B",
+          "hu": "Na, menjünk! Holnap találkozunk, Peti. Szép estét! Pá!",
+          "ru": "Ну, пойдём! До завтра, Пети. Хорошего вечера! Пока!",
+          "en": "Right, let's go! See you tomorrow, Peti. Have a nice evening! Bye!"
+        },
+        {
+          "who": "A",
+          "hu": "Pá, Dóri! Köszi még egyszer, tényleg! Szia!",
+          "ru": "Пока, Дори! Ещё раз спасибо, правда! Пока!",
+          "en": "Bye, Dóri! Thanks again, really! Bye!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "reggeli-atadas",
+      "title": {
+        "ru": "Утром в садике",
+        "en": "Morning drop-off"
+      },
+      "scene": {
+        "ru": "Мама приводит Зофи в садик, девочка не отпускает руку.",
+        "en": "A mother brings Zsófi to kindergarten and she will not let go."
+      },
+      "names": [
+        "Kati",
+        "Zsófi"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó reggelt, Kati néni! Bocsi, kicsit késtünk.",
+          "ru": "Доброе утро, тётя Кати! Простите, мы немного опоздали.",
+          "en": "Good morning, Kati néni! Sorry, we are a little late."
+        },
+        {
+          "who": "B",
+          "hu": "Jó reggelt! Semmi baj, még csak reggeliznek.",
+          "ru": "Доброе утро! Ничего страшного, они ещё только завтракают.",
+          "en": "Good morning! No problem, they are only having breakfast."
+        },
+        {
+          "who": "A",
+          "hu": "Zsófi ma nagyon fogja a kezem.",
+          "ru": "Зофи сегодня крепко держит мою руку.",
+          "en": "Zsófi is holding my hand very tight today."
+        },
+        {
+          "who": "B",
+          "hu": "Nyugi, ez néha így van. Zsófi, jössz rajzolni?",
+          "ru": "Спокойно, так бывает. Зофи, пойдёшь рисовать?",
+          "en": "Relax, it happens sometimes. Zsófi, are you coming to draw?"
+        },
+        {
+          "who": "A",
+          "hu": "Hát, a játéka otthon maradt.",
+          "ru": "Ну, её игрушка осталась дома.",
+          "en": "Well, her toy stayed at home."
+        },
+        {
+          "who": "B",
+          "hu": "Semmi gond, van itt játék elég.",
+          "ru": "Не беда, игрушек тут хватает.",
+          "en": "No problem, there are plenty of toys here."
+        },
+        {
+          "who": "A",
+          "hu": "Négy órakor jövök érte.",
+          "ru": "Я приду за ней в четыре часа.",
+          "en": "I will come for her at four o'clock."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. Ha nagyon sír, azonnal hívom.",
+          "ru": "Хорошо. Если она сильно заплачет, сразу позвоню.",
+          "en": "All right. If she cries a lot, I will call at once."
+        },
+        {
+          "who": "A",
+          "hu": "Köszi! Zsófi, pá, délután jövök!",
+          "ru": "Спасибо! Зофи, пока, я приду днём!",
+          "en": "Thanks! Zsófi, bye, I am coming in the afternoon!"
+        },
+        {
+          "who": "B",
+          "hu": "Pápá! Már mosolyog is.",
+          "ru": "Пока-пока! Она уже улыбается.",
+          "en": "Bye-bye! She is smiling already."
+        }
+      ]
+    },
+    {
+      "slug": "elvitel-rajz",
+      "title": {
+        "ru": "Забирать из садика",
+        "en": "Picking up"
+      },
+      "scene": {
+        "ru": "Мама забирает Зофи, девочка показывает рисунок.",
+        "en": "A mother picks up Zsófi, who shows her a drawing."
+      },
+      "names": [
+        "Kati",
+        "Zsófi"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "C",
+          "hu": "Anya, nézd, ezt rajzoltam!",
+          "ru": "Мама, смотри, это я нарисовала!",
+          "en": "Mum, look, I drew this!"
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, de szép! Ez ki, a kutyánk?",
+          "ru": "Ой, как красиво! Кто это, наша собака?",
+          "en": "Oh, how nice! Who is this, our dog?"
+        },
+        {
+          "who": "C",
+          "hu": "Nem, ez Kati néni!",
+          "ru": "Нет, это тётя Кати!",
+          "en": "No, this is Kati néni!"
+        },
+        {
+          "who": "B",
+          "hu": "Hú, köszi, Zsófi! Remélem, tényleg így nézek ki.",
+          "ru": "Ух, спасибо, Зофи! Надеюсь, я и правда так выгляжу.",
+          "en": "Wow, thanks, Zsófi! I hope I really look like that."
+        },
+        {
+          "who": "A",
+          "hu": "Bocsánat, ezt még gyakoroljuk otthon.",
+          "ru": "Простите, это мы ещё потренируем дома.",
+          "en": "Sorry, we will practise this at home."
+        },
+        {
+          "who": "B",
+          "hu": "Dehogy, nagyon cuki. Jól evett ma, és kért még.",
+          "ru": "Что вы, очень мило. Сегодня хорошо ела и просила добавки.",
+          "en": "Not at all, it is very cute. She ate well today and asked for more."
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg? Reggel semmit sem akart.",
+          "ru": "Правда? Утром ничего не хотела.",
+          "en": "Really? This morning she wanted nothing."
+        },
+        {
+          "who": "B",
+          "hu": "Ma jó napja volt. Holnap találkozunk!",
+          "ru": "Сегодня у неё был хороший день. До завтра!",
+          "en": "She had a good day today. See you tomorrow!"
+        },
+        {
+          "who": "A",
+          "hu": "Szia, Kati néni! Zsófi, mondd, hogy szia!",
+          "ru": "Пока, тётя Кати! Зофи, скажи пока!",
+          "en": "Bye, Kati néni! Zsófi, say bye!"
+        }
+      ]
+    },
+    {
+      "slug": "beteg-telefon",
+      "title": {
+        "ru": "Ребёнок заболел",
+        "en": "A sick child"
+      },
+      "scene": {
+        "ru": "Мама звонит в садик, Зофи заболела.",
+        "en": "A mother phones the kindergarten, Zsófi is ill."
+      },
+      "names": [
+        "Zsófi"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Halló, jó reggelt! Zsófi anyukája vagyok.",
+          "ru": "Алло, доброе утро! Я мама Зофи.",
+          "en": "Hello, good morning! I am Zsófi's mother."
+        },
+        {
+          "who": "B",
+          "hu": "Jó reggelt! Minden rendben?",
+          "ru": "Доброе утро! Всё в порядке?",
+          "en": "Good morning! Is everything all right?"
+        },
+        {
+          "who": "A",
+          "hu": "Nem egészen. Zsófi beteg, ma otthon marad.",
+          "ru": "Не совсем. Зофи заболела, сегодня останется дома.",
+          "en": "Not quite. Zsófi is ill, she is staying at home today."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, ez rossz! Mi baja van?",
+          "ru": "Ой, это плохо! Что с ней?",
+          "en": "Oh, that is bad! What is wrong with her?"
+        },
+        {
+          "who": "A",
+          "hu": "Fáj a feje, és nem eszik semmit.",
+          "ru": "У неё болит голова, и она ничего не ест.",
+          "en": "She has a headache and eats nothing."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, szegény! Orvoshoz mennek?",
+          "ru": "Ой, бедняжка! К врачу пойдёте?",
+          "en": "Oh, poor thing! Are you seeing a doctor?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, tízre megyünk. Majd írok, mit mond.",
+          "ru": "Да, мы идём к десяти. Потом напишу, что он скажет.",
+          "en": "Yes, we are going for ten. I will write what he says."
+        },
+        {
+          "who": "B",
+          "hu": "Jó, köszönöm. Szóljon, ha jobban van.",
+          "ru": "Хорошо, спасибо. Скажите, когда ей станет лучше.",
+          "en": "All right, thank you. Let me know when she is better."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben. Köszönöm, további szép napot!",
+          "ru": "Хорошо. Спасибо, хорошего дня!",
+          "en": "All right. Thank you, have a nice day!"
+        },
+        {
+          "who": "B",
+          "hu": "Remélem, gyorsan jobban lesz. Önnek is!",
+          "ru": "Надеюсь, скоро поправится. И вам!",
+          "en": "I hope she gets better soon. You too!"
+        }
+      ]
+    },
+    {
+      "slug": "jatszoter-jatek",
+      "title": {
+        "ru": "На детской площадке",
+        "en": "On the playground"
+      },
+      "scene": {
+        "ru": "Двое родителей знакомятся, пока дети делят игрушку.",
+        "en": "Two parents meet while their children share a toy."
+      },
+      "names": [
+        "Marci",
+        "Lili",
+        "Napsugár"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jaj, bocsi, Marci nem adja vissza a játékot!",
+          "ru": "Ой, простите, Марци не отдаёт игрушку!",
+          "en": "Oh, sorry, Marci will not give the toy back!"
+        },
+        {
+          "who": "B",
+          "hu": "Nyugi, náluk ez mindig így van. Hány éves?",
+          "ru": "Спокойно, у них это всегда так. Сколько ему лет?",
+          "en": "Relax, it is always like this with them. How old is he?"
+        },
+        {
+          "who": "A",
+          "hu": "Három múlt. Lili is három?",
+          "ru": "Три исполнилось. Лили тоже три?",
+          "en": "Just turned three. Is Lili three too?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, még csak két és fél, de már sokat beszél.",
+          "ru": "Нет, ей только два с половиной, но она уже много говорит.",
+          "en": "No, she is only two and a half, but she already talks a lot."
+        },
+        {
+          "who": "A",
+          "hu": "Nézd, most már együtt játszanak!",
+          "ru": "Смотри, теперь они уже играют вместе!",
+          "en": "Look, now they are playing together!"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, jó. Hova jár Marci, oviba?",
+          "ru": "Ну и хорошо. В какой садик ходит Марци?",
+          "en": "Well, good. Which kindergarten does Marci go to?"
+        },
+        {
+          "who": "A",
+          "hu": "A Napsugárba. Ti hova mentek?",
+          "ru": "В Напшугар. А вы куда пойдёте?",
+          "en": "To the Napsugár. Where are you going?"
+        },
+        {
+          "who": "B",
+          "hu": "Mi is oda megyünk ősszel!",
+          "ru": "Мы тоже пойдём туда осенью!",
+          "en": "We are going there too in the autumn!"
+        },
+        {
+          "who": "A",
+          "hu": "Király! Akkor holnap itt találkozunk.",
+          "ru": "Круто! Тогда завтра встретимся здесь.",
+          "en": "Cool! Then we will meet here tomorrow."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. Marci, pá! Lili, szia!",
+          "ru": "Договорились. Марци, пока! Лили, пока!",
+          "en": "Agreed. Marci, bye! Lili, bye!"
+        }
+      ]
+    },
+    {
+      "slug": "iskolai-papir",
+      "title": {
+        "ru": "Бумага для школы",
+        "en": "The school form"
+      },
+      "scene": {
+        "ru": "Родитель сдаёт бумагу в школьном секретариате.",
+        "en": "A parent hands in a form at the school office."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot! Az iskolai papírt hoztam.",
+          "ru": "Здравствуйте! Я принёс школьную бумагу.",
+          "en": "Hello! I brought the school form."
+        },
+        {
+          "who": "B",
+          "hu": "Tessék. Hol az aláírás?",
+          "ru": "Пожалуйста. А где подпись?",
+          "en": "Here you are. Where is the signature?"
+        },
+        {
+          "who": "A",
+          "hu": "Hoppá, az nincs rajta. Van egy tolla?",
+          "ru": "Опа, подписи нет. Есть у вас ручка?",
+          "en": "Oops, it is not on there. Do you have a pen?"
+        },
+        {
+          "who": "B",
+          "hu": "Tessék, itt írja alá, lent, kérem.",
+          "ru": "Пожалуйста, подпишите здесь, внизу.",
+          "en": "Here you are, sign here, at the bottom, please."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm. A telefonszám is kell, vagy csak a név?",
+          "ru": "Спасибо. Номер телефона тоже нужен, или только имя?",
+          "en": "Thank you. Is the phone number needed too, or only the name?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, az nagyon fontos. Itt, fent.",
+          "ru": "Да, это очень важно. Вот здесь, вверху.",
+          "en": "Yes, that is very important. Here, at the top."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben. Mikor kapok választ?",
+          "ru": "Хорошо. Когда будет ответ?",
+          "en": "All right. When will I get an answer?"
+        },
+        {
+          "who": "B",
+          "hu": "Jövő héten. Majd írunk.",
+          "ru": "На следующей неделе. Мы напишем.",
+          "en": "Next week. We will write."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm. Viszontlátásra!",
+          "ru": "Отлично, спасибо. До свидания!",
+          "en": "Great, thanks. Goodbye!"
+        },
+        {
+          "who": "B",
+          "hu": "Viszontlátásra, szép napot!",
+          "ru": "До свидания, хорошего дня!",
+          "en": "Goodbye, have a nice day!"
+        }
+      ]
+    },
+    {
+      "slug": "hivatal-masolat",
+      "title": {
+        "ru": "Окошко с ребёнком",
+        "en": "The office window"
+      },
+      "scene": {
+        "ru": "Мама с сыном просит копию документа в окошке.",
+        "en": "A mother with her son asks for a copy at the office window."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Másolatot kérek erről.",
+          "ru": "Здравствуйте! Мне нужна копия этого.",
+          "en": "Good day! I need a copy of this."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. Az eredeti is itt van?",
+          "ru": "Хорошо. Оригинал тоже здесь?",
+          "en": "All right. Is the original here too?"
+        },
+        {
+          "who": "A",
+          "hu": "Persze. Bocsánat, a kisfiam kicsit hangos.",
+          "ru": "Конечно. Простите, мой сынок немного шумный.",
+          "en": "Of course. Sorry, my little son is a bit loud."
+        },
+        {
+          "who": "C",
+          "hu": "Anya, mikor megyünk már?",
+          "ru": "Мама, когда мы уже пойдём?",
+          "en": "Mum, when are we going already?"
+        },
+        {
+          "who": "A",
+          "hu": "Mindjárt, kicsim. Csak egy perc.",
+          "ru": "Сейчас, малыш. Ещё одну минуту.",
+          "en": "Soon, darling. Just one minute."
+        },
+        {
+          "who": "B",
+          "hu": "Semmi baj. Itt a másolat, és az eredeti.",
+          "ru": "Ничего страшного. Вот копия и оригинал.",
+          "en": "Relax, no problem. Here is the copy, and the original."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm szépen. Mennyibe kerül ez?",
+          "ru": "Большое спасибо. Сколько это стоит?",
+          "en": "Thank you very much. How much is it?"
+        },
+        {
+          "who": "B",
+          "hu": "Semmibe sem kerül, ingyenes.",
+          "ru": "Это бесплатно.",
+          "en": "It costs nothing, it is free."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper! Na, gyere, kicsim, menjünk haza.",
+          "ru": "Отлично! Ну, пойдём, малыш, домой.",
+          "en": "Great! Come on, darling, let us go home."
+        }
+      ]
+    }
+  ]
+}

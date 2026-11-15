@@ -1,0 +1,573 @@
+{
+  "talk": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "Новоселье",
+      "en": "A flat-warming visit"
+    },
+    "names": [
+      "Bence"
+    ],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Szia, Bence! Gyere be, tedd le a kabátot és a táskát.",
+          "ru": "Привет, Бенце! Заходи, повесь куртку и сумку.",
+          "en": "Hi, Bence! Come in, put your coat and bag down."
+        },
+        {
+          "who": "B",
+          "hu": "Szia! Hoztam egy kis virágot és egy vázát.",
+          "ru": "Привет! Я принёс немного цветов и вазу.",
+          "en": "Hi! I brought some flowers and a vase."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, köszi, de cuki! Pont ilyen vázám nincs.",
+          "ru": "Ой, спасибо, как мило! Такой вазы у меня как раз нет.",
+          "en": "Oh, thanks, how sweet! I don't have a vase like this."
+        },
+        {
+          "who": "B",
+          "hu": "Hűha, mennyi minden van már itt! Szép a lakás.",
+          "ru": "Ух ты, сколько уже всего! Красивая квартира.",
+          "en": "Wow, you already have so much here! Nice flat."
+        },
+        {
+          "who": "A",
+          "hu": "Köszi. Még van sok doboz, de a konyha már kész.",
+          "ru": "Спасибо. Коробок ещё много, но кухня уже готова.",
+          "en": "Thanks. There are still many boxes, but the kitchen is ready."
+        },
+        {
+          "who": "B",
+          "hu": "A hűtőszekrény új? Nagyon nagy!",
+          "ru": "Холодильник новый? Очень большой!",
+          "en": "Is the fridge new? It is very big!"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, az volt a legfontosabb. Gyere, nézd a szobát.",
+          "ru": "Да, это было важнее всего. Пойдём, посмотри комнату.",
+          "en": "Yes, that was the most important thing. Come and see the room."
+        },
+        {
+          "who": "B",
+          "hu": "Király! Itt a könyvespolc, ott az íróasztal. Hol alszol?",
+          "ru": "Круто! Тут книжная полка, там письменный стол. Где ты спишь?",
+          "en": "Cool! The bookshelf is here, the desk there. Where do you sleep?"
+        },
+        {
+          "who": "A",
+          "hu": "Itt, a matrac még a földön van. Az ágy majd jön.",
+          "ru": "Здесь, матрас пока на полу. Кровать ещё привезут.",
+          "en": "Here, the mattress is still on the floor. The bed is coming later."
+        },
+        {
+          "who": "B",
+          "hu": "És a festmény? Az is új, vagy régi?",
+          "ru": "А картина? Она тоже новая или старая?",
+          "en": "And the painting? Is that new too, or old?"
+        },
+        {
+          "who": "A",
+          "hu": "Nem, anyától kaptam. Ide kéne tenni a falra, de nincs kalapács.",
+          "ru": "Нет, это от мамы. Её надо бы повесить сюда, но молотка нет.",
+          "en": "No, my mum gave it to me. It should go here, but I have no hammer."
+        },
+        {
+          "who": "B",
+          "hu": "Nekem van otthon, mindjárt hozom.",
+          "ru": "У меня дома есть, сейчас принесу.",
+          "en": "I have one at home, I will bring it in a minute."
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg? Szuper! Addig főzök kávét.",
+          "ru": "Правда? Супер! А пока сварю кофе.",
+          "en": "Really? Great! Meanwhile I'll make coffee."
+        },
+        {
+          "who": "B",
+          "hu": "Itt vagyok! Van szög?",
+          "ru": "Я здесь! Гвоздь есть?",
+          "en": "I am here! Do you have a nail?"
+        },
+        {
+          "who": "A",
+          "hu": "Van, a dobozban, ott a mosogató alatt.",
+          "ru": "Есть, в коробке под раковиной.",
+          "en": "Yes, in the box under the sink."
+        },
+        {
+          "who": "B",
+          "hu": "Megvan! Ide, jó? Egy kicsit feljebb?",
+          "ru": "Нашёл! Сюда, да? Чуть повыше?",
+          "en": "Found it! Here, right? A bit higher?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, ott. Hú, nagyon jó lett! Most már tényleg itthon vagyok.",
+          "ru": "Да, там. Ух, получилось отлично! Теперь я правда дома.",
+          "en": "Yes, there. Wow, it looks great! Now I really feel at home."
+        },
+        {
+          "who": "B",
+          "hu": "Akkor jöhet a kávé. Hol van a cukor?",
+          "ru": "Тогда можно и кофе. Где сахар?",
+          "en": "Then coffee can come. Where is the sugar?"
+        },
+        {
+          "who": "A",
+          "hu": "A polcon, a váza mellett. Köszi, hogy itt vagy!",
+          "ru": "На полке, рядом с вазой. Спасибо, что пришёл!",
+          "en": "On the shelf, next to the vase. Thanks for coming!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "hol-a-kulcs",
+      "title": {
+        "ru": "Где ключ?",
+        "en": "Where is the key?"
+      },
+      "scene": {
+        "ru": "Брат и сестра торопятся уйти.",
+        "en": "Brother and sister are in a hurry to leave."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Hol a kulcsom? Nem találom!",
+          "ru": "Где мой ключ? Не могу найти!",
+          "en": "Where is my key? I can't find it!"
+        },
+        {
+          "who": "B",
+          "hu": "Nézd meg a kabátban.",
+          "ru": "Посмотри в куртке.",
+          "en": "Check your coat."
+        },
+        {
+          "who": "A",
+          "hu": "Ott nincs. A táskában sincs.",
+          "ru": "Там нет. И в сумке нет.",
+          "en": "It's not there. Not in the bag either."
+        },
+        {
+          "who": "B",
+          "hu": "Mikor láttad utoljára?",
+          "ru": "Когда ты видел его в последний раз?",
+          "en": "When did you last see it?"
+        },
+        {
+          "who": "A",
+          "hu": "Nem tudom. Tegnap este még nálam volt.",
+          "ru": "Не знаю. Вчера вечером ещё был у меня.",
+          "en": "Dunno. Last night I still had it with me."
+        },
+        {
+          "who": "B",
+          "hu": "Hát az ajtóban? Ott van valami.",
+          "ru": "А в двери? Там что-то есть.",
+          "en": "What about the door? There's something there."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, tényleg! Az ajtóban van a kulcs!",
+          "ru": "Ой, правда! Ключ в двери!",
+          "en": "Oh, really! The key is in the door!"
+        },
+        {
+          "who": "B",
+          "hu": "Na látod. Nyugi, nem késünk el.",
+          "ru": "Ну вот. Спокойно, мы не опоздаем.",
+          "en": "See? Easy, we won't be late."
+        },
+        {
+          "who": "A",
+          "hu": "Köszi! Most már megyünk, vagy kell még valami?",
+          "ru": "Спасибо! Теперь идём, или нужно что-то ещё?",
+          "en": "Thanks! Are we going now, or do we need something else?"
+        },
+        {
+          "who": "B",
+          "hu": "Csak a táska. Az az ajtó mellett van.",
+          "ru": "Только сумка. Она у двери.",
+          "en": "Only the bag. It's by the door."
+        }
+      ]
+    },
+    {
+      "slug": "a-szemuveg",
+      "title": {
+        "ru": "Очки",
+        "en": "The glasses"
+      },
+      "scene": {
+        "ru": "Муж и жена дома, вечер.",
+        "en": "A couple at home in the evening."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Hol van a szemüvegem? Nem látok semmit!",
+          "ru": "Где мои очки? Я ничего не вижу!",
+          "en": "Where are my glasses? I can't see anything!"
+        },
+        {
+          "who": "B",
+          "hu": "Mikor volt utoljára nálad?",
+          "ru": "Когда они в последний раз были у тебя?",
+          "en": "When did you last have them?"
+        },
+        {
+          "who": "A",
+          "hu": "Az előbb olvastam az újságot. Az asztalon volt.",
+          "ru": "Только что читал газету. Были на столе.",
+          "en": "I was reading the paper a moment ago. They were on the table."
+        },
+        {
+          "who": "B",
+          "hu": "Ott nincs. Rajtad van!",
+          "ru": "Там нет. Они же на тебе!",
+          "en": "Not there. You are wearing them!"
+        },
+        {
+          "who": "A",
+          "hu": "Hogy? Jé, tényleg itt van!",
+          "ru": "Что? Ого, и правда тут!",
+          "en": "What? Oh, they really are here!"
+        },
+        {
+          "who": "B",
+          "hu": "Na tessék. Mindig ezt csinálod!",
+          "ru": "Ну вот. Ты всегда так делаешь!",
+          "en": "There you go. You always do this!"
+        },
+        {
+          "who": "A",
+          "hu": "Nem mindig! Csak néha.",
+          "ru": "Не всегда! Только иногда.",
+          "en": "Not always! Only sometimes."
+        },
+        {
+          "who": "B",
+          "hu": "Persze, persze. Kérsz még egy teát?",
+          "ru": "Конечно, конечно. Ещё чаю хочешь?",
+          "en": "Sure, sure. Do you want more tea?"
+        },
+        {
+          "who": "A",
+          "hu": "Köszi, igen. Most már legalább látom a teát.",
+          "ru": "Спасибо, да. Теперь хотя бы вижу чай.",
+          "en": "Thanks, yes. At least I can see the tea now."
+        }
+      ]
+    },
+    {
+      "slug": "a-telefon",
+      "title": {
+        "ru": "Где телефон?",
+        "en": "Where is the phone?"
+      },
+      "scene": {
+        "ru": "Сын ищет телефон, мама помогает.",
+        "en": "A son looks for his phone, mum helps."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Anya, hol a telefonom?",
+          "ru": "Мам, где мой телефон?",
+          "en": "Mum, where is my phone?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem tudom. Mikor volt nálad utoljára?",
+          "ru": "Не знаю. Когда он был у тебя в последний раз?",
+          "en": "I don't know. When did you last have it?"
+        },
+        {
+          "who": "A",
+          "hu": "Nem emlékszem. Felhívsz?",
+          "ru": "Не помню. Позвонишь мне?",
+          "en": "I don't remember. Will you call it?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze. Hallod már?",
+          "ru": "Конечно. Слышишь?",
+          "en": "Sure. Can you hear it?"
+        },
+        {
+          "who": "A",
+          "hu": "Hallom! A kanapé alatt van!",
+          "ru": "Слышу! Он под диваном!",
+          "en": "I hear it! It's under the sofa!"
+        },
+        {
+          "who": "B",
+          "hu": "Na látod. Itt van a kanapé alatt.",
+          "ru": "Вот видишь. Она здесь, под диваном.",
+          "en": "See. It is here under the sofa."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, köszi! Hú, már tíz hívás van.",
+          "ru": "Ой, спасибо! Ух, уже десять звонков.",
+          "en": "Oh, thanks! Wow, ten calls already."
+        },
+        {
+          "who": "B",
+          "hu": "Én voltam. Most már ne keresd!",
+          "ru": "Это была я. Теперь не ищи!",
+          "en": "That was me. Now stop looking!"
+        },
+        {
+          "who": "A",
+          "hu": "Bocsi, anya. Legközelebb a zsebemben lesz.",
+          "ru": "Прости, мам. В следующий раз он будет в кармане.",
+          "en": "Sorry, mum. Next time it'll be in my pocket."
+        },
+        {
+          "who": "B",
+          "hu": "Ühüm. Ezt már hallottam.",
+          "ru": "Угу. Это я уже слышала.",
+          "en": "Uh-huh. I've heard that before."
+        }
+      ]
+    },
+    {
+      "slug": "rendet-csinalni",
+      "title": {
+        "ru": "Убери игрушки",
+        "en": "Tidy up"
+      },
+      "scene": {
+        "ru": "Мама и сын убирают перед ужином.",
+        "en": "A mum and her son tidy before dinner."
+      },
+      "names": [
+        "Peti"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Peti, vacsora lesz. Csinálj rendet, kérlek!",
+          "ru": "Пети, скоро ужин. Наведи порядок, пожалуйста!",
+          "en": "Peti, dinner is coming. Please tidy up!"
+        },
+        {
+          "who": "B",
+          "hu": "Még játszom, anya.",
+          "ru": "Я ещё играю, мам.",
+          "en": "I'm still playing, mum."
+        },
+        {
+          "who": "A",
+          "hu": "A játékok mindenhol vannak. Hol a doboz?",
+          "ru": "Игрушки повсюду. Где коробка?",
+          "en": "Toys are everywhere. Where is the box?"
+        },
+        {
+          "who": "B",
+          "hu": "Az ágy alatt. Jó, jó, megyek.",
+          "ru": "Под кроватью. Ладно, ладно, иду.",
+          "en": "Under the bed. Okay, okay, I'm coming."
+        },
+        {
+          "who": "A",
+          "hu": "Ez a kocka hová való?",
+          "ru": "Этот кубик куда?",
+          "en": "Where does this block go?"
+        },
+        {
+          "who": "B",
+          "hu": "Ide, a dobozba. Kész is vagyok!",
+          "ru": "Сюда, в коробку. Я уже закончил!",
+          "en": "Here, in the box. I'm done!"
+        },
+        {
+          "who": "A",
+          "hu": "Hát nem egészen. Itt még a zokni.",
+          "ru": "Ну, не совсем. Тут ещё носок.",
+          "en": "Well, not quite. There is still a sock here."
+        },
+        {
+          "who": "B",
+          "hu": "Hopp! A zokni a kosárba megy.",
+          "ru": "Опа! Носок идёт в корзину.",
+          "en": "Oops! The sock goes in the basket."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper. Most mosd meg a kezed!",
+          "ru": "Отлично. Теперь помой руки!",
+          "en": "Great. Now wash your hands!"
+        }
+      ]
+    },
+    {
+      "slug": "a-polc",
+      "title": {
+        "ru": "Полка",
+        "en": "The shelf"
+      },
+      "scene": {
+        "ru": "Друг пришёл помочь повесить полку.",
+        "en": "A friend comes over to help with a shelf."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia, jöttem! Hol a polc?",
+          "ru": "Привет, я пришёл! Где полка?",
+          "en": "Hi, I'm here! Where is the shelf?"
+        },
+        {
+          "who": "B",
+          "hu": "Itt a földön. Add ide a csavarhúzót!",
+          "ru": "Вот на полу. Подай отвёртку!",
+          "en": "Here on the floor. Pass me the screwdriver!"
+        },
+        {
+          "who": "A",
+          "hu": "Melyiket? Van kettő is.",
+          "ru": "Какую? Их две.",
+          "en": "Which one? There are two."
+        },
+        {
+          "who": "B",
+          "hu": "A kicsit. Nem, a másikat. Köszi.",
+          "ru": "Маленькую. Нет, другую. Спасибо.",
+          "en": "The small one. No, the other. Thanks."
+        },
+        {
+          "who": "A",
+          "hu": "Tartom a polcot? Jó így?",
+          "ru": "Держу полку? Так нормально?",
+          "en": "Am I holding the shelf right? Is it OK?"
+        },
+        {
+          "who": "B",
+          "hu": "Egy kicsit balra. Így. Na, kész!",
+          "ru": "Чуть левее. Вот так. Ну, готово!",
+          "en": "A bit to the left. Like this. Well, done!"
+        },
+        {
+          "who": "A",
+          "hu": "Szuper! És a könyvek?",
+          "ru": "Супер! А книги?",
+          "en": "Great! And the books?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze, de először kaja. Hozom!",
+          "ru": "Конечно, но сначала еда. Несу!",
+          "en": "Sure, but food first. I'll get it!"
+        },
+        {
+          "who": "A",
+          "hu": "Jó lesz ez a sok könyvnek?",
+          "ru": "Выдержит она столько книг?",
+          "en": "Will this be good for all the books?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze, erős polc. Nyugi.",
+          "ru": "Конечно, полка прочная. Спокойно.",
+          "en": "Sure, it is a strong shelf. Relax."
+        }
+      ]
+    },
+    {
+      "slug": "a-letra",
+      "title": {
+        "ru": "Одолжить лестницу",
+        "en": "Borrowing a ladder"
+      },
+      "scene": {
+        "ru": "Сосед просит стремянку у соседа.",
+        "en": "A neighbour asks another for a ladder."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot! Elnézést, nem zavarom?",
+          "ru": "Добрый день! Извините, я не помешаю?",
+          "en": "Good afternoon! Excuse me, am I disturbing you?"
+        },
+        {
+          "who": "B",
+          "hu": "Dehogy, nem zavar. Tessék, mondja.",
+          "ru": "Что вы, не мешаете. Слушаю, говорите.",
+          "en": "Not at all, you are not disturbing me. Go ahead."
+        },
+        {
+          "who": "A",
+          "hu": "Elromlott az izzó. Van egy létrája?",
+          "ru": "Лампочка сломалась. У вас есть стремянка?",
+          "en": "The bulb is broken. Do you have a ladder?"
+        },
+        {
+          "who": "B",
+          "hu": "Ja, az izzó. Van, a pincében.",
+          "ru": "А, лампочка. Есть, в подвале.",
+          "en": "Ah, the bulb. I do, in the cellar."
+        },
+        {
+          "who": "A",
+          "hu": "Holnap reggel hozom vissza, biztos.",
+          "ru": "Завтра утром верну, точно.",
+          "en": "I will bring it back tomorrow morning, for sure."
+        },
+        {
+          "who": "B",
+          "hu": "Semmi gond, nem sietek. Itt van, vigye.",
+          "ru": "Ничего страшного, я не спешу. Вот, берите.",
+          "en": "No problem, I am in no hurry. Here it is, take it."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm szépen, nagyon kedves.",
+          "ru": "Большое спасибо, вы очень любезны.",
+          "en": "Thank you very much, that's very kind."
+        },
+        {
+          "who": "B",
+          "hu": "Szívesen. Vigyázzon, nagyon nehéz!",
+          "ru": "Пожалуйста. Осторожно, очень тяжёлая!",
+          "en": "You are welcome. Careful, it is very heavy!"
+        },
+        {
+          "who": "A",
+          "hu": "Megvan. Még egyszer köszönöm, szép napot!",
+          "ru": "Взял. Ещё раз спасибо, хорошего дня!",
+          "en": "Got it. Thanks once more, have a nice day!"
+        },
+        {
+          "who": "B",
+          "hu": "Viszlát! Sok sikert!",
+          "ru": "До свидания! Удачи!",
+          "en": "Goodbye! Good luck!"
+        }
+      ]
+    }
+  ]
+}

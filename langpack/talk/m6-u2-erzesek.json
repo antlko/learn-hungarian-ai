@@ -1,0 +1,596 @@
+{
+ "talk": {
+  "genre": "dialogue",
+  "checked": "ai",
+  "title": {
+   "ru": "Спасибо от души",
+   "en": "A warm thank you"
+  },
+  "names": [
+   "Éva",
+   "Szabó"
+  ],
+  "paras": [
+   [
+    {
+     "who": "A",
+     "hu": "Csókolom, Szabó néni! Hogy érzi magát?",
+     "ru": "Здравствуйте, тётя Сабо! Как вы себя чувствуете?",
+     "en": "Hello, Mrs Szabó! How are you feeling?"
+    },
+    {
+     "who": "B",
+     "hu": "Jaj, Éva, drágám! Már sokkal jobban, köszönöm.",
+     "ru": "Ой, Ева, дорогая! Уже гораздо лучше, спасибо.",
+     "en": "Oh, Éva, dear! Much better already, thank you."
+    },
+    {
+     "who": "A",
+     "hu": "Jaj, ennek nagyon örülök. Hoztam kenyeret és tejet.",
+     "ru": "Ой, я очень рада. Я принесла хлеб и молоко.",
+     "en": "Oh, I am so glad. I brought bread and milk."
+    },
+    {
+     "who": "B",
+     "hu": "Jaj, ez nagyon kedves! Mennyivel tartozom?",
+     "ru": "Ой, как мило! Сколько я должна?",
+     "en": "Oh, how kind! How much do I owe you?"
+    },
+    {
+     "who": "A",
+     "hu": "Semmivel. Nyugodtan vegye el.",
+     "ru": "Нисколько. Спокойно берите.",
+     "en": "Nothing. Just take it."
+    },
+    {
+     "who": "B",
+     "hu": "Dehogy, nem hagyom! Legalább egy kávét igyál velem.",
+     "ru": "Ну что ты, не позволю! Хотя бы кофе выпей со мной.",
+     "en": "Oh no, I will not allow that! At least have a coffee with me."
+    },
+    {
+     "who": "A",
+     "hu": "Hát, jó. Van tíz percem.",
+     "ru": "Ну ладно. У меня есть десять минут.",
+     "en": "Well, all right. I have ten minutes."
+    },
+    {
+     "who": "B",
+     "hu": "Ülj le. Tudod, nagyon magányos voltam a kórházban.",
+     "ru": "Садись. Знаешь, мне было очень одиноко в больнице.",
+     "en": "Sit down. You know, I was very lonely in the hospital."
+    },
+    {
+     "who": "A",
+     "hu": "Tényleg? Senki sem látogatta meg?",
+     "ru": "Правда? Никто не навещал вас?",
+     "en": "Really? Did nobody visit you?"
+    },
+    {
+     "who": "B",
+     "hu": "A fiam csak egyszer jött. De te írtál nekem minden nap.",
+     "ru": "Мой сын приходил только раз. Но ты писала мне каждый день.",
+     "en": "My son came only once. But you wrote to me every day."
+    },
+    {
+     "who": "A",
+     "hu": "Az semmi volt. Csak egy kis üzenet.",
+     "ru": "Это пустяк. Просто маленькое сообщение.",
+     "en": "That was nothing. Just a little message."
+    },
+    {
+     "who": "B",
+     "hu": "Nekem ez nagyon fontos volt. Nagyon hálás vagyok.",
+     "ru": "Для меня это было очень важно. Я очень благодарна.",
+     "en": "It was very important to me. I am very grateful."
+    },
+    {
+     "who": "A",
+     "hu": "Én is nagyon szomorú voltam, amikor megtudtam az egészet.",
+     "ru": "Мне тоже было очень грустно, когда я обо всём узнала.",
+     "en": "I was very sad too when I found out about it all."
+    },
+    {
+     "who": "B",
+     "hu": "Aggódtál értem?",
+     "ru": "Ты переживала за меня?",
+     "en": "Were you worried about me?"
+    },
+    {
+     "who": "A",
+     "hu": "Persze, nagyon aggódtam. Most már minden jó.",
+     "ru": "Конечно, очень переживала. Теперь всё хорошо.",
+     "en": "Of course, I was very worried. Now everything is fine."
+    },
+    {
+     "who": "B",
+     "hu": "Köszönöm, hogy aggódtál. Ez az érzés nagyon jó.",
+     "ru": "Спасибо, что переживала. Это чувство очень приятное.",
+     "en": "Thank you for worrying. This feeling is very good."
+    },
+    {
+     "who": "A",
+     "hu": "Semmi gond, Szabó néni. Szomszédok vagyunk.",
+     "ru": "Что вы, тётя Сабо. Мы же соседи.",
+     "en": "Not at all, Mrs Szabó. We are neighbours."
+    },
+    {
+     "who": "B",
+     "hu": "Igen, de ilyen kedves ember ritka. Boldog vagyok, hogy itt laksz.",
+     "ru": "Да, но такие добрые люди редки. Я счастлива, что ты живёшь здесь.",
+     "en": "Yes, but such a kind person is rare. I am happy that you live here."
+    },
+    {
+     "who": "A",
+     "hu": "Én is. Holnap hozok levest, jó?",
+     "ru": "Я тоже. Завтра принесу суп, хорошо?",
+     "en": "Me too. Tomorrow I will bring soup, okay?"
+    },
+    {
+     "who": "B",
+     "hu": "Jaj, nem kell! Na jó, hozz. Szeretem a levest.",
+     "ru": "Ой, не нужно! Ну ладно, неси. Я люблю суп.",
+     "en": "Oh, no need! Well, all right, bring some. I like soup."
+    },
+    {
+     "who": "A",
+     "hu": "Rendben, leves lesz. Legyen nyugodt.",
+     "ru": "Хорошо, будет суп. Не волнуйтесь.",
+     "en": "All right, soup it is. Do not worry."
+    },
+    {
+     "who": "B",
+     "hu": "Köszönöm, drágám. Puszi a gyereknek!",
+     "ru": "Спасибо, дорогая. Поцелуй ребёнка!",
+     "en": "Thank you, dear. A kiss to the child!"
+    }
+   ]
+  ]
+ },
+ "dialogues": [
+  {
+   "slug": "faradt-barat",
+   "title": {
+    "ru": "Ты совсем без сил",
+    "en": "You look worn out"
+   },
+   "scene": {
+    "ru": "Два друга в кафе.",
+    "en": "Two friends in a cafe."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Hú, te nagyon fáradtnak tűnsz.",
+     "ru": "Ух, ты выглядишь очень уставшей.",
+     "en": "Phew, you look really tired."
+    },
+    {
+     "who": "B",
+     "hu": "Ühüm. Az éjjel nem tudtam aludni.",
+     "ru": "Ага. Ночью не могла уснуть.",
+     "en": "Yeah. I could not sleep last night."
+    },
+    {
+     "who": "A",
+     "hu": "Miért? Valami baj van?",
+     "ru": "Почему? Что-то случилось?",
+     "en": "Why? Is something wrong?"
+    },
+    {
+     "who": "B",
+     "hu": "Nincs, csak sok a munka.",
+     "ru": "Нет, просто много работы.",
+     "en": "No, just a lot of work."
+    },
+    {
+     "who": "A",
+     "hu": "Szegény! Aggódsz valami miatt?",
+     "ru": "Бедняжка! Ты из-за чего-то переживаешь?",
+     "en": "Poor thing! Are you worried about something?"
+    },
+    {
+     "who": "B",
+     "hu": "Egy kicsit, de nem nagy baj.",
+     "ru": "Немного, но ничего страшного.",
+     "en": "A little, but it is no big problem."
+    },
+    {
+     "who": "A",
+     "hu": "Hát, ülj le, hozok kávét.",
+     "ru": "Ну, садись, принесу кофе.",
+     "en": "Well, sit down, I will get coffee."
+    },
+    {
+     "who": "B",
+     "hu": "Köszi, de nem kell. Inkább megyek haza.",
+     "ru": "Спасибо, не надо. Я лучше пойду домой.",
+     "en": "Thanks, but no need. I would rather go home."
+    },
+    {
+     "who": "A",
+     "hu": "Jó. Pihenj, és hívj majd este.",
+     "ru": "Ладно. Отдохни и позвони вечером.",
+     "en": "Okay. Rest, and call me in the evening."
+    },
+    {
+     "who": "B",
+     "hu": "Rendben. Te nagyon kedves vagy.",
+     "ru": "Хорошо. Ты очень милый.",
+     "en": "All right. You are very kind."
+    }
+   ]
+  },
+  {
+   "slug": "ne-mar",
+   "title": {
+    "ru": "Ну сколько можно",
+    "en": "Not again"
+   },
+   "scene": {
+    "ru": "Двое на остановке.",
+    "en": "Two people at a bus stop."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Ne már! Megint késik a busz.",
+     "ru": "Ну нет! Автобус опять опаздывает.",
+     "en": "Oh come on! The bus is late again."
+    },
+    {
+     "who": "B",
+     "hu": "Nyugi, csak öt perc.",
+     "ru": "Спокойно, всего пять минут.",
+     "en": "Easy, it is only five minutes."
+    },
+    {
+     "who": "A",
+     "hu": "Öt perc? Már húsz perce várok!",
+     "ru": "Пять минут? Я жду уже двадцать!",
+     "en": "Five minutes? I have been waiting twenty!"
+    },
+    {
+     "who": "B",
+     "hu": "Jó, az tényleg sok. Nagyon mérges vagy?",
+     "ru": "Ладно, это правда много. Ты очень злишься?",
+     "en": "Okay, that really is a lot. Are you very angry?"
+    },
+    {
+     "who": "A",
+     "hu": "Igen, dühös vagyok. Holnap is el fogok késni.",
+     "ru": "Да, я в ярости. Завтра я тоже опоздаю.",
+     "en": "Yes, I am furious. I will be late tomorrow too."
+    },
+    {
+     "who": "B",
+     "hu": "Akkor szólj a főnöknek.",
+     "ru": "Тогда скажи начальнику.",
+     "en": "Then tell your boss."
+    },
+    {
+     "who": "A",
+     "hu": "Persze, majd szólok. Köszi, hogy itt vagy.",
+     "ru": "Конечно, скажу. Спасибо, что ты здесь.",
+     "en": "Sure, I will. Thanks for being here."
+    },
+    {
+     "who": "B",
+     "hu": "Semmi gond. Nézd, jön is a busz!",
+     "ru": "Ничего страшного.",
+     "en": "No problem."
+    },
+    {
+     "who": "A",
+     "hu": "Na végre! Hűha, tele van.",
+     "ru": "Ну наконец! Ого, он полный.",
+     "en": "At last! Wow, it is full."
+    }
+   ]
+  },
+  {
+   "slug": "jo-hir",
+   "title": {
+    "ru": "Хорошая новость",
+    "en": "Good news"
+   },
+   "scene": {
+    "ru": "Дочь звонит маме.",
+    "en": "A daughter phones her mother."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Anya, képzeld, megkaptam az állást!",
+     "ru": "Мама, представь, я получила работу!",
+     "en": "Mum, guess what, I got the job!"
+    },
+    {
+     "who": "B",
+     "hu": "Tényleg? Jaj, de örülök!",
+     "ru": "Правда? Ой, как я рада!",
+     "en": "Really? Oh, I am so happy!"
+    },
+    {
+     "who": "A",
+     "hu": "Igen! Ma reggel írtak nekem, nagyon kedvesen.",
+     "ru": "Да! Мне сегодня утром написали, очень мило.",
+     "en": "Yes! They wrote to me this morning, very nicely."
+    },
+    {
+     "who": "B",
+     "hu": "Ez nagyszerű! Mikor kezdesz?",
+     "ru": "Это замечательно! Когда начинаешь?",
+     "en": "That is great! When do you start?"
+    },
+    {
+     "who": "A",
+     "hu": "Hétfőn. Egy kicsit izgatott vagyok.",
+     "ru": "В понедельник. Я немного волнуюсь.",
+     "en": "On Monday. I am a little excited."
+    },
+    {
+     "who": "B",
+     "hu": "Ez normális. Büszke vagyok rád, nagyon büszke.",
+     "ru": "Это нормально. Я горжусь тобой, очень горжусь.",
+     "en": "That is normal. I am proud of you, so proud."
+    },
+    {
+     "who": "A",
+     "hu": "Köszi, anya. Nagyon boldog vagyok.",
+     "ru": "Спасибо, мама. Я очень счастлива.",
+     "en": "Thanks, Mum. I am very happy."
+    },
+    {
+     "who": "B",
+     "hu": "Milyen lesz a főnököd? Kedves?",
+     "ru": "Какой будет твой начальник? Добрый?",
+     "en": "What will your boss be like? Kind?"
+    },
+    {
+     "who": "A",
+     "hu": "Szerintem igen. Este megyek hozzád, mesélek.",
+     "ru": "Думаю, да. Вечером приду к тебе, расскажу.",
+     "en": "I think so. I will come to you this evening and tell you."
+    },
+    {
+     "who": "B",
+     "hu": "Jó, főzök valamit. Puszi!",
+     "ru": "Хорошо, что-нибудь приготовлю. Целую!",
+     "en": "Good, I will cook something. Kiss!"
+    }
+   ]
+  },
+  {
+   "slug": "vizsga-reggel",
+   "title": {
+    "ru": "Утро экзамена",
+    "en": "Exam morning"
+   },
+   "scene": {
+    "ru": "Брат и сестра утром.",
+    "en": "A brother and sister in the morning."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Nem tudok enni. Nagyon ideges vagyok.",
+     "ru": "Не могу есть. Я очень нервничаю.",
+     "en": "I cannot eat. I am very nervous."
+    },
+    {
+     "who": "B",
+     "hu": "Nyugi, te mindent tudsz.",
+     "ru": "Спокойно, ты всё знаешь.",
+     "en": "Easy, you know everything."
+    },
+    {
+     "who": "A",
+     "hu": "Hátha elfelejtem az egészet.",
+     "ru": "Вдруг я всё забуду.",
+     "en": "What if I forget it all."
+    },
+    {
+     "who": "B",
+     "hu": "Dehogy! Tegnap este még jól ment.",
+     "ru": "Да ну! Вчера вечером всё шло хорошо.",
+     "en": "No way! Last night it still went well."
+    },
+    {
+     "who": "A",
+     "hu": "Igen, de fáj a gyomrom. Félek.",
+     "ru": "Да, но у меня болит живот. Мне страшно.",
+     "en": "Yes, but my stomach hurts. I am scared."
+    },
+    {
+     "who": "B",
+     "hu": "Nem kell félni. Vegyél mély levegőt.",
+     "ru": "Не нужно бояться. Сделай глубокий вдох.",
+     "en": "No need to be scared. Take a deep breath."
+    },
+    {
+     "who": "A",
+     "hu": "Mi lesz, ha rossz jegyet kapok?",
+     "ru": "Что будет, если я получу плохую оценку?",
+     "en": "What if I get a bad grade?"
+    },
+    {
+     "who": "B",
+     "hu": "Akkor sem lesz nagy baj. Itt vagyok.",
+     "ru": "И тогда большой беды не будет. Я рядом.",
+     "en": "Even then it is no big problem. I am here."
+    },
+    {
+     "who": "A",
+     "hu": "Köszi. Hívlak, ha kész vagyok.",
+     "ru": "Спасибо. Позвоню, когда закончу.",
+     "en": "Thanks. I will call when I am done."
+    },
+    {
+     "who": "B",
+     "hu": "Szuper. Sok sikert!",
+     "ru": "Отлично. Удачи!",
+     "en": "Great. Good luck!"
+    }
+   ]
+  },
+  {
+   "slug": "meglepetes",
+   "title": {
+    "ru": "Сюрприз",
+    "en": "A surprise"
+   },
+   "scene": {
+    "ru": "Подруга неожиданно приходит.",
+    "en": "A friend turns up unannounced."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Jé, te mit keresel itt?",
+     "ru": "Ой, а ты что тут делаешь?",
+     "en": "Oh, what are you doing here?"
+    },
+    {
+     "who": "B",
+     "hu": "Meglepetés! Ma van a szülinapod, nem?",
+     "ru": "Сюрприз! У тебя же сегодня день рождения?",
+     "en": "Surprise! It is your birthday today, is it not?"
+    },
+    {
+     "who": "A",
+     "hu": "Nahát, ezt nem hiszem el!",
+     "ru": "Ничего себе, не верю!",
+     "en": "Well well, I cannot believe it!"
+    },
+    {
+     "who": "B",
+     "hu": "Gondoltam, örülni fogsz.",
+     "ru": "Я подумала, ты обрадуешься.",
+     "en": "I thought you would be happy."
+    },
+    {
+     "who": "A",
+     "hu": "Tényleg ma van! Hát gyere be, kérlek.",
+     "ru": "Правда, сегодня! Ну заходи, пожалуйста.",
+     "en": "It really is today! Come on in, please."
+    },
+    {
+     "who": "B",
+     "hu": "Hoztam süteményt is, a kedvencedet.",
+     "ru": "Я ещё и пирожные принесла, твои любимые.",
+     "en": "I brought some cake too, your favourite."
+    },
+    {
+     "who": "A",
+     "hu": "Hűha, te nagyon kedves vagy.",
+     "ru": "Ух ты, ты такая милая.",
+     "en": "Wow, you are so sweet."
+    },
+    {
+     "who": "B",
+     "hu": "Persze. Ki ismer téged jobban?",
+     "ru": "Конечно. Кто знает тебя лучше?",
+     "en": "Of course. Who knows you better?"
+    },
+    {
+     "who": "A",
+     "hu": "Senki. Hát gyere, főzök kávét.",
+     "ru": "Никто. Ну иди, сварю кофе.",
+     "en": "Nobody. Well come on, I will make coffee."
+    },
+    {
+     "who": "B",
+     "hu": "Jó, kérek. Boldog szülinapot!",
+     "ru": "Хорошо, давай. С днём рождения!",
+     "en": "Good, please. Happy birthday!"
+    }
+   ]
+  },
+  {
+   "slug": "vihar",
+   "title": {
+    "ru": "Страшная гроза",
+    "en": "A scary storm"
+   },
+   "scene": {
+    "ru": "Ночью ребёнок приходит к отцу.",
+    "en": "At night a child comes to her father."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Apa, félek. Nagy a vihar.",
+     "ru": "Папа, мне страшно. Сильная гроза.",
+     "en": "Dad, I am scared. The storm is big."
+    },
+    {
+     "who": "B",
+     "hu": "Gyere ide. Itt vagyok melletted.",
+     "ru": "Иди сюда. Я рядом с тобой.",
+     "en": "Come here. I am next to you."
+    },
+    {
+     "who": "A",
+     "hu": "Jaj, megint ilyen hangos! Megijedtem.",
+     "ru": "Ой, опять так громко! Я испугалась.",
+     "en": "Oh, so loud again! I got scared."
+    },
+    {
+     "who": "B",
+     "hu": "Tudom, de a ház erős. Nem lesz semmi baj.",
+     "ru": "Знаю, но дом крепкий. Ничего плохого не будет.",
+     "en": "I know, but the house is strong. Nothing bad will happen."
+    },
+    {
+     "who": "A",
+     "hu": "Te is félsz egy kicsit, apa?",
+     "ru": "Ты тоже немного боишься, папа?",
+     "en": "Are you a bit scared too, Dad?"
+    },
+    {
+     "who": "B",
+     "hu": "Egy kicsit igen, de nem sírok, és te bátor vagy.",
+     "ru": "Немного да, но я не плачу, а ты смелая.",
+     "en": "A little, yes, but I do not cry, and you are brave."
+    },
+    {
+     "who": "A",
+     "hu": "Ölelsz egy kicsit?",
+     "ru": "Обнимешь меня ненадолго?",
+     "en": "Will you hug me for a bit?"
+    },
+    {
+     "who": "B",
+     "hu": "Persze. Na, jobb már?",
+     "ru": "Конечно. Ну, лучше уже?",
+     "en": "Of course. Well, better now?"
+    },
+    {
+     "who": "A",
+     "hu": "Ühüm. Maradsz itt?",
+     "ru": "Ага. Ты останешься здесь?",
+     "en": "Uh-huh. Will you stay here?"
+    },
+    {
+     "who": "B",
+     "hu": "Maradok, amíg alszol.",
+     "ru": "Останусь, пока ты спишь.",
+     "en": "I will stay while you sleep."
+    }
+   ]
+  }
+ ]
+}

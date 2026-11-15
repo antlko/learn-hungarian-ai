@@ -1,0 +1,611 @@
+{
+  "talk": {
+    "genre": "phone",
+    "checked": "ai",
+    "title": {
+      "ru": "Что надеть на свадьбу",
+      "en": "What to wear to the wedding"
+    },
+    "names": [
+      "Anna",
+      "Zsófi",
+      "Gábor"
+    ],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Halló, Anna! Zavarlak?",
+          "ru": "Алло, Анна! Я тебе не мешаю?",
+          "en": "Hello, Anna! Am I disturbing you?"
+        },
+        {
+          "who": "B",
+          "hu": "Szia, Zsófi! Nem, csak készülök kicsit.",
+          "ru": "Привет, Жофи! Нет, я просто немного собираюсь.",
+          "en": "Hi, Zsófi! No, I am just getting ready a bit."
+        },
+        {
+          "who": "A",
+          "hu": "Mit veszel fel az esküvőre?",
+          "ru": "Что наденешь на свадьбу?",
+          "en": "What are you wearing to the wedding?"
+        },
+        {
+          "who": "B",
+          "hu": "Még nem tudom. Te?",
+          "ru": "Ещё не знаю. А ты?",
+          "en": "I do not know yet. You?"
+        },
+        {
+          "who": "A",
+          "hu": "Nincs mit felvenni!",
+          "ru": "Мне нечего надеть!",
+          "en": "I have nothing to wear!"
+        },
+        {
+          "who": "B",
+          "hu": "Dehogy nincs! Ott van a szép kék ruhád.",
+          "ru": "Ну что ты! А красивое синее платье?",
+          "en": "Of course you do! There is the nice blue dress."
+        },
+        {
+          "who": "A",
+          "hu": "Az már régi. Tavaly is azt hordtam.",
+          "ru": "Оно старое. В прошлом году я его уже носила.",
+          "en": "That is old. I wore it last year too."
+        },
+        {
+          "who": "B",
+          "hu": "Nem baj, senki nem figyeli, hidd el.",
+          "ru": "Ничего, никто не смотрит, поверь.",
+          "en": "Never mind, nobody notices, believe me."
+        },
+        {
+          "who": "A",
+          "hu": "Szerinted jó lesz a fekete szoknya egy blúzzal?",
+          "ru": "Как думаешь, чёрная юбка с блузкой подойдёт?",
+          "en": "Do you think a black skirt with a blouse will do?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze! A selyem blúz nagyon cuki, és jól áll.",
+          "ru": "Конечно! Шёлковая блузка очень милая, и тебе идёт.",
+          "en": "Sure! The silk blouse is really cute, and it suits you."
+        },
+        {
+          "who": "A",
+          "hu": "De a cipő? Nincs hozzá jó cipőm.",
+          "ru": "А туфли? К ним у меня нет подходящих.",
+          "en": "But the shoes? I have no good shoes for it."
+        },
+        {
+          "who": "B",
+          "hu": "Az enyém jó lesz neked? Ugyanakkora a lábunk, ugye?",
+          "ru": "Мои подойдут? У нас ведь один размер ноги?",
+          "en": "Will mine do? We have the same size feet, right?"
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg? Köszi, szuper vagy!",
+          "ru": "Правда? Спасибо, ты супер!",
+          "en": "Really? Thanks, you are great!"
+        },
+        {
+          "who": "B",
+          "hu": "És van egy nyaklánc is a mamától. Hozom.",
+          "ru": "И есть цепочка от бабушки. Я принесу.",
+          "en": "And there is a necklace from Grandma. I will bring it."
+        },
+        {
+          "who": "A",
+          "hu": "Hú, az szép! Este hideg lesz? Kell kabát?",
+          "ru": "Ух, красиво! Вечером будет холодно? Нужна куртка?",
+          "en": "Wow, that is pretty! Will it be cold in the evening? Do I need a coat?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, este már hideg van. Hozz egy kabátot is.",
+          "ru": "Да, вечером уже холодно. Возьми и куртку.",
+          "en": "Yes, it is cold in the evening. Bring a coat too."
+        },
+        {
+          "who": "A",
+          "hu": "Jó, viszem a kabátomat. Köszi, Anna!",
+          "ru": "Хорошо, возьму свою куртку. Спасибо, Анна!",
+          "en": "Okay, I will take my coat. Thanks, Anna!"
+        },
+        {
+          "who": "B",
+          "hu": "Várj! Gábor mit vesz fel?",
+          "ru": "Погоди! А что наденет Габор?",
+          "en": "Wait! What is Gábor wearing?"
+        },
+        {
+          "who": "A",
+          "hu": "Nem tudom. Az öltönye már nagyon bő neki.",
+          "ru": "Не знаю. Его костюм ему уже сильно велик.",
+          "en": "Dunno. His suit is already very loose on him."
+        },
+        {
+          "who": "B",
+          "hu": "Hát, menjen a szabóhoz, még van két napja.",
+          "ru": "Пусть сходит к портному, у него ещё два дня.",
+          "en": "Well, he should go to the tailor, he still has two days."
+        },
+        {
+          "who": "A",
+          "hu": "Jó ötlet. Ma este szólok neki.",
+          "ru": "Хорошая идея. Сегодня вечером скажу ему.",
+          "en": "Good idea. I will tell him this evening."
+        },
+        {
+          "who": "B",
+          "hu": "Szuper. És szombaton mindenki nagyon szép lesz!",
+          "ru": "Супер. И в субботу все будут очень красивые!",
+          "en": "Great. And on Saturday everybody will look really nice!"
+        },
+        {
+          "who": "A",
+          "hu": "Remélem. Akkor pá, puszi!",
+          "ru": "Надеюсь. Тогда пока, целую!",
+          "en": "I hope so. Then bye, xoxo!"
+        },
+        {
+          "who": "B",
+          "hu": "Pá, puszi!",
+          "ru": "Пока, целую!",
+          "en": "Bye, xoxo!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "uzletben",
+      "title": {
+        "ru": "В магазине",
+        "en": "In the shop"
+      },
+      "scene": {
+        "ru": "Покупатель просит размер больше у продавца.",
+        "en": "A customer asks an assistant for a bigger size."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot! Mit parancsol?",
+          "ru": "Здравствуйте! Чем могу помочь?",
+          "en": "Good afternoon! What can I get you?"
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot! Van ebből nagyobb?",
+          "ru": "Здравствуйте! Есть такое побольше?",
+          "en": "Good afternoon! Do you have a bigger one of this?"
+        },
+        {
+          "who": "A",
+          "hu": "Milyen méret kell?",
+          "ru": "Какой размер нужен?",
+          "en": "What size do you need?"
+        },
+        {
+          "who": "B",
+          "hu": "Egy számmal nagyobb. Ez szűk.",
+          "ru": "На размер больше. Этот тесен.",
+          "en": "One size up. This is tight."
+        },
+        {
+          "who": "A",
+          "hu": "Egy pillanat, megnézem hátul.",
+          "ru": "Минуту, посмотрю в подсобке.",
+          "en": "One moment, I will check at the back."
+        },
+        {
+          "who": "B",
+          "hu": "Köszönöm szépen. Piros is van még ebből?",
+          "ru": "Большое спасибо. Красный из этих ещё есть?",
+          "en": "Thanks a lot. Is there a red one of these too?"
+        },
+        {
+          "who": "A",
+          "hu": "Csak kék van, de az nagyon szép.",
+          "ru": "Только синий, но он очень красивый.",
+          "en": "Only blue, but it is very nice."
+        },
+        {
+          "who": "B",
+          "hu": "Jó, akkor azt kérem.",
+          "ru": "Хорошо, тогда его.",
+          "en": "All right, I will take that one."
+        },
+        {
+          "who": "A",
+          "hu": "Tessék, itt van. Jó lesz?",
+          "ru": "Пожалуйста. Подойдёт?",
+          "en": "Here you are. Will it do?"
+        },
+        {
+          "who": "B",
+          "hu": "Szuper, ez jó lesz. Nagyon köszönöm!",
+          "ru": "Отлично, этот подходит. Спасибо!",
+          "en": "Great, this one fits. Thank you!"
+        }
+      ]
+    },
+    {
+      "slug": "proba",
+      "title": {
+        "ru": "В примерочной",
+        "en": "Changing room"
+      },
+      "scene": {
+        "ru": "Подруги: одна примеряет брюки, другая ждёт за шторой.",
+        "en": "Two friends, one trying on trousers behind the curtain."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Na, milyen? Gyere ki!",
+          "ru": "Ну как? Выходи!",
+          "en": "Well, how are they? Come out!"
+        },
+        {
+          "who": "B",
+          "hu": "Várj, a cipzár nem megy fel.",
+          "ru": "Погоди, молния не застёгивается.",
+          "en": "Wait, the zip will not close."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, segítek. Hú, ez nagyon szűk!",
+          "ru": "Ой, помогу. Ух, они очень тесные!",
+          "en": "Oh, let me help. Wow, these are very tight!"
+        },
+        {
+          "who": "B",
+          "hu": "Szűk? Nem, csak a cipzár nem megy.",
+          "ru": "Тесные? Нет, просто молния не идёт.",
+          "en": "Tight? No, the zip just will not go up."
+        },
+        {
+          "who": "A",
+          "hu": "Ülj le benne! Nem tudsz, ugye?",
+          "ru": "Сядь в них! Не получается, да?",
+          "en": "Sit down in them! You cannot, right?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem. Igazad van, ez nekem kicsi.",
+          "ru": "Нет. Ты права, малы.",
+          "en": "No. You are right, they are small."
+        },
+        {
+          "who": "A",
+          "hu": "Hozok egy nagyobb méretet. Barna vagy fekete?",
+          "ru": "Принесу размер побольше. Коричневые или чёрные?",
+          "en": "I will bring a bigger size. Brown or black?"
+        },
+        {
+          "who": "B",
+          "hu": "Fekete lesz. Az elegáns, és mindenhez jó.",
+          "ru": "Чёрные. Они элегантные.",
+          "en": "Black. That is elegant."
+        },
+        {
+          "who": "A",
+          "hu": "Oké, mindjárt hozom, addig ne menj sehova!",
+          "ru": "Хорошо, сейчас принесу.",
+          "en": "Okay, I will bring it in a moment."
+        },
+        {
+          "who": "B",
+          "hu": "Köszi! Itt várok, nem megyek sehova.",
+          "ru": "Спасибо! Я жду здесь.",
+          "en": "Thanks! I will wait here."
+        }
+      ]
+    },
+    {
+      "slug": "visszavitel",
+      "title": {
+        "ru": "Возврат",
+        "en": "Returning an item"
+      },
+      "scene": {
+        "ru": "Покупатель вежливо возвращает вещь с дефектом.",
+        "en": "A customer politely returns a faulty item."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot! Ezt vissza szeretném vinni.",
+          "ru": "Здравствуйте! Хочу отнести это обратно.",
+          "en": "Good afternoon! I would like to take this back."
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot. Mi a baj vele?",
+          "ru": "Здравствуйте. Что с ним не так?",
+          "en": "Good afternoon. What is wrong with it?"
+        },
+        {
+          "who": "A",
+          "hu": "Szakadt a zseb. Ezt tegnap vettem itt.",
+          "ru": "Порван карман. Я купил вчера.",
+          "en": "The pocket is torn. I bought it yesterday."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, tényleg szakadt. Megvan a blokk?",
+          "ru": "Ой, правда порвалась. Чек есть?",
+          "en": "Oh, it really is torn. Do you have the receipt?"
+        },
+        {
+          "who": "A",
+          "hu": "Itt van. Tegnap még jó volt.",
+          "ru": "Вот. Вчера он был целый.",
+          "en": "Here. It was fine yesterday."
+        },
+        {
+          "who": "B",
+          "hu": "Értem, sajnálom. Másikat kér, vagy pénzt?",
+          "ru": "Понимаю, жаль. Другое или деньги?",
+          "en": "I understand, sorry. Another one, or the money?"
+        },
+        {
+          "who": "A",
+          "hu": "Inkább pénzt kérek vissza.",
+          "ru": "Лучше верните деньги.",
+          "en": "I would rather have the money back."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. A pénz a kártyára megy vissza.",
+          "ru": "Хорошо. Вернём на карту.",
+          "en": "All right. It goes back to your card."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm szépen. Viszlát!",
+          "ru": "Большое спасибо. До свидания!",
+          "en": "Thank you very much. Goodbye!"
+        },
+        {
+          "who": "B",
+          "hu": "Viszlát, szép napot!",
+          "ru": "До свидания, хорошего дня!",
+          "en": "Goodbye, have a nice day!"
+        }
+      ]
+    },
+    {
+      "slug": "kabat-gyerek",
+      "title": {
+        "ru": "Одеваем ребёнка",
+        "en": "Dressing the child"
+      },
+      "scene": {
+        "ru": "Мама собирает дочку на улицу в плохую погоду.",
+        "en": "A mother gets her daughter ready for bad weather."
+      },
+      "names": [
+        "Kata"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Kata, vedd fel a kabátot!",
+          "ru": "Ката, надень куртку!",
+          "en": "Kata, put your coat on!"
+        },
+        {
+          "who": "B",
+          "hu": "Nem kell, nekem nem hideg.",
+          "ru": "Не надо, мне не холодно.",
+          "en": "I do not need it, I am not cold."
+        },
+        {
+          "who": "A",
+          "hu": "Kint hideg van, és esik.",
+          "ru": "На улице холодно и дождь.",
+          "en": "It is cold outside, and it is raining."
+        },
+        {
+          "who": "B",
+          "hu": "De a kabát túl meleg!",
+          "ru": "Но куртка слишком тёплая!",
+          "en": "But the coat is too warm!"
+        },
+        {
+          "who": "A",
+          "hu": "Nem túl meleg. És vedd fel a csizmát is.",
+          "ru": "Не слишком тёплая. И сапоги тоже надень.",
+          "en": "It is not too warm. And put on the boots too."
+        },
+        {
+          "who": "B",
+          "hu": "Jó, jó. És még valami kell?",
+          "ru": "Ладно, ладно. А ещё что-нибудь нужно?",
+          "en": "All right, all right. Is anything else needed?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, a pulóver is. Kint nagyon fúj a szél.",
+          "ru": "Да, и свитер. На улице сильный ветер.",
+          "en": "Yes, the jumper too. It is very windy outside."
+        },
+        {
+          "who": "B",
+          "hu": "Hú, nagyon sok ruha van rajtam!",
+          "ru": "Ух, на мне так много одежды!",
+          "en": "Wow, I have so many clothes on!"
+        },
+        {
+          "who": "A",
+          "hu": "Nyugi, kint jó lesz. Gyere már!",
+          "ru": "Спокойно, на улице будет хорошо. Ну пойдём!",
+          "en": "Relax, it will be fine outside. Come on now!"
+        },
+        {
+          "who": "B",
+          "hu": "Jól van. Hú, nehéz ez a csizma!",
+          "ru": "Ладно. Ух, какие тяжёлые сапоги!",
+          "en": "All right. Wow, these boots are heavy!"
+        }
+      ]
+    },
+    {
+      "slug": "kolcson-kabat",
+      "title": {
+        "ru": "Одолжить куртку",
+        "en": "Borrowing a jacket"
+      },
+      "scene": {
+        "ru": "Друзья на остановке, одному холодно.",
+        "en": "Two friends at a stop, one of them is cold."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Hú, itt nagyon hideg van!",
+          "ru": "Ух, здесь очень холодно!",
+          "en": "Whoo, it is very cold here!"
+        },
+        {
+          "who": "B",
+          "hu": "Tényleg, nagyon fúj. Hol a kabátod?",
+          "ru": "Правда. А где твоя куртка?",
+          "en": "It is. Where is your coat?"
+        },
+        {
+          "who": "A",
+          "hu": "Otthon hagytam. Nem néztem ki az ablakon.",
+          "ru": "Оставил дома. Не посмотрел в окно.",
+          "en": "I left it at home. I did not look out of the window."
+        },
+        {
+          "who": "B",
+          "hu": "Vedd fel az enyémet, nekem úgyis van pulóver.",
+          "ru": "Надень мою, на мне свитер.",
+          "en": "Put mine on, I have a jumper."
+        },
+        {
+          "who": "A",
+          "hu": "Biztos? Neked nem lesz hideg?",
+          "ru": "Точно? Тебе не будет холодно?",
+          "en": "Sure? Will you not be cold?"
+        },
+        {
+          "who": "B",
+          "hu": "Dehogy. Nekem meleg van.",
+          "ru": "Да нет. Мне тепло.",
+          "en": "Not at all. I am warm."
+        },
+        {
+          "who": "A",
+          "hu": "Köszi, szuper vagy! Holnap hozom vissza.",
+          "ru": "Спасибо! Завтра верну.",
+          "en": "Thanks! I will give it back tomorrow."
+        },
+        {
+          "who": "B",
+          "hu": "Nem sürgős. Jól áll neked, tényleg!",
+          "ru": "Не спеши. Тебе идёт!",
+          "en": "No rush. It suits you!"
+        },
+        {
+          "who": "A",
+          "hu": "Hát, kicsit bő, de legalább meleg.",
+          "ru": "Ну, немного свободна, зато тёплая.",
+          "en": "Well, a bit loose, but warm."
+        }
+      ]
+    },
+    {
+      "slug": "szabonal",
+      "title": {
+        "ru": "У портного",
+        "en": "At the tailor"
+      },
+      "scene": {
+        "ru": "Клиент приносит длинные брюки портному.",
+        "en": "A client brings long trousers to a tailor."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot! Ez a nadrág hosszú.",
+          "ru": "Здравствуйте! Эти брюки длинные.",
+          "en": "Good afternoon! These trousers are long."
+        },
+        {
+          "who": "B",
+          "hu": "Próbálja fel, kérem, úgy nézzük meg.",
+          "ru": "Примерьте, пожалуйста, так и посмотрим.",
+          "en": "Try them on, please, we will see that way."
+        },
+        {
+          "who": "A",
+          "hu": "Tessék. Látja, hosszú.",
+          "ru": "Вот. Видите, длинные.",
+          "en": "Here. You see, they are long."
+        },
+        {
+          "who": "B",
+          "hu": "Hát igen, elég hosszú. Itt jó lesz?",
+          "ru": "Да, длинные. Здесь будет хорошо?",
+          "en": "Yes, they are long. Will it be fine here?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, ott jó. Mikorra lesz kész?",
+          "ru": "Да, там хорошо. К какому дню будут готовы?",
+          "en": "Yes, there is fine. When will they be ready?"
+        },
+        {
+          "who": "B",
+          "hu": "Pénteken, délután már kész lesz.",
+          "ru": "В пятницу, днём.",
+          "en": "On Friday, in the afternoon."
+        },
+        {
+          "who": "A",
+          "hu": "Remek. És mennyibe kerül ez így?",
+          "ru": "Отлично. Сколько стоит?",
+          "en": "Great. How much is it?"
+        },
+        {
+          "who": "B",
+          "hu": "Összesen ezer forint lesz.",
+          "ru": "Всего будет тысяча форинтов.",
+          "en": "It will be one thousand forints in total."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben. Nagyon köszönöm, viszlát!",
+          "ru": "Хорошо. Большое спасибо, до свидания!",
+          "en": "All right. Thank you very much, goodbye!"
+        },
+        {
+          "who": "B",
+          "hu": "Viszlát, és szép napot!",
+          "ru": "До свидания, и хорошего дня!",
+          "en": "Goodbye, and have a nice day!"
+        }
+      ]
+    }
+  ]
+}

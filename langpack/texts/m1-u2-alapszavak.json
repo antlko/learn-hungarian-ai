@@ -1,0 +1,395 @@
+{
+  "short": {
+    "genre": "sms",
+    "checked": "ai",
+    "title": {
+      "ru": "Что значит «tessék»?",
+      "en": "What does “tessék” mean?"
+    },
+    "names": [
+      "Dani"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Dani! Bocsánat, most nem tudok beszélni.",
+          "ru": "Привет, Дани! Прости, сейчас я не могу говорить.",
+          "en": "Hi, Dani! Sorry, I can't talk right now."
+        },
+        {
+          "hu": "Itt egy hölgy gyorsan és hangosan beszél.",
+          "ru": "Здесь одна женщина быстро и громко говорит.",
+          "en": "A lady here is speaking fast and loudly."
+        },
+        {
+          "hu": "Nem baj, csak tényleg nem értem.",
+          "ru": "Ничего, просто я правда не понимаю.",
+          "en": "Never mind, I really just don't understand."
+        }
+      ],
+      [
+        {
+          "hu": "Mit jelent az, hogy tessék?",
+          "ru": "Что значит «tessék»?",
+          "en": "What does “tessék” mean?"
+        },
+        {
+          "hu": "Talán azt, hogy igen?",
+          "ru": "Может быть, «да»?",
+          "en": "Maybe “yes”?"
+        },
+        {
+          "hu": "Csak egy egyszerű szó kell.",
+          "ru": "Мне нужно всего одно простое слово.",
+          "en": "I only need one simple word."
+        },
+        {
+          "hu": "Segítesz? Még nem tudom, hogyan mondják.",
+          "ru": "Поможешь? Я ещё не знаю, как это говорят.",
+          "en": "Will you help? I don't know yet how it is said."
+        },
+        {
+          "hu": "Rendben?",
+          "ru": "Договорились?",
+          "en": "All right?"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "Звонок насчёт работы",
+      "en": "A call about a job"
+    },
+    "names": [
+      "Anna",
+      "Kovács"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Tessék?",
+          "ru": "Алло?",
+          "en": "Hello?"
+        }
+      ],
+      [
+        {
+          "hu": "Jó napot, Anna! Kovács úr vagyok.",
+          "ru": "Добрый день, Анна! Это господин Ковач.",
+          "en": "Good day, Anna! This is Mr Kovács."
+        }
+      ],
+      [
+        {
+          "hu": "Elnézést, nem értem. Lassan és hangosan, kérem!",
+          "ru": "Простите, я не понимаю. Медленно и громко, пожалуйста!",
+          "en": "Excuse me, I don't understand. Slowly and loudly, please!"
+        }
+      ],
+      [
+        {
+          "hu": "Sajnálom, gyorsan beszélek. A munka miatt hívom.",
+          "ru": "Прошу прощения, я говорю быстро. Я звоню по поводу работы.",
+          "en": "Sorry, I speak fast. I am calling about the job."
+        }
+      ],
+      [
+        {
+          "hu": "Bocsánat, sajnos nem beszélek jól magyarul. Beszél angolul?",
+          "ru": "Извините, я, к сожалению, плохо говорю по-венгерски. Вы говорите по-английски?",
+          "en": "Sorry, unfortunately I don't speak Hungarian well. Do you speak English?"
+        }
+      ],
+      [
+        {
+          "hu": "Csak egy kicsit tudok. Egyszerűen mondom, talán érthető lesz.",
+          "ru": "Знаю только немного. Скажу попроще, может быть, будет понятно.",
+          "en": "I only know a little. I will say it simply, maybe it will be understandable."
+        }
+      ],
+      [
+        {
+          "hu": "Persze, így érthető. Mi a probléma?",
+          "ru": "Конечно, так понятно. В чём дело?",
+          "en": "Of course, that is clear. What is it about?"
+        }
+      ],
+      [
+        {
+          "hu": "Holnap három órakor szeretne jönni?",
+          "ru": "Вы хотели бы прийти завтра в три часа?",
+          "en": "Would you like to come tomorrow at three o'clock?"
+        }
+      ],
+      [
+        {
+          "hu": "Bocsánat, mit jelent ez a mondat? Tud ismételni, kérem?",
+          "ru": "Простите, что значит это предложение? Вы можете повторить, пожалуйста?",
+          "en": "Sorry, what does this sentence mean? Can you repeat it, please?"
+        }
+      ],
+      [
+        {
+          "hu": "Persze. Holnap, három órakor. Tud jönni?",
+          "ru": "Конечно. Завтра, в три часа. Вы можете прийти?",
+          "en": "Of course. Tomorrow, at three o'clock. Can you come?"
+        }
+      ],
+      [
+        {
+          "hu": "Egy pillanat, kérem. Igen, oké, tudok. Hova kell jönni?",
+          "ru": "Одну минуту, пожалуйста. Да, окей, могу. Куда нужно прийти?",
+          "en": "One moment, please. Yes, okay, I can. Where do I have to come?"
+        }
+      ],
+      [
+        {
+          "hu": "Az első ház, a nagy ajtó. Ott segítek.",
+          "ru": "Первый дом, большая дверь. Там я помогу.",
+          "en": "The first house, the big door. I will help you there."
+        }
+      ],
+      [
+        {
+          "hu": "Rendben, megértem. Szabad még egy kérdés?",
+          "ru": "Хорошо, понятно. Можно ещё вопрос?",
+          "en": "All right, I understand. May I ask one more question?"
+        }
+      ],
+      [
+        {
+          "hu": "Természetesen szabad. Nincs semmi baj.",
+          "ru": "Разумеется, можно. Ничего страшного.",
+          "en": "Of course you may. No problem at all."
+        }
+      ],
+      [
+        {
+          "hu": "Milyen munka ez? Nagyon érdekel, ez fontos!",
+          "ru": "Что это за работа? Она меня очень интересует, это важно!",
+          "en": "What kind of job is it? I am very interested, this is important!"
+        }
+      ],
+      [
+        {
+          "hu": "Köszönöm. Akkor holnap három órakor!",
+          "ru": "Спасибо. Тогда завтра в три!",
+          "en": "Thank you. Tomorrow at three, then!"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "myday",
+    "checked": "ai",
+    "title": {
+      "ru": "Мой обычный день",
+      "en": "My usual day"
+    },
+    "names": [
+      "Anna",
+      "Péter",
+      "Budapesten"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Reggel van. Anna vagyok, és Budapesten élek.",
+          "ru": "Утро. Я Анна, и я живу в Будапеште.",
+          "en": "It is morning. I am Anna, and I live in Budapest."
+        },
+        {
+          "hu": "Itt minden új, és mindenki gyorsan beszél.",
+          "ru": "Здесь всё новое, и все говорят быстро.",
+          "en": "Here everything is new, and everybody speaks fast."
+        },
+        {
+          "hu": "Egy hölgy szeretne valamit, de nem értem.",
+          "ru": "Одна женщина чего-то хочет, но я не понимаю.",
+          "en": "A lady would like something, but I don't understand."
+        },
+        {
+          "hu": "Bocsánat, nem értem, mondom.",
+          "ru": "Простите, я не понимаю, говорю я.",
+          "en": "Sorry, I don't understand, I say."
+        },
+        {
+          "hu": "Lassan, kérem. Tud ismételni?",
+          "ru": "Медленно, пожалуйста. Вы можете повторить?",
+          "en": "Slowly, please. Can you repeat it?"
+        },
+        {
+          "hu": "Egy pillanat, és ő újra mondja, lassan.",
+          "ru": "Миг, и она повторяет ещё раз, медленно.",
+          "en": "A moment, and she says it again, slowly."
+        },
+        {
+          "hu": "Most már értem. Köszönöm!",
+          "ru": "Теперь я понимаю. Спасибо!",
+          "en": "Now I understand. Thank you!"
+        }
+      ],
+      [
+        {
+          "hu": "Aztán Péter segít.",
+          "ru": "Потом помогает Петер.",
+          "en": "Then Péter helps."
+        },
+        {
+          "hu": "Ő a barátom, és angolul is jól beszél.",
+          "ru": "Он мой друг, и он хорошо говорит и по-английски.",
+          "en": "He is my friend, and he speaks English well, too."
+        },
+        {
+          "hu": "Nem akarok csak angolul beszélni.",
+          "ru": "Я не хочу говорить только по-английски.",
+          "en": "I don't want to speak only English."
+        },
+        {
+          "hu": "Egy szó, egy mondat, és újra egy szó.",
+          "ru": "Слово, предложение и снова слово.",
+          "en": "One word, one sentence, and one more word."
+        },
+        {
+          "hu": "A kiejtés fontos, és ismételni kell, mondja Péter.",
+          "ru": "Произношение важно, и нужно повторять, говорит Петер.",
+          "en": "Pronunciation is important, and I must repeat, says Péter."
+        },
+        {
+          "hu": "Megértem a szót, de nem mondom ki jól.",
+          "ru": "Я понимаю слово, но произношу его плохо.",
+          "en": "I understand the word, but I don't say it right."
+        },
+        {
+          "hu": "Hangosan kimondom a szót, aztán halkan.",
+          "ru": "Я громко произношу слово, потом тихо.",
+          "en": "I say the word out loud, then quietly."
+        },
+        {
+          "hu": "Péter egyszerűen mondja, és érthető.",
+          "ru": "Петер говорит просто, и понятно.",
+          "en": "Péter says it simply, and it is understandable."
+        },
+        {
+          "hu": "Sajnos nem jó, mondja. Rendben, újra próbálom.",
+          "ru": "К сожалению, не так, говорит он. Хорошо, пробую ещё раз.",
+          "en": "Unfortunately that is not right, he says. All right, I try again."
+        }
+      ],
+      [
+        {
+          "hu": "Az írás érdekel, de még nehéz.",
+          "ru": "Письмо меня интересует, но оно ещё трудное.",
+          "en": "Writing interests me, but it is still hard."
+        },
+        {
+          "hu": "Sok betű új.",
+          "ru": "Многие буквы новые.",
+          "en": "Many letters are new."
+        },
+        {
+          "hu": "Egy egyszerű mondatot próbálok fordítani.",
+          "ru": "Я пытаюсь перевести простое предложение.",
+          "en": "I try to translate a simple sentence."
+        },
+        {
+          "hu": "Talán nem jó, de persze nem baj.",
+          "ru": "Может быть, неправильно, но, конечно, ничего.",
+          "en": "Maybe it is not right, but of course never mind."
+        },
+        {
+          "hu": "Mit jelent ez a szó, kérdezem.",
+          "ru": "Что значит это слово, спрашиваю я.",
+          "en": "What does this word mean, I ask."
+        },
+        {
+          "hu": "Hogyan írják? Péter segít.",
+          "ru": "Как это пишется? Петер помогает.",
+          "en": "How is it written? Péter helps."
+        },
+        {
+          "hu": "Péter azt mondja, ez már jó!",
+          "ru": "Петер говорит, что это уже хорошо!",
+          "en": "Péter says this is already good!"
+        },
+        {
+          "hu": "Tényleg? Nagyon örülök.",
+          "ru": "Правда? Я очень рада.",
+          "en": "Really? I am very happy."
+        }
+      ],
+      [
+        {
+          "hu": "Hol van Péter? Sajnos nincs itt.",
+          "ru": "Где Петер? К сожалению, его здесь нет.",
+          "en": "Where is Péter? Unfortunately he is not here."
+        },
+        {
+          "hu": "Akkor segítség kell, és sok kérdés van.",
+          "ru": "Тогда нужна помощь, и вопросов много.",
+          "en": "Then I need help, and there are many questions."
+        },
+        {
+          "hu": "Sajnálom, hogy sok a kérdés.",
+          "ru": "Простите, что вопросов так много.",
+          "en": "I am sorry there are so many questions."
+        },
+        {
+          "hu": "Elnézést, kérem, hogyan mondják ezt?",
+          "ru": "Простите, пожалуйста, как это говорят?",
+          "en": "Excuse me, please, how do you say this?"
+        },
+        {
+          "hu": "Csak egy szó kell, semmi más.",
+          "ru": "Нужно только одно слово, больше ничего.",
+          "en": "I only need one word, nothing else."
+        },
+        {
+          "hu": "Természetesen mindenki segít.",
+          "ru": "Разумеется, все помогают.",
+          "en": "Of course, everybody helps."
+        },
+        {
+          "hu": "Egy pillanat, és már megértem!",
+          "ru": "Миг, и я уже понимаю!",
+          "en": "A moment, and I already understand!"
+        },
+        {
+          "hu": "Tényleg érdekel ez a nyelv.",
+          "ru": "Этот язык меня правда интересует.",
+          "en": "This language really interests me."
+        }
+      ],
+      [
+        {
+          "hu": "Este Péter hív, és kérdezi, hol vagyok.",
+          "ru": "Вечером звонит Петер и спрашивает, где я.",
+          "en": "In the evening Péter calls and asks where I am."
+        },
+        {
+          "hu": "Itt vagyok, és semmi baj nincs.",
+          "ru": "Я здесь, и никаких проблем нет.",
+          "en": "I am here, and there is no trouble."
+        },
+        {
+          "hu": "Oké, holnap megint egy új nap.",
+          "ru": "Окей, завтра снова новый день.",
+          "en": "Okay, tomorrow is a new day again."
+        },
+        {
+          "hu": "Jól akarok beszélni magyarul.",
+          "ru": "Я хочу хорошо говорить по-венгерски.",
+          "en": "I want to speak Hungarian well."
+        },
+        {
+          "hu": "Akarok, és tudok is tanulni!",
+          "ru": "Я хочу и могу учиться!",
+          "en": "I want to, and I can learn!"
+        }
+      ]
+    ]
+  }
+}

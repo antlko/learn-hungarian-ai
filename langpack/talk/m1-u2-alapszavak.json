@@ -1,0 +1,358 @@
+{
+  "talk": {
+    "genre": "phone",
+    "checked": "ai",
+    "title": {
+      "ru": "Не слышу, повтори",
+      "en": "Say that again"
+    },
+    "names": [
+      "Olga",
+      "Gábor"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Halló?",
+          "ru": "Алло?",
+          "en": "Hello?",
+          "who": "A"
+        },
+        {
+          "hu": "Szia, Olga! Itt Gábor. Hol vagy most?",
+          "ru": "Привет, Ольга! Это Габор. Где ты сейчас?",
+          "en": "Hi, Olga! It's Gábor. Where are you now?",
+          "who": "B"
+        },
+        {
+          "hu": "Szia! Bocsi, nem értem. Mondd újra, lassan.",
+          "ru": "Привет! Прости, не понимаю. Скажи ещё раз, медленно.",
+          "en": "Hi! Sorry, I don't understand. Say it again, slowly.",
+          "who": "A"
+        },
+        {
+          "hu": "Hol vagy most? Otthon?",
+          "ru": "Где ты? Дома?",
+          "en": "Where are you? At home?",
+          "who": "B"
+        },
+        {
+          "hu": "Hát, nem hallom jól. Lassan, kérlek.",
+          "ru": "Ну, я плохо слышу. Медленно, пожалуйста.",
+          "en": "Well, I can't hear well. Slowly, please.",
+          "who": "A"
+        },
+        {
+          "hu": "Jó, jó. Nagyon gyorsan beszélek, igaz?",
+          "ru": "Ладно, ладно. Я очень быстро говорю, да?",
+          "en": "Okay, okay. I speak very fast, right?",
+          "who": "B"
+        },
+        {
+          "hu": "Igen, kicsit. Aha, otthon vagyok!",
+          "ru": "Да, немного. Ага, я дома!",
+          "en": "Yes, a bit. Aha, I'm at home!",
+          "who": "A"
+        },
+        {
+          "hu": "Jó. Én itt vagyok az ajtó előtt. Gyere le!",
+          "ru": "Хорошо. А я здесь, перед дверью. Спускайся!",
+          "en": "Good. I'm right here in front of the door. Come down!",
+          "who": "B"
+        },
+        {
+          "hu": "Igen? Egy pillanat, jövök!",
+          "ru": "Да? Одну минуту, иду!",
+          "en": "Yes? One moment, I'm coming!",
+          "who": "A"
+        },
+        {
+          "hu": "Köszi! Itt várlak, gyere!",
+          "ru": "Спасибо! Я жду здесь, иди!",
+          "en": "Thanks! I'm waiting here, come on!",
+          "who": "B"
+        },
+        {
+          "hu": "Jó, mindjárt ott vagyok! Szia!",
+          "ru": "Хорошо, сейчас буду! Пока!",
+          "en": "OK, I'll be right there! Bye!",
+          "who": "A"
+        },
+        {
+          "hu": "Szia, szia!",
+          "ru": "Пока, пока!",
+          "en": "Bye, bye!",
+          "who": "B"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "utcan-angolul",
+      "title": {
+        "ru": "На улице: по-английски?",
+        "en": "In the street: English?"
+      },
+      "scene": {
+        "ru": "Прохожий спрашивает у женщины.",
+        "en": "A passer-by asks a woman."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést! Ön beszél angolul?",
+          "ru": "Извините! Вы говорите по-английски?",
+          "en": "Excuse me! Do you speak English?"
+        },
+        {
+          "who": "B",
+          "hu": "Sajnos nem.",
+          "ru": "К сожалению, нет.",
+          "en": "Unfortunately not."
+        },
+        {
+          "who": "A",
+          "hu": "Semmi baj. Köszönöm szépen!",
+          "ru": "Ничего страшного. Большое спасибо!",
+          "en": "No problem. Thank you very much!"
+        },
+        {
+          "who": "B",
+          "hu": "Nincs mit.",
+          "ru": "Не за что.",
+          "en": "You're welcome."
+        }
+      ]
+    },
+    {
+      "slug": "kavepult",
+      "title": {
+        "ru": "У стойки кафе",
+        "en": "At the café counter"
+      },
+      "scene": {
+        "ru": "Покупатель и бариста у стойки.",
+        "en": "A customer and the barista at the counter."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Egy kávét kérek.",
+          "ru": "Один кофе, пожалуйста.",
+          "en": "One coffee, please."
+        },
+        {
+          "who": "B",
+          "hu": "Nagy vagy kicsi?",
+          "ru": "Большой или маленький?",
+          "en": "Large or small?"
+        },
+        {
+          "who": "A",
+          "hu": "Bocsánat, nem értem.",
+          "ru": "Извините, не понимаю.",
+          "en": "Sorry, I don't understand."
+        },
+        {
+          "who": "B",
+          "hu": "Nagy? Kicsi?",
+          "ru": "Большой? Маленький?",
+          "en": "Large? Small?"
+        },
+        {
+          "who": "A",
+          "hu": "Aha! Kicsi, köszönöm.",
+          "ru": "Ага! Маленький, спасибо.",
+          "en": "Aha! Small, thank you."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. Tessék!",
+          "ru": "Хорошо. Пожалуйста!",
+          "en": "All right. Here you are!"
+        }
+      ]
+    },
+    {
+      "slug": "megallo",
+      "title": {
+        "ru": "Который час?",
+        "en": "What time is it?"
+      },
+      "scene": {
+        "ru": "Незнакомцы на улице.",
+        "en": "Strangers in the street."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, hány óra van?",
+          "ru": "Извините, который час?",
+          "en": "Excuse me, what time is it?"
+        },
+        {
+          "who": "B",
+          "hu": "Fél három.",
+          "ru": "Половина третьего.",
+          "en": "Half past two."
+        },
+        {
+          "who": "A",
+          "hu": "Tessék? Nem értem.",
+          "ru": "Что? Не понимаю.",
+          "en": "Sorry? I don't understand."
+        },
+        {
+          "who": "B",
+          "hu": "Fél három! Fél három!",
+          "ru": "Половина третьего! Половина третьего!",
+          "en": "Half past two! Half past two!"
+        },
+        {
+          "who": "A",
+          "hu": "Aha, értem! Köszönöm.",
+          "ru": "Ага, понял! Спасибо.",
+          "en": "Aha, got it! Thank you."
+        }
+      ]
+    },
+    {
+      "slug": "szomszed-zene",
+      "title": {
+        "ru": "Поздно вечером",
+        "en": "Late at night"
+      },
+      "scene": {
+        "ru": "Сосед стучит к соседке вечером.",
+        "en": "A neighbour knocks in the evening."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, nagyon késő van!",
+          "ru": "Извините, уже очень поздно!",
+          "en": "Excuse me, it is very late!"
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, bocsánat!",
+          "ru": "Ой, простите!",
+          "en": "Oh, sorry!"
+        },
+        {
+          "who": "A",
+          "hu": "Halkan, kérem!",
+          "ru": "Потише, пожалуйста!",
+          "en": "Quietly, please!"
+        },
+        {
+          "who": "B",
+          "hu": "Rendben, halkan leszek.",
+          "ru": "Хорошо, буду тише.",
+          "en": "OK, I'll keep it down."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm szépen.",
+          "ru": "Большое спасибо.",
+          "en": "Thank you very much."
+        }
+      ]
+    },
+    {
+      "slug": "a-varazsszo",
+      "title": {
+        "ru": "Как надо просить?",
+        "en": "How do we ask?"
+      },
+      "scene": {
+        "ru": "Мама и маленький сын дома.",
+        "en": "A mother and her little son at home."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Anya, kérek még!",
+          "ru": "Мам, дай ещё!",
+          "en": "Mum, I want more!"
+        },
+        {
+          "who": "B",
+          "hu": "Mit mondunk?",
+          "ru": "Что мы говорим?",
+          "en": "What do we say?"
+        },
+        {
+          "who": "A",
+          "hu": "Kérlek szépen!",
+          "ru": "Пожалуйста!",
+          "en": "Please!"
+        },
+        {
+          "who": "B",
+          "hu": "Tessék, itt van.",
+          "ru": "Вот, держи.",
+          "en": "Here you go."
+        },
+        {
+          "who": "A",
+          "hu": "Köszi, anya!",
+          "ru": "Спасибо, мам!",
+          "en": "Thanks, Mum!"
+        }
+      ]
+    },
+    {
+      "slug": "telefon-nem-hallom",
+      "title": {
+        "ru": "Плохая связь",
+        "en": "A bad line"
+      },
+      "scene": {
+        "ru": "Двое друзей по телефону.",
+        "en": "Two friends on the phone."
+      },
+      "names": [
+        "Kata"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Halló, Kata? Hallasz?",
+          "ru": "Алло, Ката? Ты слышишь?",
+          "en": "Hello, Kata? Can you hear me?"
+        },
+        {
+          "who": "B",
+          "hu": "Tessék? Nem hallom!",
+          "ru": "Что? Не слышу!",
+          "en": "Sorry? I can't hear you!"
+        },
+        {
+          "who": "A",
+          "hu": "Most hallasz?",
+          "ru": "Теперь слышишь?",
+          "en": "Can you hear me now?"
+        },
+        {
+          "who": "B",
+          "hu": "Most igen! Mondd csak.",
+          "ru": "Теперь да! Говори.",
+          "en": "Now yes! Go on."
+        }
+      ]
+    }
+  ]
+}

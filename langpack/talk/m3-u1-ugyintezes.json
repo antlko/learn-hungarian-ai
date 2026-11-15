@@ -1,0 +1,503 @@
+{
+  "talk": {
+    "genre": "phone",
+    "checked": "ai",
+    "title": {
+      "ru": "Звонок в ведомство",
+      "en": "A call to the agency"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "who": "B",
+          "hu": "Hivatal, jó napot kívánok! Tessék.",
+          "ru": "Ведомство, здравствуйте! Слушаю.",
+          "en": "Office, good day! Go ahead."
+        },
+        {
+          "who": "A",
+          "hu": "Jó napot! Az útlevelem miatt hívom.",
+          "ru": "Здравствуйте! Звоню по поводу загранпаспорта.",
+          "en": "Good afternoon! I am calling about my passport."
+        },
+        {
+          "who": "B",
+          "hu": "Igen, mi a kérdése?",
+          "ru": "Да, какой у вас вопрос?",
+          "en": "Yes, what is your question?"
+        },
+        {
+          "who": "A",
+          "hu": "Meddig tart nyitva az iroda?",
+          "ru": "До которого часа открыт офис?",
+          "en": "How late is the office open?"
+        },
+        {
+          "who": "B",
+          "hu": "Hétfőtől csütörtökig nyolctól négyig.",
+          "ru": "С понедельника по четверг с восьми до четырёх.",
+          "en": "Monday to Thursday, eight to four."
+        },
+        {
+          "who": "A",
+          "hu": "Kell időpont, vagy csak egy szám?",
+          "ru": "Нужна запись или только номерок?",
+          "en": "Do I need an appointment, or just a number?"
+        },
+        {
+          "who": "B",
+          "hu": "Időpont nem kell, de számot kell húzni.",
+          "ru": "Запись не нужна, но номерок надо взять.",
+          "en": "No appointment needed, but you have to take a number."
+        },
+        {
+          "who": "A",
+          "hu": "Hol van pontosan a hivatal?",
+          "ru": "Где именно находится ведомство?",
+          "en": "Where exactly is the office?"
+        },
+        {
+          "who": "B",
+          "hu": "A nagy ház mellett, a második kapu.",
+          "ru": "Рядом с большим домом, вторые ворота.",
+          "en": "Next to the big building, the second gate."
+        },
+        {
+          "who": "A",
+          "hu": "Értem. Mit vigyek magammal?",
+          "ru": "Понятно. Что мне взять с собой?",
+          "en": "I see. What should I bring?"
+        },
+        {
+          "who": "B",
+          "hu": "A személyit és a régi útlevelet.",
+          "ru": "Удостоверение и старый загранпаспорт.",
+          "en": "Your ID and the old passport."
+        },
+        {
+          "who": "A",
+          "hu": "A másolat nem elég?",
+          "ru": "Копии не хватит?",
+          "en": "Is a copy not enough?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, az eredeti kell. A másolat nem jó.",
+          "ru": "Нет, нужен оригинал. Копия не подходит.",
+          "en": "No, the original is needed. A copy will not do."
+        },
+        {
+          "who": "A",
+          "hu": "És mennyi az illeték? Azt is fizetni kell?",
+          "ru": "А сколько госпошлина? Её тоже платить?",
+          "en": "And how much is the fee? Do I have to pay that too?"
+        },
+        {
+          "who": "B",
+          "hu": "Azt ott fizeti, kártyával is lehet.",
+          "ru": "Это вы платите на месте, можно и картой.",
+          "en": "You pay that there, a card is fine too."
+        },
+        {
+          "who": "A",
+          "hu": "Lehet ott parkolni?",
+          "ru": "Там можно парковаться?",
+          "en": "Can one park there?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, jobb a busz.",
+          "ru": "Нет, лучше автобус.",
+          "en": "No, the bus is better."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben, akkor busszal megyek. Köszönöm szépen!",
+          "ru": "Хорошо, тогда поеду на автобусе. Большое спасибо!",
+          "en": "All right, then I will take the bus. Thank you very much!"
+        },
+        {
+          "who": "B",
+          "hu": "Szívesen. Viszlát!",
+          "ru": "Пожалуйста. До свидания!",
+          "en": "You are welcome. Goodbye!"
+        },
+        {
+          "who": "A",
+          "hu": "Viszlát!",
+          "ru": "До свидания!",
+          "en": "Goodbye!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "automata",
+      "title": {
+        "ru": "Номерок",
+        "en": "The ticket machine"
+      },
+      "scene": {
+        "ru": "В холле: человек спрашивает охранника.",
+        "en": "In the hall: a man asks the guard."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, hol kapok számot?",
+          "ru": "Извините, где взять номерок?",
+          "en": "Excuse me, where do I get a number?"
+        },
+        {
+          "who": "B",
+          "hu": "Az ajtónál van egy gép.",
+          "ru": "У двери стоит аппарат.",
+          "en": "There is a machine by the door."
+        },
+        {
+          "who": "A",
+          "hu": "Melyiket nyomjam meg?",
+          "ru": "На какую кнопку нажать?",
+          "en": "Which one should I press?"
+        },
+        {
+          "who": "B",
+          "hu": "Az elsőt, a személyihez.",
+          "ru": "Первую, для удостоверения.",
+          "en": "The first, for the ID."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm. Sokan vannak előttem?",
+          "ru": "Спасибо. Передо мной много людей?",
+          "en": "Thanks. Are there many ahead of me?"
+        },
+        {
+          "who": "B",
+          "hu": "Négyen. Gyorsan megy.",
+          "ru": "Четверо. Быстро идёт.",
+          "en": "Four. It goes quickly."
+        },
+        {
+          "who": "A",
+          "hu": "Akkor várok egy kicsit. Köszönöm!",
+          "ru": "Тогда немного подожду. Спасибо!",
+          "en": "Then I will wait a little. Thanks!"
+        },
+        {
+          "who": "B",
+          "hu": "Szívesen, nincs mit.",
+          "ru": "Пожалуйста, не за что.",
+          "en": "You are welcome, no problem."
+        }
+      ]
+    },
+    {
+      "slug": "melyik-ablak",
+      "title": {
+        "ru": "Какое окно?",
+        "en": "Which window?"
+      },
+      "scene": {
+        "ru": "Человек у окна: не туда попал.",
+        "en": "A man at a counter: the wrong one."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot! Az útlevélhez jöttem.",
+          "ru": "Здравствуйте! Я пришёл за загранпаспортом.",
+          "en": "Good afternoon! I came about the passport."
+        },
+        {
+          "who": "B",
+          "hu": "Itt nem lehet, ez nem az az ablak.",
+          "ru": "Здесь нельзя, это не то окно.",
+          "en": "Not here, this is not that window."
+        },
+        {
+          "who": "A",
+          "hu": "Akkor melyik ablak jó?",
+          "ru": "Тогда какое окно подходит?",
+          "en": "Then which window is right?"
+        },
+        {
+          "who": "B",
+          "hu": "A másik, a folyosón balra.",
+          "ru": "Другое, по коридору налево.",
+          "en": "The other one, left along the corridor."
+        },
+        {
+          "who": "A",
+          "hu": "Aha, értem. Ott nincs sor?",
+          "ru": "А, понятно. Там нет очереди?",
+          "en": "Oh, I see. Is there no queue there?"
+        },
+        {
+          "who": "B",
+          "hu": "Most nincs, menjen gyorsan!",
+          "ru": "Сейчас нет, идите скорее!",
+          "en": "Not now, go quickly!"
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm szépen!",
+          "ru": "Большое спасибо!",
+          "en": "Thank you very much!"
+        }
+      ]
+    },
+    {
+      "slug": "hianyzik-egy-papir",
+      "title": {
+        "ru": "Не хватает бумаги",
+        "en": "One paper missing"
+      },
+      "scene": {
+        "ru": "У окна: адрес, а договор остался дома.",
+        "en": "At the counter: an address, the contract left at home."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "B",
+          "hu": "Jó napot. Mi az ügye?",
+          "ru": "Здравствуйте. Какое у вас дело?",
+          "en": "Good afternoon. What is your business?"
+        },
+        {
+          "who": "A",
+          "hu": "Új lakcímet szeretnék bejelenteni.",
+          "ru": "Хочу заявить новый адрес.",
+          "en": "I would like to register a new address."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. A személyit és a szerződést kérem.",
+          "ru": "Хорошо. Удостоверение и договор, пожалуйста.",
+          "en": "All right. Your ID and the contract, please."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, a szerződés otthon maradt.",
+          "ru": "Ой, договор остался дома.",
+          "en": "Oh, the contract stayed at home."
+        },
+        {
+          "who": "B",
+          "hu": "Másolat is jó, de papíron.",
+          "ru": "Копия тоже подойдёт, но на бумаге.",
+          "en": "A copy will do too, but on paper."
+        },
+        {
+          "who": "A",
+          "hu": "Hol kapok másolatot?",
+          "ru": "Где мне взять копию?",
+          "en": "Where do I get a copy?"
+        },
+        {
+          "who": "B",
+          "hu": "A folyosón van egy gép.",
+          "ru": "В коридоре есть аппарат.",
+          "en": "There is a machine in the corridor."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm, mindjárt jövök!",
+          "ru": "Спасибо, сейчас вернусь!",
+          "en": "Thanks, I will be right back!"
+        }
+      ]
+    },
+    {
+      "slug": "nyitvatartas",
+      "title": {
+        "ru": "Часы приёма",
+        "en": "Opening hours"
+      },
+      "scene": {
+        "ru": "Двое друзей у закрытых дверей.",
+        "en": "Two friends at a closed door."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jé, zárva van az iroda!",
+          "ru": "Ой, офис закрыт!",
+          "en": "Oh, the office is closed!"
+        },
+        {
+          "who": "B",
+          "hu": "Nézd, ott a papír. Reggel van nyitva.",
+          "ru": "Смотри, вон листок. Открыто утром.",
+          "en": "Look, there is the paper. It is open in the morning."
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg. Nyolctól délig.",
+          "ru": "Правда. С восьми до полудня.",
+          "en": "Really. Eight to noon."
+        },
+        {
+          "who": "B",
+          "hu": "Akkor holnap jövünk, korán.",
+          "ru": "Тогда придём завтра, рано.",
+          "en": "Then we come tomorrow, early."
+        },
+        {
+          "who": "A",
+          "hu": "Jó, hétkor itt vagyunk.",
+          "ru": "Ладно, в семь мы здесь.",
+          "en": "Okay, we will be here at seven."
+        },
+        {
+          "who": "B",
+          "hu": "Hú, ez nagyon korán van!",
+          "ru": "Ух, это очень рано!",
+          "en": "Phew, that is very early!"
+        },
+        {
+          "who": "A",
+          "hu": "Hát, a sor miatt kell.",
+          "ru": "Ну, из-за очереди надо.",
+          "en": "Well, because of the queue we must."
+        }
+      ]
+    },
+    {
+      "slug": "segitesz-kitolteni",
+      "title": {
+        "ru": "Помоги с бланком",
+        "en": "Help with the form"
+      },
+      "scene": {
+        "ru": "Две подруги дома: одна заполняет бланк.",
+        "en": "Two friends at home: one is filling in a form."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Segítesz? Nem értem ezt az űrlapot.",
+          "ru": "Поможешь? Я не понимаю этот бланк.",
+          "en": "Will you help? I do not understand this form."
+        },
+        {
+          "who": "B",
+          "hu": "Persze. Nézzük! Ez a neved.",
+          "ru": "Конечно. Посмотрим! Это твоё имя.",
+          "en": "Sure. Let us see! This is your name."
+        },
+        {
+          "who": "A",
+          "hu": "És ez itt?",
+          "ru": "А это здесь?",
+          "en": "And this here?"
+        },
+        {
+          "who": "B",
+          "hu": "Az anyukád neve.",
+          "ru": "Имя твоей мамы.",
+          "en": "Your mother's name."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, ezt nem tudom pontosan.",
+          "ru": "Ой, я точно не помню.",
+          "en": "Oh, I do not know this exactly."
+        },
+        {
+          "who": "B",
+          "hu": "Hívd fel az anyukádat!",
+          "ru": "Позвони маме!",
+          "en": "Call your mum!"
+        },
+        {
+          "who": "A",
+          "hu": "Jó ötlet. Aláírom már?",
+          "ru": "Хорошая мысль. Подписываю уже?",
+          "en": "Good idea. Do I sign it already?"
+        },
+        {
+          "who": "B",
+          "hu": "Várj, előbb megnézem!",
+          "ru": "Подожди, сначала посмотрю!",
+          "en": "Wait, I look it over first!"
+        }
+      ]
+    },
+    {
+      "slug": "sorban-allni",
+      "title": {
+        "ru": "В очереди",
+        "en": "Waiting in line"
+      },
+      "scene": {
+        "ru": "Двое незнакомых людей в очереди.",
+        "en": "Two strangers in a queue."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, ön az utolsó?",
+          "ru": "Извините, вы последний?",
+          "en": "Excuse me, are you the last?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, utánam már senki.",
+          "ru": "Да, после меня никого.",
+          "en": "Yes, nobody after me."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm. Sokáig tart ez?",
+          "ru": "Спасибо. Это долго?",
+          "en": "Thanks. Does this take long?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem tudom, már egy órája várok.",
+          "ru": "Не знаю, жду уже час.",
+          "en": "I do not know, I have been waiting an hour."
+        },
+        {
+          "who": "A",
+          "hu": "Hú, akkor megyek kávéért.",
+          "ru": "Ух, тогда схожу за кофе.",
+          "en": "Phew, then I am going for coffee."
+        },
+        {
+          "who": "B",
+          "hu": "Menjen csak, majd szólok.",
+          "ru": "Идите, я скажу.",
+          "en": "Go ahead, I will tell you."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm, nagyon kedves!",
+          "ru": "Спасибо, очень мило!",
+          "en": "Thank you, very kind!"
+        },
+        {
+          "who": "B",
+          "hu": "Nincs mit. Nekem is hozhat egyet!",
+          "ru": "Не за что. Мне тоже можете принести!",
+          "en": "No problem. You can bring me one too!"
+        }
+      ]
+    }
+  ]
+}

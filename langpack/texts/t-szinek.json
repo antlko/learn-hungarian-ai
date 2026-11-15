@@ -1,0 +1,385 @@
+{
+  "short": {
+    "genre": "notice",
+    "checked": "ai",
+    "title": {
+      "ru": "Потеряна сумка",
+      "en": "Lost bag"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Nincs meg a táskám, és nagyon keresem.",
+          "ru": "Моей сумки нет, и я очень её ищу.",
+          "en": "I cannot find my bag, and I am looking for it a lot."
+        },
+        {
+          "hu": "A táska nagy, és nem sötét, hanem halvány kék.",
+          "ru": "Сумка большая, и она не тёмная, а бледно-голубая.",
+          "en": "The bag is big, and it is not dark but pale blue."
+        },
+        {
+          "hu": "Fehér és fekete csíkos, és van rajta egy kis ezüst szív.",
+          "ru": "Она в белую и чёрную полоску, и на ней маленькое серебряное сердечко.",
+          "en": "It is white and black striped, and it has a little silver heart on it."
+        },
+        {
+          "hu": "Az a szív fényes, és csillog.",
+          "ru": "Это сердечко блестящее, оно сверкает.",
+          "en": "That heart is shiny, and it glitters."
+        }
+      ],
+      [
+        {
+          "hu": "A kép tarka, és nagyon élénk.",
+          "ru": "Картинка пёстрая и очень яркая.",
+          "en": "The picture is motley and very vivid."
+        },
+        {
+          "hu": "Benne van egy piros könyv és egy színes kép.",
+          "ru": "Внутри красная книга и цветная картинка.",
+          "en": "Inside there is a red book and a colourful picture."
+        },
+        {
+          "hu": "A kép zöld és sárga, és nagyon fontos nekem.",
+          "ru": "Картинка зелёная и жёлтая, и она очень важна для меня.",
+          "en": "The picture is green and yellow, and it is very important to me."
+        },
+        {
+          "hu": "Talán egy boltban hagytam, a nagy színes bolt mellett.",
+          "ru": "Может быть, я оставил её в магазине, рядом с большим цветным магазином.",
+          "en": "Maybe I left it in a shop, next to the big colourful shop."
+        },
+        {
+          "hu": "Ha látod a táskát, kérlek, hívj fel!",
+          "ru": "Если увидишь сумку, пожалуйста, позвони мне!",
+          "en": "If you see the bag, please call me!"
+        },
+        {
+          "hu": "Köszönöm szépen!",
+          "ru": "Большое спасибо!",
+          "en": "Thank you very much!"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "В магазине одежды",
+      "en": "In the clothes shop"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Jó napot kívánok! Tessék, mit kér? Nézzen körül, itt minden szín van.",
+          "ru": "Добрый день! Слушаю вас, что желаете? Осмотритесь, здесь есть все цвета.",
+          "en": "Good afternoon! Yes, what would you like? Have a look around, we have every colour here."
+        },
+        {
+          "hu": "Jó napot! Egy ruhát keresek a lányomnak, de nem tudom, milyen szín kell.",
+          "ru": "Добрый день! Я ищу платье для дочери, но не знаю, какой цвет нужен.",
+          "en": "Good afternoon! I am looking for a dress for my daughter, but I don't know what colour it should be."
+        },
+        {
+          "hu": "Nagy vagy kicsi lány?",
+          "ru": "Ваша дочь большая или маленькая?",
+          "en": "Is your daughter big or small?"
+        },
+        {
+          "hu": "A kicsik az élénk színeket szeretik, a rózsaszínt vagy a lilát.",
+          "ru": "Малыши любят яркие цвета, розовый или фиолетовый.",
+          "en": "Little ones like vivid colours, pink or purple."
+        },
+        {
+          "hu": "Ő már nagy lány, és mindig mást akar. Most nem szereti a rózsaszínt.",
+          "ru": "Она уже большая девочка, и она всегда хочет другое. Сейчас она не любит розовый.",
+          "en": "She is already a big girl, and she always wants something different. Now she does not like pink."
+        },
+        {
+          "hu": "Itt van egy szép lila, és ott egy halvány türkiz is.",
+          "ru": "Вот красивый фиолетовый, а там ещё бледно-бирюзовый.",
+          "en": "Here is a nice purple one, and there is a pale turquoise one too."
+        },
+        {
+          "hu": "A türkiz nagyon szép, de talán túl halvány. Nincs sötétebb árnyalat?",
+          "ru": "Бирюзовый очень красивый, но, может быть, слишком бледный. Нет ли более тёмного оттенка?",
+          "en": "The turquoise is very nice, but maybe too pale. Isn't there a darker shade?"
+        },
+        {
+          "hu": "Van egy sötét kék, és egy fényes ezüst is.",
+          "ru": "Есть тёмно-синий и ещё блестящий серебристый.",
+          "en": "There is a dark blue one, and a shiny silver one too."
+        },
+        {
+          "hu": "Az ezüst érdekes, de a lányom a csíkosat vagy a pöttyöset szereti.",
+          "ru": "Серебристый интересный, но дочь любит полосатое или в горошек.",
+          "en": "The silver one is interesting, but my daughter likes striped or dotted ones."
+        },
+        {
+          "hu": "Van egy fehér és fekete csíkos, és egy szürke kockás.",
+          "ru": "Есть в чёрно-белую полоску и серое в клетку.",
+          "en": "There is a white and black striped one, and a grey checked one."
+        },
+        {
+          "hu": "A szürke nekem fakó, és a kockás sem tetszik.",
+          "ru": "Серое мне кажется блёклым, и клетчатое тоже не нравится.",
+          "en": "The grey looks dull to me, and I don't like the checked one either."
+        },
+        {
+          "hu": "A csíkos jó, de nagyon sápadt.",
+          "ru": "Полосатое хорошо, но очень бледное.",
+          "en": "The striped one is good, but very pale."
+        },
+        {
+          "hu": "Akkor itt van ez a tarka, sok árnyalat van benne, kék, sárga és zöld.",
+          "ru": "Тогда вот это пёстрое, в нём много оттенков, синий, жёлтый и зелёный.",
+          "en": "Then here is this motley one, it has many shades, blue, yellow and green."
+        },
+        {
+          "hu": "Ez nagyon szép! Van narancssárga is?",
+          "ru": "Очень красиво! А оранжевое есть?",
+          "en": "This is very nice! Is there an orange one too?"
+        },
+        {
+          "hu": "Sajnos nincs, de van egy piros és egy türkiz.",
+          "ru": "К сожалению, нет, но есть красное и бирюзовое.",
+          "en": "Unfortunately not, but there is a red one and a turquoise one."
+        },
+        {
+          "hu": "A tarka jó, azt kérem. Mennyi?",
+          "ru": "Пёстрое хорошее, беру. Сколько?",
+          "en": "The motley one is good, I will take it. How much?"
+        },
+        {
+          "hu": "Jó választás, ezek a színek nem fakók, hanem ragyogók. Tessék, itt a számla.",
+          "ru": "Хороший выбор, эти цвета не блёклые, а яркие. Вот, пожалуйста, чек.",
+          "en": "A good choice, these colours are not dull but bright. Here is the bill."
+        },
+        {
+          "hu": "Köszönöm! A lányom úgy fog örülni, olyan, mint egy kis szivárvány!",
+          "ru": "Спасибо! Дочь так обрадуется, оно как маленькая радуга!",
+          "en": "Thank you! My daughter will be so happy, it is like a little rainbow!"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "story",
+    "checked": "ai",
+    "title": {
+      "ru": "Новые стены",
+      "en": "The new walls"
+    },
+    "names": [
+      "Eszter",
+      "Dani",
+      "Lili"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Lili szobájának a falai szürkék voltak, és nagyon fakók.",
+          "ru": "Стены Лилиной комнаты были серыми и очень выцветшими.",
+          "en": "The walls of Lili's room were grey and very faded."
+        },
+        {
+          "hu": "A szürke szoba sötét volt, és semmi sem csillogott benne.",
+          "ru": "Серая комната была тёмной, и в ней ничего не блестело.",
+          "en": "The grey room was dark, and nothing glittered in it."
+        },
+        {
+          "hu": "Az ablak átlátszó és tiszta volt, de a szoba mégis szürke maradt.",
+          "ru": "Окно было прозрачным и чистым, но комната всё равно осталась серой.",
+          "en": "The window was transparent and clean, but the room stayed grey anyway."
+        },
+        {
+          "hu": "Lili nem szerette a szobát.",
+          "ru": "Лили не любила эту комнату.",
+          "en": "Lili did not like the room."
+        },
+        {
+          "hu": "Ez a szín olyan sápadt, mondta.",
+          "ru": "Этот цвет такой бледный, сказала она.",
+          "en": "This colour is so pale, she said."
+        },
+        {
+          "hu": "Eszter azt mondta, hogy ideje festeni.",
+          "ru": "Эстер сказала, что пора красить.",
+          "en": "Eszter said that it was time to paint."
+        }
+      ],
+      [
+        {
+          "hu": "Hétvégén Eszter, Dani és Lili festéket vettek a boltban.",
+          "ru": "На выходных Эстер, Дани и Лили купили краску в магазине.",
+          "en": "At the weekend Eszter, Dani and Lili bought paint in the shop."
+        },
+        {
+          "hu": "Sok festék volt ott, fehér, sárga, kék, zöld, piros, lila és narancssárga.",
+          "ru": "Там было много красок: белая, жёлтая, синяя, зелёная, красная, фиолетовая и оранжевая.",
+          "en": "There was a lot of paint there, white, yellow, blue, green, red, purple and orange."
+        },
+        {
+          "hu": "Lili egy szivárványt akart a falra.",
+          "ru": "Лили хотела радугу на стене.",
+          "en": "Lili wanted a rainbow on the wall."
+        },
+        {
+          "hu": "Lili az élénk színeket kereste.",
+          "ru": "Лили искала яркие цвета.",
+          "en": "Lili was looking for vivid colours."
+        },
+        {
+          "hu": "Dani a halvány árnyalatokat szerette.",
+          "ru": "Дани нравились бледные оттенки.",
+          "en": "Dani liked the pale shades."
+        },
+        {
+          "hu": "Legyen a szoba színes, de ne tarka, mondta Dani.",
+          "ru": "Пусть комната будет цветной, но не пёстрой, сказал Дани.",
+          "en": "Let the room be colourful but not motley, said Dani."
+        },
+        {
+          "hu": "Eszter nevetett, mert Lili már a lila festéket nézte.",
+          "ru": "Эстер засмеялась, потому что Лили уже смотрела на фиолетовую краску.",
+          "en": "Eszter laughed, because Lili was already looking at the purple paint."
+        },
+        {
+          "hu": "Lili arany festéket is kért, de az nagyon drága volt.",
+          "ru": "Лили попросила ещё золотую краску, но она была очень дорогой.",
+          "en": "Lili asked for gold paint too, but it was very expensive."
+        },
+        {
+          "hu": "A fekete festék sem kell, mondta Lili, mert az olyan sötét.",
+          "ru": "Чёрная краска тоже не нужна, сказала Лили, ведь она такая тёмная.",
+          "en": "We don't need black paint either, said Lili, because it is so dark."
+        },
+        {
+          "hu": "Ez túl sötét a falra, mondta Eszter, és Lili is látta.",
+          "ru": "Это слишком тёмный цвет для стены, сказала Эстер, и Лили тоже это увидела.",
+          "en": "That is too dark for a wall, said Eszter, and Lili saw it too."
+        }
+      ],
+      [
+        {
+          "hu": "Végül egy halvány türkiz festéket vettek a falra, és egy sötét kéket az ajtóra.",
+          "ru": "В конце концов они взяли бледно-бирюзовую краску для стен и тёмно-синюю для двери.",
+          "en": "In the end they bought a pale turquoise paint for the wall and a dark blue one for the door."
+        },
+        {
+          "hu": "Vettek még egy kis sárgát, pirosat és zöldet a szivárványhoz.",
+          "ru": "Купили ещё немного жёлтой, красной и зелёной для радуги.",
+          "en": "They also bought a little yellow, red and green for the rainbow."
+        },
+        {
+          "hu": "A festék a dobozban még nem volt olyan szép, mint a falon.",
+          "ru": "В банке краска была ещё не такой красивой, как на стене.",
+          "en": "In the tin the paint was not yet as nice as on the wall."
+        },
+        {
+          "hu": "Dani azt mondta, hogy otthon majd lesz szín.",
+          "ru": "Дани сказал, что дома цвет ещё появится.",
+          "en": "Dani said that at home the colour would come."
+        },
+        {
+          "hu": "Régi ruhát vettek fel a munkához, mert a festék nem megy ki.",
+          "ru": "Для работы они надели старую одежду, ведь краска не отстирывается.",
+          "en": "They put on old clothes for the work, because paint does not come out."
+        }
+      ],
+      [
+        {
+          "hu": "Lili ruhája pöttyös volt, Dani ruhája kockás, Eszter ruhája pedig csíkos.",
+          "ru": "Одежда Лили была в горошек, у Дани в клетку, а у Эстер в полоску.",
+          "en": "Lili's clothes were dotted, Dani's checked, and Eszter's striped."
+        },
+        {
+          "hu": "Szombaton reggel mindenki festeni kezdett.",
+          "ru": "В субботу утром все начали красить.",
+          "en": "On Saturday morning everyone started to paint."
+        },
+        {
+          "hu": "Dani fent festett, Lili pedig lent.",
+          "ru": "Дани красил наверху, а Лили внизу.",
+          "en": "Dani painted at the top and Lili at the bottom."
+        },
+        {
+          "hu": "Lili keze tele volt sárga festékkel, és a falon is volt egy sárga kéz.",
+          "ru": "Руки у Лили были все в жёлтой краске, и на стене тоже был жёлтый отпечаток руки.",
+          "en": "Lili's hand was full of yellow paint, and there was a yellow handprint on the wall too."
+        },
+        {
+          "hu": "Délután az ablaknál sok fény volt, és a fal ragyogó volt.",
+          "ru": "После обеда у окна было много света, и стена сияла.",
+          "en": "In the afternoon there was a lot of light at the window, and the wall was radiant."
+        },
+        {
+          "hu": "A friss festék fényes volt, és csillogott.",
+          "ru": "Свежая краска была блестящей и сверкала.",
+          "en": "The fresh paint was shiny, and it glittered."
+        },
+        {
+          "hu": "Egy kis árnyék a sarokban még sötét volt, de Lili nem félt.",
+          "ru": "Небольшая тень в углу была ещё тёмной, но Лили не боялась.",
+          "en": "A little shadow in the corner was still dark, but Lili was not afraid."
+        }
+      ],
+      [
+        {
+          "hu": "Estére a szoba kész lett.",
+          "ru": "К вечеру комната была готова.",
+          "en": "By evening the room was finished."
+        },
+        {
+          "hu": "Az új szín nem volt fakó és nem volt sápadt, hanem friss és szép.",
+          "ru": "Новый цвет не был ни выцветшим, ни бледным, а свежим и красивым.",
+          "en": "The new colour was not faded and not pale, but fresh and nice."
+        },
+        {
+          "hu": "Lili régen félt a sötétségtől és az árnyékoktól.",
+          "ru": "Раньше Лили боялась темноты и теней.",
+          "en": "Lili used to be afraid of the darkness and of shadows."
+        },
+        {
+          "hu": "Éjszaka a sötétség sem volt ijesztő, mert a lámpa fénye csillogott a falon.",
+          "ru": "Ночью и темнота не была страшной, потому что свет лампы блестел на стене.",
+          "en": "At night even the darkness was not scary, because the light of the lamp glittered on the wall."
+        },
+        {
+          "hu": "Vasárnap Lili egy képet festett a falra, egy nagy szivárványt.",
+          "ru": "В воскресенье Лили нарисовала на стене картину, большую радугу.",
+          "en": "On Sunday Lili painted a picture on the wall, a big rainbow."
+        },
+        {
+          "hu": "Piros, sárga, zöld és kék volt rajta.",
+          "ru": "На ней были красный, жёлтый, зелёный и синий.",
+          "en": "It had red, yellow, green and blue."
+        },
+        {
+          "hu": "A szivárvány minden árnyalata ragyogó volt.",
+          "ru": "Каждый оттенок радуги был сияющим.",
+          "en": "Every shade of the rainbow was radiant."
+        },
+        {
+          "hu": "Dani egy kék szívet is festett alá.",
+          "ru": "Дани нарисовал под ней ещё синее сердце.",
+          "en": "Dani also painted a blue heart beneath it."
+        },
+        {
+          "hu": "Eszter még egy sárga és egy zöld csillagot festett mellé.",
+          "ru": "Эстер нарисовала рядом ещё жёлтую и зелёную звезду.",
+          "en": "Eszter painted a yellow and a green star next to it."
+        },
+        {
+          "hu": "Lili azt mondta, hogy ez a világ legszebb színes szobája.",
+          "ru": "Лили сказала, что это самая красивая цветная комната в мире.",
+          "en": "Lili said that this was the nicest colourful room in the world."
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,104 @@
+# Extra rules for the reading texts (langpack/texts/*.json), ADR-075. Two sections.
+#
+# [forms] -- word forms a text may use although the pack neither attests nor
+# generates them (token rule V1 (c)). One tab-separated row per form:
+#   form, lemma, upos, unit (a unit code or *), reason
+# `lemma` + `upos` give the form its band and frequency checks (V2, V3), so they
+# must name a lemma of the pack. Allow-listed forms are NOT written to `wordform`.
+#
+# [band-exempt] -- lemmas exempt from the V2 BAND check only (the pack's CEFR label
+# is wrong, or the word is core to the topic). They still count in the V3
+# frequency gate. One row per lemma:  lemma, upos (or *), unit (or *), reason
+# The reason is mandatory (>= 10 characters). Never exempt a rare word.
+#
+# Lines starting with # and blank lines are ignored.
+[forms]
+form	lemma	upos	unit	reason
+küldjek	küld	VERB	m3-u3-bank	regular 1sg subjunctive of a pack verb; recognition only
+hétkor	hét	NUM	*	regular -kor 'at that hour' form of a numeral; used in clock times
+tízkor	tíz	NUM	*	regular -kor 'at that hour' form of a numeral; used in clock times
+nyolckor	nyolc	NUM	*	regular -kor 'at that hour' form of a numeral; used in clock times
+üdvözli	üdvözöl	VERB	*	regular 3sg definite present of a pack verb; recognition only
+hívott	hív	VERB	m5-u1-elromlott	regular past 3sg indefinite of a pack verb; recognition only
+régebben	régen	ADV	m5-u1-elromlott	regular comparative adverb of a pack adverb; recognition only
+végén	vég	NOUN	m5-u2-idopont	regular possessive superessive of a pack noun (at the end of)
+haragudj	haragszik	VERB	m6-u2-erzesek	regular imperative 2sg of a pack verb; recognition only
+mosolygott	mosolyog	VERB	m6-u3-fogalmak	regular past 3sg indefinite of a pack verb; recognition only
+segített	segít	VERB	m6-u3-fogalmak	regular past 3sg indefinite of a pack verb; recognition only
+leült	leül	VERB	m6-u3-fogalmak	regular past 3sg indefinite of a pack verb; recognition only
+barátnőjével	barátnő	NOUN	m6-u3-fogalmak	regular possessive instrumental of a pack noun; recognition only
+felvettem	felvesz	VERB	t-ruhazat	regular past 1sg indefinite of a pack verb; recognition only
+étvágyat	étvágy	NOUN	*	regular accusative in the fixed wish 'jó étvágyat'
+egészségedre	egészség	NOUN	*	regular sublative with 2sg possessive in the fixed wish 'egészségedre'
+kóstold	kóstol	VERB	*	regular imperative 2sg definite of a pack verb; spoken offer 'kóstold meg'
+kóstolj	kóstol	VERB	*	regular imperative 2sg indefinite of a pack verb; spoken offer 'kóstolj'
+próbáld	próbál	VERB	*	regular imperative 2sg definite of a pack verb; spoken 'próbáld meg'
+[band-exempt]
+lemma	upos	unit	reason
+hétfő	*	*	weekday names are everyday words; the CEFR label (A2) is an estimate from frequency
+kedd	*	*	weekday name, everyday; the label (B1) is a frequency estimate and wrong for a day name
+szerda	*	*	weekday name, everyday; the label (B1) is a frequency estimate and wrong for a day name
+csütörtök	*	*	weekday name, everyday; the label (B1) is a frequency estimate and wrong for a day name
+péntek	*	*	weekday name, everyday; the label (A2) is a frequency estimate
+szombat	*	*	weekday name, everyday; the label (A2) is a frequency estimate
+vasárnap	*	*	weekday name, everyday; the label (A2) is a frequency estimate
+bolt	*	*	shop: basic A1 survival noun (a unit-2 topic); the A2 label is a frequency estimate
+kenyér	*	m1-u3-szamok-penz-ido	bread: the plain shopping example of the money unit; the B1 label is wrong for a staple
+tej	*	m1-u3-szamok-penz-ido	milk: the plain shopping example of the money unit; the A2 label is a frequency estimate
+pénztáros	*	m1-u3-szamok-penz-ido	cashier: the person you pay in the money unit's shop scene
+vásárló	*	m1-u3-szamok-penz-ido	customer: the shop notice and scene of the money unit
+ötszáz	NUM	*	plain numeral compound (500) in a unit about numbers and money; label is a frequency artefact
+négyszáz	NUM	*	plain numeral compound (400) in a unit about numbers and money; label is a frequency artefact
+hatszáz	NUM	*	plain numeral compound (600) in a unit about numbers and money; label is a frequency artefact
+húszezer	NUM	*	plain numeral compound (20 000), a normal price in forints; label is a frequency artefact
+huszonhat	NUM	*	plain numeral compound (26) in a unit text; unlabelled in the pack
+hú	INTJ	m1-u3-szamok-penz-ido	interjection (wow) in a price exchange; no content, the A2 label is irrelevant
+kel	VERB	*	to get up: the first verb of a daily routine text; the A2 label is a frequency estimate
+elolvas	*	*	basic everyday verb (read through); the B1 label is an estimate
+meglátogat	*	*	basic everyday verb (visit someone); the B2 label is an estimate
+megmutat	*	*	basic everyday verb (show); the B1 label is an estimate
+pulóver	*	*	basic clothing noun (jumper) core to the clothing topic; B2 label is wrong
+fazék	*	t-etel-ital	cooking pot, core to the goulash recipe text of the food unit
+megkeres	*	m5-u1-elromlott	everyday verb (look up, find) core to the broken-things topic; label is an estimate
+melegít	*	m5-u1-elromlott	heating verb core to the broken boiler or heater scene; C1 label is wrong
+világít	*	m5-u1-elromlott	basic verb (a light shines) core to the broken things topic
+kattog	*	m5-u1-elromlott	common sound verb for a motor that clicks; core to the broken things scene
+fúró	*	m5-u1-elromlott	household drill, core to the tools and repair topic
+szépségszalon	*	m5-u2-idopont	hairdresser or beauty salon, core to the appointment-by-phone topic
+hajvágás	*	m5-u2-idopont	haircut, the most common appointment type; C1 label is wrong
+későbbi	*	m5-u2-idopont	regular adjective 'later' (later slot) in booking talk; B2 label is wrong
+festés	*	m5-u2-idopont	hair colouring, a common salon appointment; B2 label is wrong
+foglalás	*	m5-u2-idopont	reservation, core to the booking topic; B2 label is wrong
+megértés	*	m5-u2-idopont	fixed polite formula 'köszönöm a megértést' in booking and cancelling
+elkésik	*	m5-u3-ovoda-hivatal	basic verb (be late) in the kindergarten drop-off topic; C1 label is wrong
+reggelizik	*	m5-u3-ovoda-hivatal	basic verb (have breakfast) in the kindergarten scene
+ovi	*	m5-u3-ovoda-hivatal	clipped kindergarten, common in family talk; suffixed forms like oviba
+napsugár	*	m5-u3-ovoda-hivatal	common word; a kindergarten called Napsugár (Sunbeam) is a usual name
+felvételi	*	m5-u3-ovoda-hivatal	admission papers for kindergarten or school; core to the topic
+kabát	*	*	basic clothing noun (coat); the B1 label is an estimate
+zokni	*	*	basic clothing noun (sock); the B1 label is an estimate
+zseb	*	*	basic noun (pocket); the B2 label is an estimate
+esernyő	*	*	basic weather and travel item (umbrella); the B2 label is an estimate
+vizsga	*	*	basic school word (exam); the B1 label is an estimate
+huszonnégy	*	*	regular compound numeral 24; the C1 label is wrong
+háromszáz	*	*	regular numeral 300; the B2 label is wrong
+hetvenegy	*	*	regular compound numeral 71; unlabelled in the pack
+tizenkettő	*	*	regular numeral 12 (also an apartment number); the B2 label is wrong
+negyedik	*	*	ordinal (fourth, floor numbers); the B1 label is an estimate
+fagyi	*	t-szamok	everyday word for ice cream; the B1 label is an estimate
+lottó	*	t-szamok	lottery, the topic of the numbers mini; the B2 label is an estimate
+ígér	*	t-ido-ora	basic verb (promise) in an everyday arranging-time talk; B1 label is an estimate
+egykor	*	t-ido-ora	regular -kor time form of egy (at one o'clock); B1 label is an estimate
+patika	*	t-ido-ora	pharmacy, a place whose opening hours people ask for
+cserél	*	t-ido-ora	basic verb (swap shifts or change); B1 label is an estimate
+foglal	*	t-utazas	basic travel verb (book a room); the B1 label is an estimate
+megvesz	*	t-utazas	basic travel verb (buy tickets or things); the B1 label is an estimate
+szendvics	*	t-utazas	everyday travel food (sandwich); the B1 label is an estimate
+hetes	*	t-utazas	number of a bus, train or platform; the B1 label is an estimate
+pihenés	*	t-utazas	fixed greeting formula 'jó pihenést' at a hotel; label is an estimate
+jókedv	*	t-erzesek	basic feelings noun (good mood); core to the feelings topic
+mesél	*	t-erzesek	basic verb (tell a story) in friendly chat; the B1 label is an estimate
+feljebb	*	t-otthon-targyak	common adverb (higher up) when hanging a picture; the B1 label is an estimate
+étvágy	*	*	fixed table formula 'jó étvágyat', everyday spoken wish
+egészség	*	*	fixed formula 'egészségedre' (bless you, cheers), everyday spoken wish
+kóstol	*	*	basic verb (taste) in offers at the table and in shops

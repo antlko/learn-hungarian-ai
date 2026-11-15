@@ -1,0 +1,367 @@
+{
+  "talk": {
+    "genre": "phone",
+    "checked": "ai",
+    "title": {
+      "ru": "Где ты?",
+      "en": "Where are you?"
+    },
+    "names": [
+      "Dani"
+    ],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Halló, Dani! Hol vagy?",
+          "ru": "Алло, Дани! Ты где?",
+          "en": "Hello, Dani! Where are you?"
+        },
+        {
+          "who": "B",
+          "hu": "Szia! A téren, a híd mellett.",
+          "ru": "Привет! На площади, у моста.",
+          "en": "Hi! On the square, next to the bridge."
+        },
+        {
+          "who": "A",
+          "hu": "Én is a téren vagyok, de nem látlak.",
+          "ru": "Я тоже на площади, но тебя не вижу.",
+          "en": "I am on the square too, but I cannot see you."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, melyik téren vagy?",
+          "ru": "Ой, на какой ты площади?",
+          "en": "Oh, which square are you on?"
+        },
+        {
+          "who": "A",
+          "hu": "Az állomásnál. Te hol vagy?",
+          "ru": "У вокзала. А ты где?",
+          "en": "At the station. Where are you?"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, ez nem ugyanaz a tér!",
+          "ru": "Ну, это не та же площадь!",
+          "en": "Well, it is not the same square!"
+        },
+        {
+          "who": "A",
+          "hu": "Oké, felszállok a metróra. Hány megálló?",
+          "ru": "Ладно, сажусь на метро. Сколько остановок?",
+          "en": "OK, I am getting on the metro. How many stops?"
+        },
+        {
+          "who": "B",
+          "hu": "Csak kettő. Várlak a megállónál.",
+          "ru": "Всего две. Жду тебя на остановке.",
+          "en": "Only two. I will wait at the stop."
+        },
+        {
+          "who": "A",
+          "hu": "Melyik vonalon megyek?",
+          "ru": "По какой линии мне ехать?",
+          "en": "Which line do I take?"
+        },
+        {
+          "who": "B",
+          "hu": "Az első vonalon. Nem nehéz.",
+          "ru": "По первой линии. Это не сложно.",
+          "en": "On the first line. It is not hard."
+        },
+        {
+          "who": "A",
+          "hu": "Értem. Jó, megyek. Pá!",
+          "ru": "Понятно. Хорошо, еду. Пока!",
+          "en": "Got it. OK, I'm on my way. Bye!"
+        },
+        {
+          "who": "B",
+          "hu": "Szia, gyere gyorsan, várlak!",
+          "ru": "Пока, приезжай скорее, жду!",
+          "en": "Bye, come quickly, I'm waiting!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "hol-a-metro",
+      "title": {
+        "ru": "Где метро?",
+        "en": "Where is the metro?"
+      },
+      "scene": {
+        "ru": "Прохожий спрашивает дорогу у незнакомой женщины.",
+        "en": "A passer-by asks a stranger the way."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, hol van a metró?",
+          "ru": "Извините, где метро?",
+          "en": "Excuse me, where is the metro?"
+        },
+        {
+          "who": "B",
+          "hu": "Egyenesen, aztán balra.",
+          "ru": "Прямо, потом налево.",
+          "en": "Straight on, then left."
+        },
+        {
+          "who": "A",
+          "hu": "Messze van?",
+          "ru": "Это далеко?",
+          "en": "Is it far?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, közel van.",
+          "ru": "Нет, близко.",
+          "en": "No, it is near."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm szépen!",
+          "ru": "Большое спасибо!",
+          "en": "Thank you very much!"
+        }
+      ]
+    },
+    {
+      "slug": "egy-jegyet-kerek",
+      "title": {
+        "ru": "Билет или проездной?",
+        "en": "A ticket or a pass?"
+      },
+      "scene": {
+        "ru": "У кассы метро.",
+        "en": "At the metro ticket desk."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Egy jegyet kérek.",
+          "ru": "Один билет, пожалуйста.",
+          "en": "One ticket, please."
+        },
+        {
+          "who": "B",
+          "hu": "Egy jegyet? Vagy bérletet?",
+          "ru": "Билет? Или проездной?",
+          "en": "One ticket? Or a pass?"
+        },
+        {
+          "who": "A",
+          "hu": "Csak ma vagyok itt.",
+          "ru": "Я здесь только сегодня.",
+          "en": "I am only here today."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. Tessék.",
+          "ru": "Хорошо. Вот, пожалуйста.",
+          "en": "All right. Here you are."
+        },
+        {
+          "who": "A",
+          "hu": "Köszi!",
+          "ru": "Спасибо!",
+          "en": "Thanks!"
+        }
+      ]
+    },
+    {
+      "slug": "ellenor",
+      "title": {
+        "ru": "Где же билет?",
+        "en": "Where is my ticket?"
+      },
+      "scene": {
+        "ru": "В трамвае проверка билетов.",
+        "en": "A ticket check on the tram."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Jegyeket kérem!",
+          "ru": "Добрый день! Билеты, пожалуйста!",
+          "en": "Good day! Tickets, please!"
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, hol van a jegyem?",
+          "ru": "Ой, где мой билет?",
+          "en": "Oh, where is my ticket?"
+        },
+        {
+          "who": "A",
+          "hu": "Nem baj, nézze meg.",
+          "ru": "Ничего, посмотрите.",
+          "en": "No problem, have a look."
+        },
+        {
+          "who": "B",
+          "hu": "Megvan! Tessék.",
+          "ru": "Нашёл! Вот, пожалуйста.",
+          "en": "Found it! Here you are."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm, jó utat!",
+          "ru": "Спасибо, счастливого пути!",
+          "en": "Thank you, have a good trip!"
+        }
+      ]
+    },
+    {
+      "slug": "taxi",
+      "title": {
+        "ru": "В такси",
+        "en": "In a taxi"
+      },
+      "scene": {
+        "ru": "Пассажир садится в такси.",
+        "en": "A passenger gets into a taxi."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó estét! Hová megyünk?",
+          "ru": "Добрый вечер! Куда едем?",
+          "en": "Good evening! Where to?"
+        },
+        {
+          "who": "B",
+          "hu": "Az állomásra, kérem.",
+          "ru": "На вокзал, пожалуйста.",
+          "en": "To the station, please."
+        },
+        {
+          "who": "A",
+          "hu": "Dugó van.",
+          "ru": "Там пробка.",
+          "en": "There is a traffic jam."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj! Sok idő lesz?",
+          "ru": "Ой! Это долго?",
+          "en": "Oh! Will it take long?"
+        },
+        {
+          "who": "A",
+          "hu": "Tíz perc, nem sok.",
+          "ru": "Десять минут, не так много.",
+          "en": "Ten minutes, not much."
+        },
+        {
+          "who": "B",
+          "hu": "Köszönöm.",
+          "ru": "Спасибо.",
+          "en": "Thank you."
+        }
+      ]
+    },
+    {
+      "slug": "jo-a-cim",
+      "title": {
+        "ru": "Тот ли адрес?",
+        "en": "Is this the address?"
+      },
+      "scene": {
+        "ru": "Турист показывает адрес молодому прохожему.",
+        "en": "A tourist shows an address to a young passer-by."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Bocsánat, ez a jó cím?",
+          "ru": "Извините, это тот адрес?",
+          "en": "Sorry, is this the right address?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, ez a másik utca.",
+          "ru": "Нет, это другая улица.",
+          "en": "No, this is the other street."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj! Nem innen vagyok.",
+          "ru": "Ой! Я не местный.",
+          "en": "Oh! I am not from here."
+        },
+        {
+          "who": "B",
+          "hu": "Semmi baj. Jobbra, a sarok után.",
+          "ru": "Ничего. Направо, за углом.",
+          "en": "No problem. To the right, after the corner."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper, köszi!",
+          "ru": "Супер, спасибо!",
+          "en": "Great, thanks!"
+        }
+      ]
+    },
+    {
+      "slug": "kesik-a-villamos",
+      "title": {
+        "ru": "Трамвай опаздывает",
+        "en": "The tram is late"
+      },
+      "scene": {
+        "ru": "Двое друзей ждут трамвай.",
+        "en": "Two friends wait for a tram."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Hát, a villamos késik.",
+          "ru": "Ну вот, трамвай опаздывает.",
+          "en": "Well, the tram is late."
+        },
+        {
+          "who": "B",
+          "hu": "Megint? Gyalog megyünk?",
+          "ru": "Опять? Пойдём пешком?",
+          "en": "Again? Shall we walk?"
+        },
+        {
+          "who": "A",
+          "hu": "Messze van. Várjunk még.",
+          "ru": "Далеко. Подождём ещё.",
+          "en": "It is far. Let us wait a bit."
+        },
+        {
+          "who": "B",
+          "hu": "Na, ott jön!",
+          "ru": "Смотри, вот он идёт!",
+          "en": "Look, there it comes!"
+        },
+        {
+          "who": "A",
+          "hu": "Végre!",
+          "ru": "Наконец-то!",
+          "en": "At last!"
+        }
+      ]
+    }
+  ]
+}

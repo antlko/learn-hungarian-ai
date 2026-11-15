@@ -1,0 +1,573 @@
+{
+  "talk": {
+    "genre": "phone",
+    "checked": "ai",
+    "title": {
+      "ru": "Планируем выходные",
+      "en": "Planning a weekend"
+    },
+    "names": [
+      "Peti"
+    ],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Halló, szia Peti! Zavarlak?",
+          "ru": "Алло, привет, Пети! Не отвлекаю?",
+          "en": "Hello, hi Peti! Am I disturbing you?"
+        },
+        {
+          "who": "B",
+          "hu": "Szia! Dehogy, mondd csak.",
+          "ru": "Привет! Что ты, говори.",
+          "en": "Hi! Not at all, go on."
+        },
+        {
+          "who": "A",
+          "hu": "Szóval, hétvégén menjünk a Balatonra! Mit szólsz?",
+          "ru": "Так вот, давай на выходных съездим на Балатон! Что скажешь?",
+          "en": "So, let us go to Lake Balaton at the weekend! What do you say?"
+        },
+        {
+          "who": "B",
+          "hu": "Király ötlet! Vonattal megyünk, vagy kocsival?",
+          "ru": "Классная идея! Поедем на поезде или на машине?",
+          "en": "Great idea! Are we going by train or by car?"
+        },
+        {
+          "who": "A",
+          "hu": "Szerintem vonattal. A benzin drága, a parkoló is.",
+          "ru": "Я думаю, на поезде. Бензин дорогой, парковка тоже.",
+          "en": "I think by train. Petrol is expensive, and so is parking."
+        },
+        {
+          "who": "B",
+          "hu": "Igaz. Mikor indul az első vonat?",
+          "ru": "Верно. Когда отправляется первый поезд?",
+          "en": "True. When does the first train leave?"
+        },
+        {
+          "who": "A",
+          "hu": "Nézem a menetrendet. Szombaton nyolckor van egy.",
+          "ru": "Смотрю расписание. В субботу в восемь есть один.",
+          "en": "I am looking at the timetable. There is one on Saturday at eight."
+        },
+        {
+          "who": "B",
+          "hu": "Nyolckor? Az kicsit korán van, de jó.",
+          "ru": "В восемь? Это немного рано, но ладно.",
+          "en": "At eight? That is a bit early, but fine."
+        },
+        {
+          "who": "A",
+          "hu": "Akkor szombaton nyolckor a peronnál találkozunk.",
+          "ru": "Тогда в субботу в восемь встречаемся у платформы.",
+          "en": "Then we meet at the platform on Saturday at eight."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. És a szállás? Kell még valamit találni?",
+          "ru": "Хорошо. А жильё? Нужно ещё что-то найти?",
+          "en": "All right. And the accommodation? Do we still need to find something?"
+        },
+        {
+          "who": "A",
+          "hu": "Már foglaltam egy kis szállást a tó mellett.",
+          "ru": "Я уже забронировала небольшое жильё у озера.",
+          "en": "I have already booked a small place by the lake."
+        },
+        {
+          "who": "B",
+          "hu": "Tényleg? Ügyes vagy! Nem drága?",
+          "ru": "Правда? Молодец! Не дорого?",
+          "en": "Really? Well done! Is it not expensive?"
+        },
+        {
+          "who": "A",
+          "hu": "Nem, nyugi. Két éjszakára nem sok.",
+          "ru": "Нет, спокойно. За две ночи это немного.",
+          "en": "No, relax. For two nights it is not much."
+        },
+        {
+          "who": "B",
+          "hu": "És ha késik a vonat? Az mindig késik.",
+          "ru": "А если поезд опоздает? Он всегда опаздывает.",
+          "en": "And what if the train is late? It is always late."
+        },
+        {
+          "who": "A",
+          "hu": "Akkor várunk. Nem sietünk sehova, nyaralunk!",
+          "ru": "Тогда подождём. Нам некуда спешить, мы в отпуске!",
+          "en": "Then we wait. We are in no hurry, we are on holiday!"
+        },
+        {
+          "who": "B",
+          "hu": "Szuper. Mit vigyek? Hátizsákot, napszemüveget?",
+          "ru": "Супер. Что взять? Рюкзак, солнечные очки?",
+          "en": "Great. What should I bring? A rucksack, sunglasses?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, és hozz kaját is, mert az úton éhes leszek.",
+          "ru": "Да, и принеси еду, я в дороге проголодаюсь.",
+          "en": "Yes, and bring some food too, because I will be hungry on the way."
+        },
+        {
+          "who": "B",
+          "hu": "Jó, nálam lesz a szendvics. Neked is hozok.",
+          "ru": "Хорошо, бутерброды будут у меня. И тебе принесу.",
+          "en": "Okay, I will have the sandwiches. I will bring some for you too."
+        },
+        {
+          "who": "A",
+          "hu": "És ne felejtsd el a jegyet!",
+          "ru": "И не забудь билет!",
+          "en": "And do not forget the ticket!"
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, tényleg! Ma este megveszem.",
+          "ru": "Ой, точно! Сегодня вечером куплю.",
+          "en": "Oh, right! I will buy it this evening."
+        },
+        {
+          "who": "A",
+          "hu": "Jó. És hozz esernyőt is, ha esik az eső.",
+          "ru": "Хорошо. И возьми зонт, если пойдёт дождь.",
+          "en": "OK. And bring an umbrella in case it rains."
+        },
+        {
+          "who": "B",
+          "hu": "Persze, az esernyő a táskában van.",
+          "ru": "Конечно, зонт в сумке.",
+          "en": "Sure, the umbrella is in the bag."
+        },
+        {
+          "who": "A",
+          "hu": "Oké. Akkor szombaton találkozunk. Puszi!",
+          "ru": "Окей. Тогда увидимся в субботу. Целую!",
+          "en": "Okay. Then we will see each other on Saturday. Kisses!"
+        },
+        {
+          "who": "B",
+          "hu": "Pá, pá!",
+          "ru": "Пока-пока!",
+          "en": "Bye, bye!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "jegypenztar",
+      "title": {
+        "ru": "У кассы",
+        "en": "At the ticket window"
+      },
+      "scene": {
+        "ru": "Пожилой кассир и пассажир на вокзале.",
+        "en": "A ticket clerk and a passenger at the station."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot! Egy jegyet kérek Szegedre.",
+          "ru": "Добрый день! Один билет до Сегеда, пожалуйста.",
+          "en": "Good afternoon! One ticket to Szeged, please."
+        },
+        {
+          "who": "B",
+          "hu": "Csak oda, vagy vissza is?",
+          "ru": "Только туда или и обратно?",
+          "en": "Only one way, or a return too?"
+        },
+        {
+          "who": "A",
+          "hu": "Oda és vissza. Holnap reggel utazom.",
+          "ru": "Туда и обратно. Еду завтра утром.",
+          "en": "There and back. I am travelling tomorrow morning."
+        },
+        {
+          "who": "B",
+          "hu": "Az első vonat nyolckor indul.",
+          "ru": "Первый поезд отправляется в восемь.",
+          "en": "The first train leaves at eight."
+        },
+        {
+          "who": "A",
+          "hu": "Hát, az kicsit korán van. Van később is?",
+          "ru": "Ну, это рановато. Есть что-нибудь позже?",
+          "en": "Well, that is a bit early. Is there one later?"
+        },
+        {
+          "who": "B",
+          "hu": "Tízkor megy még egy.",
+          "ru": "В десять идёт ещё один.",
+          "en": "Another one goes at ten."
+        },
+        {
+          "who": "A",
+          "hu": "Akkor az lesz jó. Kártyával fizetek, jó?",
+          "ru": "Тогда подойдёт он. Можно картой?",
+          "en": "Then that one will do. Can I pay by card?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze, tessék. Itt kérem a kártyát.",
+          "ru": "Конечно. Приложите карту сюда, пожалуйста.",
+          "en": "Of course. Your card here, please."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm! Melyik vágányról indul?",
+          "ru": "Спасибо! С какого пути отправляется?",
+          "en": "Thank you! Which track does it leave from?"
+        },
+        {
+          "who": "B",
+          "hu": "A hármas vágányról. Jó utat!",
+          "ru": "С третьего пути. Счастливого пути!",
+          "en": "From track three. Have a good trip!"
+        }
+      ]
+    },
+    {
+      "slug": "melyik-vagany",
+      "title": {
+        "ru": "Какой путь?",
+        "en": "Which track?"
+      },
+      "scene": {
+        "ru": "Пассажир спешит и спрашивает прохожего на вокзале.",
+        "en": "A hurried passenger asks a stranger at the station."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, ez a vonat megy Szegedre?",
+          "ru": "Извините, этот поезд идёт в Сегед?",
+          "en": "Excuse me, does this train go to Szeged?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, az a másik, a szomszéd vágányon áll.",
+          "ru": "Нет, это другой, он стоит на соседнем пути.",
+          "en": "No, that is the other one, it is on the next track."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj! Melyik vágányon? Nem látom.",
+          "ru": "Ой! На каком пути? Я не вижу.",
+          "en": "Oh! Which track? I cannot see it."
+        },
+        {
+          "who": "B",
+          "hu": "A hetesen. Tízkor indul.",
+          "ru": "На седьмом. Отправляется в десять.",
+          "en": "On the seventh. It leaves at ten."
+        },
+        {
+          "who": "A",
+          "hu": "Hú, már csak öt percem van, és nehéz a bőröndöm!",
+          "ru": "Ух, у меня осталось всего пять минут, а чемодан тяжёлый!",
+          "en": "Phew, I only have five minutes left, and my suitcase is heavy!"
+        },
+        {
+          "who": "B",
+          "hu": "Semmi baj, menjen le a lépcsőn, aztán balra.",
+          "ru": "Ничего страшного, спуститесь по лестнице, потом налево.",
+          "en": "No worries, go down the stairs, then left."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm szépen, nagyon kedves!",
+          "ru": "Большое спасибо, вы очень любезны!",
+          "en": "Thank you very much, you are very kind!"
+        },
+        {
+          "who": "B",
+          "hu": "Szívesen. Menjen gyorsan, mert nemsokára indul!",
+          "ru": "Пожалуйста. Идите быстрее, он скоро отправляется!",
+          "en": "You are welcome. Go quickly, because it leaves soon!"
+        }
+      ]
+    },
+    {
+      "slug": "kesik-a-vonat",
+      "title": {
+        "ru": "Поезд опаздывает",
+        "en": "The train is late"
+      },
+      "scene": {
+        "ru": "Пассажир и кондуктор в поезде, который стоит.",
+        "en": "A passenger and a conductor on a train that has stopped."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, miért áll a vonat?",
+          "ru": "Извините, почему стоит поезд?",
+          "en": "Excuse me, why has the train stopped?"
+        },
+        {
+          "who": "B",
+          "hu": "Késünk, sajnos. Egy kicsit várni kell.",
+          "ru": "Мы опаздываем, к сожалению. Нужно немного подождать.",
+          "en": "We are late, unfortunately. We have to wait a little."
+        },
+        {
+          "who": "A",
+          "hu": "Mennyit? Mert Pécsen másik vonatra szállok.",
+          "ru": "Сколько? Мне в Пече пересаживаться на другой поезд.",
+          "en": "How long? Because I change to another train at Pécs."
+        },
+        {
+          "who": "B",
+          "hu": "Talán húsz percet. Ezt mondták az állomáson.",
+          "ru": "Может, минут двадцать. Так сказали на вокзале.",
+          "en": "Maybe twenty minutes. That is what they said at the station."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, akkor nem érem el a másik vonatot!",
+          "ru": "Ой, тогда я не успею на другой поезд!",
+          "en": "Oh, then I will not catch the other train!"
+        },
+        {
+          "who": "B",
+          "hu": "Semmi baj, a másik vonat is vár.",
+          "ru": "Ничего страшного, другой поезд тоже подождёт.",
+          "en": "No problem, the other train waits too."
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg? Ezt biztosan tudja?",
+          "ru": "Правда? Вы точно это знаете?",
+          "en": "Really? Do you know that for sure?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze, ilyenkor várnak rá.",
+          "ru": "Конечно, в таких случаях ждут.",
+          "en": "Sure, they wait in cases like this."
+        },
+        {
+          "who": "A",
+          "hu": "Hát, ez nem nagy segítség. De köszönöm.",
+          "ru": "Ну, это не очень помогает. Но спасибо.",
+          "en": "Well, that is not much help. But thank you."
+        }
+      ]
+    },
+    {
+      "slug": "csomagolas",
+      "title": {
+        "ru": "Собираем вещи",
+        "en": "Packing"
+      },
+      "scene": {
+        "ru": "Двое друзей собирают чемодан перед поездкой.",
+        "en": "Two friends pack a suitcase before a trip."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Na, kész van már a bőrönd?",
+          "ru": "Ну что, чемодан уже готов?",
+          "en": "So, is the suitcase ready yet?"
+        },
+        {
+          "who": "B",
+          "hu": "Még nem. Nem tudom, mit vigyek.",
+          "ru": "Ещё нет. Не знаю, что взять.",
+          "en": "Not yet. I dunno what to take."
+        },
+        {
+          "who": "A",
+          "hu": "Napszemüveg, kabát, telefon, pénz. Ennyi elég.",
+          "ru": "Солнечные очки, куртка, телефон, деньги. Этого хватит.",
+          "en": "Sunglasses, coat, phone, money. That is enough."
+        },
+        {
+          "who": "B",
+          "hu": "És a hátizsák? Elég nagy?",
+          "ru": "А рюкзак? Достаточно большой?",
+          "en": "And the rucksack? Is it big enough?"
+        },
+        {
+          "who": "A",
+          "hu": "Elég nagy, csak ne rakj bele mindent!",
+          "ru": "Достаточно, только не клади в него всё подряд!",
+          "en": "Big enough, just do not put everything in it!"
+        },
+        {
+          "who": "B",
+          "hu": "Jó. Az esernyőt is vigyem, vagy nem kell?",
+          "ru": "Ладно. Зонт брать или не надо?",
+          "en": "Okay. Should I take the umbrella, or not needed?"
+        },
+        {
+          "who": "A",
+          "hu": "Nem kell. Azt mondták, szép idő lesz.",
+          "ru": "Не надо. Сказали, будет хорошая погода.",
+          "en": "No need. They said the weather will be nice."
+        },
+        {
+          "who": "B",
+          "hu": "Hát jó, de akkor ne mondd, hogy esik!",
+          "ru": "Ну ладно, но тогда не говори потом, что идёт дождь!",
+          "en": "Well, fine, but then do not say it is raining!"
+        }
+      ]
+    },
+    {
+      "slug": "szalloda-foglalas",
+      "title": {
+        "ru": "В гостинице",
+        "en": "At the hotel"
+      },
+      "scene": {
+        "ru": "Гость регистрируется на стойке гостиницы, на вы.",
+        "en": "A guest checks in at a hotel desk, formal register."
+      },
+      "names": [
+        "Varga"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó estét kívánok! Varga a nevem.",
+          "ru": "Добрый вечер! Моя фамилия Варга.",
+          "en": "Good evening! My name is Varga."
+        },
+        {
+          "who": "B",
+          "hu": "Jó estét! Egy pillanat. Igen, két éjszakára.",
+          "ru": "Добрый вечер! Минутку. Да, на две ночи.",
+          "en": "Good evening! One moment. Yes, for two nights."
+        },
+        {
+          "who": "A",
+          "hu": "Pontosan. A reggeli hány órakor van?",
+          "ru": "Верно. Во сколько завтрак?",
+          "en": "Exactly. What time is breakfast?"
+        },
+        {
+          "who": "B",
+          "hu": "Hétkor kezdődik, és tízig tart, itt lent.",
+          "ru": "Начинается в семь и длится до десяти, здесь внизу.",
+          "en": "It starts at seven and lasts until ten, down here."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper. A szobám melyik emeleten van?",
+          "ru": "Супер. На каком этаже мой номер?",
+          "en": "Great. Which floor is my room on?"
+        },
+        {
+          "who": "B",
+          "hu": "A negyediken. Tessék a kulcs.",
+          "ru": "На четвёртом. Вот ключ.",
+          "en": "On the fourth. Here is the key."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm. Hát, az elég magas. Van lift?",
+          "ru": "Ну, это довольно высоко. Лифт есть?",
+          "en": "Well, that is rather high. Is there a lift?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze, ott van jobbra. Jó pihenést!",
+          "ru": "Конечно, вон там справа. Приятного отдыха!",
+          "en": "Of course, it is there on the right. Have a good rest!"
+        }
+      ]
+    },
+    {
+      "slug": "vigyaz-a-borondre",
+      "title": {
+        "ru": "Присмотрите за чемоданом",
+        "en": "Watch my suitcase"
+      },
+      "scene": {
+        "ru": "Незнакомые люди на вокзале; один просит присмотреть за багажом.",
+        "en": "Strangers at a station; one asks the other to watch a bag."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, tudna vigyázni a bőröndömre egy percre?",
+          "ru": "Извините, не могли бы вы минутку присмотреть за моим чемоданом?",
+          "en": "Excuse me, could you keep an eye on my suitcase for a minute?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze. Hová megy?",
+          "ru": "Конечно. Куда вы идёте?",
+          "en": "Of course. Where are you going?"
+        },
+        {
+          "who": "A",
+          "hu": "Csak a mosdóba. Rögtön jövök.",
+          "ru": "Только в туалет. Сейчас вернусь.",
+          "en": "Just to the toilet. I will be right back."
+        },
+        {
+          "who": "B",
+          "hu": "Nyugodtan, itt állok a bőrönd mellett, nem megyek sehova.",
+          "ru": "Спокойно, я стою здесь у чемодана, никуда не уйду.",
+          "en": "Go ahead, I am standing here by the suitcase, I am not going anywhere."
+        },
+        {
+          "who": "A",
+          "hu": "Nagyon köszönöm! Egy perc, és jövök.",
+          "ru": "Большое спасибо! Минутку, и я вернусь.",
+          "en": "Thank you so much! One minute and I will be back."
+        },
+        {
+          "who": "B",
+          "hu": "Semmi gond, menjen csak. Én itt vagyok.",
+          "ru": "Никаких проблем, идите. Я здесь.",
+          "en": "No problem, go ahead. I am here."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm szépen!",
+          "ru": "Большое спасибо!",
+          "en": "Thank you very much!"
+        },
+        {
+          "who": "B",
+          "hu": "Szívesen. Nem kell sietni.",
+          "ru": "Пожалуйста. Не торопитесь.",
+          "en": "You are welcome. No need to hurry."
+        },
+        {
+          "who": "A",
+          "hu": "Itt vagyok! Köszönöm, hogy vigyázott rá.",
+          "ru": "Я здесь! Спасибо, что присмотрели за ним.",
+          "en": "I am here! Thank you for watching it."
+        },
+        {
+          "who": "B",
+          "hu": "Nincs mit. Jó utat!",
+          "ru": "Не за что. Счастливого пути!",
+          "en": "Not at all. Have a good trip!"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,499 @@
+{
+  "short": {
+    "genre": "note",
+    "checked": "ai",
+    "title": {
+      "ru": "Записка на двери",
+      "en": "A note on the door"
+    },
+    "names": [
+      "Kata"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Jó reggelt, szomszéd úr!",
+          "ru": "Доброе утро, господин сосед!",
+          "en": "Good morning, dear neighbour!"
+        },
+        {
+          "hu": "Üdvözlöm!",
+          "ru": "Здравствуйте!",
+          "en": "Greetings!"
+        },
+        {
+          "hu": "Kata vagyok, az új szomszéd.",
+          "ru": "Я Ката, новая соседка.",
+          "en": "I am Kata, the new neighbour."
+        },
+        {
+          "hu": "Orosz vagyok, de itt lakom.",
+          "ru": "Я русская, но живу здесь.",
+          "en": "I am Russian, but I live here."
+        },
+        {
+          "hu": "Nagyon örülök a találkozásnak!",
+          "ru": "Очень рада нашему знакомству!",
+          "en": "I am very glad to meet you!"
+        }
+      ],
+      [
+        {
+          "hu": "Mi a neve?",
+          "ru": "Как Вас зовут?",
+          "en": "What is your name?"
+        },
+        {
+          "hu": "Este itt vagyok, és szívesen találkozom Önnel.",
+          "ru": "Вечером я здесь и с удовольствием с Вами встречусь.",
+          "en": "I am here in the evening and would gladly meet you."
+        },
+        {
+          "hu": "Köszönöm, viszontlátásra!",
+          "ru": "Спасибо, до свидания!",
+          "en": "Thank you, goodbye!"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "Новая коллега",
+      "en": "The new colleague"
+    },
+    "names": [
+      "Péter",
+      "Olga",
+      "Kovács"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Helló! Szép nap van! Te vagy az új kolléga?",
+          "ru": "Привет! Хороший день! Ты новая коллега?",
+          "en": "Hello! It is a nice day! Are you the new colleague?"
+        }
+      ],
+      [
+        {
+          "hu": "Helló! Igen, én vagyok. Olga vagyok.",
+          "ru": "Привет! Да, это я. Я Ольга.",
+          "en": "Hello! Yes, that's me. I am Olga."
+        }
+      ],
+      [
+        {
+          "hu": "Szia, Olga! Én Péter vagyok. Örvendek!",
+          "ru": "Привет, Ольга! Я Петер. Очень приятно!",
+          "en": "Hi, Olga! I am Péter. Pleased to meet you!"
+        }
+      ],
+      [
+        {
+          "hu": "Én is nagyon örülök. Hogy vagy?",
+          "ru": "Я тоже очень рада. Как ты?",
+          "en": "I am very glad too. How are you?"
+        }
+      ],
+      [
+        {
+          "hu": "Köszönöm, jól. És te?",
+          "ru": "Спасибо, хорошо. А ты?",
+          "en": "Thanks, well. And you?"
+        }
+      ],
+      [
+        {
+          "hu": "Én is jól vagyok, kösz.",
+          "ru": "Я тоже хорошо, спасибо.",
+          "en": "I am well too, thanks."
+        }
+      ],
+      [
+        {
+          "hu": "Honnan jössz? Orosz vagy?",
+          "ru": "Откуда ты? Ты русская?",
+          "en": "Where are you from? Are you Russian?"
+        }
+      ],
+      [
+        {
+          "hu": "Igen, orosz vagyok. Egy nagy városból származom.",
+          "ru": "Да, я русская. Я родом из большого города.",
+          "en": "Yes, I am Russian. I come from a big city."
+        }
+      ],
+      [
+        {
+          "hu": "És hol laksz most?",
+          "ru": "А где ты живёшь сейчас?",
+          "en": "And where do you live now?"
+        }
+      ],
+      [
+        {
+          "hu": "Egy új házban lakom. A szomszéd is nagyon kedves.",
+          "ru": "Я живу в новом доме. Сосед тоже очень приятный.",
+          "en": "I live in a new house. The neighbour is very nice too."
+        }
+      ],
+      [
+        {
+          "hu": "Én magyar vagyok, egy kis faluból. Szereted az országot?",
+          "ru": "Я венгр, из маленькой деревни. Тебе нравится страна?",
+          "en": "I am Hungarian, from a small village. Do you like the country?"
+        }
+      ],
+      [
+        {
+          "hu": "Igen, nagyon. A magyar nyelv is szép.",
+          "ru": "Да, очень. Венгерский язык тоже красивый.",
+          "en": "Yes, very much. The Hungarian language is nice too."
+        }
+      ],
+      [
+        {
+          "hu": "Ugye ismered már a főnököt?",
+          "ru": "Ты ведь уже знаешь начальника?",
+          "en": "You know the boss already, right?"
+        }
+      ],
+      [
+        {
+          "hu": "Nem, még nem ismerem. Ki ő? Hogy hívják?",
+          "ru": "Нет, ещё не знаю. Кто он? Как его зовут?",
+          "en": "No, I don't know him yet. Who is he? What is his name?"
+        }
+      ],
+      [
+        {
+          "hu": "Kovács úrnak hívják. Mindenki szereti. Itt is van!",
+          "ru": "Его зовут господин Ковач. Все его любят. Вот и он!",
+          "en": "His name is Mr Kovács. Everybody likes him. Here he is!"
+        }
+      ],
+      [
+        {
+          "hu": "Üdvözlöm, Kovács úr! Örülök a találkozásnak!",
+          "ru": "Здравствуйте, господин Ковач! Рада встрече!",
+          "en": "Good day, Mr Kovács! Pleased to meet you!"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "myday",
+    "checked": "ai",
+    "title": {
+      "ru": "Мой обычный день",
+      "en": "My usual day"
+    },
+    "names": [
+      "Olga",
+      "Péter",
+      "Anna",
+      "Tamás"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Olga vagyok.",
+          "ru": "Я Ольга.",
+          "en": "I am Olga."
+        },
+        {
+          "hu": "Huszonhat éves vagyok.",
+          "ru": "Мне двадцать шесть лет.",
+          "en": "I am twenty-six years old."
+        },
+        {
+          "hu": "Orosz vagyok, de most külföldön lakom.",
+          "ru": "Я русская, но сейчас живу за границей.",
+          "en": "I am Russian, but now I live abroad."
+        },
+        {
+          "hu": "Egy magyar városban van egy új házam.",
+          "ru": "В венгерском городе у меня новый дом.",
+          "en": "In a Hungarian town I have a new house."
+        },
+        {
+          "hu": "Nagyon szeretem ezt az országot.",
+          "ru": "Я очень люблю эту страну.",
+          "en": "I like this country very much."
+        },
+        {
+          "hu": "Itt minden szép, a város és az ország is.",
+          "ru": "Здесь всё красиво, и город, и страна.",
+          "en": "Everything is beautiful here, the town and the country too."
+        },
+        {
+          "hu": "A magyar nyelvet is szeretem.",
+          "ru": "Венгерский язык я тоже люблю.",
+          "en": "I like the Hungarian language too."
+        },
+        {
+          "hu": "Ez a nyelv még nehéz.",
+          "ru": "Этот язык ещё трудный.",
+          "en": "This language is still hard."
+        },
+        {
+          "hu": "Reggel van. Szép nap van!",
+          "ru": "Утро. Хороший день!",
+          "en": "It is morning. It is a nice day!"
+        }
+      ],
+      [
+        {
+          "hu": "Péter a régi szomszéd.",
+          "ru": "Петер давний сосед.",
+          "en": "Péter is the old neighbour."
+        },
+        {
+          "hu": "Minden reggel köszön.",
+          "ru": "Каждое утро он здоровается.",
+          "en": "Every morning he says hello."
+        },
+        {
+          "hu": "Jó reggelt, Olga!",
+          "ru": "Доброе утро, Ольга!",
+          "en": "Good morning, Olga!"
+        },
+        {
+          "hu": "Én is köszönök neki.",
+          "ru": "Я тоже здороваюсь с ним.",
+          "en": "I greet him too."
+        },
+        {
+          "hu": "Hogy vagy, Péter, kérdezem.",
+          "ru": "Как дела, Петер, спрашиваю я.",
+          "en": "How are you, Péter, I ask."
+        },
+        {
+          "hu": "Jól vagyok, válaszol.",
+          "ru": "Хорошо, отвечает он.",
+          "en": "I am well, he answers."
+        },
+        {
+          "hu": "Nem tudom, honnan származik.",
+          "ru": "Не знаю, откуда он родом.",
+          "en": "I do not know where he is from."
+        },
+        {
+          "hu": "Péter mindig mosolyog.",
+          "ru": "Петер всегда улыбается.",
+          "en": "Péter always smiles."
+        },
+        {
+          "hu": "Szeretem, hogy mindenki köszön.",
+          "ru": "Мне нравится, что все здороваются.",
+          "en": "I like that everybody says hello."
+        }
+      ],
+      [
+        {
+          "hu": "Aztán dolgozom.",
+          "ru": "Потом я работаю.",
+          "en": "Then I work."
+        },
+        {
+          "hu": "Ott van Anna, a kolléga.",
+          "ru": "Там Анна, коллега.",
+          "en": "Anna, my colleague, is there."
+        },
+        {
+          "hu": "Anna is mosolyog.",
+          "ru": "Анна тоже улыбается.",
+          "en": "Anna smiles too."
+        },
+        {
+          "hu": "Szia, Olga! Hogy vagy?",
+          "ru": "Привет, Ольга! Как ты?",
+          "en": "Hi, Olga! How are you?"
+        },
+        {
+          "hu": "Jól vagyok, köszönöm. És te?",
+          "ru": "Хорошо, спасибо. А ты?",
+          "en": "Well, thanks. And you?"
+        },
+        {
+          "hu": "Anna nagyon kedves.",
+          "ru": "Анна очень приятная.",
+          "en": "Anna is very nice."
+        },
+        {
+          "hu": "Anna szívesen segít.",
+          "ru": "Анна охотно помогает.",
+          "en": "Anna gladly helps."
+        },
+        {
+          "hu": "Sokat beszélünk, és sokat nevetünk.",
+          "ru": "Мы много говорим и много смеёмся.",
+          "en": "We talk a lot and laugh a lot."
+        },
+        {
+          "hu": "Anna nevet, én is nevetek.",
+          "ru": "Анна смеётся, я тоже смеюсь.",
+          "en": "Anna laughs, I laugh too."
+        },
+        {
+          "hu": "Minden nap van egy új szó.",
+          "ru": "Каждый день есть новое слово.",
+          "en": "Every day there is a new word."
+        },
+        {
+          "hu": "Kösz, Anna! Szívesen, Olga!",
+          "ru": "Спасибо, Анна! Пожалуйста, Ольга!",
+          "en": "Thanks, Anna! You're welcome, Olga!"
+        }
+      ],
+      [
+        {
+          "hu": "Ma új kolléga jön.",
+          "ru": "Сегодня приходит новый коллега.",
+          "en": "Today a new colleague comes."
+        },
+        {
+          "hu": "Ki ez a férfi?",
+          "ru": "Кто этот мужчина?",
+          "en": "Who is this man?"
+        },
+        {
+          "hu": "Mi a neved, kérdezem.",
+          "ru": "Как тебя зовут, спрашиваю я.",
+          "en": "What is your name, I ask."
+        },
+        {
+          "hu": "Tamás bemutatkozik.",
+          "ru": "Тамаш представляется.",
+          "en": "Tamás introduces himself."
+        },
+        {
+          "hu": "Üdvözlöm, Tamás vagyok, mondja.",
+          "ru": "Здравствуйте, я Тамаш, говорит он.",
+          "en": "Good day, I am Tamás, he says."
+        },
+        {
+          "hu": "Honnan származol, Tamás?",
+          "ru": "Откуда ты родом, Тамаш?",
+          "en": "Where are you from, Tamás?"
+        },
+        {
+          "hu": "Egy kis faluból jövök.",
+          "ru": "Я из маленькой деревни.",
+          "en": "I come from a small village."
+        },
+        {
+          "hu": "A falu kicsi, de szép.",
+          "ru": "Деревня маленькая, но красивая.",
+          "en": "The village is small, but nice."
+        },
+        {
+          "hu": "Tamás válaszol, és én nagyon örülök.",
+          "ru": "Тамаш отвечает, и я очень рада.",
+          "en": "Tamás answers, and I am very glad."
+        },
+        {
+          "hu": "Ez egy kellemes találkozás.",
+          "ru": "Это приятная встреча.",
+          "en": "This is a pleasant meeting."
+        }
+      ],
+      [
+        {
+          "hu": "Este találkozó van.",
+          "ru": "Вечером встреча.",
+          "en": "There is a meeting in the evening."
+        },
+        {
+          "hu": "Ma este mindenki itt van.",
+          "ru": "Сегодня вечером все здесь.",
+          "en": "Tonight everybody is here."
+        },
+        {
+          "hu": "Sziasztok! Helló!",
+          "ru": "Привет всем! Привет!",
+          "en": "Hi, everyone! Hello!"
+        },
+        {
+          "hu": "Valaki nevet, valaki mosolyog.",
+          "ru": "Кто-то смеётся, кто-то улыбается.",
+          "en": "Someone laughs, someone smiles."
+        },
+        {
+          "hu": "Valaki hív engem.",
+          "ru": "Кто-то зовёт меня.",
+          "en": "Someone calls me."
+        },
+        {
+          "hu": "Ki az? Tamás!",
+          "ru": "Кто это? Тамаш!",
+          "en": "Who is it? Tamás!"
+        },
+        {
+          "hu": "Tamás találkozik Péterrel.",
+          "ru": "Тамаш знакомится с Петером.",
+          "en": "Tamás meets Péter."
+        },
+        {
+          "hu": "Péter üdvözli Tamást.",
+          "ru": "Петер приветствует Тамаша.",
+          "en": "Péter greets Tamás."
+        },
+        {
+          "hu": "Tamás még senkit nem ismer.",
+          "ru": "Тамаш пока никого не знает.",
+          "en": "Tamás does not know anyone yet."
+        },
+        {
+          "hu": "Anna is itt van, és én találkozom vele.",
+          "ru": "Анна тоже здесь, и я встречаюсь с ней.",
+          "en": "Anna is here too, and I meet her."
+        },
+        {
+          "hu": "Mindenki hoz valamit.",
+          "ru": "Каждый что-нибудь приносит.",
+          "en": "Everybody brings something."
+        }
+      ],
+      [
+        {
+          "hu": "Szép éjszaka van.",
+          "ru": "Красивая ночь.",
+          "en": "It is a nice night."
+        },
+        {
+          "hu": "Péter búcsúzik, és én is búcsúzom.",
+          "ru": "Петер прощается, и я тоже прощаюсь.",
+          "en": "Péter says goodbye, and so do I."
+        },
+        {
+          "hu": "Anna is búcsúzik.",
+          "ru": "Анна тоже прощается.",
+          "en": "Anna says goodbye too."
+        },
+        {
+          "hu": "Jó éjszakát, Anna!",
+          "ru": "Спокойной ночи, Анна!",
+          "en": "Good night, Anna!"
+        },
+        {
+          "hu": "Viszlát holnap, szia!",
+          "ru": "До завтра, пока!",
+          "en": "See you tomorrow, bye!"
+        },
+        {
+          "hu": "Jó éjszakát, mindenki!",
+          "ru": "Спокойной ночи, всем!",
+          "en": "Good night, everybody!"
+        },
+        {
+          "hu": "Holnap is szép nap van.",
+          "ru": "Завтра тоже хороший день.",
+          "en": "Tomorrow is a nice day too."
+        }
+      ]
+    ]
+  }
+}

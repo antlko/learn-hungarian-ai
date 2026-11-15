@@ -11,7 +11,6 @@ nothing that has to be downloaded:
     grammar_topic   the teaching DAG and every lesson
     minimal_pair    the ear trainer's contrasts
     course_unit     the guided course, and course_word with it
-    reading_set     the ready-made reading sets (authored stories and dialogues, written from pipeline/stories*.py, dialogues*.py)
 
 This command rewrites exactly those, in place, in an existing pack. Everything
 else in the file is untouched.
@@ -35,7 +34,7 @@ import json
 import sqlite3
 from pathlib import Path
 
-from . import course, curriculum, features, minimal_pairs, reading_sets
+from . import course, curriculum, features, minimal_pairs
 
 # table -> (columns, row-builder). Order matters: course_word references
 # course_unit, so units are written first.
@@ -194,14 +193,8 @@ def refresh(pack: Path) -> dict[str, int]:
             for stmt in MISSING_INDEXES:
                 conn.execute(stmt)
 
-            # Reading sets depend on the course words just rewritten, so they
-            # are recomputed here, from the sentences the pack already holds.
+            # Reading texts are not in the pack any more (ADR-076): `make texts`.
             if "sentence" in have:
-                written.update(reading_sets.build(conn))
-                sets_problems = reading_sets.validate(conn)
-                if sets_problems:
-                    # Inside the transaction: raising rolls every table back.
-                    raise SystemExit("refusing to write: " + "\n  ".join([""] + sets_problems))
                 # A warning, not an error: see course.warn_unclozeable.
                 course.warn_unclozeable(conn)
     finally:

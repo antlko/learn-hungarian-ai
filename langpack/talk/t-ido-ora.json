@@ -1,0 +1,557 @@
+{
+  "talk": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "Когда начало?",
+      "en": "When does it start?"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Szia! Megnézzük ma este azt a filmet, amiről beszéltem?",
+          "ru": "Привет! Посмотрим сегодня тот фильм, о котором я говорил?",
+          "en": "Hi! Shall we see that film today that I mentioned?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze, szívesen! Mikor kezdődik a film?",
+          "ru": "Конечно, с удовольствием! Когда начинается фильм?",
+          "en": "Sure, gladly! When does the film start?"
+        },
+        {
+          "who": "A",
+          "hu": "Nyolckor. De a jegyet még venni kell, szóval ne gyere későn.",
+          "ru": "В восемь. Но билеты ещё надо купить, так что не приходи поздно.",
+          "en": "At eight. But we still have to buy the tickets, so do not come late."
+        },
+        {
+          "who": "B",
+          "hu": "Akkor hétkor legyünk a mozi előtt?",
+          "ru": "Тогда в семь будем перед кинотеатром?",
+          "en": "Then shall we be in front of the cinema at seven?"
+        },
+        {
+          "who": "A",
+          "hu": "Hétkor? Az túl korán van. Inkább háromnegyed nyolckor, jó?",
+          "ru": "В семь? Это слишком рано. Лучше без пятнадцати восемь.",
+          "en": "At seven? That is too early. Rather at a quarter to eight."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. És mennyi ideig tart a film? Remélem, nem sokáig.",
+          "ru": "Хорошо. А сколько длится фильм? Надеюсь, недолго.",
+          "en": "All right. And how long is the film? I hope not too long."
+        },
+        {
+          "who": "A",
+          "hu": "Két óra. Nem is olyan hosszú, nyugi.",
+          "ru": "Два часа. Не такой уж и длинный, спокойно.",
+          "en": "Two hours. Not that long, relax."
+        },
+        {
+          "who": "B",
+          "hu": "Hú, akkor tízkor lesz vége. Hát, az késő.",
+          "ru": "Ух, тогда он закончится в десять. Ну, это поздно.",
+          "en": "Wow, then it ends at ten. Well, that is late."
+        },
+        {
+          "who": "A",
+          "hu": "Igen. És mikor megy az utolsó busz hozzátok?",
+          "ru": "Да. А когда идёт последний автобус к вам?",
+          "en": "Yes. And when does the last bus to your place go?"
+        },
+        {
+          "who": "B",
+          "hu": "Szerintem tízkor megy. Azt most biztos nem érjük el!",
+          "ru": "По-моему, в десять. Мы на него точно не успеем!",
+          "en": "I think at ten. We surely will not catch it!"
+        },
+        {
+          "who": "A",
+          "hu": "Nyugi, kocsival megyek. Érted jövök, és haza is viszlek.",
+          "ru": "Спокойно, я на машине. Заеду за тобой и отвезу домой.",
+          "en": "Relax, I am coming by car. I will pick you up and take you home."
+        },
+        {
+          "who": "B",
+          "hu": "Szuper, köszi, ez nagyon jó! De ne késs el, kérlek!",
+          "ru": "Супер, спасибо! Только не опаздывай!",
+          "en": "Great, thanks! But do not be late!"
+        },
+        {
+          "who": "A",
+          "hu": "Én? Dehogy. Én mindig pontos vagyok, ezt mindenki tudja.",
+          "ru": "Я? Да ни за что. Я всегда точный.",
+          "en": "Me? Of course not. I am always on time."
+        },
+        {
+          "who": "B",
+          "hu": "Ugye, ugye. Tegnap is pontos voltál?",
+          "ru": "Ну да, ну да. Вчера ты тоже был точен?",
+          "en": "Sure, sure. Were you on time yesterday too?"
+        },
+        {
+          "who": "A",
+          "hu": "Hát, tegnap tíz percet késtem. De csak tegnap!",
+          "ru": "Ну, вчера я опоздал на десять минут. Но только вчера!",
+          "en": "Well, yesterday I was ten minutes late. But only yesterday!"
+        },
+        {
+          "who": "B",
+          "hu": "Jó, jó. Akkor ma háromnegyed nyolckor, pontosan, ugye?",
+          "ru": "Ладно, ладно. Значит, сегодня без пятнадцати восемь, точно!",
+          "en": "Fine, fine. So today at a quarter to eight, exactly!"
+        },
+        {
+          "who": "A",
+          "hu": "Rendben. Nem felejtem el, a telefonomban is ott van.",
+          "ru": "Хорошо. Не забуду, это и в телефоне записано.",
+          "en": "All right. I will not forget, it is in my phone too."
+        },
+        {
+          "who": "B",
+          "hu": "Akkor jó. Szia, este találkozunk a mozi előtt, jó?",
+          "ru": "Тогда хорошо. Пока, до вечера у кинотеатра, ладно?",
+          "en": "Good then. Bye, see you tonight in front of the cinema, OK?"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "hany-ora-van",
+      "title": {
+        "ru": "Который час?",
+        "en": "What time is it?"
+      },
+      "scene": {
+        "ru": "На улице незнакомый спрашивает время.",
+        "en": "A stranger on the street asks the time."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, nem tudja, hány óra van?",
+          "ru": "Извините, вы не знаете, который час?",
+          "en": "Excuse me, do you know what time it is?"
+        },
+        {
+          "who": "B",
+          "hu": "Az órám áll, de a telefonom szerint háromnegyed öt.",
+          "ru": "Мои часы встали, но по телефону без пятнадцати пять.",
+          "en": "My watch has stopped, but by my phone it is a quarter to five."
+        },
+        {
+          "who": "A",
+          "hu": "Már? Jaj, a buszom öt órakor megy!",
+          "ru": "Уже? Ой, мой автобус в пять часов!",
+          "en": "Already? Oh, my bus leaves at five o'clock!"
+        },
+        {
+          "who": "B",
+          "hu": "Akkor még van egy negyedóra.",
+          "ru": "Тогда ещё есть четверть часа.",
+          "en": "Then you still have a quarter of an hour."
+        },
+        {
+          "who": "A",
+          "hu": "A megálló messze van innen?",
+          "ru": "Остановка далеко отсюда?",
+          "en": "Is the stop far from here?"
+        },
+        {
+          "who": "B",
+          "hu": "Dehogy, innen csak öt perc gyalog.",
+          "ru": "Нет, всего пять минут пешком.",
+          "en": "No, only five minutes on foot."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper, akkor elérem a buszt. Köszönöm szépen!",
+          "ru": "Супер, тогда успею. Большое спасибо!",
+          "en": "Great, then I will make it. Thank you!"
+        },
+        {
+          "who": "B",
+          "hu": "Szívesen. Jó utat és szép napot!",
+          "ru": "Пожалуйста. Счастливого пути и хорошего дня!",
+          "en": "You are welcome. Have a good trip and a nice day!"
+        }
+      ]
+    },
+    {
+      "slug": "mikor-megyunk",
+      "title": {
+        "ru": "Когда пойдём?",
+        "en": "When are we going?"
+      },
+      "scene": {
+        "ru": "Дома ребёнок торопит маму.",
+        "en": "At home a child keeps asking his mother."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Anya, mikor megyünk már végre?",
+          "ru": "Мам, когда же мы наконец пойдём?",
+          "en": "Mum, when are we finally going?"
+        },
+        {
+          "who": "B",
+          "hu": "Még nem. Először jön az ebéd, aztán megyünk.",
+          "ru": "Ещё нет. Сначала обед.",
+          "en": "Not yet. First comes lunch."
+        },
+        {
+          "who": "A",
+          "hu": "És az ebéd mikor lesz? Éhes vagyok!",
+          "ru": "А это когда будет?",
+          "en": "And when will that be?"
+        },
+        {
+          "who": "B",
+          "hu": "Egykor. Addig játssz egy kicsit!",
+          "ru": "В час. А пока поиграй немного!",
+          "en": "At one. Play a bit until then!"
+        },
+        {
+          "who": "A",
+          "hu": "Az még nagyon sok idő! Nem várok!",
+          "ru": "Это ещё очень долго! Я не буду ждать!",
+          "en": "That is a very long time! I will not wait!"
+        },
+        {
+          "who": "B",
+          "hu": "Dehogy, csak negyedóra.",
+          "ru": "Вовсе нет, всего четверть часа.",
+          "en": "Not at all, only a quarter of an hour."
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg csak negyedóra?",
+          "ru": "Правда, всего четверть часа?",
+          "en": "Really only a quarter of an hour?"
+        },
+        {
+          "who": "B",
+          "hu": "Tényleg. Nézd az órát, hamar elmúlik.",
+          "ru": "Правда. Смотри на часы, быстро пройдёт.",
+          "en": "Really. Watch the clock, it will pass quickly."
+        },
+        {
+          "who": "A",
+          "hu": "Jó. És ebéd után tényleg rögtön megyünk?",
+          "ru": "Ладно. А после обеда сразу пойдём?",
+          "en": "Okay. And right after lunch we go?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, rögtön. Ígérem.",
+          "ru": "Да, сразу. Обещаю.",
+          "en": "Yes, right away. I promise."
+        }
+      ]
+    },
+    {
+      "slug": "nyitvatartas",
+      "title": {
+        "ru": "До скольки открыто?",
+        "en": "Opening hours"
+      },
+      "scene": {
+        "ru": "В аптеке покупатель спрашивает часы работы.",
+        "en": "At a pharmacy a customer asks the opening hours."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot! Meddig van nyitva a patika?",
+          "ru": "Здравствуйте! До скольки открыта аптека?",
+          "en": "Good day! How late is the pharmacy open?"
+        },
+        {
+          "who": "B",
+          "hu": "Hétköznap hatig, szombaton délig.",
+          "ru": "В будни до шести, в субботу до полудня.",
+          "en": "Weekdays until six, Saturdays until noon."
+        },
+        {
+          "who": "A",
+          "hu": "És vasárnap?",
+          "ru": "А в воскресенье?",
+          "en": "And on Sunday?"
+        },
+        {
+          "who": "B",
+          "hu": "Vasárnap zárva. Ünnepnapon is, sajnos.",
+          "ru": "В воскресенье закрыто. И в праздники тоже.",
+          "en": "Closed on Sunday. On public holidays too."
+        },
+        {
+          "who": "A",
+          "hu": "Ma szombat, igaz? Mennyi most az idő?",
+          "ru": "Сегодня суббота, да? Сколько времени?",
+          "en": "Today is Saturday, right? What time is it?"
+        },
+        {
+          "who": "B",
+          "hu": "Már háromnegyed tizenkettő van.",
+          "ru": "Уже без пятнадцати двенадцать.",
+          "en": "It is already a quarter to twelve."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, akkor sietek! A recept otthon van.",
+          "ru": "Ой, тогда спешу! Рецепт дома.",
+          "en": "Oh, then I am hurrying! The prescription is at home."
+        },
+        {
+          "who": "B",
+          "hu": "Nyugi, még van negyedóra.",
+          "ru": "Спокойно, ещё есть четверть часа.",
+          "en": "Relax, there is still a quarter of an hour."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm! Mindjárt hozom a receptet, csak egy perc.",
+          "ru": "Спасибо! Сейчас принесу рецепт.",
+          "en": "Thank you! I will bring the prescription."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben, itt leszek. Jöjjön nyugodtan!",
+          "ru": "Хорошо, я буду здесь. Приходите спокойно!",
+          "en": "All right, I will be here. Come without worry!"
+        }
+      ]
+    },
+    {
+      "slug": "keses",
+      "title": {
+        "ru": "Опоздание",
+        "en": "Running late"
+      },
+      "scene": {
+        "ru": "По телефону подруга опаздывает на встречу.",
+        "en": "On the phone a friend is late for a meeting."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Halló! Hol vagy már? Háromra beszéltük meg!",
+          "ru": "Алло! Ты где? Мы же договорились на три!",
+          "en": "Hello! Where are you? We agreed on three!"
+        },
+        {
+          "who": "B",
+          "hu": "Bocsi, tíz percet késem.",
+          "ru": "Прости, я опоздаю на десять минут.",
+          "en": "Sorry, I will be ten minutes late."
+        },
+        {
+          "who": "A",
+          "hu": "Már megint?",
+          "ru": "Опять?",
+          "en": "Again?"
+        },
+        {
+          "who": "B",
+          "hu": "Dehogy megint, ritkán késem!",
+          "ru": "Какое опять, я редко опаздываю!",
+          "en": "Not again at all, I am rarely late!"
+        },
+        {
+          "who": "A",
+          "hu": "Tegnap is késtél. Egy egész órát vártam rád.",
+          "ru": "Вчера ты тоже опоздала. Я ждала час.",
+          "en": "You were late yesterday too. I waited an hour."
+        },
+        {
+          "who": "B",
+          "hu": "Jó, de ma a busz késik.",
+          "ru": "Ладно, но сегодня автобус опаздывает.",
+          "en": "Fine, but today the bus is late."
+        },
+        {
+          "who": "A",
+          "hu": "Na jó, várlak. De siess, kérlek!",
+          "ru": "Ну ладно, жду. Но поторопись!",
+          "en": "All right, I will wait. But hurry up!"
+        },
+        {
+          "who": "B",
+          "hu": "Köszi, mindjárt ott vagyok. Tényleg, nyugi!",
+          "ru": "Спасибо, сейчас буду.",
+          "en": "Thanks, I will be there in a moment."
+        },
+        {
+          "who": "A",
+          "hu": "Addig veszek egy kávét magamnak.",
+          "ru": "А пока куплю кофе.",
+          "en": "I will get a coffee meanwhile."
+        },
+        {
+          "who": "B",
+          "hu": "Nekem is hozz egyet!",
+          "ru": "И мне возьми один!",
+          "en": "Get me one too!"
+        }
+      ]
+    },
+    {
+      "slug": "ebed-ido",
+      "title": {
+        "ru": "Обеденный перерыв",
+        "en": "Lunch break"
+      },
+      "scene": {
+        "ru": "На работе коллеги обсуждают время обеда.",
+        "en": "At work two colleagues talk about lunch times."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Mikor van ma az ebéd?",
+          "ru": "Когда сегодня обед?",
+          "en": "When is lunch today?"
+        },
+        {
+          "who": "B",
+          "hu": "Nekem egy órakor, neked két órakor.",
+          "ru": "У меня в час, у тебя в два.",
+          "en": "Mine is at one, yours is at two."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, akkor ma nem eszünk együtt.",
+          "ru": "Ой, тогда мы не пообедаем вместе.",
+          "en": "Oh, then we will not have lunch together."
+        },
+        {
+          "who": "B",
+          "hu": "Szerintem lehet cserélni. Megyek a főnökhöz.",
+          "ru": "По-моему, можно поменяться. Спрошу начальника.",
+          "en": "I think we can swap. I will ask the boss."
+        },
+        {
+          "who": "A",
+          "hu": "Király! Ő mikor jön vissza?",
+          "ru": "Круто! Когда он вернётся?",
+          "en": "Cool! When will he be back?"
+        },
+        {
+          "who": "B",
+          "hu": "Fél egykor. Addig várjunk.",
+          "ru": "В половине первого. Подождём до тех пор.",
+          "en": "At half past twelve. Let us wait until then."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben. Én addig befejezem ezt, jó?",
+          "ru": "Хорошо. А я пока закончу это.",
+          "en": "All right. I will finish this meanwhile, OK?"
+        },
+        {
+          "who": "B",
+          "hu": "Nézd, jön is! Mindjárt kérdezem.",
+          "ru": "Смотри, он идёт! Спрашиваю.",
+          "en": "Look, here he comes! I will ask."
+        },
+        {
+          "who": "A",
+          "hu": "Na? Mit mondott?",
+          "ru": "Ну? Что он сказал?",
+          "en": "Well? What did he say?"
+        },
+        {
+          "who": "B",
+          "hu": "Jó! Egy órakor együtt eszünk, mint mindig.",
+          "ru": "Можно! В час обедаем вместе, как всегда.",
+          "en": "Fine! At one we eat together, as always."
+        }
+      ]
+    },
+    {
+      "slug": "busztablo",
+      "title": {
+        "ru": "Расписание автобуса",
+        "en": "Bus timetable"
+      },
+      "scene": {
+        "ru": "На остановке незнакомые смотрят расписание.",
+        "en": "At a bus stop two strangers read the timetable."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, mikor jön a hármas busz?",
+          "ru": "Извините, когда придёт третий автобус?",
+          "en": "Excuse me, when does the number three bus come?"
+        },
+        {
+          "who": "B",
+          "hu": "Nézzük. Hétkor volt, a következő nyolckor.",
+          "ru": "Посмотрим. В семь был, следующий в восемь.",
+          "en": "Let us see. It was at seven, the next is at eight."
+        },
+        {
+          "who": "A",
+          "hu": "Nyolckor? De az még egy egész óra!",
+          "ru": "В восемь? Это же целый час!",
+          "en": "At eight? That is an hour!"
+        },
+        {
+          "who": "B",
+          "hu": "Hétköznap óránként jár. Hétvégén még ritkábban, sajnos.",
+          "ru": "В будни ходит каждый час. В выходные реже.",
+          "en": "On weekdays it runs hourly. At weekends less often."
+        },
+        {
+          "who": "A",
+          "hu": "Hát, akkor inkább taxival megyek, mert sietek.",
+          "ru": "Ну, тогда поеду на такси.",
+          "en": "Well, then I will take a taxi."
+        },
+        {
+          "who": "B",
+          "hu": "Vagy gyalog. Az innen csak húsz perc.",
+          "ru": "Или пешком. Всего двадцать минут.",
+          "en": "Or on foot. Only twenty minutes."
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg? És merre kell menni innen?",
+          "ru": "Правда? В какую сторону идти?",
+          "en": "Really? Which way do I go?"
+        },
+        {
+          "who": "B",
+          "hu": "Egyenesen, aztán balra. Nem nehéz megtalálni.",
+          "ru": "Прямо, потом налево. Не сложно.",
+          "en": "Straight on, then left. It is not hard."
+        },
+        {
+          "who": "A",
+          "hu": "Jó ötlet, köszönöm! Szép napot!",
+          "ru": "Хорошая мысль, спасибо! Хорошего дня!",
+          "en": "Good idea, thanks! Have a nice day!"
+        }
+      ]
+    }
+  ]
+}

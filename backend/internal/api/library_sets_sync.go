@@ -6,22 +6,22 @@ import (
 	"tanulom/internal/mining"
 )
 
-// Keeping imported sets current with the pack (ADR-074).
+// Keeping imported sets current with the binary (ADR-074, ADR-076).
 //
 // A set a learner imported is an ordinary text whose source_url is
-// "set:<code>". When a newer pack rewrites that set (the «Фразы» of a unit
-// became one connected story), the learner's copy would otherwise stay the old
-// body forever. Users cannot edit a text's body, so "the body equals what the
-// pack would import now" is the whole version check: no hash column, no
-// migration. A differing copy is REPLACED IN PLACE (mining.Store.Replace): the
-// id, dates and the notes mined from it stay; tokens, coverage, level and
-// audio are rebuilt. A code the pack no longer knows is left untouched — this
-// code never deletes the learner's data.
+// "set:<code>". When a newer binary rewrites that set, the learner's copy would
+// otherwise stay the old body forever. Users cannot edit a text's body, so "the
+// body and title equal what the catalogue would import now" is the whole version
+// check: no hash column, no migration. A differing copy is REPLACED IN PLACE
+// (mining.Store.Replace): the id, dates and the notes mined from it stay; tokens,
+// coverage, level and audio are rebuilt. A code the catalogue does not know is
+// left untouched — this code never deletes the learner's data. The pack plays no
+// part here (its legacy reading_set tables, if any, are ignored); it is only
+// needed for the analyser.
 
-// syncSetTextsOnce runs the sync off the boot path. The pack is only swapped
-// on restart, so boot is the one moment that matters.
+// syncSetTextsOnce runs the sync off the boot path.
 func (s *Server) syncSetTextsOnce() {
-	if s.pack == nil || s.analyzer == nil {
+	if s.analyzer == nil {
 		return
 	}
 	s.bg.Add(1)
@@ -29,16 +29,16 @@ func (s *Server) syncSetTextsOnce() {
 		defer s.bg.Done()
 		replaced, skipped, failed := s.syncSetTexts()
 		if replaced+failed > 0 {
-			slog.Info("reading-set texts synced with the pack",
+			slog.Info("reading-set texts synced with the catalogue",
 				"replaced", replaced, "skipped", skipped, "failed", failed)
 		}
 	}()
 }
 
-// syncSetTexts rebuilds every user's set-sourced text from the current pack.
+// syncSetTexts rebuilds every user's set-sourced text from the catalogue.
 // Idempotent: a second run replaces nothing.
 func (s *Server) syncSetTexts() (replaced, skipped, failed int) {
-	if s.pack == nil || s.analyzer == nil || !s.hasReadingSets() {
+	if s.analyzer == nil {
 		return 0, 0, 0
 	}
 	users, err := s.db.ListUsers()
@@ -47,10 +47,6 @@ func (s *Server) syncSetTexts() (replaced, skipped, failed int) {
 		return 0, 0, 1
 	}
 	store := mining.NewStore(s.db.DB)
-	bodies := map[string]struct {
-		title, body, kind string
-		ok                bool
-	}{}
 	for _, u := range users {
 		rows, err := s.db.Query(`
 			SELECT id, source_url, title, body FROM text
@@ -79,25 +75,17 @@ func (s *Server) syncSetTexts() (replaced, skipped, failed int) {
 			if s.bgCtx.Err() != nil {
 				return
 			}
-			b, seen := bodies[r.code]
-			if !seen {
-				title, body, kind, ok, err := s.setBody(r.code)
-				if err != nil {
-					slog.Error("set sync: build body", "code", r.code, "error", err)
-					failed++
-					continue
-				}
-				b = struct {
-					title, body, kind string
-					ok                bool
-				}{title, body, kind, ok}
-				bodies[r.code] = b
-			}
-			if !b.ok || (b.body == r.curBody && b.title == r.title) {
+			set, ok := s.sets.Get(r.code)
+			if !ok {
 				skipped++
 				continue
 			}
-			if err := s.replaceSetText(store, u.ID, r.id, b.title, b.body, b.kind); err != nil {
+			title, body := s.setTitle(set.TitleRU, set.TitleEN), set.Body()
+			if body == r.curBody && title == r.title {
+				skipped++
+				continue
+			}
+			if err := s.replaceSetText(store, u.ID, r.id, title, body, string(mining.KindGenerated)); err != nil {
 				slog.Error("set sync: replace", "text", r.id, "code", r.code, "error", err)
 				failed++
 				continue

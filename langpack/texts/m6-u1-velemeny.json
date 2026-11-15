@@ -1,0 +1,505 @@
+{
+  "short": {
+    "genre": "sms",
+    "checked": "ai",
+    "title": {
+      "ru": "СМС хозяину квартиры",
+      "en": "A text to the landlord"
+    },
+    "names": [
+      "Pál",
+      "Kata"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Jó napot, Pál úr! Itt Kata a harmadik emeletről.",
+          "ru": "Добрый день, господин Пал! Это Ката с третьего этажа.",
+          "en": "Good day, Mr Pál! This is Kata from the third floor."
+        },
+        {
+          "hu": "A mai számla szerintem nem helyes.",
+          "ru": "По-моему, сегодняшний счёт неверный.",
+          "en": "In my opinion today's bill is not correct."
+        },
+        {
+          "hu": "Ez nyilván tévedés, nem igaz?",
+          "ru": "Это, очевидно, ошибка, разве нет?",
+          "en": "This is obviously a mistake, isn't it?"
+        },
+        {
+          "hu": "Az én véleményem egyértelmű, de nem akarok vitatkozni.",
+          "ru": "Моё мнение однозначно, но спорить я не хочу.",
+          "en": "My opinion is clear, but I don't want to argue."
+        },
+        {
+          "hu": "Nem vagyok dühös, csak kíváncsi.",
+          "ru": "Я не злюсь, мне просто интересно.",
+          "en": "I am not angry, just curious."
+        },
+        {
+          "hu": "Pál úr, van egy ötletem.",
+          "ru": "Господин Пал, у меня есть идея.",
+          "en": "Mr Pál, I have an idea."
+        },
+        {
+          "hu": "Nézzük meg együtt a számlát, akkor nincs kétség.",
+          "ru": "Давайте вместе посмотрим счёт, тогда сомнений не будет.",
+          "en": "Let us look at the bill together, then there is no doubt."
+        },
+        {
+          "hu": "Szerintem ez jogos és helyes javaslat, ugye?",
+          "ru": "По-моему, это справедливое и правильное предложение, правда?",
+          "en": "I think this is a fair and correct suggestion, isn't it?"
+        },
+        {
+          "hu": "Lehet, hogy tévedek.",
+          "ru": "Возможно, я ошибаюсь.",
+          "en": "I may be wrong."
+        },
+        {
+          "hu": "Dehogy akarok mérges lenni.",
+          "ru": "Я вовсе не хочу сердиться.",
+          "en": "I do not want to be angry at all."
+        },
+        {
+          "hu": "Meg akarom érteni, mi az ön szempontja.",
+          "ru": "Я хочу понять, какова ваша точка зрения.",
+          "en": "I want to understand what your point of view is."
+        },
+        {
+          "hu": "Holnap este itt vagyok.",
+          "ru": "Завтра вечером я буду здесь.",
+          "en": "I will be here tomorrow evening."
+        }
+      ],
+      [
+        {
+          "hu": "Mindenképpen beszéljünk erről, a vita felesleges.",
+          "ru": "В любом случае давайте поговорим об этом, спор ни к чему.",
+          "en": "Let us talk about this in any case, an argument is unnecessary."
+        },
+        {
+          "hu": "Nyilván lehetséges, hogy nem ön a hibás.",
+          "ru": "Очевидно, возможно, что виноваты не вы.",
+          "en": "Obviously it is possible that it is not you who is at fault."
+        },
+        {
+          "hu": "Ha tévedtem, beismerem, mert őszinte vagyok.",
+          "ru": "Если я ошиблась, я признаю, ведь я честна.",
+          "en": "If I was mistaken, I admit it, because I am honest."
+        },
+        {
+          "hu": "Ha önnek igaza van, elfogadom.",
+          "ru": "Если вы правы, я соглашусь.",
+          "en": "If you are right, I will accept it."
+        },
+        {
+          "hu": "Ha nem, akkor kérem a bizonyítékot.",
+          "ru": "Если нет, прошу доказательства.",
+          "en": "If not, I ask for proof."
+        },
+        {
+          "hu": "Az igazság mindenkinek fontos, és az ön szempontja is fontos nekem.",
+          "ru": "Правда важна для каждого, и ваша точка зрения тоже важна для меня.",
+          "en": "The truth matters to everyone, and your point of view matters to me too."
+        },
+        {
+          "hu": "Köszönöm! Kata",
+          "ru": "Спасибо! Ката",
+          "en": "Thank you! Kata"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "Во сколько начинать?",
+      "en": "What time shall we start?"
+    },
+    "names": [
+      "Péter",
+      "Éva",
+      "Gábor"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Mit gondolsz erről? Jó ötlet, ha mindenki nyolckor kezd dolgozni?",
+          "ru": "Как думаешь об этом? Хорошая идея, если все начнут работать в восемь?",
+          "en": "What do you think about this? Is it a good idea if everyone starts working at eight?"
+        },
+        {
+          "hu": "Szerintem nem. Reggel mindenki fáradt, és senki nem figyel. Ez nyilvánvaló.",
+          "ru": "По-моему, нет. Утром все усталые, и никто не слушает. Это очевидно.",
+          "en": "I don't think so. Everyone is tired in the morning and nobody pays attention. That is obvious."
+        },
+        {
+          "hu": "Ez nem helyes érv. Délután is fáradtak vagyunk, mégis dolgozunk.",
+          "ru": "Это неверный довод. Днём мы тоже усталые, но работаем.",
+          "en": "That is not a correct argument. We are tired in the afternoon too, yet we work."
+        },
+        {
+          "hu": "Ebben igazad van, de nekem két gyerekem van, reggel sok dolgom van.",
+          "ru": "В этом ты права, но у меня двое детей, и утром у меня много дел.",
+          "en": "You are right about that, but I have two children and a lot to do in the morning."
+        },
+        {
+          "hu": "Értem a szempontodat. Van egy javaslatom. Nyolckor kezdünk, négy órakor haza megyünk.",
+          "ru": "Понимаю твою точку зрения. У меня есть предложение. Начинаем в восемь, а в четыре идём домой.",
+          "en": "I see. I have a suggestion. We start at eight and go home at four."
+        },
+        {
+          "hu": "Ez már ésszerű. De ki állítja, hogy ez hasznos, és nem felesleges?",
+          "ru": "Это уже разумно. Но кто утверждает, что это полезно, а не лишнее?",
+          "en": "That makes sense. But who claims that it is useful and not unnecessary?"
+        },
+        {
+          "hu": "Péter is így dolgozik, és nagyon elégedett. Ez jó példa, szerintem.",
+          "ru": "Петер тоже так работает и очень доволен. Это хороший пример, по-моему.",
+          "en": "Péter works like this too and he is very satisfied. That is a good example, I think."
+        },
+        {
+          "hu": "Egy példa nem bizonyíték. Ez még kérdéses, és nem biztos, hogy logikus.",
+          "ru": "Один пример не доказательство. Это ещё спорно, и не факт, что это логично.",
+          "en": "One example is not proof. That is still questionable, and it is not certain that it is logical."
+        },
+        {
+          "hu": "Dehogy nem logikus! Ha korán kezdünk, korán lesz vége. Ez egyértelmű.",
+          "ru": "Ещё как логично! Если рано начнём, рано закончим. Это однозначно.",
+          "en": "Of course it is logical! If we start early, it ends early. That is clear."
+        },
+        {
+          "hu": "Lehetséges, de még bizonytalan vagyok. Őszinte leszek, utálom a reggelt, ez a baj.",
+          "ru": "Возможно, но я ещё не уверен. Скажу честно, я терпеть не могу утро, вот в чём беда.",
+          "en": "Possible, but I am still uncertain. To be honest, I hate the morning, that is the problem."
+        },
+        {
+          "hu": "Én sem szeretem, ezt nem tagadom. Meg akarlak győzni, érdemes megpróbálni.",
+          "ru": "Я тоже не люблю, этого не отрицаю. Я хочу тебя убедить, стоит попробовать.",
+          "en": "I don't like it either, I don't deny that. I want to convince you, it is worth trying."
+        },
+        {
+          "hu": "Az ötlet jó, de új. Nem kizárt, hogy a főnök elutasítja?",
+          "ru": "Идея хорошая, но новая. Не исключено, что начальник откажет?",
+          "en": "The idea is good, but new. Could the boss refuse?"
+        },
+        {
+          "hu": "Nem hiszem, szerintem a főnök is nagyon hasznosnak tartja ezt.",
+          "ru": "Не думаю, по-моему, начальник тоже считает это полезным.",
+          "en": "I do not think so, in my opinion the boss finds it useful too."
+        },
+        {
+          "hu": "Jó, megpróbáljuk. Ha ez az ötlet helytelen, akkor beismerem, hogy tévedtem.",
+          "ru": "Хорошо, попробуем. Если эта идея неверна, признаю, что ошибся.",
+          "en": "All right, we will try. If this idea is wrong, I admit that I was mistaken."
+        },
+        {
+          "hu": "A tévedés nem szégyen, és ez a vita tisztességes volt. Szerintem igazságos is.",
+          "ru": "Ошибка не позор, и этот спор был честным. По-моему, и справедливым.",
+          "en": "A mistake is no shame, and this argument was decent. I think fair too."
+        },
+        {
+          "hu": "Köszönöm, hogy hallgattál rám. Hülyeség lenne tovább vitatkozni. Ez jó következtetés.",
+          "ru": "Спасибо, что послушал меня. Глупо было бы спорить дальше. Это хороший вывод.",
+          "en": "Thank you for listening to me. It would be silly to argue any more. That is a good conclusion."
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "blog",
+    "checked": "ai",
+    "title": {
+      "ru": "Куда поедем летом?",
+      "en": "Where shall we go in summer?"
+    },
+    "names": [
+      "Gábor",
+      "Péter",
+      "Anna",
+      "Péteré"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Tegnap este nagy vita volt nálunk, és most erről írok.",
+          "ru": "Вчера вечером у нас был большой спор, и вот об этом я пишу.",
+          "en": "Last night we had a big argument at home, and that is what I am writing about."
+        },
+        {
+          "hu": "Az egész család az asztalnál ült, és mindenkinek volt véleménye.",
+          "ru": "Вся семья сидела за столом, и у каждого было мнение.",
+          "en": "The whole family sat at the table, and everyone had an opinion."
+        },
+        {
+          "hu": "A kérdés egyszerű volt, hova megyünk nyáron.",
+          "ru": "Вопрос был простой, куда мы поедем летом.",
+          "en": "The question was simple, where are we going in the summer."
+        },
+        {
+          "hu": "Gábor szerint a tenger a legjobb hely a világon.",
+          "ru": "По мнению Габора, море лучшее место на свете.",
+          "en": "According to Gábor, the sea is the best place in the world."
+        },
+        {
+          "hu": "Én azt gondoltam, hogy a hegy szebb, és nem olyan drága.",
+          "ru": "А я думала, что горы красивее и не такие дорогие.",
+          "en": "I thought the mountains were nicer and not so expensive."
+        }
+      ],
+      [
+        {
+          "hu": "Péter egyből vitatkozni kezdett.",
+          "ru": "Петер сразу начал спорить.",
+          "en": "Péter started to argue right away."
+        },
+        {
+          "hu": "Azt állította, hogy a tenger nyilván jobb, és ez egyértelmű.",
+          "ru": "Он утверждал, что море, очевидно, лучше, и это ясно.",
+          "en": "He claimed that the sea is obviously better and that this is clear."
+        },
+        {
+          "hu": "Én megkérdeztem, hogy mi az érve.",
+          "ru": "Я спросила, какой у него довод.",
+          "en": "I asked what his argument was."
+        },
+        {
+          "hu": "Péter sokáig gondolkodott, de nem talált jó érvet.",
+          "ru": "Петер долго думал, но хорошего довода не нашёл.",
+          "en": "Péter thought for a long time, but he found no good argument."
+        },
+        {
+          "hu": "Végül azt mondta, hogy a hegy unalmas.",
+          "ru": "В конце концов он сказал, что горы скучные.",
+          "en": "In the end he said that the mountains are boring."
+        },
+        {
+          "hu": "Ez szerintem hülyeség, mert a hegyen sok érdekes dolog van.",
+          "ru": "По-моему, это глупость, ведь в горах много интересного.",
+          "en": "I think that is nonsense, because there are many interesting things in the mountains."
+        },
+        {
+          "hu": "Anna szerint mindegy, csak együtt legyünk.",
+          "ru": "Анна считает, что всё равно, лишь бы мы были вместе.",
+          "en": "Anna thinks it makes no difference, as long as we are together."
+        },
+        {
+          "hu": "Az ő szempontja egészen más volt, mint Péteré.",
+          "ru": "Её точка зрения была совсем другой, чем у Петера.",
+          "en": "Her point of view was quite different from Péter's."
+        }
+      ],
+      [
+        {
+          "hu": "Gábor hozott egy példát.",
+          "ru": "Габор привёл пример.",
+          "en": "Gábor gave an example."
+        },
+        {
+          "hu": "Tavaly a hegyen sokat esett az eső, és mindenki mérges volt.",
+          "ru": "В прошлом году в горах много шёл дождь, и все сердились.",
+          "en": "Last year it rained a lot in the mountains and everyone was cross."
+        },
+        {
+          "hu": "Szerinte ez bizonyíték arra, hogy a tenger jobb.",
+          "ru": "По его мнению, это доказательство того, что море лучше.",
+          "en": "In his view this is proof that the sea is better."
+        },
+        {
+          "hu": "Én ezt nem hittem el, és ezt meg is mondtam.",
+          "ru": "Я в это не поверила и так и сказала.",
+          "en": "I did not believe it, and I said so."
+        },
+        {
+          "hu": "Egy példa még nem bizonyíték, mondtam neki.",
+          "ru": "Один пример ещё не доказательство, сказала я ему.",
+          "en": "One example is not yet proof, I told him."
+        },
+        {
+          "hu": "Péter tagadta, hogy ő kezdte a vitát, de ez nem igaz.",
+          "ru": "Петер отрицал, что это он начал спор, но это неправда.",
+          "en": "Péter denied that he started the argument, but that is not true."
+        },
+        {
+          "hu": "Gábor tagadta, hogy téved, aztán mégis nevetett.",
+          "ru": "Габор отрицал, что ошибается, а потом всё же засмеялся.",
+          "en": "Gábor denied that he was wrong, then he laughed anyway."
+        },
+        {
+          "hu": "Nem tudtam, kinek van igaza, talán mindkettőnknek.",
+          "ru": "Я не знала, кто прав, может быть, оба.",
+          "en": "I did not know who was right, maybe both of us."
+        },
+        {
+          "hu": "Azt hiszem, a tévedés nem szégyen, ha az ember beismeri.",
+          "ru": "Думаю, ошибка не стыдна, если человек её признаёт.",
+          "en": "I think a mistake is no shame if a person admits it."
+        },
+        {
+          "hu": "Gábor nem tudott meggyőzni, én sem tudtam meggyőzni őt.",
+          "ru": "Габор не смог меня убедить, а я не смогла убедить его.",
+          "en": "Gábor could not convince me, and I could not convince him."
+        },
+        {
+          "hu": "Gábor ezt elfogadta, és ez nekem nagyon számított.",
+          "ru": "Габор с этим согласился, и для меня это очень много значило.",
+          "en": "Gábor accepted this, and that mattered a lot to me."
+        }
+      ],
+      [
+        {
+          "hu": "Végül én javasoltam valamit, de az ötlet Annától jött.",
+          "ru": "В конце концов, я кое-что предложила, но идея была Анны.",
+          "en": "In the end I suggested something, but the idea came from Anna."
+        },
+        {
+          "hu": "Az idén megyünk a tengerhez, jövőre a hegyre.",
+          "ru": "В этом году едем к морю, в следующем к горам.",
+          "en": "This year we go to the sea, next year to the mountains."
+        },
+        {
+          "hu": "Ez szerintem igazságos, logikus és ésszerű javaslat.",
+          "ru": "По-моему, это справедливое, логичное и разумное предложение.",
+          "en": "I think this is a fair, logical and sensible suggestion."
+        },
+        {
+          "hu": "Mindenki egyetértett, még Péter is, mert ez igazságos.",
+          "ru": "Все согласились, даже Петер, ведь это справедливо.",
+          "en": "Everyone agreed, even Péter, because it is fair."
+        },
+        {
+          "hu": "Péter elfogadta a javaslatot, de szerinte a tenger mindig jobb lesz.",
+          "ru": "Петер принял предложение, но, по его мнению, море всегда будет лучше.",
+          "en": "Péter accepted the suggestion, but in his view the sea will always be better."
+        },
+        {
+          "hu": "Az elképzelésem a nyárról egyszerű, kevés vita és sok nap.",
+          "ru": "Моё представление о лете простое, мало споров и много солнечных дней.",
+          "en": "My idea of the summer is simple, little argument and many sunny days."
+        },
+        {
+          "hu": "Jó vita volt, a következtetés ésszerű, és senki nem volt mérges.",
+          "ru": "Это был хороший спор, вывод разумен, и никто не сердился.",
+          "en": "It was a good argument, the conclusion is sensible, and nobody was angry."
+        },
+        {
+          "hu": "Valószínű, hogy jövőre is lesz vita, és valószínű, hogy ez nem baj.",
+          "ru": "Вероятно, и в следующем году будет спор, и вероятно, это не беда.",
+          "en": "It is probable that there will be an argument next year too, and probably that is no problem."
+        },
+        {
+          "hu": "Szerintem a jó vita hasznos, mert mindenki hallja a másik véleményét.",
+          "ru": "По-моему, хороший спор полезен, ведь каждый слышит мнение другого.",
+          "en": "I think a good argument is useful, because everyone hears the other's opinion."
+        },
+        {
+          "hu": "Az is jogos, hogy a tenger drága, de ez nem a legfontosabb szempont.",
+          "ru": "Справедливо и то, что море дорогое, но это не самый важный аспект.",
+          "en": "It is also fair that the sea is expensive, but that is not the most important aspect."
+        },
+        {
+          "hu": "Nem tudom elképzelni a családot vita nélkül, és ez nem kérdéses.",
+          "ru": "Я не могу представить семью без споров, и это не вопрос.",
+          "en": "I cannot imagine a family without arguments, and that is not in question."
+        }
+      ],
+      [
+        {
+          "hu": "Ma reggel sokat gondolkodtam azon, hogy miért vitatkozunk.",
+          "ru": "Сегодня утром я много думала о том, почему мы спорим.",
+          "en": "This morning I thought a lot about why we argue."
+        },
+        {
+          "hu": "Egy elmélet szerint a vita az egyetértés első lépése.",
+          "ru": "Согласно одной теории, спор это первый шаг к согласию.",
+          "en": "According to one theory, an argument is the first step to agreement."
+        },
+        {
+          "hu": "Nem vagyok biztos benne, hogy ez igaz, de a gondolat tetszik, és mindenképpen érdekes.",
+          "ru": "Я не уверена, что это правда, но мысль мне нравится, и она в любом случае интересна.",
+          "en": "I am not sure that this is true, but I like the thought and it is certainly interesting."
+        },
+        {
+          "hu": "Ha a vélemények eltérők, a beszélgetés érdekes.",
+          "ru": "Если мнения разные, разговор интересный.",
+          "en": "If opinions are different, the conversation is interesting."
+        },
+        {
+          "hu": "Ha a vélemények hasonlók, hamar vége a beszélgetésnek.",
+          "ru": "Если мнения похожи, разговор быстро заканчивается.",
+          "en": "If opinions are similar, the conversation ends quickly."
+        },
+        {
+          "hu": "Az egyetértés nem mindig jó, és az ellentét nem mindig rossz.",
+          "ru": "Согласие не всегда хорошо, а противоположность не всегда плоха.",
+          "en": "Agreement is not always good, and a contrast is not always bad."
+        },
+        {
+          "hu": "A hasonló és az eltérő vélemény is hasznos.",
+          "ru": "И похожее, и отличающееся мнение полезно.",
+          "en": "Both a similar and a different opinion is useful."
+        }
+      ],
+      [
+        {
+          "hu": "Szerintem három dolog fontos egy vitában.",
+          "ru": "По-моему, в споре важны три вещи.",
+          "en": "I think three things matter in an argument."
+        },
+        {
+          "hu": "Az első, hogy az érv legyen tisztességes és helyes.",
+          "ru": "Первое, чтобы довод был честным и верным.",
+          "en": "First, the argument should be decent and correct."
+        },
+        {
+          "hu": "Az ellenkezője rossz, mert akkor a vita nem őszinte.",
+          "ru": "Обратное плохо, ведь тогда спор нечестный.",
+          "en": "The opposite is bad, because then the argument is not sincere."
+        },
+        {
+          "hu": "A második, hogy ha valami kérdéses, ezt őszintén mondjuk meg.",
+          "ru": "Второе, чтобы, если что-то спорно, мы честно это сказали.",
+          "en": "Second, if something is questionable we should say so honestly."
+        },
+        {
+          "hu": "A harmadik, hogy mindenképpen hallani akarjuk a másikat.",
+          "ru": "Третье, чтобы мы в любом случае хотели услышать другого.",
+          "en": "Third, we should in any case want to hear the other person."
+        },
+        {
+          "hu": "Kizárt, hogy valaki mindig nyer egy családban.",
+          "ru": "Исключено, чтобы кто-то всегда выигрывал в семье.",
+          "en": "It is out of the question that someone always wins in a family."
+        },
+        {
+          "hu": "Nyilvánvaló, hogy az ember néha téved.",
+          "ru": "Очевидно, что человек иногда ошибается.",
+          "en": "It is obvious that a person is sometimes wrong."
+        },
+        {
+          "hu": "Lehetetlen, hogy mindig nekem legyen igazam.",
+          "ru": "Невозможно, чтобы я всегда была права.",
+          "en": "It is impossible that I am always right."
+        },
+        {
+          "hu": "Ez a következtetésem, és nincs benne kétség.",
+          "ru": "Таков мой вывод, и в нём нет сомнений.",
+          "en": "That is my conclusion, and there is no doubt in it."
+        },
+        {
+          "hu": "Jogos kérdés, hogy ki nyerte a vitát.",
+          "ru": "Справедливый вопрос, кто выиграл спор.",
+          "en": "A fair question is who won the argument."
+        },
+        {
+          "hu": "Szerintem senki, mert az igazság mindenkié.",
+          "ru": "По-моему, никто, ведь правда принадлежит всем.",
+          "en": "I think nobody, because the truth belongs to everyone."
+        }
+      ]
+    ]
+  }
+}

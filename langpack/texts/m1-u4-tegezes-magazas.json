@@ -1,0 +1,415 @@
+{
+  "short": {
+    "genre": "notice",
+    "checked": "ai",
+    "title": {
+      "ru": "Объявление в приёмной",
+      "en": "A notice in the waiting room"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Tisztelt ügyfelek!",
+          "ru": "Уважаемые посетители!",
+          "en": "Dear clients!"
+        },
+        {
+          "hu": "Jó napot kívánunk!",
+          "ru": "Добрый день!",
+          "en": "Good day to you!"
+        },
+        {
+          "hu": "A doktor úr reggel nyolctól itt van.",
+          "ru": "Господин доктор принимает с восьми утра.",
+          "en": "The doctor is here from eight in the morning."
+        },
+        {
+          "hu": "Az igazolvány és az engedély kell.",
+          "ru": "Нужны удостоверение и разрешение.",
+          "en": "Your ID and your permit are needed."
+        }
+      ],
+      [
+        {
+          "hu": "Önök itt várnak, a sor ott van.",
+          "ru": "Вы ждёте здесь, очередь вон там.",
+          "en": "You wait here, the queue is over there."
+        },
+        {
+          "hu": "A gyerekeknek te, a felnőtteknek ön.",
+          "ru": "Детям «ты», взрослым «вы».",
+          "en": "Children get «te», adults get «ön»."
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "chat",
+    "checked": "ai",
+    "title": {
+      "ru": "Ката у врача",
+      "en": "Kata at the doctor's"
+    },
+    "names": [
+      "Kata",
+      "Péter",
+      "Bori"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Kata! Hol vagy most?",
+          "ru": "Привет, Ката! Где ты сейчас?",
+          "en": "Hi, Kata! Where are you now?"
+        },
+        {
+          "hu": "Szia! A hivatalban vagyok Bori nénivel.",
+          "ru": "Привет! Я в учреждении с тётей Бори.",
+          "en": "Hi! I am at the office with Auntie Bori."
+        },
+        {
+          "hu": "Ő beteg?",
+          "ru": "Она больна?",
+          "en": "Is she ill?"
+        },
+        {
+          "hu": "Nem, a hivatalban vagyunk. Az igazolvány kell.",
+          "ru": "Нет, мы в учреждении. Нужно удостоверение.",
+          "en": "No, we are at the office. ID is needed."
+        }
+      ],
+      [
+        {
+          "hu": "Sok ember vár, nagy a sor.",
+          "ru": "Много людей ждёт, очередь большая.",
+          "en": "Many people are waiting, the queue is big."
+        },
+        {
+          "hu": "Egy férfi azt mondja Bori néninek, hogy „maga”.",
+          "ru": "Один мужчина говорит тёте Бори «вы» (maga).",
+          "en": "A man says «maga» to Auntie Bori."
+        },
+        {
+          "hu": "Bori néni nem szereti, ez nem udvarias.",
+          "ru": "Тёте Бори это не нравится, это невежливо.",
+          "en": "Auntie Bori does not like it, it is not polite."
+        },
+        {
+          "hu": "A férfi nem rossz ember, de ez nem illik.",
+          "ru": "Мужчина не плохой человек, но так не подобает.",
+          "en": "The man is not a bad person, but this is not proper."
+        },
+        {
+          "hu": "Bori néni szerint ez nem tisztelet.",
+          "ru": "По мнению тёти Бори, это не уважение.",
+          "en": "In Auntie Bori's view, this is no respect."
+        }
+      ],
+      [
+        {
+          "hu": "A doktor úr szíves és kedves.",
+          "ru": "Господин доктор любезен и мил.",
+          "en": "The doctor is kind and nice."
+        },
+        {
+          "hu": "Azt mondja, hogy „mit tetszik kérni, asszonyom?”",
+          "ru": "Он говорит: «Что желаете, сударыня?»",
+          "en": "He says, «What would you like, madam?»"
+        },
+        {
+          "hu": "Nekem is azt mondja, hogy „ön”, kisasszony.",
+          "ru": "Мне он тоже говорит «вы», барышня.",
+          "en": "He says «ön» to me too, miss."
+        },
+        {
+          "hu": "Neked ön? Te fiatal lány vagy!",
+          "ru": "Тебе «вы»? Ты же молодая девушка!",
+          "en": "«Ön» to you? You are a young girl!"
+        }
+      ],
+      [
+        {
+          "hu": "Ő orvos, én ügyfél vagyok. Ez udvarias.",
+          "ru": "Он врач, я посетитель. Это вежливо.",
+          "en": "He is a doctor, I am a client. That is polite."
+        },
+        {
+          "hu": "Persze!",
+          "ru": "Конечно!",
+          "en": "Of course!"
+        },
+        {
+          "hu": "Te nekem nem mondod, hogy „ön”.",
+          "ru": "Ты мне не говоришь «вы».",
+          "en": "You do not say «ön» to me."
+        },
+        {
+          "hu": "Nem, te a barátom vagy.",
+          "ru": "Нет, ты мой друг.",
+          "en": "No, you are my friend."
+        },
+        {
+          "hu": "Bemutatom neked Bori nénit.",
+          "ru": "Знакомься, это тётя Бори.",
+          "en": "Meet Auntie Bori."
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "myday",
+    "checked": "ai",
+    "title": {
+      "ru": "Ты дома, вы на работе",
+      "en": "Te at home, ön at work"
+    },
+    "names": [
+      "Judit",
+      "Szabó",
+      "Anna",
+      "Zoli",
+      "Kata",
+      "Péter"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Judit vagyok, hivatalnok vagyok.",
+          "ru": "Я Юдит, я чиновница.",
+          "en": "I am Judit, I am a clerk."
+        },
+        {
+          "hu": "Reggel nyolckor már a hivatalban vagyok.",
+          "ru": "В восемь утра я уже в учреждении.",
+          "en": "At eight in the morning I am already at the office."
+        },
+        {
+          "hu": "A főnök, Szabó úr, mindig udvarias.",
+          "ru": "Начальник, господин Сабо, всегда вежлив.",
+          "en": "The boss, Mr Szabó, is always polite."
+        },
+        {
+          "hu": "Ő nekem azt mondja, hogy „te”.",
+          "ru": "Он мне говорит «ты».",
+          "en": "He says «te» to me."
+        },
+        {
+          "hu": "Én neki azt mondom, hogy „ön”.",
+          "ru": "Я ему говорю «вы».",
+          "en": "I say «ön» to him."
+        },
+        {
+          "hu": "Ez a tisztelet.",
+          "ru": "Это уважение.",
+          "en": "This is respect."
+        },
+        {
+          "hu": "Szabó úr jó főnök, nagyon szíves.",
+          "ru": "Господин Сабо хороший начальник, очень любезен.",
+          "en": "Mr Szabó is a good boss, very kind."
+        }
+      ],
+      [
+        {
+          "hu": "A kollégák Anna és Zoli.",
+          "ru": "Коллеги — Анна и Золи.",
+          "en": "My colleagues are Anna and Zoli."
+        },
+        {
+          "hu": "Zoli fiú, Anna lány, ők is hivatalnokok.",
+          "ru": "Золи — парень, Анна — девушка, они тоже чиновники.",
+          "en": "Zoli is a boy, Anna is a girl, they are clerks too."
+        },
+        {
+          "hu": "Zoli új, bemutatom a főnöknek.",
+          "ru": "Золи новенький, представляю его начальнику.",
+          "en": "Zoli is new, I introduce him to the boss."
+        },
+        {
+          "hu": "Nekik azt mondom, hogy „te”.",
+          "ru": "Им я говорю «ты».",
+          "en": "I say «te» to them."
+        },
+        {
+          "hu": "Szia, Anna! Te is itt vagy?",
+          "ru": "Привет, Анна! Ты тоже здесь?",
+          "en": "Hi, Anna! Are you here too?"
+        },
+        {
+          "hu": "Anna, Zoli, ti is jöttök?",
+          "ru": "Анна, Золи, вы тоже идёте?",
+          "en": "Anna, Zoli, are you coming too?"
+        },
+        {
+          "hu": "Ti nagyon kedvesek vagytok!",
+          "ru": "Вы очень милые!",
+          "en": "You are very nice!"
+        }
+      ],
+      [
+        {
+          "hu": "Tíz órakor sok személy vár, nagy a sor.",
+          "ru": "В десять ждёт много человек, очередь большая.",
+          "en": "At ten o'clock many people wait, the queue is big."
+        },
+        {
+          "hu": "Minden személy ügyfél, de nem minden ügyfél felnőtt.",
+          "ru": "Каждый человек здесь посетитель, но не каждый посетитель взрослый.",
+          "en": "Every person is a client, but not every client is an adult."
+        },
+        {
+          "hu": "Egy férfi jön, ő doktor.",
+          "ru": "Приходит мужчина, он доктор.",
+          "en": "A man comes, he is a doctor."
+        },
+        {
+          "hu": "Neki azt mondom, hogy „doktor úr”.",
+          "ru": "Ему я говорю «господин доктор».",
+          "en": "I say «doktor úr» to him."
+        },
+        {
+          "hu": "Egy bácsi is jön az igazolványával.",
+          "ru": "Приходит и дядя в годах со своим удостоверением.",
+          "en": "An old man comes too, with his ID."
+        },
+        {
+          "hu": "Ő azt mondja nekem, hogy „maga”.",
+          "ru": "Он говорит мне «вы» (maga).",
+          "en": "He says «maga» to me."
+        },
+        {
+          "hu": "Én neki azt mondom, hogy „bácsi”, és „ön”.",
+          "ru": "Я ему говорю «дядя» и «вы».",
+          "en": "I say «bácsi» and «ön» to him."
+        },
+        {
+          "hu": "Tisztelt uram, mit parancsol?",
+          "ru": "Уважаемый господин, чем могу помочь?",
+          "en": "Dear sir, how can I help?"
+        },
+        {
+          "hu": "Maga nagyon kedves, mondja.",
+          "ru": "«Вы очень любезны», — говорит он.",
+          "en": "«You are very kind,» he says."
+        }
+      ],
+      [
+        {
+          "hu": "Aztán egy nő jön.",
+          "ru": "Потом приходит женщина.",
+          "en": "Then a woman comes."
+        },
+        {
+          "hu": "A nő már asszony, nem kisasszony.",
+          "ru": "Эта женщина уже замужем, не барышня.",
+          "en": "The woman is a Mrs now, not a miss."
+        },
+        {
+          "hu": "Tisztelt hölgyem, mit parancsol?",
+          "ru": "Уважаемая сударыня, чем могу помочь?",
+          "en": "Dear madam, how can I help?"
+        },
+        {
+          "hu": "A hölgy az engedélyt kéri.",
+          "ru": "Дама просит разрешение.",
+          "en": "The lady asks for the permit."
+        },
+        {
+          "hu": "Egy fiú és egy lány is jön.",
+          "ru": "Приходят ещё парень и девушка.",
+          "en": "A boy and a girl come too."
+        },
+        {
+          "hu": "Ti hivatalos ügyben vagytok?",
+          "ru": "Вы по официальному делу?",
+          "en": "Are you here on official business?"
+        },
+        {
+          "hu": "Ők még nem felnőttek, de ügyfelek.",
+          "ru": "Они ещё не взрослые, но посетители.",
+          "en": "They are not adults yet, but they are clients."
+        },
+        {
+          "hu": "A hivatalban ez a tisztelet.",
+          "ru": "В учреждении это уважение.",
+          "en": "At the office this is respect."
+        }
+      ],
+      [
+        {
+          "hu": "Délben a boltba megyek.",
+          "ru": "В полдень я иду в магазин.",
+          "en": "At noon I go to the shop."
+        },
+        {
+          "hu": "Jó napot kívánok!",
+          "ru": "Добрый день!",
+          "en": "Good day to you!"
+        },
+        {
+          "hu": "Az eladó nő nagyon szíves.",
+          "ru": "Продавщица очень любезна.",
+          "en": "The shop assistant is very kind."
+        },
+        {
+          "hu": "Az eladó azt mondja, hogy „mit tetszik kérni, asszonyom?”",
+          "ru": "Она говорит: «Что желаете, госпожа?»",
+          "en": "She says, «What would you like, madam?»"
+        },
+        {
+          "hu": "Egy rendőr is áll ott.",
+          "ru": "Там же стоит полицейский.",
+          "en": "A police officer is standing there too."
+        },
+        {
+          "hu": "A rendőr kedves ember.",
+          "ru": "Полицейский — любезный человек.",
+          "en": "The police officer is a kind person."
+        },
+        {
+          "hu": "Azt kérdezi, hogy „elnézést, hölgyem, hol a hivatal?”",
+          "ru": "Он спрашивает: «Простите, сударыня, где учреждение?»",
+          "en": "He asks, “Excuse me, madam, where is the office?”"
+        },
+        {
+          "hu": "Az eladó, a rendőr, az orvos mind jó ember.",
+          "ru": "Продавец, полицейский, врач — все хорошие люди.",
+          "en": "The shop assistant, the officer, the doctor are all good people."
+        }
+      ],
+      [
+        {
+          "hu": "Este a barátaim jönnek.",
+          "ru": "Вечером приходят мои друзья.",
+          "en": "In the evening my friends come."
+        },
+        {
+          "hu": "Kata tanár, Péter is tanár.",
+          "ru": "Ката учитель, Петер тоже учитель.",
+          "en": "Kata is a teacher, Péter is a teacher too."
+        },
+        {
+          "hu": "De nekem csak Kata és Péter.",
+          "ru": "Но для меня просто Ката и Петер.",
+          "en": "But to me they are just Kata and Péter."
+        },
+        {
+          "hu": "Bemutatom nekik Annát, és mind azt mondják, hogy „te”.",
+          "ru": "Я представляю им Анну, и все говорят друг другу «ты».",
+          "en": "I introduce Anna to them, and everyone says «te»."
+        },
+        {
+          "hu": "Itt nincs hivatal, itt nincs ön.",
+          "ru": "Здесь нет учреждения, здесь нет «вы».",
+          "en": "There is no office here, there is no «ön» here."
+        },
+        {
+          "hu": "A hivatalban ön illik, otthon te.",
+          "ru": "В учреждении подобает «вы», дома «ты».",
+          "en": "At the office «ön» is proper, at home «te»."
+        }
+      ]
+    ]
+  }
+}

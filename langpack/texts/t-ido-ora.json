@@ -1,0 +1,489 @@
+{
+  "short": {
+    "genre": "note",
+    "checked": "ai",
+    "title": {
+      "ru": "Записка на столе",
+      "en": "A note on the table"
+    },
+    "names": [
+      "Kata",
+      "Péter"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Péter!",
+          "ru": "Петер!",
+          "en": "Péter!"
+        },
+        {
+          "hu": "Az ébresztőóra reggelente hatkor szól, de te folyton elalszol.",
+          "ru": "Будильник по утрам звонит в шесть, а ты постоянно засыпаешь снова.",
+          "en": "The alarm clock rings at six in the mornings, but you keep falling asleep."
+        },
+        {
+          "hu": "Én hajnalban ébredek, és hamar felkelek.",
+          "ru": "Я просыпаюсь на рассвете и быстро встаю.",
+          "en": "I wake up at dawn and get up quickly."
+        },
+        {
+          "hu": "Te gyakran csak negyedóra múlva ébredsz.",
+          "ru": "А ты часто просыпаешься только через четверть часа.",
+          "en": "You often wake up only after a quarter of an hour."
+        },
+        {
+          "hu": "Esténként folyton későn alszol el.",
+          "ru": "А по вечерам ты постоянно поздно засыпаешь.",
+          "en": "And in the evenings you keep falling asleep late."
+        },
+        {
+          "hu": "A kávé a konyhában van.",
+          "ru": "Кофе на кухне.",
+          "en": "The coffee is in the kitchen."
+        },
+        {
+          "hu": "Én a megállónál várlak, aztán együtt megyünk.",
+          "ru": "Я жду тебя на остановке, потом пойдём вместе.",
+          "en": "I will wait for you at the stop, then we go together."
+        }
+      ],
+      [
+        {
+          "hu": "Ma a busz háromnegyed nyolckor megy, nem nyolckor.",
+          "ru": "Сегодня автобус идёт без четверти восемь, а не в восемь.",
+          "en": "Today the bus goes at a quarter to eight, not at eight."
+        },
+        {
+          "hu": "Hétköznap a busz rendszerint pontos.",
+          "ru": "В будни автобус обычно приходит точно.",
+          "en": "On weekdays the bus is usually on time."
+        },
+        {
+          "hu": "A karóra az asztalon van, nézd meg!",
+          "ru": "Часы лежат на столе, посмотри!",
+          "en": "The watch is on the table, have a look!"
+        },
+        {
+          "hu": "Holnapután ünnepnap van, akkor addig alszol, amíg akarsz.",
+          "ru": "Послезавтра праздник, тогда спи сколько хочешь.",
+          "en": "The day after tomorrow is a holiday, then you can sleep as long as you want."
+        },
+        {
+          "hu": "Ne késs, kérlek! Kata",
+          "ru": "Не опаздывай, пожалуйста! Ката",
+          "en": "Do not be late, please! Kata"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "timetable",
+    "checked": "ai",
+    "title": {
+      "ru": "Расписание автобуса",
+      "en": "The bus timetable"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Ez a busz hétköznap így jár.",
+          "ru": "Так ходит этот автобус в будни.",
+          "en": "This is how the bus runs on weekdays."
+        },
+        {
+          "hu": "Az első busz hajnalban öt órakor indul.",
+          "ru": "Первый автобус отправляется на рассвете, в пять.",
+          "en": "The first bus leaves at dawn, at five."
+        },
+        {
+          "hu": "Reggelente, hétkor és nyolckor, gyakran jön busz.",
+          "ru": "По утрам, в семь и в восемь, автобусы идут часто.",
+          "en": "In the mornings, at seven and eight, buses come often."
+        },
+        {
+          "hu": "Utána, napközben, óránként van egy busz.",
+          "ru": "После этого, в течение дня, автобус ходит раз в час.",
+          "en": "After that, during the day, there is one bus every hour."
+        },
+        {
+          "hu": "A reggeli időszak a legjobb, mert gyakori a busz.",
+          "ru": "Утро — лучшее время, автобусы ходят часто.",
+          "en": "The morning is the best time, because the bus is frequent."
+        },
+        {
+          "hu": "Az utolsó busz este tízkor megy.",
+          "ru": "Последний автобус идёт вечером в десять.",
+          "en": "The last bus goes at ten in the evening."
+        },
+        {
+          "hu": "Esténként is jön óránként, de olykor késik.",
+          "ru": "Вечером он тоже ходит раз в час, но порой опаздывает.",
+          "en": "In the evenings it comes every hour too, but at times it is late."
+        },
+        {
+          "hu": "Hétköznap a busz rendszerint pontos.",
+          "ru": "В будни автобус обычно приходит вовремя.",
+          "en": "On weekdays the bus is usually on time."
+        },
+        {
+          "hu": "Időnként késik, de ez ritka.",
+          "ru": "Иногда он опаздывает, но это редкость.",
+          "en": "From time to time it is late, but that is rare."
+        },
+        {
+          "hu": "Ha hajnalban indulsz, az első busz jó neked.",
+          "ru": "Если ты выезжаешь на рассвете, тебе подходит первый автобус.",
+          "en": "If you set out at dawn, the first bus is good for you."
+        },
+        {
+          "hu": "Reggel gyakran tele van, ezért gyere hamar.",
+          "ru": "Утром он часто полон, поэтому приходи пораньше.",
+          "en": "In the morning it is often full, so come early."
+        },
+        {
+          "hu": "Ha később jössz, ritkán van hely.",
+          "ru": "Если придёшь позже, мест редко бывает.",
+          "en": "If you come later, there is rarely a seat."
+        }
+      ],
+      [
+        {
+          "hu": "Ünnepnap ritkábban jár a busz.",
+          "ru": "В праздничные дни автобус ходит реже.",
+          "en": "On public holidays the bus runs less often."
+        },
+        {
+          "hu": "Napközben többnyire kevesen utaznak.",
+          "ru": "В течение дня обычно едут немногие.",
+          "en": "During the day mostly few people travel."
+        },
+        {
+          "hu": "Ünnepnap viszont az első busz csak hétkor indul, nem hajnalban.",
+          "ru": "В праздник же первый автобус идёт только в семь, не на рассвете.",
+          "en": "On holidays, though, the first bus only leaves at seven, not at dawn."
+        },
+        {
+          "hu": "Ünnepnap utána is csak óránként jön, este nyolcig.",
+          "ru": "В праздник и потом он ходит только раз в час, до восьми вечера.",
+          "en": "On holidays it also only comes every hour after that, until eight in the evening."
+        },
+        {
+          "hu": "Ünnepnap többnyire üres, mert mindenki otthon alszik.",
+          "ru": "В праздники он большей частью пустой, потому что все спят дома.",
+          "en": "On holidays it is mostly empty, because everyone sleeps at home."
+        },
+        {
+          "hu": "Jelenleg ünnepnap nincs esti busz.",
+          "ru": "В данный момент вечером в праздники автобуса нет.",
+          "en": "At the moment there is no evening bus on holidays."
+        },
+        {
+          "hu": "Ünnepnap is ritkán késik, ezért többnyire pontos.",
+          "ru": "В праздники он тоже редко опаздывает, поэтому большей частью точный.",
+          "en": "On holidays too it is rarely late, so it is mostly on time."
+        }
+      ],
+      [
+        {
+          "hu": "Légy a megállónál idejében, negyedórával előtte.",
+          "ru": "Приходи на остановку заранее, за четверть часа.",
+          "en": "Be at the stop in good time, a quarter of an hour before."
+        },
+        {
+          "hu": "Háromnegyed nyolckor már sokan várnak, ekkor gyakran nincs hely.",
+          "ru": "В без четверти восемь там уже ждёт много людей, и в это время часто нет мест.",
+          "en": "At a quarter to eight many people are already waiting, and then there is often no seat."
+        },
+        {
+          "hu": "Olykor a karóra vagy az ébresztőóra nem pontos.",
+          "ru": "Порой наручные часы или будильник идут неточно.",
+          "en": "At times the watch or the alarm clock is not exact."
+        },
+        {
+          "hu": "Ezért kérdezz meg valakit, vagy nézd meg a megállónál.",
+          "ru": "Поэтому спроси кого-нибудь или посмотри на остановке.",
+          "en": "So ask someone, or look at the stop."
+        },
+        {
+          "hu": "Ha ünnepnap utazol, jó, ha idejében indulsz.",
+          "ru": "Если едешь в праздник, хорошо выехать заранее.",
+          "en": "If you travel on a holiday, it is good to set out in good time."
+        },
+        {
+          "hu": "Mostanában új busz is jár, és hamar a városban vagy.",
+          "ru": "В последнее время ходит и новый автобус, и ты быстро в городе.",
+          "en": "Lately a new bus runs too, and you are in town quickly."
+        },
+        {
+          "hu": "Mostanra sokan rendszeresen busszal mennek dolgozni.",
+          "ru": "К настоящему времени многие регулярно ездят на работу на автобусе.",
+          "en": "By now many people regularly take the bus to work."
+        },
+        {
+          "hu": "Holnapután ünnepnap lesz, akkor ritkábban jár a busz.",
+          "ru": "Послезавтра праздник, тогда автобус ходит реже.",
+          "en": "The day after tomorrow is a holiday, then the bus runs less often."
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "diary",
+    "checked": "ai",
+    "title": {
+      "ru": "Дневник: я опоздала, но всего на десять минут",
+      "en": "Diary: I was late, but only ten minutes"
+    },
+    "names": [
+      "Kata",
+      "Dóra"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Mostanában rendszeresen korán kelek, mert jelenleg új munkám van.",
+          "ru": "В последнее время я регулярно рано встаю, потому что сейчас у меня новая работа.",
+          "en": "Lately I get up early regularly, because I have a new job at the moment."
+        },
+        {
+          "hu": "A munka a városban van, és oda busszal megyek.",
+          "ru": "Работа в городе, и я езжу туда на автобусе.",
+          "en": "The job is in town, and I go there by bus."
+        },
+        {
+          "hu": "Az ébresztőóra hétköznap reggelente hatkor szól.",
+          "ru": "Будильник по будням звонит в шесть утра.",
+          "en": "On weekdays the alarm clock rings at six in the morning."
+        },
+        {
+          "hu": "Rendszerint hamar felkelek, és még időm is van.",
+          "ru": "Обычно я быстро встаю, и у меня ещё остаётся время.",
+          "en": "Usually I get up quickly, and I even have time left."
+        },
+        {
+          "hu": "Régen, valamikor, sokkal több időm volt reggelente.",
+          "ru": "Раньше, когда-то, по утрам у меня было гораздо больше времени.",
+          "en": "In the old days, sometime, I had much more time in the mornings."
+        },
+        {
+          "hu": "Esténként viszont gyakran késő van, mire elalszom.",
+          "ru": "А вот по вечерам, пока я засыпаю, часто бывает уже поздно.",
+          "en": "In the evenings, though, it is often late by the time I fall asleep."
+        },
+        {
+          "hu": "Ez az időszak nekem nem könnyű.",
+          "ru": "Этот период для меня нелёгкий.",
+          "en": "This period is not easy for me."
+        },
+        {
+          "hu": "Ez az időszak gyakori mindenkinél, aki új munkát kezd.",
+          "ru": "Этот период бывает у всех, кто начинает новую работу.",
+          "en": "This period is common for everyone who starts a new job."
+        },
+        {
+          "hu": "Esténként folyton a telefonomat nézem, és ez nem jó.",
+          "ru": "По вечерам я постоянно смотрю в телефон, и это нехорошо.",
+          "en": "In the evenings I keep looking at my phone, and that is not good."
+        }
+      ],
+      [
+        {
+          "hu": "Tegnap viszont az ébresztőóra nem szólt.",
+          "ru": "А вчера будильник не зазвонил.",
+          "en": "Yesterday, though, the alarm clock did not ring."
+        },
+        {
+          "hu": "Hajnalban egyszer ébredtem, de aztán még egy kicsit maradtam az ágyban.",
+          "ru": "На рассвете я один раз проснулась, но потом ещё немного полежала в постели.",
+          "en": "I woke up once at dawn, but then stayed a little longer in bed."
+        },
+        {
+          "hu": "Háromnegyed nyolckor néztem a karórára, és csak azt mondtam, hogy jaj.",
+          "ru": "В без четверти восемь я посмотрела на часы и только сказала «ой».",
+          "en": "At a quarter to eight I looked at my watch and could only say oh no."
+        },
+        {
+          "hu": "Ekkor már tényleg sietni kellett.",
+          "ru": "Тут уже действительно нужно было спешить.",
+          "en": "Then I really had to hurry."
+        },
+        {
+          "hu": "A busz nyolckor indult, még negyedóra volt addig.",
+          "ru": "Автобус отправлялся в восемь, до этого оставалась четверть часа.",
+          "en": "The bus left at eight, there was still a quarter of an hour until then."
+        },
+        {
+          "hu": "Az ébresztőóra eddig soha nem szólt rosszul.",
+          "ru": "Будильник до сих пор никогда не звонил не вовремя.",
+          "en": "The alarm clock had never rung at the wrong time so far."
+        },
+        {
+          "hu": "Mostanra tudom, hogy az óra volt rossz.",
+          "ru": "Теперь я знаю, что часы были неисправны.",
+          "en": "By now I know that the clock was faulty."
+        },
+        {
+          "hu": "Azt gondoltam, hogy ma már késő van.",
+          "ru": "Я подумала, что сегодня уже поздно.",
+          "en": "I thought it was already too late today."
+        },
+        {
+          "hu": "Gyorsan felkeltem, és csak egy kávét ittam.",
+          "ru": "Я быстро встала и выпила только чашку кофе.",
+          "en": "I got up quickly and only drank a coffee."
+        },
+        {
+          "hu": "A megálló közel van, de ekkor mégis siettem.",
+          "ru": "Остановка близко, но тут я всё равно поспешила.",
+          "en": "The stop is close, but then I hurried anyway."
+        },
+        {
+          "hu": "Az úton gyakran sok ember van, de tegnap kevés.",
+          "ru": "На дороге часто много людей, но вчера было мало.",
+          "en": "There are often many people on the road, but yesterday there were few."
+        },
+        {
+          "hu": "Olykor a busz késik, de tegnap pontos volt.",
+          "ru": "Порой автобус опаздывает, но вчера был точным.",
+          "en": "At times the bus is late, but yesterday it was on time."
+        },
+        {
+          "hu": "Aznap a busz idejében jött, és én is idejében értem oda.",
+          "ru": "В тот день автобус пришёл вовремя, и я тоже добралась вовремя.",
+          "en": "That day the bus came on time, and I got there on time too."
+        },
+        {
+          "hu": "Ez ritka, és nekem most nagyon jó volt.",
+          "ru": "Это бывает редко, и мне сейчас это очень помогло.",
+          "en": "That is rare, and it was very good for me now."
+        }
+      ],
+      [
+        {
+          "hu": "A busz éppen ott állt, és a sofőr látta, hogy sietek.",
+          "ru": "Автобус как раз стоял там, и водитель увидел, что я спешу.",
+          "en": "The bus was just standing there, and the driver saw that I was hurrying."
+        },
+        {
+          "hu": "Ő várt rám, és én nagyon örültem.",
+          "ru": "Он подождал меня, и я очень обрадовалась.",
+          "en": "He waited for me, and I was very glad."
+        },
+        {
+          "hu": "A munkahelyen mégis tíz percet késtem.",
+          "ru": "На работе я всё-таки опоздала на десять минут.",
+          "en": "At work I was late by ten minutes anyway."
+        },
+        {
+          "hu": "A főnök nem volt mérges, mert eddig soha nem késtem.",
+          "ru": "Начальник не сердился, потому что до сих пор я никогда не опаздывала.",
+          "en": "The boss was not angry, because so far I had never been late."
+        },
+        {
+          "hu": "Napközben sokat dolgoztam, utána Dórával találkoztam.",
+          "ru": "В течение дня я много работала, а потом встретилась с Дорой.",
+          "en": "During the day I worked a lot, and afterwards I met Dóra."
+        },
+        {
+          "hu": "Napközben állandóan kávét iszom, de aznap alig.",
+          "ru": "В течение дня я постоянно пью кофе, но в тот день почти нет.",
+          "en": "During the day I drink coffee all the time, but that day hardly any."
+        },
+        {
+          "hu": "Dóra nevetett, mert ő állandóan késik, és ez nála gyakori.",
+          "ru": "Дора смеялась, потому что она опаздывает всё время, и у неё это частое дело.",
+          "en": "Dóra laughed, because she is late all the time, and with her it is frequent."
+        },
+        {
+          "hu": "Dóra szerint az idő hamar megy, ha sok a munka.",
+          "ru": "По словам Доры, время быстро идёт, когда много работы.",
+          "en": "According to Dóra, time goes quickly when there is a lot of work."
+        },
+        {
+          "hu": "Jelenleg nekem is így van, de nem baj.",
+          "ru": "Сейчас и у меня так, но это не беда.",
+          "en": "At the moment it is like that for me too, but never mind."
+        },
+        {
+          "hu": "Ritkán találkozunk, de rendszeresen írunk egymásnak.",
+          "ru": "Мы встречаемся редко, но регулярно пишем друг другу.",
+          "en": "We meet rarely, but we write to each other regularly."
+        }
+      ],
+      [
+        {
+          "hu": "Anya régen minden reggel ébresztett, mert még iskolás voltam.",
+          "ru": "Раньше мама каждое утро меня будила, потому что я ещё училась в школе.",
+          "en": "In the old days Mom woke me every morning, because I was still at school."
+        },
+        {
+          "hu": "Most egyedül élek, és csak az óra ébreszt.",
+          "ru": "Теперь я живу одна, и меня будят только часы.",
+          "en": "Now I live alone, and only the clock wakes me."
+        },
+        {
+          "hu": "A nagyapám karórája sok évtizede jár, és még mindig pontos.",
+          "ru": "Наручные часы моего деда идут уже много десятилетий, и они всё ещё точные.",
+          "en": "My grandfather's watch has been running for many decades, and it is still exact."
+        },
+        {
+          "hu": "Valamikor azt mondta, hogy egy jó óra egy évszázadig él.",
+          "ru": "Когда-то он сказал, что хорошие часы живут целый век.",
+          "en": "Sometime he said that a good watch lives for a century."
+        },
+        {
+          "hu": "Időnként azt gondolom, hogy ő sosem késett.",
+          "ru": "Порой я думаю, что он никогда не опаздывал.",
+          "en": "From time to time I think that he never was late."
+        },
+        {
+          "hu": "Olykor ő is késett, de ezt senkinek sem mondta.",
+          "ru": "Иногда и он опаздывал, но никому об этом не говорил.",
+          "en": "At times he was late too, but he told nobody."
+        },
+        {
+          "hu": "Ő ébresztőórát nem használ, mert hajnalban magától ébred.",
+          "ru": "Он будильником не пользуется, потому что на рассвете просыпается сам.",
+          "en": "He does not use an alarm clock, because he wakes up by himself at dawn."
+        },
+        {
+          "hu": "Szerinte az életben a pontos ember nyer.",
+          "ru": "По его словам, в жизни выигрывает пунктуальный человек.",
+          "en": "According to him, in life the punctual person wins."
+        },
+        {
+          "hu": "Mostanában gyakran az ő karóráját nézem.",
+          "ru": "В последнее время я часто смотрю на его часы.",
+          "en": "Lately I often look at his watch."
+        },
+        {
+          "hu": "Aznap este nagyon fáradt voltam, ezért korán ágyba mentem.",
+          "ru": "В тот вечер я очень устала и рано легла в постель.",
+          "en": "That evening I was very tired, so I went to bed early."
+        },
+        {
+          "hu": "Másnap az ébresztőóra újra szólt, és én idejében felkeltem.",
+          "ru": "На следующий день будильник снова зазвонил, и я встала вовремя.",
+          "en": "The next day the alarm clock rang again, and I got up in time."
+        },
+        {
+          "hu": "Másnap Dóra írt, hogy ő is idejében jött.",
+          "ru": "На следующий день Дора написала, что и она пришла вовремя.",
+          "en": "The next day Dóra wrote that she came on time too."
+        },
+        {
+          "hu": "Eddig azt hittem, hogy ez nehéz, de nem az.",
+          "ru": "До сих пор я думала, что это трудно, но это не так.",
+          "en": "Until now I thought this was hard, but it is not."
+        },
+        {
+          "hu": "Holnapután ünnepnap van, és valamikor délig alszom.",
+          "ru": "Послезавтра праздник, и я буду спать, наверное, до полудня.",
+          "en": "The day after tomorrow is a holiday, and I will sleep until noon or so."
+        }
+      ]
+    ]
+  }
+}

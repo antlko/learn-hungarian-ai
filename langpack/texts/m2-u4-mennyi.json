@@ -1,0 +1,321 @@
+{
+  "short": {
+    "genre": "list",
+    "checked": "ai",
+    "title": {
+      "ru": "Список покупок",
+      "en": "A shopping list"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Egy kiló alma, nem több.",
+          "ru": "Килограмм яблок, не больше.",
+          "en": "A kilo of apples, not more."
+        },
+        {
+          "hu": "Két liter víz, egy üveg is.",
+          "ru": "Два литра воды, и бутылка тоже.",
+          "en": "Two litres of water, a bottle too."
+        },
+        {
+          "hu": "Egy csomag és egy doboz, nem nagy.",
+          "ru": "Пачка и коробка, не большие.",
+          "en": "A packet and a box, not big ones."
+        },
+        {
+          "hu": "Néhány darab, mindegyik kicsi.",
+          "ru": "Несколько штук, все маленькие.",
+          "en": "A few pieces, each one small."
+        },
+        {
+          "hu": "Egy kilogramm sok, egy gramm kevés.",
+          "ru": "Килограмм много, грамм мало.",
+          "en": "A kilogram is a lot, a gram is little."
+        },
+        {
+          "hu": "Egy zacskó, nem nehéz, könnyű.",
+          "ru": "Пакет, не тяжёлый, лёгкий.",
+          "en": "A bag, not heavy, light."
+        },
+        {
+          "hu": "Az akció jó, de nem túl sok!",
+          "ru": "Скидка хорошая, но не слишком много брать!",
+          "en": "The offer is good, but do not buy too much!"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "На рынке",
+      "en": "At the market"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Jó napot! Egy kiló almát kérek.",
+          "ru": "Добрый день! Мне килограмм яблок.",
+          "en": "Good day! A kilo of apples, please."
+        },
+        {
+          "hu": "Tessék. Ez egy egész kilogramm. Elég?",
+          "ru": "Пожалуйста. Это целый килограмм. Хватит?",
+          "en": "Here you are. That is a whole kilogram. Is it enough?"
+        },
+        {
+          "hu": "Kicsit kevés. Kérek még néhány darabot.",
+          "ru": "Маловато. Дайте ещё несколько штук.",
+          "en": "A little too little. I would like a few more pieces."
+        },
+        {
+          "hu": "Rendben. A mérleg most majdnem jó.",
+          "ru": "Хорошо. Весы теперь почти в порядке.",
+          "en": "Fine. The scales are almost right now."
+        },
+        {
+          "hu": "Igen, több nem kell. És van sajt?",
+          "ru": "Да, больше не нужно. А сыр есть?",
+          "en": "Yes, I need no more. And is there cheese?"
+        },
+        {
+          "hu": "Van. Hány dekát kér?",
+          "ru": "Есть. Сколько дека вам?",
+          "en": "Yes. How many deka do you want?"
+        },
+        {
+          "hu": "Száz gramm, két szeletben.",
+          "ru": "Сто граммов, в два ломтя.",
+          "en": "A hundred grams, in two slices."
+        },
+        {
+          "hu": "Jó. Még egy üveg vizet kérek.",
+          "ru": "Хорошо. И ещё бутылку воды.",
+          "en": "Good. And a bottle of water, please."
+        },
+        {
+          "hu": "A víz ott van. Nagy üveg, nehéz.",
+          "ru": "Вода вон там. Бутылка большая, тяжёлая.",
+          "en": "The water is there. A big bottle, heavy."
+        },
+        {
+          "hu": "Nem baj. Van üres zacskó? Sok alma van.",
+          "ru": "Ничего. Есть пустой пакет? Яблок много.",
+          "en": "Never mind. Is there an empty bag? There are many apples."
+        },
+        {
+          "hu": "Persze. Itt a zacskó, nem nehéz, könnyű.",
+          "ru": "Конечно. Вот пакет, не тяжёлый, лёгкий.",
+          "en": "Of course. Here is the bag, not heavy, light."
+        },
+        {
+          "hu": "Ez a víz akcióban van?",
+          "ru": "Эта вода по акции?",
+          "en": "Is this water on offer?"
+        },
+        {
+          "hu": "Igen, egyforma. A pénztár ott van.",
+          "ru": "Да, одинаковые. Касса вон там.",
+          "en": "Yes, the same. The till is over there."
+        },
+        {
+          "hu": "Mennyi lesz? Számolja, kérem.",
+          "ru": "Сколько с меня? Посчитайте, пожалуйста.",
+          "en": "How much will it be? Please count it up."
+        },
+        {
+          "hu": "Köszönöm. Kérem a blokkot is.",
+          "ru": "Спасибо. И чек, пожалуйста.",
+          "en": "Thank you. And the receipt, please."
+        },
+        {
+          "hu": "Tessék a blokk. Viszontlátásra!",
+          "ru": "Вот чек. До свидания!",
+          "en": "Here is the receipt. Goodbye!"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "diary",
+    "checked": "ai",
+    "title": {
+      "ru": "Суббота Эстер",
+      "en": "Eszter's Saturday"
+    },
+    "names": [
+      "Eszter"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Ma szombat van, és Eszter a boltba megy.",
+          "ru": "Сегодня суббота, и Эстер идёт в магазин.",
+          "en": "Today is Saturday, and Eszter goes to the shop."
+        },
+        {
+          "hu": "A bolt nem nagy, de sok különböző dolog van.",
+          "ru": "Магазин небольшой, но там много разных вещей.",
+          "en": "The shop is not big, but there are many different things."
+        },
+        {
+          "hu": "Itt van a mérleg, ott a pénztár.",
+          "ru": "Здесь весы, там касса.",
+          "en": "Here are the scales, there is the till."
+        }
+      ],
+      [
+        {
+          "hu": "Eszter egy kiló almát kér.",
+          "ru": "Эстер просит килограмм яблок.",
+          "en": "Eszter asks for a kilo of apples."
+        },
+        {
+          "hu": "A mérleg majdnem egy kilót mutat, de ez kevés.",
+          "ru": "Весы показывают почти килограмм, но этого мало.",
+          "en": "The scales show almost a kilo, but that is too little."
+        },
+        {
+          "hu": "Még néhány alma kell, és a zacskó tele van.",
+          "ru": "Нужно ещё несколько яблок, и пакет полон.",
+          "en": "A few more apples are needed, and the bag is full."
+        },
+        {
+          "hu": "A zacskó nem túl nehéz, könnyű.",
+          "ru": "Пакет не слишком тяжёлый, он лёгкий.",
+          "en": "The bag is not too heavy, it is light."
+        },
+        {
+          "hu": "Aztán kér egy csomagot és egy dobozt.",
+          "ru": "Потом она берёт пачку и коробку.",
+          "en": "Then she asks for a packet and a box."
+        },
+        {
+          "hu": "Még egy darabot kér, több nem kell.",
+          "ru": "Ещё одну штуку, больше не нужно.",
+          "en": "She asks for one more piece, no more is needed."
+        },
+        {
+          "hu": "Sok dolog van akcióban.",
+          "ru": "Много вещей по акции.",
+          "en": "Many things are on offer."
+        },
+        {
+          "hu": "Tíz deka elég, nem kell egész kilogramm.",
+          "ru": "Сто граммов хватит, целый килограмм не нужен.",
+          "en": "Ten deka is enough, a whole kilogram is not needed."
+        },
+        {
+          "hu": "Egy liter, két liter, ez a mennyiség jó.",
+          "ru": "Литр, два литра, такое количество подходит.",
+          "en": "One litre, two litres, this quantity is good."
+        },
+        {
+          "hu": "Egy szelet kenyér is kell.",
+          "ru": "Ещё нужен ломтик хлеба.",
+          "en": "A slice of bread is needed too."
+        },
+        {
+          "hu": "A zacskó nehéz.",
+          "ru": "Пакет тяжёлый.",
+          "en": "The bag is heavy."
+        },
+        {
+          "hu": "Eszter kicsit számol, és az összeg jó.",
+          "ru": "Эстер немного считает, и сумма верная.",
+          "en": "Eszter counts a little, and the sum is right."
+        },
+        {
+          "hu": "A pénztárnál kéri a blokkot.",
+          "ru": "На кассе она просит чек.",
+          "en": "At the till she asks for the receipt."
+        }
+      ],
+      [
+        {
+          "hu": "Aztán Eszter egy ruhát néz.",
+          "ru": "Потом Эстер смотрит платье.",
+          "en": "Then Eszter looks at a dress."
+        },
+        {
+          "hu": "A ruha túl hosszú, a másik túl rövid.",
+          "ru": "Платье слишком длинное, другое слишком короткое.",
+          "en": "The dress is too long, the other one is too short."
+        },
+        {
+          "hu": "A méret nem jó, de a harmadik ruha jó.",
+          "ru": "Размер не подходит, но третье платье хорошо.",
+          "en": "The size is not right, but the third dress is good."
+        },
+        {
+          "hu": "A méret különböző, a ruha nem egyforma.",
+          "ru": "Размеры разные, платья не одинаковые.",
+          "en": "The sizes are different, the dresses are not the same."
+        },
+        {
+          "hu": "Szép, de kicsit rövid.",
+          "ru": "Красивое, но немного коротковато.",
+          "en": "Nice, but a little short."
+        },
+        {
+          "hu": "Nem vastag, hanem vékony, és nagyon könnyű.",
+          "ru": "Оно не толстое, а тонкое и очень лёгкое.",
+          "en": "It is not thick but thin, and very light."
+        }
+      ],
+      [
+        {
+          "hu": "Eszter haza megy.",
+          "ru": "Эстер идёт домой.",
+          "en": "Eszter goes home."
+        },
+        {
+          "hu": "Az út körülbelül egy kilométer hosszú.",
+          "ru": "Дорога около километра длиной.",
+          "en": "The road is about a kilometre long."
+        },
+        {
+          "hu": "Az út nem széles, hanem keskeny.",
+          "ru": "Дорога не широкая, а узкая.",
+          "en": "The road is not wide but narrow."
+        },
+        {
+          "hu": "A ház körülbelül tíz méter magas.",
+          "ru": "Дом около десяти метров высотой.",
+          "en": "The house is about ten metres high."
+        },
+        {
+          "hu": "A szélesség és a hosszúság nem egyforma.",
+          "ru": "Ширина и длина не одинаковые.",
+          "en": "The width and the length are not the same."
+        },
+        {
+          "hu": "A magasság nagy, de az ajtó kicsi.",
+          "ru": "Высота большая, а дверь маленькая.",
+          "en": "The height is big, but the door is small."
+        }
+      ],
+      [
+        {
+          "hu": "Este Eszter ír.",
+          "ru": "Вечером Эстер пишет.",
+          "en": "In the evening Eszter writes."
+        },
+        {
+          "hu": "Magasság, szélesség, hosszúság, sok szám van.",
+          "ru": "Высота, ширина, длина, много чисел.",
+          "en": "Height, width, length, there are many numbers."
+        },
+        {
+          "hu": "Ez jó nap.",
+          "ru": "Это хороший день.",
+          "en": "It is a good day."
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,402 @@
+{
+  "short": {
+    "genre": "list",
+    "checked": "ai",
+    "title": {
+      "ru": "Список в магазин",
+      "en": "A list for the shop"
+    },
+    "names": [
+      "Péter",
+      "Anna"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Péter, ezt kell venni a boltban!",
+          "ru": "Петер, это нужно купить в магазине!",
+          "en": "Péter, buy this at the shop!"
+        },
+        {
+          "hu": "Friss kenyér, tej és tejföl.",
+          "ru": "Свежий хлеб, молоко и сметана.",
+          "en": "Fresh bread, milk and sour cream."
+        },
+        {
+          "hu": "Túró, sajt, vaj és tojás.",
+          "ru": "Творог, сыр, масло и яйца.",
+          "en": "Quark, cheese, butter and eggs."
+        },
+        {
+          "hu": "Sonka és joghurt is kell.",
+          "ru": "Ветчина и йогурт тоже нужны.",
+          "en": "We need ham and yoghurt too."
+        },
+        {
+          "hu": "Hús is kell, csirke vagy kolbász.",
+          "ru": "Мясо тоже нужно, курица или колбаса.",
+          "en": "We need meat too, chicken or sausage."
+        },
+        {
+          "hu": "Hal nem kell.",
+          "ru": "Рыба не нужна.",
+          "en": "No fish."
+        }
+      ],
+      [
+        {
+          "hu": "Krumpli, hagyma, répa és fokhagyma.",
+          "ru": "Картошка, лук, морковь и чеснок.",
+          "en": "Potatoes, onions, carrots and garlic."
+        },
+        {
+          "hu": "Alma, körte, banán és narancs.",
+          "ru": "Яблоки, груши, бананы и апельсины.",
+          "en": "Apples, pears, bananas and oranges."
+        },
+        {
+          "hu": "Cukor, só, liszt, olaj, rizs és tészta.",
+          "ru": "Сахар, соль, мука, растительное масло, рис и макароны.",
+          "en": "Sugar, salt, flour, cooking oil, rice and pasta."
+        },
+        {
+          "hu": "Víz, tea, kávé és gyümölcslé.",
+          "ru": "Вода, чай, кофе и сок.",
+          "en": "Water, tea, coffee and juice."
+        },
+        {
+          "hu": "Sör nem kell! Szia! Anna",
+          "ru": "Пиво не нужно! Пока! Анна",
+          "en": "No beer! Bye! Anna"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "На рынке у Мари",
+      "en": "At Mari's market stall"
+    },
+    "names": [
+      "Anna",
+      "Mari"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Jó reggelt, Anna! Mit kér ma?",
+          "ru": "Доброе утро, Анна! Что вы хотите сегодня?",
+          "en": "Good morning, Anna! What would you like today?"
+        },
+        {
+          "hu": "Jó reggelt! Friss a zöldség?",
+          "ru": "Доброе утро! Овощи свежие?",
+          "en": "Good morning! Are the vegetables fresh?"
+        },
+        {
+          "hu": "Persze, nagyon friss. Nézze, itt a paradicsom.",
+          "ru": "Конечно, очень свежие. Смотрите, вот помидоры.",
+          "en": "Of course, very fresh. Look, here are the tomatoes."
+        },
+        {
+          "hu": "Kérek paradicsomot, uborkát és salátát.",
+          "ru": "Мне помидоры, огурцы и салат.",
+          "en": "I would like tomatoes, cucumbers and lettuce."
+        },
+        {
+          "hu": "Hagymát és fokhagymát is kér? Van répa is.",
+          "ru": "Лук и чеснок тоже? Есть ещё морковь.",
+          "en": "Onions and garlic too? There are carrots as well."
+        },
+        {
+          "hu": "Igen, paprikát, hagymát és répát kérek. Krumpli van otthon.",
+          "ru": "Да, перец, лук и морковь. Картошка есть дома.",
+          "en": "Yes, pepper, onions and carrots, please. I have potatoes at home."
+        },
+        {
+          "hu": "Van gyümölcs. Friss az alma, a körte és a szőlő.",
+          "ru": "Есть и фрукты. Яблоки, груши и виноград свежие.",
+          "en": "There is fruit too. The apples, pears and grapes are fresh."
+        },
+        {
+          "hu": "Veszek almát, banánt és egy citromot.",
+          "ru": "Возьму яблоки, бананы и лимон.",
+          "en": "I'll take apples, bananas and a lemon."
+        },
+        {
+          "hu": "Narancs nem kell? Jó a citrom is.",
+          "ru": "Апельсины не нужны? Лимоны тоже хорошие.",
+          "en": "No oranges? The lemons are good too."
+        },
+        {
+          "hu": "Jó, narancsot is veszek. Hús is kell.",
+          "ru": "Хорошо, и апельсины возьму. Мясо тоже нужно.",
+          "en": "Fine, I'll take oranges too. We need meat too."
+        },
+        {
+          "hu": "Van csirke, sonka, kolbász és hal.",
+          "ru": "Есть курица, ветчина, колбаса и рыба.",
+          "en": "There is chicken, ham, sausage and fish."
+        },
+        {
+          "hu": "Kérek csirkét és kolbászt. Sonka nem kell.",
+          "ru": "Мне курицу и колбасу. Ветчина не нужна.",
+          "en": "I would like chicken and sausage. No ham."
+        },
+        {
+          "hu": "Sajt, túró, tojás, vaj és tejföl is van.",
+          "ru": "Сыр, творог, яйца, масло и сметана тоже есть.",
+          "en": "There is cheese, quark, eggs, butter and sour cream too."
+        },
+        {
+          "hu": "Jó, veszek sajtot, túrót, vajat és tojást.",
+          "ru": "Хорошо, возьму сыр, творог, масло и яйца.",
+          "en": "Fine, I'll take cheese, curd cheese, butter and eggs."
+        },
+        {
+          "hu": "Tessék, itt a kosár. Kenyér is kell?",
+          "ru": "Пожалуйста, вот ваша корзина. Хлеб нужен?",
+          "en": "Here you are, here is your basket. Do you need bread?"
+        },
+        {
+          "hu": "Nem, kenyér van otthon. Köszönöm, szia, Mari!",
+          "ru": "Нет, хлеб есть дома. Спасибо, пока, Мари!",
+          "en": "No, I have bread at home. Thank you, bye, Mari!"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "story",
+    "checked": "ai",
+    "title": {
+      "ru": "Субботний рынок",
+      "en": "Saturday at the market"
+    },
+    "names": [
+      "Péter",
+      "Anna"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szombat reggel van.",
+          "ru": "Сейчас субботнее утро.",
+          "en": "It is Saturday morning."
+        },
+        {
+          "hu": "Anna és Péter a piacra mennek.",
+          "ru": "Анна и Петер идут на рынок.",
+          "en": "Anna and Péter go to the market."
+        },
+        {
+          "hu": "Anna vesz egy nagy kosarat.",
+          "ru": "Анна берёт большую корзину.",
+          "en": "Anna takes a big basket."
+        },
+        {
+          "hu": "Anna szeret vásárolni, Péter nem.",
+          "ru": "Анна любит делать покупки, Петер нет.",
+          "en": "Anna likes shopping, Péter does not."
+        },
+        {
+          "hu": "Ma Anna vásárol, Péter csak jön.",
+          "ru": "Сегодня покупки делает Анна, Петер просто идёт.",
+          "en": "Today Anna does the shopping, Péter just comes along."
+        },
+        {
+          "hu": "A piacon sok ember van.",
+          "ru": "На рынке много людей.",
+          "en": "There are many people at the market."
+        }
+      ],
+      [
+        {
+          "hu": "Először a zöldség kell.",
+          "ru": "Сначала нужны овощи.",
+          "en": "First we need vegetables."
+        },
+        {
+          "hu": "Itt friss paradicsom, uborka és saláta van.",
+          "ru": "Здесь свежие помидоры, огурцы и салат.",
+          "en": "Here there are fresh tomatoes, cucumbers and lettuce."
+        },
+        {
+          "hu": "Anna paradicsomot és uborkát vesz.",
+          "ru": "Анна берёт помидоры и огурцы.",
+          "en": "Anna buys tomatoes and cucumbers."
+        },
+        {
+          "hu": "Anna paprikát, hagymát és fokhagymát vesz.",
+          "ru": "Анна берёт перец, лук и чеснок.",
+          "en": "Anna buys peppers, onions and garlic."
+        },
+        {
+          "hu": "Krumpli és répa is kell.",
+          "ru": "Картошка и морковь тоже нужны.",
+          "en": "We need potatoes and carrots too."
+        },
+        {
+          "hu": "A saláta és az uborka nagyon friss.",
+          "ru": "Салат и огурцы очень свежие.",
+          "en": "The lettuce and the cucumbers are very fresh."
+        },
+        {
+          "hu": "A paprika és a hagyma szép.",
+          "ru": "Перец и лук красивые.",
+          "en": "The pepper and the onions are lovely."
+        },
+        {
+          "hu": "A kosár már nagyon nehéz!",
+          "ru": "Корзина уже очень тяжёлая!",
+          "en": "The basket is already very heavy!"
+        }
+      ],
+      [
+        {
+          "hu": "Aztán jön a gyümölcs.",
+          "ru": "Потом идут фрукты.",
+          "en": "Then comes the fruit."
+        },
+        {
+          "hu": "Anna almát, körtét és szőlőt vesz.",
+          "ru": "Анна берёт яблоки, груши и виноград.",
+          "en": "Anna buys apples, pears and grapes."
+        },
+        {
+          "hu": "Anna banánt, narancsot és citromot vesz.",
+          "ru": "Анна берёт бананы, апельсины и лимон.",
+          "en": "Anna buys bananas, oranges and lemons."
+        },
+        {
+          "hu": "A gyümölcs szép és friss.",
+          "ru": "Фрукты красивые и свежие.",
+          "en": "The fruit is lovely and fresh."
+        },
+        {
+          "hu": "Az alma és a körte friss.",
+          "ru": "Яблоки и груши свежие.",
+          "en": "The apples and the pears are fresh."
+        },
+        {
+          "hu": "A szőlő és a citrom is friss.",
+          "ru": "Виноград и лимон тоже свежие.",
+          "en": "The grapes and the lemon are fresh too."
+        },
+        {
+          "hu": "Péter nem mond semmit, csak megy tovább.",
+          "ru": "Петер ничего не говорит, просто идёт дальше.",
+          "en": "Péter says nothing, he just walks on."
+        }
+      ],
+      [
+        {
+          "hu": "Most jön a hús.",
+          "ru": "Теперь мясо.",
+          "en": "Now the meat."
+        },
+        {
+          "hu": "Anna csirkét és kolbászt kér, sonkát nem.",
+          "ru": "Анна просит курицу и колбасу, ветчину нет.",
+          "en": "Anna asks for chicken and sausage, but no ham."
+        },
+        {
+          "hu": "A csirke friss, és a kolbász is.",
+          "ru": "Курица свежая, и колбаса тоже.",
+          "en": "The chicken is fresh, and so is the sausage."
+        },
+        {
+          "hu": "Hal is van, de ma nem kell.",
+          "ru": "Рыба тоже есть, но сегодня не нужна.",
+          "en": "There is fish too, but we do not need it today."
+        },
+        {
+          "hu": "Anna vesz sajtot, túrót és tojást.",
+          "ru": "Анна берёт сыр, творог и яйца.",
+          "en": "Anna buys cheese, quark and eggs."
+        },
+        {
+          "hu": "Joghurt és tejföl is van, és friss vaj.",
+          "ru": "Есть и йогурт, и сметана, и свежее масло.",
+          "en": "There is yoghurt and sour cream too, and fresh butter."
+        },
+        {
+          "hu": "A joghurt és a vaj jó.",
+          "ru": "Йогурт и масло хорошие.",
+          "en": "The yoghurt and the butter are good."
+        }
+      ],
+      [
+        {
+          "hu": "A piacon nincs cukor, liszt és rizs.",
+          "ru": "На рынке нет сахара, муки и риса.",
+          "en": "There is no sugar, flour or rice at the market."
+        },
+        {
+          "hu": "Olaj, só és tészta sincs.",
+          "ru": "Растительного масла, соли и макарон тоже нет.",
+          "en": "There is no cooking oil, salt or pasta either."
+        },
+        {
+          "hu": "Ezért a boltba mennek.",
+          "ru": "Поэтому они идут в магазин.",
+          "en": "So they go to the shop."
+        },
+        {
+          "hu": "A boltban van minden.",
+          "ru": "В магазине есть всё.",
+          "en": "The shop has everything."
+        },
+        {
+          "hu": "Anna cukrot, lisztet, rizst, olajat és sót vesz.",
+          "ru": "Анна берёт сахар, муку, рис, растительное масло и соль.",
+          "en": "Anna buys sugar, flour, rice, cooking oil and salt."
+        },
+        {
+          "hu": "Anna vizet, teát és kávét kér.",
+          "ru": "Анна просит воду, чай и кофе.",
+          "en": "Anna asks for water, tea and coffee."
+        },
+        {
+          "hu": "Friss kenyér is van a boltban.",
+          "ru": "Свежий хлеб тоже есть в магазине.",
+          "en": "There is fresh bread in the shop too."
+        },
+        {
+          "hu": "Anna csokit is vesz, és tésztát.",
+          "ru": "Анна берёт ещё шоколад и макароны.",
+          "en": "Anna buys chocolate too, and pasta."
+        }
+      ],
+      [
+        {
+          "hu": "A víz, a tea és a kávé a szatyorban van.",
+          "ru": "Вода, чай и кофе лежат в сумке.",
+          "en": "The water, the tea and the coffee are in the bag."
+        },
+        {
+          "hu": "Most tele van a kosár, a szatyor is.",
+          "ru": "Теперь полна корзина, и сумка тоже.",
+          "en": "Now the basket is full, and the bag too."
+        },
+        {
+          "hu": "Péter nem vesz sört, mert Anna nem akar sört.",
+          "ru": "Петер не берёт пива, ведь Анна его не хочет.",
+          "en": "Péter does not buy beer, because Anna does not want any."
+        },
+        {
+          "hu": "Péter azt mondja, hogy a piac jó.",
+          "ru": "Петер говорит, что рынок хороший.",
+          "en": "Péter says that the market is good."
+        },
+        {
+          "hu": "Anna igazán örül, és holnap megint vásárol.",
+          "ru": "Анна очень рада, и завтра снова делает покупки.",
+          "en": "Anna is really glad, and tomorrow she shops again."
+        }
+      ]
+    ]
+  }
+}

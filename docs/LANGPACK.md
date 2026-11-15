@@ -298,83 +298,158 @@ full pack, then into a gunzipped copy of the committed starter (a) add the lemma
 and paradigm rows and up to three shortest Tatoeba sentences (with tokens and translations) for
 every course word that lacks a usable sentence, pulling in the lemmas those sentences need so
 every token still resolves; (b) `ALTER TABLE course_unit ADD COLUMN tier`, replace `course_unit`
-and `course_word`; (c) update `pack_meta.stats`; (d) `reading_sets.build` + `validate`;
-(e) `PRAGMA integrity_check`, `VACUUM`, gzip. No other row is removed. The ADR-057 transplant added
+and `course_word`; (c) update `pack_meta.stats`;
+(d) `PRAGMA integrity_check`, `VACUUM`, gzip. No other row is removed. The ADR-057 transplant added
 1 264 lemmas and 2 558 sentences (+4.2 MB gzipped).
 
 **`make starter` is not optional after either command.** The binary embeds its own pack, so
 skipping it ships last month's lessons ([ADR-010](../.claude/DECISIONS.md#adr-010)).
 
-### Reading sets («Рассказ» and «Диалог»)
+### Reading sets (three authored texts per unit)
 
-Stage `pipeline/reading_sets.py`, run by `build.py` (after the course), `refresh.py` (it follows the
-course words, so `make refresh-curriculum` recomputes it) and `starter.py` (written into the
-STARTER, never copied from the full pack). Two tables, `reading_set(code, level, track, ord,
-title_*, theme_*)` and `reading_set_sentence(set_code, sentence_id, ord, para)` with a UNIQUE index
-on `sentence_id`. `para` is the paragraph of a story line (0 on a dialogue and on a pack built before
-ADR-074; `ensure_schema` adds the column to an existing pack with a guarded `ALTER TABLE`). The app
-joins the sentences of a paragraph with a space and paragraphs with a blank line.
+**The texts are not in the pack** ([ADR-076](../.claude/DECISIONS.md#adr-076)). `pipeline/texts.py`
+validates `langpack/texts/*.json` against a pack's lexicon (read-only) and exports one committed,
+deterministic file, `backend/internal/readsets/catalog.json`, which the Go binary embeds
+(`{"format":1,"sets":[...]}`, one set per line, sorted keys; per set `code, unit, unitOrd, level, track,
+register, tier, genre, ord, titleRu/En, themeRu/En, checked, words, lines[{hu, ru, en, para, who?}]`).
+Neither `build.py`, `refresh.py` nor `starter.py` writes reading sets any more, so the full and the
+starter edition get a text update from a new image alone (no `make refresh`, no pack rewrite). The
+`reading_set*` tables stay in `schema.sql` only so older binaries and packs keep opening; they are empty
+in a new pack. The app joins the lines of a paragraph with a space and paragraphs with a blank line (a
+`dialogue` genre text: one turn per line, the app prefixes the dash). Catalogue `ord` is
+`unitOrd × 100 + {short 1, medium 2, long 3, talk 4, mini 10+i}`; the exporter already knows the colloquial
+tiers (`<unit>-talk`, `<unit>-talk-<slug>`, `register: colloquial`); their source and rules are in
+"Colloquial talk texts and mini dialogues" below ([ADR-077](../.claude/DECISIONS.md#adr-077)). A mini set also
+carries `sceneRu`/`sceneEn` (one line: where and who); a line of a turn-based text may carry `who` (`A|B|C`).
 
-Per basic-tier unit and theme (36 = 24 core + 12 themes; the intermediate and advanced tiers have
-none, ADR-057) **two authored sets, both labelled «Написано ИИ, носителем не проверено»** (ADR-074
-replaced the Tatoeba «Фразы» picker; nothing in the pipeline picks corpus sentences for reading any
-more, and `reading_sets_exclude.txt` is gone):
+**Per basic-tier unit and theme (36 = 24 core + 12 themes; the intermediate and advanced tiers have none,
+ADR-057) three authored texts of different size AND genre** ([ADR-075](../.claude/DECISIONS.md#adr-075),
+[R22](../.claude/research/22-text-length-and-genre.md): a narrow-reading cluster per topic):
 
-- **«Рассказ: <unit>» / "Story: <unit>"** — one connected text, a narrated mini-scene or a
-  caregiver-style monologue (here-and-now, repetition, a short frame reused with one slot changed;
-  [R21](../.claude/research/21-graded-authored-texts.md)). The set code is the **bare unit code**
-  (it took over the old «Фразы» code and `track` core/theme, so an earlier import maps onto it).
-  8-14 sentences of at most 10 words in 2-4 paragraphs, `ord` = `2 × unit ord`.
-- **«Диалог: <unit>» / "Dialogue: <unit>"** — code `<unit>-dialogue`, `track = 'dialogue'`, 8-14
-  lines, two speakers, `ord` one less than its story (ADR-066).
+| tier | set code | `ord` | what |
+| --- | --- | --- | --- |
+| short | `<unit>-dialogue` | unitOrd × 100 + 1 | sms, note, notice, postcard, list or a 4-6-turn dialogue |
+| medium | `<unit>` | + 2 | a 10-16-turn dialogue, email, description, chat, timetable + exchange |
+| long | `<unit>-long` | + 3 | connected prose: myday, story, diary, blog (or description / email) |
 
-Levels: core months 1-2 → A1, 3-4 → A2, 5-6 → B1; a theme is A2 (estimates from frequency rank,
+The codes are the old «Диалог»/«Рассказ» codes plus `-long`, so an import syncs in place; **they never
+reach learners**. `track` is the unit's track (`core`/`theme`).
+`titleRu/En` = the text's own title (the genre is NOT prefixed; the UI shows it as a separate label, `library.genre.<id>`; the unit's title is `themeRu/En`). `words` is the
+running-word count, `checked` is `ai` until a human vets the text (`native`). `level`: core months 1-2 → A1,
+3-4 → A2, 5-6 → B1; a theme is A2 (estimates from frequency rank,
 [R6](../.claude/research/06-lexical-coverage.md)).
 
-**Source and ids.** Stories: `pipeline/stories_m1..m6.py` and `stories_themes.py`, merged by
-`stories.py`: `STORIES = {unit_code: [[(hu, ru, en), ...], [...]]}`, a list of paragraphs, each a
-list of sentence tuples. Dialogues: `dialogues_m1..m6.py`, `dialogues_themes.py` (a flat line list).
-Both are stored as `sentence.source = 'authored'`, licence CC BY-SA 4.0, with `sentence_trans` ru/en and
-**no `sentence_token` rows**. Ids from 9 000 000: `unit ord × 100 + i` for dialogue lines (i < 50),
-`unit ord × 100 + 50 + i` for story sentences. `reading_sets.build` runs `dialogues.build` (which
-clears every authored sentence) and then `stories.build`; a unit with no story yet is skipped with
-a printed warning, so the pack can be built while texts are being written.
+**Genres** (`texts.GENRES`, ru/en labels in the pipeline; the Vue layer keeps a locale key per id):
+`sms`, `note`, `notice`, `postcard`, `list`, `dialogue`, `email`, `description`, `chat`, `timetable`,
+`myday`, `story`, `diary`, `blog`. Add a genre in that one dict (and the locale keys).
 
-**Build-time validation** (`reading_sets.validate` → `dialogues.problems` + `stories.problems`):
-every reading set is authored and labelled (title prefix «Рассказ:» / «Диалог:»), 8-14 sentences,
-a ru and an en translation each; every word is an attested `wordform` (source not `generated`);
-every content lemma is at or below the unit's band or taught by that unit or earlier
-(`dialogues.check_line`); at most 10 words a sentence, no digits or speaker labels; and for a
-story the **frequency gate**: the share of running tokens whose lemma has `lemma.freq_rank` ≤
-`TOP_N` (500 for months 1-2, 1000 for 3-4, 2000 for 5-6 and themes) must reach `MIN_TOP_SHARE`
-(0.85). The unit's own words and proper nouns are exempt (not counted), so a unit with many words
-(m1-u1 has 58) is gated on very few tokens. These thresholds are our tuning
-([R21](../.claude/research/21-graded-authored-texts.md)), printed per text so they can be revised.
-`validate(conn, require_all=True)` — used by `starter.py`, so `make starter` — also fails a unit
-with no story; the default only skips it. Authored lines stay out of the n-gram attestation index
-(`release.py`, `add_subtitles.py`), and every drill, example and course-sentence query filters
-`source <> 'authored'` (`internal/drill/definiteness.go`, `internal/api/handlers_examples.go`,
-`handlers_course.go`; tests `authored_sentences_test.go`, `definiteness_authored_test.go`).
+**Source: `langpack/texts/<unit>.json`**, one file per unit:
 
-**Writing or regenerating the texts** (by hand or with a neural net). Read-only against the pack:
+```json
+{"short" | "medium" | "long": {
+   "genre": "note", "checked": "ai",
+   "title": {"ru": "Привет, сосед!", "en": "Hi, neighbour!"},
+   "names": ["Kata"],
+   "paras": [[{"hu": "...", "ru": "...", "en": "..."}, ...], ...]}}
+```
 
-1. `cd langpack && .venv/bin/python -m pipeline.stories ../data/langpack-hu-v1.sqlite --brief <unit>` prints the unit's title,
-   band, taught words with glosses, up to 400 allowed lemmas by frequency rank (`*` = taught
-   earlier), the rules and its existing dialogue. Paste it to the model.
-2. Put the answer into `pipeline/stories_mN.py` (or `stories_themes.py`) in the tuple format above.
-3. `make texts` checks stories and dialogues against `$(PACK)` and prints, for each text, the
-   frequency share, the rarest lemma with its rank, what falls beyond top-N and any problem;
-   dialogues get the same report as a flag only. `python -m pipeline.stories PACK --require-all`
-   also fails a unit without a story.
-4. `make refresh` (rewrites the sets in an existing pack; stop the server first), then
-   `make starter`, which refuses while a unit has no story.
+`python -m pipeline.texts PACK --require-all` refuses a unit without a full valid triplet. The legacy
+`stories*.py` / `dialogues*.py` modules are **out of the build path** (nothing writes their text anywhere);
+`texts.py` still imports their shared helpers (word regex, lexicon, frequency gate).
 
-The tests (`tests/test_reading_sets.py`, `test_stories.py`, `test_dialogues.py`) gate shape, ids,
-levels, provenance and the gate itself. A pack without these tables (built before ADR-056) serves
-an empty list; the app opens a pack read-only and cannot add them, so `refresh` is the upgrade
-path. Evidence: [R6](../.claude/research/06-lexical-coverage.md),
+**Validation** (`make texts`, never at pack build or `make starter`; it refuses to export on any problem):
+
+- **V1 token rule.** A word passes if it is (a) an attested non-generated `wordform`, (b) a `generated`
+  paradigm form (reading is recognition; **the count per text is reported**), (c) a row of the
+  `[forms]` section of `pipeline/texts_allow.tsv` (`form`, `lemma`, `upos`, unit code or `*`, `reason`; the lemma feeds the band
+  and frequency gates), or (d) a name in the text's `names` (as spelled, capitalised). (b)-(d) are never
+  inserted into `wordform`.
+- **V2** every content lemma at or below the unit's band, or taught by that unit or earlier. The pack's CEFR labels are frequency estimates and wrong for some everyday lemmas (weekdays, `bolt`, numeral compounds), so `pipeline/texts_allow.tsv` has a second section, `[band-exempt]` (`lemma`, `upos` or `*`, `unit` or `*`, `reason` of at least 10 characters), that exempts a LEMMA from this band check only: it still counts in V3. Strict by default; never exempt a rare word. **V3 frequency
+  gate**, unchanged and hard: running tokens whose lemma has `freq_rank` ≤ `TOP_N` (500 months 1-2, 1000 for
+  3-4, 2000 for 5-6 and themes) must reach 0.85; unit words, names exempt.
+- **V4 size** (an inference, R22): words per text, months 1-2: short 30-70, medium 90-160, long 180-280;
+  months 3-4: 50-100 / 140-220 / 250-380; months 5-6 and themes: 70-130 / 180-300 / 320-480. Sentence cap
+  10 / 12 / 14 words. Paragraphs short 1-2, medium 2-4, long 3-6 (not for `dialogue`).
+- **V5** (with `--require-all`) all three tiers, three different genres, at most one `dialogue`; a long text
+  is connected prose (`story|myday|diary|blog|description|email`) always. **V6** ru and en for every sentence.
+- Report only: **recycling** (share of the unit's words appearing ≥3 times across the three texts, target
+  70%) and the generated-form count per text.
+- Months 1-2 have no past tense: their long text is a present-tense «Мой обычный день»; the past «how I
+  spent my day» only from `m3-u4-posta` (where the course first teaches the past) and in themes.
+
+Authored lines stay out of the n-gram attestation index and every drill, example and course-sentence
+query (they are not in the pack at all now; an old pack's `source = 'authored'` rows are still filtered).
+Provenance stays in data (`checked`); the UI shows no "AI-written" badge (ADR-075).
+
+**Writing or regenerating a text** (by hand or with a neural net). Read-only against the pack:
+
+1. `cd langpack && .venv/bin/python -m pipeline.texts ../data/langpack-hu-v1.sqlite --brief <unit> --tier short|medium|long`
+   prints the unit's title, band and topic, the tier's word range, sentence cap and paragraph rule, the genre
+   menu for the tier (genres this unit's other tiers already use are marked), taught words with glosses, up
+   to 400 allowed lemmas by frequency rank (`*` = taught earlier), the unit's other two texts (for
+   recycling, no duplication), the V1 rules and the JSON schema with an example. Paste it to the model.
+2. Put the answer into `langpack/texts/<unit>.json` under the tier's key.
+3. `make texts PACK=...` validates the JSON texts against the pack (read-only) and prints, per text, the
+   words, the frequency share, the generated and allow-listed forms and any problem, plus recycling per
+   unit; on a clean run it rewrites `backend/internal/readsets/catalog.json`. `python -m pipeline.texts PACK
+   --require-all` also lists every unit that still lacks a full triplet and exits 1.
+4. Commit `langpack/texts` and the regenerated `catalog.json`, then deploy the new image. No `make
+   refresh`, no `make starter`, no server stop. `make texts-check` (no pack, no Python deps beyond the
+   venv) fails when the committed catalogue differs from a fresh export; so does the pytest
+   `test_catalog_in_sync`. Docker builds need no Python: the catalogue is committed.
+
+### Colloquial talk texts and mini dialogues (ADR-077)
+
+Besides the three standard texts every unit gets a **4th text in real spoken Hungarian** (street, shop, phone,
+work, the dog park; NOT literary) and **5-10 short mini dialogues**; easy at easy levels, harder higher.
+**Everything authored here is AI-written and no native speaker has read it** (`checked: "ai"`); the evidence
+for the register rules is thin ([R23](../.claude/research/23-colloquial-register.md)), so authenticity is
+tuned by review, not proven. Source: `langpack/talk/<unit>.json` (README in that directory):
+
+```json
+{"talk": {"genre": "dialogue|phone|voicemsg|chat", "checked": "ai", "title": {"ru": "", "en": ""},
+          "names": ["Kata"], "paras": [[{"hu": "...", "ru": "...", "en": "...", "who": "A"}]]},
+ "dialogues": [{"slug": "kebab-case", "title": {"ru": "", "en": ""}, "scene": {"ru": "", "en": ""},
+                "names": [], "checked": "ai",
+                "turns": [{"who": "A", "hu": "...", "ru": "...", "en": "..."}]}]}
+```
+
+Exported as `<unit>-talk` (tier `talk`, `ord` +4) and `<unit>-talk-<slug>` (tier `mini`, genre `dialogue`, `ord`
++10+i in file order), both `register: colloquial`. `phone` and `voicemsg` are talk-only genres. Dialogue,
+phone and chat talk texts are turn-based (an optional `who` on every entry or none); `voicemsg` is prose in
+1-4 paragraphs.
+
+- **V4c size** by the unit's band group. Mini: A1 (months 1-2) 2-6 turns, ≤ 6 words a turn, 12-40 words; A2
+  (months 3-4) 4-8 / ≤ 8 / 30-70; B1 (months 5-6 and themes) 6-10 / ≤ 10 / 50-110. Talk text: 60-120 / 100-180 /
+  150-260 words, entry cap as the standard sentence cap (10/12/14). 5-10 minis per unit (more than 10 always an
+  error; fewer than 5 only under `--require-talk`); slugs unique; no turn repeated across a unit's minis.
+- **V1'** a token passes if it is attested, generated, a `texts_allow.tsv` row, a declared name, **or a row of
+  `pipeline/texts_colloquial.tsv` `[allowed]` at a level ≤ the text's band** (columns: form, lemma or `-`,
+  upos or `-`, kind `particle|interjection|greeting|clipping|contraction|ellipsis|chat`, level `A1|A2|B1`, ru,
+  en, reason ≥ 10 characters). A talk or mini text that uses a row above its band **fails**, even when the pack
+  attests the form. A row with lemma `-` (or a lemma the pack lacks) is exempt from V2/V3.
+- **V2/V3 for talk and mini:** a colloquial row at the text's level is exempt from the band check and from the
+  frequency gate; so is any lemma **taught earlier** in the course (standard texts keep V3 for those); the 0.85
+  share is otherwise unchanged. **Markers:** every talk and mini text needs ≥ 1 colloquial marker (any
+  `[allowed]` hit) and at most 20% of its words (greeting-kind rows, i.e. greetings, thanks, apologies, are not
+  counted toward the cap), so a text is speech, not a caricature. Recycling stays report-only.
+- **Banned words.** `texts_colloquial.tsv` `[banned]`: lower-case stems (prefix match) or exact forms (`stem$`,
+  so `szar$` does not ban szarvas, `fasz$` not faszekrény). A hit fails **every** text, standard ones too, even
+  when the pack attests the form.
+- **Author hints.** A rejected word prints the closest pack lemmas (same first letters, or a lemma the form
+  starts with) and the exact `texts_allow.tsv` row to paste.
+- **CLI.** `python -m pipeline.texts PACK --brief UNIT --tier talk|mini` prints the unit, band, size rules,
+  scenario ideas, the colloquial rows allowed at that level, the banned note, taught words and top allowed
+  lemmas, the unit's existing talk/minis, the schema and a tiny example (it points at
+  `.agent-context/COLLOQUIAL_GUIDE.md` for the situation lists). `--require-talk` asks for a talk text and ≥ 5
+  minis in every unit; `--require-all` still asks for the standard triplet only. `make texts` exports both.
+
+The tests (`tests/test_texts.py`, `test_stories.py`, `test_dialogues.py`) gate shape, the token rule, the
+sizes, the gates and the catalogue export. A pack without the old tables serves nothing from them; the
+embedded catalogue is the only source. Evidence: [R6](../.claude/research/06-lexical-coverage.md),
 [R11](../.claude/research/11-extensive-reading.md),
-[R21](../.claude/research/21-graded-authored-texts.md).
+[R21](../.claude/research/21-graded-authored-texts.md),
+[R22](../.claude/research/22-text-length-and-genre.md).
 
 ### Growing the grammar
 

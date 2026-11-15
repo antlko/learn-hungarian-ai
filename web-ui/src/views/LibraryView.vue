@@ -7,13 +7,13 @@ import { useI18n } from 'vue-i18n'
 import {
   BrainCircuit,
   Captions,
+  ChevronDown,
   ClipboardPaste,
   Eye,
   Globe,
   Headphones,
   Plus,
   Search,
-  Sparkles,
   Trash2,
 } from '@lucide/vue'
 import { describeError } from '@/lib/errors'
@@ -32,6 +32,7 @@ import BottomSheet from '@/components/common/BottomSheet.vue'
 import InfoTip from '@/components/common/InfoTip.vue'
 import Note from '@/components/common/Note.vue'
 import { api } from '@/api'
+import { isColloquial, isDialogue, isKnownGenre, tierOf, TIER_ORDER, unitOf } from '@/lib/readingSets'
 import type { LibrarySet, LibrarySetDetail, TextSummary } from '@/types'
 
 /**
@@ -134,7 +135,7 @@ const SET_LEVELS = ['A1', 'A2', 'B1'] as const
 const myBand = computed(() => levelStore.level?.band ?? '')
 
 /** 36 cards pushed the learner's own texts off the screen: show a few, the rest on request. */
-const SETS_COLLAPSED = 4
+const SETS_COLLAPSED = 6
 const SETS_KEY = 'tanulom.library.setsExpanded'
 function readExpanded(): boolean {
   try {
@@ -152,17 +153,81 @@ function toggleSets() {
     /* private mode: the choice just isn't remembered */
   }
 }
-/** Sets at the learner's level first; otherwise the pack's own order. */
+/** One filter row: all, a size (standard texts only) or colloquial (talk + mini). A hint, not a setting. */
+const KIND_FILTERS = ['all', 'short', 'medium', 'long', 'colloquial'] as const
+const kindFilter = ref<(typeof KIND_FILTERS)[number]>('all')
+/** Units whose conversations row is open. */
+const openTalks = ref<Set<string>>(new Set())
+function toggleTalks(unit: string) {
+  const n = new Set(openTalks.value)
+  if (!n.delete(unit)) n.add(unit)
+  openTalks.value = n
+}
+/** A unit's three texts stay together, shortest first; units keep the pack's order. */
 const orderedSets = computed(() => {
   const all = sets.value ?? []
-  return [...all.filter((s) => s.level === myBand.value), ...all.filter((s) => s.level !== myBand.value)]
+  const unitPos = new Map<string, number>()
+  all.forEach((s, i) => {
+    if (!unitPos.has(unitOf(s))) unitPos.set(unitOf(s), i)
+  })
+  const byUnit = (a: LibrarySet, b: LibrarySet) =>
+    (unitPos.get(unitOf(a)) ?? 0) - (unitPos.get(unitOf(b)) ?? 0) ||
+    TIER_ORDER.indexOf(tierOf(a)) - TIER_ORDER.indexOf(tierOf(b))
+  const kept = all.filter(
+    (s) =>
+      kindFilter.value === 'all' ||
+      (kindFilter.value === 'colloquial' ? isColloquial(s) : !isColloquial(s) && tierOf(s) === kindFilter.value),
+  )
+  return [
+    ...kept.filter((s) => s.level === myBand.value).sort(byUnit),
+    ...kept.filter((s) => s.level !== myBand.value).sort(byUnit),
+  ]
 })
 const setGroups = computed(() => {
   const shown = setsExpanded.value ? orderedSets.value : orderedSets.value.slice(0, SETS_COLLAPSED)
-  return SET_LEVELS.map((lv) => ({ level: lv, items: shown.filter((s) => s.level === lv) })).filter(
-    (g) => g.items.length,
-  )
+  return SET_LEVELS.map((lv) => ({ level: lv, items: shown.filter((s) => s.level === lv) }))
+    .filter((g) => g.items.length)
+    .map((g) => ({ level: g.level, rows: shelfRows(g.items) }))
 })
+
+/** One shelf row: a text, or a unit's mini-dialogues folded into one «Разговоры · N». */
+type ShelfRow = { kind: 'set'; set: LibrarySet } | { kind: 'talks'; unit: string; minis: LibrarySet[] }
+function shelfRows(items: LibrarySet[]): ShelfRow[] {
+  const out: ShelfRow[] = []
+  const folded = new Map<string, Extract<ShelfRow, { kind: 'talks' }>>()
+  for (const s of items) {
+    if (tierOf(s) !== 'mini') {
+      out.push({ kind: 'set', set: s })
+      continue
+    }
+    const u = unitOf(s)
+    let row = folded.get(u)
+    if (!row) {
+      row = { kind: 'talks', unit: u, minis: [] }
+      folded.set(u, row)
+      out.push(row)
+    }
+    row.minis.push(s)
+  }
+  return out
+}
+
+/** A mini-dialogue is named by its one-line situation. */
+function miniLabel(s: LibrarySet) {
+  return sceneOf(s) || setTitle(s)
+}
+
+/** The genre label, unless the title already starts with it ("Записка: …"). */
+function genreLabel(s: LibrarySet): string {
+  if (!isKnownGenre(s.genre)) return ''
+  const label = t(`library.genre.${s.genre}`)
+  return setTitle(s).toLowerCase().startsWith(label.toLowerCase()) ? '' : label
+}
+
+function sceneOf(s: { scene?: string; sceneRu?: string; sceneEn?: string }) {
+  const loc = (locale.value || '').startsWith('en') ? s.sceneEn : s.sceneRu
+  return loc || s.scene || ''
+}
 
 function setTitle(s: LibrarySet) {
   const loc = (locale.value || '').startsWith('en') ? s.titleEn : s.titleRu
@@ -210,7 +275,7 @@ function closePreview() {
 }
 
 const previewLines = computed(() =>
-  (detail.value?.sentences ?? []).map((l) => ({ hu: l.hu, tr: pickGloss(l.ru, l.en, ui.locale) })),
+  (detail.value?.sentences ?? []).map((l) => ({ hu: l.hu, who: l.who, tr: pickGloss(l.ru, l.en, ui.locale) })),
 )
 const previewHasFallback = computed(() => previewLines.value.some((l) => l.tr.isFallback))
 
@@ -377,57 +442,127 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
         {{ $t('library.sets.title') }}
         <InfoTip>{{ $t('library.sets.intro') }}</InfoTip>
       </h2>
-      <div v-for="g in setGroups" :key="g.level" class="flex flex-col gap-1.5">
-        <p
-          class="inline-flex w-fit rounded-full border px-2.5 py-0.5 text-xs font-semibold tracking-wide"
-          :class="bandChip(g.level)"
+      <div
+        class="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0 [&::-webkit-scrollbar]:hidden"
+        role="group"
+        :aria-label="$t('library.sets.filter.label')"
+      >
+        <button
+          v-for="f in KIND_FILTERS"
+          :key="f"
+          type="button"
+          class="min-h-11 shrink-0 rounded-full border px-3 text-xs font-medium"
+          :class="kindFilter === f ? 'border-primary bg-primary/10 text-primary' : 'text-muted-foreground'"
+          :aria-pressed="kindFilter === f"
+          @click="kindFilter = f"
         >
-          {{ g.level }}
+          {{ $t(`library.sets.filter.${f}`) }}
+        </button>
+      </div>
+      <div v-for="g in setGroups" :key="g.level" class="flex flex-col gap-1.5">
+        <p class="flex items-center gap-2">
+          <span
+            class="inline-flex w-fit rounded-full border px-2.5 py-0.5 text-xs font-semibold tracking-wide"
+            :class="bandChip(g.level)"
+          >
+            {{ g.level }}
+          </span>
+          <span v-if="g.level === myBand" class="text-xs font-medium text-primary">{{ $t('library.sets.fitsNow') }}</span>
         </p>
         <ul class="stagger-in flex flex-col gap-2">
+          <template v-for="row in g.rows" :key="row.kind === 'set' ? row.set.code : `talks-${row.unit}`">
           <li
-            v-for="s in g.items"
-            :key="s.code"
-            class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border bg-card px-4 py-3"
-            :class="bandChip(s.level).split(' ')[0]"
+            v-if="row.kind === 'set'"
+            class="flex items-center gap-2 rounded-xl border bg-card py-1 pl-3 pr-1"
+            :class="bandChip(row.set.level).split(' ')[0]"
           >
-            <div class="min-w-0 flex-1 basis-44">
-              <p class="line-clamp-2 text-sm font-medium">{{ setTitle(s) }}</p>
-              <p class="flex flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground">
-                <span class="tabular-nums">{{ $t('library.sets.count', { n: s.sentences }) }}</span>
-                <span v-if="s.track === 'theme'">· {{ $t('library.sets.theme') }}</span>
-                <span v-if="s.level === myBand" class="font-medium text-primary">
-                  · {{ $t('library.sets.fitsNow') }}
+            <div class="min-w-0 flex-1 py-1">
+              <p class="line-clamp-2 text-sm font-medium">{{ setTitle(row.set) }}</p>
+              <p class="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground">
+                <span class="rounded-full border px-2 py-0.5 font-medium text-foreground">
+                  {{ isColloquial(row.set) ? $t('library.sets.colloquial') : $t(`library.sets.tier.${tierOf(row.set)}`) }}
                 </span>
-              </p>
-              <!-- Written by an AI: said on the card and in the preview. ADR-066 -->
-              <p v-if="s.authored" class="mt-0.5 flex items-center gap-1 text-xs text-uncertain">
-                <Sparkles class="size-3.5 shrink-0" aria-hidden="true" />
-                {{ $t('library.sets.authored') }}
+                <span v-if="row.set.words" class="tabular-nums">{{ $t('library.sets.words', { n: row.set.words }, row.set.words) }}</span>
+                <span v-else class="tabular-nums">{{ $t('library.sets.count', { n: row.set.sentences }) }}</span>
+                <span v-if="genreLabel(row.set)">· {{ genreLabel(row.set) }}</span>
+                <span v-if="row.set.track === 'theme'">· {{ $t('library.sets.theme') }}</span>
               </p>
             </div>
-            <div class="ml-auto flex shrink-0 items-center gap-2">
-              <Button class="min-h-11" size="sm" variant="ghost" @click="openPreview(s)">
+            <div class="flex shrink-0 items-center">
+              <Button
+                class="size-11"
+                size="icon"
+                variant="ghost"
+                :aria-label="$t('library.sets.preview')"
+                :title="$t('library.sets.preview')"
+                @click="openPreview(row.set)"
+              >
                 <Eye class="size-4" aria-hidden="true" />
-                {{ $t('library.sets.preview') }}
               </Button>
               <Button
                 class="min-h-11"
                 size="sm"
-                :variant="s.imported ? 'outline' : 'default'"
-                :disabled="importing === s.code"
-                @click="openSet(s)"
+                :variant="row.set.imported ? 'outline' : 'default'"
+                :disabled="importing === row.set.code"
+                @click="openSet(row.set)"
               >
                 {{
-                  importing === s.code
+                  importing === row.set.code
                     ? $t('common.saving')
-                    : s.imported
+                    : row.set.imported
                       ? $t('library.sets.open')
                       : $t('library.sets.addRead')
                 }}
               </Button>
             </div>
           </li>
+          <li
+            v-else
+            class="flex flex-col rounded-xl border bg-card"
+            :class="bandChip(g.level).split(' ')[0]"
+          >
+            <button
+              type="button"
+              class="flex min-h-11 items-center gap-2 px-4 py-2 text-left text-sm font-medium"
+              :aria-expanded="openTalks.has(row.unit)"
+              @click="toggleTalks(row.unit)"
+            >
+              <ChevronDown
+                class="size-4 shrink-0 text-muted-foreground transition-transform"
+                :class="openTalks.has(row.unit) ? 'rotate-180' : ''"
+                aria-hidden="true"
+              />
+              <span class="flex-1">{{ $t('library.sets.conversations', { n: row.minis.length }) }}</span>
+              <span class="rounded-full border px-2 py-0.5 text-xs font-medium text-foreground">
+                {{ $t('library.sets.colloquial') }}
+              </span>
+            </button>
+            <ul v-if="openTalks.has(row.unit)" class="flex flex-col divide-y border-t">
+              <li v-for="m in row.minis" :key="m.code" class="flex items-center gap-1 py-0.5 pl-3 pr-1">
+                <p class="line-clamp-2 min-w-0 flex-1 py-1 text-sm">{{ miniLabel(m) }}</p>
+                <Button
+                  class="size-11 shrink-0"
+                  size="icon"
+                  variant="ghost"
+                  :aria-label="$t('library.sets.preview')"
+                  :title="$t('library.sets.preview')"
+                  @click="openPreview(m)"
+                >
+                  <Eye class="size-4" aria-hidden="true" />
+                </Button>
+                <Button
+                  class="min-h-11 shrink-0"
+                  size="sm"
+                  :variant="m.imported ? 'outline' : 'default'"
+                  :disabled="importing === m.code"
+                  @click="openSet(m)"
+                >
+                  {{ importing === m.code ? $t('common.saving') : m.imported ? $t('library.sets.open') : $t('library.sets.addRead') }}
+                </Button>
+              </li>
+            </ul>
+          </li>
+          </template>
         </ul>
       </div>
       <Button
@@ -458,12 +593,15 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
         >
           {{ previewSet.level }}
         </span>
-        <span class="tabular-nums">{{ $t('library.sets.count', { n: previewSet.sentences }) }}</span>
+        <span class="rounded-full border px-2 py-0.5 font-medium">{{ $t(`library.sets.tier.${tierOf(previewSet)}`) }}</span>
+        <span v-if="previewSet.words" class="tabular-nums">{{ $t('library.sets.words', { n: previewSet.words }, previewSet.words) }}</span>
+        <span v-else class="tabular-nums">{{ $t('library.sets.count', { n: previewSet.sentences }) }}</span>
+        <span v-if="isColloquial(previewSet)" class="rounded-full border px-2 py-0.5 font-medium">
+          {{ $t('library.sets.colloquial') }}
+        </span>
+        <span v-if="genreLabel(previewSet)">· {{ genreLabel(previewSet) }}</span>
       </p>
-      <Note v-if="previewSet?.authored" variant="limit" class="mb-3">
-        <p class="font-medium text-foreground">{{ $t('library.sets.authored') }}</p>
-        <p class="mt-1">{{ $t('library.sets.authoredHint') }}</p>
-      </Note>
+      <p v-if="detail && sceneOf(detail)" class="mb-3 text-sm text-muted-foreground">{{ sceneOf(detail) }}</p>
       <div v-if="previewLoading" class="flex flex-col gap-3" role="status" :aria-label="$t('library.sets.previewLoading')">
         <Skeleton v-for="i in 6" :key="i" class="h-10" />
       </div>
@@ -482,10 +620,10 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
             v-for="(l, i) in previewLines"
             :key="i"
             class="flex flex-col gap-0.5"
-            :class="detail.authored && i % 2 === 1 ? 'pl-5' : ''"
+            :class="isDialogue(detail) && (l.who ? l.who !== previewLines[0]?.who : i % 2 === 1) ? 'pl-5' : ''"
           >
             <p class="text-base leading-snug">
-              <span v-if="detail.authored" class="mr-1 text-muted-foreground" aria-hidden="true">–</span>
+              <span v-if="isDialogue(detail)" class="mr-1 text-muted-foreground" aria-hidden="true">–</span>
               <span lang="hu">{{ l.hu }}</span>
             </p>
             <p v-if="l.tr.text" class="text-sm leading-snug text-muted-foreground">

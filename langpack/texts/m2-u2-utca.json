@@ -1,0 +1,384 @@
+{
+  "short": {
+    "genre": "sms",
+    "checked": "ai",
+    "title": {
+      "ru": "Сообщение от Петера",
+      "en": "A text from Péter"
+    },
+    "names": [
+      "Péter",
+      "Anna"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Anna! Az állomáson vagyok.",
+          "ru": "Привет, Анна! Я на вокзале.",
+          "en": "Hi, Anna! I am at the station."
+        },
+        {
+          "hu": "A vonat késik, de a jegy nálam van.",
+          "ru": "Поезд опаздывает, но билет у меня.",
+          "en": "The train is late, but I have the ticket."
+        },
+        {
+          "hu": "Megkérdezem, mikor érkezik.",
+          "ru": "Спрошу, когда он прибывает.",
+          "en": "I will ask when it arrives."
+        },
+        {
+          "hu": "A megálló közel van, ott indul a busz.",
+          "ru": "Остановка близко, там отходит автобус.",
+          "en": "The stop is near, the bus leaves from there."
+        },
+        {
+          "hu": "A bérlet nálam van.",
+          "ru": "Проездной у меня.",
+          "en": "I have my pass."
+        },
+        {
+          "hu": "Jaj, majdnem eltévedtem!",
+          "ru": "Ой, я чуть не заблудился!",
+          "en": "Oh, I almost got lost!"
+        },
+        {
+          "hu": "Hova megy a busz? A térre.",
+          "ru": "Куда идёт автобус? На площадь.",
+          "en": "Where does the bus go? To the square."
+        },
+        {
+          "hu": "Várj a kijáratnál, jó?",
+          "ru": "Жди у выхода, хорошо?",
+          "en": "Wait at the exit, OK?"
+        },
+        {
+          "hu": "Péter",
+          "ru": "Петер",
+          "en": "Péter"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "Где вокзал?",
+      "en": "Where is the station?"
+    },
+    "names": [
+      "Péter"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Elnézést, hol van az állomás?",
+          "ru": "Извините, где вокзал?",
+          "en": "Excuse me, where is the station?"
+        },
+        {
+          "hu": "Az állomás messze van, gyalog nem jó.",
+          "ru": "Вокзал далеко, пешком не стоит.",
+          "en": "The station is far, walking is no good."
+        },
+        {
+          "hu": "Akkor melyik busz vagy villamos megy oda?",
+          "ru": "Тогда какой автобус или трамвай идёт туда?",
+          "en": "Then which bus or tram goes there?"
+        },
+        {
+          "hu": "A buszok a térről indulnak, szemben a híddal.",
+          "ru": "Автобусы отходят от площади, напротив моста.",
+          "en": "The buses leave from the square, opposite the bridge."
+        },
+        {
+          "hu": "Melyik járat jó? Nincs jegyem.",
+          "ru": "Какой маршрут подходит? У меня нет билета.",
+          "en": "Which service is good? I have no ticket."
+        },
+        {
+          "hu": "Hol van a megálló? Eltévedek, a térkép rossz.",
+          "ru": "Где остановка? Я заблудился, карта плохая.",
+          "en": "Where is the stop? I am lost, the map is bad."
+        },
+        {
+          "hu": "Ott van, egyenesen, a híd mellett, a sarkon.",
+          "ru": "Вот она, прямо, у моста, на углу.",
+          "en": "There it is, straight ahead, next to the bridge, on the corner."
+        },
+        {
+          "hu": "Köszönöm! A cím és a térkép nálam van.",
+          "ru": "Спасибо! Адрес и карта у меня.",
+          "en": "Thank you! I have the address and the map."
+        },
+        {
+          "hu": "Jegy kell, vagy bérlet?",
+          "ru": "Нужен билет или проездной?",
+          "en": "Do you need a ticket or a pass?"
+        },
+        {
+          "hu": "Kell a jegy, az ellenőr mindig jön.",
+          "ru": "Нужен билет, контролёр всегда приходит.",
+          "en": "You need a ticket, the inspector always comes."
+        },
+        {
+          "hu": "Én felszállok, és az állomásnál leszállok.",
+          "ru": "Я сяду и выйду у вокзала.",
+          "en": "I get on, and I get off at the station."
+        },
+        {
+          "hu": "Igen, a vonat és a metró is indul.",
+          "ru": "Да, поезд и метро тоже отправляются.",
+          "en": "Yes, the train and the metro both depart."
+        },
+        {
+          "hu": "Jó irány, de hol van a bejárat?",
+          "ru": "Хорошее направление, а где вход?",
+          "en": "Good direction, but where is the entrance?"
+        },
+        {
+          "hu": "A bejárat szemben van, a kijárat mellett.",
+          "ru": "Вход напротив, рядом с выходом.",
+          "en": "The entrance is opposite, next to the exit."
+        },
+        {
+          "hu": "Köszönöm! Messze van a kerület?",
+          "ru": "Спасибо! Район далеко?",
+          "en": "Thank you! Is the district far?"
+        },
+        {
+          "hu": "Nem, közel van. A zebránál átmegy, és balra fordul.",
+          "ru": "Нет, близко. Перейдите по переходу и поверните налево.",
+          "en": "No, it is near. Cross at the zebra crossing and turn left."
+        },
+        {
+          "hu": "Köszönöm szépen! Viszontlátásra!",
+          "ru": "Большое спасибо! До свидания!",
+          "en": "Thank you very much! Goodbye!"
+        },
+        {
+          "hu": "Szívesen! Jó utat!",
+          "ru": "Пожалуйста! Счастливого пути!",
+          "en": "You are welcome! Have a good trip!"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "story",
+    "checked": "ai",
+    "title": {
+      "ru": "Новый район",
+      "en": "The new district"
+    },
+    "names": [
+      "Anna",
+      "Péter"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Anna ma az új kerületbe megy.",
+          "ru": "Сегодня Анна едет в новый район.",
+          "en": "Today Anna goes to the new district."
+        },
+        {
+          "hu": "A cím nála van, a térkép is.",
+          "ru": "Адрес у неё, и карта тоже.",
+          "en": "She has the address, and the map too."
+        },
+        {
+          "hu": "Autó nincs, kocsit nem vezet.",
+          "ru": "Машины нет, за руль она не садится.",
+          "en": "She has no car, she does not drive."
+        },
+        {
+          "hu": "Gyalog messze van, ezért villamossal megy.",
+          "ru": "Пешком далеко, поэтому она едет на трамвае.",
+          "en": "On foot it is far, so she takes the tram."
+        },
+        {
+          "hu": "A megálló közel van, a sarkon.",
+          "ru": "Остановка близко, на углу.",
+          "en": "The stop is near, on the corner."
+        },
+        {
+          "hu": "Itt a villamos és a busz is közlekedik.",
+          "ru": "Здесь ходят и трамвай, и автобус.",
+          "en": "Both the tram and the bus run here."
+        }
+      ],
+      [
+        {
+          "hu": "Nagy a forgalom, és dugó van.",
+          "ru": "Большое движение, и пробка.",
+          "en": "The traffic is heavy, and there is a jam."
+        },
+        {
+          "hu": "Az utcán sok autó, kocsi és taxi áll.",
+          "ru": "На улице стоит много машин и такси.",
+          "en": "Many cars and taxis stand in the street."
+        },
+        {
+          "hu": "Itt a közlekedés ma nem jó.",
+          "ru": "Транспорт здесь сегодня не очень.",
+          "en": "The transport here is not good today."
+        },
+        {
+          "hu": "Egy kocsi parkol a járdán, ez nem jó.",
+          "ru": "Машина припаркована на тротуаре, это нехорошо.",
+          "en": "A car is parked on the pavement, that is not good."
+        },
+        {
+          "hu": "A taxi áll a dugóban, a bicikli megy tovább.",
+          "ru": "Такси стоит в пробке, а велосипед едет дальше.",
+          "en": "The taxi stands in the jam, the bike rides on."
+        },
+        {
+          "hu": "A villamos késik, de végre érkezik.",
+          "ru": "Трамвай опаздывает, но наконец приходит.",
+          "en": "The tram is late, but it finally arrives."
+        },
+        {
+          "hu": "Anna felszáll, a bérlet nála van.",
+          "ru": "Анна садится, проездной у неё с собой.",
+          "en": "Anna gets on, she has her pass."
+        },
+        {
+          "hu": "Jön az ellenőr, Anna mutatja a bérletet.",
+          "ru": "Идёт контролёр, Анна показывает проездной.",
+          "en": "The inspector comes, Anna shows her pass."
+        },
+        {
+          "hu": "Az ellenőr azt mondja, jó.",
+          "ru": "Контролёр говорит, что всё в порядке.",
+          "en": "The inspector says it is fine."
+        }
+      ],
+      [
+        {
+          "hu": "Az állomásnál Anna leszáll.",
+          "ru": "У вокзала Анна выходит.",
+          "en": "Anna gets off at the station."
+        },
+        {
+          "hu": "Itt indul a metró és a vonat.",
+          "ru": "Здесь отправляются метро и поезд.",
+          "en": "The metro and the train leave from here."
+        },
+        {
+          "hu": "Anna a metróhoz megy, mert az új járat jó.",
+          "ru": "Анна идёт к метро, ведь новый маршрут хороший.",
+          "en": "Anna goes to the metro, because the new route is good."
+        },
+        {
+          "hu": "A metró nem késik, jól közlekedik.",
+          "ru": "Метро не опаздывает, ходит хорошо.",
+          "en": "The metro is not late, it runs well."
+        },
+        {
+          "hu": "A metró gyorsan érkezik, Anna felszáll.",
+          "ru": "Метро быстро приходит, Анна садится.",
+          "en": "The metro arrives quickly, Anna gets on."
+        },
+        {
+          "hu": "Aztán Anna leszáll, itt a kijárat.",
+          "ru": "Потом Анна выходит, вот выход.",
+          "en": "Then Anna gets off, here is the exit."
+        },
+        {
+          "hu": "Szemben van a tér.",
+          "ru": "Напротив площадь.",
+          "en": "The square is opposite."
+        }
+      ],
+      [
+        {
+          "hu": "A térkép nem jó, Anna eltéved.",
+          "ru": "Карта не помогает, Анна заблудилась.",
+          "en": "The map is no help, Anna gets lost."
+        },
+        {
+          "hu": "Hova menjen, balra vagy jobbra?",
+          "ru": "Куда идти, налево или направо?",
+          "en": "Where should she go, left or right?"
+        },
+        {
+          "hu": "Megkérdez egy gyalogost, mert nem tudja az irányt.",
+          "ru": "Она спрашивает пешехода, ведь не знает направления.",
+          "en": "She asks a pedestrian, because she does not know the direction."
+        },
+        {
+          "hu": "Menjen egyenesen, aztán jobbra, mondja a férfi.",
+          "ru": "Идите прямо, потом направо, говорит мужчина.",
+          "en": "Go straight, then right, says the man."
+        }
+      ],
+      [
+        {
+          "hu": "A járdán egyenesen megy tovább.",
+          "ru": "Она идёт по тротуару прямо дальше.",
+          "en": "She walks straight on along the pavement."
+        },
+        {
+          "hu": "Az irány jó, nincs messze.",
+          "ru": "Направление верное, это недалеко.",
+          "en": "The direction is right, it is not far."
+        },
+        {
+          "hu": "A zebránál átmegy az úton.",
+          "ru": "На переходе она переходит дорогу.",
+          "en": "She crosses the road at the zebra crossing."
+        },
+        {
+          "hu": "Egy bicikli és egy kerékpár áll a híd mellett.",
+          "ru": "У моста стоят два велосипеда.",
+          "en": "Two bicycles stand next to the bridge."
+        },
+        {
+          "hu": "Az utca a híd és a tér között van.",
+          "ru": "Улица между мостом и площадью.",
+          "en": "The street is between the bridge and the square."
+        },
+        {
+          "hu": "Anna jobbra fordul, és ott a cím.",
+          "ru": "Анна поворачивает направо, и вот адрес.",
+          "en": "Anna turns right, and there is the address."
+        }
+      ],
+      [
+        {
+          "hu": "Péter a bejáratnál vár, az autó mellett.",
+          "ru": "Петер ждёт у входа, рядом с машиной.",
+          "en": "Péter waits at the entrance, next to the car."
+        },
+        {
+          "hu": "Az autó az utcán parkol.",
+          "ru": "Машина стоит на улице.",
+          "en": "The car is parked in the street."
+        },
+        {
+          "hu": "Péter vezet, Anna nem vezet.",
+          "ru": "Петер водит, Анна не водит.",
+          "en": "Péter drives, Anna does not."
+        },
+        {
+          "hu": "Anna autóval megy vissza Péterrel.",
+          "ru": "Анна едет обратно с Петером на машине.",
+          "en": "Anna goes back by car with Péter."
+        },
+        {
+          "hu": "Az út közel van, a kerület szép.",
+          "ru": "Путь близкий, район красивый.",
+          "en": "The way is short, the district is lovely."
+        },
+        {
+          "hu": "Itt a bicikli is közlekedik, és a gyalogos is sétál.",
+          "ru": "Здесь ездят и велосипеды, и гуляют пешеходы.",
+          "en": "Bikes ride here, and pedestrians walk."
+        }
+      ]
+    ]
+  }
+}

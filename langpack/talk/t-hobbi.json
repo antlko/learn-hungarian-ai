@@ -1,0 +1,574 @@
+{
+  "talk": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "В пятницу после работы",
+      "en": "Friday after work"
+    },
+    "names": [
+      "Péter"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Péter! Már indulsz haza? Jó hétvégét!",
+          "ru": "Привет, Петер! Уже уходишь домой? Хороших выходных!",
+          "en": "Hi, Péter! Heading home already? Have a good weekend!"
+        },
+        {
+          "hu": "Szia! Igen, de nem haza. Úszni megyek.",
+          "ru": "Привет! Да, но не домой. Иду плавать.",
+          "en": "Hi! Yes, but not home. I'm going swimming."
+        },
+        {
+          "hu": "Tényleg? Hova, a klubba?",
+          "ru": "Правда? Куда, в клуб?",
+          "en": "Really? Where, to the club?"
+        },
+        {
+          "hu": "Igen, a klubba. Minden héten kétszer, pénteken is.",
+          "ru": "Плаваю в клубе. Два раза в неделю, и по пятницам.",
+          "en": "Yes, to the club. Twice every week, on Fridays too."
+        },
+        {
+          "hu": "Jé, én azt hittem, te csak futsz.",
+          "ru": "О, а я думала, ты только бегаешь.",
+          "en": "Oh, I thought you only ran."
+        },
+        {
+          "hu": "Futok is, de fáj a térdem, ezért úszom.",
+          "ru": "Бегаю тоже, но болит колено, поэтому плаваю.",
+          "en": "I run too, but my knee hurts, so I swim."
+        },
+        {
+          "hu": "Hát, az jó. Én csak sorozatot nézek, otthon.",
+          "ru": "Ну, это хорошо. А я только сериалы смотрю, дома.",
+          "en": "Well, that's good. I only watch series, at home."
+        },
+        {
+          "hu": "Na ne, te is jössz! Szombaton verseny van.",
+          "ru": "Ну нет, ты тоже идёшь! В субботу соревнование.",
+          "en": "Oh no, you're coming too! There's a competition on Saturday."
+        },
+        {
+          "hu": "Verseny? Dehogy, nem tudok úszni!",
+          "ru": "Соревнование? Ну что ты, я не умею плавать!",
+          "en": "A competition? Of course not, I can't swim!"
+        },
+        {
+          "hu": "Nem kell! Csak jönni kell, és utána kaja is van.",
+          "ru": "Не надо! Просто приходи, а потом ещё и еда.",
+          "en": "No need! Just come, and there's food afterwards."
+        },
+        {
+          "hu": "Aha, szóval kaja is lesz. Mikor kezdődik az egész?",
+          "ru": "Ага, значит, и еда будет. Когда всё начинается?",
+          "en": "Aha, so there'll be food too. When does the whole thing start?"
+        },
+        {
+          "hu": "Tízkor kezdődik. Az edző is ott lesz.",
+          "ru": "В десять начало. Тренер тоже будет.",
+          "en": "It starts at ten. The coach will be there too."
+        },
+        {
+          "hu": "Rendben, akkor jövök. Hozok egy kis tortát.",
+          "ru": "Хорошо, тогда приду. Принесу немного торта.",
+          "en": "All right, then I'll come. I'll bring a little cake."
+        },
+        {
+          "hu": "Szuper! Amúgy a lányod is jöhet, ha akar.",
+          "ru": "Супер! Кстати, твоя дочь тоже может прийти, если хочет.",
+          "en": "Great! By the way, your daughter can come too, if she wants."
+        },
+        {
+          "hu": "Jaj, ő imád úszni! Nagyon fog örülni, tényleg.",
+          "ru": "Ой, она обожает плавать! Она будет очень рада, правда.",
+          "en": "Oh, she loves swimming! She'll be so happy, really."
+        },
+        {
+          "hu": "Jó! Akkor tízre várunk titeket.",
+          "ru": "Хорошо! Тогда ждём вас к десяти.",
+          "en": "Good! Then we'll expect you at ten."
+        },
+        {
+          "hu": "Rendben. Én hozom a finom tortát.",
+          "ru": "Хорошо. Я принесу вкусный торт.",
+          "en": "Okay. I'll bring the tasty cake."
+        },
+        {
+          "hu": "Ja, és hozz jó kedvet is, jó?",
+          "ru": "Да, и принеси хорошее настроение, ладно?",
+          "en": "Oh, and bring a good mood too, okay?"
+        },
+        {
+          "hu": "Azt mindig hozok. Nyugi, nagyon jó lesz!",
+          "ru": "Это я всегда приношу. Спокойно, будет здорово!",
+          "en": "I always do. Relax, it'll be great!"
+        },
+        {
+          "hu": "Király. Akkor szombaton találkozunk! Pá!",
+          "ru": "Класс. Тогда до субботы! Пока!",
+          "en": "Cool. See you on Saturday then! Bye!"
+        },
+        {
+          "hu": "Pá, jó hétvégét, és ne felejts el jönni szombaton!",
+          "ru": "Пока, хороших выходных, и не забудь прийти в субботу!",
+          "en": "Bye, have a good weekend, and don't forget to come on Saturday!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "kutyafuttato",
+      "title": {
+        "ru": "В собачьем парке",
+        "en": "At the dog park"
+      },
+      "scene": {
+        "ru": "Двое хозяев знакомятся на площадке для собак.",
+        "en": "Two owners meet at the dog run."
+      },
+      "names": [
+        "Bodri",
+        "Mara"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia! Szép kutya! Hogy hívják?",
+          "ru": "Привет! Красивая собака! Как её зовут?",
+          "en": "Hi! Nice dog! What's her name?"
+        },
+        {
+          "who": "B",
+          "hu": "Bodri, köszi! A tiéd is nagyon szép.",
+          "ru": "Бодри, спасибо! Твоя тоже очень красивая.",
+          "en": "Bodri, thanks! Yours is very nice too."
+        },
+        {
+          "who": "A",
+          "hu": "Mara. Két éves, és mindig fut.",
+          "ru": "Мара. Ей два года, и она всё время бегает.",
+          "en": "Mara. She's two and always running."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, Bodri is! Játszanak együtt?",
+          "ru": "Ой, Бодри тоже! Пусть поиграют вместе?",
+          "en": "Oh, Bodri too! Shall they play together?"
+        },
+        {
+          "who": "A",
+          "hu": "Persze! Mara nagyon kedves kutya.",
+          "ru": "Конечно! Мара очень добрая собака.",
+          "en": "Sure! Mara is a very kind dog."
+        },
+        {
+          "who": "B",
+          "hu": "Bodri is. Csak mindig enni akar.",
+          "ru": "Бодри тоже. Только всё время хочет есть.",
+          "en": "So is Bodri. He just always wants to eat."
+        },
+        {
+          "who": "A",
+          "hu": "Hú, Mara is! Ő is mindig éhes.",
+          "ru": "Ух, Мара тоже! Она тоже всегда голодная.",
+          "en": "Wow, Mara too! She is always hungry too."
+        },
+        {
+          "who": "B",
+          "hu": "Na, nézd, már együtt futnak!",
+          "ru": "Ну, смотри, они уже бегают вместе!",
+          "en": "Look, they're already running together!"
+        },
+        {
+          "who": "A",
+          "hu": "Szuper! Itt jó helyen vagyunk.",
+          "ru": "Супер! Нам здесь хорошо.",
+          "en": "Great! We're in a good place here."
+        },
+        {
+          "who": "B",
+          "hu": "Jövő héten is jövünk, ugye?",
+          "ru": "На следующей неделе тоже придём, да?",
+          "en": "We'll come next week too, right?"
+        }
+      ]
+    },
+    {
+      "slug": "szombati-buli",
+      "title": {
+        "ru": "Планы на субботу",
+        "en": "Saturday plans"
+      },
+      "scene": {
+        "ru": "Друзья говорят по телефону.",
+        "en": "Friends talk on the phone."
+      },
+      "names": [
+        "Bence",
+        "Péter",
+        "Kata",
+        "Dóra"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Halló, Bence! Zavarlak?",
+          "ru": "Алло, Бенце! Не отвлекаю?",
+          "en": "Hello, Bence! Am I disturbing you?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, mondj! Mi újság?",
+          "ru": "Нет, говори! Что нового?",
+          "en": "No, go ahead! What's new?"
+        },
+        {
+          "who": "A",
+          "hu": "Szóval, mi a terv szombatra? Van valami?",
+          "ru": "Ну так, какие планы на субботу? Есть что-нибудь?",
+          "en": "So, what's the plan for Saturday? Anything?"
+        },
+        {
+          "who": "B",
+          "hu": "Még semmi. Miért kérdezed?",
+          "ru": "Пока ничего. А что?",
+          "en": "Nothing yet. Why do you ask?"
+        },
+        {
+          "who": "A",
+          "hu": "Péter bulit csinál a kertben. Jössz?",
+          "ru": "У Петера вечеринка в саду. Придёшь?",
+          "en": "Péter is having a party in the garden. Coming?"
+        },
+        {
+          "who": "B",
+          "hu": "Naná! Vigyek valamit?",
+          "ru": "Ещё бы! Принести что-нибудь?",
+          "en": "Of course! Shall I bring something?"
+        },
+        {
+          "who": "A",
+          "hu": "Hozz egy kis sütit, jó? Nem kell sok.",
+          "ru": "Принеси немного печенья, ладно? Много не надо.",
+          "en": "Bring some biscuits, okay? Not too many."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. Mikor kezdik?",
+          "ru": "Хорошо. Во сколько начало?",
+          "en": "All right. What time does it start?"
+        },
+        {
+          "who": "A",
+          "hu": "Hat körül. Kata is jön, meg Dóra.",
+          "ru": "Около шести. Ката тоже придёт, и Дора.",
+          "en": "Around six. Kata is coming too, and Dóra."
+        },
+        {
+          "who": "B",
+          "hu": "Szuper, akkor ott leszek! Szia!",
+          "ru": "Супер, тогда буду там! Пока!",
+          "en": "Great, then I'll be there! Bye!"
+        }
+      ]
+    },
+    {
+      "slug": "meccs-utan",
+      "title": {
+        "ru": "После матча",
+        "en": "After the match"
+      },
+      "scene": {
+        "ru": "Двое друзей в пабе обсуждают вчерашний матч.",
+        "en": "Two friends in a pub talk about last night's match."
+      },
+      "names": [
+        "Fradi"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Gyere, ülj ide! Láttad a meccset?",
+          "ru": "Иди, садись сюда! Смотрел матч?",
+          "en": "Come, sit here! Did you see the match?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze, de szörnyű volt az eleje.",
+          "ru": "Конечно, но начало было ужасное.",
+          "en": "Of course, but the start was terrible."
+        },
+        {
+          "who": "A",
+          "hu": "Ki nyert? Én nem láttam a végét.",
+          "ru": "Кто выиграл? Я конца не видел.",
+          "en": "Who won? I didn't see the end."
+        },
+        {
+          "who": "B",
+          "hu": "A Fradi, kettő egy!",
+          "ru": "Фради, два один!",
+          "en": "Fradi, two one!"
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg? Hú, pedig rosszul kezdtek.",
+          "ru": "Правда? Ух, а ведь плохо начали.",
+          "en": "Really? Wow, and they started badly."
+        },
+        {
+          "who": "B",
+          "hu": "Hát igen, a vége király volt.",
+          "ru": "Ну да, конец был классный.",
+          "en": "Well yes, the end was great."
+        },
+        {
+          "who": "A",
+          "hu": "Na, még egy sört? Én hívlak meg.",
+          "ru": "Ну что, ещё пива? Я угощаю.",
+          "en": "So, another beer? My treat."
+        },
+        {
+          "who": "B",
+          "hu": "Köszi! Ez most nagyon jól jön.",
+          "ru": "Спасибо! Это сейчас очень кстати.",
+          "en": "Thanks! That comes in handy right now."
+        },
+        {
+          "who": "A",
+          "hu": "Hát igen! A következő meccsen is itt vagyunk, jó?",
+          "ru": "Ещё бы! На следующем матче тоже будем здесь, да?",
+          "en": "Well yes! We'll be here for the next match too, right?"
+        }
+      ]
+    },
+    {
+      "slug": "futoklub",
+      "title": {
+        "ru": "Беговой клуб",
+        "en": "The running club"
+      },
+      "scene": {
+        "ru": "Новичок приходит на первую тренировку.",
+        "en": "A newcomer arrives at the first training."
+      },
+      "names": [
+        "Péter",
+        "Dóra"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Bocsi, itt van a klub? Futni jöttem.",
+          "ru": "Прости, здесь клуб? Я бегать пришёл.",
+          "en": "Sorry, is this the club? I came to run."
+        },
+        {
+          "who": "B",
+          "hu": "Igen! Te vagy az új? Dóra vagyok.",
+          "ru": "Да! Ты новенький? Я Дора.",
+          "en": "Yes! Are you the new one? I'm Dóra."
+        },
+        {
+          "who": "A",
+          "hu": "Péter. Először jövök, kicsit félek.",
+          "ru": "Петер. Я первый раз, немного боюсь.",
+          "en": "Péter. It's my first time, I'm a bit scared."
+        },
+        {
+          "who": "B",
+          "hu": "Nyugi, lassan futunk, itt nincs verseny.",
+          "ru": "Спокойно, бежим медленно, никто не соревнуется.",
+          "en": "Relax, we run slowly, nobody competes."
+        },
+        {
+          "who": "A",
+          "hu": "Jó. Mennyit futunk ma?",
+          "ru": "Хорошо. Сколько мы сегодня бежим?",
+          "en": "Good. How far are we running today?"
+        },
+        {
+          "who": "B",
+          "hu": "Csak fél órát. Utána torna van.",
+          "ru": "Всего полчаса. Потом гимнастика.",
+          "en": "Only half an hour. Then gymnastics."
+        },
+        {
+          "who": "A",
+          "hu": "Az jó, tegnap egész nap ültem.",
+          "ru": "Это хорошо, вчера весь день сидел.",
+          "en": "That's good, I sat all day yesterday."
+        },
+        {
+          "who": "B",
+          "hu": "Hát, akkor ma jól jön a mozgás.",
+          "ru": "Ну, тогда сегодня движение кстати.",
+          "en": "Well, then some exercise will do you good today."
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg. Ki az edző?",
+          "ru": "Точно. А кто тренер?",
+          "en": "True. Who is the coach?"
+        },
+        {
+          "who": "B",
+          "hu": "Én. Gyere, kezdjük!",
+          "ru": "Я. Пойдём, начнём!",
+          "en": "Me. Come on, let's start!"
+        }
+      ]
+    },
+    {
+      "slug": "jatszoter",
+      "title": {
+        "ru": "На детской площадке",
+        "en": "At the playground"
+      },
+      "scene": {
+        "ru": "Двое родителей на площадке, дети играют в мяч.",
+        "en": "Two parents at the playground, the kids play ball."
+      },
+      "names": [
+        "Dani",
+        "Máté"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia! A fiad is szereti a labdát?",
+          "ru": "Привет! Твой сын тоже любит мяч?",
+          "en": "Hi! Does your son like the ball too?"
+        },
+        {
+          "who": "B",
+          "hu": "Nagyon! Egész nap a labdával játszik.",
+          "ru": "Очень! Целый день только пинает.",
+          "en": "Very much! He just kicks it all day."
+        },
+        {
+          "who": "A",
+          "hu": "Az enyém is. Hány éves?",
+          "ru": "Мой тоже. Сколько ему?",
+          "en": "Mine too. How old is he?"
+        },
+        {
+          "who": "B",
+          "hu": "Hat múlt. A tiéd?",
+          "ru": "Шесть исполнилось. А твоему?",
+          "en": "Just past six. And yours?"
+        },
+        {
+          "who": "A",
+          "hu": "Öt. Játszanak együtt?",
+          "ru": "Пять. Они могут поиграть вместе?",
+          "en": "Five. Can they play together?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze! Dani, gyere ide!",
+          "ru": "Конечно! Дани, иди сюда!",
+          "en": "Sure! Dani, come here!"
+        },
+        {
+          "who": "A",
+          "hu": "Máté, nézd, itt egy új barát!",
+          "ru": "Матэ, смотри, вот новый друг!",
+          "en": "Máté, look, here is a new friend!"
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, de cuki! Már játszanak is a labdával.",
+          "ru": "Ой, как мило! Они уже играют с мячом.",
+          "en": "Oh, how cute! They're already playing with the ball."
+        },
+        {
+          "who": "A",
+          "hu": "Akkor mi itt maradunk. Kérsz egy kávét?",
+          "ru": "Тогда мы тут останемся. Хочешь кофе?",
+          "en": "Then we'll stay here. Want a coffee?"
+        }
+      ]
+    },
+    {
+      "slug": "meghivas",
+      "title": {
+        "ru": "Приглашение и отказ",
+        "en": "An invitation and a refusal"
+      },
+      "scene": {
+        "ru": "Приятели: один зовёт на концерт, другой вежливо отказывается.",
+        "en": "Friends: one invites, the other politely declines."
+      },
+      "names": [
+        "Kata"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia! Jössz holnap a koncertre?",
+          "ru": "Привет! Пойдёшь завтра на концерт?",
+          "en": "Hi! Coming to the concert tomorrow?"
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, bocsi, nem tudok menni.",
+          "ru": "Ой, прости, не могу пойти.",
+          "en": "Oh, sorry, I can't go."
+        },
+        {
+          "who": "A",
+          "hu": "Ne már! Szuper zenekar lesz!",
+          "ru": "Да ладно! Будет классная группа!",
+          "en": "Come on! It'll be a great band!"
+        },
+        {
+          "who": "B",
+          "hu": "Tudom, de holnap dolgozom. Nagyon sajnálom.",
+          "ru": "Знаю, но завтра я работаю. Мне очень жаль.",
+          "en": "I know, but I work tomorrow. I'm really sorry."
+        },
+        {
+          "who": "A",
+          "hu": "Hát, kár. Akkor majd legközelebb?",
+          "ru": "Ну, жаль. Тогда в следующий раз?",
+          "en": "Well, a pity. Next time then?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze! Köszi, hogy gondoltál rám.",
+          "ru": "Конечно! Спасибо, что вспомнил обо мне.",
+          "en": "Sure! Thanks for thinking of me."
+        },
+        {
+          "who": "A",
+          "hu": "Nyugi, semmi gond. Kata megy, és a többiek is.",
+          "ru": "Спокойно, ничего страшного. Ката идёт, и остальные тоже.",
+          "en": "Relax, no problem. Kata is going, and the others too."
+        },
+        {
+          "who": "B",
+          "hu": "Szólj nekem, ha lesz másik koncert!",
+          "ru": "Скажи мне, если будет другой концерт!",
+          "en": "Tell me if there's another concert!"
+        },
+        {
+          "who": "A",
+          "hu": "Szólok. Szia, jó munkát holnap!",
+          "ru": "Скажу. Пока, удачной работы завтра!",
+          "en": "I will. Bye, good luck at work tomorrow!"
+        }
+      ]
+    }
+  ]
+}

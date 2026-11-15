@@ -349,7 +349,8 @@ text: «Сначала закрепите «<предыдущий>»: N% из 70
 enrols exactly like the primary action — the sticky bar is replaced by it while closed), grammar
 chips, an optional **«Фразы из раздела»** block (≤4 real pack sentences with the gloss in the
 learner's language and a speak button; display only, hidden when empty or when the fetch fails),
-a **«Читать по теме»** block (the unit's reading sets from `api.librarySets()`: «Рассказ» = code, «Диалог» = `<code>-dialogue`, both keeping the «Написано ИИ» label; one row each, two columns from `sm`, one button «Читать» / «Добавить в чтение» that imports and opens `/read/<id>`; no cards; hidden when none or on fetch failure),
+a **«Читать по теме»** block (the unit's reading texts from `api.librarySets()`: `<code>-dialogue` = short, `<code>` = medium, `<code>-long` = long, ordered by `tier`, legacy rows without `tier` derived; each row: title, size chip «Короткий / Средний / Длинный», «~N слов» from `words`, the genre label (`library.genre.<id>`) only when the title does not already start with it; three columns from `sm`; on a phone each is a compact row (title + chip/words/genre on two lines, a trailing 44px button), same look for the talk card; no «Написано ИИ» label; one 44px button «Открыть» / «Добавить» that imports and opens `/read/<id>`; no cards; hidden when none or on fetch failure),
+under it, only when the unit has colloquial sets, a **«Живая речь»** block (ADR-077): the unit's `talk` text as a card of the same style with a neutral chip «Разговорное» (states register, not provenance; no AI label), then a compact list of its `mini` dialogues (`<code>-talk-<slug>`): one row each (min 44px) = `scene` (title as fallback, wraps to two lines) + «~N слов» + a ghost «Читать» button (≥44px, imports and opens like the cards); the first 3 are shown, «Ещё N» / «Свернуть» toggles the rest (phone and desktop alike),
 the words as a compact list (one line per word: deck-state icon, headword, «–», gloss truncated;
 a word's note hides behind a «?» InfoTip; two columns from `sm`), and the **sticky bottom
 dock** (`bottom: var(--bottom-tabs-h)` above the phone tabs).
@@ -1094,17 +1095,16 @@ ADR-023; the labelling rule is ADR-014's.
 **Ready-made sets («Готовые подборки»).** Shown only when `GET /api/library/sets` returns
 something (older packs: the segment is not drawn; a failed fetch does the same and never blocks
 the shelf). Compact rows grouped by level A1 · A2 · B1, the set at the learner's level first
-(«подходит вам сейчас» is a hint, never a filter or a lock), each with title, «N предложений»,
-a «Посмотреть» button and the main one — «Добавить» (`POST …/import`, then the reader) or «Открыть» when already
-imported. Each unit has two rows, «Диалог: X» right before «Рассказ: X» (the pack's order; ADR-074 replaced the old «Фразы»); both
-rows carry a visible `Sparkles` line «Написано ИИ, носителем не проверено».
+(a single small «подходит вам сейчас» next to that level's chip is a hint, never a filter or a lock; not repeated on cards), each with title («<жанр>: <название текста>»), its size (short / medium / long) and «N слов»,
+an icon-only «Посмотреть» (eye, 44px, `aria-label`) and the main one — «Добавить» (`POST …/import`, then the reader) or «Открыть» when already
+imported. Each unit has **three rows of different size and genre** (short, medium, long; a unit's three stay together, shortest first, via `tier`, ADR-075 — three texts on one topic, a narrow-reading cluster); each row shows a size chip, «~N слов» and the genre label (`library.genre.<id>`, omitted when the title already carries it). **One** filter chip row «Все · Короткие · Средние · Длинные · Разговорные» (`kindFilter`, a view over the list, not a setting; 44px chips, scrolls sideways on a phone): the size chips show standard texts only, «Разговорные» shows talk and mini sets. Colloquial rows carry a neutral «Разговорное» chip (register, not provenance). A unit's `mini` dialogues are folded into **one collapsible row «Разговоры · N»** under the unit (expand to list them: `scene`, «Посмотреть», «Добавить»/«Открыть»), so the shelf does not grow by 5–10 rows per unit; the preview of a mini shows its `scene` line under the chips, and turns (tier `mini`, genre `dialogue`/`phone`/`chat`) are set as a script with the speaker change indented by `who`. **No «Написано ИИ» label** on the row, the preview or the import (user decision, ADR-075: provenance stays in the data).
 **«Посмотреть»** opens `BottomSheet dialog tall` (full-height sheet on a phone, a centred dialog from
-md): level chip, count, the limit `Note` (every set is authored, ADR-074) repeating the label with one honest sentence,
+md): level chip, genre, size and count,
 then every line in set order, Hungarian `lang="hu"` over its translation in the gloss language (the
-other language only as a labelled fallback, `lib/gloss.ts`); a dialogue is set as a script (turn
-dash, every second line indented), a story as paragraphs (`para`). Footer: «Закрыть» and «Добавить»/«Открыть». Skeleton while it
+other language only as a labelled fallback, `lib/gloss.ts`); a `dialogue` genre text is set as a script (turn
+dash, every second line indented), any other as paragraphs (`para`). Footer: «Закрыть» and «Добавить»/«Открыть». Skeleton while it
 loads; an error through `describeError` with a retry. The collapse to a few sets («Показать все подборки») stays. What the sets are —
-texts written by an AI, adding creates a text and the cards are the learner's own act
+ready-made texts for the unit's words, adding creates a text and the cards are the learner's own act
 of tapping words — is an `InfoTip` beside the heading. Browser flow not exercised.
 
 **The reader on a phone.** A compact header: title, the two coverage figures as one line each over

@@ -1,0 +1,460 @@
+{
+  "short": {
+    "genre": "note",
+    "checked": "ai",
+    "title": {
+      "ru": "Записка на двери",
+      "en": "A note on the door"
+    },
+    "names": [
+      "Dani"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Dani!",
+          "ru": "Привет, Дани!",
+          "en": "Hi, Dani!"
+        },
+        {
+          "hu": "Kint hűvös van, és esik az eső.",
+          "ru": "На улице прохладно и идёт дождь.",
+          "en": "It is cool outside and it is raining."
+        },
+        {
+          "hu": "Vedd fel a sálat és a sapkát, és vidd az esernyőt.",
+          "ru": "Надень шарф и шапку и возьми зонт.",
+          "en": "Put on the scarf and the hat, and take the umbrella."
+        },
+        {
+          "hu": "A kesztyű is kell, mert fúj a szél.",
+          "ru": "Перчатки тоже нужны, потому что дует ветер.",
+          "en": "You need your gloves too, because the wind is blowing."
+        }
+      ],
+      [
+        {
+          "hu": "A ház előtt nagy pocsolya van, ne ugorj bele!",
+          "ru": "Перед домом большая лужа, не прыгай в неё!",
+          "en": "There is a big puddle in front of the house, do not jump in it!"
+        },
+        {
+          "hu": "Este felhős lesz az ég, talán vihar is jön.",
+          "ru": "Вечером небо будет облачным, может быть, придёт и гроза.",
+          "en": "The sky will be cloudy this evening, and maybe a storm will come."
+        },
+        {
+          "hu": "A reggeli az asztalon van, a tea még forró.",
+          "ru": "Завтрак на столе, чай ещё горячий.",
+          "en": "Breakfast is on the table, the tea is still hot."
+        },
+        {
+          "hu": "Ha fázol, vegyél fel még egy pulóvert, jó?",
+          "ru": "Если замёрзнешь, надень ещё свитер, хорошо?",
+          "en": "If you feel cold, put on another jumper, okay?"
+        },
+        {
+          "hu": "Délután süt a nap, de a hőmérséklet csak nyolc fok.",
+          "ru": "После обеда будет светить солнце, но температура всего восемь градусов.",
+          "en": "In the afternoon the sun will shine, but the temperature is only eight degrees."
+        },
+        {
+          "hu": "Hétkor jövök haza.",
+          "ru": "Я вернусь домой в семь.",
+          "en": "I will be home at seven."
+        },
+        {
+          "hu": "Anya",
+          "ru": "Мама",
+          "en": "Mum"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "description",
+    "checked": "ai",
+    "title": {
+      "ru": "Прогноз на выходные",
+      "en": "The weekend forecast"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Az időjárás a hétvégén nagyon változó lesz.",
+          "ru": "Погода на выходных будет очень переменчивой.",
+          "en": "The weather will be very changeable this weekend."
+        },
+        {
+          "hu": "Az előrejelzés nem rossz, de nézzük sorban.",
+          "ru": "Прогноз неплохой, но посмотрим по порядку.",
+          "en": "The forecast is not bad, but let us take it in order."
+        },
+        {
+          "hu": "Szombaton reggel ködös és hűvös lesz.",
+          "ru": "В субботу утром будет туманно и прохладно.",
+          "en": "On Saturday morning it will be foggy and cool."
+        },
+        {
+          "hu": "A hőmérséklet csak hét fok lesz.",
+          "ru": "Температура будет всего семь градусов.",
+          "en": "The temperature will be only seven degrees."
+        },
+        {
+          "hu": "Délelőtt a köd elmegy, és süt a nap.",
+          "ru": "До обеда туман уйдёт, и выглянет солнце.",
+          "en": "In the late morning the fog will go and the sun will come out."
+        },
+        {
+          "hu": "Délután napos lesz az idő, és melegszik.",
+          "ru": "После обеда будет солнечно и станет теплее.",
+          "en": "In the afternoon it will be sunny and warming up."
+        },
+        {
+          "hu": "Húsz fok is lesz, a levegő száraz.",
+          "ru": "Будет даже двадцать градусов, воздух сухой.",
+          "en": "It will be as much as twenty degrees, and the air is dry."
+        },
+        {
+          "hu": "A szél gyenge, és az ég derült lesz.",
+          "ru": "Ветер слабый, и небо будет ясным.",
+          "en": "The wind is weak and the sky will be clear."
+        }
+      ],
+      [
+        {
+          "hu": "Szombat este felhők jönnek, és hűl az idő.",
+          "ru": "В субботу вечером придут облака, и похолодает.",
+          "en": "On Saturday evening clouds will come and it will get colder."
+        },
+        {
+          "hu": "Este tíz fok lesz, és az ég felhős marad.",
+          "ru": "Вечером будет десять градусов, и небо останется облачным.",
+          "en": "In the evening it will be ten degrees and the sky will stay cloudy."
+        },
+        {
+          "hu": "Éjjel zivatar lesz, villám és mennydörgés.",
+          "ru": "Ночью будет гроза, молния и гром.",
+          "en": "At night there will be a thunderstorm, lightning and thunder."
+        },
+        {
+          "hu": "Jégeső is lehet.",
+          "ru": "Возможен и град.",
+          "en": "There may be hail too."
+        },
+        {
+          "hu": "A szél erősen fúj, és sok pocsolya lesz.",
+          "ru": "Ветер будет сильным, и появится много луж.",
+          "en": "The wind will blow hard and there will be many puddles."
+        }
+      ],
+      [
+        {
+          "hu": "Vasárnap borult és esős lesz.",
+          "ru": "В воскресенье будет пасмурно и дождливо.",
+          "en": "On Sunday it will be overcast and rainy."
+        },
+        {
+          "hu": "Az eső egész nap esik, és szeles idő lesz.",
+          "ru": "Дождь будет идти весь день, и погода будет ветреной.",
+          "en": "The rain will fall all day and it will be windy."
+        },
+        {
+          "hu": "Hűl az idő, tíz fok lesz.",
+          "ru": "Холодает, будет десять градусов.",
+          "en": "It is getting colder, it will be ten degrees."
+        },
+        {
+          "hu": "Este derült lesz az ég, és hideg.",
+          "ru": "Вечером небо будет ясным и холодным.",
+          "en": "In the evening the sky will be clear and cold."
+        },
+        {
+          "hu": "Éjjel fagy is lehet, és jég lesz a pocsolyán.",
+          "ru": "Ночью может быть и заморозок, и на лужах будет лёд.",
+          "en": "At night there may be frost too, and ice on the puddles."
+        },
+        {
+          "hu": "Reggel nagy köd is lehet.",
+          "ru": "Утром может быть и густой туман.",
+          "en": "There may be thick fog in the morning too."
+        },
+        {
+          "hu": "A nap nem süt, csak a felhők mennek az égen.",
+          "ru": "Солнце не светит, по небу идут только облака.",
+          "en": "The sun does not shine, only the clouds move across the sky."
+        }
+      ],
+      [
+        {
+          "hu": "Hétfőn hűvös lesz, és talán hó is esik.",
+          "ru": "В понедельник будет прохладно, и, может быть, пойдёт снег.",
+          "en": "On Monday it will be cool and maybe it will snow."
+        },
+        {
+          "hu": "Aztán a hó olvad, és enyhe idő jön.",
+          "ru": "Потом снег растает, и придёт мягкая погода.",
+          "en": "Then the snow will melt and mild weather will come."
+        },
+        {
+          "hu": "Kedden már süt a nap, és melegszik az idő.",
+          "ru": "Во вторник уже светит солнце, и теплеет.",
+          "en": "On Tuesday the sun is already shining and it is warming up."
+        },
+        {
+          "hu": "A száraz idő jó lesz mindenkinek.",
+          "ru": "Сухая погода будет хороша для всех.",
+          "en": "The dry weather will be good for everyone."
+        },
+        {
+          "hu": "Mindenkinek jó hétvégét kívánunk!",
+          "ru": "Всем желаем хороших выходных!",
+          "en": "We wish everyone a good weekend!"
+        },
+        {
+          "hu": "Vigyen esernyőt, sálat és kesztyűt!",
+          "ru": "Возьмите зонт, шарф и перчатки!",
+          "en": "Take an umbrella, a scarf and gloves!"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "story",
+    "checked": "ai",
+    "title": {
+      "ru": "Выходные, которые не удались",
+      "en": "A weekend that did not go to plan"
+    },
+    "names": [
+      "Zsófi",
+      "Bence"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Zsófi és Bence szombaton a hegyre mentek.",
+          "ru": "Зсофи и Бенце в субботу пошли в горы.",
+          "en": "Zsófi and Bence went up into the hills on Saturday."
+        },
+        {
+          "hu": "Reggel Zsófi nézte az előrejelzést a telefonon.",
+          "ru": "Утром Зсофи смотрела прогноз на телефоне.",
+          "en": "In the morning Zsófi looked at the forecast on her phone."
+        },
+        {
+          "hu": "Napos idő, gyenge szél, tíz fok.",
+          "ru": "Солнечно, слабый ветер, десять градусов.",
+          "en": "Sunny, a light wind, ten degrees."
+        },
+        {
+          "hu": "Ez jó hír, mondta.",
+          "ru": "Это хорошая новость, сказала она.",
+          "en": "That is good news, she said."
+        },
+        {
+          "hu": "Az előrejelzés szerint napos idő lesz.",
+          "ru": "По прогнозу должна была быть солнечная погода.",
+          "en": "According to the forecast the weather would be sunny."
+        },
+        {
+          "hu": "Reggel valóban szép idő volt, és az ég derült volt.",
+          "ru": "Утром и правда стояла хорошая погода, и небо было ясным.",
+          "en": "In the morning the weather really was nice and the sky was clear."
+        },
+        {
+          "hu": "Bence sapkát vett fel, Zsófi pedig sálat tett a táskába.",
+          "ru": "Бенце надел кепку, а Зсофи положила в сумку шарф.",
+          "en": "Bence put on a cap and Zsófi put a scarf in her bag."
+        },
+        {
+          "hu": "Az esernyőt otthon hagyták.",
+          "ru": "Зонт они оставили дома.",
+          "en": "They left the umbrella at home."
+        },
+        {
+          "hu": "Nem kell, mondta Bence, ma nem lesz eső.",
+          "ru": "Не нужен, сказал Бенце, сегодня дождя не будет.",
+          "en": "We do not need it, said Bence, there will be no rain today."
+        }
+      ],
+      [
+        {
+          "hu": "Az út elején minden szép volt.",
+          "ru": "В начале пути всё было красиво.",
+          "en": "At the start of the way everything was beautiful."
+        },
+        {
+          "hu": "Egy óra után felhők jöttek.",
+          "ru": "Через час пришли облака.",
+          "en": "After an hour clouds came."
+        },
+        {
+          "hu": "Fent a hegyen még hó is volt, és a jég fehér volt.",
+          "ru": "Наверху в горах ещё лежал снег, и лёд был белым.",
+          "en": "Up on the hill there was still snow, and the ice was white."
+        },
+        {
+          "hu": "A szél is fújni kezdett, és hűvös lett.",
+          "ru": "Начал дуть ветер, и стало прохладно.",
+          "en": "The wind started to blow too and it became cool."
+        },
+        {
+          "hu": "Zsófi fázott, ezért a sálat a nyakába tette.",
+          "ru": "Зсофи замёрзла, поэтому обмотала шею шарфом.",
+          "en": "Zsófi felt cold, so she wrapped her scarf around her neck."
+        },
+        {
+          "hu": "Bence azt mondta, ez csak egy kis felhő.",
+          "ru": "Бенце сказал, что это всего лишь маленькое облако.",
+          "en": "Bence said it was just a little cloud."
+        },
+        {
+          "hu": "Aztán az ég nagyon sötét lett.",
+          "ru": "Потом небо стало очень тёмным.",
+          "en": "Then the sky became very dark."
+        },
+        {
+          "hu": "Messziről mennydörgés jött.",
+          "ru": "Издалека донёсся гром.",
+          "en": "Thunder came from far away."
+        },
+        {
+          "hu": "Köd is jött, és alig láttak valamit.",
+          "ru": "Пришёл и туман, и они почти ничего не видели.",
+          "en": "Fog came too and they could hardly see anything."
+        },
+        {
+          "hu": "Bence azt kérdezte, nem fázik-e Zsófi.",
+          "ru": "Бенце спросил, не мёрзнет ли Зсофи.",
+          "en": "Bence asked if Zsófi was not cold."
+        },
+        {
+          "hu": "Zsófi azt mondta, hogy most haza kell menni.",
+          "ru": "Зсофи сказала, что теперь надо идти домой.",
+          "en": "Zsófi said they had to go home now."
+        }
+      ],
+      [
+        {
+          "hu": "Nemsokára esett az eső, először csak egy kicsit.",
+          "ru": "Скоро пошёл дождь, сначала совсем немного.",
+          "en": "Soon it rained, at first only a little."
+        },
+        {
+          "hu": "Aztán villám volt, és a mennydörgés nagyon nagy lett.",
+          "ru": "Потом сверкнула молния, и гром стал очень громким.",
+          "en": "Then there was lightning and the thunder became very loud."
+        },
+        {
+          "hu": "Hol az esernyő, kérdezte Zsófi.",
+          "ru": "Где зонт, спросила Зсофи.",
+          "en": "Where is the umbrella, asked Zsófi."
+        },
+        {
+          "hu": "Otthon, mondta Bence, és nem nevetett.",
+          "ru": "Дома, сказал Бенце, и ему было не до смеха.",
+          "en": "At home, said Bence, and he did not laugh."
+        },
+        {
+          "hu": "Egy nagy fa alá álltak, de a szél hideg volt.",
+          "ru": "Они встали под большое дерево, но ветер был холодным.",
+          "en": "They stood under a big tree, but the wind was cold."
+        },
+        {
+          "hu": "Egy kis jégeső is esett, és fehér lett a föld.",
+          "ru": "Прошёл и небольшой град, и земля стала белой.",
+          "en": "A little hail fell too, and the ground turned white."
+        },
+        {
+          "hu": "Villám volt a fák felett, és az ég egy pillanatra fehér lett.",
+          "ru": "Над деревьями сверкнула молния, и небо на миг стало белым.",
+          "en": "There was lightning above the trees and the sky turned white for a moment."
+        },
+        {
+          "hu": "Zsófi nem félt, de nem volt jó kedve.",
+          "ru": "Зсофи не боялась, но настроение у неё было плохое.",
+          "en": "Zsófi was not afraid, but she was not in a good mood."
+        },
+        {
+          "hu": "Bence a sapkáját adta neki.",
+          "ru": "Бенце отдал ей свою кепку.",
+          "en": "Bence gave her his cap."
+        },
+        {
+          "hu": "Az úton sok sár és nagy pocsolya volt.",
+          "ru": "На дороге было много грязи и большие лужи.",
+          "en": "There was a lot of mud and there were big puddles on the path."
+        }
+      ],
+      [
+        {
+          "hu": "Egy óra után a vihar elment.",
+          "ru": "Через час гроза ушла.",
+          "en": "After an hour the storm went away."
+        },
+        {
+          "hu": "A felhő is elment, és megint napos lett az idő.",
+          "ru": "Облако тоже ушло, и снова стало солнечно.",
+          "en": "The cloud went away too and the sun came out."
+        },
+        {
+          "hu": "Az ég megint derült volt, a levegő hűvös, de szép.",
+          "ru": "Небо снова было ясным, воздух прохладным, но красивым.",
+          "en": "The sky was clear again, the air cool but lovely."
+        },
+        {
+          "hu": "A pocsolyákban ott volt a napfény.",
+          "ru": "В лужах отражалось солнце.",
+          "en": "The sunlight was there in the puddles."
+        },
+        {
+          "hu": "Az eső után a levegő tiszta volt, és sok sár volt az úton.",
+          "ru": "После дождя воздух был чистым, а на дороге было много грязи.",
+          "en": "After the rain the air was clean and there was a lot of mud on the path."
+        },
+        {
+          "hu": "A hőmérséklet nem lett magas, de a szél már nem erős.",
+          "ru": "Температура не поднялась, но ветер уже не был сильным.",
+          "en": "The temperature did not get high, but the wind was no longer strong."
+        },
+        {
+          "hu": "Zsófi nevetett, mert Bence haja tele volt vízzel.",
+          "ru": "Зофи смеялась, потому что волосы Бенце были все в воде.",
+          "en": "Zsófi laughed because Bence's hair was full of water."
+        },
+        {
+          "hu": "Bence is nevetett, és azt mondta, jó, jó.",
+          "ru": "Бенце тоже засмеялся и сказал, ладно, ладно.",
+          "en": "Bence laughed too and said, all right, all right."
+        },
+        {
+          "hu": "Az előrejelzés nem mindig igaz, tudta meg.",
+          "ru": "Прогноз не всегда верен, понял он.",
+          "en": "The forecast is not always right, he found out."
+        },
+        {
+          "hu": "Otthon forró teát kaptak, és az ablakból nézték az eget.",
+          "ru": "Дома им дали горячий чай, и они смотрели из окна на небо.",
+          "en": "At home they got hot tea and looked at the sky from the window."
+        },
+        {
+          "hu": "Zsófi azt mondta, jövő héten ő nézi az előrejelzést.",
+          "ru": "Зсофи сказала, что на следующей неделе прогноз смотрит она.",
+          "en": "Zsófi said she would check the forecast next week."
+        },
+        {
+          "hu": "Vasárnap a kesztyűt és az esernyőt is a táskába tették.",
+          "ru": "В воскресенье они положили в сумку и перчатки, и зонт.",
+          "en": "On Sunday they put both the gloves and the umbrella in the bag."
+        },
+        {
+          "hu": "Szerencsére vasárnap nem esett az eső.",
+          "ru": "К счастью, в воскресенье дождя не было.",
+          "en": "Luckily it did not rain on Sunday."
+        }
+      ]
+    ]
+  }
+}

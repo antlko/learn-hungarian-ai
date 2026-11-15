@@ -1,0 +1,511 @@
+{
+ "talk": {
+  "genre": "dialogue",
+  "checked": "ai",
+  "title": {
+   "ru": "Лифт не работает",
+   "en": "The lift is out"
+  },
+  "names": [
+   "Peti"
+  ],
+  "paras": [
+   [
+    {
+     "who": "A",
+     "hu": "Szia, Peti! Hoppá, nem is láttalak.",
+     "ru": "Привет, Пети! Опа, я тебя и не заметил.",
+     "en": "Hi, Peti! Oops, I did not even see you."
+    },
+    {
+     "who": "B",
+     "hu": "Szia! Hát, én is sietek. Tudod, mi van a lifttel?",
+     "ru": "Привет! Ну, я тоже спешу. Знаешь, что с лифтом?",
+     "en": "Hi! Well, I am in a hurry too. Do you know what is up with the lift?"
+    },
+    {
+     "who": "A",
+     "hu": "Nem tudom. Tegnap még jó volt, ma viszont áll.",
+     "ru": "Не знаю. Вчера ещё работал, а сегодня стоит.",
+     "en": "I do not know. It was fine yesterday, but today it is stuck."
+    },
+    {
+     "who": "B",
+     "hu": "Állítólag elromlott valami. Ezért kell a lépcsőn menni.",
+     "ru": "Говорят, что-то сломалось. Поэтому надо идти по лестнице.",
+     "en": "Supposedly something broke. That is why we have to take the stairs."
+    },
+    {
+     "who": "A",
+     "hu": "Hát, ez nem vicces, főleg a bolt után.",
+     "ru": "Ну, это не смешно, особенно после магазина.",
+     "en": "Well, that is no joke, especially after shopping."
+    },
+    {
+     "who": "B",
+     "hu": "Igen. Amúgy te hova mész?",
+     "ru": "Да. Кстати, а ты куда идёшь?",
+     "en": "Yes. By the way, where are you going?"
+    },
+    {
+     "who": "A",
+     "hu": "A boltba, mert nincs tej. Aztán dolgozom.",
+     "ru": "В магазин, потому что нет молока. Потом работаю.",
+     "en": "To the shop, because there is no milk. Then I work."
+    },
+    {
+     "who": "B",
+     "hu": "Jó, akkor hozol nekem is kenyeret? Ha nem nagy baj.",
+     "ru": "Ладно, тогда купишь и мне хлеба? Если не сложно.",
+     "en": "Okay, then could you get me bread too? If it is no trouble."
+    },
+    {
+     "who": "A",
+     "hu": "Persze, nyugi. Mivel úgyis megyek, hozom.",
+     "ru": "Конечно, спокойно. Раз я всё равно иду, принесу.",
+     "en": "Sure, no worries. Since I am going anyway, I will bring it."
+    },
+    {
+     "who": "B",
+     "hu": "Köszi! Mondták már, mi a baj a lifttel?",
+     "ru": "Спасибо! Уже сказали, что с лифтом?",
+     "en": "Thanks! Has anyone said what is wrong with the lift?"
+    },
+    {
+     "who": "A",
+     "hu": "A szomszéd néni szerint két napig így lesz.",
+     "ru": "Соседка говорит, так будет два дня.",
+     "en": "The neighbour says it will be like this for two days."
+    },
+    {
+     "who": "B",
+     "hu": "Két nap? Jaj! Szóltak valamit?",
+     "ru": "Два дня? Ой! Что-нибудь сказали?",
+     "en": "Two days? Oh no! Did they say anything?"
+    },
+    {
+     "who": "A",
+     "hu": "Nem, csak egy papír van az ajtón.",
+     "ru": "Нет, только бумажка на двери.",
+     "en": "No, just a note on the door."
+    },
+    {
+     "who": "B",
+     "hu": "És mi áll a papíron, azt tudod?",
+     "ru": "А что написано на бумажке, знаешь?",
+     "en": "And what does the note say, do you know?"
+    },
+    {
+     "who": "A",
+     "hu": "Csak annyi, hogy szerdán javítják. Addig marad a lépcső, ez van.",
+     "ru": "Только то, что починят в среду. А пока остаётся лестница, ничего не поделаешь.",
+     "en": "Only that they will fix it on Wednesday. Until then it is the stairs, that is how it is."
+    },
+    {
+     "who": "B",
+     "hu": "Szerdán? Hát, legalább nem magasan lakunk!",
+     "ru": "В среду? Ну, хорошо хоть мы живём не высоко!",
+     "en": "Wednesday? Well, at least we do not live high up!"
+    },
+    {
+     "who": "A",
+     "hu": "Igaz! Tegnap a szomszéd néni két nehéz táskát vitt fel.",
+     "ru": "Верно! Вчера соседка несла наверх две тяжёлые сумки.",
+     "en": "True! Yesterday the neighbour carried two heavy bags up."
+    },
+    {
+     "who": "B",
+     "hu": "Szegény! Majd segítek neki. Mindenesetre köszi. Én megyek, mert késő van.",
+     "ru": "Бедняжка! Я ей помогу. Во всяком случае, спасибо. Я пошёл, уже поздно.",
+     "en": "Poor thing! I will help her. Anyway, thanks. I am off, it is late."
+    },
+    {
+     "who": "A",
+     "hu": "Jó, akkor szia! Mindjárt hozom a friss kenyeret.",
+     "ru": "Ладно, пока! Скоро принесу свежий хлеб.",
+     "en": "OK, bye! I will bring the fresh bread soon."
+    }
+   ]
+  ]
+ },
+ "dialogues": [
+  {
+   "slug": "keses",
+   "title": {
+    "ru": "Опоздание",
+    "en": "Running late"
+   },
+   "scene": {
+    "ru": "Друг ждёт друга, тот звонит с дороги.",
+    "en": "A friend waits; the other calls from the road."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Hol vagy már? Fél órája várlak!",
+     "ru": "Ты где уже? Я жду полчаса!",
+     "en": "Where are you? I have waited half an hour!"
+    },
+    {
+     "who": "B",
+     "hu": "Bocsi, bocsi! Késni fogok, mert nem jött a busz.",
+     "ru": "Прости, прости! Опоздаю, потому что автобус не пришёл.",
+     "en": "Sorry, sorry! I will be late because the bus did not show up."
+    },
+    {
+     "who": "A",
+     "hu": "Tényleg? Szóval otthon vagy még?",
+     "ru": "Правда? То есть ты ещё дома?",
+     "en": "Really? So you are still at home?"
+    },
+    {
+     "who": "B",
+     "hu": "Nem, az utcán állok, viszont a busz nem jött.",
+     "ru": "Нет, стою на улице, но автобус не пришёл.",
+     "en": "No, I am standing in the street, but the bus did not come."
+    },
+    {
+     "who": "A",
+     "hu": "Akkor miért nem szóltál?",
+     "ru": "Тогда почему не сказал?",
+     "en": "Then why did you not tell me?"
+    },
+    {
+     "who": "B",
+     "hu": "Mert nem volt nálam a telefon. Ezért hívlak egy boltból.",
+     "ru": "Потому что телефона не было с собой. Поэтому звоню из магазина.",
+     "en": "Because I did not have my phone. That is why I am calling from a shop."
+    },
+    {
+     "who": "A",
+     "hu": "Jó, nyugi. Majd iszunk egy kávét, ha jössz.",
+     "ru": "Ладно, спокойно. Выпьем кофе, когда придёшь.",
+     "en": "Okay, relax. We will have a coffee when you come."
+    },
+    {
+     "who": "B",
+     "hu": "Köszi! Tíz perc, és ott vagyok.",
+     "ru": "Спасибо! Десять минут, и я там.",
+     "en": "Thanks! Ten minutes and I am there."
+    }
+   ]
+  },
+  {
+   "slug": "telefonvalasztas",
+   "title": {
+    "ru": "Какой телефон",
+    "en": "Which phone"
+   },
+   "scene": {
+    "ru": "Двое друзей в магазине электроники.",
+    "en": "Two friends in an electronics shop."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Szóval ezt a kéket veszed?",
+     "ru": "Значит, берёшь этот синий?",
+     "en": "So you are taking this blue one?"
+    },
+    {
+     "who": "B",
+     "hu": "Igen, mert ez olcsóbb, és szép is.",
+     "ru": "Да, потому что он дешевле и красивый.",
+     "en": "Yes, because it is cheaper and nice too."
+    },
+    {
+     "who": "A",
+     "hu": "De a másik jobb, hiszen nagyobb a kamera.",
+     "ru": "Но другой лучше, ведь камера больше.",
+     "en": "But the other is better, since the camera is bigger."
+    },
+    {
+     "who": "B",
+     "hu": "Tudom, viszont nekem a pénz is számít.",
+     "ru": "Знаю, зато для меня и деньги важны.",
+     "en": "I know, but money matters to me too."
+    },
+    {
+     "who": "A",
+     "hu": "Hát, igaz. Bár a kamera fontos lenne.",
+     "ru": "Ну, верно. Хотя камера была бы важна.",
+     "en": "Well, true. Although the camera would matter."
+    },
+    {
+     "who": "B",
+     "hu": "Nem annyira. Amúgy sem csinálok sok képet.",
+     "ru": "Не так уж. Я вообще мало снимаю.",
+     "en": "Not so much. I hardly take many pictures anyway."
+    },
+    {
+     "who": "A",
+     "hu": "Akkor rendben, vedd a kéket.",
+     "ru": "Тогда ладно, бери синий.",
+     "en": "Then fine, take the blue one."
+    },
+    {
+     "who": "B",
+     "hu": "Szuper. Megyek is a pénztárhoz.",
+     "ru": "Супер. Иду на кассу.",
+     "en": "Great. I will go to the checkout."
+    }
+   ]
+  },
+  {
+   "slug": "vonat-vagy-auto",
+   "title": {
+    "ru": "Поезд или машина",
+    "en": "Train or car"
+   },
+   "scene": {
+    "ru": "Брат и сестра планируют поездку.",
+    "en": "A brother and sister plan a trip."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Vonattal menjünk, vagy autóval?",
+     "ru": "Поедем поездом или на машине?",
+     "en": "Shall we go by train or by car?"
+    },
+    {
+     "who": "B",
+     "hu": "Autóval, mert a vonat későn indul.",
+     "ru": "На машине, потому что поезд уходит поздно.",
+     "en": "By car, because the train leaves late."
+    },
+    {
+     "who": "A",
+     "hu": "De az autó drága, ugye? Sok pénz megy el.",
+     "ru": "Но машина дорогая, да? Много денег уходит.",
+     "en": "But the car is expensive, right? A lot of money goes."
+    },
+    {
+     "who": "B",
+     "hu": "Viszont a vonat is drága, főleg négyen.",
+     "ru": "Зато и поезд дорогой, особенно вчетвером.",
+     "en": "But the train is expensive too, especially for four."
+    },
+    {
+     "who": "A",
+     "hu": "Hát, ez igaz. Ráadásul sok a csomag.",
+     "ru": "Ну, это верно. К тому же много багажа.",
+     "en": "Well, true. And there is a lot of luggage."
+    },
+    {
+     "who": "B",
+     "hu": "Akkor autóval megyünk?",
+     "ru": "Значит, едем на машине?",
+     "en": "So we are going by car?"
+    },
+    {
+     "who": "A",
+     "hu": "Jó, de te vezetsz, mert én fáradt vagyok.",
+     "ru": "Ладно, но ведёшь ты, потому что я устала.",
+     "en": "Okay, but you drive, because I am tired."
+    },
+    {
+     "who": "B",
+     "hu": "Rendben, nyugi. Majd eszünk valamit útközben.",
+     "ru": "Хорошо, спокойно. По дороге что-нибудь поедим.",
+     "en": "All right, relax. We will eat something on the way."
+    }
+   ]
+  },
+  {
+   "slug": "kulcs",
+   "title": {
+    "ru": "Ключ",
+    "en": "The key"
+   },
+   "scene": {
+    "ru": "Подруга рассказывает, как не попала домой.",
+    "en": "A friend tells how she could not get home."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Képzeld, tegnap nem volt kulcsom, és kint álltam!",
+     "ru": "Представь, вчера у меня не было ключа, и я стояла на улице!",
+     "en": "Guess what, yesterday I had no key and stood outside!"
+    },
+    {
+     "who": "B",
+     "hu": "Jaj, ne! Elveszett a kulcs?",
+     "ru": "Ой, нет! Ключ потерялся?",
+     "en": "Oh no! Did you lose the key?"
+    },
+    {
+     "who": "A",
+     "hu": "Először azt hittem. Aztán eszembe jutott a szomszéd.",
+     "ru": "Сначала я так думала. Потом вспомнила про соседа.",
+     "en": "At first I thought so. Then I remembered the neighbour."
+    },
+    {
+     "who": "B",
+     "hu": "Miért, nála volt a kulcs?",
+     "ru": "А что, ключ был у него?",
+     "en": "Why, did he have the key?"
+    },
+    {
+     "who": "A",
+     "hu": "Igen, mert a múlt héten nála hagytam.",
+     "ru": "Да, потому что на прошлой неделе я оставила его у него.",
+     "en": "Yes, because last week I left it with him."
+    },
+    {
+     "who": "B",
+     "hu": "Hűha! Szóval végül megvan a kulcs?",
+     "ru": "Ух ты! Значит, ключ в итоге нашёлся?",
+     "en": "Wow! So you have the key after all?"
+    },
+    {
+     "who": "A",
+     "hu": "Persze, csak sokáig vártam, mert nem volt otthon.",
+     "ru": "Конечно, только долго ждала, ведь его не было дома.",
+     "en": "Sure, I only waited long, since he was not home."
+    },
+    {
+     "who": "B",
+     "hu": "Hát, amúgy jó, hogy van ilyen szomszéd.",
+     "ru": "Ну, вообще хорошо, что есть такой сосед.",
+     "en": "Well, anyway, it is good to have a neighbour like that."
+    }
+   ]
+  },
+  {
+   "slug": "szoval-mi-lett",
+   "title": {
+    "ru": "Ну и что вышло",
+    "en": "So what happened"
+   },
+   "scene": {
+    "ru": "Друг спрашивает про вчерашний экзамен.",
+    "en": "A friend asks about yesterday's exam."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Na, szóval mi lett? Sikerült a vizsga?",
+     "ru": "Ну, так что вышло? Экзамен сдан?",
+     "en": "Well, so what happened? Did the exam go well?"
+    },
+    {
+     "who": "B",
+     "hu": "Hát, nem tudom még. Holnap lesz eredmény.",
+     "ru": "Ну, ещё не знаю. Завтра будет результат.",
+     "en": "Well, I do not know yet. The result comes tomorrow."
+    },
+    {
+     "who": "A",
+     "hu": "Jaj, de hogy ment? Szerinted?",
+     "ru": "Ой, а как прошло? По-твоему?",
+     "en": "Oh, but how did it go? In your view?"
+    },
+    {
+     "who": "B",
+     "hu": "Egy része jó volt, a másik viszont nehéz.",
+     "ru": "Одна часть была хорошая, другая зато трудная.",
+     "en": "One part was good, the other however was hard."
+    },
+    {
+     "who": "A",
+     "hu": "Akkor nem rossz, ugye?",
+     "ru": "Значит, неплохо, да?",
+     "en": "So not bad, right?"
+    },
+    {
+     "who": "B",
+     "hu": "Remélem. Sokat tanultam, szóval talán jó lesz.",
+     "ru": "Надеюсь. Я много учился, так что, может, будет хорошо.",
+     "en": "I hope so. I studied a lot, so maybe it will be fine."
+    },
+    {
+     "who": "A",
+     "hu": "Biztos jó lesz! Ha nem, akkor is iszunk valamit.",
+     "ru": "Точно будет хорошо! А если нет, всё равно выпьем.",
+     "en": "It will be good! If not, we will still have a drink."
+    },
+    {
+     "who": "B",
+     "hu": "Persze, inni mindig lehet.",
+     "ru": "Ещё бы, выпить всегда можно.",
+     "en": "Sure, there is always time for a drink."
+    }
+   ]
+  },
+  {
+   "slug": "hivatal",
+   "title": {
+    "ru": "В учреждении",
+    "en": "At the office"
+   },
+   "scene": {
+    "ru": "Посетитель просит чиновницу, ей лет пятьдесят.",
+    "en": "A visitor asks an official."
+   },
+   "names": [],
+   "checked": "ai",
+   "turns": [
+    {
+     "who": "A",
+     "hu": "Jó napot kívánok! Elnézést, egy kérdésem lenne.",
+     "ru": "Добрый день! Извините, у меня вопрос.",
+     "en": "Good day! Excuse me, I have a question."
+    },
+    {
+     "who": "B",
+     "hu": "Tessék, mondja.",
+     "ru": "Пожалуйста, говорите.",
+     "en": "Please, go ahead."
+    },
+    {
+     "who": "A",
+     "hu": "Szóval új igazolvány kell nekem, ezért jöttem.",
+     "ru": "Так вот, мне нужен новый документ, поэтому пришёл.",
+     "en": "So I need a new ID, that is why I came."
+    },
+    {
+     "who": "B",
+     "hu": "Értem. Van időpontja?",
+     "ru": "Понимаю. У вас есть запись?",
+     "en": "I see. Do you have an appointment?"
+    },
+    {
+     "who": "A",
+     "hu": "Sajnos nincs, mert nem tudtam. Esetleg most is lehet?",
+     "ru": "К сожалению нет, я не знал. Может, сейчас можно?",
+     "en": "Unfortunately not, I did not know. Could it be done now?"
+    },
+    {
+     "who": "B",
+     "hu": "Hát, ma sok az ember. Holnap reggel viszont van hely.",
+     "ru": "Ну, сегодня много людей. Зато завтра утром есть место.",
+     "en": "Well, there are many people today. Tomorrow morning however there is room."
+    },
+    {
+     "who": "A",
+     "hu": "Köszönöm szépen. Akkor holnap jövök, ha jó így.",
+     "ru": "Большое спасибо. Тогда приду завтра, если так нормально.",
+     "en": "Thank you very much. Then I will come tomorrow, if that is fine."
+    },
+    {
+     "who": "B",
+     "hu": "Jó, akkor holnap. Viszontlátásra!",
+     "ru": "Хорошо, значит, завтра. До свидания!",
+     "en": "OK, so tomorrow. Goodbye!"
+    }
+   ]
+  }
+ ]
+}

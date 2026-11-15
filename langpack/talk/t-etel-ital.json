@@ -1,0 +1,595 @@
+{
+  "talk": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "Гуляш с папой",
+      "en": "Goulash with Dad"
+    },
+    "names": [
+      "Dóri"
+    ],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Dóri, gyere ide! Segíts egy kicsit.",
+          "ru": "Дори, иди сюда! Помоги немного.",
+          "en": "Dóri, come here! Help me a bit."
+        },
+        {
+          "who": "B",
+          "hu": "Jövök! Mit főzünk ma, Apa?",
+          "ru": "Иду! Что мы сегодня готовим, папа?",
+          "en": "Coming! What are we cooking today, Dad?"
+        },
+        {
+          "who": "A",
+          "hu": "Gulyást. Itt a marha, vágd fel szépen.",
+          "ru": "Гуляш. Вот говядина, красиво нарежь.",
+          "en": "Goulash. Here is the beef, cut it up nicely."
+        },
+        {
+          "who": "B",
+          "hu": "Így jó? Nem túl nagy?",
+          "ru": "Так хорошо? Не слишком крупно?",
+          "en": "Like this? Not too big?"
+        },
+        {
+          "who": "A",
+          "hu": "Kicsit kisebb. Na, így már jó.",
+          "ru": "Чуть мельче. Ну вот, так уже хорошо.",
+          "en": "A bit smaller. There, now that is good."
+        },
+        {
+          "who": "B",
+          "hu": "Hú, de jó illata van!",
+          "ru": "Ух, как вкусно пахнет!",
+          "en": "Wow, it smells so good!"
+        },
+        {
+          "who": "A",
+          "hu": "Még nincs kész. Egy óra múlva eszünk.",
+          "ru": "Ещё не готово. Через час будем есть.",
+          "en": "It is not ready yet. We will eat in an hour."
+        },
+        {
+          "who": "B",
+          "hu": "Egy óra? Én már most éhes vagyok.",
+          "ru": "Час? А я уже сейчас голодная.",
+          "en": "An hour? I am hungry already."
+        },
+        {
+          "who": "A",
+          "hu": "Tessék, egy zsemle. Addig edd ezt.",
+          "ru": "Вот булочка. Пока съешь это.",
+          "en": "Here, a roll. Eat this until then."
+        },
+        {
+          "who": "B",
+          "hu": "Köszi! Mehet bele egy kis savanyú káposzta?",
+          "ru": "Спасибо! А можно туда немного квашеной капусты?",
+          "en": "Thanks! Can some pickled cabbage go in?"
+        },
+        {
+          "who": "A",
+          "hu": "Dehogy! Az a gulyásba nem kell.",
+          "ru": "Что ты! В гуляш это не надо.",
+          "en": "No way! That does not belong in goulash."
+        },
+        {
+          "who": "B",
+          "hu": "Jó, jó. És gomba? Mehet bele gomba?",
+          "ru": "Ладно, ладно. А грибы? Грибы можно?",
+          "en": "All right, all right. And mushrooms? Can mushrooms go in?"
+        },
+        {
+          "who": "A",
+          "hu": "Persze, a gomba mehet. Add ide a tányért.",
+          "ru": "Конечно, грибы можно. Давай сюда тарелку.",
+          "en": "Sure, mushrooms can go in. Hand me the plate."
+        },
+        {
+          "who": "B",
+          "hu": "Tessék. Nagyi is így főzi?",
+          "ru": "Вот. Бабушка тоже так готовит?",
+          "en": "Here. Does Grandma cook it like this too?"
+        },
+        {
+          "who": "A",
+          "hu": "Ő még szalonnát is tesz bele.",
+          "ru": "Она ещё и сало кладёт.",
+          "en": "She even puts bacon in it."
+        },
+        {
+          "who": "B",
+          "hu": "Szalonnát? Azt most hagyjuk, jó?",
+          "ru": "Сало? Это сейчас оставим, ладно?",
+          "en": "Bacon? Let us leave that out for now, okay?"
+        },
+        {
+          "who": "A",
+          "hu": "Rendben. Na, egyél belőle! Szerinted elég sós, vagy kell még?",
+          "ru": "Ладно. Ну, попробуй! По-твоему, достаточно солёно, или ещё надо?",
+          "en": "Fine. Well, try it! Is it salty enough?"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, nekem még kicsit kevés.",
+          "ru": "Ну, мне пока маловато.",
+          "en": "Well, to me it is still a little bland."
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg? Akkor tegyél bele egy kicsit.",
+          "ru": "Правда? Тогда добавь чуть-чуть.",
+          "en": "Really? Then put in a little."
+        },
+        {
+          "who": "B",
+          "hu": "Most már jó. És mi lesz még mellé?",
+          "ru": "Теперь хорошо. А что будет к нему ещё?",
+          "en": "Now it is good. And what else goes with it?"
+        },
+        {
+          "who": "A",
+          "hu": "Savanyú uborka és friss kenyér. Hozd a kenyeret!",
+          "ru": "Солёные огурцы и свежий хлеб. Принеси хлеб!",
+          "en": "Pickles and fresh bread. Bring the bowl!"
+        },
+        {
+          "who": "B",
+          "hu": "Itt van a kenyér. Mikor lesz kész?",
+          "ru": "Вот хлеб. Когда будет готово?",
+          "en": "Here is the bread. When will it be ready?"
+        },
+        {
+          "who": "A",
+          "hu": "Mindjárt. Hívd anyát is!",
+          "ru": "Скоро. Позови и маму!",
+          "en": "Soon. Call Mum too!"
+        },
+        {
+          "who": "B",
+          "hu": "Anya, gyere! Kész a gulyás!",
+          "ru": "Мама, иди! Гуляш готов!",
+          "en": "Mom, come! The goulash is ready!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "piaci-meggy",
+      "title": {
+        "ru": "Meggy vagy cseresznye?",
+        "en": "Sour cherry or sweet cherry?"
+      },
+      "scene": {
+        "ru": "На рынке у прилавка с фруктами.",
+        "en": "At a fruit stall at the market."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Milyen a meggy?",
+          "ru": "Добрый день! Какая у вас вишня?",
+          "en": "Good day! How is the sour cherry?"
+        },
+        {
+          "who": "B",
+          "hu": "Nagyon finom, friss. Próbálja ki, kérem!",
+          "ru": "Очень вкусная, свежая. Попробуйте!",
+          "en": "Very tasty, fresh. Try it!"
+        },
+        {
+          "who": "A",
+          "hu": "Hú, de savanyú! Ezt én nem eszem meg.",
+          "ru": "Ух, какая кислая! Это я не съем.",
+          "en": "Wow, so sour! I will not eat this."
+        },
+        {
+          "who": "B",
+          "hu": "Hát, ez meggy. Nem cseresznye, kérem.",
+          "ru": "Ну, это вишня. Не черешня, знаете.",
+          "en": "Well, it is sour cherry. Not a sweet cherry, you know."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, tényleg. Van cseresznye is?",
+          "ru": "Ой, точно. А черешня у вас есть?",
+          "en": "Oh, right. Do you have sweet cherries too?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze, itt. Ez édes és nagyon érett.",
+          "ru": "Конечно, вот. Эта сладкая и очень спелая.",
+          "en": "Of course, here. This one is sweet and very ripe."
+        },
+        {
+          "who": "A",
+          "hu": "Ez már más! Egy kilót kérek.",
+          "ru": "Это другое дело! Килограмм, пожалуйста.",
+          "en": "That is better! A kilo please."
+        },
+        {
+          "who": "B",
+          "hu": "Tessék. Ezer forint lesz.",
+          "ru": "Пожалуйста. Будет тысяча форинтов.",
+          "en": "Here you are. That is a thousand forints."
+        },
+        {
+          "who": "A",
+          "hu": "Tessék. Köszönöm, viszlát!",
+          "ru": "Вот. Спасибо, до свидания!",
+          "en": "Here. Thank you, goodbye!"
+        }
+      ]
+    },
+    {
+      "slug": "pekseg-nincs-tobb",
+      "title": {
+        "ru": "Nincs több zsemle",
+        "en": "No more rolls"
+      },
+      "scene": {
+        "ru": "В пекарне, очередь, спешка.",
+        "en": "In a bakery, a queue, in a hurry."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, négy zsemlét kérek. Sietek.",
+          "ru": "Извините, четыре булочки, пожалуйста. Я спешу.",
+          "en": "Excuse me, four rolls please. I am in a hurry."
+        },
+        {
+          "who": "B",
+          "hu": "Sajnos nincs több zsemle, csak keksz.",
+          "ru": "К сожалению, булочек больше нет, только печенье.",
+          "en": "Sorry, no more rolls, only biscuits."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, nem! Egy sem maradt?",
+          "ru": "Ой, нет! Ни одной не осталось?",
+          "en": "Oh no! Not a single one left?"
+        },
+        {
+          "who": "B",
+          "hu": "Várjon egy percet, hátul még van.",
+          "ru": "Подождите минутку, сзади ещё есть.",
+          "en": "Wait a minute, there are some more in the back."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper, köszönöm! Még meleg?",
+          "ru": "Супер, спасибо! Ещё тёплые?",
+          "en": "Great, thanks! Are they still warm?"
+        },
+        {
+          "who": "B",
+          "hu": "Éppen most jöttek ki. Kér még valamit?",
+          "ru": "Только что из печи. Что-нибудь ещё?",
+          "en": "They just came out. Anything else?"
+        },
+        {
+          "who": "A",
+          "hu": "Egy kis kekszet is kérek még hozzá.",
+          "ru": "И немного печенья, пожалуйста.",
+          "en": "And a few biscuits too, please."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. Ez együtt ezer forint lesz.",
+          "ru": "Хорошо. Это вместе будет тысяча форинтов.",
+          "en": "All right. That will be a thousand forints together."
+        },
+        {
+          "who": "A",
+          "hu": "Tessék. Köszönöm, szép napot!",
+          "ru": "Вот. Спасибо, хорошего дня!",
+          "en": "Here. Thank you, have a nice day!"
+        }
+      ]
+    },
+    {
+      "slug": "kavezo-rossz-kave",
+      "title": {
+        "ru": "Nem ezt kértem",
+        "en": "Not what I ordered"
+      },
+      "scene": {
+        "ru": "В кафе, официант и гость.",
+        "en": "In a café, a waiter and a guest."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, ez nem az, amit kértem.",
+          "ru": "Извините, это не то, что я просил.",
+          "en": "Excuse me, this is not what I asked for."
+        },
+        {
+          "who": "B",
+          "hu": "Nem fekete kávét kért?",
+          "ru": "Вы не чёрный кофе просили?",
+          "en": "Did you not ask for black coffee?"
+        },
+        {
+          "who": "A",
+          "hu": "De, feketét. Ebben viszont van tej.",
+          "ru": "Да, чёрный. Но в нём молоко.",
+          "en": "Yes, black. But this one has milk in it."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, bocsánat! Mindjárt hozom a másikat.",
+          "ru": "Ой, простите! Сейчас принесу другой.",
+          "en": "Oh, sorry! I will bring the other one right away."
+        },
+        {
+          "who": "A",
+          "hu": "Semmi gond, nem sietek.",
+          "ru": "Ничего, я не спешу.",
+          "en": "No problem, I am not in a hurry."
+        },
+        {
+          "who": "B",
+          "hu": "Köszönöm. Kér hozzá egy kis kekszet?",
+          "ru": "Спасибо. Хотите к нему немного печенья?",
+          "en": "Thank you. Would you like a few biscuits with it?"
+        },
+        {
+          "who": "A",
+          "hu": "Aha, jöhet. Akkor mennyi lesz összesen?",
+          "ru": "Ага, давайте. Сколько будет всего?",
+          "en": "Aha, sure. How much will it be in all?"
+        },
+        {
+          "who": "B",
+          "hu": "Semmi. Ez a kávé a ház ajándéka.",
+          "ru": "Ничего. Этот кофе за счёт заведения.",
+          "en": "Nothing. This coffee is on the house."
+        },
+        {
+          "who": "A",
+          "hu": "Nahát, ez nagyon kedves! Köszönöm.",
+          "ru": "Ого, это очень любезно! Спасибо.",
+          "en": "Well, that is very kind! Thank you."
+        }
+      ]
+    },
+    {
+      "slug": "ebed-spenot",
+      "title": {
+        "ru": "Egy kanál spenót",
+        "en": "One spoonful of spinach"
+      },
+      "scene": {
+        "ru": "Дома за обедом, мама и сын.",
+        "en": "At lunch at home, a mother and her son."
+      },
+      "names": [
+        "Peti"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Peti, edd meg a spenótot!",
+          "ru": "Пети, съешь шпинат!",
+          "en": "Peti, eat your spinach!"
+        },
+        {
+          "who": "B",
+          "hu": "Nem szeretem. Nagyon keserű.",
+          "ru": "Не люблю. Он очень горький.",
+          "en": "I do not like it. It is very bitter."
+        },
+        {
+          "who": "A",
+          "hu": "Nem keserű. Edd meg egyszer, hátha jó lesz!",
+          "ru": "Он не горький. Попробуй один раз!",
+          "en": "It is not bitter. Try it once!"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, ez nem finom, anya.",
+          "ru": "Ну... невкусно, мама.",
+          "en": "Well, this is not tasty, Mum."
+        },
+        {
+          "who": "A",
+          "hu": "Csak egy kanállal. Aztán jön a virsli.",
+          "ru": "Всего ложку. Потом будет сосиска.",
+          "en": "Just one spoonful. Then comes the sausage."
+        },
+        {
+          "who": "B",
+          "hu": "És kakaó is lesz utána?",
+          "ru": "А после этого какао тоже будет?",
+          "en": "And will there be cocoa after that?"
+        },
+        {
+          "who": "A",
+          "hu": "Ha eszel spenótot, lesz kakaó.",
+          "ru": "Если съешь шпинат, будет какао.",
+          "en": "If you eat spinach, there will be cocoa."
+        },
+        {
+          "who": "B",
+          "hu": "Jó, de csak egy kanállal.",
+          "ru": "Ладно, но только одну ложку.",
+          "en": "Fine, but only one spoonful."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben. Na, milyen?",
+          "ru": "Хорошо. Ну, какой?",
+          "en": "Agreed. Well, how is it?"
+        },
+        {
+          "who": "B",
+          "hu": "Hú, ez nem is olyan rossz!",
+          "ru": "Ух, он не такой уж плохой!",
+          "en": "Wow, it is not that bad!"
+        }
+      ]
+    },
+    {
+      "slug": "vacsora-meghivas",
+      "title": {
+        "ru": "Vacsora Eszternél",
+        "en": "Dinner at Eszter's"
+      },
+      "scene": {
+        "ru": "Ужин в гостях, друзья на «ты».",
+        "en": "Dinner at a friend's home, friends on first-name terms."
+      },
+      "names": [
+        "Eszter"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Sziasztok! Hoztam egy üveg bort.",
+          "ru": "Всем привет! Я принёс бутылку вина.",
+          "en": "Hi all! I brought a bottle of wine."
+        },
+        {
+          "who": "B",
+          "hu": "Nahát, köszi! Gyere be, ülj le.",
+          "ru": "Ого, спасибо! Проходи, садись.",
+          "en": "Well, thanks! Come in, sit down."
+        },
+        {
+          "who": "A",
+          "hu": "Hú, de jó illata van, Eszter!",
+          "ru": "Ух, как вкусно пахнет, Эстер!",
+          "en": "Wow, it smells so good, Eszter!"
+        },
+        {
+          "who": "B",
+          "hu": "Töltött káposzta. Tölts magadnak bort!",
+          "ru": "Голубцы. Налей себе вина!",
+          "en": "Stuffed cabbage. Pour yourself some wine!"
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm. Neked is töltök egy kicsit?",
+          "ru": "Спасибо. Тебе тоже налить чуть-чуть?",
+          "en": "Thanks. Shall I pour you a little too?"
+        },
+        {
+          "who": "B",
+          "hu": "Egy kicsit, igen. Aztán együnk!",
+          "ru": "Чуть-чуть, да. А потом давай есть!",
+          "en": "A little, yes. Then let us eat!"
+        },
+        {
+          "who": "A",
+          "hu": "Ez nagyon finom! Mi van benne?",
+          "ru": "Очень вкусно! Что в нём?",
+          "en": "This is very tasty! What is in it?"
+        },
+        {
+          "who": "B",
+          "hu": "Hús, rizs és egy kis szalonna.",
+          "ru": "Мясо, рис и немного сала.",
+          "en": "Meat, rice and a little bacon."
+        },
+        {
+          "who": "A",
+          "hu": "Elküldöd majd a receptet?",
+          "ru": "Пришлёшь потом рецепт?",
+          "en": "Will you send me the recipe?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze, majd elküldöm neked.",
+          "ru": "Конечно, потом отправлю тебе.",
+          "en": "Sure, I will send it to you later."
+        }
+      ]
+    },
+    {
+      "slug": "piknik-kes",
+      "title": {
+        "ru": "Hol a kés?",
+        "en": "Where is the knife?"
+      },
+      "scene": {
+        "ru": "Пикник в парке, трое друзей.",
+        "en": "A picnic in the park, three friends."
+      },
+      "names": [
+        "Bence"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Na, vágjuk fel a dinnyét. Hol a kés?",
+          "ru": "Ну, режем арбуз. Где нож?",
+          "en": "Well, let us cut the melon. Where is the knife?"
+        },
+        {
+          "who": "B",
+          "hu": "Izé, én azt nem hoztam.",
+          "ru": "Это самое, я его не взял.",
+          "en": "Um, I did not bring that."
+        },
+        {
+          "who": "A",
+          "hu": "Bence, te hoztad a kaját!",
+          "ru": "Бенце, еду ведь ты брал!",
+          "en": "Bence, you brought the food!"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, de a kést otthon hagytam az asztalon.",
+          "ru": "Да, но нож оставил дома.",
+          "en": "Yes, but I left the knife at home."
+        },
+        {
+          "who": "C",
+          "hu": "Nyugi, nekem van egy kicsi a táskában.",
+          "ru": "Спокойно, у меня есть маленький в сумке.",
+          "en": "Relax, I have a small one in my bag."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper! Vágd fel, én fogom a dinnyét.",
+          "ru": "Супер! Режь, а я подержу арбуз.",
+          "en": "Great! Cut it, I will hold the melon."
+        },
+        {
+          "who": "B",
+          "hu": "Van keksz és szalámi is, nem sok.",
+          "ru": "Есть ещё печенье и салями, не много.",
+          "en": "There are biscuits and salami too, not much."
+        },
+        {
+          "who": "C",
+          "hu": "Jó, ez egy kis ebédnek elég lesz.",
+          "ru": "Ладно, для небольшого обеда хватит.",
+          "en": "Fine, that will be enough for a small lunch."
+        },
+        {
+          "who": "A",
+          "hu": "Király, akkor kezdjük! Kérsz dinnyét?",
+          "ru": "Круто, тогда начнём! Хочешь арбуз?",
+          "en": "Awesome, then let us start! Want some melon?"
+        }
+      ]
+    }
+  ]
+}

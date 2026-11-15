@@ -818,15 +818,29 @@ export type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
  */
 export interface LibrarySet {
   code: string
+  /** Course unit (or theme) code; texts of one unit share it. */
+  unit?: string
   level: 'A1' | 'A2' | 'B1'
   track: 'core' | 'theme' | 'dialogue'
+  /** 'colloquial' = spoken, informal language; absent counts as standard. */
+  register?: 'standard' | 'colloquial'
   title: string
   titleRu: string
   titleEn: string
   theme: string
+  /** One-line situation of a mini-dialogue, in the UI locale (colloquial only). */
+  scene?: string
+  sceneRu?: string
+  sceneEn?: string
   sentences: number
   /** Written by an AI for the app, not checked by a native speaker: always labelled. */
   authored: boolean
+  /** short (`<unit>-dialogue`), medium (`<unit>`), long (`<unit>-long`), talk, mini (ADR-076). */
+  tier?: 'short' | 'medium' | 'long' | 'talk' | 'mini'
+  genre?: string
+  words?: number
+  /** Who vetted the text; 'ai' until a human does. Absent when unknown. */
+  checked?: string
   imported: boolean
   textId?: number
 }
@@ -836,18 +850,33 @@ export interface LibrarySetLine {
   hu: string
   ru?: string
   en?: string
+  /** Speaker of a dialogue turn, when the catalogue names one. */
+  who?: string
 }
 
 /** GET /api/library/sets/:code — the set as it would be imported, in order. */
 export interface LibrarySetDetail {
   code: string
+  /** Course unit (or theme) code; texts of one unit share it. */
+  unit?: string
   level: 'A1' | 'A2' | 'B1'
   track: 'core' | 'theme' | 'dialogue'
+  /** 'colloquial' = spoken, informal language; absent counts as standard. */
+  register?: 'standard' | 'colloquial'
   title: string
   titleRu: string
   titleEn: string
   theme: string
+  scene?: string
+  sceneRu?: string
+  sceneEn?: string
   authored: boolean
+  /** short (`<unit>-dialogue`), medium (`<unit>`), long (`<unit>-long`), talk, mini (ADR-076). */
+  tier?: 'short' | 'medium' | 'long' | 'talk' | 'mini'
+  genre?: string
+  words?: number
+  /** Who vetted the text; 'ai' until a human does. Absent when unknown. */
+  checked?: string
   sentences: LibrarySetLine[]
 }
 

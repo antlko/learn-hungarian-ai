@@ -1,0 +1,429 @@
+{
+ "short": {
+  "genre": "notice",
+  "checked": "ai",
+  "title": {
+   "ru": "Объявление о поездке класса",
+   "en": "A notice about the class trip"
+  },
+  "names": [
+   "Erika"
+  ],
+  "paras": [
+   [
+    {
+     "hu": "Kedves szülők!",
+     "ru": "Уважаемые родители!",
+     "en": "Dear parents!"
+    },
+    {
+     "hu": "A második osztály pénteken kirándulásra megy.",
+     "ru": "Второй класс в пятницу едет на экскурсию.",
+     "en": "The second class is going on a trip on Friday."
+    },
+    {
+     "hu": "A tanítónő, Erika néni, és az igazgató is megy a gyerekekkel.",
+     "ru": "Учительница, тётя Эрика, и директор тоже едут с детьми.",
+     "en": "The teacher, Erika néni, and the head teacher are going with the children too."
+    },
+    {
+     "hu": "A diákok reggel nyolckor jönnek az iskolába, és a tanteremben várnak.",
+     "ru": "Ученики приходят в школу в восемь утра и ждут в классе.",
+     "en": "The pupils come to school at eight in the morning and wait in the classroom."
+    },
+    {
+     "hu": "A kirándulás nem kötelező, de nagyon jó.",
+     "ru": "Поездка не обязательна, но очень хорошая.",
+     "en": "The trip is not compulsory, but it is very good."
+    }
+   ],
+   [
+    {
+     "hu": "Minden tanuló hoz ebédet és vizet egy táskában.",
+     "ru": "Каждый ученик берёт обед и воду в сумке.",
+     "en": "Every pupil brings lunch and water in a bag."
+    },
+    {
+     "hu": "Játék nem kell, mert a kiránduláson tilos.",
+     "ru": "Игрушки не нужны, на экскурсии они запрещены.",
+     "en": "No toys are needed, they are not allowed on the trip."
+    },
+    {
+     "hu": "Kérjük, írjanak egy kis üzenetet a füzetbe, ha a gyermek nem jön.",
+     "ru": "Просим написать записку в тетрадь, если ребёнок не едет.",
+     "en": "Please write a short message in the exercise book if the child is not coming."
+    },
+    {
+     "hu": "A kirándulás alatt a viselkedés nagyon fontos.",
+     "ru": "Во время поездки поведение очень важно.",
+     "en": "During the trip good behaviour is very important."
+    },
+    {
+     "hu": "A tanuló mindig a tanítónő mellett marad.",
+     "ru": "Ученик всегда остаётся рядом с учительницей.",
+     "en": "The pupil always stays next to the teacher."
+    },
+    {
+     "hu": "Köszönjük! Az igazgató",
+     "ru": "Спасибо! Директор",
+     "en": "Thank you! The head teacher"
+    }
+   ]
+  ]
+ },
+ "medium": {
+  "genre": "dialogue",
+  "checked": "ai",
+  "title": {
+   "ru": "У окошка в школе",
+   "en": "At the school office window"
+  },
+  "names": [
+   "Bence",
+   "Kovács",
+   "Erika",
+   "Anna"
+  ],
+  "paras": [
+   [
+    {
+     "hu": "Jó napot kívánok! Az iskolai felvétel miatt jöttem.",
+     "ru": "Добрый день! Я пришла по поводу приёма в школу.",
+     "en": "Good day! I came about the school admission."
+    },
+    {
+     "hu": "Jó napot! Tessék, üljön le. Hány éves a gyermek?",
+     "ru": "Добрый день! Прошу, садитесь. Сколько лет ребёнку?",
+     "en": "Good day! Please, sit down. How old is the child?"
+    },
+    {
+     "hu": "A fiam hét éves, Bencének hívják. Az idén megy iskolába, az első osztályba.",
+     "ru": "Моему сыну семь лет, его зовут Бенце. В этом году он идёт в школу, в первый класс.",
+     "en": "My son is seven years old, his name is Bence. This year he starts school, in the first class."
+    },
+    {
+     "hu": "Rendben. Van önnél dokumentum? A gyermek óvodába járt?",
+     "ru": "Хорошо. У вас есть документы? Ребёнок ходил в детский сад?",
+     "en": "All right. Do you have any documents? Did the child go to kindergarten?"
+    },
+    {
+     "hu": "Igen, három évig járt óvodába. Itt van az irat az óvodából és az igazolvány.",
+     "ru": "Да, три года ходил в детский сад. Вот бумага из детского сада и удостоверение.",
+     "en": "Yes, he went to kindergarten for three years. Here is the paper from the kindergarten and the ID."
+    },
+    {
+     "hu": "Köszönöm. Az iratról még egy másolat kell.",
+     "ru": "Спасибо. С бумаги нужна ещё копия.",
+     "en": "Thank you. I also need a copy of the paper."
+    },
+    {
+     "hu": "Itt a másolat is. De az irat oroszul van, nem magyarul.",
+     "ru": "Вот и копия. Но бумага на русском, а не на венгерском.",
+     "en": "Here is the copy too. But the paper is in Russian, not in Hungarian."
+    },
+    {
+     "hu": "Akkor kell a fordítás is. Van fordítás?",
+     "ru": "Тогда нужен и перевод. Перевод есть?",
+     "en": "Then the translation is needed too. Do you have one?"
+    },
+    {
+     "hu": "Persze, itt a fordítás, minden dokumentum kész.",
+     "ru": "Конечно, вот перевод, все документы готовы.",
+     "en": "Of course, here is the translation, all the documents are ready."
+    },
+    {
+     "hu": "Remek. Akkor az eljárás nem hosszú. Egy hét múlva ír az igazgató.",
+     "ru": "Отлично. Тогда процедура недолгая. Через неделю напишет директор.",
+     "en": "Great. Then the procedure is not long. The head teacher will write in a week."
+    },
+    {
+     "hu": "Mit mond a törvény? Kötelező, hogy Bence iskolába járjon?",
+     "ru": "Что говорит закон? Обязательно ли, чтобы Бенце ходил в школу?",
+     "en": "What does the law say? Is it compulsory for Bence to go to school?"
+    },
+    {
+     "hu": "Igen, minden gyermeknek joga és kötelessége is az iskola.",
+     "ru": "Да, для каждого ребёнка школа и право, и обязанность.",
+     "en": "Yes, for every child school is both a right and a duty."
+    },
+    {
+     "hu": "És mi a tanító neve? Melyik tantermet keressük?",
+     "ru": "А как зовут учителя? Какой класс нам искать?",
+     "en": "And what is the teacher's name? Which classroom do we look for?"
+    },
+    {
+     "hu": "A tanítónő neve Kovács Erika. A tanterem az első emeleten van.",
+     "ru": "Учительницу зовут Ковач Эрика. Класс находится на втором этаже.",
+     "en": "The teacher's name is Erika Kovács. The classroom is on the first floor."
+    },
+    {
+     "hu": "Kell tankönyv vagy füzet? Van támogatás is, ugye?",
+     "ru": "Нужны учебники или тетради? Ведь есть и пособие, да?",
+     "en": "Do we need textbooks or exercise books? There is a subsidy too, right?"
+    },
+    {
+     "hu": "A tankönyv ingyen van. A támogatásról az igazgató ír majd.",
+     "ru": "Учебники бесплатные. О пособии напишет директор.",
+     "en": "The textbooks are free. The head teacher will write about the subsidy."
+    },
+    {
+     "hu": "Hogyan tanul a gyermek, ha beteg? Ki tanítja ilyenkor?",
+     "ru": "Как учится ребёнок, если он болен? Кто его тогда учит?",
+     "en": "How does a child study when ill? Who teaches him then?"
+    },
+    {
+     "hu": "Az osztály tanítónője küld leckét, és a szülő is segít. Ez nem nehéz.",
+     "ru": "Классная учительница присылает задание, и родитель тоже помогает. Это нетрудно.",
+     "en": "The class teacher sends homework, and the parent helps too. It is not hard."
+    },
+    {
+     "hu": "Nagyon köszönöm a segítséget, minden rendben van. Viszontlátásra!",
+     "ru": "Большое спасибо за помощь, всё в порядке. Всего доброго!",
+     "en": "Thank you very much for the help, everything is fine. Goodbye!"
+    }
+   ]
+  ]
+ },
+ "long": {
+  "genre": "diary",
+  "checked": "ai",
+  "title": {
+   "ru": "Большой день в семье",
+   "en": "A big day in the family"
+  },
+  "names": [
+   "Zsófi",
+   "Bence",
+   "Zsolt",
+   "Kati",
+   "Erika"
+  ],
+  "paras": [
+   [
+    {
+     "hu": "Ma volt az új tanév első napja.",
+     "ru": "Сегодня был первый день нового учебного года.",
+     "en": "Today was the first day of the new school year."
+    },
+    {
+     "hu": "Bence már a második osztályba megy, Zsófi pedig az óvodába.",
+     "ru": "Бенце уже идёт во второй класс, а Жофи в детский сад.",
+     "en": "Bence is already going to the second class, and Zsófi to the kindergarten."
+    },
+    {
+     "hu": "Reggel mindenki nagyon korán felkelt.",
+     "ru": "Утром все встали очень рано.",
+     "en": "In the morning everyone got up very early."
+    },
+    {
+     "hu": "Zsófi nem akart enni, csak a táskát nézte.",
+     "ru": "Жофи не хотела есть, только смотрела на сумку.",
+     "en": "Zsófi did not want to eat, she only looked at her bag."
+    },
+    {
+     "hu": "Bence a tankönyvet, a füzetet és a tollat tette a táskába.",
+     "ru": "Бенце положил в сумку учебник, тетрадь и ручку.",
+     "en": "Bence put the textbook, the exercise book and the pen in his bag."
+    },
+    {
+     "hu": "Zsolt azt mondta, hogy ceruza is kell.",
+     "ru": "Жолт сказал, что нужен ещё и карандаш.",
+     "en": "Zsolt said that a pencil is needed too."
+    },
+    {
+     "hu": "Aztán mindenki jött, és mentünk az iskolába.",
+     "ru": "Потом все пошли, и мы отправились в школу.",
+     "en": "Then everyone came along, and we set off for the school."
+    }
+   ],
+   [
+    {
+     "hu": "Az iskola előtt sok diák és szülő várt.",
+     "ru": "Перед школой ждало много учеников и родителей.",
+     "en": "Many pupils and parents were waiting in front of the school."
+    },
+    {
+     "hu": "Az igazgató az ajtónál állt, és minden gyerekhez szólt.",
+     "ru": "Директор стоял у двери и говорил с каждым ребёнком.",
+     "en": "The head teacher stood at the door and spoke to every child."
+    },
+    {
+     "hu": "Erika néni, a tanítónő, a tanteremben várta Bencét.",
+     "ru": "Тётя Эрика, учительница, ждала Бенце в классе.",
+     "en": "Erika néni, the teacher, was waiting for Bence in the classroom."
+    },
+    {
+     "hu": "Az osztály nagyon vidám volt, mert az osztálytársak újra találkoztak.",
+     "ru": "Класс был очень весёлым, потому что одноклассники снова встретились.",
+     "en": "The class was very cheerful, because the classmates met again."
+    },
+    {
+     "hu": "Bence nem félt, csak sokat nézett körül.",
+     "ru": "Бенце не боялся, только много осматривался.",
+     "en": "Bence was not afraid, he only looked around a lot."
+    },
+    {
+     "hu": "Az első órán Erika néni mondott valamit a szabályokról.",
+     "ru": "На первом уроке тётя Эрика сказала что-то о правилах.",
+     "en": "In the first lesson Erika néni said something about the rules."
+    },
+    {
+     "hu": "A diák nem beszél az órán, és mindig figyel.",
+     "ru": "Ученик не разговаривает на уроке и всегда внимателен.",
+     "en": "A pupil does not talk in the lesson and always pays attention."
+    },
+    {
+     "hu": "Az első óra után volt az első szünet.",
+     "ru": "После первого урока была первая перемена.",
+     "en": "After the first lesson there was the first break."
+    },
+    {
+     "hu": "Bence olvasott, írt, és sokat kérdezett.",
+     "ru": "Бенце читал, писал и много спрашивал.",
+     "en": "Bence read, wrote and asked a lot of questions."
+    },
+    {
+     "hu": "Erika néni mindent jól magyarázott.",
+     "ru": "Тётя Эрика всё хорошо объяснила.",
+     "en": "Erika néni explained everything well."
+    },
+    {
+     "hu": "A tanító sok tantárgyat tanít, és a tanulók nagyon szeretnek tanulni.",
+     "ru": "Учитель преподаёт много предметов, и ученики очень любят учиться.",
+     "en": "The teacher teaches many subjects, and the pupils really like learning."
+    }
+   ],
+   [
+    {
+     "hu": "Zsófival az óvodába mentünk.",
+     "ru": "С Жофи мы пошли в детский сад.",
+     "en": "Zsófi and I went to the kindergarten."
+    },
+    {
+     "hu": "Az óvoda nem nagy, de nagyon szép.",
+     "ru": "Детский сад небольшой, но очень красивый.",
+     "en": "The kindergarten is not big, but very pretty."
+    },
+    {
+     "hu": "Az ajtónál az óvónő várt ránk.",
+     "ru": "У двери нас ждала воспитательница.",
+     "en": "At the door the kindergarten teacher was waiting for us."
+    },
+    {
+     "hu": "Jó napot kívánok, mondta, én Kati vagyok, Zsófi óvónője.",
+     "ru": "Добрый день, сказала она, я Кати, воспитательница Жофи.",
+     "en": "Good day, she said, I am Kati, Zsófi's teacher."
+    },
+    {
+     "hu": "A csoportban tíz gyerek volt, és mindenki játszott.",
+     "ru": "В группе было десять детей, и все играли.",
+     "en": "There were ten children in the group, and everyone was playing."
+    },
+    {
+     "hu": "Zsófi nem szólt semmit, csak fogta a kezem.",
+     "ru": "Жофи ничего не сказала, только держала меня за руку.",
+     "en": "Zsófi said nothing, she only held my hand."
+    },
+    {
+     "hu": "Kati megmutatta a játékot és Zsófi helyét.",
+     "ru": "Кати показала игрушку и место Жофи.",
+     "en": "Kati showed her the toy and Zsófi's place."
+    },
+    {
+     "hu": "A gyerekek délben ebédeltek, és utána rajzolni és énekelni kezdtek.",
+     "ru": "Дети в полдень обедали, а потом начали рисовать и петь.",
+     "en": "The children had lunch at noon, and then began to draw and sing."
+    },
+    {
+     "hu": "Nehéz volt elmenni, de Zsófi nem sírt.",
+     "ru": "Идти домой было трудно, но Жофи не плакала.",
+     "en": "It was hard to go home, but Zsófi did not cry."
+    }
+   ],
+   [
+    {
+     "hu": "Egykor az iskola előtt vártam Bencét.",
+     "ru": "В час дня я ждала Бенце перед школой.",
+     "en": "At one o'clock I waited for Bence in front of the school."
+    },
+    {
+     "hu": "Azt mondta, hogy az ebéd finom volt, és a tanító is kedves.",
+     "ru": "Он сказал, что обед был вкусным, и учительница тоже добрая.",
+     "en": "He said that the lunch was good, and the teacher is nice too."
+    },
+    {
+     "hu": "Délután Zsolt kétszer írt nekem az irodából.",
+     "ru": "После обеда Жолт дважды написал мне из офиса.",
+     "en": "In the afternoon Zsolt wrote to me twice from the office."
+    },
+    {
+     "hu": "Mit csinál Zsófi, kérdezte.",
+     "ru": "Что делает Жофи, спросил он.",
+     "en": "What is Zsófi doing, he asked."
+    },
+    {
+     "hu": "Három órakor mentem érte az óvodába.",
+     "ru": "В три часа я пошла за ней в детский сад.",
+     "en": "At three o'clock I went to pick her up at the kindergarten."
+    },
+    {
+     "hu": "A gyerekek a játszótéren voltak, és Zsófi futott hozzám.",
+     "ru": "Дети были на детской площадке, и Жофи побежала ко мне.",
+     "en": "The children were on the playground, and Zsófi ran to me."
+    },
+    {
+     "hu": "Kati azt mondta, hogy Zsófi nagyon jól játszott.",
+     "ru": "Кати сказала, что Жофи очень хорошо играла.",
+     "en": "Kati said that Zsófi played very well."
+    },
+    {
+     "hu": "Az óvónő sokat magyarázott, és Zsófi tudott figyelni.",
+     "ru": "Воспитательница много объясняла, и Жофи умела слушать.",
+     "en": "The teacher explained a lot, and Zsófi was able to pay attention."
+    },
+    {
+     "hu": "Egy szabály már megvan, a játszótérről nem szabad egyedül elmenni.",
+     "ru": "Одно правило уже есть, с площадки нельзя уходить одной.",
+     "en": "One rule is already clear, you must not leave the playground alone."
+    }
+   ],
+   [
+    {
+     "hu": "Este mindenki sokat beszélt.",
+     "ru": "Вечером все много рассказывали.",
+     "en": "In the evening everyone talked a lot."
+    },
+    {
+     "hu": "Bence azt mondta, hogy holnap vizsga nincs, csak lecke van.",
+     "ru": "Бенце сказал, что завтра нет экзамена, только домашнее задание.",
+     "en": "Bence said that tomorrow there is no exam, only homework."
+    },
+    {
+     "hu": "Zsófi azt mondta, hogy az óvodába holnap is menni akar.",
+     "ru": "Жофи сказала, что завтра тоже хочет в детский сад.",
+     "en": "Zsófi said that she wants to go to kindergarten tomorrow too."
+    },
+    {
+     "hu": "Én boldog voltam, és Zsolt is.",
+     "ru": "Я была счастлива, и Жолт тоже.",
+     "en": "I was happy, and Zsolt was too."
+    },
+    {
+     "hu": "Holnap értekezlet is van az óvodában.",
+     "ru": "Завтра в детском саду ещё и собрание.",
+     "en": "Tomorrow there is a meeting at the kindergarten too."
+    },
+    {
+     "hu": "Elmegyek, mert minden szülőnek kötelező.",
+     "ru": "Я пойду, потому что для каждого родителя это обязательно.",
+     "en": "I will go, because it is compulsory for every parent."
+    },
+    {
+     "hu": "Most alszom, jó éjszakát!",
+     "ru": "Теперь я сплю, спокойной ночи!",
+     "en": "Now I am going to sleep, good night!"
+    }
+   ]
+  ]
+ }
+}

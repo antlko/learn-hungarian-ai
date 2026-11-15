@@ -1,0 +1,461 @@
+{
+  "long": {
+    "genre": "diary",
+    "checked": "ai",
+    "title": {
+      "ru": "Дневник иностранца: одна неделя в ведомстве",
+      "en": "A foreigner's diary: one week at the agency"
+    },
+    "names": [
+      "Anna"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Hétfő.",
+          "ru": "Понедельник.",
+          "en": "Monday."
+        },
+        {
+          "hu": "Az útlevelem érvényes, de a tartózkodási engedélyem lejár.",
+          "ru": "Загранпаспорт действителен, но мой вид на жительство истекает.",
+          "en": "My passport is valid, but my residence permit expires."
+        },
+        {
+          "hu": "Új engedélyt kell igényelni a hatóságnál.",
+          "ru": "Новое разрешение нужно оформлять в ведомстве.",
+          "en": "A new permit has to be applied for at the agency."
+        },
+        {
+          "hu": "A régi engedélyem nemsokára lejár.",
+          "ru": "Старое разрешение скоро истекает.",
+          "en": "My old permit expires soon."
+        },
+        {
+          "hu": "Az ügyintézés nem könnyű, mert külföldi vagyok.",
+          "ru": "Хождение по инстанциям нелёгкое, ведь я иностранец.",
+          "en": "Dealing with officialdom is not easy, because I am a foreigner."
+        },
+        {
+          "hu": "Anna, a barátom, segít nekem.",
+          "ru": "Анна, моя подруга, помогает мне.",
+          "en": "Anna, my friend, helps me."
+        },
+        {
+          "hu": "Azt mondja, először időpont kell, és a kérelem is.",
+          "ru": "Она говорит, что сначала нужны запись и заявление.",
+          "en": "She says first an appointment and the application are needed."
+        },
+        {
+          "hu": "Időpontot kérek csütörtökre, reggel tízre.",
+          "ru": "Прошу запись на четверг, на десять утра.",
+          "en": "I ask for an appointment for Thursday, ten in the morning."
+        }
+      ],
+      [
+        {
+          "hu": "Szerda.",
+          "ru": "Среда.",
+          "en": "Wednesday."
+        },
+        {
+          "hu": "Ma elintézem az okmányokat.",
+          "ru": "Сегодня я улаживаю документы.",
+          "en": "Today I sort out the documents."
+        },
+        {
+          "hu": "A kérelem nyomtatványa hosszú, és sok adat kell.",
+          "ru": "Бланк заявления длинный, нужно много данных.",
+          "en": "The application form is long, and a lot of details are needed."
+        },
+        {
+          "hu": "Az űrlapon a nevem és a lakcímem van.",
+          "ru": "В бланке моё имя и адрес.",
+          "en": "On the form are my name and my address."
+        },
+        {
+          "hu": "A születési hely és idő is kell.",
+          "ru": "Место и дата рождения тоже нужны.",
+          "en": "The place and date of birth are needed too."
+        },
+        {
+          "hu": "Itthon kitöltöm, és aláírom.",
+          "ru": "Дома заполняю и подписываю.",
+          "en": "At home I fill it in and sign it."
+        },
+        {
+          "hu": "Anna megnézi, és azt mondja, hogy nyilatkozat is kell.",
+          "ru": "Анна смотрит и говорит, что нужна ещё декларация.",
+          "en": "Anna looks at it and says a declaration is needed too."
+        },
+        {
+          "hu": "A nyilatkozatban az adóról is írok.",
+          "ru": "В декларации я пишу и о налогах.",
+          "en": "In the declaration I write about tax too."
+        },
+        {
+          "hu": "Az adó rendben van, ez nem baj.",
+          "ru": "С налогом всё в порядке, это не проблема.",
+          "en": "The tax is in order, that is no problem."
+        },
+        {
+          "hu": "Az állampolgárság nem kell, csak az engedély.",
+          "ru": "Гражданство не нужно, только разрешение.",
+          "en": "Citizenship is not needed, only the permit."
+        },
+        {
+          "hu": "A másolatok megvannak, az eredeti okmányok is.",
+          "ru": "Копии есть, оригиналы документов тоже.",
+          "en": "I have the copies, and the original documents too."
+        },
+        {
+          "hu": "Az útlevél és a személyi igazolvány is megvan.",
+          "ru": "Загранпаспорт и удостоверение личности тоже есть.",
+          "en": "The passport and the identity card are there too."
+        },
+        {
+          "hu": "Az illeték nem kevés, de a pénz megvan.",
+          "ru": "Госпошлина немаленькая, но деньги есть.",
+          "en": "The fee is not small, but I have the money."
+        },
+        {
+          "hu": "Ha az űrlap hiányos, a hatóság elutasítja a kérelmet.",
+          "ru": "Если бланк неполный, ведомство отклонит заявление.",
+          "en": "If the form is incomplete, the agency rejects the application."
+        }
+      ],
+      [
+        {
+          "hu": "Csütörtök.",
+          "ru": "Четверг.",
+          "en": "Thursday."
+        },
+        {
+          "hu": "Kilenc órakor már ott vagyok a kapunál.",
+          "ru": "В девять я уже у ворот.",
+          "en": "At nine o'clock I am already at the gate."
+        },
+        {
+          "hu": "A folyosón sok ember vár.",
+          "ru": "В коридоре ждёт много людей.",
+          "en": "Many people are waiting in the corridor."
+        },
+        {
+          "hu": "Egy külföldi férfi is vár a folyosón.",
+          "ru": "Иностранец тоже ждёт в коридоре.",
+          "en": "A foreign man is waiting in the corridor too."
+        },
+        {
+          "hu": "Kapok egy számot, és ülök.",
+          "ru": "Получаю номер и сижу.",
+          "en": "I get a number and sit."
+        },
+        {
+          "hu": "A várakozás hosszú, de van türelmem.",
+          "ru": "Ожидание долгое, но у меня есть терпение.",
+          "en": "The wait is long, but I have patience."
+        },
+        {
+          "hu": "Végre jön az én számom.",
+          "ru": "Наконец подходит мой номер.",
+          "en": "At last my number comes up."
+        },
+        {
+          "hu": "A pultnál egy kedves hölgy ül.",
+          "ru": "За стойкой сидит приятная женщина.",
+          "en": "A nice lady sits at the counter."
+        },
+        {
+          "hu": "Benyújtom a kérelmet és a nyilatkozatot.",
+          "ru": "Подаю заявление и декларацию.",
+          "en": "I submit the application and the declaration."
+        },
+        {
+          "hu": "A hölgy megnézi az űrlapot, az adatokat és az aláírást.",
+          "ru": "Женщина смотрит бланк, данные и подпись.",
+          "en": "The lady checks the form, the details and the signature."
+        },
+        {
+          "hu": "Az ellenőrzés után azt mondja, hogy egy igazolás hiányzik.",
+          "ru": "После проверки говорит, что не хватает справки.",
+          "en": "After the check she says that a certificate is missing."
+        },
+        {
+          "hu": "Nem kell újra jönni, Anna hozza az igazolást.",
+          "ru": "Мне не надо приходить снова, справку принесёт Анна.",
+          "en": "I do not have to come again, Anna brings the certificate."
+        },
+        {
+          "hu": "Ehhez meghatalmazás szükséges.",
+          "ru": "Для этого нужна доверенность.",
+          "en": "For that a power of attorney is necessary."
+        },
+        {
+          "hu": "Ott a pultnál kitöltök egy meghatalmazást, és aláírom.",
+          "ru": "Тут же у стойки заполняю доверенность и подписываю.",
+          "en": "Right there at the counter I fill in a power of attorney and sign it."
+        },
+        {
+          "hu": "A születési adataim az űrlapon vannak.",
+          "ru": "Данные о рождении есть в бланке.",
+          "en": "My birth details are on the form."
+        },
+        {
+          "hu": "A hölgy pecsétet tesz rá.",
+          "ru": "Женщина ставит на неё печать.",
+          "en": "The lady puts a stamp on it."
+        },
+        {
+          "hu": "A határozat egy hét múlva jön.",
+          "ru": "Решение придёт через неделю.",
+          "en": "The decision comes in a week."
+        },
+        {
+          "hu": "Megyek ki a kapun, és hívom Annát.",
+          "ru": "Выхожу из ворот и звоню Анне.",
+          "en": "I go out of the gate and call Anna."
+        }
+      ],
+      [
+        {
+          "hu": "Péntek.",
+          "ru": "Пятница.",
+          "en": "Friday."
+        },
+        {
+          "hu": "Anna a meghatalmazással viszi az igazolást.",
+          "ru": "Анна несёт справку с доверенностью.",
+          "en": "Anna takes the certificate along with the power of attorney."
+        },
+        {
+          "hu": "Anna négy óra előtt megérkezik.",
+          "ru": "Анна приезжает до четырёх часов.",
+          "en": "Anna arrives before four."
+        },
+        {
+          "hu": "Anna benyújtja az igazolást, és elintézi a többit.",
+          "ru": "Анна подаёт справку и улаживает остальное.",
+          "en": "Anna hands in the certificate and sorts out the rest."
+        },
+        {
+          "hu": "Az illetékről is kap igazolást.",
+          "ru": "О госпошлине она тоже получает справку.",
+          "en": "She gets a certificate about the fee too."
+        },
+        {
+          "hu": "Este hív, és azt mondja, hogy kész.",
+          "ru": "Вечером звонит и говорит, что готово.",
+          "en": "In the evening she calls and says it is done."
+        },
+        {
+          "hu": "A határozat jön, az engedély rendben van.",
+          "ru": "Решение придёт, разрешение в порядке.",
+          "en": "The decision is coming, the permit is in order."
+        },
+        {
+          "hu": "Az állampolgárság más ügy, azt nem kérem.",
+          "ru": "Гражданство — другое дело, его я не прошу.",
+          "en": "Citizenship is another matter, I am not asking for that."
+        },
+        {
+          "hu": "Igényelni nem is olyan nehéz, ha van barát.",
+          "ru": "Оформлять не так уж трудно, если есть друг.",
+          "en": "Applying is not that hard if you have a friend."
+        },
+        {
+          "hu": "Az ügyintézés nehéz, de egy barát sokat segít.",
+          "ru": "Хождение по инстанциям трудно, но друг очень помогает.",
+          "en": "Dealing with officialdom is hard, but a friend helps a lot."
+        }
+      ]
+    ]
+  },
+  "short": {
+    "genre": "notice",
+    "checked": "ai",
+    "title": {
+      "ru": "Объявление у окна приёма",
+      "en": "A notice at the counter"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Tisztelt ügyfelek!",
+          "ru": "Уважаемые посетители!",
+          "en": "Dear clients!"
+        },
+        {
+          "hu": "A hatóságnál az ügyintézés csak időponttal van.",
+          "ru": "В ведомстве приём только по записи.",
+          "en": "At the agency you are seen by appointment only."
+        },
+        {
+          "hu": "Vegyenek számot, és várjanak a folyosón.",
+          "ru": "Возьмите номер и ждите в коридоре.",
+          "en": "Please take a number and wait in the corridor."
+        },
+        {
+          "hu": "A várakozás sokszor hosszú, kérjük a türelmet.",
+          "ru": "Ожидание часто долгое, просим вашего терпения.",
+          "en": "The wait is often long, we ask for your patience."
+        }
+      ],
+      [
+        {
+          "hu": "Az űrlap és a nyomtatvány a pultnál van.",
+          "ru": "Бланк и формуляр лежат у стойки.",
+          "en": "The form and the printed form are at the counter."
+        },
+        {
+          "hu": "Az űrlapot ki kell tölteni, és alá kell írni.",
+          "ru": "Бланк надо заполнить и подписать.",
+          "en": "The form has to be filled in and signed."
+        },
+        {
+          "hu": "Az aláírás nélkül nincs pecsét.",
+          "ru": "Без подписи нет печати.",
+          "en": "Without a signature there is no stamp."
+        },
+        {
+          "hu": "Eredeti okmány kell, a másolat nem elég.",
+          "ru": "Нужен оригинал документа, копии мало.",
+          "en": "The original document is needed, a copy is not enough."
+        },
+        {
+          "hu": "Kell az útlevél vagy a személyi igazolvány.",
+          "ru": "Нужен загранпаспорт или удостоверение личности.",
+          "en": "A passport or an identity card is needed."
+        },
+        {
+          "hu": "A hiányos űrlap nem jó.",
+          "ru": "Неполный бланк не подходит.",
+          "en": "An incomplete form is not accepted."
+        },
+        {
+          "hu": "Az adó, az állampolgárság és a tartózkodási engedély a másik pultnál van.",
+          "ru": "Налоги, гражданство и вид на жительство — в другом окне.",
+          "en": "Tax, citizenship and the residence permit are at the other counter."
+        },
+        {
+          "hu": "Az új lakcímet is bejelentik itt.",
+          "ru": "Новый адрес тоже заявляют здесь.",
+          "en": "The new address is reported here too."
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "У окна, где не хватает одной бумаги",
+      "en": "At the counter, one paper missing"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Jó napot kívánok! Itt a számom, és van időpontom.",
+          "ru": "Добрый день! Вот мой номер, и у меня есть запись.",
+          "en": "Good day! Here is my number, and I have an appointment."
+        },
+        {
+          "hu": "Jó napot! Tessék, jöhet. Mit szeretne?",
+          "ru": "Добрый день! Пожалуйста, подходите. Что вы хотите?",
+          "en": "Good day! Please, come up. What would you like?"
+        },
+        {
+          "hu": "Külföldi vagyok, és a tartózkodási engedélyem lejár.",
+          "ru": "Я иностранец, и мой вид на жительство истекает.",
+          "en": "I am a foreigner, and my residence permit expires."
+        },
+        {
+          "hu": "Akkor új engedélyt kell igényelni. Van érvényes útlevele vagy személyi igazolványa?",
+          "ru": "Тогда надо оформить новое. Есть действительный загранпаспорт или удостоверение личности?",
+          "en": "Then you need to apply for a new one. Do you have a valid passport or an identity card?"
+        },
+        {
+          "hu": "Igen, az útlevelem érvényes. Itt van.",
+          "ru": "Да, загранпаспорт действителен. Вот он.",
+          "en": "Yes, my passport is valid. Here it is."
+        },
+        {
+          "hu": "Köszönöm. Ez a nyomtatvány kell a kérelemhez.",
+          "ru": "Спасибо. Для заявления нужен вот этот бланк.",
+          "en": "Thank you. This form is needed for the application."
+        },
+        {
+          "hu": "Hogyan tudom kitölteni?",
+          "ru": "Как мне его заполнить?",
+          "en": "How do I fill it in?"
+        },
+        {
+          "hu": "Az adatok kellenek, és alul az aláírás. A születési adat is szükséges.",
+          "ru": "Нужны данные, а внизу подпись. Дата рождения тоже обязательна.",
+          "en": "The details are needed, and the signature at the bottom. The birth date is necessary too."
+        },
+        {
+          "hu": "Aláírja még itt is, kérem.",
+          "ru": "Подпишите ещё и здесь, пожалуйста.",
+          "en": "Please sign here too."
+        },
+        {
+          "hu": "Aláírom. Kész, itt az űrlap. Az aláírás is megvan.",
+          "ru": "Подписываю. Готово, вот бланк. Подпись тоже есть.",
+          "en": "I am signing. Done, here is the form. The signature is there too."
+        },
+        {
+          "hu": "Köszönöm. Megnézem az űrlapot, utána jön a pecsét.",
+          "ru": "Спасибо. Я посмотрю бланк, потом поставлю печать.",
+          "en": "Thank you. I will check the form, then I stamp it."
+        },
+        {
+          "hu": "Az űrlap hiányos. Egy igazolás hiányzik.",
+          "ru": "Бланк неполный. Не хватает справки.",
+          "en": "The form is incomplete. A certificate is missing."
+        },
+        {
+          "hu": "Másolat is jó?",
+          "ru": "Копия тоже подойдёт?",
+          "en": "Is a copy fine too?"
+        },
+        {
+          "hu": "Sajnos nem, az eredeti okmány szükséges.",
+          "ru": "К сожалению, нет, нужен оригинал документа.",
+          "en": "Unfortunately not, the original document is necessary."
+        },
+        {
+          "hu": "Az okmány otthon van. Holnap elintézem, és benyújtom a kérelmet.",
+          "ru": "Документ дома. Завтра улажу и подам заявление.",
+          "en": "The document is at home. Tomorrow I will sort it out and submit the application."
+        },
+        {
+          "hu": "Rendben. Más nem hiányzik. Mennyi az illeték?",
+          "ru": "Хорошо. Больше ничего не хватает. Сколько госпошлина?",
+          "en": "Fine. Nothing else is missing. How much is the fee?"
+        },
+        {
+          "hu": "Az illeték nem sok. És mikor jön a határozat?",
+          "ru": "Госпошлина небольшая. А когда придёт решение?",
+          "en": "The fee is not much. And when does the decision come?"
+        },
+        {
+          "hu": "Egy hét múlva, az ellenőrzés után. Az új lakcímet is bejelenti?",
+          "ru": "Через неделю, после проверки. Новый адрес тоже заявите?",
+          "en": "In a week, after the check. Will you report the new address too?"
+        },
+        {
+          "hu": "Igen, bejelentem. Köszönöm a türelmet!",
+          "ru": "Да, заявлю. Спасибо за терпение!",
+          "en": "Yes, I will. Thank you for your patience!"
+        },
+        {
+          "hu": "Nincs mit. Viszontlátásra!",
+          "ru": "Не за что. До свидания!",
+          "en": "You are welcome. Goodbye!"
+        }
+      ]
+    ]
+  }
+}

@@ -29,6 +29,7 @@ import (
 	"tanulom/internal/hvpt"
 	"tanulom/internal/lang"
 	"tanulom/internal/morph"
+	"tanulom/internal/readsets"
 	"tanulom/internal/srs"
 	"tanulom/internal/tutor"
 	"tanulom/internal/web"
@@ -48,6 +49,10 @@ type Server struct {
 	// capCache holds the last service probe. Per server, not per process: two
 	// servers (every test builds its own) must not read each other's probes.
 	capCache capabilityCache
+
+	// sets is the reading-text catalogue embedded in the binary (ADR-076); never
+	// the pack. Immutable after New.
+	sets *readsets.Catalog
 
 	db  *db.DB
 	app *fiber.App
@@ -115,6 +120,19 @@ type Server struct {
 
 // New wires a server against a data directory, creating it if needed.
 func New(dataDir string) (*Server, error) {
+	return NewWithCatalog(dataDir, nil)
+}
+
+// NewWithCatalog is New with an explicit reading-text catalogue (tests); nil
+// means the one embedded in the binary. A malformed embedded catalogue is a
+// build defect, so boot fails rather than run with an empty library.
+func NewWithCatalog(dataDir string, cat *readsets.Catalog) (*Server, error) {
+	if cat == nil {
+		var err error
+		if cat, err = readsets.Default(); err != nil {
+			return nil, err
+		}
+	}
 	if err := os.MkdirAll(dataDir, 0o755); err != nil {
 		return nil, fmt.Errorf("create data dir: %w", err)
 	}
@@ -138,7 +156,7 @@ func New(dataDir string) (*Server, error) {
 		slog.Info("purged expired sessions", "count", n)
 	}
 
-	s := &Server{dataDir: dataDir, cfg: cfg, db: database,
+	s := &Server{dataDir: dataDir, cfg: cfg, db: database, sets: cat,
 		pending: drill.NewPending(), hvptPending: hvpt.NewPending(),
 		packInstaller: lang.NewInstaller(dataDir), stopProcess: signalSelfTerm}
 	s.bgCtx, s.bgCancel = context.WithCancel(context.Background())

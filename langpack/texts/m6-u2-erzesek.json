@@ -1,0 +1,608 @@
+{
+  "short": {
+    "genre": "note",
+    "checked": "ai",
+    "title": {
+      "ru": "Записка для Анны",
+      "en": "A note for Anna"
+    },
+    "names": [
+      "Anna"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Kedves Anna!",
+          "ru": "Дорогая Анна!",
+          "en": "Dear Anna!"
+        },
+        {
+          "hu": "Tudom, hogy ma szomorú és csalódott vagy.",
+          "ru": "Я знаю, что сегодня ты грустная и разочарованная.",
+          "en": "I know you are sad and disappointed today."
+        },
+        {
+          "hu": "A vizsga rossz volt, de ez nem szégyen.",
+          "ru": "Экзамен прошёл плохо, но это не позор.",
+          "en": "The exam went badly, but that is no shame."
+        },
+        {
+          "hu": "Nem kell sírni, és nem kell félni.",
+          "ru": "Не нужно плакать и не нужно бояться.",
+          "en": "There is no need to cry and no need to be afraid."
+        },
+        {
+          "hu": "Én büszke vagyok rád, mert őszinte voltál.",
+          "ru": "Я горжусь тобой, ведь ты была честной.",
+          "en": "I am proud of you, because you were honest."
+        },
+        {
+          "hu": "Egy rossz vizsga nem engem bánt, hanem téged.",
+          "ru": "Плохой экзамен задевает не меня, а тебя.",
+          "en": "A bad exam does not hurt me, it hurts you."
+        },
+        {
+          "hu": "Ez a szomorúság nem marad sokáig.",
+          "ru": "Эта грусть не останется надолго.",
+          "en": "This sadness will not stay long."
+        }
+      ],
+      [
+        {
+          "hu": "Remélem, este jobb lesz a hangulatod.",
+          "ru": "Надеюсь, вечером у тебя будет лучше настроение.",
+          "en": "I hope your mood will be better in the evening."
+        },
+        {
+          "hu": "Ne haragudj magadra, és ne aggódj.",
+          "ru": "Не сердись на себя и не переживай.",
+          "en": "Do not be angry with yourself and do not worry."
+        },
+        {
+          "hu": "Nem vagy magányos, mert én itt vagyok.",
+          "ru": "Ты не одинока, ведь я здесь.",
+          "en": "You are not lonely, because I am here."
+        },
+        {
+          "hu": "Nem vagy gyáva, csak fáradt vagy.",
+          "ru": "Ты не трусиха, ты просто устала.",
+          "en": "You are not a coward, you are just tired."
+        },
+        {
+          "hu": "A bánat és a harag elmúlik, és újra vidám leszel.",
+          "ru": "Печаль и злость пройдут, и ты снова будешь весёлой.",
+          "en": "The sorrow and anger will pass and you will be cheerful again."
+        },
+        {
+          "hu": "Jó lenne együtt vacsorát enni.",
+          "ru": "Хорошо бы поужинать вместе.",
+          "en": "It would be nice to have dinner together."
+        },
+        {
+          "hu": "Vigasztalni akarlak, de nem tudok sokat mondani.",
+          "ru": "Я хочу тебя утешить, но не знаю, что сказать.",
+          "en": "I want to comfort you, but I cannot say much."
+        },
+        {
+          "hu": "Az érzelem nem baj, a büszkeségem pedig nagy.",
+          "ru": "Чувства это не беда, а моя гордость велика.",
+          "en": "Emotion is no problem, and my pride is great."
+        },
+        {
+          "hu": "Holnap új nap lesz, és lesz remény és öröm.",
+          "ru": "Завтра будет новый день, и будут надежда и радость.",
+          "en": "Tomorrow is a new day and there will be hope and joy."
+        },
+        {
+          "hu": "A hűtőben van vacsora, egyél.",
+          "ru": "В холодильнике есть ужин, поешь.",
+          "en": "There is dinner in the fridge, eat."
+        },
+        {
+          "hu": "Ölellek, anya",
+          "ru": "Обнимаю, мама",
+          "en": "A hug, Mum"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "email",
+    "checked": "ai",
+    "title": {
+      "ru": "Письмо подруге",
+      "en": "An email to a friend"
+    },
+    "names": [
+      "Eszter",
+      "Zsuzsa"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Eszter!",
+          "ru": "Привет, Эстер!",
+          "en": "Hi, Eszter!"
+        },
+        {
+          "hu": "Hogy vagy? Nálam most sok minden történik.",
+          "ru": "Как ты? У меня сейчас многое происходит.",
+          "en": "How are you? A lot is happening for me now."
+        },
+        {
+          "hu": "Új munkám van, és nagyon izgatott vagyok.",
+          "ru": "У меня новая работа, и я очень взволнована.",
+          "en": "I have a new job and I am very excited."
+        },
+        {
+          "hu": "Az érzés furcsa, mert boldog vagyok, de egy kicsit ideges is.",
+          "ru": "Чувство странное, ведь я счастлива, но немного и на взводе.",
+          "en": "The feeling is odd, because I am happy but also a little on edge."
+        },
+        {
+          "hu": "Az izgalom jó, de a stressz rossz.",
+          "ru": "Волнение это хорошо, а стресс плохо.",
+          "en": "The excitement is good, but the stress is bad."
+        },
+        {
+          "hu": "Örömmel írok neked erről, mert vágyom egy beszélgetésre.",
+          "ru": "Я с радостью пишу тебе об этом, ведь мне хочется поговорить.",
+          "en": "I gladly write to you about this, because I long for a talk."
+        },
+        {
+          "hu": "A hangulatom reggel jó, de este fáradt vagyok.",
+          "ru": "Утром у меня хорошее настроение, а вечером я усталая.",
+          "en": "My mood is good in the morning, but in the evening I am tired."
+        }
+      ],
+      [
+        {
+          "hu": "A főnököm kedves, és a munka nem unalmas.",
+          "ru": "Мой начальник приятный, и работа не скучная.",
+          "en": "My boss is nice and the work is not boring."
+        },
+        {
+          "hu": "Minden nap érdekes, és sok új dolgot tanulok.",
+          "ru": "Каждый день интересный, и я узнаю много нового.",
+          "en": "Every day is interesting and I learn many new things."
+        },
+        {
+          "hu": "Örömmel megyek dolgozni.",
+          "ru": "Я с радостью иду на работу.",
+          "en": "I gladly go to work."
+        },
+        {
+          "hu": "Egy kolléga sokat beszél, és ez néha idegesít.",
+          "ru": "Один коллега много говорит, и это иногда мешает.",
+          "en": "A colleague talks a lot and that sometimes bothers me."
+        },
+        {
+          "hu": "Tegnap szörnyű stressz volt, és dühös lettem.",
+          "ru": "Вчера был ужасный стресс, и я разозлилась.",
+          "en": "Yesterday there was terrible stress and I got angry."
+        },
+        {
+          "hu": "Mérges voltam magamra, nem rá.",
+          "ru": "Я злилась на себя, а не на него.",
+          "en": "I was cross with myself, not with him."
+        },
+        {
+          "hu": "A főnök nem lett dühös, és ez meglepő volt.",
+          "ru": "Начальник не рассердился, и это было неожиданно.",
+          "en": "The boss did not get furious and that was surprising."
+        },
+        {
+          "hu": "Ez meglepő, de a főnök hálás volt a munkáért.",
+          "ru": "Это неожиданно, но начальник был благодарен за работу.",
+          "en": "That is surprising, but the boss was grateful for the work."
+        },
+        {
+          "hu": "Hálás vagyok neki, mert nyugodt maradt.",
+          "ru": "Я благодарна ему, ведь он остался спокойным.",
+          "en": "I am grateful to him because he stayed calm."
+        }
+      ],
+      [
+        {
+          "hu": "Persze néha aggódom, hogy nem vagyok elég jó.",
+          "ru": "Конечно, иногда я переживаю, что я недостаточно хороша.",
+          "en": "Of course sometimes I worry that I am not good enough."
+        },
+        {
+          "hu": "A félelem nem jó, de nehéz nem érezni.",
+          "ru": "Страх это плохо, но трудно его не чувствовать.",
+          "en": "Fear is not good, but it is hard not to feel it."
+        },
+        {
+          "hu": "Kíváncsi vagyok, te hogy érzed magad.",
+          "ru": "Мне любопытно, как ты себя чувствуешь.",
+          "en": "I am curious how you are feeling."
+        },
+        {
+          "hu": "Néha csalódott vagyok, és néha elégedetlen is.",
+          "ru": "Иногда я разочарована, а иногда и недовольна.",
+          "en": "Sometimes I am disappointed and sometimes dissatisfied too."
+        },
+        {
+          "hu": "Holnap is izgatott leszek, ez biztos.",
+          "ru": "Завтра я тоже буду взволнована, это точно.",
+          "en": "Tomorrow I will be excited too, that is sure."
+        },
+        {
+          "hu": "Kell egy kis nyugalom, és kell egy kis boldogság.",
+          "ru": "Нужно немного покоя и немного счастья.",
+          "en": "I need a little quiet and a little happiness."
+        },
+        {
+          "hu": "Az öröm és a boldogság most több, mint a szomorúság.",
+          "ru": "Радости и счастья теперь больше, чем грусти.",
+          "en": "Joy and happiness are now more than sadness."
+        },
+        {
+          "hu": "Én félénk vagyok, de a munkában bátor leszek.",
+          "ru": "Я робкая, но в работе я буду смелой.",
+          "en": "I am shy, but at work I will be brave."
+        },
+        {
+          "hu": "Nem szenvedély, de szeretem a munkát.",
+          "ru": "Это не страсть, но я люблю эту работу.",
+          "en": "It is not a passion, but I like the work."
+        },
+        {
+          "hu": "Egyik érzelem a másik után jön.",
+          "ru": "Одно чувство сменяет другое.",
+          "en": "One emotion comes after another."
+        },
+        {
+          "hu": "Egy kellemetlen beszélgetésben is bátor voltam, nem voltam félénk.",
+          "ru": "Даже в неприятном разговоре я была смелой, а не робкой.",
+          "en": "Even in an awkward conversation I was brave, not shy."
+        },
+        {
+          "hu": "A harag nem tart sokáig.",
+          "ru": "Злость не длится долго.",
+          "en": "Anger does not last long."
+        },
+        {
+          "hu": "Este a nyugalom és a csend jó.",
+          "ru": "Вечером покой и тишина приятны.",
+          "en": "In the evening calm and quiet are nice."
+        },
+        {
+          "hu": "Most már büszke vagyok magamra, és elégedett vagyok.",
+          "ru": "Теперь я горжусь собой и довольна.",
+          "en": "Now I am proud of myself and satisfied."
+        },
+        {
+          "hu": "Remélem, hogy minden jó lesz, és ez a remény fontos.",
+          "ru": "Надеюсь, что всё будет хорошо, и эта надежда важна.",
+          "en": "I hope everything will be fine and this hope is important."
+        },
+        {
+          "hu": "Vágyom egy hosszú beszélgetésre veled.",
+          "ru": "Мне хочется долго поговорить с тобой.",
+          "en": "I long for a long conversation with you."
+        },
+        {
+          "hu": "Hétvégén találkozunk?",
+          "ru": "Увидимся на выходных?",
+          "en": "Shall we meet at the weekend?"
+        },
+        {
+          "hu": "Ölel, Zsuzsa",
+          "ru": "Обнимает, Жужа",
+          "en": "A hug, Zsuzsa"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "diary",
+    "checked": "ai",
+    "title": {
+      "ru": "Трудный день",
+      "en": "A hard day"
+    },
+    "names": [
+      "Dani",
+      "Mari"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Kedves naplóm!",
+          "ru": "Дорогой дневник!",
+          "en": "Dear diary!"
+        },
+        {
+          "hu": "Ma nehéz nap volt, ezért írok.",
+          "ru": "Сегодня был трудный день, поэтому я пишу.",
+          "en": "Today was a hard day, so I am writing."
+        },
+        {
+          "hu": "Reggel fáradt voltam, és rossz volt a hangulatom.",
+          "ru": "Утром я была усталой, и настроение было плохим.",
+          "en": "In the morning I was tired and my mood was bad."
+        },
+        {
+          "hu": "Nem tudtam pihenni, mert aggódtam a vizsga miatt.",
+          "ru": "Я не могла отдохнуть, потому что переживала из-за экзамена.",
+          "en": "I could not rest because I was worried about the exam."
+        },
+        {
+          "hu": "A stressz egész éjjel velem volt.",
+          "ru": "Стресс был со мной всю ночь.",
+          "en": "The stress was with me all night."
+        },
+        {
+          "hu": "Nyugtalan voltam, és nem éreztem nyugalmat.",
+          "ru": "Я была беспокойной и не чувствовала покоя.",
+          "en": "I was restless and did not feel any calm."
+        },
+        {
+          "hu": "A reggeli hangulatom szörnyű volt, és mérges voltam.",
+          "ru": "Моё утреннее настроение было ужасным, и я злилась.",
+          "en": "My morning mood was terrible and I was cross."
+        },
+        {
+          "hu": "A reggeli sem volt jó, az óra pedig idegesített.",
+          "ru": "Завтрак тоже был не хорош, а часы раздражали.",
+          "en": "Breakfast was not good either and the clock annoyed me."
+        }
+      ],
+      [
+        {
+          "hu": "A vizsgán nagyon ideges voltam.",
+          "ru": "На экзамене я очень нервничала.",
+          "en": "At the exam I was very nervous."
+        },
+        {
+          "hu": "A tanár kérdezett, és nem tudtam a választ.",
+          "ru": "Преподаватель спросил, а я не знала ответа.",
+          "en": "The teacher asked and I did not know the answer."
+        },
+        {
+          "hu": "Nem éreztem jól magam, és a kérdés kellemetlen volt.",
+          "ru": "Мне было нехорошо, и вопрос был неприятным.",
+          "en": "I did not feel well and the question was awkward."
+        },
+        {
+          "hu": "A szívem gyorsan vert, és az izgalom nagy volt.",
+          "ru": "Сердце быстро билось, и волнение было сильным.",
+          "en": "My heart beat fast and the excitement was great."
+        },
+        {
+          "hu": "Csalódott voltam magamban, és ez nagy szégyen volt.",
+          "ru": "Я была разочарована в себе, и это был большой позор.",
+          "en": "I was disappointed in myself and it was a great shame."
+        },
+        {
+          "hu": "Dani, a barátom, rám nézett, de nem mondott semmit.",
+          "ru": "Дани, мой друг, посмотрел на меня, но ничего не сказал.",
+          "en": "Dani, my friend, looked at me but said nothing."
+        },
+        {
+          "hu": "Dani kíváncsi volt, mi van velem.",
+          "ru": "Дани было любопытно, что со мной.",
+          "en": "Dani was curious what was wrong with me."
+        },
+        {
+          "hu": "Ez kellemetlen volt, és kicsit dühös lettem.",
+          "ru": "Это было неприятно, и я немного разозлилась.",
+          "en": "That was awkward and I got a little angry."
+        },
+        {
+          "hu": "A düh nem Dani ellen volt, hanem magam ellen.",
+          "ru": "Злость была не на Дани, а на саму себя.",
+          "en": "The rage was not against Dani but against myself."
+        },
+        {
+          "hu": "Aztán sírni akartam.",
+          "ru": "Потом мне захотелось плакать.",
+          "en": "Then I wanted to cry."
+        },
+        {
+          "hu": "Nem akartam sírni, mert gyűlölöm a szégyent.",
+          "ru": "Я не хотела плакать, потому что ненавижу стыд.",
+          "en": "I did not want to cry because I hate shame."
+        },
+        {
+          "hu": "Gyűlölöm az ilyen napokat.",
+          "ru": "Терпеть не могу такие дни.",
+          "en": "I hate days like these."
+        }
+      ],
+      [
+        {
+          "hu": "Délután haza mentem, és magányos voltam.",
+          "ru": "После обеда я пошла домой, и мне было одиноко.",
+          "en": "In the afternoon I went home and I was lonely."
+        },
+        {
+          "hu": "A lakás üres volt, és csend volt.",
+          "ru": "Квартира была пустой, и было тихо.",
+          "en": "The flat was empty and it was quiet."
+        },
+        {
+          "hu": "A délután unalmas volt, és a csend zavart.",
+          "ru": "День был скучным, и тишина мешала.",
+          "en": "The afternoon was boring and the silence bothered me."
+        },
+        {
+          "hu": "Nem voltam éhes, és nem voltam fáradt, csak nyugtalan.",
+          "ru": "Я не была голодна и не была усталой, просто беспокойной.",
+          "en": "I was not hungry and not tired, just restless."
+        },
+        {
+          "hu": "Egy érdekes könyvem volt, de nem tudtam olvasni.",
+          "ru": "У меня была интересная книга, но я не могла читать.",
+          "en": "I had an interesting book but I could not read."
+        },
+        {
+          "hu": "Szomorúság és harag volt bennem.",
+          "ru": "Во мне были грусть и злость.",
+          "en": "There was sadness and anger in me."
+        },
+        {
+          "hu": "Egy kicsit gyáva voltam, és nem hívtam senkit.",
+          "ru": "Я была немного трусливой и никому не позвонила.",
+          "en": "I was a little cowardly and did not call anyone."
+        },
+        {
+          "hu": "A bánat nagy volt, és nem tudtam nyugodt lenni.",
+          "ru": "Печаль была большой, и я не могла успокоиться.",
+          "en": "The sorrow was big and I could not be calm."
+        },
+        {
+          "hu": "Egy szörnyű érzés volt, és nem láttam semmi reményt.",
+          "ru": "Это было ужасное чувство, и я не видела никакой надежды.",
+          "en": "It was an awful feeling and I saw no hope."
+        },
+        {
+          "hu": "Elégedetlen voltam magammal, és sokat szenvedtem.",
+          "ru": "Я была недовольна собой и сильно страдала.",
+          "en": "I was dissatisfied with myself and I suffered a lot."
+        }
+      ],
+      [
+        {
+          "hu": "Este Mari jött hozzám.",
+          "ru": "Вечером Мари пришла ко мне.",
+          "en": "In the evening Mari came to see me."
+        },
+        {
+          "hu": "Mari a szomszédom, kedves és vidám nő.",
+          "ru": "Мари моя соседка, добрая и весёлая женщина.",
+          "en": "Mari is my neighbour, a kind and cheerful woman."
+        },
+        {
+          "hu": "Mari vidám volt, és a hangulat a szobában egyből jobb lett.",
+          "ru": "Мари была весёлой, и настроение в комнате сразу улучшилось.",
+          "en": "Mari was cheerful and the mood in the room got better at once."
+        },
+        {
+          "hu": "Ez meglepő volt, mert nem vártam senkit.",
+          "ru": "Это было неожиданно, ведь я никого не ждала.",
+          "en": "That was surprising, because I was not expecting anyone."
+        },
+        {
+          "hu": "Megkérdezte, hogy miért vagyok szomorú.",
+          "ru": "Она спросила, почему я грущу.",
+          "en": "She asked why I was sad."
+        },
+        {
+          "hu": "Nem akartam mondani semmit, de elmondtam mindent.",
+          "ru": "Я не хотела ничего говорить, но рассказала всё.",
+          "en": "I did not want to say anything but I told her everything."
+        },
+        {
+          "hu": "Ő nem mondta, hogy a vizsga nem fontos.",
+          "ru": "Она не сказала, что экзамен не важен.",
+          "en": "She did not say that the exam is not important."
+        },
+        {
+          "hu": "Mari látta, hogy nyugtalan vagyok.",
+          "ru": "Мари видела, что я беспокойна.",
+          "en": "Mari saw that I was restless."
+        },
+        {
+          "hu": "A tanulás a szenvedélyem, ezért volt ez nehéz.",
+          "ru": "Учёба моя страсть, поэтому это было тяжело.",
+          "en": "Studying is my passion, which is why this was hard."
+        },
+        {
+          "hu": "Mari nem mondott nagy szavakat, csak vigasztalni akart.",
+          "ru": "Мари не говорила громких слов, она просто хотела утешить.",
+          "en": "Mari did not say big words, she just wanted to comfort me."
+        },
+        {
+          "hu": "Aztán mégis sírtam egy kicsit, és ez nem volt szégyen.",
+          "ru": "Потом я всё же немного поплакала, и это не было позором.",
+          "en": "Then I still cried a little and that was no shame."
+        },
+        {
+          "hu": "Hálás voltam, mert Mari nem bánt, és nem nevetett.",
+          "ru": "Я была благодарна, ведь Мари не обижала и не смеялась.",
+          "en": "I was grateful because Mari did not hurt me and did not laugh."
+        },
+        {
+          "hu": "Mari örömmel maradt még egy órát.",
+          "ru": "Мари с радостью осталась ещё на час.",
+          "en": "Mari gladly stayed another hour."
+        },
+        {
+          "hu": "Örömmel ettem a levest, amit hozott.",
+          "ru": "Я с радостью съела суп, который она принесла.",
+          "en": "I gladly ate the soup that she brought."
+        }
+      ],
+      [
+        {
+          "hu": "Mari szerint nem baj, ha az ember fél.",
+          "ru": "По словам Мари, ничего страшного, если человек боится.",
+          "en": "According to Mari it is no problem if a person is afraid."
+        },
+        {
+          "hu": "Ő is félénk volt régen, és most bátor.",
+          "ru": "Она тоже была робкой раньше, а теперь храбрая.",
+          "en": "She was shy too in the old days and now she is brave."
+        },
+        {
+          "hu": "Mari elmondta, hogy ő is félt az első vizsgán.",
+          "ru": "Мари рассказала, что тоже боялась на первом экзамене.",
+          "en": "Mari told me that she too was afraid at her first exam."
+        },
+        {
+          "hu": "Az érzelem nem gyengeség, mondta Mari.",
+          "ru": "Эмоции не слабость, сказала Мари.",
+          "en": "Emotion is not weakness, said Mari."
+        },
+        {
+          "hu": "Én nem vagyok gyáva, csak fáradt.",
+          "ru": "Я не трусиха, я просто устала.",
+          "en": "I am not a coward, just tired."
+        },
+        {
+          "hu": "Este nyugodt lettem, és a nyugalom jó érzés volt.",
+          "ru": "К вечеру я успокоилась, и покой был приятным чувством.",
+          "en": "By evening I became calm and the calm felt good."
+        },
+        {
+          "hu": "Mari kíváncsi volt, és érdekes dolgokat mondott a régi vizsgáiról.",
+          "ru": "Мари было любопытно, и она рассказала интересное о своих старых экзаменах.",
+          "en": "Mari was curious and told interesting things about her old exams."
+        },
+        {
+          "hu": "Nem haragszom már, és a boldogság is itt van újra.",
+          "ru": "Я больше не сержусь, и счастье снова со мной.",
+          "en": "I am not angry any more and happiness is here again too."
+        },
+        {
+          "hu": "Az izgalom után jön a nyugalom.",
+          "ru": "После волнения приходит покой.",
+          "en": "After the excitement comes the calm."
+        },
+        {
+          "hu": "Holnap izgatott leszek, de nem félek.",
+          "ru": "Завтра я буду взволнована, но не буду бояться.",
+          "en": "Tomorrow I will be excited but I will not be afraid."
+        },
+        {
+          "hu": "Remélem, hogy a következő vizsga jobb lesz.",
+          "ru": "Надеюсь, что следующий экзамен пройдёт лучше.",
+          "en": "I hope the next exam will be better."
+        },
+        {
+          "hu": "Büszke vagyok, hogy beszéltem erről.",
+          "ru": "Я горжусь тем, что поговорила об этом.",
+          "en": "I am proud that I talked about it."
+        },
+        {
+          "hu": "Jó éjt, naplóm.",
+          "ru": "Спокойной ночи, дневник.",
+          "en": "Good night, diary."
+        }
+      ]
+    ]
+  }
+}

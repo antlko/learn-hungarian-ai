@@ -44,6 +44,7 @@ reads as "the button is still not there".
 | `make lint` / `make fmt` | gofmt + `go vet` + oxlint/eslint; or rewrite in place. |
 | `make langpack` | Rebuilds `data/langpack-hu-v1.sqlite` (see the caveats below). |
 | `make refresh-curriculum` (alias `make refresh`) | Rewrites the lessons, features, minimal pairs and course in an existing pack. Seconds, no downloads. Stop the server first. |
+| `make texts` / `make texts-check` | `texts`: validates `langpack/texts/*.json` against `$(PACK)` (read-only) and rewrites the committed `backend/internal/readsets/catalog.json` the binary embeds ([ADR-076](../.claude/DECISIONS.md#adr-076)); `texts-check`: fails when that file is stale (no pack needed). Edit texts, `make texts`, commit, deploy: no `make refresh`. |
 | `make audio` | Renders the ear trainer's clips into `data/media/hvpt` with Piper (from the venv) and ffmpeg; `make voices` fetches the three CC0 talkers first. |
 | `make subtitles` / `make verbs` | Add the recurrence-filtered OpenSubtitles sentences / the generated indicative verb cells to an existing pack. |
 | `make tutor-kb` | Regenerates the tutor's reference corpus (`backend/internal/tutor/kb/src-*.md`). |

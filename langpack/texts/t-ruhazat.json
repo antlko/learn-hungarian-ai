@@ -1,0 +1,405 @@
+{
+  "short": {
+    "genre": "list",
+    "checked": "ai",
+    "title": {
+      "ru": "Список в чемодан",
+      "en": "Packing list"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Két póló és egy bő pulóver.",
+          "ru": "Две футболки и один свободный свитер.",
+          "en": "Two T-shirts and a loose jumper."
+        },
+        {
+          "hu": "Egy kényelmes nadrág és egy farmer.",
+          "ru": "Удобные брюки и джинсы.",
+          "en": "Comfortable trousers and a pair of jeans."
+        },
+        {
+          "hu": "Három pár zokni, és még egy pár.",
+          "ru": "Три пары носков и ещё одна пара.",
+          "en": "Three pairs of socks, and one more pair."
+        },
+        {
+          "hu": "Cipő és csizma, mert hideg van.",
+          "ru": "Ботинки и сапоги, потому что холодно.",
+          "en": "Shoes and boots, because it is cold."
+        },
+        {
+          "hu": "Meleg kabát és kalap.",
+          "ru": "Тёплое пальто и шляпа.",
+          "en": "A warm coat and a hat."
+        },
+        {
+          "hu": "Pizsama, papucs és fehérnemű.",
+          "ru": "Пижама, тапочки и бельё.",
+          "en": "Pyjamas, slippers and underwear."
+        },
+        {
+          "hu": "Fürdőruha is kell, mert ott meleg víz van.",
+          "ru": "Купальник тоже нужен, ведь там есть горячая вода.",
+          "en": "A swimsuit is needed too, because there is hot water there."
+        }
+      ],
+      [
+        {
+          "hu": "A szoknya itthon marad.",
+          "ru": "Юбка остаётся дома.",
+          "en": "The skirt stays at home."
+        },
+        {
+          "hu": "A nyaklánc és a fülbevaló is itthon marad.",
+          "ru": "Цепочка и серьги тоже остаются дома.",
+          "en": "The necklace and the earrings stay at home too."
+        },
+        {
+          "hu": "Ott nem kell elegáns ruha.",
+          "ru": "Там не нужна нарядная одежда.",
+          "en": "You do not need smart clothes there."
+        },
+        {
+          "hu": "Egy öv és egy pamut ing még jó lesz.",
+          "ru": "Ремень и хлопковая рубашка ещё пригодятся.",
+          "en": "A belt and a cotton shirt will still be useful."
+        },
+        {
+          "hu": "A harisnya is jön, mert hideg van.",
+          "ru": "Колготки тоже едут, ведь холодно.",
+          "en": "The tights are coming too, because it is cold."
+        },
+        {
+          "hu": "Nem kell sok, csak kényelmes ruházat!",
+          "ru": "Нужно не много, только удобная одежда!",
+          "en": "You do not need much, only comfortable clothes!"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "В магазине одежды",
+      "en": "In the clothes shop"
+    },
+    "names": [
+      "Kata",
+      "Dóri"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Nézd, Dóri, ez a selyem blúz milyen szép és elegáns!",
+          "ru": "Смотри, Дóри, какая красивая и нарядная шёлковая блузка!",
+          "en": "Look, Dóri, how nice and smart this silk blouse is!"
+        },
+        {
+          "hu": "Szép, de nagyon drága. A pamut ing nem olyan elegáns, de nem is drága.",
+          "ru": "Красивая, но очень дорогая. Хлопковая рубашка не такая нарядная, но и не дорогая.",
+          "en": "Nice, but very expensive. The cotton shirt is not as smart, but it is not expensive either."
+        },
+        {
+          "hu": "Szombaton esküvőre megyek, ezért elegáns ruházat kell nekem.",
+          "ru": "В субботу я иду на свадьбу, поэтому мне нужна нарядная одежда.",
+          "en": "I am going to a wedding on Saturday, so I need smart clothes."
+        },
+        {
+          "hu": "Akkor vedd fel a blúzt és a szoknyát, én itt várok.",
+          "ru": "Тогда надень блузку и юбку, я подожду здесь.",
+          "en": "Then put on the blouse and the skirt, I will wait here."
+        },
+        {
+          "hu": "Na, milyen? A szoknya egy kicsit szűk, a blúz pedig bő.",
+          "ru": "Ну как? Юбка немного тесна, а блузка свободна.",
+          "en": "Well, what is it like? The skirt is a bit tight, and the blouse is loose."
+        },
+        {
+          "hu": "Igen, a szoknya túl szűk neked. Kérj egy másikat!",
+          "ru": "Да, юбка тебе слишком тесна. Попроси другую!",
+          "en": "Yes, the skirt is too tight for you. Ask for another one!"
+        }
+      ],
+      [
+        {
+          "hu": "Ez a másik szoknya jó, kényelmes, és a cipzár is jól megy.",
+          "ru": "Эта другая юбка хорошая, удобная, и молния хорошо ходит.",
+          "en": "This other skirt is good, comfortable, and the zip works well too."
+        },
+        {
+          "hu": "Nagyon divatos, és jól áll neked.",
+          "ru": "Очень модная, и тебе идёт.",
+          "en": "Very fashionable, and it suits you."
+        },
+        {
+          "hu": "Kell még harisnya és egy öv, mert a régi öv szakadt.",
+          "ru": "Нужны ещё колготки и ремень, ведь старый ремень порван.",
+          "en": "I also need tights and a belt, because the old belt is torn."
+        },
+        {
+          "hu": "Nézd, a régi kabátom zsebe is szakadt.",
+          "ru": "Смотри, у моего старого пальто тоже порван карман.",
+          "en": "Look, the pocket of my old coat is torn too."
+        },
+        {
+          "hu": "Akkor vegyél egy új kabátot, de ne ilyen bőt.",
+          "ru": "Тогда купи новое пальто, только не такое свободное.",
+          "en": "Then buy a new coat, but not such a loose one."
+        },
+        {
+          "hu": "Ez a gyapjú kabát szép, és sok zseb van benne.",
+          "ru": "Это шерстяное пальто красивое, и в нём много карманов.",
+          "en": "This wool coat is nice, and it has a lot of pockets."
+        }
+      ],
+      [
+        {
+          "hu": "Péternek is kell egy nadrág és egy öltöny, ugye?",
+          "ru": "Петеру тоже нужны брюки и костюм, да?",
+          "en": "Péter needs trousers and a suit too, right?"
+        },
+        {
+          "hu": "Ő mindig pólót, pulóvert és farmert visel, az öltönyt nem szereti.",
+          "ru": "Он всегда носит футболку, свитер и джинсы, а костюм не любит.",
+          "en": "He always wears a T-shirt, a jumper and jeans, he does not like a suit."
+        },
+        {
+          "hu": "Nézd, ez a kalap és ez a nyaklánc is szép.",
+          "ru": "Смотри, эта шляпа и эта цепочка тоже красивые.",
+          "en": "Look, this hat and this necklace are nice too."
+        },
+        {
+          "hu": "Nekem nem kell kalap, a fülbevaló viszont jó lesz.",
+          "ru": "Мне шляпа не нужна, а вот серьги подойдут.",
+          "en": "I do not need a hat, but the earrings will do."
+        },
+        {
+          "hu": "Tessék, itt a csizma is, és az is nagyon divatos.",
+          "ru": "Вот и сапоги, и они тоже очень модные.",
+          "en": "Here are the boots too, and they are very fashionable."
+        },
+        {
+          "hu": "A csizma használt, ezért nem drága.",
+          "ru": "Сапоги подержанные, поэтому недорогие.",
+          "en": "The boots are second-hand, so they are not expensive."
+        },
+        {
+          "hu": "Jó, akkor ez mind kell nekem.",
+          "ru": "Хорошо, тогда мне нужно всё это.",
+          "en": "Good, then I need all of this."
+        },
+        {
+          "hu": "Nagyszerű, végre van elegáns ruhám az esküvőre!",
+          "ru": "Отлично, наконец-то у меня есть нарядная одежда для свадьбы!",
+          "en": "Great, at last I have smart clothes for the wedding!"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "story",
+    "checked": "ai",
+    "title": {
+      "ru": "Костюм для свадьбы",
+      "en": "A suit for the wedding"
+    },
+    "names": [
+      "Dani",
+      "Bence",
+      "Eszter"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Bence, a barátom, szombaton esküvőt tart.",
+          "ru": "У моего друга Бенце в субботу свадьба.",
+          "en": "My friend Bence has his wedding on Saturday."
+        },
+        {
+          "hu": "Azt mondta, hogy az esküvőn mindenki elegáns lesz.",
+          "ru": "Он сказал, что на свадьбе все будут нарядными.",
+          "en": "He said that everyone would be smart at the wedding."
+        },
+        {
+          "hu": "Nekem csak egy régi öltönyöm volt, és az is szakadt.",
+          "ru": "У меня был только старый костюм, да и тот рваный.",
+          "en": "I only had an old suit, and that was torn too."
+        },
+        {
+          "hu": "A nadrág szűk volt, és a zseb is szakadt.",
+          "ru": "Брюки были тесными, и карман тоже был порван.",
+          "en": "The trousers were tight, and the pocket was torn too."
+        },
+        {
+          "hu": "Az ing régi volt, a cipzár pedig rossz.",
+          "ru": "Рубашка была старой, а молния сломана.",
+          "en": "The shirt was old and the zip was broken."
+        },
+        {
+          "hu": "Nem szeretem a divatot, de most kellett egy új öltöny.",
+          "ru": "Я не люблю моду, но теперь мне нужен был новый костюм.",
+          "en": "I do not care for fashion, but now I needed a new suit."
+        }
+      ],
+      [
+        {
+          "hu": "Hétfőn elmentem a szabóhoz.",
+          "ru": "В понедельник я пошёл к портному.",
+          "en": "On Monday I went to the tailor."
+        },
+        {
+          "hu": "A szabó kedves férfi volt, és sokat beszélt.",
+          "ru": "Портной был приятным человеком и много говорил.",
+          "en": "The tailor was a kind man and talked a lot."
+        },
+        {
+          "hu": "Azt mondta, hogy a régi anyag nagyon jó, mert gyapjú.",
+          "ru": "Он сказал, что старая ткань очень хорошая, ведь это шерсть.",
+          "en": "He said the old fabric was very good, because it was wool."
+        },
+        {
+          "hu": "A zsebet és a cipzárt rendbe teszi.",
+          "ru": "Карман и молнию он приведёт в порядок.",
+          "en": "He would put the pocket and the zip right."
+        },
+        {
+          "hu": "Azt is mondta, hogy a nadrág legyen egy kicsit bő.",
+          "ru": "Ещё он сказал, что брюки лучше сделать чуть свободнее.",
+          "en": "He also said that the trousers should be a little loose."
+        },
+        {
+          "hu": "Szerdán újra elmentem hozzá, és már minden kész volt.",
+          "ru": "В среду я снова пришёл к нему, и всё уже было готово.",
+          "en": "On Wednesday I went to him again, and everything was ready."
+        },
+        {
+          "hu": "Az öltöny most kényelmes volt és elegáns.",
+          "ru": "Теперь костюм был удобным и нарядным.",
+          "en": "Now the suit was comfortable and smart."
+        }
+      ],
+      [
+        {
+          "hu": "Még egy nyakkendő kellett, ezért a boltba mentem.",
+          "ru": "Нужен был ещё галстук, поэтому я пошёл в магазин.",
+          "en": "I still needed a tie, so I went to the shop."
+        },
+        {
+          "hu": "Ott láttam egy selyem nyakkendőt, de nagyon drága volt.",
+          "ru": "Там я увидел шёлковый галстук, но он был очень дорогим.",
+          "en": "There I saw a silk tie, but it was very expensive."
+        },
+        {
+          "hu": "A boltban sok ing volt, és a pamut ing jó volt, és nem drága.",
+          "ru": "В магазине было много рубашек, и хлопковая была хорошей и недорогой.",
+          "en": "There were many shirts in the shop, and the cotton one was good and not expensive."
+        },
+        {
+          "hu": "Egy pulóver is tetszett, de ahhoz nem kell öltöny.",
+          "ru": "Один свитер мне тоже понравился, но к нему костюм не нужен.",
+          "en": "I liked a jumper too, but you do not need a suit for that."
+        },
+        {
+          "hu": "Egy használt mellényt is találtam, és az nem volt drága.",
+          "ru": "Ещё я нашёл жилет с рук, и он был недорогим.",
+          "en": "I also found a second-hand waistcoat, and that was not expensive."
+        },
+        {
+          "hu": "Vettem még egy zoknit és egy övet is, mert a régi öv szakadt.",
+          "ru": "Я купил ещё носки и ремень, потому что старый ремень был порван.",
+          "en": "I bought socks and a belt as well, because the old belt was torn."
+        },
+        {
+          "hu": "Anyám azt mondta, hogy a gyapjú meleg, a selyem pedig szép.",
+          "ru": "Мама сказала, что шерсть тёплая, а шёлк красивый.",
+          "en": "My mother said that wool is warm and silk is beautiful."
+        },
+        {
+          "hu": "Péntek este otthon mindent felvettem.",
+          "ru": "В пятницу вечером дома я всё надел.",
+          "en": "On Friday evening at home I put everything on."
+        },
+        {
+          "hu": "Az öv, a cipő, az ing és a nyakkendő mind jó volt.",
+          "ru": "Ремень, ботинки, рубашка и галстук — всё было хорошо.",
+          "en": "The belt, the shoes, the shirt and the tie were all fine."
+        },
+        {
+          "hu": "Nem is ismertem magam!",
+          "ru": "Я даже сам себя не узнал!",
+          "en": "I hardly recognised myself!"
+        }
+      ],
+      [
+        {
+          "hu": "Szombat reggel még pizsamában és papucsban ültem.",
+          "ru": "В субботу утром я ещё сидел в пижаме и тапочках.",
+          "en": "On Saturday morning I was still sitting in my pyjamas and slippers."
+        },
+        {
+          "hu": "Aztán tiszta fehérneműt, zoknit és inget vettem fel, és sokáig öltöztem.",
+          "ru": "Потом я надел чистое бельё, носки и рубашку и долго одевался.",
+          "en": "Then I put on clean underwear, socks and a shirt, and spent a long time getting dressed."
+        },
+        {
+          "hu": "Hideg volt, ezért kabátot és kalapot is vettem fel.",
+          "ru": "Было холодно, поэтому я надел ещё пальто и шляпу.",
+          "en": "It was cold, so I put on a coat and a hat as well."
+        },
+        {
+          "hu": "Az esküvőn a kabátomat a ruhatárban hagytam.",
+          "ru": "На свадьбе я оставил пальто в гардеробе.",
+          "en": "At the wedding I left my coat in the cloakroom."
+        },
+        {
+          "hu": "Bence felesége, Eszter, fehér selyem ruhában volt.",
+          "ru": "Жена Бенце, Эстер, была в белом шёлковом платье.",
+          "en": "Bence's wife, Eszter, was in a white silk dress."
+        },
+        {
+          "hu": "A nők szoknyát és blúzt viseltek, sokan szép nyakláncot és fülbevalót.",
+          "ru": "Женщины были в юбках и блузках, у многих были красивые цепочки и серьги.",
+          "en": "The women wore skirts and blouses, and many had a nice necklace and earrings."
+        },
+        {
+          "hu": "A férfiak öltönyben és nyakkendőben, csak egy kisfiú volt farmerben és pólóban.",
+          "ru": "Мужчины были в костюмах и галстуках, и только один мальчик был в джинсах и футболке.",
+          "en": "The men were in suits and ties, only one little boy was in jeans and a T-shirt."
+        },
+        {
+          "hu": "Eszter anyja harisnyában és csizmában volt, mert hideg volt.",
+          "ru": "Мама Эстер была в колготках и сапогах, потому что было холодно.",
+          "en": "Eszter's mother was in tights and boots, because it was cold."
+        },
+        {
+          "hu": "Bence nagyon örült, és azt mondta, hogy jól áll nekem az öltöny.",
+          "ru": "Бенце очень обрадовался и сказал, что костюм мне идёт.",
+          "en": "Bence was very happy and said the suit looked good on me."
+        },
+        {
+          "hu": "Én nevettem, és azt mondtam, hogy a szabó nagyon jó.",
+          "ru": "Я засмеялся и сказал, что портной очень хорош.",
+          "en": "I laughed and said that the tailor was very good."
+        },
+        {
+          "hu": "Este mindenki jól érezte magát, én is, bár a cipő szűk volt.",
+          "ru": "Вечером всем было хорошо, и мне тоже, хотя ботинки были тесными.",
+          "en": "In the evening everyone enjoyed themselves, and so did I, although the shoes were tight."
+        },
+        {
+          "hu": "Bence mindig mondja, hogy a divat nem fontos, a kényelmes ruházat igen.",
+          "ru": "Бенце всегда говорит, что мода не важна, а удобная одежда важна.",
+          "en": "Bence always says that fashion is not important, but comfortable clothes are."
+        },
+        {
+          "hu": "Azóta ezt az öltönyt viselem, ha elegáns akarok lenni.",
+          "ru": "С тех пор я ношу этот костюм, когда хочу выглядеть нарядно.",
+          "en": "Since then I wear this suit whenever I want to look smart."
+        }
+      ]
+    ]
+  }
+}

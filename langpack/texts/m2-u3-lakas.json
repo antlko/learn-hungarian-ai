@@ -1,0 +1,385 @@
+{
+  "short": {
+    "genre": "notice",
+    "checked": "ai",
+    "title": {
+      "ru": "Объявление о квартире",
+      "en": "Notice: a flat"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Lakás a házban!",
+          "ru": "Квартира в доме!",
+          "en": "A flat in the house!"
+        },
+        {
+          "hu": "A ház szép, a kert is nagy.",
+          "ru": "Дом красивый, сад тоже большой.",
+          "en": "The house is nice, the garden is big too."
+        },
+        {
+          "hu": "A lakás az első emeleten van, és van lift.",
+          "ru": "Квартира на втором этаже, и есть лифт.",
+          "en": "The flat is on the first floor, and there is a lift."
+        }
+      ],
+      [
+        {
+          "hu": "Van nappali, hálószoba, konyha és fürdőszoba.",
+          "ru": "Есть гостиная, спальня, кухня и ванная.",
+          "en": "There is a living room, a bedroom, a kitchen and a bathroom."
+        },
+        {
+          "hu": "A fürdőszobában van kád és zuhany.",
+          "ru": "В ванной есть ванна и душ.",
+          "en": "The bathroom has a bathtub and a shower."
+        },
+        {
+          "hu": "A vécé is ott van.",
+          "ru": "Туалет тоже там.",
+          "en": "The toilet is there too."
+        },
+        {
+          "hu": "A konyhában van hűtő, mosógép, tányér és pohár.",
+          "ru": "На кухне есть холодильник, стиральная машина, тарелки и стаканы.",
+          "en": "The kitchen has a fridge, a washing machine, plates and glasses."
+        },
+        {
+          "hu": "A hálószobában van ágy, szekrény és szék.",
+          "ru": "В спальне есть кровать, шкаф и стул.",
+          "en": "The bedroom has a bed, a wardrobe and a chair."
+        },
+        {
+          "hu": "A nappaliban van kanapé és fotel.",
+          "ru": "В гостиной есть диван и кресло.",
+          "en": "The living room has a sofa and an armchair."
+        },
+        {
+          "hu": "A lakbér nem magas. Hívja a tulajdonost!",
+          "ru": "Арендная плата невысокая. Звоните владельцу!",
+          "en": "The rent is not high. Call the owner!"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "Ключ от квартиры",
+      "en": "The key to the flat"
+    },
+    "names": [
+      "Anna",
+      "Kata"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Anna! Itt a kulcs, tessék.",
+          "ru": "Привет, Анна! Вот ключ, пожалуйста.",
+          "en": "Hi, Anna! Here is the key, please."
+        },
+        {
+          "hu": "Köszönöm. Ez az ajtó, ez a csengő?",
+          "ru": "Спасибо. Это дверь, это звонок?",
+          "en": "Thank you. This is the door, this is the bell?"
+        },
+        {
+          "hu": "Igen, a csengő jó. Ott a lépcső.",
+          "ru": "Да, звонок работает. Вон лестница.",
+          "en": "Yes, the bell works. The stairs are there."
+        },
+        {
+          "hu": "Van lift is, de most nem működik.",
+          "ru": "Лифт тоже есть, но сейчас не работает.",
+          "en": "There is a lift too, but it is not working now."
+        },
+        {
+          "hu": "A villany jó? A gáz és a lámpa is?",
+          "ru": "Свет в порядке? Газ и лампа тоже?",
+          "en": "Is the electricity fine? The gas and the lamp too?"
+        },
+        {
+          "hu": "A villany jó, a gáz is jó.",
+          "ru": "Свет в порядке, газ тоже.",
+          "en": "The electricity is fine, the gas too."
+        },
+        {
+          "hu": "A csap elromlott, de én javítom.",
+          "ru": "Кран сломался, но я его починю.",
+          "en": "The tap is broken, but I will fix it."
+        },
+        {
+          "hu": "Szép a fal, a függöny, és a padló is tiszta.",
+          "ru": "Красивая стена, занавеска, и пол тоже чистый.",
+          "en": "The wall and the curtain are nice, and the floor is clean too."
+        },
+        {
+          "hu": "A fürdőszobában van kád, zuhany, vécé és tükör.",
+          "ru": "В ванной есть ванна, душ, туалет и зеркало.",
+          "en": "The bathroom has a bathtub, a shower, a toilet and a mirror."
+        },
+        {
+          "hu": "A konyhában van tányér, pohár, kanál, kés és villa.",
+          "ru": "На кухне есть тарелки, стаканы, ложки, ножи и вилки.",
+          "en": "The kitchen has plates, glasses, spoons, knives and forks."
+        },
+        {
+          "hu": "A porszívó a szekrényben van, a radiátor új.",
+          "ru": "Пылесос в шкафу, батарея новая.",
+          "en": "The vacuum cleaner is in the cupboard, the radiator is new."
+        },
+        {
+          "hu": "A szemetes a konyhában van.",
+          "ru": "Мусорное ведро на кухне.",
+          "en": "The bin is in the kitchen."
+        },
+        {
+          "hu": "Én takarítok és mosogatok.",
+          "ru": "Я убираю и мою посуду.",
+          "en": "I clean and wash up."
+        },
+        {
+          "hu": "A lakbér nem magas, igaz? Én vagyok a bérlő.",
+          "ru": "Арендная плата невысокая, да? Я съёмщик.",
+          "en": "The rent is not high, right? I am the tenant."
+        },
+        {
+          "hu": "Igen, és én vagyok a tulajdonos. Mikor költözöl?",
+          "ru": "Да, а я владелец. Когда переезжаешь?",
+          "en": "Yes, and I am the owner. When are you moving?"
+        },
+        {
+          "hu": "Holnap költözöm. Köszönöm a kulcsot!",
+          "ru": "Завтра переезжаю. Спасибо за ключ!",
+          "en": "I am moving tomorrow. Thank you for the key!"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "story",
+    "checked": "ai",
+    "title": {
+      "ru": "Новая квартира Анны",
+      "en": "Anna's new flat"
+    },
+    "names": [
+      "Anna",
+      "Péter",
+      "Kata"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Anna új lakásba költözik.",
+          "ru": "Анна переезжает в новую квартиру.",
+          "en": "Anna is moving into a new flat."
+        },
+        {
+          "hu": "A ház nagy, az épület szép.",
+          "ru": "Дом большой, здание красивое.",
+          "en": "The house is big, the building is nice."
+        },
+        {
+          "hu": "A kert is szép, a tető is jó.",
+          "ru": "Сад тоже красивый, крыша тоже хорошая.",
+          "en": "The garden is nice too, the roof is good too."
+        },
+        {
+          "hu": "A lakás az első emeleten van.",
+          "ru": "Квартира на втором этаже.",
+          "en": "The flat is on the first floor."
+        },
+        {
+          "hu": "Van lift, de Anna a lépcsőt szereti.",
+          "ru": "Лифт есть, но Анна любит лестницу.",
+          "en": "There is a lift, but Anna likes the stairs."
+        },
+        {
+          "hu": "Az ajtón van a csengő, és Péter ott vár.",
+          "ru": "На двери звонок, и Петер ждёт там.",
+          "en": "The doorbell is on the door, and Péter is waiting there."
+        }
+      ],
+      [
+        {
+          "hu": "Péter hozza a kulcsot, és nyitja az ajtót.",
+          "ru": "Петер приносит ключ и открывает дверь.",
+          "en": "Péter brings the key and opens the door."
+        },
+        {
+          "hu": "Itt van a kanapé, a fotel és a szőnyeg.",
+          "ru": "Здесь диван, кресло и ковёр.",
+          "en": "Here are the sofa, the armchair and the carpet."
+        },
+        {
+          "hu": "Az ablak nagy, a függöny szép.",
+          "ru": "Окно большое, занавеска красивая.",
+          "en": "The window is big, the curtain is nice."
+        },
+        {
+          "hu": "A falon van egy tükör és egy polc.",
+          "ru": "На стене висят зеркало и полка.",
+          "en": "On the wall there is a mirror and a shelf."
+        },
+        {
+          "hu": "A padló tiszta, a lámpa is jó.",
+          "ru": "Пол чистый, лампа тоже хорошая.",
+          "en": "The floor is clean, the lamp is good too."
+        }
+      ],
+      [
+        {
+          "hu": "A hálószobában van az ágy, a szekrény és a polc.",
+          "ru": "В спальне кровать, шкаф и полка.",
+          "en": "In the bedroom there is the bed, the wardrobe and the shelf."
+        },
+        {
+          "hu": "Az ágyon van a takaró és a párna.",
+          "ru": "На кровати одеяло и подушка.",
+          "en": "On the bed there is the blanket and the pillow."
+        },
+        {
+          "hu": "Az asztal és a szék az ablak mellett van.",
+          "ru": "Стол и стул стоят у окна.",
+          "en": "The table and the chair are by the window."
+        },
+        {
+          "hu": "Az asztalon van egy lámpa.",
+          "ru": "На столе стоит лампа.",
+          "en": "There is a lamp on the table."
+        },
+        {
+          "hu": "A fürdőszobában van a kád és a zuhany.",
+          "ru": "В ванной есть ванна и душ.",
+          "en": "In the bathroom there is a bathtub and a shower."
+        },
+        {
+          "hu": "A vécé is ott van. A radiátor nagyon jó.",
+          "ru": "Туалет тоже там. Батарея очень хорошая.",
+          "en": "The toilet is there too. The radiator is very good."
+        }
+      ],
+      [
+        {
+          "hu": "A konyhában van a hűtő és a mosógép.",
+          "ru": "На кухне холодильник и стиральная машина.",
+          "en": "In the kitchen there is the fridge and the washing machine."
+        },
+        {
+          "hu": "A gáz és a villany jó, de a csap elromlott.",
+          "ru": "Газ и свет в порядке, но кран сломался.",
+          "en": "The gas and the electricity are fine, but the tap is broken."
+        },
+        {
+          "hu": "Péter javítja a csapot.",
+          "ru": "Петер чинит кран.",
+          "en": "Péter repairs the tap."
+        },
+        {
+          "hu": "Anna mosogat.",
+          "ru": "Анна моет посуду.",
+          "en": "Anna washes up."
+        },
+        {
+          "hu": "A polcra teszi a tányért és a poharat.",
+          "ru": "Она ставит на полку тарелку и стакан.",
+          "en": "She puts the plate and the glass on the shelf."
+        },
+        {
+          "hu": "Péter hozza a kanalat, a kést és a villát.",
+          "ru": "Петер приносит ложку, нож и вилку.",
+          "en": "Péter brings the spoon, the knife and the fork."
+        },
+        {
+          "hu": "Az edény nagy, a polc kicsi.",
+          "ru": "Посуда большая, полка маленькая.",
+          "en": "The pot is big, the shelf is small."
+        }
+      ],
+      [
+        {
+          "hu": "Anna takarít, Péter is takarít.",
+          "ru": "Анна убирает, Петер тоже убирает.",
+          "en": "Anna cleans, Péter cleans too."
+        },
+        {
+          "hu": "Az ablak és a fal tiszta, a padló is szép.",
+          "ru": "Окно и стена чистые, пол тоже красивый.",
+          "en": "The window and the wall are clean, the floor is nice too."
+        },
+        {
+          "hu": "Az asztal és a szék új, a szőnyeg is új.",
+          "ru": "Стол и стул новые, ковёр тоже новый.",
+          "en": "The table and the chair are new, the carpet is new too."
+        },
+        {
+          "hu": "A kád, a zuhany és a vécé tiszta.",
+          "ru": "Ванна, душ и туалет чистые.",
+          "en": "The bathtub, the shower and the toilet are clean."
+        },
+        {
+          "hu": "A tükör és a függöny szép.",
+          "ru": "Зеркало и занавеска красивые.",
+          "en": "The mirror and the curtain are nice."
+        },
+        {
+          "hu": "Hol van a porszívó? Itt van!",
+          "ru": "Где пылесос? Вот он!",
+          "en": "Where is the vacuum cleaner? Here it is!"
+        },
+        {
+          "hu": "A szemét a szemetesben van, nem sok.",
+          "ru": "Мусор в мусорном ведре, его немного.",
+          "en": "The rubbish is in the bin, not much."
+        },
+        {
+          "hu": "Az épület új, a radiátor is jó.",
+          "ru": "Здание новое, и батарея хорошая.",
+          "en": "The building is new, and the radiator is good too."
+        },
+        {
+          "hu": "Este a lakás már tiszta.",
+          "ru": "К вечеру квартира уже чистая.",
+          "en": "By evening the flat is already clean."
+        },
+        {
+          "hu": "Péter a fotelben ül, Anna a kanapén.",
+          "ru": "Петер сидит в кресле, Анна на диване.",
+          "en": "Péter sits in the armchair, Anna on the sofa."
+        }
+      ],
+      [
+        {
+          "hu": "Kata a tulajdonos, Anna a bérlő.",
+          "ru": "Ката владелица, Анна съёмщица.",
+          "en": "Kata is the owner, Anna is the tenant."
+        },
+        {
+          "hu": "A lakbér nem magas.",
+          "ru": "Арендная плата невысокая.",
+          "en": "The rent is not high."
+        },
+        {
+          "hu": "Anna a kertben ül, és nézi a házat.",
+          "ru": "Анна сидит в саду и смотрит на дом.",
+          "en": "Anna sits in the garden and looks at the house."
+        },
+        {
+          "hu": "Nézi az épületet és a tetőt is.",
+          "ru": "Она смотрит и на здание, и на крышу.",
+          "en": "She looks at the building and the roof too."
+        },
+        {
+          "hu": "Ez az én lakásom, mondja Anna. Nagyon boldog.",
+          "ru": "Это моя квартира, говорит Анна. Она очень счастлива.",
+          "en": "This is my flat, says Anna. She is very happy."
+        }
+      ]
+    ]
+  }
+}

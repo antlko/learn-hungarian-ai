@@ -1,7 +1,6 @@
 package api
 
 import (
-	"database/sql"
 	"strconv"
 	"strings"
 	"sync"
@@ -11,48 +10,56 @@ import (
 	"tanulom/internal/mining"
 )
 
-// Ready-made reading sets: «Диалог» and «Фразы» (ADR-056, ADR-066).
+// Ready-made reading texts (ADR-056, ADR-066, ADR-076).
 //
-// A «Фразы» set is a handful of sentences that ALREADY EXIST in the language
-// pack — a person wrote each one — chosen at build time for one course unit and
-// one CEFR band (langpack/pipeline/reading_sets.py). A «Диалог» set is one short
-// written conversation for the same unit (langpack/pipeline/dialogues.py): its
-// sentences are `source = 'authored'`, written by an AI and not checked by a
-// native speaker, and every surface says so. Importing a set makes an ordinary
-// text in the learner's library, through the same ingestion path as a paste.
-// Nothing here writes Hungarian, and nothing here creates a note or a card:
-// mining words out of the text stays the learner's explicit act in the reader.
-// Authored sentences are reading material only; no drill, example or practice
-// query may return one: each filters `source <> 'authored'`.
+// The texts live in a catalogue embedded in the binary (internal/readsets), not
+// in the language pack: shipping a new binary updates them for the full and the
+// starter edition alike, and the pack is never written. Per course unit there is
+// a short, a medium and a long text (and, later, talks and mini-dialogues), all
+// written by an AI for the app and not checked by a native speaker, and every
+// surface says so. Importing a set makes an ordinary text in the learner's
+// library through the same ingestion path as a paste. Nothing here creates a
+// note or a card: mining words out of the text stays the learner's explicit act.
 //
-// The pack is read-only. Which sets a learner has imported is recorded on the
-// TEXT itself, as `source_url = "set:<code>"`; no table is added.
+// Which sets a learner has imported is recorded on the TEXT itself, as
+// `source_url = "set:<code>"`; no table is added.
 
 const setSourcePrefix = "set:"
 
-// authoredSource is `sentence.source` of an AI-written dialogue line.
-const authoredSource = "authored"
-
-// dialogueTurn is the Hungarian turn marker; the pack stores the line without it.
-const dialogueTurn = "– "
-
 // LibrarySetDTO is one row of GET /api/library/sets.
 type LibrarySetDTO struct {
-	Code  string `json:"code"`
+	Code string `json:"code"`
+	// Unit is the course unit (or theme) code the text belongs to; texts of one
+	// unit share it.
+	Unit  string `json:"unit"`
 	Level string `json:"level"`
-	// Track is "core" (one of the 24 course units), "theme", or "dialogue" (the
-	// written conversation that goes with a unit).
+	// Track is "core" (one of the course units) or "theme".
 	Track string `json:"track"`
+	// Register is "standard" or "colloquial" (spoken, informal language).
+	Register string `json:"register"`
 	// Title and Theme are in the request's locale; the Ru/En pair is always sent
 	// so the client can fall back without a second request.
 	Title   string `json:"title"`
 	TitleRU string `json:"titleRu"`
 	TitleEN string `json:"titleEn"`
 	Theme   string `json:"theme"`
-	// Sentences is how many sentences the set holds.
+	// Scene is a mini-dialogue's one-line situation in the request's locale;
+	// empty for other texts. It is shown in the UI only, never imported.
+	Scene string `json:"scene,omitempty"`
+	// SceneRU/SceneEN are always sent so the client picks the scene exactly like the title.
+	SceneRU string `json:"sceneRu,omitempty"`
+	SceneEN string `json:"sceneEn,omitempty"`
+	// Sentences is how many lines the set holds.
 	Sentences int `json:"sentences"`
+	// Tier is "short" | "medium" | "long" | "talk" | "mini"; Genre is the text's
+	// genre id ("sms", "note", "dialogue", "story" ...); Words is its word
+	// count; Checked says who vetted it ("ai" until a human does).
+	Tier    string `json:"tier,omitempty"`
+	Genre   string `json:"genre,omitempty"`
+	Words   int    `json:"words,omitempty"`
+	Checked string `json:"checked,omitempty"`
 	// Authored: written by an AI for the app, not checked by a native speaker.
-	// Always shown to the learner as such.
+	// Always shown to the learner as such; true for every catalogue text.
 	Authored bool `json:"authored"`
 	Imported bool `json:"imported"`
 	// TextID is the learner's own copy, present only when Imported.
@@ -60,25 +67,36 @@ type LibrarySetDTO struct {
 }
 
 // LibrarySetLineDTO is one line of a set, for the preview. RU and EN are the
-// pack's own translations and may be missing: the client picks one by the
+// catalogue's own translations and may be empty: the client picks one by the
 // learner's gloss language and labels a fallback.
 type LibrarySetLineDTO struct {
 	HU string `json:"hu"`
 	RU string `json:"ru,omitempty"`
 	EN string `json:"en,omitempty"`
+	// Who is the speaker of a dialogue turn, when the catalogue names one.
+	Who string `json:"who,omitempty"`
 }
 
 // LibrarySetDetailDTO is GET /api/library/sets/:code: the set as it would be
 // imported, without importing it.
 type LibrarySetDetailDTO struct {
 	Code      string              `json:"code"`
+	Unit      string              `json:"unit"`
 	Level     string              `json:"level"`
 	Track     string              `json:"track"`
+	Register  string              `json:"register"`
 	Title     string              `json:"title"`
 	TitleRU   string              `json:"titleRu"`
 	TitleEN   string              `json:"titleEn"`
 	Theme     string              `json:"theme"`
+	Scene     string              `json:"scene,omitempty"`
+	SceneRU   string              `json:"sceneRu,omitempty"`
+	SceneEN   string              `json:"sceneEn,omitempty"`
 	Authored  bool                `json:"authored"`
+	Tier      string              `json:"tier,omitempty"`
+	Genre     string              `json:"genre,omitempty"`
+	Words     int                 `json:"words,omitempty"`
+	Checked   string              `json:"checked,omitempty"`
 	Sentences []LibrarySetLineDTO `json:"sentences"`
 }
 
@@ -97,19 +115,6 @@ var importLocks sync.Map // "uid:code" -> *sync.Mutex
 func importLock(userID int64, code string) *sync.Mutex {
 	m, _ := importLocks.LoadOrStore(strconv.FormatInt(userID, 10)+":"+code, &sync.Mutex{})
 	return m.(*sync.Mutex)
-}
-
-// hasReadingSets reports whether the pack carries the two tables. An older
-// pack does not, and that is not an error: the list is simply empty.
-func (s *Server) hasReadingSets() bool {
-	if s.pack == nil {
-		return false
-	}
-	var n int
-	err := s.pack.DB().QueryRow(
-		`SELECT COUNT(*) FROM sqlite_master WHERE type = 'table'
-		   AND name IN ('reading_set', 'reading_set_sentence')`).Scan(&n)
-	return err == nil && n == 2
 }
 
 // importedSets maps set code -> the learner's text id.
@@ -138,103 +143,63 @@ func (s *Server) handleLibrarySets(c fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	out := []LibrarySetDTO{}
-	if !s.hasReadingSets() {
-		return c.JSON(out)
-	}
 	imported, err := s.importedSets(u.ID)
 	if err != nil {
 		return err
 	}
-	lang := s.answerLang(c.Query("lang"))
-
-	// By the pack's own order: core units first, then the themes, and each
-	// unit's dialogue right before its «Фразы» (the build numbers them so).
-	rows, err := s.pack.DB().Query(`
-		SELECT r.code, r.level, r.track, r.title_ru, r.title_en, r.theme_ru, r.theme_en,
-		       (SELECT COUNT(*) FROM reading_set_sentence x WHERE x.set_code = r.code),
-		       EXISTS (SELECT 1 FROM reading_set_sentence x JOIN sentence s ON s.id = x.sentence_id
-		                WHERE x.set_code = r.code AND s.source = ?)
-		  FROM reading_set r
-		 ORDER BY r.ord, r.code`, authoredSource)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var d LibrarySetDTO
-		var themeRU, themeEN string
-		if err := rows.Scan(&d.Code, &d.Level, &d.Track, &d.TitleRU, &d.TitleEN,
-			&themeRU, &themeEN, &d.Sentences, &d.Authored); err != nil {
-			return err
+	en := s.answerLang(c.Query("lang")) == "en"
+	out := make([]LibrarySetDTO, 0, len(s.sets.Sets()))
+	for _, set := range s.sets.Sets() {
+		d := LibrarySetDTO{
+			Code: set.Code, Unit: set.Unit, Level: set.Level, Track: set.Track,
+			Register: set.Register, Title: set.TitleRU, TitleRU: set.TitleRU,
+			TitleEN: set.TitleEN, Theme: set.ThemeRU, Sentences: len(set.Lines),
+			Tier: set.Tier, Genre: set.Genre, Words: set.Words, Checked: set.Checked,
+			Scene: set.SceneRU, SceneRU: set.SceneRU, SceneEN: set.SceneEN, Authored: true,
 		}
-		d.Title, d.Theme = d.TitleRU, themeRU
-		if lang == "en" {
-			d.Title, d.Theme = d.TitleEN, themeEN
+		if en {
+			d.Title, d.Theme, d.Scene = set.TitleEN, set.ThemeEN, set.SceneEN
 		}
-		if id, ok := imported[d.Code]; ok {
+		if id, ok := imported[set.Code]; ok {
 			d.Imported = true
 			d.TextID = &id
 		}
 		out = append(out, d)
 	}
-	if err := rows.Err(); err != nil {
-		return err
-	}
 	return c.JSON(out)
 }
 
-// handleLibrarySet previews one set: every line, in order, with the pack's
+// handleLibrarySet previews one set: every line, in order, with the catalogue's
 // translations, so a learner can read it before adding it.
 func (s *Server) handleLibrarySet(c fiber.Ctx) error {
 	if _, err := mustUser(c); err != nil {
 		return err
 	}
-	if !s.hasReadingSets() {
+	set, ok := s.sets.Get(c.Params("code"))
+	if !ok {
 		return fiber.NewError(fiber.StatusNotFound, "no such reading set")
 	}
-	code := c.Params("code")
-	d := LibrarySetDetailDTO{Sentences: []LibrarySetLineDTO{}}
-	var themeRU, themeEN string
-	err := s.pack.DB().QueryRow(
-		`SELECT code, level, track, title_ru, title_en, theme_ru, theme_en
-		   FROM reading_set WHERE code = ?`, code).Scan(
-		&d.Code, &d.Level, &d.Track, &d.TitleRU, &d.TitleEN, &themeRU, &themeEN)
-	if err == sql.ErrNoRows {
-		return fiber.NewError(fiber.StatusNotFound, "no such reading set")
+	en := s.answerLang(c.Query("lang")) == "en"
+	d := LibrarySetDetailDTO{
+		Code: set.Code, Unit: set.Unit, Level: set.Level, Track: set.Track,
+		Register: set.Register, Title: set.TitleRU, TitleRU: set.TitleRU,
+		TitleEN: set.TitleEN, Theme: set.ThemeRU, Authored: true, Tier: set.Tier,
+		Genre: set.Genre, Words: set.Words, Checked: set.Checked,
+		Scene: set.SceneRU, SceneRU: set.SceneRU, SceneEN: set.SceneEN, Sentences: make([]LibrarySetLineDTO, 0, len(set.Lines)),
 	}
-	if err != nil {
-		return err
+	if en {
+		d.Title, d.Theme, d.Scene = set.TitleEN, set.ThemeEN, set.SceneEN
 	}
-	d.Title, d.Theme = d.TitleRU, themeRU
-	if s.answerLang(c.Query("lang")) == "en" {
-		d.Title, d.Theme = d.TitleEN, themeEN
+	for _, l := range set.Lines {
+		d.Sentences = append(d.Sentences, LibrarySetLineDTO{
+			HU: strings.TrimSpace(l.HU), RU: l.RU, EN: l.EN, Who: l.Who})
 	}
-
-	rows, err := s.pack.DB().Query(`
-		SELECT s.hu, s.source,
-		       COALESCE((SELECT text FROM sentence_trans WHERE sentence_id = s.id AND lang = 'ru'), ''),
-		       COALESCE((SELECT text FROM sentence_trans WHERE sentence_id = s.id AND lang = 'en'), '')
-		  FROM reading_set_sentence r JOIN sentence s ON s.id = r.sentence_id
-		 WHERE r.set_code = ? ORDER BY r.ord`, code)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var l LibrarySetLineDTO
-		var source string
-		if err := rows.Scan(&l.HU, &source, &l.RU, &l.EN); err != nil {
-			return err
-		}
-		l.HU = strings.TrimSpace(l.HU)
-		if source == authoredSource {
-			d.Authored = true
-		}
-		d.Sentences = append(d.Sentences, l)
-	}
-	if err := rows.Err(); err != nil {
-		return err
+	// The catalogue changes only with the binary: its hash is the validator.
+	tag := `"` + s.sets.Hash() + `-` + strconv.FormatBool(en) + `"`
+	c.Set("ETag", tag)
+	c.Set("Cache-Control", "private, no-cache")
+	if c.Get("If-None-Match") == tag {
+		return c.SendStatus(fiber.StatusNotModified)
 	}
 	return c.JSON(d)
 }
@@ -247,20 +212,12 @@ func (s *Server) handleImportLibrarySet(c fiber.Ctx) error {
 	if err := s.requirePack(); err != nil {
 		return err
 	}
-	if !s.hasReadingSets() {
-		// The pack is an older one: it has no sets at all, and says so — the
-		// list is empty, so a client following the UI never reaches here.
-		return fiber.NewError(fiber.StatusServiceUnavailable, "errors.packMissing")
-	}
 	code := c.Params("code")
-
-	title, body, kind, ok, err := s.setBody(code)
-	if err != nil {
-		return err
-	}
+	set, ok := s.sets.Get(code)
 	if !ok {
 		return fiber.NewError(fiber.StatusNotFound, "no such reading set")
 	}
+	title, body := s.setTitle(set.TitleRU, set.TitleEN), set.Body()
 
 	mu := importLock(u.ID, code)
 	mu.Lock()
@@ -279,103 +236,13 @@ func (s *Server) handleImportLibrarySet(c fiber.Ctx) error {
 	if err != nil {
 		return badRequest("%s", err.Error())
 	}
-	in.Kind = mining.Kind(kind)
+	// The text model's own mark for AI-written text, so the shelf can say so.
+	in.Kind = mining.KindGenerated
 	id, _, _, err := s.ingestText(c, u.ID, in, setSourcePrefix+code)
 	if err != nil {
 		return err
 	}
 	return c.Status(fiber.StatusCreated).JSON(ImportSetResponse{TextID: id, Created: true})
-}
-
-// packHasParaColumn reports whether reading_set_sentence carries `para`, the
-// paragraph index a story's sentences are grouped by (ADR-074). An older pack
-// does not: every sentence is then its own paragraph, as before.
-func (s *Server) packHasParaColumn() bool {
-	var n int
-	err := s.pack.DB().QueryRow(
-		`SELECT COUNT(*) FROM pragma_table_info('reading_set_sentence') WHERE name = 'para'`).Scan(&n)
-	return err == nil && n > 0
-}
-
-// setBody builds the text a set imports as, from the CURRENT pack: its title (in
-// the UI language), body and text kind. ok is false for an unknown or empty set.
-//
-// A dialogue: one turn per line, each opened by the Hungarian turn marker «– »,
-// so the reader shows a script; a line break ends a sentence and the dash is not
-// a word. Any other set is a story (or, on an older pack, a list of pack
-// sentences): sentences of one paragraph are joined by a space, paragraphs by a
-// blank line, which always ends a sentence in the splitter, so a sentence with
-// no closing punctuation cannot swallow the next one. Text with any authored
-// sentence is kind `generated` — the text model's mark for AI-written text — so
-// the shelf can say so; pack sentences stay `paste`. The text model has no
-// per-sentence translation slot, so the pack's Russian is not stored with it.
-func (s *Server) setBody(code string) (title, body, kind string, ok bool, err error) {
-	if s.pack == nil || !s.hasReadingSets() {
-		return "", "", "", false, nil
-	}
-	var titleRU, titleEN, track string
-	switch e := s.pack.DB().QueryRow(
-		`SELECT title_ru, title_en, track FROM reading_set WHERE code = ?`, code).Scan(&titleRU, &titleEN, &track); {
-	case e == sql.ErrNoRows:
-		return "", "", "", false, nil
-	case e != nil:
-		return "", "", "", false, e
-	}
-	paraCol := "0"
-	if s.packHasParaColumn() {
-		paraCol = "r.para"
-	}
-	rows, qerr := s.pack.DB().Query(`
-		SELECT s.hu, s.source, `+paraCol+` FROM reading_set_sentence r JOIN sentence s ON s.id = r.sentence_id
-		 WHERE r.set_code = ? ORDER BY r.ord`, code)
-	if qerr != nil {
-		return "", "", "", false, qerr
-	}
-	defer rows.Close()
-	var sentences []string
-	var paras []int
-	authored := false
-	for rows.Next() {
-		var hu, source string
-		var para int
-		if err := rows.Scan(&hu, &source, &para); err != nil {
-			return "", "", "", false, err
-		}
-		authored = authored || source == authoredSource
-		sentences = append(sentences, strings.TrimSpace(hu))
-		paras = append(paras, para)
-	}
-	if err := rows.Err(); err != nil {
-		return "", "", "", false, err
-	}
-	if len(sentences) == 0 {
-		return "", "", "", false, nil
-	}
-
-	kind = string(mining.KindPaste)
-	if authored {
-		kind = string(mining.KindGenerated)
-	}
-	switch {
-	case track == "dialogue":
-		for i := range sentences {
-			sentences[i] = dialogueTurn + sentences[i]
-		}
-		body = strings.Join(sentences, "\n")
-	case paraCol == "0":
-		body = strings.Join(sentences, "\n\n")
-	default:
-		var groups []string
-		for i, sent := range sentences {
-			if i > 0 && paras[i] == paras[i-1] {
-				groups[len(groups)-1] += " " + sent
-			} else {
-				groups = append(groups, sent)
-			}
-		}
-		body = strings.Join(groups, "\n\n")
-	}
-	return s.setTitle(titleRU, titleEN), body, kind, true, nil
 }
 
 // setTitle names the imported text in the UI language the learner has set.

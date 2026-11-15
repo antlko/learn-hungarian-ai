@@ -1,0 +1,465 @@
+{
+  "short": {
+    "genre": "sms",
+    "checked": "ai",
+    "title": {
+      "ru": "Течёт кран!",
+      "en": "The tap is leaking!"
+    },
+    "names": [
+      "Béla",
+      "Anna",
+      "Laci"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Béla! Anna vagyok.",
+          "ru": "Привет, Бела! Это Анна.",
+          "en": "Hi, Béla! It's Anna."
+        },
+        {
+          "hu": "A csap csöpög a fürdőszobában, és a vezeték is ereszt.",
+          "ru": "В ванной капает кран, и труба тоже подтекает.",
+          "en": "The tap in the bathroom is dripping, and the pipe is leaking too."
+        },
+        {
+          "hu": "Folyik a víz, és a zár is rossz az ajtón.",
+          "ru": "Вода течёт, и замок на двери тоже сломан.",
+          "en": "Water is running, and the lock on the door is broken too."
+        },
+        {
+          "hu": "Ez nagyon rossz, és egy kicsit veszélyes is.",
+          "ru": "Это очень плохо и немного опасно.",
+          "en": "This is very bad, and a little dangerous too."
+        },
+        {
+          "hu": "Ma azonnal kell egy jó szerelő. Ismersz egy mestert?",
+          "ru": "Сегодня срочно нужен хороший мастер. Ты знаешь какого-нибудь?",
+          "en": "I need a good repairman today, right away. Do you know one?"
+        }
+      ],
+      [
+        {
+          "hu": "Szia, Anna! Igen, Laci jó mester.",
+          "ru": "Привет, Анна! Да, Лаци хороший мастер.",
+          "en": "Hi, Anna! Yes, Laci is a good repairman."
+        },
+        {
+          "hu": "Hívd, és mondd, hogy ma azonnal kell.",
+          "ru": "Позвони ему и скажи, что тебе нужно сегодня, сразу.",
+          "en": "Call him and say you need him today, right away."
+        },
+        {
+          "hu": "Addig jobb nem használni a csapot, mert a vezeték hibás.",
+          "ru": "А пока лучше не пользоваться краном, потому что труба неисправна.",
+          "en": "Until then it is better not to use the tap, because the pipe is faulty."
+        },
+        {
+          "hu": "Szerintem egy óra alatt megold mindent.",
+          "ru": "Думаю, за час он всё решит.",
+          "en": "I think he will solve everything in an hour."
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "email",
+    "checked": "ai",
+    "title": {
+      "ru": "Письмо в магазин: гарантия",
+      "en": "An email to the shop: warranty"
+    },
+    "names": [
+      "Márta",
+      "Szabó"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Jó napot kívánok!",
+          "ru": "Добрый день!",
+          "en": "Good day!"
+        },
+        {
+          "hu": "Szabó Márta vagyok.",
+          "ru": "Меня зовут Марта Сабо.",
+          "en": "My name is Márta Szabó."
+        },
+        {
+          "hu": "Múlt héten vettem egy új gépet.",
+          "ru": "На прошлой неделе я купила новую машину.",
+          "en": "Last week I bought a new appliance."
+        },
+        {
+          "hu": "A termék először jól működött, és a víz is meleg volt.",
+          "ru": "Сначала изделие хорошо работало, и вода была тёплая.",
+          "en": "At first the product worked well, and the water was warm too."
+        },
+        {
+          "hu": "Most már csak hideg víz folyik, nem meleg.",
+          "ru": "Теперь течёт только холодная вода, не тёплая.",
+          "en": "Now only cold water comes out, not warm."
+        },
+        {
+          "hu": "Ez egy új gép, ezért nem értem a gondot.",
+          "ru": "Это новая машина, поэтому я не понимаю проблему.",
+          "en": "This is a new appliance, so I do not understand the problem."
+        }
+      ],
+      [
+        {
+          "hu": "Tegnap reggel nagy zaj volt, aztán a gép nem működött.",
+          "ru": "Вчера утром был сильный шум, а потом машина перестала работать.",
+          "en": "Yesterday morning there was a loud noise, and then the appliance stopped."
+        },
+        {
+          "hu": "Aztán füst jött a gépből, és büdös volt a szoba.",
+          "ru": "Потом из машины пошёл дым, и в комнате запахло гарью.",
+          "en": "Then smoke came out of the appliance, and the room began to smell bad."
+        },
+        {
+          "hu": "Azonnal becsuktam az ajtót.",
+          "ru": "Я сразу закрыла дверь.",
+          "en": "I shut the door at once."
+        },
+        {
+          "hu": "Ez veszélyes, ezért nem használom a gépet.",
+          "ru": "Это опасно, поэтому я не пользуюсь машиной.",
+          "en": "This is dangerous, so I am not using the appliance."
+        },
+        {
+          "hu": "Nem akarok kárt, nem akarok tüzet.",
+          "ru": "Я не хочу ущерба, не хочу пожара.",
+          "en": "I do not want damage, I do not want a fire."
+        }
+      ],
+      [
+        {
+          "hu": "Ma reggel egy mester jött hozzám.",
+          "ru": "Сегодня утром ко мне пришёл мастер.",
+          "en": "This morning a repairman came to me."
+        },
+        {
+          "hu": "Ellenőrizte a gépet, a vezetéket és a csavart.",
+          "ru": "Он осмотрел машину, провод и болт.",
+          "en": "He checked the appliance, the wire and the bolt."
+        },
+        {
+          "hu": "A mester szerint a motor is hibás, és a kábel is rossz.",
+          "ru": "По словам мастера, и мотор неисправен, и кабель плохой.",
+          "en": "The repairman says the motor is faulty and the cable is bad too."
+        },
+        {
+          "hu": "Ő sem tudja megoldani a gondot, mert nincs új alkatrész.",
+          "ru": "Он тоже не может решить проблему, потому что нет новой запчасти.",
+          "en": "He cannot solve the problem either, because there is no new spare part."
+        }
+      ],
+      [
+        {
+          "hu": "Ez a gép nem volt olcsó.",
+          "ru": "Эта машина была недешёвой.",
+          "en": "This appliance was not cheap."
+        },
+        {
+          "hu": "Nem akarok új gondot, és nem akarok veszélyt otthon.",
+          "ru": "Я не хочу новых проблем и опасности дома.",
+          "en": "I do not want new trouble, and I do not want danger at home."
+        },
+        {
+          "hu": "Tegnap a gép még új volt, ma már csak rossz.",
+          "ru": "Вчера машина была ещё новой, а сегодня она просто сломана.",
+          "en": "Yesterday the appliance was still new, today it is just broken."
+        },
+        {
+          "hu": "Ma reggel még egyszer megnéztem, de ugyanaz a gond.",
+          "ru": "Сегодня утром я посмотрела ещё раз, но проблема та же.",
+          "en": "This morning I checked once more, but the problem is the same."
+        },
+        {
+          "hu": "A gép hibás, a víz hideg, a szoba büdös.",
+          "ru": "Машина неисправна, вода холодная, в комнате пахнет гарью.",
+          "en": "The appliance is faulty, the water is cold, the room smells bad."
+        },
+        {
+          "hu": "Szerintem a termék hibás.",
+          "ru": "По-моему, изделие бракованное.",
+          "en": "I think the product is defective."
+        },
+        {
+          "hu": "Van rá garancia, ezért azonnali cserét kérek.",
+          "ru": "На неё есть гарантия, поэтому прошу немедленную замену.",
+          "en": "It has a warranty, so I ask for an immediate replacement."
+        },
+        {
+          "hu": "A csere ingyen van, ugye?",
+          "ru": "Замена бесплатная, верно?",
+          "en": "The replacement is free, right?"
+        },
+        {
+          "hu": "Ha kell, a számlát is elküldöm.",
+          "ru": "Если нужно, я пришлю и чек.",
+          "en": "If needed, I will send the receipt too."
+        },
+        {
+          "hu": "Várom a gyors választ, és köszönöm a segítséget.",
+          "ru": "Жду быстрого ответа и благодарю за помощь.",
+          "en": "I look forward to a quick answer and thank you for your help."
+        },
+        {
+          "hu": "Üdvözlettel, Szabó Márta.",
+          "ru": "С уважением, Марта Сабо.",
+          "en": "Kind regards, Márta Szabó."
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "story",
+    "checked": "ai",
+    "title": {
+      "ru": "Всё сразу сломалось",
+      "en": "Everything broke at once"
+    },
+    "names": [
+      "Ilona",
+      "László",
+      "Kata"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Ilona reggel hétkor a konyhába ment.",
+          "ru": "Илона в семь утра пошла на кухню.",
+          "en": "At seven in the morning Ilona went into the kitchen."
+        },
+        {
+          "hu": "Az égő rossz volt, és a konyha sötét volt.",
+          "ru": "Лампочка не горела, и на кухне было темно.",
+          "en": "The bulb was dead, and the kitchen was dark."
+        },
+        {
+          "hu": "Ilona tejet akart inni, de a tej romlott volt.",
+          "ru": "Илона хотела выпить молока, но молоко испортилось.",
+          "en": "Ilona wanted to drink some milk, but the milk was off."
+        },
+        {
+          "hu": "Büdös volt, nagyon büdös.",
+          "ru": "Оно воняло, сильно воняло.",
+          "en": "It smelled bad, very bad."
+        },
+        {
+          "hu": "Aztán a fürdőszobába ment, de a víz hideg volt.",
+          "ru": "Потом она пошла в ванную, но вода была холодная.",
+          "en": "Then she went to the bathroom, but the water was cold."
+        },
+        {
+          "hu": "Meleg víz nem volt, csak hideg.",
+          "ru": "Горячей воды не было, только холодная.",
+          "en": "There was no hot water, only cold."
+        },
+        {
+          "hu": "Mindig minden törik, mondta Ilona.",
+          "ru": "Вечно всё ломается, сказала Илона.",
+          "en": "Everything always breaks, said Ilona."
+        }
+      ],
+      [
+        {
+          "hu": "A csap is rossz volt, mert csöpögött.",
+          "ru": "Кран тоже был сломан, потому что капал.",
+          "en": "The tap was broken too, because it was dripping."
+        },
+        {
+          "hu": "Folyik a víz, és nem áll meg, gondolta Ilona.",
+          "ru": "Вода течёт и не останавливается, подумала Илона.",
+          "en": "The water keeps running and does not stop, thought Ilona."
+        },
+        {
+          "hu": "A vezeték is ereszt, és ez veszélyes.",
+          "ru": "Труба тоже подтекает, а это опасно.",
+          "en": "The pipe is leaking too, and that is dangerous."
+        },
+        {
+          "hu": "Aztán a mosógép sem működött.",
+          "ru": "Потом и стиральная машина перестала работать.",
+          "en": "Then the washing machine did not work either."
+        },
+        {
+          "hu": "Nagy zaj volt, aztán füst jött a gépből.",
+          "ru": "Был сильный шум, потом из машины пошёл дым.",
+          "en": "There was a loud noise, then smoke came out of the machine."
+        },
+        {
+          "hu": "A szoba büdös lett, és Ilona félt.",
+          "ru": "В комнате запахло гарью, и Илоне стало страшно.",
+          "en": "The room began to smell bad, and Ilona was afraid."
+        },
+        {
+          "hu": "Ez veszélyes, gondolta, és becsukta az ajtót.",
+          "ru": "Это опасно, подумала она и закрыла дверь.",
+          "en": "This is dangerous, she thought, and shut the door."
+        },
+        {
+          "hu": "Azonnal hívni akarta Lászlót, a szerelőt.",
+          "ru": "Она сразу захотела позвонить Ласло, мастеру.",
+          "en": "She wanted to call László the repairman at once."
+        }
+      ],
+      [
+        {
+          "hu": "László tíz perc múlva ott volt.",
+          "ru": "Ласло был у неё через десять минут.",
+          "en": "László was there in ten minutes."
+        },
+        {
+          "hu": "Hozott egy nagy táskát, és sok szerszám volt benne.",
+          "ru": "Он принёс большую сумку, и в ней было много инструментов.",
+          "en": "He brought a big bag, and it held many tools."
+        },
+        {
+          "hu": "Először ellenőrizte a vezetéket.",
+          "ru": "Сначала он осмотрел провод.",
+          "en": "First he checked the wire."
+        },
+        {
+          "hu": "A vezeték régi volt, és a kábel nem csatlakozott jól.",
+          "ru": "Провод был старый, и кабель плохо подключался.",
+          "en": "The wire was old, and the cable was not connected well."
+        },
+        {
+          "hu": "Ezért volt a zaj és a szag, mondta László.",
+          "ru": "Поэтому и был шум и запах, сказал Ласло.",
+          "en": "That is why there was the noise and the smell, said László."
+        },
+        {
+          "hu": "Szerencse, hogy nem volt tűz.",
+          "ru": "К счастью, пожара не было.",
+          "en": "Luckily there was no fire."
+        },
+        {
+          "hu": "Aztán megnézte a zárat is.",
+          "ru": "Потом он посмотрел и замок.",
+          "en": "Then he looked at the lock too."
+        },
+        {
+          "hu": "A zár is rossz volt, és az ajtó sem működött jól.",
+          "ru": "Замок тоже был сломан, и дверь тоже работала плохо.",
+          "en": "The lock was broken too, and the door did not work well either."
+        }
+      ],
+      [
+        {
+          "hu": "Két óráig tartott, de László tudta, hogyan lehet megoldani a gondot.",
+          "ru": "Это заняло два часа, но Ласло знал, как решить проблему.",
+          "en": "It took two hours, but László knew how to solve the problem."
+        },
+        {
+          "hu": "Új égőt is tett a konyhába, ingyen.",
+          "ru": "Он ещё и поставил на кухне новую лампочку, бесплатно.",
+          "en": "He also put a new bulb in the kitchen, for free."
+        },
+        {
+          "hu": "Ilona nagyon megköszönte, mert a konyha megint világos volt.",
+          "ru": "Илона очень поблагодарила, ведь на кухне снова было светло.",
+          "en": "Ilona thanked him a lot, because the kitchen was bright again."
+        },
+        {
+          "hu": "A gép megint működött, és a víz meleg lett.",
+          "ru": "Машина снова работала, и вода стала горячей.",
+          "en": "The machine worked again, and the water got warm."
+        },
+        {
+          "hu": "A gép régi, mondta László, jobb egy új gép.",
+          "ru": "Машина старая, сказал Ласло, лучше новая.",
+          "en": "The machine is old, said László, a new one is better."
+        },
+        {
+          "hu": "A gépre még van garancia, vidd vissza a boltba.",
+          "ru": "На машину ещё есть гарантия, отнеси её в магазин.",
+          "en": "The machine is still under warranty, take it back to the shop."
+        }
+      ],
+      [
+        {
+          "hu": "A kárt a biztosítás fizeti, mondta László.",
+          "ru": "Ущерб оплатит страховка, сказал Ласло.",
+          "en": "The insurance will pay for the damage, said László."
+        },
+        {
+          "hu": "Csak a számla kell hozzá.",
+          "ru": "Нужен только чек.",
+          "en": "You only need the receipt."
+        },
+        {
+          "hu": "Ilona megköszönte, és adott neki egy kávét.",
+          "ru": "Илона поблагодарила его и угостила кофе.",
+          "en": "Ilona thanked him and gave him a coffee."
+        },
+        {
+          "hu": "Este meleg fürdőt vett, és nem volt több gond.",
+          "ru": "Вечером она приняла тёплую ванну, и больше проблем не было.",
+          "en": "In the evening she had a warm bath, and there were no more problems."
+        }
+      ],
+      [
+        {
+          "hu": "Ilona egész nap óvatos volt.",
+          "ru": "Весь день Илона была осторожна.",
+          "en": "Ilona was careful all day."
+        },
+        {
+          "hu": "Egy kicsit félt, mert a tűz nagy veszély.",
+          "ru": "Ей было немного страшно, ведь пожар это большая опасность.",
+          "en": "She was a little afraid, because a fire is a big danger."
+        },
+        {
+          "hu": "Délután a szomszéd, Kata is jött.",
+          "ru": "После обеда пришла и соседка Ката.",
+          "en": "In the afternoon the neighbour, Kata, came too."
+        },
+        {
+          "hu": "Kata szerint a háznak régi vezetékei vannak, és mindenhol van gond.",
+          "ru": "По словам Каты, в доме старая проводка, и проблемы везде.",
+          "en": "According to Kata the house has old wiring and there is trouble everywhere."
+        },
+        {
+          "hu": "Jó, hogy van egy jó mester, mondta Kata.",
+          "ru": "Хорошо, что есть хороший мастер, сказала Ката.",
+          "en": "It is good that there is a good repairman, said Kata."
+        },
+        {
+          "hu": "Kata is hívott egy mestert régebben, de ő nem jött el.",
+          "ru": "Ката тоже когда-то звала мастера, но тот не пришёл.",
+          "en": "Kata called a repairman once too, but he did not come."
+        },
+        {
+          "hu": "Kata is kért egy kávét.",
+          "ru": "Ката тоже попросила кофе.",
+          "en": "Kata asked for a coffee too."
+        },
+        {
+          "hu": "Este Ilona még egyszer ellenőrizte a gépet.",
+          "ru": "Вечером Илона ещё раз проверила машину.",
+          "en": "In the evening Ilona checked the machine once more."
+        },
+        {
+          "hu": "A gép nem volt hangos, és semmi büdös szag nem volt.",
+          "ru": "Машина не шумела, и никакого дурного запаха не было.",
+          "en": "The machine was not loud, and there was no bad smell at all."
+        },
+        {
+          "hu": "A zár is jól működött, és az ajtó is jó volt.",
+          "ru": "Замок тоже хорошо работал, и дверь тоже была в порядке.",
+          "en": "The lock worked well too, and the door was fine too."
+        },
+        {
+          "hu": "Ilona nagyon boldog volt, mert minden megint működött.",
+          "ru": "Илона была очень счастлива, потому что всё снова работало.",
+          "en": "Ilona was very happy, because everything worked again."
+        }
+      ]
+    ]
+  }
+}

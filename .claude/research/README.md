@@ -50,6 +50,8 @@ In Vue, the same convention in a `<!-- -->` or `//` comment above the component 
 | R18 | [18-sessions-and-progress.md](18-sessions-and-progress.md) | Relearn to one correct recall per sitting; near goals sustain effort; measured progress is feedback, points are rewards | Medium |
 | R19 | [19-grounded-tutor.md](19-grounded-tutor.md) | A small model explains grammar acceptably only when grounded, short-context and labelled | Medium-Low |
 | R21 | [21-graded-authored-texts.md](21-graded-authored-texts.md) | A connected, graded, authored text per unit beats a bag of corpus sentences at A1–A2; labelled AI-written | Medium |
+| R22 | [22-text-length-and-genre.md](22-text-length-and-genre.md) | Three texts per topic (short/medium/long, different genres) as a narrow-reading cluster; tier sizes are an inference | Medium |
+| R23 | [23-colloquial-register.md](23-colloquial-register.md) | Spoken Hungarian differs from the written norm in particles, clippings and ellipsis; our evidence is thin and AI-written, so the register rules are checkable and reviewed, not proven | Low |
 
 ## Confidence scale
 

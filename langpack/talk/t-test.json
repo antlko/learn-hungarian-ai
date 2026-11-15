@@ -1,0 +1,563 @@
+{
+  "talk": {
+    "genre": "phone",
+    "checked": "ai",
+    "title": {
+      "ru": "Болит поясница",
+      "en": "A bad back"
+    },
+    "names": [
+      "Kata"
+    ],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Halló, szia Kata! Tegnap volt edzés, de te nem jöttél.",
+          "ru": "Алло, привет, Ката! Вчера была тренировка, а ты не пришла.",
+          "en": "Hello, hi Kata! There was training yesterday, but you did not come."
+        },
+        {
+          "who": "B",
+          "hu": "Szia! Hát, alig tudok mozogni. Nagyon fáj a derekam.",
+          "ru": "Привет! Ну, я едва двигаюсь. У меня очень болит поясница.",
+          "en": "Hi! Well, I can hardly move. My lower back really hurts."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, tényleg? Mi történt?",
+          "ru": "Ой, правда? Что случилось?",
+          "en": "Oh, really? What happened?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem tudom. Egész héten sokat ültem a munkahelyen.",
+          "ru": "Не знаю. Всю неделю много сидела на работе.",
+          "en": "I do not know. I sat a lot at work all week."
+        },
+        {
+          "who": "A",
+          "hu": "Hát igen, ilyen is van. Mozogsz azért egy kicsit?",
+          "ru": "Ну да, бывает. Ты хоть немного двигаешься?",
+          "en": "Yes, it happens. Do you move around a bit at least?"
+        },
+        {
+          "who": "B",
+          "hu": "Alig. Most csak fekszem, és nézem a falat.",
+          "ru": "Почти нет. Сейчас просто лежу и смотрю в стену.",
+          "en": "Hardly. Now I just lie here and look at the wall."
+        },
+        {
+          "who": "A",
+          "hu": "Szerintem ez nem jó. Menj el orvoshoz!",
+          "ru": "По-моему, это нехорошо. Сходи к врачу!",
+          "en": "I think that is not good. Go and see a doctor!"
+        },
+        {
+          "who": "B",
+          "hu": "Holnapra van időpontom. Biztos azt mondja, mozogni kell.",
+          "ru": "У меня завтра запись. Наверняка скажет, что надо двигаться.",
+          "en": "I have an appointment tomorrow. He will surely say I should move."
+        },
+        {
+          "who": "A",
+          "hu": "Persze, de ne ülj sokat! Egy barátom is így járt.",
+          "ru": "Конечно, но не сиди много! С моим другом было так же.",
+          "en": "Sure, but do not sit a lot! A friend of mine had the same."
+        },
+        {
+          "who": "B",
+          "hu": "És neki mi segít?",
+          "ru": "А что ему помогает?",
+          "en": "And what helps him?"
+        },
+        {
+          "who": "A",
+          "hu": "Sok mozgás. Kétszer megy egy héten, és már jobban van.",
+          "ru": "Много движения. Ходит два раза в неделю, ему уже лучше.",
+          "en": "Lots of movement. He goes twice a week and is better already."
+        },
+        {
+          "who": "B",
+          "hu": "Aha. Akkor holnap megkérdezem az orvost.",
+          "ru": "Ага. Тогда завтра спрошу у врача.",
+          "en": "Aha. Then I will ask the doctor tomorrow."
+        },
+        {
+          "who": "A",
+          "hu": "Jó! Ha kell valami, szólj. Hozok kaját.",
+          "ru": "Хорошо! Если что-то нужно, скажи. Принесу еды.",
+          "en": "Good! If you need anything, tell me. I will bring food."
+        },
+        {
+          "who": "B",
+          "hu": "Köszi, kedves vagy. Majd írok.",
+          "ru": "Спасибо, ты милый. Я напишу.",
+          "en": "Thanks, you are kind. I will write."
+        },
+        {
+          "who": "A",
+          "hu": "Van otthon valami gyógyszer?",
+          "ru": "Дома есть какое-нибудь обезболивающее?",
+          "en": "Do you have any painkiller at home?"
+        },
+        {
+          "who": "B",
+          "hu": "Van, de nem szeretek sokat szedni.",
+          "ru": "Есть, но я не люблю много принимать.",
+          "en": "I do, but I do not like taking a lot."
+        },
+        {
+          "who": "A",
+          "hu": "Értem. Akkor legalább menj ki egy kicsit.",
+          "ru": "Понятно. Тогда хотя бы выйди ненадолго.",
+          "en": "I see. Then at least go out for a bit."
+        },
+        {
+          "who": "B",
+          "hu": "Jó, majd este, ha már jobb lesz a derekam.",
+          "ru": "Ладно, вечером, когда поясница уже будет лучше.",
+          "en": "OK, in the evening, when my back is better."
+        },
+        {
+          "who": "A",
+          "hu": "És a munka? Szólsz a főnöknek?",
+          "ru": "А работа? Скажешь начальнику?",
+          "en": "And work? Will you tell your boss?"
+        },
+        {
+          "who": "B",
+          "hu": "Már írtam neki. Holnap nem megyek be.",
+          "ru": "Я уже написала ему. Завтра не пойду.",
+          "en": "I already wrote to him. I am not going in tomorrow."
+        },
+        {
+          "who": "A",
+          "hu": "Jól van. Akkor holnap este hívlak, jó?",
+          "ru": "Хорошо. Тогда завтра вечером позвоню, ладно?",
+          "en": "Fine. Then I will call you tomorrow evening, OK?"
+        },
+        {
+          "who": "B",
+          "hu": "Jó, hívj!",
+          "ru": "Ладно, звони!",
+          "en": "OK, call me!"
+        },
+        {
+          "who": "A",
+          "hu": "Jobbulást! Pá!",
+          "ru": "Выздоравливай! Пока!",
+          "en": "Get well soon! Bye!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "fejfajas",
+      "title": {
+        "ru": "Опять голова",
+        "en": "A headache again"
+      },
+      "scene": {
+        "ru": "Дома вечером, двое взрослых.",
+        "en": "At home in the evening, two adults."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jaj, megint fáj a fejem.",
+          "ru": "Ой, опять болит голова.",
+          "en": "Oh, my head hurts again."
+        },
+        {
+          "who": "B",
+          "hu": "Sokat voltál ma a gép előtt?",
+          "ru": "Ты много сегодня сидел за компьютером?",
+          "en": "Were you at the computer a lot today?"
+        },
+        {
+          "who": "A",
+          "hu": "Hát, egész nap a gép előtt ültem.",
+          "ru": "Ну да, весь день сидел за компьютером.",
+          "en": "Well, I sat in front of the computer all day."
+        },
+        {
+          "who": "B",
+          "hu": "Vizet iszol egyáltalán? Szerintem keveset.",
+          "ru": "Ты пил воду? По-моему, пьёшь мало.",
+          "en": "Did you drink water? I think you drink little."
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg, ma csak kávét ittam.",
+          "ru": "Правда, сегодня пил только кофе.",
+          "en": "True, today I only drank coffee."
+        },
+        {
+          "who": "B",
+          "hu": "Na látod! Tessék, itt egy pohár víz.",
+          "ru": "Вот видишь! Вот, стакан воды.",
+          "en": "See! Here, a glass of water."
+        },
+        {
+          "who": "A",
+          "hu": "Köszi. És egy kis csend is jó lenne.",
+          "ru": "Спасибо. И немного тишины тоже бы не помешало.",
+          "en": "Thanks. A little quiet would be nice too."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben, nem nézem tovább a tévét. Menj, pihenj.",
+          "ru": "Хорошо, выключу телевизор. Иди отдохни.",
+          "en": "All right, I will turn off the TV."
+        }
+      ]
+    },
+    {
+      "slug": "horzsolt-terd",
+      "title": {
+        "ru": "Ободранное колено",
+        "en": "A scraped knee"
+      },
+      "scene": {
+        "ru": "Во дворе: мама и маленький Бálint.",
+        "en": "In the yard, a mother and little Bálint."
+      },
+      "names": [
+        "Bálint"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Anya! Fáj a térdem!",
+          "ru": "Мама! У меня болит колено!",
+          "en": "Mum! My knee hurts!"
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, Bálint, hadd nézzem! Mi történt?",
+          "ru": "Ой, Балинт, покажи! Что случилось?",
+          "en": "Oh, Bálint, show me! What happened?"
+        },
+        {
+          "who": "A",
+          "hu": "Estem egyet. Gyorsan mentem, aztán hopp.",
+          "ru": "Я упал. Быстро шёл, и опа.",
+          "en": "I fell. I was going fast, and whoops."
+        },
+        {
+          "who": "B",
+          "hu": "Nyugi, csak egy kis seb. Nem nagy baj.",
+          "ru": "Спокойно, просто маленькая ранка. Не беда.",
+          "en": "Easy, just a small wound. Not a big deal."
+        },
+        {
+          "who": "A",
+          "hu": "De nagyon fáj! Itt, nézd!",
+          "ru": "Но очень больно! Вот, смотри!",
+          "en": "But it really hurts! Here, look!"
+        },
+        {
+          "who": "B",
+          "hu": "Megnézem. Utána kapsz egy sütit.",
+          "ru": "Посмотрю. Потом получишь печенье.",
+          "en": "I will look. Then you get a cake."
+        },
+        {
+          "who": "A",
+          "hu": "Lehet nagy süti? Az a kedvencem.",
+          "ru": "А можно большое? Это моё любимое.",
+          "en": "Can it be a big one? That is my favourite."
+        },
+        {
+          "who": "B",
+          "hu": "Persze, nagy süti jön. Már jobb?",
+          "ru": "Конечно, большое будет. Уже лучше?",
+          "en": "Sure, a big one is coming. Better now?"
+        },
+        {
+          "who": "A",
+          "hu": "Aha, most már szuper, köszi!",
+          "ru": "Ага, теперь супер, спасибо!",
+          "en": "Yes, now it is great, thanks!"
+        }
+      ]
+    },
+    {
+      "slug": "testresz",
+      "title": {
+        "ru": "Что это такое",
+        "en": "What is this called"
+      },
+      "scene": {
+        "ru": "Дома: девочка спрашивает папу.",
+        "en": "At home, a girl asks her dad."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Apa, hogy hívják ezt itt?",
+          "ru": "Папа, что это у меня на руке?",
+          "en": "Dad, what is this on my hand?"
+        },
+        {
+          "who": "B",
+          "hu": "Az a tenyered. Itt vannak az ujjaid.",
+          "ru": "Это твоя ладонь. А тут твои пальцы.",
+          "en": "That is your palm. Here are your fingers."
+        },
+        {
+          "who": "A",
+          "hu": "És ez? Ez a csuklóm?",
+          "ru": "А это? Это моё запястье?",
+          "en": "And this? Is it my wrist?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, ügyes vagy! Hol a könyököd?",
+          "ru": "Да, молодец! Где твой локоть?",
+          "en": "Yes, well done! Where is your elbow?"
+        },
+        {
+          "who": "A",
+          "hu": "Itt! És miért van szemöldököm?",
+          "ru": "Вот! А почему у меня есть брови?",
+          "en": "Here! And why do I have eyebrows?"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, hogy ne menjen víz a szemedbe.",
+          "ru": "Ну, чтобы вода не попадала в глаза.",
+          "en": "Well, so water does not get in your eyes."
+        },
+        {
+          "who": "A",
+          "hu": "Hűha! És a hajam mire jó?",
+          "ru": "Ух ты! А волосы зачем?",
+          "en": "Wow! And what is my hair for?"
+        },
+        {
+          "who": "B",
+          "hu": "Az megvéd, és szép is. Nézd, a tied cuki!",
+          "ru": "Они защищают, и красивые тоже. Смотри, у тебя милые!",
+          "en": "It protects you and it is pretty too. Look, yours is cute!"
+        }
+      ]
+    },
+    {
+      "slug": "patikaban",
+      "title": {
+        "ru": "В аптеке",
+        "en": "At the pharmacy"
+      },
+      "scene": {
+        "ru": "Аптека: покупатель и фармацевт, на «вы».",
+        "en": "At the pharmacy, a customer and a pharmacist, formal."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Mit parancsol?",
+          "ru": "Добрый день! Чем могу помочь?",
+          "en": "Good day! How can I help?"
+        },
+        {
+          "who": "B",
+          "hu": "Valami fejfájásra szeretnék.",
+          "ru": "Мне что-нибудь от головной боли.",
+          "en": "I would like something for a headache."
+        },
+        {
+          "who": "A",
+          "hu": "Mi fáj? A feje, vagy a dereka?",
+          "ru": "Что болит? Голова или поясница?",
+          "en": "What hurts? The head or the lower back?"
+        },
+        {
+          "who": "B",
+          "hu": "A fejem, és a nyakam is.",
+          "ru": "Голова, и шея тоже.",
+          "en": "My head, and my neck too."
+        },
+        {
+          "who": "A",
+          "hu": "Értem. Ez jó lesz, egy nap kétszer.",
+          "ru": "Понятно. Вот это подойдёт, два раза в день.",
+          "en": "I see. This will do, twice a day."
+        },
+        {
+          "who": "B",
+          "hu": "És szabad kávét inni mellé?",
+          "ru": "А можно пить кофе вместе с этим?",
+          "en": "And may I drink coffee with it?"
+        },
+        {
+          "who": "A",
+          "hu": "Inkább ne, igyon sok vizet.",
+          "ru": "Лучше нет, пейте много воды.",
+          "en": "Better not, drink a lot of water."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. Mennyibe kerül?",
+          "ru": "Хорошо. Сколько это стоит?",
+          "en": "All right. How much is it?"
+        },
+        {
+          "who": "A",
+          "hu": "Ezer forint. Kártyával fizet?",
+          "ru": "Тысяча форинтов. Платите картой?",
+          "en": "One thousand forints. Paying by card?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, kártyával. Köszönöm szépen. Viszlát!",
+          "ru": "Да, картой. Большое спасибо. До свидания!",
+          "en": "Yes, by card. Thank you very much. Bye!"
+        }
+      ]
+    },
+    {
+      "slug": "masszazs",
+      "title": {
+        "ru": "Запись на массаж",
+        "en": "A massage booking"
+      },
+      "scene": {
+        "ru": "Звонок в массажный кабинет, на «вы».",
+        "en": "A phone call to a massage studio, formal."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Halló, jó napot! Időpontot szeretnék kérni.",
+          "ru": "Алло, здравствуйте! Хочу записаться.",
+          "en": "Hello, good day! I would like to book a time."
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot! Mire van szüksége?",
+          "ru": "Здравствуйте! Какой массаж вам нужен?",
+          "en": "Good day! What kind of massage do you want?"
+        },
+        {
+          "who": "A",
+          "hu": "Hát, a hátam fáj, és a nyakam is.",
+          "ru": "Ну, болит спина, и шея тоже.",
+          "en": "Well, my back hurts, and my neck too."
+        },
+        {
+          "who": "B",
+          "hu": "Értem. Holnap délután négyre van hely.",
+          "ru": "Понятно. На завтра на четыре часа есть место.",
+          "en": "I see. There is a slot tomorrow at four."
+        },
+        {
+          "who": "A",
+          "hu": "Az nekem kicsit korai. Van később?",
+          "ru": "Для меня это рановато. Есть позже?",
+          "en": "That is a bit early for me. Is there a later one?"
+        },
+        {
+          "who": "B",
+          "hu": "Hat órára tudom. Jó lesz így?",
+          "ru": "На шесть часов могу. Так подойдёт?",
+          "en": "I can do six o'clock. Will that work?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, szuper. Mennyi ideig tart?",
+          "ru": "Да, отлично. Сколько это длится?",
+          "en": "Yes, great. How long does it take?"
+        },
+        {
+          "who": "B",
+          "hu": "Egy óra. Kérem, ne egyen előtte sokat.",
+          "ru": "Час. Пожалуйста, не ешьте перед этим много.",
+          "en": "One hour. Please do not eat a lot beforehand."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben, köszönöm. Szép napot!",
+          "ru": "Хорошо, спасибо. Хорошего дня!",
+          "en": "All right, thank you. Have a nice day!"
+        }
+      ]
+    },
+    {
+      "slug": "edzoterem",
+      "title": {
+        "ru": "В спортзале",
+        "en": "At the gym"
+      },
+      "scene": {
+        "ru": "Спортзал: тренер и посетительница.",
+        "en": "At the gym, a trainer and a member."
+      },
+      "names": [
+        "Réka"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia, Réka! Hogy vagy ma?",
+          "ru": "Привет, Река! Как ты сегодня?",
+          "en": "Hi, Réka! How are you today?"
+        },
+        {
+          "who": "B",
+          "hu": "Szia! Fáj a combom, tegnap sokat mentem gyalog.",
+          "ru": "Привет! Болит бедро, вчера много ходила пешком.",
+          "en": "Hi! My thigh hurts, I walked a lot yesterday."
+        },
+        {
+          "who": "A",
+          "hu": "Az izmod fáj, ez normális. Ma csak könnyű edzés, jó?",
+          "ru": "Мышцы болят, это нормально. Сегодня только лёгкие упражнения, ладно?",
+          "en": "Your muscles ache, that is normal. Today we only go easy, OK?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze. A csuklóm is gyenge egy kicsit.",
+          "ru": "Конечно. Запястье тоже немного слабое.",
+          "en": "Sure. My wrist is a bit weak too."
+        },
+        {
+          "who": "A",
+          "hu": "Akkor ma csak lassan megyünk. Jó lesz?",
+          "ru": "Тогда сегодня идём только медленно. Подойдёт?",
+          "en": "Then today we only go slowly. Will that do?"
+        },
+        {
+          "who": "B",
+          "hu": "Király, az jó lesz. Mit csináljak?",
+          "ru": "Круто, подойдёт. Что мне делать?",
+          "en": "Cool, that will do. What should I do?"
+        },
+        {
+          "who": "A",
+          "hu": "Ülj le, és vegyél mély lélegzetet. Úgy, jól van.",
+          "ru": "Сядь и дыши глубоко. Вот так, хорошо.",
+          "en": "Sit down and breathe deeply. Like that, good."
+        },
+        {
+          "who": "B",
+          "hu": "Hú, ez jó!",
+          "ru": "Ух, хорошо!",
+          "en": "Phew, that is good!"
+        }
+      ]
+    }
+  ]
+}

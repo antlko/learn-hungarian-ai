@@ -53,6 +53,8 @@ LICENSE = "CC BY-SA 4.0 (written for tanulom)"
 # Far above Tatoeba's ids (< 4M) and the subtitle ids that follow them, so a
 # rebuild never collides; stable per (unit, line) so a diff of the pack is small.
 ID_BASE = 9_000_000
+UNIT_STRIDE = 1000     # texts.py: ID_BASE + unit_ord * 1000 + tier slot * 300 + i
+LEGACY_OFFSET = 900    # the unit's 900-999 block holds the legacy dialogue (+0..49) and story (+50..99)
 MIN_LINES, MAX_LINES = 8, 14
 MAX_TOKENS = 10
 
@@ -86,7 +88,7 @@ def set_code(unit_code: str) -> str:
 
 
 def line_id(unit_ord: int, i: int) -> int:
-    return ID_BASE + unit_ord * 100 + i
+    return ID_BASE + unit_ord * UNIT_STRIDE + LEGACY_OFFSET + i
 
 
 class Lexicon:
@@ -182,11 +184,11 @@ def build(conn: sqlite3.Connection, rows: list[dict]) -> dict[str, int]:
             continue  # `problems` reports a unit without a dialogue
         code = set_code(row["code"])
         conn.execute(
-            "INSERT INTO reading_set (code, level, track, ord, title_ru, title_en, theme_ru, theme_en) "
-            "VALUES (?,?,?,?,?,?,?,?)",
-            (code, row["level"], TRACK, row["ord"] - 1,
+            "INSERT INTO reading_set (code, level, track, ord, title_ru, title_en, theme_ru, "
+            "theme_en, tier, genre, words, checked) VALUES (?,?,?,?,?,?,?,?,'short','',?,'ai')",
+            (code, row["level"], TRACK, row["ord"] + 1,
              f"{TITLE_PREFIX_RU}: {unit['title_ru']}", f"{TITLE_PREFIX_EN}: {unit['title_en']}",
-             row["theme_ru"], row["theme_en"]))
+             row["theme_ru"], row["theme_en"], sum(len(_WORD.findall(hu)) for hu, _r, _e in lines)))
         for i, (hu, ru, en) in enumerate(lines):
             sid = line_id(unit["ord"], i)
             conn.execute(

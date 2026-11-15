@@ -1,0 +1,519 @@
+{
+  "talk": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "На свадьбе",
+      "en": "At the wedding"
+    },
+    "names": [
+      "Zoli",
+      "Kata",
+      "Bence"
+    ],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Szia, Zoli vagyok, Bence barátja.",
+          "ru": "Привет, я Золи, друг Бенце.",
+          "en": "Hi, I am Zoli, Bence's friend."
+        },
+        {
+          "who": "B",
+          "hu": "Szia! Kata vagyok, Bence nővére.",
+          "ru": "Привет! Я Ката, старшая сестра Бенце.",
+          "en": "Hi! I am Kata, Bence's elder sister."
+        },
+        {
+          "who": "A",
+          "hu": "Ja, te vagy Bence nővére! Sokat beszél rólad.",
+          "ru": "А, ты сестра Бенце! Он много о тебе говорит.",
+          "en": "Oh, you are Bence's sister! He talks about you a lot."
+        },
+        {
+          "who": "B",
+          "hu": "Remélem, csak jót!",
+          "ru": "Надеюсь, только хорошее!",
+          "en": "I hope only good things!"
+        },
+        {
+          "who": "A",
+          "hu": "Persze! Azt mondja, nagyon szigorú vagy.",
+          "ru": "Конечно! Он говорит, что ты очень строгая.",
+          "en": "Of course! He says you are very strict."
+        },
+        {
+          "who": "B",
+          "hu": "Hát, ő az öcsém, vigyázok rá.",
+          "ru": "Ну, он мой младший брат, я за ним присматриваю.",
+          "en": "Well, he is my little brother, I look after him."
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg? Az esküvőn is vigyázol rá?",
+          "ru": "Правда? И на свадьбе присматриваешь за ним?",
+          "en": "Really? Even at the wedding?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze! Már kétszer szóltam neki, hogy ne igyon sokat.",
+          "ru": "Конечно! Я уже дважды сказала ему, чтобы не пил много.",
+          "en": "Of course! I have already told him twice not to drink a lot."
+        },
+        {
+          "who": "A",
+          "hu": "Nyugi, ma boldog. Végre házas ember!",
+          "ru": "Спокойно, сегодня он счастлив. Наконец женатый человек!",
+          "en": "Relax, he is happy today. A married man at last!"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, és a felesége nagyon cuki.",
+          "ru": "Да, и его жена очень милая.",
+          "en": "Yes, and his wife is very cute."
+        },
+        {
+          "who": "A",
+          "hu": "Az egész család szereti őt.",
+          "ru": "Вся семья её любит.",
+          "en": "The whole family likes her."
+        },
+        {
+          "who": "B",
+          "hu": "Hát, a nagymama még egy kicsit szigorú vele.",
+          "ru": "Ну, бабушка с ней пока немного строга.",
+          "en": "Well, grandma is still a little strict with her."
+        },
+        {
+          "who": "A",
+          "hu": "Hát, a nagymamák ilyenek, ugye?",
+          "ru": "Ну, бабушки такие, да?",
+          "en": "Well, grandmas are like that, right?"
+        },
+        {
+          "who": "B",
+          "hu": "Ühüm, de szeret minket.",
+          "ru": "Угу, но она нас любит.",
+          "en": "Uh-huh, but she loves us."
+        },
+        {
+          "who": "A",
+          "hu": "Amúgy, te hol laksz most?",
+          "ru": "Кстати, где ты сейчас живёшь?",
+          "en": "By the way, where do you live now?"
+        },
+        {
+          "who": "B",
+          "hu": "Budapesten, a férjem is ott él.",
+          "ru": "В Будапеште, мой муж тоже там живёт.",
+          "en": "In Budapest, my husband lives there too."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper! Akkor találkozunk még.",
+          "ru": "Супер! Тогда ещё увидимся.",
+          "en": "Great! Then we will meet again."
+        },
+        {
+          "who": "B",
+          "hu": "Persze, gyere hozzánk vasárnap!",
+          "ru": "Конечно, приходи к нам в воскресенье!",
+          "en": "Sure, come to us on Sunday!"
+        },
+        {
+          "who": "A",
+          "hu": "Köszi, szívesen jövök. Kell valami?",
+          "ru": "Спасибо, с радостью. Что-нибудь нужно?",
+          "en": "Thanks, gladly. Do you need anything?"
+        },
+        {
+          "who": "B",
+          "hu": "Csak magadat, a többi megvan.",
+          "ru": "Только себя, остальное есть.",
+          "en": "Just yourself, we have the rest."
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "kartya-nagypapaval",
+      "title": {
+        "ru": "Карты с дедушкой",
+        "en": "Cards with grandpa"
+      },
+      "scene": {
+        "ru": "Внучка Лили играет с дедушкой.",
+        "en": "Granddaughter Lili plays with her grandpa."
+      },
+      "names": [
+        "Lili"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Nagypapa, játszunk kártyát?",
+          "ru": "Дедушка, поиграем в карты?",
+          "en": "Grandpa, shall we play cards?"
+        },
+        {
+          "who": "B",
+          "hu": "Szívesen, de te mindig nyersz.",
+          "ru": "Хорошо, но ты всегда выигрываешь.",
+          "en": "Okay, but you always win."
+        },
+        {
+          "who": "A",
+          "hu": "Nyugi, ma segítek neked.",
+          "ru": "Спокойно, сегодня я тебе помогу.",
+          "en": "Relax, I will help you today."
+        },
+        {
+          "who": "B",
+          "hu": "Hát, köszi, kicsim.",
+          "ru": "Ну, спасибо, малышка.",
+          "en": "Well, thanks, sweetheart."
+        },
+        {
+          "who": "A",
+          "hu": "Csak egy puszi kell érte.",
+          "ru": "Мне за это нужен только поцелуй.",
+          "en": "I only want a kiss for it."
+        },
+        {
+          "who": "B",
+          "hu": "Hopp, ez nem szép tőled!",
+          "ru": "Опа, это некрасиво с твоей стороны!",
+          "en": "Whoops, that is not nice of you!"
+        },
+        {
+          "who": "A",
+          "hu": "Vicc volt, nagypapa!",
+          "ru": "Это была шутка, дедушка!",
+          "en": "It was a joke, grandpa!"
+        },
+        {
+          "who": "B",
+          "hu": "Akkor kezdjük!",
+          "ru": "Тогда начнём!",
+          "en": "Then let us start!"
+        }
+      ]
+    },
+    {
+      "slug": "csaladi-ebed",
+      "title": {
+        "ru": "Семейный обед",
+        "en": "Family lunch"
+      },
+      "scene": {
+        "ru": "Мама угощает сына и дедушку за столом.",
+        "en": "Mum serves her son and grandpa at the table."
+      },
+      "names": [
+        "Peti"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Kérsz még enni, Peti?",
+          "ru": "Хочешь ещё супа, Пети?",
+          "en": "Do you want more soup, Peti?"
+        },
+        {
+          "who": "B",
+          "hu": "Köszi, nem. Tele vagyok.",
+          "ru": "Спасибо, не надо. Я сыт.",
+          "en": "Thanks, no. I am full."
+        },
+        {
+          "who": "A",
+          "hu": "Már ennyi? Keveset ettél!",
+          "ru": "Только это? Ты почти не ел!",
+          "en": "That is all? You hardly ate!"
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, anya, tényleg elég volt.",
+          "ru": "Ой, мама, правда, хватит.",
+          "en": "Oh mum, really, that was enough."
+        },
+        {
+          "who": "A",
+          "hu": "Akkor egy kis húst még.",
+          "ru": "Тогда хотя бы немного мяса.",
+          "en": "Then at least a little meat."
+        },
+        {
+          "who": "B",
+          "hu": "Hát jó, de csak kicsit.",
+          "ru": "Ну ладно, но совсем чуть-чуть.",
+          "en": "Well okay, but only a little."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper. Nagypapa, te kérsz?",
+          "ru": "Отлично. Дедушка, ты тоже будешь?",
+          "en": "Great. Grandpa, will you have some?"
+        },
+        {
+          "who": "C",
+          "hu": "Persze! Ez nagyon jó.",
+          "ru": "Конечно! Очень вкусно.",
+          "en": "Of course! This is the best soup."
+        }
+      ]
+    },
+    {
+      "slug": "anya-elmehetek",
+      "title": {
+        "ru": "Мама, можно?",
+        "en": "Mum, can I?"
+      },
+      "scene": {
+        "ru": "Девочка просит маму отпустить её к подруге.",
+        "en": "A girl asks her mum if she can go to a friend."
+      },
+      "names": [
+        "Zsófi"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Anya, Danihoz megyek, jó?",
+          "ru": "Мама, можно мне к Дани?",
+          "en": "Mum, can I go to Dani's?"
+        },
+        {
+          "who": "B",
+          "hu": "Most? Már öt óra van.",
+          "ru": "Сейчас? Уже пять часов.",
+          "en": "Now? It is already five."
+        },
+        {
+          "who": "A",
+          "hu": "Csak két órára, kérlek!",
+          "ru": "Только на два часа, пожалуйста!",
+          "en": "Only for two hours, please!"
+        },
+        {
+          "who": "B",
+          "hu": "Tanultál már?",
+          "ru": "Ты уже занималась?",
+          "en": "Have you studied yet?"
+        },
+        {
+          "who": "A",
+          "hu": "Hát, izé, még nem egészen.",
+          "ru": "Ну, это самое, ещё не совсем.",
+          "en": "Well, um, not quite yet."
+        },
+        {
+          "who": "B",
+          "hu": "Akkor előbb tanulj.",
+          "ru": "Тогда сначала делаешь уроки.",
+          "en": "Then you do homework first."
+        },
+        {
+          "who": "A",
+          "hu": "Jó, de utána megyek, ugye?",
+          "ru": "Ладно, но потом можно?",
+          "en": "Okay, but can I go after?"
+        },
+        {
+          "who": "B",
+          "hu": "Rendben, utána menj.",
+          "ru": "Хорошо, потом можно.",
+          "en": "All right, then you can go."
+        }
+      ]
+    },
+    {
+      "slug": "furdoszoba",
+      "title": {
+        "ru": "Ванная",
+        "en": "The bathroom"
+      },
+      "scene": {
+        "ru": "Сестра и брат спорят из-за ванной утром.",
+        "en": "A sister and her brother argue about the bathroom in the morning."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Mikor jössz már ki?",
+          "ru": "Когда ты уже выйдешь?",
+          "en": "When are you coming out?"
+        },
+        {
+          "who": "B",
+          "hu": "Még tíz perc, nyugi!",
+          "ru": "Ещё десять минут, спокойно!",
+          "en": "Ten more minutes, relax!"
+        },
+        {
+          "who": "A",
+          "hu": "Tíz perc? Már fél órája bent vagy!",
+          "ru": "Десять минут? Ты уже полчаса там!",
+          "en": "Ten minutes? You have been in there half an hour!"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, tegnap te voltál bent sokáig.",
+          "ru": "Ну, вчера ты долго сидела там.",
+          "en": "Well, yesterday you were in there for ages."
+        },
+        {
+          "who": "A",
+          "hu": "De én nem voltam ilyen lassú!",
+          "ru": "Но я не была такой медленной!",
+          "en": "But I was never that slow!"
+        },
+        {
+          "who": "B",
+          "hu": "Jó, jó, mindjárt kész vagyok.",
+          "ru": "Ладно, ладно, сейчас буду готов.",
+          "en": "Okay, okay, I am nearly done."
+        },
+        {
+          "who": "A",
+          "hu": "Köszi. A suli mindjárt kezdődik.",
+          "ru": "Спасибо. Школа сейчас начнётся.",
+          "en": "Thanks. School is about to start."
+        }
+      ]
+    },
+    {
+      "slug": "szulinapi-hivas",
+      "title": {
+        "ru": "Звонок бабушке",
+        "en": "A call to grandma"
+      },
+      "scene": {
+        "ru": "Внучка звонит бабушке в день рождения.",
+        "en": "A granddaughter calls her grandma on her birthday."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Halló, nagymama! Boldog születésnapot!",
+          "ru": "Алло, бабушка! С днём рождения!",
+          "en": "Hello, grandma! Happy birthday!"
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, köszönöm! Hogy vagy?",
+          "ru": "Ох, спасибо, малышка! Как ты?",
+          "en": "Oh, thank you, sweetheart! How are you?"
+        },
+        {
+          "who": "A",
+          "hu": "Jól vagyok. Mikor találkozunk?",
+          "ru": "Хорошо. Когда увидимся?",
+          "en": "I am fine. When shall we meet?"
+        },
+        {
+          "who": "B",
+          "hu": "Holnap, jönnek a gyerekek is.",
+          "ru": "Завтра, придут и дети.",
+          "en": "Tomorrow, the children are coming too."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, de jó! Lesz ebéd?",
+          "ru": "Ой, как здорово! Обед будет?",
+          "en": "Oh, great! Will there be lunch?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze, mindenki jön!",
+          "ru": "Конечно, все придут!",
+          "en": "Sure, everybody is coming!"
+        },
+        {
+          "who": "A",
+          "hu": "Szuper! Te vagy a legjobb, nagymama.",
+          "ru": "Супер! Ты самая лучшая, бабушка.",
+          "en": "Great! You are the best, grandma."
+        },
+        {
+          "who": "B",
+          "hu": "Köszi, szia! Vigyázz magadra!",
+          "ru": "Спасибо, пока! Береги себя!",
+          "en": "Thanks, bye! Take care!"
+        }
+      ]
+    },
+    {
+      "slug": "iskolakapu",
+      "title": {
+        "ru": "У школы",
+        "en": "At the school gate"
+      },
+      "scene": {
+        "ru": "Учитель и мама у школьных ворот, на «вы».",
+        "en": "A teacher and a mother at the school gate, formal."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Ön Dani anyukája, ugye?",
+          "ru": "Добрый день! Вы мама Дани, да?",
+          "en": "Good afternoon! You are Dani's mum, right?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen. Történt valami?",
+          "ru": "Да. Что-то случилось?",
+          "en": "Yes. Did something happen?"
+        },
+        {
+          "who": "A",
+          "hu": "Dehogy, csak szeretném mondani, Dani ügyes.",
+          "ru": "Нет-нет, просто хочу сказать, Дани молодец.",
+          "en": "Not at all, I just want to say Dani is doing well."
+        },
+        {
+          "who": "B",
+          "hu": "Nahát, ez jó hír, köszönöm!",
+          "ru": "Ничего себе, хорошая новость, спасибо!",
+          "en": "Well, that is good news, thank you!"
+        },
+        {
+          "who": "A",
+          "hu": "Csak néha nem figyel.",
+          "ru": "Только иногда он невнимателен.",
+          "en": "Only sometimes he does not pay attention."
+        },
+        {
+          "who": "B",
+          "hu": "Bocsánat, szólok neki.",
+          "ru": "Извините, я с ним поговорю.",
+          "en": "Sorry, I will bring it tomorrow."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben. Szép napot!",
+          "ru": "Хорошо. Хорошего дня!",
+          "en": "All right. Have a nice day!"
+        },
+        {
+          "who": "B",
+          "hu": "Önnek is, viszlát!",
+          "ru": "И вам, до свидания!",
+          "en": "You too, goodbye!"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,365 @@
+{
+  "talk": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "Овощной прилавок",
+      "en": "The vegetable stall"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Tessék.",
+          "ru": "Здравствуйте! Слушаю Вас.",
+          "en": "Good day! Go ahead."
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot! Mennyibe kerül ez?",
+          "ru": "Здравствуйте! Сколько это стоит?",
+          "en": "Good day! How much is this?"
+        },
+        {
+          "who": "A",
+          "hu": "Ezer forint egy kiló.",
+          "ru": "Тысяча форинтов за кило.",
+          "en": "A thousand forints a kilo."
+        },
+        {
+          "who": "B",
+          "hu": "Hát, egy kilót kérek.",
+          "ru": "Ну, мне килограмм.",
+          "en": "Well, a kilo please."
+        },
+        {
+          "who": "A",
+          "hu": "Tessék, a mérlegen. Elég ennyi?",
+          "ru": "Вот, на весах. Достаточно?",
+          "en": "Here, on the scales. Is that enough?"
+        },
+        {
+          "who": "B",
+          "hu": "Egy kicsit még. Az is kell.",
+          "ru": "Ещё немного. И то тоже нужно.",
+          "en": "A little more. I need that too."
+        },
+        {
+          "who": "A",
+          "hu": "Az akció! Mennyit kér?",
+          "ru": "На то скидка! Сколько Вам?",
+          "en": "That one is on offer! How much?"
+        },
+        {
+          "who": "B",
+          "hu": "Tíz deka, köszönöm. Ennyi elég lesz.",
+          "ru": "Сто граммов, спасибо. Этого хватит.",
+          "en": "Ten deka, thanks. That will be enough."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben. Zacskó kell?",
+          "ru": "Хорошо. Пакет нужен?",
+          "en": "All right. Do you need a bag?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, köszönöm, van. Mennyi lesz?",
+          "ru": "Нет, спасибо, свой есть. Сколько с меня?",
+          "en": "No thanks, I have one. How much will it be?"
+        },
+        {
+          "who": "A",
+          "hu": "Ezer ötven forint.",
+          "ru": "Тысяча пятьдесят форинтов.",
+          "en": "A thousand and fifty forints."
+        },
+        {
+          "who": "B",
+          "hu": "Tessék. Blokk is kell, kérem.",
+          "ru": "Пожалуйста. И чек, пожалуйста.",
+          "en": "Here. A receipt too, please."
+        },
+        {
+          "who": "A",
+          "hu": "Persze. Viszlát, szép napot!",
+          "ru": "Конечно. До свидания, хорошего дня!",
+          "en": "Of course. Bye, have a nice day!"
+        },
+        {
+          "who": "B",
+          "hu": "Köszi, viszlát!",
+          "ru": "Спасибо, до свидания!",
+          "en": "Thanks, bye!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "meret-kabat",
+      "title": {
+        "ru": "Какой размер?",
+        "en": "What size?"
+      },
+      "scene": {
+        "ru": "Магазин одежды, продавец и покупатель.",
+        "en": "A clothes shop, assistant and customer."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, ez nagy?",
+          "ru": "Извините, это большой размер?",
+          "en": "Excuse me, is this large?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, ez kicsi.",
+          "ru": "Нет, это маленький.",
+          "en": "No, this is small."
+        },
+        {
+          "who": "A",
+          "hu": "Nekem nagy kell.",
+          "ru": "Мне нужен большой.",
+          "en": "I need a large one."
+        },
+        {
+          "who": "B",
+          "hu": "Tessék. Ez egy kicsit hosszú.",
+          "ru": "Пожалуйста. Он немного длинный.",
+          "en": "Here you are. It is a little long."
+        },
+        {
+          "who": "A",
+          "hu": "Jó, ez szuper. Köszönöm!",
+          "ru": "Хорошо, супер. Спасибо!",
+          "en": "Fine, great. Thanks!"
+        }
+      ]
+    },
+    {
+      "slug": "pizza",
+      "title": {
+        "ru": "Пицца на двоих",
+        "en": "Pizza for two"
+      },
+      "scene": {
+        "ru": "Друзья делят пиццу.",
+        "en": "Friends share a pizza."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Hát, ez sok. Kérsz?",
+          "ru": "Ну, это много. Будешь?",
+          "en": "Well, that is a lot. Want some?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze! Egy szeletet kérek.",
+          "ru": "Конечно! Кусочек.",
+          "en": "Sure! One slice please."
+        },
+        {
+          "who": "A",
+          "hu": "Csak egyet? Itt van még.",
+          "ru": "Только один? Вот ещё.",
+          "en": "Only one? Here is another."
+        },
+        {
+          "who": "B",
+          "hu": "Jó, két szelet elég.",
+          "ru": "Ладно, двух кусков достаточно.",
+          "en": "Okay, two slices are enough."
+        },
+        {
+          "who": "A",
+          "hu": "Na, nekem a többi marad.",
+          "ru": "Ну, мне остальное.",
+          "en": "Well, the rest is mine."
+        }
+      ]
+    },
+    {
+      "slug": "piac-tobb",
+      "title": {
+        "ru": "Ещё немного",
+        "en": "A bit more"
+      },
+      "scene": {
+        "ru": "Рынок, покупательница просит добавить.",
+        "en": "At the market, a customer asks for a bit more."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, ez fél kiló?",
+          "ru": "Извините, это полкило?",
+          "en": "Excuse me, is this half a kilo?"
+        },
+        {
+          "who": "B",
+          "hu": "Majdnem. Kér még egy kicsit?",
+          "ru": "Почти. Добавить ещё немного?",
+          "en": "Almost. Want a little more?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, még két darabot.",
+          "ru": "Да, ещё две штуки.",
+          "en": "Yes, two more pieces."
+        },
+        {
+          "who": "B",
+          "hu": "Tessék. Így jó?",
+          "ru": "Пожалуйста. Так хорошо?",
+          "en": "Here. Is that good?"
+        },
+        {
+          "who": "A",
+          "hu": "Persze, köszönöm. Mennyi lesz?",
+          "ru": "Конечно, спасибо. Сколько с меня?",
+          "en": "Sure, thanks. How much is it?"
+        }
+      ]
+    },
+    {
+      "slug": "tejet-vegyel",
+      "title": {
+        "ru": "Сколько молока?",
+        "en": "How much milk?"
+      },
+      "scene": {
+        "ru": "Мама звонит дочери из магазина.",
+        "en": "A mother phones her daughter from the shop."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Halló, anya! Hány liter tej kell?",
+          "ru": "Алло, мама! Сколько литров молока?",
+          "en": "Hello, mum! How many litres of milk?"
+        },
+        {
+          "who": "B",
+          "hu": "Két liter elég, kicsim.",
+          "ru": "Двух литров хватит, милая.",
+          "en": "Two litres is enough, dear."
+        },
+        {
+          "who": "A",
+          "hu": "Csak kettő? Akció van.",
+          "ru": "Только два? Скидка.",
+          "en": "Only two? There is a sale."
+        },
+        {
+          "who": "B",
+          "hu": "Na jó, vegyél hármat.",
+          "ru": "Ну ладно, купи три.",
+          "en": "Oh all right, buy three."
+        },
+        {
+          "who": "A",
+          "hu": "Oké, három. Pá!",
+          "ru": "Окей, три. Пока!",
+          "en": "Okay, three. Bye!"
+        }
+      ]
+    },
+    {
+      "slug": "meddig-tart",
+      "title": {
+        "ru": "Далеко ещё?",
+        "en": "Is it far?"
+      },
+      "scene": {
+        "ru": "Двое друзей идут пешком.",
+        "en": "Two friends walk."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Messze van még?",
+          "ru": "Ещё далеко?",
+          "en": "Is it still far?"
+        },
+        {
+          "who": "B",
+          "hu": "Még egy kilométer.",
+          "ru": "Ещё километр.",
+          "en": "Another kilometre."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, az sok! Nehéz a zacskó.",
+          "ru": "Ой, это много! Пакет тяжёлый.",
+          "en": "Oh, that is a lot! The bag is heavy."
+        },
+        {
+          "who": "B",
+          "hu": "Na, add ide, én viszem.",
+          "ru": "Ну, давай сюда, я понесу.",
+          "en": "Come on, give it here, I will carry it."
+        },
+        {
+          "who": "A",
+          "hu": "Köszi, szuper vagy!",
+          "ru": "Спасибо, ты супер!",
+          "en": "Thanks, you are great!"
+        }
+      ]
+    },
+    {
+      "slug": "magas",
+      "title": {
+        "ru": "Какой ты высокий!",
+        "en": "How tall you are!"
+      },
+      "scene": {
+        "ru": "Тётя встречает племянника.",
+        "en": "An aunt meets her nephew."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia! De magas vagy!",
+          "ru": "Привет! Какой ты высокий!",
+          "en": "Hi! How tall you are!"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, egyre magasabb vagyok.",
+          "ru": "Ну, расту всё выше.",
+          "en": "Well, I keep getting taller."
+        },
+        {
+          "who": "A",
+          "hu": "Nagyon! Én kicsi vagyok.",
+          "ru": "Очень! А я маленькая.",
+          "en": "Very! I am small."
+        },
+        {
+          "who": "B",
+          "hu": "Persze, te vagy kicsi, néni!",
+          "ru": "Конечно. Это ты маленькая, тётя!",
+          "en": "Sure. You are the small one, auntie!"
+        }
+      ]
+    }
+  ]
+}

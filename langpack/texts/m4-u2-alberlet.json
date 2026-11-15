@@ -1,0 +1,429 @@
+{
+  "short": {
+    "genre": "sms",
+    "checked": "ai",
+    "title": {
+      "ru": "SMS от хозяина квартиры",
+      "en": "A text message from the landlord"
+    },
+    "names": [
+      "Réka",
+      "Dani"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Réka! Az albérlet még szabad.",
+          "ru": "Привет, Река! Съёмная квартира ещё свободна.",
+          "en": "Hi, Réka! The rented flat is still available."
+        },
+        {
+          "hu": "Holnap öt órakor a társasháznál vagyok.",
+          "ru": "Завтра в пять я буду у дома.",
+          "en": "Tomorrow at five I will be at the condominium building."
+        },
+        {
+          "hu": "Az ingatlan központi, a környék csendes.",
+          "ru": "Квартира в центре, район тихий.",
+          "en": "The property is central, the neighbourhood is quiet."
+        },
+        {
+          "hu": "Kiadom a lakást, a hely nagyon jó.",
+          "ru": "Я сдаю квартиру, место очень хорошее.",
+          "en": "I am renting out the flat, the place is very good."
+        }
+      ],
+      [
+        {
+          "hu": "A lakás világos és tágas, ötven négyzetméter.",
+          "ru": "Квартира светлая и просторная, пятьдесят квадратных метров.",
+          "en": "The flat is bright and spacious, fifty square metres."
+        },
+        {
+          "hu": "Van erkély és bútor is.",
+          "ru": "Есть балкон и мебель.",
+          "en": "There is a balcony and furniture too."
+        },
+        {
+          "hu": "A fal új, az ajtó is jó.",
+          "ru": "Стена новая, дверь тоже хорошая.",
+          "en": "The wall is new, the door is good too."
+        },
+        {
+          "hu": "A letét két hónap, a közös költség külön van.",
+          "ru": "Залог за два месяца, коммунальные расходы дома отдельно.",
+          "en": "The deposit is two months, the service charge is separate."
+        },
+        {
+          "hu": "Az ingatlan tiszta, a berendezés új.",
+          "ru": "Квартира чистая, обстановка новая.",
+          "en": "The property is clean, the furnishings are new."
+        },
+        {
+          "hu": "Az udvaron parkoló is van.",
+          "ru": "Во дворе есть и парковка.",
+          "en": "There is a parking space in the yard too."
+        },
+        {
+          "hu": "Bérelni szeretnéd? Ha megegyezünk, hívj!",
+          "ru": "Хочешь снять её? Если договоримся, звони!",
+          "en": "Would you like to rent it? If we agree, call me!"
+        },
+        {
+          "hu": "Hívj, ha van kérdésed!",
+          "ru": "Звони, если будут вопросы!",
+          "en": "Call me if you have a question!"
+        },
+        {
+          "hu": "Dani",
+          "ru": "Дани",
+          "en": "Dani"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "Просмотр квартиры",
+      "en": "Viewing the flat"
+    },
+    "names": [
+      "Réka",
+      "Dani"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Jó napot! Réka vagyok, az albérletet keresem.",
+          "ru": "Добрый день! Я Река, ищу съёмную квартиру.",
+          "en": "Good day! I am Réka, I am looking for a rented flat."
+        },
+        {
+          "hu": "Szia! Dani vagyok, én adom ki a lakást. Gyere be!",
+          "ru": "Привет! Я Дани, я сдаю эту квартиру. Входи!",
+          "en": "Hi! I am Dani, I am the one renting out the flat. Come in!"
+        },
+        {
+          "hu": "Nagyon világos és tágas! Hány négyzetméter?",
+          "ru": "Очень светлая и просторная! Сколько квадратных метров?",
+          "en": "Very bright and spacious! How many square metres?"
+        },
+        {
+          "hu": "Ötven négyzetméter. Van erkély is, szép a kilátás.",
+          "ru": "Пятьдесят квадратных метров. Есть и балкон, вид красивый.",
+          "en": "Fifty square metres. There is a balcony too, the view is nice."
+        },
+        {
+          "hu": "Szép a berendezés. Milyen a környék? Csendes?",
+          "ru": "Красивая обстановка. Какой район? Тихий?",
+          "en": "Nice furnishings. What is the neighbourhood like? Quiet?"
+        },
+        {
+          "hu": "Igen, csendes, nem zajos. A lépcsőház tiszta, a belváros közel van.",
+          "ru": "Да, тихий, не шумный. Лестница чистая, центр города рядом.",
+          "en": "Yes, quiet, not noisy. The stairwell is clean, the city centre is close."
+        },
+        {
+          "hu": "Van pince, padlás vagy garázs?",
+          "ru": "Есть подвал, чердак или гараж?",
+          "en": "Is there a cellar, an attic or a garage?"
+        },
+        {
+          "hu": "Pince és padlás van, garázs nincs. Az udvaron van parkoló.",
+          "ru": "Подвал и чердак есть, гаража нет. Во дворе есть парковка.",
+          "en": "There is a cellar and an attic, no garage. There is parking in the yard."
+        },
+        {
+          "hu": "És a bérleti szerződés? Határozott vagy határozatlan?",
+          "ru": "А арендный договор? Срочный или бессрочный?",
+          "en": "And the lease? Fixed or open-ended?"
+        },
+        {
+          "hu": "Határozott, egy évre szól. A felmondás egy hónap.",
+          "ru": "Срочный, на один год. Расторжение за один месяц.",
+          "en": "Fixed, for one year. The notice is one month."
+        },
+        {
+          "hu": "Határozatlan szerződés is lehet?",
+          "ru": "Может быть и бессрочный договор?",
+          "en": "Could it be an open-ended contract too?"
+        },
+        {
+          "hu": "Lehet, de a határozott jobb nekem.",
+          "ru": "Может, но срочный мне удобнее.",
+          "en": "It could, but a fixed one is better for me."
+        },
+        {
+          "hu": "Mennyi a letét? És a közös költség?",
+          "ru": "Сколько залог? А коммунальные расходы дома?",
+          "en": "How much is the deposit? And the service charge?"
+        },
+        {
+          "hu": "A letét két hónap. A közös költség külön van, a társasházban fizeted.",
+          "ru": "Залог за два месяца. Коммунальные расходы дома отдельно, платишь их в доме.",
+          "en": "The deposit is two months. The service charge is separate, you pay it in the building."
+        },
+        {
+          "hu": "Rendben. De mi ez a penész a falon? Ez hiba.",
+          "ru": "Хорошо. А что это за плесень на стене? Это дефект.",
+          "en": "Fine. But what is this mould on the wall? That is a fault."
+        },
+        {
+          "hu": "Igazad van. Felújítom, mielőtt beköltözöl.",
+          "ru": "Ты права. Я отремонтирую, прежде чем ты въедешь.",
+          "en": "You are right. I will renovate it before you move in."
+        },
+        {
+          "hu": "Milyen az állapot? Van más hiba?",
+          "ru": "В каком состоянии квартира? Есть другие дефекты?",
+          "en": "What is the condition? Is there any other fault?"
+        },
+        {
+          "hu": "Nincs, csak a penész. A villanyóra új, a fogyasztás kevés.",
+          "ru": "Нет, только плесень. Электросчётчик новый, расход небольшой.",
+          "en": "No, only the mould. The electricity meter is new, the consumption is low."
+        },
+        {
+          "hu": "És ez az ingatlan a tulajdonod?",
+          "ru": "А эта квартира твоя собственность?",
+          "en": "And is this property yours?"
+        },
+        {
+          "hu": "Igen, az én tulajdonom. Kiadom, mert máshol van az otthonom.",
+          "ru": "Да, моя. Я сдаю её, потому что мой дом в другом месте.",
+          "en": "Yes, it is mine. I rent it out because my home is elsewhere."
+        },
+        {
+          "hu": "Akkor jó. Megegyezünk? Jövő héten beköltözöm.",
+          "ru": "Тогда хорошо. Договорились? На следующей неделе я въеду.",
+          "en": "Then it is good. Do we agree? I will move in next week."
+        },
+        {
+          "hu": "Én lakom itt, a lakás a tiéd, ugye?",
+          "ru": "Живу здесь я, а квартира твоя, да?",
+          "en": "I live here, the flat is yours, right?"
+        },
+        {
+          "hu": "Igen. A jegyzőkönyvben a villanyóra és a fogyasztás is lesz.",
+          "ru": "Да. В акте будут и электросчётчик, и расход.",
+          "en": "Yes. The electricity meter and the consumption will be in the protocol too."
+        },
+        {
+          "hu": "Jó. Nekem az otthon fontos, ezért bérelem a lakást.",
+          "ru": "Хорошо. Для меня важен дом, поэтому я снимаю квартиру.",
+          "en": "Good. Home is important to me, so I am renting the flat."
+        },
+        {
+          "hu": "Rendben! Akkor jövő héten átadom a kulcsot.",
+          "ru": "Хорошо! Тогда на следующей неделе я передам ключ.",
+          "en": "Fine! Then next week I will hand over the key."
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "diary",
+    "checked": "ai",
+    "title": {
+      "ru": "Дневник: первая неделя в новой квартире",
+      "en": "Diary, the first week in the new flat"
+    },
+    "names": [
+      "Réka",
+      "Dani",
+      "Marika"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Hétfő. Ma beköltöztem az új albérletbe.",
+          "ru": "Понедельник. Сегодня я въехала в новую съёмную квартиру.",
+          "en": "Monday. Today I moved into the new rented flat."
+        },
+        {
+          "hu": "Dani, a tulajdonos, reggel kilenc órakor várt a társasház előtt.",
+          "ru": "Дани, хозяин, ждал меня у дома в девять утра.",
+          "en": "Dani, the owner, was waiting in front of the building at nine in the morning."
+        },
+        {
+          "hu": "Együtt mentünk fel a lépcsőn.",
+          "ru": "Мы вместе поднялись по лестнице.",
+          "en": "We went up the stairs together."
+        },
+        {
+          "hu": "A lakás világos és tágas, a kilátás szép.",
+          "ru": "Квартира светлая и просторная, вид красивый.",
+          "en": "The flat is bright and spacious, the view is nice."
+        },
+        {
+          "hu": "Az erkélyről a belváros is látszik.",
+          "ru": "С балкона виден и центр города.",
+          "en": "You can see the city centre from the balcony too."
+        },
+        {
+          "hu": "Az ingatlan központi, a környék mégis csendes.",
+          "ru": "Квартира в центре, а район всё же тихий.",
+          "en": "The property is central, yet the neighbourhood is quiet."
+        },
+        {
+          "hu": "A lépcsőház tiszta, nem koszos, nem zajos.",
+          "ru": "Лестница чистая, не грязная, не шумная.",
+          "en": "The stairwell is clean, not dirty, not noisy."
+        }
+      ],
+      [
+        {
+          "hu": "Aztán írtunk egy jegyzőkönyvet.",
+          "ru": "Потом мы составили акт.",
+          "en": "Then we wrote the handover protocol."
+        },
+        {
+          "hu": "A penész már nincs a falon.",
+          "ru": "Плесени на стене уже нет.",
+          "en": "The mould is gone from the wall."
+        },
+        {
+          "hu": "Dani azt mondja, hogy a pincét is felújítja.",
+          "ru": "Дани говорит, что отремонтирует и подвал.",
+          "en": "Dani says that he will renovate the cellar too."
+        },
+        {
+          "hu": "A bútor jó állapotban van, a berendezés tiszta.",
+          "ru": "Мебель в хорошем состоянии, обстановка чистая.",
+          "en": "The furniture is in good condition, the furnishings are clean."
+        },
+        {
+          "hu": "A villanyóra a lépcsőházban van.",
+          "ru": "Электросчётчик находится на лестничной клетке.",
+          "en": "The electricity meter is in the stairwell."
+        },
+        {
+          "hu": "A fogyasztás kevés, ez a jegyzőkönyvben van.",
+          "ru": "Расход небольшой, это записано в акте.",
+          "en": "The consumption is low, it is in the protocol."
+        },
+        {
+          "hu": "Az állapot jó, nagy hiba nincs.",
+          "ru": "Состояние хорошее, серьёзных дефектов нет.",
+          "en": "The condition is good, there is no big fault."
+        },
+        {
+          "hu": "Dani is, én is aláírtuk a jegyzőkönyvet.",
+          "ru": "И Дани, и я подписали акт.",
+          "en": "Both Dani and I signed the protocol."
+        },
+        {
+          "hu": "Ez fontos, mert az állapot később számít.",
+          "ru": "Это важно, потому что состояние потом имеет значение.",
+          "en": "This is important, because the condition matters later."
+        },
+        {
+          "hu": "Én átadtam a letétet, ő átadta a kulcsot.",
+          "ru": "Я передала залог, а он передал ключ.",
+          "en": "I handed over the deposit, and he handed over the key."
+        }
+      ],
+      [
+        {
+          "hu": "Kedd. Ma találkoztam a lakókkal.",
+          "ru": "Вторник. Сегодня я познакомилась с жильцами.",
+          "en": "Tuesday. Today I met the residents."
+        },
+        {
+          "hu": "A szomszéd néni, Marika néni, nagyon kedves.",
+          "ru": "Соседка, тётя Марика, очень милая.",
+          "en": "The neighbour, Auntie Marika, is very kind."
+        },
+        {
+          "hu": "Ő már tíz éve lakó a társasházban.",
+          "ru": "Она уже десять лет живёт в этом доме.",
+          "en": "She has been a resident of the building for ten years."
+        },
+        {
+          "hu": "A pincében és a padláson is van hely, és tiszta.",
+          "ru": "И в подвале, и на чердаке есть место, и там чисто.",
+          "en": "There is room in the cellar and in the attic too, and it is clean."
+        },
+        {
+          "hu": "Marika néni szerint a hely csendes, a lakók nem zajosak.",
+          "ru": "По словам тёти Марики, место тихое, жильцы не шумные.",
+          "en": "According to Auntie Marika, the place is quiet, the residents are not noisy."
+        },
+        {
+          "hu": "A környék és a kilátás is szép.",
+          "ru": "И район, и вид красивые.",
+          "en": "The neighbourhood and the view are nice too."
+        },
+        {
+          "hu": "Garázs nincs, de az udvaron van parkoló.",
+          "ru": "Гаража нет, но во дворе есть парковка.",
+          "en": "There is no garage, but there is a parking space in the yard."
+        },
+        {
+          "hu": "Nekem nincs kocsim, ezért nem kell.",
+          "ru": "У меня нет машины, поэтому мне не нужно.",
+          "en": "I do not have a car, so I do not need it."
+        },
+        {
+          "hu": "Marika néni azt mondta, hogy a közös költség minden hónapban jön.",
+          "ru": "Тётя Марика сказала, что коммунальные расходы дома приходят каждый месяц.",
+          "en": "Auntie Marika said that the service charge comes every month."
+        }
+      ],
+      [
+        {
+          "hu": "Péntek. Ma újra elolvastam a bérleti szerződést.",
+          "ru": "Пятница. Сегодня я ещё раз прочитала арендный договор.",
+          "en": "Friday. Today I read the lease again."
+        },
+        {
+          "hu": "A szerződés határozott, nem határozatlan, egy évre szól.",
+          "ru": "Договор срочный, не бессрочный, на один год.",
+          "en": "The contract is fixed, not open-ended, for one year."
+        },
+        {
+          "hu": "A felmondás egy hónap, a letét két hónap.",
+          "ru": "Расторжение за один месяц, залог за два месяца.",
+          "en": "The notice is one month, the deposit is two months."
+        },
+        {
+          "hu": "Ez az ingatlan Dani tulajdona.",
+          "ru": "Эта недвижимость собственность Дани.",
+          "en": "This property is Dani's."
+        },
+        {
+          "hu": "De a használat az enyém, és ez nekem elég.",
+          "ru": "Но пользоваться ею буду я, и мне этого достаточно.",
+          "en": "But the use is mine, and that is enough for me."
+        },
+        {
+          "hu": "Dani kiadja a lakást, én bérelem.",
+          "ru": "Дани сдаёт квартиру, а я её снимаю.",
+          "en": "Dani rents out the flat, and I rent it."
+        },
+        {
+          "hu": "A bérleti letét ott van nála.",
+          "ru": "Арендный залог находится у него.",
+          "en": "The rental deposit is with him."
+        },
+        {
+          "hu": "Ha megegyezünk, a felmondás nem nehéz.",
+          "ru": "Если мы договоримся, расторжение будет несложным.",
+          "en": "If we agree, the notice is not hard."
+        },
+        {
+          "hu": "Este az erkélyen ültem, és a belvárost néztem.",
+          "ru": "Вечером я сидела на балконе и смотрела на центр города.",
+          "en": "In the evening I sat on the balcony and looked at the city centre."
+        },
+        {
+          "hu": "A bérelt lakás még nem az otthonom, de lassan az lesz.",
+          "ru": "Съёмная квартира ещё не мой дом, но постепенно им станет.",
+          "en": "The rented flat is not my home yet, but it will slowly become one."
+        }
+      ]
+    ]
+  }
+}

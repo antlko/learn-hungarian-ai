@@ -1,0 +1,440 @@
+{
+  "short": {
+    "genre": "sms",
+    "checked": "ai",
+    "title": {
+      "ru": "Приглашение на ужин",
+      "en": "An invitation to dinner"
+    },
+    "names": [
+      "Anna",
+      "Gábor",
+      "Judit",
+      "Péter"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Anna! Szombaton vacsora lesz nálunk.",
+          "ru": "Привет, Анна! В субботу у нас будет ужин.",
+          "en": "Hi, Anna! There is a dinner at our place on Saturday."
+        },
+        {
+          "hu": "Téged és Pétert is nagyon várunk, hétkor kezdünk.",
+          "ru": "Тебя и Петера мы очень ждём, начинаем в семь.",
+          "en": "We are really waiting for you and Péter, we start at seven."
+        },
+        {
+          "hu": "Jól jön az étvágy, mert sok étel lesz!",
+          "ru": "Пригодится аппетит, ведь еды будет много!",
+          "en": "Bring an appetite, because there will be a lot of food!"
+        },
+        {
+          "hu": "Judit csinál levest, sült sertést és palacsintát.",
+          "ru": "Юдит приготовит суп, жареную свинину и блинчики.",
+          "en": "Judit is making soup, roast pork and pancakes."
+        }
+      ],
+      [
+        {
+          "hu": "Te vegetáriánus vagy, ugye?",
+          "ru": "Ты ведь вегетарианка, да?",
+          "en": "You are vegetarian, right?"
+        },
+        {
+          "hu": "Akkor lesz sült zöldség, és nem lesz benne sertés.",
+          "ru": "Тогда будут запечённые овощи, и в них не будет свинины.",
+          "en": "Then there will be roast vegetables, with no pork in them."
+        },
+        {
+          "hu": "A tortában sincs mogyoró, ezért nincs gond.",
+          "ru": "И в торте нет арахиса, так что проблем нет.",
+          "en": "There are no peanuts in the cake either, so there is no problem."
+        },
+        {
+          "hu": "Hozz egy üveg bort vagy egy desszertet, de igazán nem kell.",
+          "ru": "Принеси бутылку вина или десерт, но это совсем не обязательно.",
+          "en": "Bring a bottle of wine or a dessert, but you really do not have to."
+        },
+        {
+          "hu": "Kérlek, írj, ha jöttök. Judit és én nagyon várunk!",
+          "ru": "Пожалуйста, напиши, если придёте. Юдит и я очень ждём!",
+          "en": "Please write if you are coming. Judit and I are really waiting for you!"
+        },
+        {
+          "hu": "Gábor",
+          "ru": "Габор",
+          "en": "Gábor"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "Обед в ресторане",
+      "en": "Lunch at a restaurant"
+    },
+    "names": [
+      "Szabó"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Jó napot! Van foglalásuk?",
+          "ru": "Добрый день! У вас есть бронь?",
+          "en": "Good day! Do you have a reservation?"
+        },
+        {
+          "hu": "Jó napot! Igen, Szabó névre, két személyre.",
+          "ru": "Добрый день! Да, на фамилию Сабо, на двоих.",
+          "en": "Good day! Yes, under the name Szabó, for two people."
+        },
+        {
+          "hu": "Tessék, itt az asztal, és itt van az étlap is.",
+          "ru": "Прошу, вот столик, и вот меню.",
+          "en": "Here you are, here is the table, and here is the menu too."
+        },
+        {
+          "hu": "Köszönjük. Mit ajánl ma ebédre?",
+          "ru": "Спасибо. Что вы порекомендуете сегодня на обед?",
+          "en": "Thank you. What do you recommend for lunch today?"
+        },
+        {
+          "hu": "A leves nagyon finom, és a rántott sertés is jó.",
+          "ru": "Суп очень вкусный, и свинина в панировке тоже хороша.",
+          "en": "The soup is very tasty, and the breaded pork is good too."
+        },
+        {
+          "hu": "A barátom vegetáriánus. Van valami neki?",
+          "ru": "Мой друг вегетарианец. Есть что-нибудь для него?",
+          "en": "My friend is vegetarian. Is there something for him?"
+        },
+        {
+          "hu": "Van sült zöldség és palacsinta. Mogyoró nincs benne.",
+          "ru": "Есть запечённые овощи и блинчики. Арахиса в них нет.",
+          "en": "There are roast vegetables and pancakes. There are no peanuts in them."
+        },
+        {
+          "hu": "Remek, mert ő nem eszik mogyorót. Én leves után rántott sertést rendelek.",
+          "ru": "Отлично, потому что он не ест арахис. Я после супа закажу свинину в панировке.",
+          "en": "Great, because he does not eat peanuts. After the soup I will order breaded pork."
+        },
+        {
+          "hu": "Csípős vagy édes a leves? Én nem szeretem a csípőset.",
+          "ru": "Суп острый или сладкий? Я не люблю острое.",
+          "en": "Is the soup spicy or sweet? I do not like spicy food."
+        },
+        {
+          "hu": "Nem csípős, és nem is édes.",
+          "ru": "Он не острый и не сладкий.",
+          "en": "It is not spicy, and not sweet either."
+        },
+        {
+          "hu": "Van menü is? Az olcsó, ugye? Azt szeretném.",
+          "ru": "Есть ещё и комплексный обед? Он недорогой, да? Его я хочу.",
+          "en": "Is there a set menu too? It is cheap, right? I would like that."
+        },
+        {
+          "hu": "Igen, a menü leves, hús és desszert. Mit kérnek inni?",
+          "ru": "Да, комплексный обед это суп, горячее и десерт. Что будете пить?",
+          "en": "Yes, the set menu is soup, a main dish and dessert. What would you like to drink?"
+        },
+        {
+          "hu": "Én egy üdítőt kérek, a barátom bort iszik.",
+          "ru": "Я возьму безалкогольный напиток, мой друг пьёт вино.",
+          "en": "I will have a soft drink, my friend is having wine."
+        },
+        {
+          "hu": "Rendben. Desszertet is hozok, ha kérnek.",
+          "ru": "Хорошо. Десерт я тоже принесу, если пожелаете.",
+          "en": "All right. I will bring dessert too, if you like."
+        },
+        {
+          "hu": "Köszönjük. Már nagyon éhes vagyok!",
+          "ru": "Спасибо. Я уже очень голодна!",
+          "en": "Thank you. I am already very hungry!"
+        },
+        {
+          "hu": "Akkor hozok egy kis kenyeret is az asztalra, jó?",
+          "ru": "Тогда я принесу ещё немного хлеба на стол, хорошо?",
+          "en": "Then I will bring a little bread to the table too, all right?"
+        },
+        {
+          "hu": "Igen, kérünk egy kis kenyeret, köszönjük.",
+          "ru": "Да, принесите немного хлеба, спасибо.",
+          "en": "Yes, please bring a little bread, thank you."
+        },
+        {
+          "hu": "Később kérek egy fagylaltot is.",
+          "ru": "Потом я возьму ещё мороженое.",
+          "en": "Later I will have an ice cream too."
+        },
+        {
+          "hu": "Szomjas vagyok, kérek először egy kis vizet.",
+          "ru": "Я хочу пить, сначала возьму немного воды.",
+          "en": "I am thirsty, I will have a little water first."
+        },
+        {
+          "hu": "Máris hozom. A leves öt perc, a rántott sertés tíz perc.",
+          "ru": "Сейчас принесу. Суп пять минут, свинина в панировке десять.",
+          "en": "I will bring it right away. The soup takes five minutes, the breaded pork ten."
+        },
+        {
+          "hu": "Nem baj, nem sietünk. Ez egy jó ebéd lesz.",
+          "ru": "Ничего, мы не торопимся. Это будет хороший обед.",
+          "en": "No problem, we are not in a hurry. This will be a good lunch."
+        },
+        {
+          "hu": "Jó étvágyat kívánok!",
+          "ru": "Приятного аппетита!",
+          "en": "Enjoy your meal!"
+        },
+        {
+          "hu": "Köszönjük szépen, minden nagyon finom volt, és a pincér is kedves.",
+          "ru": "Большое спасибо, всё было очень вкусно, и официант был любезен.",
+          "en": "Thank you very much, everything was delicious, and the waiter was kind too."
+        },
+        {
+          "hu": "Kérjük a számlát. Kifizetem, és itt a borravaló is.",
+          "ru": "Счёт, пожалуйста. Я оплачу, и вот чаевые.",
+          "en": "The bill, please. I will pay, and here is the tip too."
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "story",
+    "checked": "ai",
+    "title": {
+      "ru": "Ужин у Габора",
+      "en": "Dinner at Gábor's"
+    },
+    "names": [
+      "Anna",
+      "Gábor",
+      "Judit",
+      "Péter"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szombaton Gábor és Judit vacsorára várt minket.",
+          "ru": "В субботу Габор и Юдит ждали нас на ужин.",
+          "en": "On Saturday Gábor and Judit were expecting us for dinner."
+        },
+        {
+          "hu": "Péter nagyon örült, mert mindig éhes volt.",
+          "ru": "Петер очень обрадовался, потому что всегда был голоден.",
+          "en": "Péter was very happy, because he was always hungry."
+        },
+        {
+          "hu": "Én vegetáriánus vagyok, ezért kicsit féltem.",
+          "ru": "Я вегетарианка, поэтому немного побаивалась.",
+          "en": "I am vegetarian, so I was a little afraid."
+        },
+        {
+          "hu": "Judit azért előre írt, hogy lesz sült zöldség és palacsinta.",
+          "ru": "Юдит заранее написала, что будут запечённые овощи и блинчики.",
+          "en": "Judit wrote in advance that there would be roast vegetables and pancakes."
+        },
+        {
+          "hu": "Mogyoró nem volt az ételben, és ez fontos volt.",
+          "ru": "Арахиса в еде не было, и это было важно.",
+          "en": "There were no peanuts in the food, and that was important."
+        }
+      ],
+      [
+        {
+          "hu": "Péter vett egy üveg bort, én egy desszertet hoztam.",
+          "ru": "Петер купил бутылку вина, а я принесла десерт.",
+          "en": "Péter bought a bottle of wine, and I brought a dessert."
+        },
+        {
+          "hu": "Hétkor értünk oda.",
+          "ru": "В семь мы пришли.",
+          "en": "We arrived at seven."
+        },
+        {
+          "hu": "Gábor az ajtónál várt ránk, és nagyon örült.",
+          "ru": "Габор ждал нас у двери и очень обрадовался.",
+          "en": "Gábor waited for us at the door and was very glad."
+        },
+        {
+          "hu": "Itt a vendég, mondta, és mindenki nevetett.",
+          "ru": "Вот и гость, сказал он, и все засмеялись.",
+          "en": "Here is the guest, he said, and everyone laughed."
+        },
+        {
+          "hu": "Az asztalon sok étel és ital volt.",
+          "ru": "На столе было много еды и напитков.",
+          "en": "There was a lot of food and drink on the table."
+        },
+        {
+          "hu": "Gábor italt adott nekünk, mert szomjasak voltunk.",
+          "ru": "Габор дал нам напитки, потому что мы хотели пить.",
+          "en": "Gábor gave us drinks, because we were thirsty."
+        },
+        {
+          "hu": "Péter bort kapott, én üdítőt kaptam.",
+          "ru": "Петер получил вино, а я напиток.",
+          "en": "Péter got wine, I got a soft drink."
+        },
+        {
+          "hu": "Gábor pálinkát ivott, de csak egy kicsit.",
+          "ru": "Габор выпил палинки, но только чуть-чуть.",
+          "en": "Gábor drank pálinka, but only a little."
+        }
+      ],
+      [
+        {
+          "hu": "Először a leves jött.",
+          "ru": "Сначала подали суп.",
+          "en": "First the soup came."
+        },
+        {
+          "hu": "Az íz nagyon jó volt, és nem volt csípős.",
+          "ru": "Вкус был очень хорош, и суп не был острым.",
+          "en": "The taste was very good, and it was not spicy."
+        },
+        {
+          "hu": "Aztán Judit hozta a sült zöldséget nekem és a sült sertést Péternek.",
+          "ru": "Потом Юдит принесла мне запечённые овощи, а Петеру жареную свинину.",
+          "en": "Then Judit brought me the roast vegetables and Péter the roast pork."
+        },
+        {
+          "hu": "Mindenki evett, és senki nem beszélt sokat.",
+          "ru": "Все ели, и никто много не говорил.",
+          "en": "Everyone ate, and nobody talked much."
+        },
+        {
+          "hu": "A sertés nem volt nyers, hanem nagyon finom.",
+          "ru": "Свинина была не сырая, а очень вкусная.",
+          "en": "The pork was not underdone, but very good."
+        },
+        {
+          "hu": "Judit mindig kérdezte, hogy ízlik-e az étel.",
+          "ru": "Юдит всё время спрашивала, нравится ли еда.",
+          "en": "Judit kept asking whether the food tasted good."
+        },
+        {
+          "hu": "Mi azt mondtuk, hogy igen, és kértünk még egyet.",
+          "ru": "Мы говорили, что да, и просили ещё порцию.",
+          "en": "We said yes and asked for another helping."
+        }
+      ],
+      [
+        {
+          "hu": "Végül jött a desszert, és Péter még egy kis levest is kért.",
+          "ru": "Потом принесли десерт, а Пётр попросил ещё немного супа.",
+          "en": "Finally the dessert came, and Péter asked for a little more soup too."
+        },
+        {
+          "hu": "Az édes palacsinta és a torta után már nem voltam éhes.",
+          "ru": "После сладких блинчиков и торта я уже не была голодна.",
+          "en": "After the sweet pancakes and the cake I was no longer hungry."
+        },
+        {
+          "hu": "Péter még egy csésze kávét is kért.",
+          "ru": "Петер попросил ещё и чашку кофе.",
+          "en": "Péter asked for a cup of coffee too."
+        },
+        {
+          "hu": "Gábor azt mondta, hogy Judit levese a legjobb.",
+          "ru": "Габор сказал, что суп Юдит самый лучший.",
+          "en": "Gábor said that Judit's soup is the best."
+        },
+        {
+          "hu": "Én azt mondtam, hogy Judit nagyon jól főz.",
+          "ru": "Я сказала, что Юдит очень хорошо готовит.",
+          "en": "I said that Judit cooks very well."
+        },
+        {
+          "hu": "Aztán sokat beszéltünk a családról és a munkáról.",
+          "ru": "Потом мы много говорили о семье и о работе.",
+          "en": "Then we talked a lot about family and work."
+        },
+        {
+          "hu": "Késő este mentünk haza.",
+          "ru": "Домой мы пошли поздно вечером.",
+          "en": "We went home late in the evening."
+        },
+        {
+          "hu": "Péter az úton még egyszer megköszönte a vacsorát.",
+          "ru": "По дороге Петер ещё раз поблагодарил за ужин.",
+          "en": "On the way Péter thanked them once more for the dinner."
+        }
+      ],
+      [
+        {
+          "hu": "Vasárnap ebédre az étterembe mentünk, mert Judit azt ajánlotta.",
+          "ru": "В воскресенье на обед мы пошли в ресторан, потому что Юдит посоветовала.",
+          "en": "On Sunday we went to a restaurant for lunch, because Judit recommended it."
+        },
+        {
+          "hu": "Az étterem nem messze volt, ezért gyalog mentünk.",
+          "ru": "Ресторан был недалеко, поэтому мы пошли пешком.",
+          "en": "The restaurant was not far, so we walked."
+        },
+        {
+          "hu": "Foglalás nem kellett, és a pincér már hozta az étlapot.",
+          "ru": "Бронь не понадобилась, и официант уже принёс меню.",
+          "en": "No reservation was needed, and the waiter was already bringing the menu."
+        },
+        {
+          "hu": "Én a menüt rendeltem, Péter marhahúst kért.",
+          "ru": "Я заказала комплексный обед, Петер попросил говядину.",
+          "en": "I ordered the set menu, Péter asked for beef."
+        },
+        {
+          "hu": "Az ebéd finom volt, és a pincér fagylaltot ajánlott.",
+          "ru": "Обед был вкусным, и официант посоветовал мороженое.",
+          "en": "The lunch was delicious, and the waiter recommended ice cream."
+        },
+        {
+          "hu": "Péter kifizette az ebédet, és adott borravalót is.",
+          "ru": "Петер оплатил обед и дал ещё чаевые.",
+          "en": "Péter paid for the lunch and gave a tip too."
+        },
+        {
+          "hu": "A pincér megköszönte, és jó napot kívánt nekünk.",
+          "ru": "Официант поблагодарил и пожелал нам хорошего дня.",
+          "en": "The waiter thanked us and wished us a good day."
+        },
+        {
+          "hu": "Aztán még kértünk egy kávét.",
+          "ru": "Потом мы заказали ещё по кофе.",
+          "en": "Then we ordered one more coffee."
+        }
+      ],
+      [
+        {
+          "hu": "Otthon Péter azt mondta, hogy ez volt a legjobb vacsora.",
+          "ru": "Дома Петер сказал, что это был лучший ужин.",
+          "en": "At home Péter said that this was the best dinner."
+        },
+        {
+          "hu": "Szerintem is az volt.",
+          "ru": "По-моему, тоже.",
+          "en": "I think so too."
+        },
+        {
+          "hu": "A következő vacsora nálunk lesz, és én hívom meg őket.",
+          "ru": "Следующий ужин будет у нас, и я приглашу их.",
+          "en": "The next dinner will be at our place, and I will invite them."
+        },
+        {
+          "hu": "Én is csinálok levest és palacsintát, és Péter bort vesz.",
+          "ru": "Я тоже приготовлю суп и блинчики, а Петер купит вино.",
+          "en": "I will make soup and pancakes too, and Péter will buy wine."
+        },
+        {
+          "hu": "Ez egy nagyon jó hétvége volt, és az ételek is nagyon finomak voltak.",
+          "ru": "Это были очень хорошие выходные, и еда тоже была очень вкусной.",
+          "en": "It was a very good weekend, and the food was very tasty too."
+        }
+      ]
+    ]
+  }
+}

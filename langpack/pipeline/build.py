@@ -23,7 +23,6 @@ from . import (
     features,
     frequency,
     minimal_pairs,
-    reading_sets,
     resources,
     sentences,
     subtitles,
@@ -473,18 +472,6 @@ def main() -> int:
               "which the UI labels as a fallback")
     conn.commit()
 
-    # ── reading sets ─────────────────────────────────────────────────────
-    # Last of the content stages: they choose from the sentences and the course
-    # written above. A set the build cannot fill is a build error, not a
-    # smaller set.
-    print("→ reading sets")
-    sets_stats = reading_sets.build(conn)
-    sets_problems = reading_sets.validate(conn)
-    if sets_problems:
-        print("the reading sets are invalid:", *sets_problems[:20], sep="\n  ")
-        return 1
-    stats.update(sets_stats)
-    print(f"  {sets_stats['reading_set']} sets, {sets_stats['reading_set_sentence']} sentences")
     # A warning, not an error: see course.warn_unclozeable.
     course.warn_unclozeable(conn)
     conn.commit()

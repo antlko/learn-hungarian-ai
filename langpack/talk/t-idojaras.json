@@ -1,0 +1,584 @@
+{
+  "talk": {
+    "genre": "phone",
+    "checked": "ai",
+    "title": {
+      "ru": "Какая у вас погода?",
+      "en": "What's the weather like at yours?"
+    },
+    "names": [
+      "Bence",
+      "Kata"
+    ],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Halló! Szia, Bence! Zavarlak?",
+          "ru": "Алло! Привет, Бенце! Не отвлекаю?",
+          "en": "Hello! Hi, Bence! Am I disturbing you?"
+        },
+        {
+          "who": "B",
+          "hu": "Szia, Kata! Nem, dehogy. Mi újság?",
+          "ru": "Привет, Ката! Нет, что ты. Что нового?",
+          "en": "Hi, Kata! No, of course not. What's new?"
+        },
+        {
+          "who": "A",
+          "hu": "Semmi különös. Milyen az idő nálatok? Nálunk szörnyű.",
+          "ru": "Ничего особенного. Какая у вас погода? У нас ужасная.",
+          "en": "Nothing special. What's the weather like at yours? Ours is awful."
+        },
+        {
+          "who": "B",
+          "hu": "Nálunk szép. Süt a nap, de nagyon hideg van.",
+          "ru": "У нас красиво. Светит солнце, но очень холодно.",
+          "en": "Ours is nice. The sun is out, but it is very cold."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, nálunk egész nap esik, és fúj a szél.",
+          "ru": "Ой, у нас весь день дождь и дует ветер.",
+          "en": "Oh, here it rains all day and the wind blows."
+        },
+        {
+          "who": "B",
+          "hu": "Hú, az nem jó. Hány fok van?",
+          "ru": "Ух, это нехорошо. Сколько градусов?",
+          "en": "Wow, that's not good. How many degrees is it?"
+        },
+        {
+          "who": "A",
+          "hu": "Csak nyolc fok, de a szél miatt fázom.",
+          "ru": "Всего восемь градусов, но из-за ветра мне холодно.",
+          "en": "Only eight degrees, but I'm cold because of the wind."
+        },
+        {
+          "who": "B",
+          "hu": "Nálunk fagy van. Reggel jég volt az úton.",
+          "ru": "У нас мороз. Утром на дороге был лёд.",
+          "en": "We have frost. This morning there was ice on the road."
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg? Akkor vigyázz az úton!",
+          "ru": "Правда? Тогда осторожнее на дороге!",
+          "en": "Really? Then be careful on the road!"
+        },
+        {
+          "who": "B",
+          "hu": "Jó, vigyázok. Tegnap sapka és kesztyű nélkül mentem ki.",
+          "ru": "Конечно. Вчера вышел без шапки и перчаток.",
+          "en": "Sure. Yesterday I went out without a hat and gloves."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, és nem vagy beteg?",
+          "ru": "Ой, а ты не болен?",
+          "en": "Oh, and aren't you ill?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, nyugi. Csak fáztam egy kicsit.",
+          "ru": "Нет, спокойно. Просто немного замёрз.",
+          "en": "No, relax. I was just a bit cold."
+        },
+        {
+          "who": "A",
+          "hu": "Hát, legközelebb vedd fel a sálat is!",
+          "ru": "Ну, в следующий раз надень и шарф!",
+          "en": "Well, next time put on a scarf too!"
+        },
+        {
+          "who": "B",
+          "hu": "Jó, na. És a hétvégén? Jöttök?",
+          "ru": "Ладно, ну. А на выходных? Приедете?",
+          "en": "All right. And at the weekend? Are you coming?"
+        },
+        {
+          "who": "A",
+          "hu": "Szeretnénk, de az előrejelzés szerint köd lesz.",
+          "ru": "Хотели бы, но по прогнозу будет туман.",
+          "en": "We'd like to, but according to the forecast there will be fog."
+        },
+        {
+          "who": "B",
+          "hu": "Nálunk nincs köd, tiszta az ég. Gyertek!",
+          "ru": "У нас нет тумана, небо чистое. Приезжайте!",
+          "en": "We have no fog, the sky is clear. Come!"
+        },
+        {
+          "who": "A",
+          "hu": "Tudom, csak a gyerekek hamar fáznak.",
+          "ru": "Знаю, просто дети быстро мёрзнут.",
+          "en": "I know, it's just that the kids get cold quickly."
+        },
+        {
+          "who": "B",
+          "hu": "Hozzatok sapkát, kesztyűt és egy meleg sálat.",
+          "ru": "Возьмите шапки, перчатки и тёплый шарф.",
+          "en": "Bring hats, gloves and a warm scarf."
+        },
+        {
+          "who": "A",
+          "hu": "Persze, mindent viszünk. Nagyon kedves vagy, Bence!",
+          "ru": "Конечно, всё возьмём. Ты очень милый, Бенце!",
+          "en": "Sure, we will take everything. You are very kind, Bence!"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, akkor szombaton reggel még egyszer hívlak.",
+          "ru": "Ну, тогда в субботу утром позвоню ещё раз.",
+          "en": "Well, then I'll call you once more on Saturday morning."
+        },
+        {
+          "who": "A",
+          "hu": "Jó, rendben. Ha napos lesz, indulunk.",
+          "ru": "Хорошо, договорились. Если будет солнечно, выезжаем.",
+          "en": "OK, agreed. If it is sunny, we set off."
+        },
+        {
+          "who": "B",
+          "hu": "Szuper! Puszi a gyerekeknek!",
+          "ru": "Супер! Целуй детей!",
+          "en": "Great! Kisses to the kids!"
+        },
+        {
+          "who": "A",
+          "hu": "Puszi! Pá, Bence!",
+          "ru": "Целую! Пока, Бенце!",
+          "en": "Kisses! Bye, Bence!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "kapunal-szomszedok",
+      "title": {
+        "ru": "У калитки",
+        "en": "At the gate"
+      },
+      "scene": {
+        "ru": "Соседи встречаются у калитки утром.",
+        "en": "Two neighbours meet at the gate in the morning."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Szép idő van, ugye?",
+          "ru": "Здравствуйте! Хорошая погода, да?",
+          "en": "Good day! Nice weather, isn't it?"
+        },
+        {
+          "who": "B",
+          "hu": "Hát igen, de reggel még hűvös volt.",
+          "ru": "Ну да, но утром ещё было прохладно.",
+          "en": "Well yes, but the morning was still cool."
+        },
+        {
+          "who": "A",
+          "hu": "Igen, nekem is kellett a sál.",
+          "ru": "Да, мне тоже пришлось надеть шарф.",
+          "en": "Yes, I needed a scarf too."
+        },
+        {
+          "who": "B",
+          "hu": "Délutánra enyhe lesz, azt mondták.",
+          "ru": "К обеду будет мягко, так сказали.",
+          "en": "It will be mild by the afternoon, they said."
+        },
+        {
+          "who": "A",
+          "hu": "Remélem. Az előrejelzés szerint hétvégén esik.",
+          "ru": "Надеюсь. По прогнозу на выходных будет дождь.",
+          "en": "I hope so. According to the forecast it rains at the weekend."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, tényleg? Akkor ma még a kertben dolgozom.",
+          "ru": "Ой, правда? Тогда сегодня ещё поработаю в саду.",
+          "en": "Oh, really? Then I'll still work in the garden today."
+        },
+        {
+          "who": "A",
+          "hu": "Jó ötlet! Még száraz a föld.",
+          "ru": "Хорошая мысль! Земля ещё сухая.",
+          "en": "Good idea! The ground is still dry."
+        },
+        {
+          "who": "B",
+          "hu": "Hát igen. További szép napot!",
+          "ru": "Ну да. Приятного вам дня!",
+          "en": "Yes indeed. Have a lovely day!"
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm, viszlát!",
+          "ru": "Спасибо, до свидания!",
+          "en": "Thank you, goodbye!"
+        }
+      ]
+    },
+    {
+      "slug": "megallo-eso",
+      "title": {
+        "ru": "На остановке под дождём",
+        "en": "At the bus stop in the rain"
+      },
+      "scene": {
+        "ru": "Незнакомые люди ждут автобус под дождём.",
+        "en": "Two strangers wait for the bus in the rain."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, mióta esik ez az eső?",
+          "ru": "Извините, как давно идёт этот дождь?",
+          "en": "Excuse me, how long has this rain been going?"
+        },
+        {
+          "who": "B",
+          "hu": "Reggel óta. Nincs esernyője?",
+          "ru": "С утра. У вас нет зонта?",
+          "en": "Since the morning. Don't you have an umbrella?"
+        },
+        {
+          "who": "A",
+          "hu": "Nincs, otthon hagytam. Esik, és hideg is van.",
+          "ru": "Нет, оставил дома. Идёт дождь, и ещё холодно.",
+          "en": "No, I left it at home. It rains, and it's cold too."
+        },
+        {
+          "who": "B",
+          "hu": "Álljon ide, elég nagy az esernyő.",
+          "ru": "Встаньте сюда, зонт достаточно большой.",
+          "en": "Stand here, the umbrella is big enough."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, köszönöm, nagyon kedves.",
+          "ru": "Ой, спасибо, вы очень любезны.",
+          "en": "Oh, thank you, that's very kind."
+        },
+        {
+          "who": "B",
+          "hu": "Szívesen. Mindjárt jön a busz, csak várjunk egy kicsit.",
+          "ru": "Пожалуйста. Автобус сейчас придёт, просто подождём немного.",
+          "en": "You are welcome. The bus is coming soon, let us just wait a little."
+        },
+        {
+          "who": "A",
+          "hu": "Hát, remélem, ma nem késik.",
+          "ru": "Ну, надеюсь, сегодня не опоздает.",
+          "en": "Well, I hope it is not late today."
+        },
+        {
+          "who": "B",
+          "hu": "Itt is van, nézze!",
+          "ru": "Вот он, смотрите!",
+          "en": "Here it is, look!"
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm még egyszer. Viszlát!",
+          "ru": "Ещё раз спасибо. До свидания!",
+          "en": "Thanks once more. Goodbye!"
+        }
+      ]
+    },
+    {
+      "slug": "hetvegi-kirandulas",
+      "title": {
+        "ru": "Поездка по прогнозу",
+        "en": "A trip by the forecast"
+      },
+      "scene": {
+        "ru": "Друзья планируют выезд за город по прогнозу погоды.",
+        "en": "Two friends plan a day out by the forecast."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szombaton esik? Nézd meg az előrejelzést!",
+          "ru": "В субботу дождь? Посмотри прогноз!",
+          "en": "Will it rain on Saturday? Check the forecast!"
+        },
+        {
+          "who": "B",
+          "hu": "Megnéztem. Napos lesz, húsz fok.",
+          "ru": "Смотрела. Будет солнечно, двадцать градусов.",
+          "en": "I did. It'll be sunny, twenty degrees."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper! Akkor megyünk, ugye?",
+          "ru": "Супер! Тогда едем, да?",
+          "en": "Great! So we are going, right?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze, de vasárnap zivatar jöhet.",
+          "ru": "Конечно, но в воскресенье может быть гроза.",
+          "en": "Sure, but a thunderstorm may come on Sunday."
+        },
+        {
+          "who": "A",
+          "hu": "Hát, akkor szombaton megyünk, vasárnap haza.",
+          "ru": "Ну, тогда едем в субботу, в воскресенье домой.",
+          "en": "Well, then we go on Saturday, home on Sunday."
+        },
+        {
+          "who": "B",
+          "hu": "Jó. Mit vigyünk? Esernyőt is?",
+          "ru": "Хорошо. Что брать? И зонт тоже?",
+          "en": "OK. What shall we take? An umbrella too?"
+        },
+        {
+          "who": "A",
+          "hu": "Vigyél egyet, az jó lesz.",
+          "ru": "Возьми один, пригодится.",
+          "en": "Take one, it'll be good to have."
+        },
+        {
+          "who": "B",
+          "hu": "Oké, és sapkát, mert erős a nap.",
+          "ru": "Ладно, и кепку, потому что солнце сильное.",
+          "en": "OK, and a cap, because the sun is strong."
+        },
+        {
+          "who": "A",
+          "hu": "Király! Reggel nyolckor ott vagyok.",
+          "ru": "Класс! В восемь утра буду у тебя.",
+          "en": "Great! I'll be there at eight in the morning."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben, szia!",
+          "ru": "Договорились, пока!",
+          "en": "Agreed, bye!"
+        }
+      ]
+    },
+    {
+      "slug": "vedd-fel-a-kabatot",
+      "title": {
+        "ru": "Шарф и шапка",
+        "en": "Scarf and hat"
+      },
+      "scene": {
+        "ru": "Мама провожает сына-подростка из дома.",
+        "en": "A mother sees her teenage son out the door."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Vedd fel a sálat, hideg van!",
+          "ru": "Надень шарф, холодно!",
+          "en": "Put on your scarf, it's cold!"
+        },
+        {
+          "who": "B",
+          "hu": "Anya, nincs hideg, süt a nap.",
+          "ru": "Мама, не холодно, солнце светит.",
+          "en": "Mum, it isn't cold, the sun is out."
+        },
+        {
+          "who": "A",
+          "hu": "De fúj a szél. Vidd a sapkát is!",
+          "ru": "Но ветер дует. Возьми и шапку!",
+          "en": "But the wind is blowing. Take the hat too!"
+        },
+        {
+          "who": "B",
+          "hu": "Ne már! Nem kell sapka.",
+          "ru": "Да ну! Шапка не нужна.",
+          "en": "Oh come on! I don't need a hat."
+        },
+        {
+          "who": "A",
+          "hu": "Fázni fogsz, aztán beteg leszel, és otthon maradsz.",
+          "ru": "Замёрзнешь, потом заболеешь и останешься дома.",
+          "en": "You'll be cold, then you'll get sick and stay at home."
+        },
+        {
+          "who": "B",
+          "hu": "Na jó, felveszem a sapkát is.",
+          "ru": "Ну ладно, надену шапку.",
+          "en": "All right, I'll put on the hat."
+        },
+        {
+          "who": "A",
+          "hu": "És a kesztyűt is!",
+          "ru": "И перчатки тоже!",
+          "en": "And the gloves too!"
+        },
+        {
+          "who": "B",
+          "hu": "Hát jó. Így elég?",
+          "ru": "Ну хорошо. Так достаточно?",
+          "en": "Fine. Is this enough?"
+        },
+        {
+          "who": "A",
+          "hu": "Így jó. Ügyes vagy!",
+          "ru": "Так хорошо. Молодец!",
+          "en": "That's good. Well done!"
+        },
+        {
+          "who": "B",
+          "hu": "Pá, anya!",
+          "ru": "Пока, мама!",
+          "en": "Bye, Mum!"
+        }
+      ]
+    },
+    {
+      "slug": "pocsolya",
+      "title": {
+        "ru": "Лужа",
+        "en": "The puddle"
+      },
+      "scene": {
+        "ru": "Отец с маленьким ребёнком после дождя.",
+        "en": "A father and his small child after the rain."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Hoppá, ne ugorj bele a pocsolyába, még esik az eső!",
+          "ru": "Опа, не прыгай в лужу, дождь ещё идёт!",
+          "en": "Whoops, don't jump into the puddle, it is still raining!"
+        },
+        {
+          "who": "B",
+          "hu": "De apa, jó nagy pocsolya!",
+          "ru": "Но папа, какая большая лужа!",
+          "en": "But Dad, what a big puddle!"
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, már a ruhád is nedves!",
+          "ru": "Ой, у тебя уже и одежда мокрая!",
+          "en": "Oh, your clothes are wet already!"
+        },
+        {
+          "who": "B",
+          "hu": "Nem baj, jó a sár!",
+          "ru": "Ничего, грязь классная!",
+          "en": "Never mind, mud is great!"
+        },
+        {
+          "who": "A",
+          "hu": "Anya nem fog örülni.",
+          "ru": "Мама не обрадуется.",
+          "en": "Mum won't be pleased."
+        },
+        {
+          "who": "B",
+          "hu": "Akkor csak egyet ugrom!",
+          "ru": "Тогда я прыгну только один раз!",
+          "en": "Then I'll jump just once!"
+        },
+        {
+          "who": "A",
+          "hu": "Na jó, egyet. De utána haza.",
+          "ru": "Ну ладно, один. Но потом домой.",
+          "en": "All right, one. But then home."
+        },
+        {
+          "who": "B",
+          "hu": "Király! Hopp, kettőt!",
+          "ru": "Класс! Опа, два!",
+          "en": "Great! Whoops, two!"
+        },
+        {
+          "who": "A",
+          "hu": "Hát jó. Most már úgyis nedves vagy.",
+          "ru": "Ну ладно. Теперь ты всё равно мокрый.",
+          "en": "Oh well. You are wet anyway now."
+        }
+      ]
+    },
+    {
+      "slug": "hosegben",
+      "title": {
+        "ru": "В жару",
+        "en": "In the heat wave"
+      },
+      "scene": {
+        "ru": "Коллеги в офисе в жаркий день.",
+        "en": "Two colleagues in the office on a hot day."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Hú, ez a hőség! Alig bírom, nagyon meleg van.",
+          "ru": "Ух, эта жара! Еле терплю, очень жарко.",
+          "en": "Phew, this heat! I can hardly stand it, it is so hot."
+        },
+        {
+          "who": "B",
+          "hu": "Ne is mondd! Kint harminc fok van.",
+          "ru": "Не говори! На улице тридцать градусов.",
+          "en": "Don't tell me! It's thirty degrees outside."
+        },
+        {
+          "who": "A",
+          "hu": "Fülledt is. Már most izzadok.",
+          "ru": "И душно ещё. Я уже потею.",
+          "en": "And muggy too. I'm sweating already."
+        },
+        {
+          "who": "B",
+          "hu": "Az előrejelzés szerint egész héten így lesz.",
+          "ru": "По прогнозу всю неделю так будет.",
+          "en": "According to the forecast it will be like this all week."
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg? Legalább este hűl?",
+          "ru": "Правда? Хоть вечером остывает?",
+          "en": "Really? Does it at least cool down in the evening?"
+        },
+        {
+          "who": "B",
+          "hu": "Alig. Igyál sok vizet!",
+          "ru": "Почти нет. Пей больше воды!",
+          "en": "Hardly. Drink a lot of water!"
+        },
+        {
+          "who": "A",
+          "hu": "Persze. Hozok neked is egy üveg vizet.",
+          "ru": "Конечно. Принесу и тебе бутылку воды.",
+          "en": "Sure. I will bring you a bottle of water too."
+        },
+        {
+          "who": "B",
+          "hu": "Köszi, király vagy!",
+          "ru": "Спасибо, ты супер!",
+          "en": "Thanks, you're great!"
+        },
+        {
+          "who": "A",
+          "hu": "Nincs mit. Na, vissza a munkához.",
+          "ru": "Не за что. Ну, назад к работе.",
+          "en": "No problem. Well, back to work."
+        }
+      ]
+    }
+  ]
+}

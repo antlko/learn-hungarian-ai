@@ -1,0 +1,473 @@
+{
+  "talk": {
+    "genre": "phone",
+    "checked": "ai",
+    "title": {
+      "ru": "Курьер звонит",
+      "en": "The courier calls"
+    },
+    "names": [
+      "Szabó",
+      "Bence",
+      "Marika"
+    ],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Halló?",
+          "ru": "Алло?",
+          "en": "Hello?"
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot kívánok, futárként hívom. Szabó Bence?",
+          "ru": "Здравствуйте, звоню как курьер. Это Бенце Сабо?",
+          "en": "Good day, I am calling as the courier. Is that Bence Szabó?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, én vagyok. Valami baj van?",
+          "ru": "Да, это я. Что-то случилось?",
+          "en": "Yes, speaking. Is something wrong?"
+        },
+        {
+          "who": "B",
+          "hu": "Nincs baj. Csomagot hoztam, de senki sem nyitott ajtót.",
+          "ru": "Ничего страшного. Я привёз посылку, но никто не открыл дверь.",
+          "en": "No problem. I brought a parcel, but nobody opened the door."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, bocsánat! Most nem vagyok otthon.",
+          "ru": "Ой, извините! Сейчас меня нет дома.",
+          "en": "Oh, sorry! I am not at home now."
+        },
+        {
+          "who": "B",
+          "hu": "Mikor ér haza? Fél óráig itt vagyok.",
+          "ru": "Когда вы будете дома? Полчаса я ещё здесь.",
+          "en": "When will you be home? I am here for half an hour."
+        },
+        {
+          "who": "A",
+          "hu": "Hát, nem tudom, a buszon vagyok, és dugó van.",
+          "ru": "Ну, не знаю, я в автобусе, и пробка.",
+          "en": "Well, I don't know, I am on the bus and there is a traffic jam."
+        },
+        {
+          "who": "B",
+          "hu": "Értem. A csomag törékeny, nem hagyom itt.",
+          "ru": "Понятно. Посылка хрупкая, я не оставлю её здесь.",
+          "en": "I see. The parcel is fragile, I will not leave it here."
+        },
+        {
+          "who": "A",
+          "hu": "Persze! Esetleg a szomszéd át tudja venni?",
+          "ru": "Конечно! Может, сосед сможет получить?",
+          "en": "Of course! Could the neighbour take it, maybe?"
+        },
+        {
+          "who": "B",
+          "hu": "Az jó lesz, ha otthon van.",
+          "ru": "Это подойдёт, если он дома.",
+          "en": "That will do, if he is at home."
+        },
+        {
+          "who": "A",
+          "hu": "Marika néni biztos otthon van. Mindjárt hívom.",
+          "ru": "Тётя Марика наверняка дома. Сейчас ей позвоню.",
+          "en": "Aunt Marika is surely at home. I will call her right away."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. Akkor én most hozzá megyek.",
+          "ru": "Хорошо. Тогда я сейчас пойду к ней.",
+          "en": "All right. Then I will go over to her now."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm szépen! Szólok neki, hogy jön a futár.",
+          "ru": "Большое спасибо! Скажу ей, что идёт курьер.",
+          "en": "Thank you very much! I will tell her the courier is coming."
+        },
+        {
+          "who": "B",
+          "hu": "Jó. Ha nem nyit, üzenetet hagyok.",
+          "ru": "Хорошо. Если не откроет, оставлю сообщение.",
+          "en": "Fine. If she does not open, I will leave a message."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben, nagyon köszönöm a segítséget.",
+          "ru": "Хорошо, большое спасибо за помощь.",
+          "en": "All right, thank you very much for your help."
+        },
+        {
+          "who": "B",
+          "hu": "Nincs mit. Viszlát!",
+          "ru": "Не за что. До свидания!",
+          "en": "Not at all. Goodbye!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "szomszed-csomag",
+      "title": {
+        "ru": "Соседка приняла посылку",
+        "en": "The neighbour took the parcel"
+      },
+      "scene": {
+        "ru": "Молодые соседи на лестнице.",
+        "en": "Two young neighbours on the stairs."
+      },
+      "names": [
+        "Dóra"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia, Dóra! Nálad van a csomagom?",
+          "ru": "Привет, Дора! Моя посылка у тебя?",
+          "en": "Hi, Dóra! Do you have my parcel?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, tegnap jött a futár.",
+          "ru": "Да, вчера приходил курьер.",
+          "en": "Yes, the courier came yesterday."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, köszi! Nehéz volt?",
+          "ru": "Ой, спасибо! Тяжёлая была?",
+          "en": "Oh, thanks! Was it heavy?"
+        },
+        {
+          "who": "B",
+          "hu": "Hú, elég nehéz! Mi van benne?",
+          "ru": "Ух, довольно тяжёлая! Что там?",
+          "en": "Wow, quite heavy! What is in it?"
+        },
+        {
+          "who": "A",
+          "hu": "Hát, anyu küldte. Biztos kaja!",
+          "ru": "Ну, мама прислала. Наверняка еда!",
+          "en": "Well, Mum sent it. Surely food!"
+        },
+        {
+          "who": "B",
+          "hu": "Akkor én is kérek belőle!",
+          "ru": "Тогда я тоже хочу!",
+          "en": "Then I want some too!"
+        },
+        {
+          "who": "A",
+          "hu": "Persze, gyere át este!",
+          "ru": "Конечно, заходи вечером!",
+          "en": "Sure, come over this evening!"
+        }
+      ]
+    },
+    {
+      "slug": "futar-ajtonal",
+      "title": {
+        "ru": "Курьер у двери",
+        "en": "The courier at the door"
+      },
+      "scene": {
+        "ru": "Курьер звонит в дверь, дома жена адресата.",
+        "en": "A courier rings; the addressee's wife is home."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Csomagot hoztam. Ön a címzett?",
+          "ru": "Здравствуйте! Я привёз посылку. Вы получатель?",
+          "en": "Good day! I brought a parcel. Are you the addressee?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, a férjem. Most nincs itthon.",
+          "ru": "Нет, мой муж. Сейчас его нет дома.",
+          "en": "No, my husband. He is not at home now."
+        },
+        {
+          "who": "A",
+          "hu": "Akkor sajnos most nem tudom itt hagyni.",
+          "ru": "Тогда, к сожалению, не могу оставить.",
+          "en": "Then I am afraid I cannot leave it here."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj! Mikor jöhet újra?",
+          "ru": "Ой! Когда вы можете прийти снова?",
+          "en": "Oh! When can you come again?"
+        },
+        {
+          "who": "A",
+          "hu": "Holnap délután újra jövök.",
+          "ru": "Завтра днём приду снова.",
+          "en": "I will come again tomorrow afternoon."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben, holnap otthon leszünk.",
+          "ru": "Хорошо, завтра мы будем дома.",
+          "en": "All right, we will be home tomorrow."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm, viszlát!",
+          "ru": "Спасибо, до свидания!",
+          "en": "Thank you, goodbye!"
+        },
+        {
+          "who": "B",
+          "hu": "Viszlát!",
+          "ru": "До свидания!",
+          "en": "Goodbye!"
+        }
+      ]
+    },
+    {
+      "slug": "elveszett-csomag",
+      "title": {
+        "ru": "Посылка не пришла",
+        "en": "The parcel did not arrive"
+      },
+      "scene": {
+        "ru": "Посетитель жалуется на почте, вежливо, но недовольно.",
+        "en": "A customer complains at the post office, polite but annoyed."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, a csomagom még nem érkezett meg.",
+          "ru": "Извините, моя посылка ещё не пришла.",
+          "en": "Excuse me, my parcel has not arrived yet."
+        },
+        {
+          "who": "B",
+          "hu": "Mikor küldték?",
+          "ru": "Когда её отправили?",
+          "en": "When was it sent?"
+        },
+        {
+          "who": "A",
+          "hu": "Két hete. Itt van a címke.",
+          "ru": "Две недели назад. Вот наклейка.",
+          "en": "Two weeks ago. Here is the label."
+        },
+        {
+          "who": "B",
+          "hu": "Egy pillanat. Hát, késés van, sajnos.",
+          "ru": "Минуту. Ну, задержка, к сожалению.",
+          "en": "One moment. Well, there is a delay, I am afraid."
+        },
+        {
+          "who": "A",
+          "hu": "Késés? Két hét nagyon sok!",
+          "ru": "Задержка? Две недели это очень много!",
+          "en": "A delay? Two weeks is a lot!"
+        },
+        {
+          "who": "B",
+          "hu": "Értem. Várjon hétfőig, aztán panaszt tehet.",
+          "ru": "Понимаю. Подождите до понедельника, потом можно подать жалобу.",
+          "en": "I understand. Wait until Monday, then you can make a complaint."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben. Köszönöm, viszlát!",
+          "ru": "Хорошо. Спасибо, до свидания!",
+          "en": "All right. Thank you, goodbye!"
+        }
+      ]
+    },
+    {
+      "slug": "kepeslap-barat",
+      "title": {
+        "ru": "Открытка дошла",
+        "en": "The postcard arrived"
+      },
+      "scene": {
+        "ru": "Двое друзей, один отправил другому открытку.",
+        "en": "Two friends; one posted a postcard to the other."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia! Megkaptad már a képeslapot?",
+          "ru": "Привет! Ты уже получил открытку?",
+          "en": "Hi! Did you get the postcard yet?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, még nem. Mikor adtad fel?",
+          "ru": "Нет, ещё нет. Когда ты её отправил?",
+          "en": "No, not yet. When did you post it?"
+        },
+        {
+          "who": "A",
+          "hu": "Tegnapelőtt. Biztos útközben van.",
+          "ru": "Позавчера. Наверняка в пути.",
+          "en": "The day before yesterday. It must be on the way."
+        },
+        {
+          "who": "B",
+          "hu": "Várj, megnézem a postaládát.",
+          "ru": "Подожди, посмотрю в почтовом ящике.",
+          "en": "Wait, I will check the letterbox."
+        },
+        {
+          "who": "A",
+          "hu": "Na?",
+          "ru": "Ну?",
+          "en": "Well?"
+        },
+        {
+          "who": "B",
+          "hu": "Jé, itt van! Cuki, köszi!",
+          "ru": "Ой, вот она! Милая, спасибо!",
+          "en": "Oh, here it is! Cute, thanks!"
+        },
+        {
+          "who": "A",
+          "hu": "Szép, ugye?",
+          "ru": "Красивая, правда?",
+          "en": "Nice, isn't it?"
+        },
+        {
+          "who": "B",
+          "hu": "Nagyon! Köszi, hogy írtál.",
+          "ru": "Очень! Спасибо, что написал.",
+          "en": "Very! Thanks for writing."
+        }
+      ]
+    },
+    {
+      "slug": "belyeg-kepeslap",
+      "title": {
+        "ru": "Марки для открыток",
+        "en": "Stamps for postcards"
+      },
+      "scene": {
+        "ru": "Туристка покупает марки на почте.",
+        "en": "A tourist buys stamps at the post office."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, két bélyeget kérek képeslapra.",
+          "ru": "Извините, две марки для открытки, пожалуйста.",
+          "en": "Excuse me, two stamps for postcards, please."
+        },
+        {
+          "who": "B",
+          "hu": "Hová megy a képeslap?",
+          "ru": "Куда пойдёт открытка?",
+          "en": "Where is the postcard going?"
+        },
+        {
+          "who": "A",
+          "hu": "Külföldre. Mennyi idő alatt ér oda?",
+          "ru": "За границу. За сколько она дойдёт?",
+          "en": "Abroad. How long will it take?"
+        },
+        {
+          "who": "B",
+          "hu": "Légi úton körülbelül egy hét.",
+          "ru": "Воздушной почтой примерно неделя.",
+          "en": "By air about a week."
+        },
+        {
+          "who": "A",
+          "hu": "Jó, akkor légi. Mennyi lesz?",
+          "ru": "Хорошо, тогда воздушной. Сколько с меня?",
+          "en": "OK, then by air. How much?"
+        },
+        {
+          "who": "B",
+          "hu": "Két bélyeg, hatszáz forint.",
+          "ru": "Две марки, шестьсот форинтов.",
+          "en": "Two stamps, six hundred forints."
+        },
+        {
+          "who": "A",
+          "hu": "Tessék. Köszönöm szépen!",
+          "ru": "Пожалуйста. Большое спасибо!",
+          "en": "Here you are. Thank you very much!"
+        }
+      ]
+    },
+    {
+      "slug": "felejtett-igazolvany",
+      "title": {
+        "ru": "Забытое удостоверение",
+        "en": "The forgotten ID"
+      },
+      "scene": {
+        "ru": "Человек пришёл за посылкой по извещению, но без документа.",
+        "en": "A man comes for a parcel with the notice but without his ID."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot! Értesítést kaptam, csomagért jöttem.",
+          "ru": "Здравствуйте! Я получил извещение, пришёл за посылкой.",
+          "en": "Hello! I got a notice, I have come for a parcel."
+        },
+        {
+          "who": "B",
+          "hu": "Az igazolványát kérem.",
+          "ru": "Ваше удостоверение, пожалуйста.",
+          "en": "Your ID, please."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, otthon hagytam!",
+          "ru": "Ой, оставил дома!",
+          "en": "Oh, I left it at home!"
+        },
+        {
+          "who": "B",
+          "hu": "Igazolvány nélkül sajnos nem lehet.",
+          "ru": "Без удостоверения, к сожалению, нельзя.",
+          "en": "Not without ID, I am afraid."
+        },
+        {
+          "who": "A",
+          "hu": "Értem. Mikor zár a posta?",
+          "ru": "Понятно. Когда закрывается почта?",
+          "en": "I see. When does the post office close?"
+        },
+        {
+          "who": "B",
+          "hu": "Hatkor zárunk, van még idő.",
+          "ru": "Закрываемся в шесть, время ещё есть.",
+          "en": "We close at six, there is still time."
+        },
+        {
+          "who": "A",
+          "hu": "Szuper, mindjárt jövök! Köszönöm!",
+          "ru": "Отлично, сейчас вернусь! Спасибо!",
+          "en": "Great, I will be right back! Thank you!"
+        }
+      ]
+    }
+  ]
+}

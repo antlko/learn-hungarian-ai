@@ -1,0 +1,444 @@
+{
+  "short": {
+    "genre": "notice",
+    "checked": "ai",
+    "title": {
+      "ru": "Объявление на двери",
+      "en": "A sign on the door"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Kedves barátok!",
+          "ru": "Дорогие друзья!",
+          "en": "Dear friends!"
+        },
+        {
+          "hu": "Ma délelőtt nyitva vagyunk, délután zárva.",
+          "ru": "Сегодня до обеда мы открыты, после обеда закрыты.",
+          "en": "Today we are open in the morning and closed in the afternoon."
+        },
+        {
+          "hu": "Holnap délután három órakor újra magyar óra van.",
+          "ru": "Завтра в три часа дня снова урок венгерского.",
+          "en": "Tomorrow at three in the afternoon there is a Hungarian lesson again."
+        },
+        {
+          "hu": "Egy magyar óra negyven perc.",
+          "ru": "Один урок — сорок минут.",
+          "en": "One lesson is forty minutes."
+        }
+      ],
+      [
+        {
+          "hu": "Mennyibe kerül egy óra? Ezer forint.",
+          "ru": "Сколько стоит один урок? Тысяча форинтов.",
+          "en": "How much does one lesson cost? One thousand forints."
+        },
+        {
+          "hu": "Ez nem drága, ez olcsó.",
+          "ru": "Это не дорого, это дёшево.",
+          "en": "This is not expensive, this is cheap."
+        },
+        {
+          "hu": "Fizethet készpénzzel vagy kártyával.",
+          "ru": "Можно платить наличными или картой.",
+          "en": "You can pay by cash or by card."
+        },
+        {
+          "hu": "Érme és bankjegy is jó.",
+          "ru": "Монеты и банкноты тоже подойдут.",
+          "en": "Coins and banknotes are both fine."
+        },
+        {
+          "hu": "Köszönjük!",
+          "ru": "Спасибо!",
+          "en": "Thank you!"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "timetable",
+    "checked": "ai",
+    "title": {
+      "ru": "Когда открыто",
+      "en": "When it is open"
+    },
+    "names": [
+      "Tamás"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Ma délelőtt nyitva van.",
+          "ru": "Сегодня до обеда открыто.",
+          "en": "Today it is open in the morning."
+        },
+        {
+          "hu": "Kilenc órától tizenegy óráig.",
+          "ru": "С девяти до одиннадцати часов.",
+          "en": "From nine o'clock to eleven."
+        },
+        {
+          "hu": "Délben zárva van.",
+          "ru": "В полдень закрыто.",
+          "en": "At noon it is closed."
+        },
+        {
+          "hu": "Délután két órától hat óráig van nyitva.",
+          "ru": "После обеда открыто с двух до шести часов.",
+          "en": "In the afternoon it is open from two o'clock to six."
+        },
+        {
+          "hu": "Holnap csak négy óráig van nyitva.",
+          "ru": "Завтра открыто только до четырёх часов.",
+          "en": "Tomorrow it is open only until four o'clock."
+        },
+        {
+          "hu": "Éjjel és éjfélkor is zárva van.",
+          "ru": "Ночью и в полночь тоже закрыто.",
+          "en": "At night and at midnight it is closed too."
+        }
+      ],
+      [
+        {
+          "hu": "Egy hely ezer forint.",
+          "ru": "Одно место стоит тысячу форинтов.",
+          "en": "One seat is one thousand forints."
+        },
+        {
+          "hu": "Ez nem olcsó, de jó hely.",
+          "ru": "Это не дёшево, но хорошее место.",
+          "en": "This is not cheap, but it is a good place."
+        },
+        {
+          "hu": "Egy óra alatt húsz ember jön.",
+          "ru": "За час приходит двадцать человек.",
+          "en": "In one hour twenty people come."
+        },
+        {
+          "hu": "Néha harminc, néha negyven, néha ötven.",
+          "ru": "Иногда тридцать, иногда сорок, иногда пятьдесят.",
+          "en": "Sometimes thirty, sometimes forty, sometimes fifty."
+        },
+        {
+          "hu": "Ma csak nyolc hely van, holnap húsz.",
+          "ru": "Сегодня только восемь мест, завтра двадцать.",
+          "en": "Today there are only eight seats, tomorrow twenty."
+        }
+      ],
+      [
+        {
+          "hu": "Most fél kilenc van, és Tamás az ajtónál áll.",
+          "ru": "Сейчас половина девятого, и Тамаш стоит у двери.",
+          "en": "It is half past eight and Tamás is standing at the door."
+        },
+        {
+          "hu": "Egy nő is áll ott.",
+          "ru": "Там стоит ещё и одна женщина.",
+          "en": "A woman is standing there too."
+        },
+        {
+          "hu": "Tamás szól a nőnek.",
+          "ru": "Тамаш обращается к женщине.",
+          "en": "Tamás speaks to the woman."
+        },
+        {
+          "hu": "Ma nyitva van?",
+          "ru": "Сегодня открыто?",
+          "en": "Is it open today?"
+        },
+        {
+          "hu": "A nő azt mondja, igen, de csak kilenc órától.",
+          "ru": "Женщина говорит, да, но только с девяти.",
+          "en": "The woman says yes, but only from nine o'clock."
+        },
+        {
+          "hu": "Még harminc perc, ugye?",
+          "ru": "Ещё тридцать минут, да?",
+          "en": "Thirty more minutes, right?"
+        },
+        {
+          "hu": "Igen, harminc perc.",
+          "ru": "Да, тридцать минут.",
+          "en": "Yes, thirty minutes."
+        }
+      ],
+      [
+        {
+          "hu": "Hány ember vár most? Kettő.",
+          "ru": "Сколько человек ждёт сейчас? Двое.",
+          "en": "How many people are waiting now? Two."
+        },
+        {
+          "hu": "Tamás egy helyet kér.",
+          "ru": "Тамаш просит одно место.",
+          "en": "Tamás asks for one seat."
+        },
+        {
+          "hu": "Mennyibe kerül?",
+          "ru": "Сколько это стоит?",
+          "en": "How much is it?"
+        },
+        {
+          "hu": "Egy hely, az ár ezer forint.",
+          "ru": "Одно место, цена тысяча форинтов.",
+          "en": "One seat, the price is one thousand forints."
+        },
+        {
+          "hu": "Hú, ez drága! Nincs nálam készpénz.",
+          "ru": "Ох, дорого! У меня нет наличных.",
+          "en": "Wow, that is expensive! I have no cash on me."
+        },
+        {
+          "hu": "Tamás kártyával fizet, és kér egy számlát.",
+          "ru": "Тамаш платит картой и просит счёт.",
+          "en": "Tamás pays by card and asks for a bill."
+        },
+        {
+          "hu": "Holnap újra jön.",
+          "ru": "Завтра он придёт снова.",
+          "en": "Tomorrow he comes again."
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "myday",
+    "checked": "ai",
+    "title": {
+      "ru": "Мой обычный день",
+      "en": "My usual day"
+    },
+    "names": [
+      "Zsuzsa",
+      "Béla"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Zsuzsa vagyok.",
+          "ru": "Привет, я Жужа.",
+          "en": "Hi, I am Zsuzsa."
+        },
+        {
+          "hu": "Boltban dolgozom, pénztáros vagyok.",
+          "ru": "Я работаю в магазине, я кассир.",
+          "en": "I work in a shop, I am a cashier."
+        },
+        {
+          "hu": "Reggel hat órakor kelek.",
+          "ru": "Утром в шесть часов я встаю.",
+          "en": "I get up at six in the morning."
+        },
+        {
+          "hu": "Fél hétkor már indulok.",
+          "ru": "В половине седьмого я уже выхожу.",
+          "en": "At half past six I am already leaving."
+        },
+        {
+          "hu": "Nyolc órakor nyitva van a bolt.",
+          "ru": "В восемь часов магазин открыт.",
+          "en": "At eight o'clock the shop is open."
+        }
+      ],
+      [
+        {
+          "hu": "Az első vevő mindig Béla.",
+          "ru": "Первый покупатель всегда Бела.",
+          "en": "The first customer is always Béla."
+        },
+        {
+          "hu": "Egy kenyeret és egy tejet kér.",
+          "ru": "Он просит один хлеб и одно молоко.",
+          "en": "He asks for one bread and one milk."
+        },
+        {
+          "hu": "Bélának fontos az ár.",
+          "ru": "Для Белы важна цена.",
+          "en": "The price matters to Béla."
+        },
+        {
+          "hu": "A tej nem drága, a kenyér olcsó.",
+          "ru": "Молоко не дорогое, хлеб дешёвый.",
+          "en": "The milk is not expensive, the bread is cheap."
+        },
+        {
+          "hu": "Mennyi az összeg? Összesen ezer forint.",
+          "ru": "Какая сумма? Всего тысяча форинтов.",
+          "en": "What is the sum? One thousand forints in total."
+        },
+        {
+          "hu": "Béla mindig készpénzzel fizet.",
+          "ru": "Бела всегда платит наличными.",
+          "en": "Béla always pays in cash."
+        },
+        {
+          "hu": "Egy bankjegyet ad, és három érme jár vissza.",
+          "ru": "Он даёт банкноту и получает три монеты сдачи.",
+          "en": "He gives a banknote and gets three coins back."
+        }
+      ],
+      [
+        {
+          "hu": "A második vevő egy lány.",
+          "ru": "Вторая покупательница — девушка.",
+          "en": "The second customer is a girl."
+        },
+        {
+          "hu": "Ő soha nem fizet készpénzzel.",
+          "ru": "Она никогда не платит наличными.",
+          "en": "She never pays in cash."
+        },
+        {
+          "hu": "Kártyával fizet, és kér egy számlát.",
+          "ru": "Она платит картой и просит счёт.",
+          "en": "She pays by card and asks for a bill."
+        },
+        {
+          "hu": "A harmadik vevő kenyeret kér.",
+          "ru": "Третий покупатель просит хлеб.",
+          "en": "The third customer asks for bread."
+        },
+        {
+          "hu": "Hány kenyeret kér? Kettőt vagy hármat?",
+          "ru": "Сколько хлебов он просит? Два или три?",
+          "en": "How many loaves does he want? Two or three?"
+        },
+        {
+          "hu": "Öt órakor még sok vevő van.",
+          "ru": "В пять часов покупателей ещё много.",
+          "en": "At five o'clock there are still many customers."
+        },
+        {
+          "hu": "Négy vevő vár itt.",
+          "ru": "Здесь ждут четыре покупателя.",
+          "en": "Four customers are waiting here."
+        },
+        {
+          "hu": "Egy kenyér hatszáz forintba kerül, nem drága.",
+          "ru": "Хлеб стоит шестьсот форинтов, это не дорого.",
+          "en": "A loaf costs six hundred forints, which is not expensive."
+        },
+        {
+          "hu": "Tizenegy órakor már sok ember van itt.",
+          "ru": "В одиннадцать часов здесь уже много людей.",
+          "en": "By eleven o'clock there are many people here."
+        }
+      ],
+      [
+        {
+          "hu": "Délben harminc percig nem dolgozom.",
+          "ru": "В полдень тридцать минут я не работаю.",
+          "en": "At noon I do not work for thirty minutes."
+        },
+        {
+          "hu": "Délelőtt is sok vevő jön.",
+          "ru": "До обеда тоже много покупателей.",
+          "en": "In the morning many customers come too."
+        },
+        {
+          "hu": "Délután is sok vevő jön.",
+          "ru": "После обеда тоже приходит много покупателей.",
+          "en": "In the afternoon many customers come too."
+        },
+        {
+          "hu": "Nyolc órától hét óráig dolgozom.",
+          "ru": "С восьми до семи часов я работаю.",
+          "en": "I work from eight o'clock to seven."
+        },
+        {
+          "hu": "Négy órakor, hat órakor is sok vevő van.",
+          "ru": "И в четыре, и в шесть часов много покупателей.",
+          "en": "At four o'clock and at six o'clock there are many customers too."
+        },
+        {
+          "hu": "Néha tizenegy ember is vár.",
+          "ru": "Иногда ждут даже одиннадцать человек.",
+          "en": "Sometimes even eleven people are waiting."
+        },
+        {
+          "hu": "Néha negyven, néha ötven ember van itt.",
+          "ru": "Иногда сорок, иногда пятьдесят человек здесь.",
+          "en": "Sometimes forty, sometimes fifty people are here."
+        },
+        {
+          "hu": "Néha száz is jön!",
+          "ru": "Иногда приходит и сто!",
+          "en": "Sometimes even a hundred come!"
+        },
+        {
+          "hu": "Sok bankjegy és érme van itt.",
+          "ru": "Здесь много банкнот и монет.",
+          "en": "There are many banknotes and coins here."
+        },
+        {
+          "hu": "Aprópénz mindig kell. Tíz érme, húsz érme, öt érme.",
+          "ru": "Мелочь нужна всегда. Десять монет, двадцать монет, пять монет.",
+          "en": "I always need small change. Ten coins, twenty coins, five coins."
+        },
+        {
+          "hu": "Fillér már nincs, de minden forint fontos.",
+          "ru": "Филлеров уже нет, но каждый форинт важен.",
+          "en": "There are no fillér any more, but every forint matters."
+        }
+      ],
+      [
+        {
+          "hu": "Este hét órakor zárva van a bolt.",
+          "ru": "Вечером в семь часов магазин закрыт.",
+          "en": "At seven in the evening the shop is closed."
+        },
+        {
+          "hu": "Most nézem a pénzt, és nincs hiba.",
+          "ru": "Теперь я смотрю на деньги, и ошибок нет.",
+          "en": "Now I check the money and there is no mistake."
+        },
+        {
+          "hu": "A számla jó, a pénz is jó.",
+          "ru": "Счёт верный, деньги тоже верные.",
+          "en": "The bill is right, the money is right too."
+        },
+        {
+          "hu": "Az összeg jó, nincs hiba.",
+          "ru": "Сумма верная, ошибок нет.",
+          "en": "The sum is right, there is no mistake."
+        },
+        {
+          "hu": "Száz forint hiba is baj.",
+          "ru": "Даже ошибка в сто форинтов — это беда.",
+          "en": "Even a mistake of a hundred forints is trouble."
+        },
+        {
+          "hu": "Egy hónap alatt sok pénz van itt.",
+          "ru": "За месяц здесь проходит много денег.",
+          "en": "In a month a lot of money passes through here."
+        },
+        {
+          "hu": "Egy év alatt sok millió forint.",
+          "ru": "За год — много миллионов форинтов.",
+          "en": "In a year, many millions of forints."
+        }
+      ],
+      [
+        {
+          "hu": "Kilenc órakor már kész vagyok.",
+          "ru": "В девять часов я уже свободна.",
+          "en": "At nine o'clock I am already finished."
+        },
+        {
+          "hu": "Éjjel nem dolgozom, éjfélkor már alszom.",
+          "ru": "Ночью я не работаю, в полночь уже сплю.",
+          "en": "I do not work at night, at midnight I am already asleep."
+        },
+        {
+          "hu": "Holnap újra kezdem.",
+          "ru": "Завтра я начну снова.",
+          "en": "Tomorrow I start again."
+        }
+      ]
+    ]
+  }
+}

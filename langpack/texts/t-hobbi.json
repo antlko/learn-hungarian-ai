@@ -1,0 +1,394 @@
+{
+  "short": {
+    "genre": "notice",
+    "checked": "ai",
+    "title": {
+      "ru": "Объявление спортивного клуба",
+      "en": "A sports club notice"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Kedves gyerekek és felnőttek!",
+          "ru": "Дорогие дети и взрослые!",
+          "en": "Dear children and adults!"
+        },
+        {
+          "hu": "Szombaton sok játék lesz a klubban.",
+          "ru": "В субботу в клубе будет много игр.",
+          "en": "On Saturday there will be lots of games at the club."
+        },
+        {
+          "hu": "Az edző reggel tornával kezd, aztán jön a futball.",
+          "ru": "Тренер начнёт утром с гимнастики, потом будет футбол.",
+          "en": "The coach starts with gymnastics in the morning, then comes football."
+        },
+        {
+          "hu": "A kosárlabda és a tenisz is van, minden játékos kap egy labdát.",
+          "ru": "Есть и баскетбол, и теннис, каждый игрок получит мяч.",
+          "en": "There is basketball and tennis too, every player gets a ball."
+        },
+        {
+          "hu": "Aki szeret úszni vagy futni, az is jöhet.",
+          "ru": "Кто любит плавать или бегать, тоже может прийти.",
+          "en": "Whoever likes to swim or run can come too."
+        }
+      ],
+      [
+        {
+          "hu": "Délután meccs és verseny lesz a klubban.",
+          "ru": "После обеда в клубе будут матч и соревнование.",
+          "en": "In the afternoon there will be a match and a competition at the club."
+        },
+        {
+          "hu": "A játékosok edzenek, az edző figyel, és a labda gyorsan megy.",
+          "ru": "Игроки тренируются, тренер наблюдает, а мяч быстро летает.",
+          "en": "The players train, the coach watches, and the ball moves fast."
+        },
+        {
+          "hu": "Aki győz, az bajnok, aki veszít, az is jól érzi magát.",
+          "ru": "Кто побеждает, тот чемпион, а кто проигрывает, тоже хорошо проводит время.",
+          "en": "Whoever wins is the champion, and whoever loses has a good time too."
+        },
+        {
+          "hu": "Futball, kosárlabda vagy tenisz, itt mindenki talál egy hobbit.",
+          "ru": "Футбол, баскетбол или теннис, здесь каждый найдёт хобби.",
+          "en": "Football, basketball or tennis, everybody finds a hobby here."
+        },
+        {
+          "hu": "Gyertek, edzünk együtt szabadidőben!",
+          "ru": "Приходите, потренируемся вместе в свободное время!",
+          "en": "Come, let us train together in your free time!"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "Пятница вечером на работе",
+      "en": "Friday evening at work"
+    },
+    "names": [
+      "Kata",
+      "Zsolt"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Zsolt! Péntek este van, mit csinálsz szabadidőben?",
+          "ru": "Привет, Жолт! Сейчас вечер пятницы, что ты делаешь в свободное время?",
+          "en": "Hi, Zsolt! It is Friday evening, what do you do in your free time?"
+        },
+        {
+          "hu": "Szia, Kata! Sok hobbim van, de a zene a legnagyobb.",
+          "ru": "Привет, Ката! У меня много хобби, но музыка главное.",
+          "en": "Hi, Kata! I have many hobbies, but music is the biggest."
+        },
+        {
+          "hu": "Gitáron vagy zongorán játszol? Van zenekarotok?",
+          "ru": "Ты играешь на гитаре или на пианино? У вас есть группа?",
+          "en": "Do you play the guitar or the piano? Do you have a band?"
+        },
+        {
+          "hu": "Gitáron játszom egy zenekarban, zongorán is egy kicsit.",
+          "ru": "Я играю на гитаре в группе, немного и на пианино.",
+          "en": "I play the guitar in a band, and a little piano too."
+        },
+        {
+          "hu": "Milyen dalokat játszotok? Én táncolok, a tánc az én hobbim.",
+          "ru": "Какие песни вы играете? А я танцую, танцы моё хобби.",
+          "en": "What songs do you play? I dance, dance is my hobby."
+        },
+        {
+          "hu": "Jó dalokat, és szombaton koncertet adunk a klubban.",
+          "ru": "Хорошие песни, и в субботу мы даём концерт в клубе.",
+          "en": "Good songs, and on Saturday we give a concert at the club."
+        },
+        {
+          "hu": "Hú, jövök! Főzök is, és varrok is, ezt a ruhát varrtam.",
+          "ru": "Ух, приду! Я ещё готовлю и шью, это платье я сшила.",
+          "en": "Wow, I will come! I cook and sew too, I sewed this dress."
+        },
+        {
+          "hu": "Szép! Én főzök és fényképezek, a fényképezőgépem mindig nálam van.",
+          "ru": "Красиво! Я готовлю и фотографирую, фотоаппарат всегда со мной.",
+          "en": "Nice! I cook and take photos, my camera is always with me."
+        },
+        {
+          "hu": "Hozd el a fényképeket! Szombaton kiállítás lesz a könyvtárban.",
+          "ru": "Принеси фотографии! В субботу в библиотеке будет выставка.",
+          "en": "Bring the photos! There will be an exhibition in the library on Saturday."
+        },
+        {
+          "hu": "Jó ötlet! Egy festő rajzai is lesznek a kiállításon.",
+          "ru": "Хорошая идея! На выставке будут и рисунки одного художника.",
+          "en": "Good idea! A painter's drawings will be at the exhibition too."
+        },
+        {
+          "hu": "Szeretem a rajzot. Én gyűjtök is, nagy a gyűjteményem.",
+          "ru": "Я люблю рисунки. Я ещё и коллекционирую, у меня большая коллекция.",
+          "en": "I like drawings. I collect too, my collection is big."
+        },
+        {
+          "hu": "Az apám is gyűjt, a gyűjteménye nagy, és sakkot is játszik.",
+          "ru": "Мой папа тоже коллекционирует, его коллекция большая, и он играет в шахматы.",
+          "en": "My dad collects too, his collection is big, and he plays chess."
+        },
+        {
+          "hu": "Szeretsz moziba járni? Én filmet és sorozatot is nézek.",
+          "ru": "Ты любишь ходить в кино? Я смотрю и фильмы, и сериалы.",
+          "en": "Do you like going to the cinema? I watch films and series too."
+        },
+        {
+          "hu": "Persze! Egy jó film, egy jó műsor, és kész a péntek este.",
+          "ru": "Конечно! Хороший фильм, хорошая передача, и вечер пятницы готов.",
+          "en": "Of course! A good film, a good programme, and the Friday evening is set."
+        },
+        {
+          "hu": "Te szereted a sportot? Én csak a futballt, a meccset nézem.",
+          "ru": "А ты любишь спорт? Я только футбол, смотрю матч.",
+          "en": "Do you like sport? I only like football, I watch the match."
+        },
+        {
+          "hu": "Reggel tornával kezdem a napot, aztán úszom vagy futok.",
+          "ru": "Утром я начинаю день с гимнастики, потом плаваю или бегаю.",
+          "en": "In the morning I start the day with gymnastics, then I swim or run."
+        },
+        {
+          "hu": "Szombaton meccs és verseny is lesz a klubban.",
+          "ru": "В субботу в клубе будут и матч, и соревнование.",
+          "en": "On Saturday there will be a match and a competition at the club."
+        },
+        {
+          "hu": "Aki győz, bajnok, aki veszít, az is jó játékos.",
+          "ru": "Кто побеждает, тот чемпион, а кто проигрывает, тоже хороший игрок.",
+          "en": "Whoever wins is the champion, and whoever loses is a good player too."
+        },
+        {
+          "hu": "Délelőtt meccs, délután kiállítás, este koncert, nagy szombat lesz!",
+          "ru": "Утром матч, днём выставка, вечером концерт, будет большая суббота!",
+          "en": "A match in the morning, an exhibition in the afternoon, a concert in the evening, it will be a big Saturday!"
+        },
+        {
+          "hu": "Igen, és a kosárlabda és a tenisz is jó, jövök!",
+          "ru": "Да, и баскетбол, и теннис хороши, я приду!",
+          "en": "Yes, and basketball and tennis are good too, I am coming!"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "story",
+    "checked": "ai",
+    "title": {
+      "ru": "Длинная суббота Лили",
+      "en": "Lili's long Saturday"
+    },
+    "names": [
+      "Lili",
+      "Zsolt",
+      "Peti",
+      "Gergő"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szombaton a klubban nagy verseny volt, és én is ott voltam.",
+          "ru": "В субботу в клубе было большое соревнование, и я тоже была там.",
+          "en": "On Saturday there was a big competition at the club, and I was there too."
+        },
+        {
+          "hu": "Az edző tornával kezdett, aztán a játékosok labdát kaptak.",
+          "ru": "Тренер начал с гимнастики, потом игроки получили мяч.",
+          "en": "The coach started with gymnastics, then the players got a ball."
+        },
+        {
+          "hu": "Futballt, kosárlabdát és teniszt is játszottak.",
+          "ru": "Играли и в футбол, и в баскетбол, и в теннис.",
+          "en": "They played football, basketball and tennis too."
+        },
+        {
+          "hu": "Én inkább úszni és futni mentem, és sokat fényképeztem.",
+          "ru": "Я пошла плавать и бегать и много фотографировала.",
+          "en": "I went to swim and run, and I took many photos."
+        },
+        {
+          "hu": "A fényképezőgépem nálam volt, a fényképek szépek lettek.",
+          "ru": "Фотоаппарат был со мной, фотографии получились красивые.",
+          "en": "My camera was with me, the photos turned out beautiful."
+        },
+        {
+          "hu": "A meccs után az edző azt mondta, hogy a bajnok ma Peti.",
+          "ru": "После матча тренер сказал, что чемпион сегодня Пети.",
+          "en": "After the match the coach said that the champion today was Peti."
+        },
+        {
+          "hu": "Aki győz, aki veszít, mind jó játékos, mondta az edző.",
+          "ru": "Кто побеждает, кто проигрывает, все хорошие игроки, сказал тренер.",
+          "en": "Whoever wins, whoever loses, they are all good players, said the coach."
+        }
+      ],
+      [
+        {
+          "hu": "Délben a könyvtárba mentem, mert az olvasás a hobbim.",
+          "ru": "В полдень я пошла в библиотеку, потому что чтение моё хобби.",
+          "en": "At noon I went to the library, because reading is my hobby."
+        },
+        {
+          "hu": "Ott sok regény, vers, újság és magazin van.",
+          "ru": "Там много романов, стихов, газет и журналов.",
+          "en": "There are many novels, poems, newspapers and magazines there."
+        },
+        {
+          "hu": "Egy író és egy költő is volt a könyvtárban.",
+          "ru": "В библиотеке были и писатель, и поэт.",
+          "en": "A writer and a poet were in the library too."
+        },
+        {
+          "hu": "Az író a regényéről beszélt, a költő a verseiről.",
+          "ru": "Писатель говорил о своём романе, а поэт о своих стихах.",
+          "en": "The writer talked about his novel, the poet about his poems."
+        },
+        {
+          "hu": "A költő szerint a vers a legszebb hobbi.",
+          "ru": "По мнению поэта, стихи самое красивое хобби.",
+          "en": "In the poet's view, poems are the most beautiful hobby."
+        },
+        {
+          "hu": "Az író szerint a regény nehéz munka.",
+          "ru": "По мнению писателя, роман это тяжёлая работа.",
+          "en": "In the writer's view, a novel is hard work."
+        },
+        {
+          "hu": "Egy magazint és egy újságot is kértem.",
+          "ru": "Я взяла и журнал, и газету.",
+          "en": "I asked for a magazine and a newspaper too."
+        },
+        {
+          "hu": "A regény jó, a vers szép, a magazin érdekes, az újság kicsit nehéz.",
+          "ru": "Роман хорош, стих красив, журнал интересен, газета немного трудна.",
+          "en": "The novel is good, the poem is beautiful, the magazine is interesting, the newspaper is a little hard."
+        }
+      ],
+      [
+        {
+          "hu": "Délután Zsolt írt nekem, hogy van egy új film.",
+          "ru": "После обеда мне написал Жолт, что есть новый фильм.",
+          "en": "In the afternoon Zsolt wrote to me that there was a new film."
+        },
+        {
+          "hu": "A mozi nincs messze, ezért gyorsan mentem.",
+          "ru": "Кино недалеко, поэтому я быстро пошла.",
+          "en": "The cinema is not far, so I went quickly."
+        },
+        {
+          "hu": "A film egy festőről szólt, a színész jó volt, a rajzok szépek.",
+          "ru": "Фильм был про художника, актёр был очень хорош, а рисунки красивы.",
+          "en": "The film was about a painter, the actor was very good, and the drawings were beautiful."
+        },
+        {
+          "hu": "A film után a színházról beszéltünk.",
+          "ru": "После фильма мы говорили о театре.",
+          "en": "After the film we talked about the theatre."
+        },
+        {
+          "hu": "Zsolt szerint a színház jobb, mint a mozi.",
+          "ru": "По мнению Жолта, театр лучше, чем кино.",
+          "en": "In Zsolt's view the theatre is better than the cinema."
+        },
+        {
+          "hu": "Szerintem a festő és a színész is nagyon jó.",
+          "ru": "По-моему, и художник, и актёр очень хороши.",
+          "en": "I think both the painter and the actor are very good."
+        },
+        {
+          "hu": "Szerintem a színész a színházban is jó, a filmben is jó.",
+          "ru": "По-моему, актёр хорош и в театре, и в кино.",
+          "en": "I think the actor is good in the theatre and in the film too."
+        },
+        {
+          "hu": "Zsolt gyűjt, és a gyűjteménye nagy, sakkot is játszik.",
+          "ru": "Жолт коллекционирует, и его коллекция большая, он ещё играет в шахматы.",
+          "en": "Zsolt collects, and his collection is big, he plays chess too."
+        },
+        {
+          "hu": "Zsolt egy új sorozatról és egy jó műsorról is beszélt.",
+          "ru": "Жолт говорил и о новом сериале, и о хорошей передаче.",
+          "en": "Zsolt talked about a new series and a good programme too."
+        }
+      ],
+      [
+        {
+          "hu": "Otthon főztem, aztán varrtam egy kicsit.",
+          "ru": "Дома я приготовила еду, потом немного пошила.",
+          "en": "At home I cooked, then I sewed a little."
+        },
+        {
+          "hu": "Gergő, a szomszéd gyerek, mesét kért.",
+          "ru": "Гергё, соседский мальчик, попросил сказку.",
+          "en": "Gergő, the neighbour's boy, asked for a story."
+        },
+        {
+          "hu": "Egy mesét olvastam egy kis zenészről, aki gitáron játszott.",
+          "ru": "Я читала сказку про маленького музыканта, игравшего на гитаре.",
+          "en": "I read a fairy tale about a little musician who played the guitar."
+        },
+        {
+          "hu": "A zenész nem sokat beszélt, de a mese után nevetett.",
+          "ru": "Музыкант в сказке мало говорил, но после сказки смеялся.",
+          "en": "The musician in the story did not talk much, but he laughed after the tale."
+        },
+        {
+          "hu": "Gergő szereti a zenét, a dalokat és a mesét.",
+          "ru": "Гергё любит музыку, песни и сказки.",
+          "en": "Gergő likes music, songs and stories."
+        },
+        {
+          "hu": "Egy műsort és egy sorozatot is néztünk, de a mese jobb volt.",
+          "ru": "Мы смотрели и передачу, и сериал, но сказка была лучше.",
+          "en": "We watched a programme and a series too, but the fairy tale was better."
+        }
+      ],
+      [
+        {
+          "hu": "Este buli volt Zsolt zenekarával.",
+          "ru": "Вечером была вечеринка с группой Жолта.",
+          "en": "In the evening there was a party with Zsolt's band."
+        },
+        {
+          "hu": "Egy énekes is jött, és a zenészek jó dalokat játszottak.",
+          "ru": "Пришёл и певец, и музыканты играли хорошие песни.",
+          "en": "A singer came too, and the musicians played good songs."
+        },
+        {
+          "hu": "A zongora és a gitár együtt nagyon szép volt.",
+          "ru": "Пианино и гитара вместе звучали очень красиво.",
+          "en": "The piano and the guitar together were very beautiful."
+        },
+        {
+          "hu": "A koncerten az énekes nagyon jó volt, és a dal szép.",
+          "ru": "На концерте певец был очень хорош, и песня красива.",
+          "en": "At the concert the singer was very good, and the song was beautiful."
+        },
+        {
+          "hu": "A koncert után a tánc is jött, és sokat nevettünk.",
+          "ru": "После концерта начались и танцы, и мы много смеялись.",
+          "en": "After the concert the dancing began too, and we laughed a lot."
+        },
+        {
+          "hu": "Mi is táncoltunk, és a buli nagyon jó volt.",
+          "ru": "Мы тоже танцевали, и вечеринка была очень хорошей.",
+          "en": "We danced too, and the party was very good."
+        },
+        {
+          "hu": "Szabadidőben a sport és a hobbi a legjobb, gondoltam otthon.",
+          "ru": "Свободное время лучше всего проводить за спортом и хобби, подумала я дома.",
+          "en": "In your free time sport and a hobby are the best, I thought at home."
+        }
+      ]
+    ]
+  }
+}

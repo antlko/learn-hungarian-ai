@@ -1,0 +1,476 @@
+{
+  "short": {
+    "genre": "sms",
+    "checked": "ai",
+    "title": {
+      "ru": "СМС с рынка",
+      "en": "A text from the market"
+    },
+    "names": [
+      "Peti",
+      "Kata"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Peti! Most a piacon vagyok.",
+          "ru": "Привет, Пети! Я сейчас на рынке.",
+          "en": "Hi, Peti! I am at the market now."
+        },
+        {
+          "hu": "Itt van eper, cseresznye, meggy és barack.",
+          "ru": "Здесь есть клубника, черешня, вишня и персики.",
+          "en": "There are strawberries, cherries, sour cherries and peaches here."
+        },
+        {
+          "hu": "A szilva még nem érett, de a dinnye már igen.",
+          "ru": "Слива ещё не поспела, а дыня уже да.",
+          "en": "The plums are not ripe yet, but the melon is."
+        },
+        {
+          "hu": "Van retek, spenót és tök is, és szép savanyú káposzta.",
+          "ru": "Есть редис, шпинат и тыква, и красивая квашеная капуста.",
+          "en": "There are radishes, spinach and squash too, and nice pickled cabbage."
+        }
+      ],
+      [
+        {
+          "hu": "Kérek egy kiló epret és egy nagy dinnyét.",
+          "ru": "Куплю килограмм клубники и большой арбуз.",
+          "en": "I will take a kilo of strawberries and a big melon."
+        },
+        {
+          "hu": "Kell még méz a reggelihez?",
+          "ru": "Тебе ещё нужен мёд к завтраку?",
+          "en": "Do you still need honey for breakfast?"
+        },
+        {
+          "hu": "Zsemlét is hozok, és szalámit is.",
+          "ru": "Булочки я тоже принесу, и салями тоже.",
+          "en": "I will bring bread rolls too, and salami."
+        },
+        {
+          "hu": "A gyerekeknek virsli kell, ugye?",
+          "ru": "Детям нужны сосиски, да?",
+          "en": "The children want frankfurters, right?"
+        },
+        {
+          "hu": "Ma este gulyás lesz, vagy főzelék?",
+          "ru": "Сегодня вечером будет гуляш или овощное рагу?",
+          "en": "Is it goulash tonight, or vegetable stew?"
+        },
+        {
+          "hu": "Gyorsan írj, mert sok ember van itt!",
+          "ru": "Скорее напиши, потому что здесь много народу!",
+          "en": "Write quickly, because there are lots of people here!"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "email",
+    "checked": "ai",
+    "title": {
+      "ru": "Рецепт от соседки",
+      "en": "A recipe from the neighbour"
+    },
+    "names": [
+      "Kata",
+      "Margit"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Kedves Kata!",
+          "ru": "Дорогая Ката!",
+          "en": "Dear Kata!"
+        },
+        {
+          "hu": "Itt van a gulyás receptje, ahogy kérted.",
+          "ru": "Вот рецепт гуляша, как ты просила.",
+          "en": "Here is the goulash recipe, as you asked."
+        },
+        {
+          "hu": "Nem nehéz, de kell hozzá sok idő.",
+          "ru": "Это несложно, но нужно много времени.",
+          "en": "It is not hard, but it takes a lot of time."
+        },
+        {
+          "hu": "Én mindig vasárnap főzök, mert akkor van időm.",
+          "ru": "Я всегда готовлю по воскресеньям, потому что тогда у меня есть время.",
+          "en": "I always cook on Sundays, because then I have time."
+        },
+        {
+          "hu": "A hozzávalók egyszerűek, a piacon mind van.",
+          "ru": "Ингредиенты простые, на рынке есть всё.",
+          "en": "The ingredients are simple, you can get them all at the market."
+        }
+      ],
+      [
+        {
+          "hu": "Vegyél egy kiló marhát és egy kis szalonnát.",
+          "ru": "Возьми килограмм говядины и немного сала.",
+          "en": "Buy a kilo of beef and a little bacon."
+        },
+        {
+          "hu": "A marhát vágd kicsire, a szalonnát is.",
+          "ru": "Говядину нарежь мелко, и сало тоже.",
+          "en": "Cut the beef small, and the bacon too."
+        },
+        {
+          "hu": "Először a szalonnát tedd egy nagy fazékba, utána a marhát.",
+          "ru": "Сначала положи сало в большую кастрюлю, потом говядину.",
+          "en": "First put the bacon in a big pot, then the beef."
+        },
+        {
+          "hu": "Kell még gomba, bab és egy kis borsó.",
+          "ru": "Нужны ещё грибы, фасоль и немного гороха.",
+          "en": "You also need mushrooms, beans and a few peas."
+        },
+        {
+          "hu": "Aztán önts rá vizet, és főzd két órát.",
+          "ru": "Потом налей воды и вари два часа.",
+          "en": "Then pour water over it and cook it for two hours."
+        },
+        {
+          "hu": "Közben néha nézd meg, és tedd bele a babot.",
+          "ru": "Время от времени проверяй и добавь фасоль.",
+          "en": "Check it now and then, and put the beans in."
+        },
+        {
+          "hu": "Sót is kell tenni bele, de ne sok sót.",
+          "ru": "Соль тоже нужна, но не много.",
+          "en": "It needs salt too, but not too much."
+        },
+        {
+          "hu": "A gulyás ne legyen túl sós!",
+          "ru": "Гуляш не должен быть слишком солёным!",
+          "en": "The goulash should not be too salty!"
+        },
+        {
+          "hu": "Ha túl sós lett, tegyél bele még vizet.",
+          "ru": "Если получилось слишком солёно, добавь ещё воды.",
+          "en": "If it turned out too salty, add some more water."
+        },
+        {
+          "hu": "Ha kész a gulyás, tedd a fazekat az asztalra.",
+          "ru": "Когда гуляш готов, поставь кастрюлю на стол.",
+          "en": "When the goulash is ready, put the pot on the table."
+        }
+      ],
+      [
+        {
+          "hu": "Mellé jó a friss zsemle és egy kis savanyú káposzta.",
+          "ru": "К нему хорошо свежая булочка и немного квашеной капусты.",
+          "en": "Fresh bread rolls and a little sauerkraut go well with it."
+        },
+        {
+          "hu": "A gyerekek ezt nagyon szeretik, és sokat esznek.",
+          "ru": "Дети это очень любят и много едят.",
+          "en": "The children love this and eat a lot."
+        },
+        {
+          "hu": "Ha nem szereted a marhát, jó a bárány is.",
+          "ru": "Если не любишь говядину, хороша и баранина.",
+          "en": "If you do not like beef, lamb is good too."
+        }
+      ],
+      [
+        {
+          "hu": "Szombaton tudsz jönni hozzánk?",
+          "ru": "В субботу ты сможешь прийти к нам?",
+          "en": "Can you come to us on Saturday?"
+        },
+        {
+          "hu": "A gyerekeket is hozzátok, nagyon várunk titeket.",
+          "ru": "Детей тоже приводите, мы вас очень ждём.",
+          "en": "Bring the children too, we are expecting you."
+        },
+        {
+          "hu": "A gulyás ebédre lesz kész, és együtt eszünk.",
+          "ru": "Гуляш будет готов к обеду, и мы поедим вместе.",
+          "en": "The goulash will be ready for lunch, and we will eat together."
+        },
+        {
+          "hu": "Reggelire zsemle, méz és kakaó lesz.",
+          "ru": "На завтрак будут булочки, мёд и какао.",
+          "en": "For breakfast there will be bread rolls, honey and cocoa."
+        },
+        {
+          "hu": "A gyerekeknek lesz keksz, csokoládé, eper és meggy.",
+          "ru": "Для детей будут печенье, шоколад, клубника и вишня.",
+          "en": "There will be biscuits, chocolate, strawberries and sour cherries for the children."
+        },
+        {
+          "hu": "Dió és mandula is van, ha szereted.",
+          "ru": "Грецкие орехи и миндаль тоже есть, если любишь.",
+          "en": "There are walnuts and almonds too, if you like them."
+        },
+        {
+          "hu": "Írj, ha kérdésed van!",
+          "ru": "Напиши, если будут вопросы!",
+          "en": "Write if you have a question!"
+        },
+        {
+          "hu": "Üdv, Margit néni",
+          "ru": "С приветом, тётя Маргит",
+          "en": "Best wishes, Aunt Margit"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "story",
+    "checked": "ai",
+    "title": {
+      "ru": "Ужин у друзей",
+      "en": "Dinner at friends'"
+    },
+    "names": [
+      "Ákos",
+      "Dóri"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szombaton Ákos és Dóri vacsorára vártak.",
+          "ru": "В субботу Ákos и Дóри ждали меня на ужин.",
+          "en": "On Saturday Ákos and Dóri were expecting me for dinner."
+        },
+        {
+          "hu": "Reggelire csak zsemlét ettem mézzel, ezért délután már nagyon éhes voltam.",
+          "ru": "На завтрак я съел только булочку с мёдом, поэтому после обеда был очень голоден.",
+          "en": "For breakfast I only had a bread roll with honey, so by the afternoon I was very hungry."
+        },
+        {
+          "hu": "Délután elmentem a piacra, mert nem akartam üres kézzel menni.",
+          "ru": "После обеда я пошёл на рынок, потому что не хотел идти с пустыми руками.",
+          "en": "In the afternoon I went to the market, because I did not want to go empty-handed."
+        },
+        {
+          "hu": "A piacon sok szép gyümölcs volt.",
+          "ru": "На рынке было много красивых фруктов.",
+          "en": "There was a lot of beautiful fruit at the market."
+        },
+        {
+          "hu": "Az eper nagyon szép volt, de drága.",
+          "ru": "Клубника была очень красивой, но дорогой.",
+          "en": "The strawberries were very nice, but expensive."
+        },
+        {
+          "hu": "A szilva, a barack és a meggy még nem volt érett.",
+          "ru": "Слива, персики и вишня ещё не были спелыми.",
+          "en": "The plums, the peaches and the sour cherries were not ripe yet."
+        },
+        {
+          "hu": "Vettem egy érett dinnyét és fél kiló cseresznyét.",
+          "ru": "Я купил спелый арбуз и полкилограмма черешни.",
+          "en": "I bought a ripe melon and half a kilo of cherries."
+        },
+        {
+          "hu": "A gyerekeknek vettem egy kis csokoládét is.",
+          "ru": "Для детей я купил ещё и шоколадку.",
+          "en": "I bought a little chocolate for the children too."
+        },
+        {
+          "hu": "Ákos írt, hogy kér szalámit és virslit is.",
+          "ru": "Ákos написал, что просит ещё салями и сосисок.",
+          "en": "Ákos wrote that he wanted salami and frankfurters too."
+        },
+        {
+          "hu": "A piacon volt kacsa, liba, pulyka és bárány, de lazac nem.",
+          "ru": "На рынке были утка, гусь, индейка и баранина, а лосося не было.",
+          "en": "The market had duck, goose, turkey and lamb, but no salmon."
+        },
+        {
+          "hu": "A néni adott egy kis mézet is.",
+          "ru": "Продавщица дала мне ещё немного мёда.",
+          "en": "The lady gave me a little honey too."
+        }
+      ],
+      [
+        {
+          "hu": "Hatkor értem hozzájuk.",
+          "ru": "В шесть я был у них.",
+          "en": "I got to their place at six."
+        },
+        {
+          "hu": "Már az ajtóban éreztem, hogy gulyás lesz.",
+          "ru": "Ещё у двери я почувствовал, что будет гуляш.",
+          "en": "Already at the door I could tell it would be goulash."
+        },
+        {
+          "hu": "Dóri a konyhában volt, Ákos pedig vágta a káposztát.",
+          "ru": "Дóри была на кухне, а Ákos резал капусту.",
+          "en": "Dóri was in the kitchen, and Ákos was cutting the cabbage."
+        },
+        {
+          "hu": "Mondtam, hogy segítek.",
+          "ru": "Я сказал, что помогу.",
+          "en": "I said I would help."
+        },
+        {
+          "hu": "Dóri adott gombát, és én vágtam fel.",
+          "ru": "Дóри дала мне грибы, и я их нарезал.",
+          "en": "Dóri gave me mushrooms, and I cut them up."
+        },
+        {
+          "hu": "Ákos közben babot és borsót tett a gulyásba.",
+          "ru": "Ákos тем временем добавлял в гуляш фасоль и горох.",
+          "en": "Meanwhile Ákos put beans and peas into the goulash."
+        },
+        {
+          "hu": "Volt még főtt kukorica, szalonna és egy kis spenót is.",
+          "ru": "Были ещё варёная кукуруза, сало и немного шпината.",
+          "en": "There was also boiled sweetcorn, bacon and a little spinach."
+        },
+        {
+          "hu": "A gyerekek az asztalnál ültek, és kekszet ettek.",
+          "ru": "Дети сидели за столом и ели печенье.",
+          "en": "The children sat at the table and ate biscuits."
+        },
+        {
+          "hu": "Dóri nevetett, mert utána nem akartak enni.",
+          "ru": "Дóри смеялась, ведь потом они не захотели есть.",
+          "en": "Dóri laughed, because afterwards they did not want to eat."
+        }
+      ],
+      [
+        {
+          "hu": "Végre mind az asztalhoz ültünk.",
+          "ru": "Наконец мы все сели за стол.",
+          "en": "At last we all sat down at the table."
+        },
+        {
+          "hu": "Ákos mindenkinek öntött a gulyásból.",
+          "ru": "Ákos налил всем гуляша.",
+          "en": "Ákos poured goulash for everyone."
+        },
+        {
+          "hu": "Mellé volt savanyú káposzta, mustár és friss zsemle.",
+          "ru": "К нему были квашеная капуста, горчица и свежие булочки.",
+          "en": "There was pickled cabbage, mustard and fresh bread rolls with it."
+        },
+        {
+          "hu": "Az asztalon volt retek, ecet és szósz is.",
+          "ru": "На столе были ещё редис, уксус и соус.",
+          "en": "There were radishes, vinegar and sauce on the table too."
+        },
+        {
+          "hu": "Dóri a spenótot dióval és mandulával adta.",
+          "ru": "Дóри подала шпинат с грецкими орехами и миндалём.",
+          "en": "Dóri served the spinach with walnuts and almonds."
+        },
+        {
+          "hu": "A spenót egy kicsit keserű volt, de nagyon finom.",
+          "ru": "Шпинат был немного горьковат, но очень вкусный.",
+          "en": "The spinach was a little bitter, but very tasty."
+        },
+        {
+          "hu": "A gulyás nagyon jó volt, egy kicsit sós, de nem baj.",
+          "ru": "Гуляш был очень вкусный, чуть солоноватый, но ничего.",
+          "en": "The goulash was very good, a little salty, but that is fine."
+        },
+        {
+          "hu": "Azt mondtam, hogy ilyen jó gulyást még soha nem ettem.",
+          "ru": "Я сказал, что такого вкусного гуляша ещё никогда не ел.",
+          "en": "I said I had never eaten such good goulash."
+        },
+        {
+          "hu": "Ákos örült, és kért még egy zsemlét.",
+          "ru": "Ákos обрадовался и взял ещё одну булочку.",
+          "en": "Ákos was pleased and asked for another roll."
+        },
+        {
+          "hu": "Dóri szerint a jó étkezés mindig egy kicsit hosszú.",
+          "ru": "По словам Дóри, хорошая трапеза всегда немного затягивается.",
+          "en": "Dóri said that a good meal always takes a little long."
+        }
+      ],
+      [
+        {
+          "hu": "Végül ettük a dinnyét és a cseresznyét.",
+          "ru": "Напоследок мы ели арбуз и черешню.",
+          "en": "At the end we ate the melon and the cherries."
+        },
+        {
+          "hu": "Dóri kakaót főzött a gyerekeknek, és mézet tett bele.",
+          "ru": "Дóри сварила детям какао и добавила в него мёд.",
+          "en": "Dóri made cocoa for the children and put honey in it."
+        },
+        {
+          "hu": "A gyerekek szerint a méz után a csokoládé a legjobb.",
+          "ru": "По мнению детей, после мёда лучше всего шоколад.",
+          "en": "The children said that after honey, chocolate is the best."
+        },
+        {
+          "hu": "Ákos azt mondta, hogy a dinnye nagyon édes.",
+          "ru": "Ákos сказал, что дыня очень сладкая.",
+          "en": "Ákos said that the melon is very sweet."
+        },
+        {
+          "hu": "Dóri adott egy kis mézet és csokoládét is az útra.",
+          "ru": "Дóри дала мне на дорогу немного мёда и шоколада.",
+          "en": "Dóri gave me a little honey and chocolate for the road too."
+        },
+        {
+          "hu": "Tízkor mentem haza.",
+          "ru": "В десять я пошёл домой.",
+          "en": "I went home at ten."
+        },
+        {
+          "hu": "Úton haza ettem még egy szem cseresznyét.",
+          "ru": "По дороге домой я съел ещё одну черешню.",
+          "en": "On the way home I ate one more cherry."
+        },
+        {
+          "hu": "Útközben arra gondoltam, hogy ez egy nagyon jó este volt.",
+          "ru": "По дороге я подумал, что это был очень хороший вечер.",
+          "en": "On the way I thought that it had been a very good evening."
+        }
+      ],
+      [
+        {
+          "hu": "Vasárnap Dóri írt, hogy itt a gulyás receptje.",
+          "ru": "В воскресенье Дóри написала, что вот рецепт гуляша.",
+          "en": "On Sunday Dóri wrote that here was the goulash recipe."
+        },
+        {
+          "hu": "A hozzávalók egyszerűek.",
+          "ru": "Ингредиенты простые.",
+          "en": "The ingredients are simple."
+        },
+        {
+          "hu": "Marha, szalonna, gomba, bab, borsó és kukorica kell hozzá.",
+          "ru": "Нужны говядина, сало, грибы, фасоль, горох и кукуруза.",
+          "en": "It needs beef, bacon, mushrooms, beans, peas and sweetcorn."
+        },
+        {
+          "hu": "Ha főtt kukorica is van, még jobb.",
+          "ru": "Если есть ещё и варёная кукуруза, то ещё лучше.",
+          "en": "If there is boiled sweetcorn too, it is even better."
+        },
+        {
+          "hu": "Minden étkezés után arra gondoltam, hogy én is főzök egyszer.",
+          "ru": "После каждой трапезы я думал, что и сам когда-нибудь приготовлю.",
+          "en": "After every meal I thought that I would cook too one day."
+        },
+        {
+          "hu": "A következő szombaton én hívom meg őket.",
+          "ru": "В следующую субботу я приглашу их к себе.",
+          "en": "Next Saturday I will invite them."
+        },
+        {
+          "hu": "Lesz töltött tök, főzelék, mustár és sok szósz.",
+          "ru": "Будут фаршированная тыква, овощное рагу, горчица и много соуса.",
+          "en": "There will be stuffed squash, vegetable stew, mustard and plenty of sauce."
+        },
+        {
+          "hu": "Végül lesz szilva, dinnye, cseresznye, mandula és keksz.",
+          "ru": "В конце будут слива, арбуз, черешня, миндаль и печенье.",
+          "en": "At the end there will be plums, melon, cherries, almonds and biscuits."
+        }
+      ]
+    ]
+  }
+}

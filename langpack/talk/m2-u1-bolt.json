@@ -1,0 +1,382 @@
+{
+  "talk": {
+    "genre": "phone",
+    "checked": "ai",
+    "title": {
+      "ru": "Звонок из магазина",
+      "en": "A call from the shop"
+    },
+    "names": [
+      "Péter"
+    ],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Halló, Péter? Hol vagy?",
+          "ru": "Алло, Петер? Ты где?",
+          "en": "Hello, Péter? Where are you?"
+        },
+        {
+          "who": "B",
+          "hu": "Szia! A boltban vagyok.",
+          "ru": "Привет! Я в магазине.",
+          "en": "Hi! I'm at the shop."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, de jó! Vegyél kenyeret, kérlek.",
+          "ru": "Ой, как хорошо! Купи хлеба, пожалуйста.",
+          "en": "Oh, great! Buy some bread, please."
+        },
+        {
+          "who": "B",
+          "hu": "Persze. Friss kenyeret kérsz?",
+          "ru": "Конечно. Свежий хлеб?",
+          "en": "Sure. Fresh bread?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, és tejet is.",
+          "ru": "Да, и молоко тоже.",
+          "en": "Yes, and milk too."
+        },
+        {
+          "who": "B",
+          "hu": "Tejet is. Még valamit?",
+          "ru": "Молоко тоже. Ещё что-нибудь?",
+          "en": "Milk too. Anything else?"
+        },
+        {
+          "who": "A",
+          "hu": "Hát, tojás kell. Meg sajt.",
+          "ru": "Ну, нужны яйца. И сыр.",
+          "en": "Well, we need eggs. And cheese."
+        },
+        {
+          "who": "B",
+          "hu": "Rendben. Sonka nem kell?",
+          "ru": "Хорошо. Ветчина не нужна?",
+          "en": "All right. No ham?"
+        },
+        {
+          "who": "A",
+          "hu": "Nem, sonka van otthon.",
+          "ru": "Нет, ветчина дома есть.",
+          "en": "No, we have ham at home."
+        },
+        {
+          "who": "B",
+          "hu": "Oké. Kávé?",
+          "ru": "Окей. Кофе?",
+          "en": "Okay. Coffee?"
+        },
+        {
+          "who": "A",
+          "hu": "Az is kell. Meg alma, paradicsom.",
+          "ru": "Это тоже нужно. И яблоки, помидоры.",
+          "en": "We need that too. And apples, tomatoes."
+        },
+        {
+          "who": "B",
+          "hu": "Jó. Még valami? Vagy ennyi?",
+          "ru": "Хорошо. Ещё что-нибудь? Или всё?",
+          "en": "Okay. Anything else? Or is that all?"
+        },
+        {
+          "who": "A",
+          "hu": "Nem, ennyi. Köszi!",
+          "ru": "Нет, это всё. Спасибо!",
+          "en": "No, that's all. Thanks!"
+        },
+        {
+          "who": "B",
+          "hu": "Jó, megyek. Szia!",
+          "ru": "Хорошо, иду. Пока!",
+          "en": "Okay, going. Bye!"
+        },
+        {
+          "who": "A",
+          "hu": "Szia, pá!",
+          "ru": "Пока, пока!",
+          "en": "Bye, bye!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "pekseg",
+      "title": {
+        "ru": "В пекарне",
+        "en": "At the bakery"
+      },
+      "scene": {
+        "ru": "Покупатель и продавщица у прилавка.",
+        "en": "A customer and a seller at the counter."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Egy kenyeret kérek.",
+          "ru": "Здравствуйте! Один хлеб, пожалуйста.",
+          "en": "Good afternoon! One loaf of bread, please."
+        },
+        {
+          "who": "B",
+          "hu": "Tessék. Még valamit?",
+          "ru": "Пожалуйста. Что-нибудь ещё?",
+          "en": "Here you are. Anything else?"
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm, ennyi. Mennyi lesz?",
+          "ru": "Спасибо, это всё. Сколько с меня?",
+          "en": "Thanks, that's all. How much?"
+        },
+        {
+          "who": "B",
+          "hu": "Összesen ezer forint.",
+          "ru": "Всего тысяча форинтов.",
+          "en": "One thousand forints in all."
+        },
+        {
+          "who": "A",
+          "hu": "Tessék. Viszlát!",
+          "ru": "Пожалуйста. До свидания!",
+          "en": "Here you are. Bye!"
+        }
+      ]
+    },
+    {
+      "slug": "piaci-ar",
+      "title": {
+        "ru": "Сколько стоит сыр",
+        "en": "The price of cheese"
+      },
+      "scene": {
+        "ru": "На рынке, покупатель спрашивает цену.",
+        "en": "At the market, a customer asks a price."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, mennyibe kerül a sajt?",
+          "ru": "Извините, сколько стоит сыр?",
+          "en": "Excuse me, how much is the cheese?"
+        },
+        {
+          "who": "B",
+          "hu": "Ezer forint.",
+          "ru": "Тысяча форинтов.",
+          "en": "One thousand forints."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, az sok!",
+          "ru": "Ой, это много!",
+          "en": "Oh, that's a lot!"
+        },
+        {
+          "who": "B",
+          "hu": "De friss, nagyon jó.",
+          "ru": "Но свежий, очень хороший.",
+          "en": "But fresh, very good."
+        },
+        {
+          "who": "A",
+          "hu": "Akkor egyet kérek.",
+          "ru": "Тогда один кусок, пожалуйста.",
+          "en": "Then I'll have one, please."
+        }
+      ]
+    },
+    {
+      "slug": "kassza",
+      "title": {
+        "ru": "У кассы",
+        "en": "At the checkout"
+      },
+      "scene": {
+        "ru": "Касса в супермаркете.",
+        "en": "The checkout in a supermarket."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Kártyával vagy készpénzzel?",
+          "ru": "Картой или наличными?",
+          "en": "Card or cash?"
+        },
+        {
+          "who": "B",
+          "hu": "Kártyával.",
+          "ru": "Картой.",
+          "en": "Card."
+        },
+        {
+          "who": "A",
+          "hu": "Tessék. Szatyrot kér?",
+          "ru": "Пожалуйста. Пакет нужен?",
+          "en": "Here you are. Do you want a bag?"
+        },
+        {
+          "who": "B",
+          "hu": "Nem, köszi. Van nálam.",
+          "ru": "Нет, спасибо. У меня есть.",
+          "en": "No, thanks. I have one."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben. Viszlát!",
+          "ru": "Хорошо. До свидания!",
+          "en": "Fine. Bye!"
+        }
+      ]
+    },
+    {
+      "slug": "szatyor",
+      "title": {
+        "ru": "Где сумка?",
+        "en": "Where is the bag?"
+      },
+      "scene": {
+        "ru": "Анна и Петер у входа в магазин.",
+        "en": "Anna and Péter at the shop entrance."
+      },
+      "names": [
+        "Anna",
+        "Péter"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Itt a bolt! Hol a szatyor?",
+          "ru": "Вот магазин! Где сумка?",
+          "en": "Here is the shop! Where is the bag?"
+        },
+        {
+          "who": "B",
+          "hu": "Nálam nincs. Nálad?",
+          "ru": "У меня нет. У тебя?",
+          "en": "I don't have it. Do you?"
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, otthon maradt!",
+          "ru": "Ой, осталась дома!",
+          "en": "Oh, it stayed at home!"
+        },
+        {
+          "who": "B",
+          "hu": "Akkor kérünk egyet.",
+          "ru": "Тогда попросим одну.",
+          "en": "Then let's ask for one."
+        },
+        {
+          "who": "A",
+          "hu": "Persze, nem baj.",
+          "ru": "Конечно, ничего страшного.",
+          "en": "Sure, no problem."
+        }
+      ]
+    },
+    {
+      "slug": "patika",
+      "title": {
+        "ru": "В аптеке",
+        "en": "At the pharmacy"
+      },
+      "scene": {
+        "ru": "Покупатель и аптекарь.",
+        "en": "A customer and a pharmacist."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Rosszul vagyok.",
+          "ru": "Здравствуйте! Мне плохо.",
+          "en": "Good day! I feel unwell."
+        },
+        {
+          "who": "B",
+          "hu": "Egy pillanat. Ez jó lesz.",
+          "ru": "Минутку. Это подойдёт.",
+          "en": "One moment. This will do."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm. Kártyával lehet?",
+          "ru": "Спасибо. Можно картой?",
+          "en": "Thanks. Can I pay by card?"
+        },
+        {
+          "who": "B",
+          "hu": "Persze. Tessék.",
+          "ru": "Конечно. Пожалуйста.",
+          "en": "Of course. Here you are."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm, viszlát!",
+          "ru": "Спасибо, до свидания!",
+          "en": "Thank you, bye!"
+        }
+      ]
+    },
+    {
+      "slug": "tevedes",
+      "title": {
+        "ru": "Не тот сыр",
+        "en": "The wrong item"
+      },
+      "scene": {
+        "ru": "Магазин у дома, вышла путаница.",
+        "en": "The corner shop, a small mix-up."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Bocsánat, ez nem sajt. Ez vaj.",
+          "ru": "Извините, это не сыр. Это масло.",
+          "en": "Sorry, this isn't cheese. It's butter."
+        },
+        {
+          "who": "B",
+          "hu": "Jaj, elnézést! Sajtot kért, igaz?",
+          "ru": "Ой, простите! Вы просили сыр, да?",
+          "en": "Oh, sorry! You asked for cheese, right?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, sajtot.",
+          "ru": "Да, сыр.",
+          "en": "Yes, cheese."
+        },
+        {
+          "who": "B",
+          "hu": "Tessék, itt a sajt.",
+          "ru": "Пожалуйста, вот сыр.",
+          "en": "Here you are, here's the cheese."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm. Semmi baj.",
+          "ru": "Спасибо. Ничего страшного.",
+          "en": "Thanks. No harm done."
+        }
+      ]
+    }
+  ]
+}

@@ -1,15 +1,11 @@
 package lang
 
-import (
-	"testing"
-)
+import "testing"
 
-// The starter carries ready-made reading sets (ADR-056, ADR-066) for every
-// course unit: one authored «Рассказ» (ADR-074) and one authored «Диалог» per unit
-// (AI-written, `source = 'authored'`). A set that
-// names a sentence the starter does not hold, or the wrong kind of one, would
-// import as an empty or mislabelled text.
-func TestStarterCarriesReadingSetsWithinBounds(t *testing.T) {
+// Reading texts left the pack (ADR-076): they ship in the binary's own
+// catalogue (internal/readsets). The starter must still install and open, and
+// nothing may depend on it carrying reading sets or authored sentences.
+func TestStarterOpensWithoutReadingSets(t *testing.T) {
 	dir := t.TempDir()
 	version, _, err := EnsurePack(dir)
 	if err != nil {
@@ -20,73 +16,8 @@ func TestStarterCarriesReadingSetsWithinBounds(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer p.Close()
-	db := p.DB()
-
-	var sets int
-	if err := db.QueryRow(`SELECT COUNT(*) FROM reading_set`).Scan(&sets); err != nil {
-		t.Fatalf("the starter has no reading_set table: %v", err)
-	}
-	if sets != 72 {
-		t.Errorf("%d sets, want 72 (24 core units + 12 themes, and a dialogue for each)", sets)
-	}
-
-	rows, err := db.Query(`
-		SELECT r.code, r.level, r.track, COUNT(x.sentence_id)
-		  FROM reading_set r LEFT JOIN reading_set_sentence x ON x.set_code = r.code
-		 GROUP BY r.code`)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var code, level, track string
-		var n int
-		if err := rows.Scan(&code, &level, &track, &n); err != nil {
-			t.Fatal(err)
-		}
-		lo, hi := 8, 14 // «Рассказ» and «Диалог» alike
-		if n < lo || n > hi {
-			t.Errorf("set %s has %d sentences, want %d-%d", code, n, lo, hi)
-		}
-		switch level {
-		case "A1", "A2", "B1":
-		default:
-			t.Errorf("set %s has level %q", code, level)
-		}
-	}
-
-	// Every set holds authored lines only (ADR-074): stories and dialogues.
-	var bad int
-	if err := db.QueryRow(`
-		SELECT COUNT(*) FROM reading_set_sentence x
-		  JOIN reading_set r ON r.code = x.set_code
-		  LEFT JOIN sentence s ON s.id = x.sentence_id
-		 WHERE s.id IS NULL
-		    OR s.source <> 'authored'`).Scan(&bad); err != nil {
-		t.Fatal(err)
-	}
-	if bad != 0 {
-		t.Errorf("%d set sentences are missing or of the wrong provenance (all must be authored)", bad)
-	}
-
-	// Authored lines exist only as story and dialogue lines and carry no tokens, so no
-	// token-reading query can reach them.
-	var stray, tokens int
-	db.QueryRow(`SELECT COUNT(*) FROM sentence WHERE source = 'authored' AND id NOT IN
-		(SELECT sentence_id FROM reading_set_sentence)`).Scan(&stray)
-	db.QueryRow(`SELECT COUNT(*) FROM sentence_token WHERE sentence_id IN
-		(SELECT id FROM sentence WHERE source = 'authored')`).Scan(&tokens)
-	if stray != 0 || tokens != 0 {
-		t.Errorf("authored sentences outside a set: %d, with token rows: %d", stray, tokens)
-	}
-
-	var dup int
-	if err := db.QueryRow(`
-		SELECT COUNT(*) FROM (SELECT sentence_id FROM reading_set_sentence
-		                       GROUP BY sentence_id HAVING COUNT(*) > 1)`).Scan(&dup); err != nil {
-		t.Fatal(err)
-	}
-	if dup != 0 {
-		t.Errorf("%d sentences appear in more than one set", dup)
+	var n int
+	if err := p.DB().QueryRow(`SELECT COUNT(*) FROM sentence`).Scan(&n); err != nil || n == 0 {
+		t.Fatalf("starter has no sentences: %d, %v", n, err)
 	}
 }

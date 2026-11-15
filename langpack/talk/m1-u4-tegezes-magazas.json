@@ -1,0 +1,376 @@
+{
+  "talk": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "У окошка в учреждении",
+      "en": "At the office window"
+    },
+    "names": [
+      "Kovács",
+      "Anna"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Jó napot kívánok! Tessék.",
+          "ru": "Здравствуйте! Слушаю вас.",
+          "en": "Good day! Yes, please.",
+          "who": "B"
+        },
+        {
+          "hu": "Jó napot! Az igazolványom ügyében jöttem.",
+          "ru": "Здравствуйте! Я по поводу моего удостоверения.",
+          "en": "Hello! I have come about my ID.",
+          "who": "A"
+        },
+        {
+          "hu": "Rendben. Az igazolvány és az engedély kell, kérem.",
+          "ru": "Хорошо. Нужны удостоверение и разрешение, пожалуйста.",
+          "en": "All right. The ID and the permit are needed, please.",
+          "who": "B"
+        },
+        {
+          "hu": "Az igazolvány itt van. Tessék, nézze meg.",
+          "ru": "Удостоверение вот. Пожалуйста, посмотрите.",
+          "en": "The ID is here. Here you are, have a look.",
+          "who": "A"
+        },
+        {
+          "hu": "Köszönöm. És az engedély?",
+          "ru": "Спасибо. А разрешение?",
+          "en": "Thank you. And the permit?",
+          "who": "B"
+        },
+        {
+          "hu": "Jaj, az nincs nálam!",
+          "ru": "Ой, его у меня нет!",
+          "en": "Oh, I do not have it with me!",
+          "who": "A"
+        },
+        {
+          "hu": "Nem baj. Az engedélyt holnap hozza, kérem.",
+          "ru": "Ничего. Разрешение принесите завтра, пожалуйста.",
+          "en": "No problem. Please bring the permit tomorrow.",
+          "who": "B"
+        },
+        {
+          "hu": "Persze. Holnap itt vagyok.",
+          "ru": "Конечно. Завтра я буду здесь.",
+          "en": "Of course. I will be here tomorrow.",
+          "who": "A"
+        },
+        {
+          "hu": "Jó. Hogy hívják, kérem?",
+          "ru": "Хорошо. Как вас зовут, пожалуйста?",
+          "en": "Good. What is your name, please?",
+          "who": "B"
+        },
+        {
+          "hu": "Kovács Anna vagyok.",
+          "ru": "Меня зовут Анна Ковач.",
+          "en": "I am Anna Kovács.",
+          "who": "A"
+        },
+        {
+          "hu": "Rendben, Kovács asszony. Viszlát!",
+          "ru": "Хорошо, госпожа Ковач. До свидания!",
+          "en": "All right, Mrs Kovács. Goodbye!",
+          "who": "B"
+        },
+        {
+          "hu": "Köszönöm, viszlát!",
+          "ru": "Спасибо, до свидания!",
+          "en": "Thank you, goodbye!",
+          "who": "A"
+        },
+        {
+          "hu": "Viszlát, szép napot kívánok!",
+          "ru": "До свидания, хорошего дня!",
+          "en": "Goodbye, have a nice day!",
+          "who": "B"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "pekseg-nene",
+      "title": {
+        "ru": "У прилавка",
+        "en": "At the counter"
+      },
+      "scene": {
+        "ru": "Продавщица и пожилая покупательница.",
+        "en": "A shop assistant and an older customer."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Mit parancsol?",
+          "ru": "Здравствуйте! Что желаете?",
+          "en": "Good day! What would you like?"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, azt kérem, lányom.",
+          "ru": "Ну, вот это, пожалуйста, милая.",
+          "en": "Well, that one, please, my dear."
+        },
+        {
+          "who": "A",
+          "hu": "Tessék. Még valamit?",
+          "ru": "Пожалуйста. Что-нибудь ещё?",
+          "en": "Here you are. Anything else?"
+        },
+        {
+          "who": "B",
+          "hu": "Köszönöm, ennyi. Viszlát!",
+          "ru": "Спасибо, это всё. До свидания!",
+          "en": "Thank you, that is all. Goodbye!"
+        },
+        {
+          "who": "A",
+          "hu": "Viszlát, szép napot!",
+          "ru": "До свидания, хорошего дня!",
+          "en": "Goodbye, have a nice day!"
+        }
+      ]
+    },
+    {
+      "slug": "merre-van-a-hivatal",
+      "title": {
+        "ru": "Где учреждение",
+        "en": "Where is the office"
+      },
+      "scene": {
+        "ru": "Молодая девушка спрашивает дорогу у пожилого мужчины.",
+        "en": "A young woman asks an older man the way."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Elnézést, hol van a hivatal?",
+          "ru": "Извините, где здесь управа?",
+          "en": "Excuse me, where is the office?"
+        },
+        {
+          "who": "B",
+          "hu": "Ott van, jobbra.",
+          "ru": "Вон там, направо.",
+          "en": "Over there, to the right."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm, nagyon kedves!",
+          "ru": "Спасибо, вы очень любезны!",
+          "en": "Thank you, that is very kind!"
+        },
+        {
+          "who": "B",
+          "hu": "Szívesen.",
+          "ru": "Пожалуйста.",
+          "en": "You are welcome."
+        }
+      ]
+    },
+    {
+      "slug": "uj-kollegak",
+      "title": {
+        "ru": "Новые коллеги",
+        "en": "New colleagues"
+      },
+      "scene": {
+        "ru": "Первый день на работе, двое ровесников.",
+        "en": "First day at work, two people of the same age."
+      },
+      "names": [
+        "Anna",
+        "Zoli"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia, új vagy?",
+          "ru": "Привет, ты новенький?",
+          "en": "Hi, are you new?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen. Zoli vagyok. És te?",
+          "ru": "Да. Я Золи. А ты?",
+          "en": "Yes. I am Zoli. And you?"
+        },
+        {
+          "who": "A",
+          "hu": "Anna. Én is új vagyok.",
+          "ru": "Анна. Я тоже новенькая.",
+          "en": "Anna. I am new too."
+        },
+        {
+          "who": "B",
+          "hu": "Szuper! Akkor együtt várunk a főnökre.",
+          "ru": "Супер! Тогда вместе ждём начальника.",
+          "en": "Great! Then we wait for the boss together."
+        },
+        {
+          "who": "A",
+          "hu": "Jó ötlet!",
+          "ru": "Хорошая мысль!",
+          "en": "Good idea!"
+        }
+      ]
+    },
+    {
+      "slug": "a-tanar-urnal",
+      "title": {
+        "ru": "У учителя",
+        "en": "With the teacher"
+      },
+      "scene": {
+        "ru": "Девочка в школе, учитель.",
+        "en": "A girl at school, her teacher."
+      },
+      "names": [
+        "Kata"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok, tanár úr!",
+          "ru": "Здравствуйте, господин учитель!",
+          "en": "Good day, teacher!"
+        },
+        {
+          "who": "B",
+          "hu": "Szia, Kata. Mi a baj?",
+          "ru": "Привет, Ката. Что случилось?",
+          "en": "Hi, Kata. What is the matter?"
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, ezt nem értem.",
+          "ru": "Ой, этого я не понимаю.",
+          "en": "Oh, I do not understand this."
+        },
+        {
+          "who": "B",
+          "hu": "Nézd, segítek.",
+          "ru": "Смотри, помогу.",
+          "en": "Look, I'll help."
+        },
+        {
+          "who": "A",
+          "hu": "Ó, értem! Köszönöm, tanár úr!",
+          "ru": "О, поняла! Спасибо, господин учитель!",
+          "en": "Oh, I get it! Thank you, teacher!"
+        }
+      ]
+    },
+    {
+      "slug": "a-doktor-urnal",
+      "title": {
+        "ru": "У врача",
+        "en": "At the doctor's"
+      },
+      "scene": {
+        "ru": "Пожилой пациент в кабинете врача.",
+        "en": "An older patient in the doctor's room."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Mi a baj?",
+          "ru": "Здравствуйте! Что случилось?",
+          "en": "Good day! What is the matter?"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, nem vagyok jól, doktor úr.",
+          "ru": "Ну, мне нехорошо, господин доктор.",
+          "en": "Well, I am not well, doctor."
+        },
+        {
+          "who": "A",
+          "hu": "Mit érez?",
+          "ru": "Что вы чувствуете?",
+          "en": "What do you feel?"
+        },
+        {
+          "who": "B",
+          "hu": "Beteg vagyok. Nagyon.",
+          "ru": "Я болен. Очень.",
+          "en": "I am ill. Very."
+        },
+        {
+          "who": "A",
+          "hu": "Rendben. Segítek.",
+          "ru": "Хорошо. Помогу.",
+          "en": "All right. I'll help."
+        }
+      ]
+    },
+    {
+      "slug": "a-lepcsohazban",
+      "title": {
+        "ru": "Соседи на лестнице",
+        "en": "Neighbours on the stairs"
+      },
+      "scene": {
+        "ru": "Соседи по лестничной клетке знакомятся.",
+        "en": "Neighbours on a stairwell meet."
+      },
+      "names": [
+        "Péter",
+        "Judit"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Péter vagyok.",
+          "ru": "Здравствуйте! Я Петер.",
+          "en": "Good day! I am Péter."
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot! Judit.",
+          "ru": "Здравствуйте! Юдит.",
+          "en": "Good day! Judit."
+        },
+        {
+          "who": "A",
+          "hu": "Ön is itt lakik?",
+          "ru": "Вы тоже здесь живёте?",
+          "en": "Do you live here too?"
+        },
+        {
+          "who": "B",
+          "hu": "Igen, a harmadikon. Ön is?",
+          "ru": "Да, на третьем. А вы?",
+          "en": "Yes, on the third floor. And you?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, a másodikon. Örülök!",
+          "ru": "Да, на втором. Рад знакомству!",
+          "en": "Yes, on the second. Pleased to meet you!"
+        },
+        {
+          "who": "B",
+          "hu": "Én is. Hát, viszlát!",
+          "ru": "Я тоже. Ну, до свидания!",
+          "en": "Me too. Well, goodbye!"
+        }
+      ]
+    }
+  ]
+}

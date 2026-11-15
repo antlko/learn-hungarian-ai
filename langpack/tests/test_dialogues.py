@@ -15,7 +15,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from pipeline import course, dialogues, reading_sets
+from pipeline import course, dialogues
 
 STARTER_GZ = (Path(__file__).resolve().parents[2]
               / "backend/internal/lang/starter/langpack-hu-starter.sqlite.gz")
@@ -67,34 +67,12 @@ def test_the_starter_dialogues_are_all_attested_and_in_band(conn):
     assert dialogues.problems(conn) == []
 
 
-def test_dialogue_sets_are_authored_only_with_no_tokens(conn):
-    rows = conn.execute(
-        "SELECT s.source, COUNT(*) FROM reading_set_sentence x "
-        "JOIN reading_set r ON r.code = x.set_code JOIN sentence s ON s.id = x.sentence_id "
-        "WHERE r.track = 'dialogue' GROUP BY 1").fetchall()
-    assert [r[0] for r in rows] == ["authored"]
+def test_the_starter_carries_no_authored_reading_text(conn):
+    # ADR-076: reading texts live in the embedded catalogue, never in the pack.
+    for t in ("reading_set", "reading_set_sentence"):
+        assert conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone() == (0,), t
     assert conn.execute(
-        "SELECT COUNT(*) FROM sentence_token WHERE sentence_id IN "
-        "(SELECT id FROM sentence WHERE source = 'authored')").fetchone() == (0,)
-    # Authored sentences exist ONLY as dialogue lines.
-    assert conn.execute(
-        "SELECT COUNT(*) FROM sentence WHERE source = 'authored' AND id NOT IN "
-        "(SELECT sentence_id FROM reading_set_sentence)").fetchone() == (0,)
-
-
-def test_a_dialogue_shares_the_level_of_its_unit(conn):
-    for code, level in conn.execute("SELECT code, level FROM reading_set WHERE track <> 'dialogue'"):
-        assert conn.execute(
-            "SELECT level FROM reading_set WHERE code = ?", (f"{code}-dialogue",)
-        ).fetchone() == (level,), code
-
-
-def test_dialogue_ids_stay_clear_of_corpus_ids(conn):
-    top = conn.execute(
-        "SELECT MAX(id) FROM sentence WHERE source <> 'authored'").fetchone()[0]
-    low = conn.execute(
-        "SELECT MIN(id) FROM sentence WHERE source = 'authored'").fetchone()[0]
-    assert top < dialogues.ID_BASE <= low
+        "SELECT COUNT(*) FROM sentence WHERE source = 'authored'").fetchone() == (0,)
 
 
 # ── the checker itself ─────────────────────────────────────────────────────
@@ -124,31 +102,3 @@ def test_a_label_a_digit_or_too_many_words_is_reported(conn):
     assert dialogues.check_line(lex, "Szia 5!", "A1", set())
     long = " ".join(["Szia"] * (dialogues.MAX_TOKENS + 1)) + "!"
     assert any("words, at most" in b for b in dialogues.check_line(lex, long, "A1", set()))
-
-
-def test_a_pack_with_a_bad_dialogue_fails_validation(conn, tmp_path):
-    copy = tmp_path / "p.sqlite"
-    shutil.copy(conn.execute("PRAGMA database_list").fetchone()[2], copy)
-    c = sqlite3.connect(copy)
-    sid = c.execute("SELECT MIN(id) FROM sentence WHERE source = 'authored'").fetchone()[0]
-    c.execute("UPDATE sentence SET hu = 'Xyzzyzett vagyok.' WHERE id = ?", (sid,))
-    problems = reading_sets.validate(c)
-    c.close()
-    assert any("not an attested wordform" in p for p in problems)
-
-
-def test_build_is_idempotent(conn, tmp_path):
-    copy = tmp_path / "p.sqlite"
-    shutil.copy(conn.execute("PRAGMA database_list").fetchone()[2], copy)
-    c = sqlite3.connect(copy)
-    reading_sets.build(c)  # the committed starter may predate the stories
-    q = ("SELECT set_code, sentence_id, ord FROM reading_set_sentence ORDER BY 1,3",
-         "SELECT id, hu, source FROM sentence WHERE source = 'authored' ORDER BY id",
-         "SELECT sentence_id, lang, text FROM sentence_trans WHERE sentence_id >= ? ORDER BY 1,2")
-    before = [c.execute(q[0]).fetchall(), c.execute(q[1]).fetchall(),
-              c.execute(q[2], (dialogues.ID_BASE,)).fetchall()]
-    reading_sets.build(c)
-    after = [c.execute(q[0]).fetchall(), c.execute(q[1]).fetchall(),
-             c.execute(q[2], (dialogues.ID_BASE,)).fetchall()]
-    c.close()
-    assert before == after

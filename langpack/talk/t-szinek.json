@@ -1,0 +1,593 @@
+{
+  "talk": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "В магазине одежды с другом",
+      "en": "Clothes shopping with a friend"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "who": "A",
+          "hu": "Nézd, ez a zöld ruha szuper!",
+          "ru": "Смотри, это зелёное платье супер!",
+          "en": "Look, this green dress is great!"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, szerintem a zöld nem a te színed.",
+          "ru": "Ну, по-моему, зелёный не твой цвет.",
+          "en": "Well, I think green is not your colour."
+        },
+        {
+          "who": "A",
+          "hu": "Tényleg? Nekem nagyon tetszik.",
+          "ru": "Правда? А мне очень нравится.",
+          "en": "Really? I like it a lot."
+        },
+        {
+          "who": "B",
+          "hu": "Szerintem túl élénk. A kék jobb lenne, az sötét.",
+          "ru": "По-моему, слишком яркое. Синее было бы лучше, оно тёмное.",
+          "en": "I think it is too vivid. The blue would be better, it is dark."
+        },
+        {
+          "who": "A",
+          "hu": "Kék már van otthon. Két kék ruhám van!",
+          "ru": "Синее у меня уже есть дома. У меня два синих платья!",
+          "en": "I already have blue at home. I have two blue dresses!"
+        },
+        {
+          "who": "B",
+          "hu": "Na jó, de ez a zöld tényleg nagyon erős.",
+          "ru": "Ну ладно, но этот зелёный правда очень насыщенный.",
+          "en": "All right, but this green really is very strong."
+        },
+        {
+          "who": "C",
+          "hu": "Szép ruha! Van halványabb árnyalat is.",
+          "ru": "Красивое платье! Есть и более бледный оттенок.",
+          "en": "Nice dress! There is a paler shade too."
+        },
+        {
+          "who": "A",
+          "hu": "Igen, kérem, azt szeretném megnézni.",
+          "ru": "Да, пожалуйста, хочу на него посмотреть.",
+          "en": "Yes, please, I would like to see that one."
+        },
+        {
+          "who": "C",
+          "hu": "Tessék. Próbálja fel nyugodtan!",
+          "ru": "Пожалуйста. Примерьте спокойно!",
+          "en": "Here you are. Go ahead and try it on."
+        },
+        {
+          "who": "A",
+          "hu": "Hú, ez szép! Mit szólsz?",
+          "ru": "Ух, красиво! Что скажешь?",
+          "en": "Wow, this is nice! What do you say?"
+        },
+        {
+          "who": "B",
+          "hu": "Ez már jobb. Nem olyan erős.",
+          "ru": "Это уже лучше. Не такое насыщенное.",
+          "en": "This is better. Not so strong."
+        },
+        {
+          "who": "A",
+          "hu": "Látod? Szóval a zöld mégis jó.",
+          "ru": "Видишь? Значит, зелёный всё-таки хорош.",
+          "en": "See? So green is good after all."
+        },
+        {
+          "who": "B",
+          "hu": "Jó, jó. És milyen pulóver kell hozzá?",
+          "ru": "Ладно, ладно. А какой свитер к нему нужен?",
+          "en": "All right, all right. And what sweater goes with it?"
+        },
+        {
+          "who": "A",
+          "hu": "Fehér. Vagy szürke, az mindig jó.",
+          "ru": "Белый. Или серый, он всегда подходит.",
+          "en": "White. Or grey, it always works."
+        },
+        {
+          "who": "B",
+          "hu": "A szürke fakó, szerintem. Vegyél fehéret!",
+          "ru": "Серый тусклый, по-моему. Бери белый!",
+          "en": "Grey is dull, I think. Get the white one!"
+        },
+        {
+          "who": "A",
+          "hu": "Rendben. Elnézést, van fehér pulóver is?",
+          "ru": "Хорошо. Извините, белый свитер тоже есть?",
+          "en": "All right. Excuse me, is there a white sweater too?"
+        },
+        {
+          "who": "C",
+          "hu": "Igen, ott van, a nagy polcon.",
+          "ru": "Да, вон там, на большой полке.",
+          "en": "Yes, over there, on the big shelf."
+        },
+        {
+          "who": "A",
+          "hu": "Köszönöm! Mindjárt jövök.",
+          "ru": "Спасибо! Сейчас вернусь.",
+          "en": "Thank you! I will be right back."
+        },
+        {
+          "who": "B",
+          "hu": "Jó, várlak itt.",
+          "ru": "Хорошо, жду здесь.",
+          "en": "All right, I will wait here."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, ez is szép! Kérem a ruhát és ezt is.",
+          "ru": "Ой, и этот красивый! Беру платье и вот этот тоже.",
+          "en": "Oh, this one is nice too! I will take the dress and this one too."
+        },
+        {
+          "who": "C",
+          "hu": "Rendben. A pénztár ott van.",
+          "ru": "Хорошо. Касса вон там.",
+          "en": "All right. The till is over there."
+        },
+        {
+          "who": "B",
+          "hu": "Látod, a fehér meg a zöld nagyon szép együtt.",
+          "ru": "Видишь, белый и зелёный очень красиво вместе.",
+          "en": "See, white and green look very nice together."
+        },
+        {
+          "who": "A",
+          "hu": "Köszi, hogy velem jöttél! Egyedül nem tudok választani.",
+          "ru": "Спасибо, что пошла со мной! Одна я не могу выбрать.",
+          "en": "Thanks for coming with me! I cannot choose on my own."
+        },
+        {
+          "who": "B",
+          "hu": "Na, gyere, igyunk egy kávét!",
+          "ru": "Ну, пойдём, выпьем кофе!",
+          "en": "Come on, let's have a coffee!"
+        }
+      ]
+    ]
+  },
+  "dialogues": [
+    {
+      "slug": "szoba-festes",
+      "title": {
+        "ru": "Красим комнату",
+        "en": "Painting the room"
+      },
+      "scene": {
+        "ru": "Мама и сын выбирают цвет для стен.",
+        "en": "A mother and her son pick colours for his room."
+      },
+      "names": [
+        "Misi"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Na, Misi, milyen szín legyen a szobád?",
+          "ru": "Ну, Миси, какого цвета будет твоя комната?",
+          "en": "So, Misi, what colour should your room be?"
+        },
+        {
+          "who": "B",
+          "hu": "Piros! Az egész szoba piros!",
+          "ru": "Красная! Вся комната красная!",
+          "en": "Red! The whole room red!"
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, az nagyon élénk lenne.",
+          "ru": "Ой, это было бы очень ярко.",
+          "en": "Oh, that would be very vivid."
+        },
+        {
+          "who": "B",
+          "hu": "Akkor narancssárga? Az is szép.",
+          "ru": "Тогда оранжевая? Она тоже красивая.",
+          "en": "Then orange? That is nice too."
+        },
+        {
+          "who": "A",
+          "hu": "Szerintem a fal legyen halvány zöld.",
+          "ru": "По-моему, стена пусть будет бледно-зелёной.",
+          "en": "I think the wall should be pale green."
+        },
+        {
+          "who": "B",
+          "hu": "Ühüm. És az ajtó piros?",
+          "ru": "Угу. А дверь красная?",
+          "en": "Uh-huh. And the door red?"
+        },
+        {
+          "who": "A",
+          "hu": "Rendben, az ajtó lehet piros.",
+          "ru": "Хорошо, дверь может быть красной.",
+          "en": "All right, the door can be red."
+        },
+        {
+          "who": "B",
+          "hu": "Király! És a szekrény sárga?",
+          "ru": "Круто! А шкаф жёлтый?",
+          "en": "Great! And the wardrobe yellow?"
+        },
+        {
+          "who": "A",
+          "hu": "Na, ne már, az sok! Fehér marad.",
+          "ru": "Ну нет, это уже много! Останется белым.",
+          "en": "Oh, come on, that is too much! It stays white."
+        },
+        {
+          "who": "B",
+          "hu": "Jó, jó. Mikor festünk?",
+          "ru": "Ладно, ладно. Когда красим?",
+          "en": "All right, all right. When do we paint?"
+        }
+      ]
+    },
+    {
+      "slug": "melyik-a-tied",
+      "title": {
+        "ru": "Чья сумка?",
+        "en": "Which one is yours?"
+      },
+      "scene": {
+        "ru": "Двое друзей уходят с вечеринки.",
+        "en": "Two friends leave a party."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Nahát, két szürke táska van!",
+          "ru": "Ничего себе, две серые сумки!",
+          "en": "Well, well, there are two grey bags!"
+        },
+        {
+          "who": "B",
+          "hu": "Melyik a tiéd?",
+          "ru": "Какая твоя?",
+          "en": "Which one is yours?"
+        },
+        {
+          "who": "A",
+          "hu": "Az enyém nem olyan sötét, hanem halvány.",
+          "ru": "Моя не такая тёмная, а бледная.",
+          "en": "Mine is not so dark, but pale."
+        },
+        {
+          "who": "B",
+          "hu": "Akkor ez az. Vedd el!",
+          "ru": "Тогда вот эта. Бери!",
+          "en": "Then it is this one. Take it!"
+        },
+        {
+          "who": "A",
+          "hu": "Hopp, benne van egy zöld könyv.",
+          "ru": "Опа, внутри зелёная книга.",
+          "en": "Oops, there is a green book inside."
+        },
+        {
+          "who": "B",
+          "hu": "A te könyved nem zöld?",
+          "ru": "Твоя книга разве не зелёная?",
+          "en": "Isn't your book green?"
+        },
+        {
+          "who": "A",
+          "hu": "Dehogy, az enyém sárga. Ez a másik táska!",
+          "ru": "Нет, моя жёлтая. Значит, моя другая сумка!",
+          "en": "Not at all, mine is yellow. So it is the other bag!"
+        },
+        {
+          "who": "B",
+          "hu": "Jó, hogy megnéztük, mielőtt elmegyünk!",
+          "ru": "Хорошо, что мы посмотрели, прежде чем уйти!",
+          "en": "Good that we checked before we leave!"
+        },
+        {
+          "who": "A",
+          "hu": "Persze, így nem viszünk haza más táskát.",
+          "ru": "Конечно, так мы не унесём чужую сумку.",
+          "en": "Sure, that way we won't take home someone else's bag."
+        }
+      ]
+    },
+    {
+      "slug": "elveszett-puloveres",
+      "title": {
+        "ru": "Забытый свитер",
+        "en": "The forgotten sweater"
+      },
+      "scene": {
+        "ru": "Человек в кафе просит вернуть свитер, обращение на «вы».",
+        "en": "A man asks a cafe for his sweater, formal address."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Jó napot kívánok! Egy pulóvert keresek.",
+          "ru": "Здравствуйте! Я ищу свитер.",
+          "en": "Good day! I am looking for a sweater."
+        },
+        {
+          "who": "B",
+          "hu": "Jó napot! Milyen a színe?",
+          "ru": "Здравствуйте! Какого он цвета?",
+          "en": "Hello! What colour is it?"
+        },
+        {
+          "who": "A",
+          "hu": "Szürke, és fehér csíkos.",
+          "ru": "Серый, и в белую полоску.",
+          "en": "Grey, and white striped."
+        },
+        {
+          "who": "B",
+          "hu": "Van két szürke pulóver. Nézze meg!",
+          "ru": "Есть два серых свитера. Посмотрите!",
+          "en": "There are two grey sweaters. Have a look!"
+        },
+        {
+          "who": "A",
+          "hu": "Ez nem az. Az enyém csíkos.",
+          "ru": "Это не он. Мой полосатый.",
+          "en": "This is not it. Mine is striped."
+        },
+        {
+          "who": "B",
+          "hu": "Csíkos? Egy nő hozta be ma reggel.",
+          "ru": "Полосатый? Одна женщина принесла утром.",
+          "en": "Striped? A woman brought it in this morning."
+        },
+        {
+          "who": "A",
+          "hu": "Az az enyém! Nagyon köszönöm!",
+          "ru": "Это мой! Большое спасибо!",
+          "en": "That is mine! Thank you very much!"
+        },
+        {
+          "who": "B",
+          "hu": "Szívesen. Már azt hittem, nem jön vissza érte.",
+          "ru": "Пожалуйста. Я уже думал, вы за ним не придёте.",
+          "en": "You are welcome. I thought you would not come back for it."
+        },
+        {
+          "who": "A",
+          "hu": "Tegnap itt hagytam, pedig nagyon hideg volt.",
+          "ru": "Вчера оставил его здесь, а было очень холодно.",
+          "en": "I left it here yesterday, and it was very cold."
+        }
+      ]
+    },
+    {
+      "slug": "kutya-a-parkban",
+      "title": {
+        "ru": "Собака в парке",
+        "en": "The dog in the park"
+      },
+      "scene": {
+        "ru": "На площадке для собак, на «ты».",
+        "en": "At the dog park, informal address."
+      },
+      "names": [
+        "Bodri"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Szia! Nem láttál egy kis kutyát?",
+          "ru": "Привет! Ты не видел маленькую собаку?",
+          "en": "Hi! Have you seen a little dog?"
+        },
+        {
+          "who": "B",
+          "hu": "Milyen a színe?",
+          "ru": "Какого она цвета?",
+          "en": "What colour is it?"
+        },
+        {
+          "who": "A",
+          "hu": "Fehér. Bodri a neve.",
+          "ru": "Белая. Его зовут Бодри.",
+          "en": "White. Its name is Bodri."
+        },
+        {
+          "who": "B",
+          "hu": "Van egy tarka kutya a kapunál.",
+          "ru": "У ворот есть пёстрая собака.",
+          "en": "There is a mottled dog by the gate."
+        },
+        {
+          "who": "A",
+          "hu": "Nem, az enyém nem tarka.",
+          "ru": "Нет, моя не пёстрая.",
+          "en": "No, mine is not mottled."
+        },
+        {
+          "who": "B",
+          "hu": "Aha. Van rajta valami piros?",
+          "ru": "Ага. На ней есть что-то красное?",
+          "en": "I see. Is there something red on it?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen, piros ruha van rajta!",
+          "ru": "Да, на ней красная одежда!",
+          "en": "Yes, it has red clothes on!"
+        },
+        {
+          "who": "B",
+          "hu": "Nézd, ott fut, a nagy fánál!",
+          "ru": "Смотри, вон бежит, у большого дерева!",
+          "en": "Look, there it runs, by the big tree!"
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, köszi! Bodri, gyere ide!",
+          "ru": "Ой, спасибо! Бодри, иди сюда!",
+          "en": "Oh, thanks! Bodri, come here!"
+        },
+        {
+          "who": "B",
+          "hu": "Cuki kutya, de nagyon gyors.",
+          "ru": "Милая собака, но очень быстрая.",
+          "en": "Cute dog, but very fast."
+        }
+      ]
+    },
+    {
+      "slug": "ajandek-papir",
+      "title": {
+        "ru": "Бумага для подарка",
+        "en": "Gift wrap"
+      },
+      "scene": {
+        "ru": "Двое друзей выбирают бумагу для подарка.",
+        "en": "Two friends choose paper for a present."
+      },
+      "names": [
+        "Anna"
+      ],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Milyen papír legyen az ajándékon, szerinted?",
+          "ru": "Какая бумага будет на подарке, как думаешь?",
+          "en": "What paper should the present have, do you think?"
+        },
+        {
+          "who": "B",
+          "hu": "Hát, Anna mit szeret?",
+          "ru": "Ну, что любит Анна?",
+          "en": "Well, what does Anna like?"
+        },
+        {
+          "who": "A",
+          "hu": "Szereti a lilát, a pirosat nem.",
+          "ru": "Она любит фиолетовый, а красный нет.",
+          "en": "She likes purple, not red."
+        },
+        {
+          "who": "B",
+          "hu": "Itt van egy lila papír, arany pöttyös.",
+          "ru": "Вот фиолетовая бумага в золотой горошек.",
+          "en": "Here is a purple paper with gold dots."
+        },
+        {
+          "who": "A",
+          "hu": "Jaj, az túl színes. Az egyszerű lila jobb.",
+          "ru": "Ой, она слишком пёстрая. Простая фиолетовая лучше.",
+          "en": "Oh, that is too colourful. The plain purple is better."
+        },
+        {
+          "who": "B",
+          "hu": "Akkor lila papír, és rajta egy ezüst szív?",
+          "ru": "Тогда фиолетовая бумага, а на ней серебряное сердечко?",
+          "en": "Then purple paper, with a silver heart on it?"
+        },
+        {
+          "who": "A",
+          "hu": "Szuper! Az szép lesz.",
+          "ru": "Супер! Будет красиво.",
+          "en": "Great! That will look nice."
+        },
+        {
+          "who": "B",
+          "hu": "Anna biztos nagyon örül.",
+          "ru": "Анна наверняка очень обрадуется.",
+          "en": "Anna will surely be very happy."
+        },
+        {
+          "who": "A",
+          "hu": "Remélem. A szülinapja holnap van.",
+          "ru": "Надеюсь. Её день рождения завтра.",
+          "en": "I hope so. Her birthday is tomorrow."
+        }
+      ]
+    },
+    {
+      "slug": "meccs-szinek",
+      "title": {
+        "ru": "Цвета команды",
+        "en": "Team colours"
+      },
+      "scene": {
+        "ru": "Двое друзей идут на матч.",
+        "en": "Two friends are heading to a match."
+      },
+      "names": [],
+      "checked": "ai",
+      "turns": [
+        {
+          "who": "A",
+          "hu": "Na, indulunk a meccsre? Már késő van!",
+          "ru": "Ну, идём на матч? Уже поздно!",
+          "en": "So, shall we set off for the match? It is late!"
+        },
+        {
+          "who": "B",
+          "hu": "Jé, te pirosat veszel fel?",
+          "ru": "Ого, ты надеваешь красное?",
+          "en": "Oh, are you putting on red?"
+        },
+        {
+          "who": "A",
+          "hu": "Igen. Miért, nem jó ez a szín?",
+          "ru": "Да. А что, этот цвет нехорош?",
+          "en": "Yes. Why, is this colour not good?"
+        },
+        {
+          "who": "B",
+          "hu": "A mi csapatunk zöld és fehér!",
+          "ru": "Наша команда зелёно-белая!",
+          "en": "Our team is green and white!"
+        },
+        {
+          "who": "A",
+          "hu": "Hoppá! Akkor kell egy zöld.",
+          "ru": "Опа! Тогда нужно зелёное.",
+          "en": "Whoops! Then I need a green one."
+        },
+        {
+          "who": "B",
+          "hu": "Van nálam egy zöld pulóver. Kérsz?",
+          "ru": "У меня с собой зелёный свитер. Хочешь?",
+          "en": "I have a green sweater with me. Want it?"
+        },
+        {
+          "who": "A",
+          "hu": "Köszi! Hát, így jobb.",
+          "ru": "Спасибо! Ну, так лучше.",
+          "en": "Thanks! Well, this is better."
+        },
+        {
+          "who": "B",
+          "hu": "Ma a piros csapat ellen játszunk.",
+          "ru": "Сегодня мы играем против красной команды.",
+          "en": "Today we play against the red team."
+        },
+        {
+          "who": "A",
+          "hu": "Akkor tényleg jobb, hogy nem pirosat vettem fel.",
+          "ru": "Тогда и правда хорошо, что я не надел красное.",
+          "en": "Then it is really good that I did not put on red."
+        }
+      ]
+    }
+  ]
+}

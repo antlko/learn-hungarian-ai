@@ -1,0 +1,509 @@
+{
+  "short": {
+    "genre": "sms",
+    "checked": "ai",
+    "title": {
+      "ru": "Сообщения из магазина",
+      "en": "Messages from the shop"
+    },
+    "names": [
+      "Máté",
+      "Anna"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Máté! A boltban vagyok.",
+          "ru": "Привет, Мате! Я в магазине.",
+          "en": "Hi, Máté! I am at the shop."
+        },
+        {
+          "hu": "Ötödik vagyok a sorban, ez sokáig tart.",
+          "ru": "Я пятая в очереди, это надолго.",
+          "en": "I am fifth in the queue, this will take long."
+        },
+        {
+          "hu": "Egy tucat tojás kell, az tizenkettő.",
+          "ru": "Нужна дюжина яиц, то есть двенадцать.",
+          "en": "We need a dozen eggs, that is twelve."
+        },
+        {
+          "hu": "A tej hatvan forint, a kenyér nyolcvan.",
+          "ru": "Молоко стоит шестьдесят форинтов, хлеб восемьдесят.",
+          "en": "The milk is sixty forints, the bread is eighty."
+        },
+        {
+          "hu": "A sajt több, kilencven forint.",
+          "ru": "Сыр дороже, девяносто форинтов.",
+          "en": "The cheese costs more, ninety forints."
+        },
+        {
+          "hu": "Legfeljebb tizenöt perc, és indulok haza.",
+          "ru": "Самое большее пятнадцать минут, и я иду домой.",
+          "en": "Fifteen minutes at most, and I am heading home."
+        },
+        {
+          "hu": "Negyed hétre biztos otthon vagyok.",
+          "ru": "К четверти седьмого я точно буду дома.",
+          "en": "I will definitely be home by a quarter past six."
+        }
+      ],
+      [
+        {
+          "hu": "Nálam csak ötszáz forint van, az nem elég.",
+          "ru": "У меня только пятьсот форинтов, этого мало.",
+          "en": "I only have five hundred forints, that is not enough."
+        },
+        {
+          "hu": "Legalább kétszáz forint még kell.",
+          "ru": "Нужно ещё как минимум двести форинтов.",
+          "en": "We need at least two hundred forints more."
+        },
+        {
+          "hu": "Háromszor hívtalak, de nem jó a telefonod?",
+          "ru": "Я звонила тебе три раза, у тебя что, телефон не работает?",
+          "en": "I called you three times, is your phone not working?"
+        },
+        {
+          "hu": "Hozol pénzt, kérlek?",
+          "ru": "Принесёшь деньги, пожалуйста?",
+          "en": "Will you bring some money, please?"
+        },
+        {
+          "hu": "A bolt hétig van nyitva, gyere gyorsan!",
+          "ru": "Магазин открыт до семи, приходи быстро!",
+          "en": "The shop is open until seven, come quickly!"
+        },
+        {
+          "hu": "Köszönöm! Anna",
+          "ru": "Спасибо! Анна",
+          "en": "Thank you! Anna"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "email",
+    "checked": "ai",
+    "title": {
+      "ru": "Письмо о новой квартире",
+      "en": "A letter about the new flat"
+    },
+    "names": [
+      "Bence",
+      "Dóra"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Bence!",
+          "ru": "Привет, Бенце!",
+          "en": "Hi, Bence!"
+        },
+        {
+          "hu": "Végre megvan az új lakásom, és nagyon örülök.",
+          "ru": "Наконец у меня есть новая квартира, и я очень рада.",
+          "en": "At last I have my new flat, and I am very happy."
+        },
+        {
+          "hu": "A ház száma tizenhárom, az páratlan szám.",
+          "ru": "Номер дома тринадцать, это нечётное число.",
+          "en": "The house number is thirteen, an odd number."
+        },
+        {
+          "hu": "A másik oldalon a számok párosak.",
+          "ru": "На другой стороне номера чётные.",
+          "en": "On the other side the numbers are even."
+        },
+        {
+          "hu": "A lakás a negyedik emeleten van, nem az ötödiken.",
+          "ru": "Квартира на четвёртом этаже, а не на пятом.",
+          "en": "The flat is on the fourth floor, not on the fifth."
+        },
+        {
+          "hu": "Szerencsére van lift, és nem kell gyalog menni.",
+          "ru": "К счастью, есть лифт, и пешком идти не нужно.",
+          "en": "Luckily there is a lift, and you do not have to walk."
+        }
+      ],
+      [
+        {
+          "hu": "A lakás nem nagy, de nagyon szép.",
+          "ru": "Квартира небольшая, но очень красивая.",
+          "en": "The flat is not big, but very nice."
+        },
+        {
+          "hu": "A száma tizennyolc, az ajtón is ott van.",
+          "ru": "Её номер восемнадцать, он есть и на двери.",
+          "en": "Its number is eighteen, it is on the door too."
+        },
+        {
+          "hu": "Két szoba van benne, és egy kis konyha.",
+          "ru": "В ней две комнаты и маленькая кухня.",
+          "en": "It has two rooms and a small kitchen."
+        },
+        {
+          "hu": "Nem volt olcsó, de nem is nagyon drága.",
+          "ru": "Это было недёшево, но и не слишком дорого.",
+          "en": "It was not cheap, but not very expensive either."
+        },
+        {
+          "hu": "A pénz felét már fizettem.",
+          "ru": "Половину денег я уже заплатил.",
+          "en": "I have already paid half of the money."
+        },
+        {
+          "hu": "A házban legalább hatvan lakás van.",
+          "ru": "В доме не меньше шестидесяти квартир.",
+          "en": "There are at least sixty flats in the house."
+        },
+        {
+          "hu": "A liftben legfeljebb négy ember megy.",
+          "ru": "В лифте едут самое большее четыре человека.",
+          "en": "At most four people go in the lift."
+        },
+        {
+          "hu": "A konyhában dupla ablak van, ezért nem hideg.",
+          "ru": "На кухне двойное окно, поэтому не холодно.",
+          "en": "The kitchen has a double window, so it is not cold."
+        },
+        {
+          "hu": "A lakás nyolcvan százaléka még üres, mert nincs semmim.",
+          "ru": "Квартира на восемьдесят процентов ещё пуста, потому что у меня ничего нет.",
+          "en": "The flat is eighty per cent empty, because I have nothing yet."
+        },
+        {
+          "hu": "Az egyik szobában csak egy ágy van.",
+          "ru": "В одной комнате есть только кровать.",
+          "en": "In one room there is only a bed."
+        },
+        {
+          "hu": "A megálló legfeljebb tíz percre van.",
+          "ru": "Остановка самое большее в десяти минутах.",
+          "en": "The stop is ten minutes away at most."
+        },
+        {
+          "hu": "Nem hívok kétszáz embert, csak téged.",
+          "ru": "Я не зову двести человек, только тебя.",
+          "en": "I am not inviting two hundred people, only you."
+        }
+      ],
+      [
+        {
+          "hu": "Az ötödik emeleten egy kedves néni lakik.",
+          "ru": "На пятом этаже живёт одна милая пожилая женщина.",
+          "en": "On the fifth floor lives a kind old lady."
+        },
+        {
+          "hu": "Ő már hetven éves, és sokat segít.",
+          "ru": "Ей уже семьдесят лет, и она много помогает.",
+          "en": "She is already seventy, and she helps a lot."
+        },
+        {
+          "hu": "A hatodikon és a hetediken fiatalok élnek.",
+          "ru": "На шестом и седьмом этажах живёт молодёжь.",
+          "en": "Young people live on the sixth and seventh floors."
+        },
+        {
+          "hu": "A néni mindig köszön, és nagyon kedves.",
+          "ru": "Старушка всегда здоровается и очень милая.",
+          "en": "The old lady always says hello and is very kind."
+        },
+        {
+          "hu": "Szerintem jó szomszédaim lesznek.",
+          "ru": "По-моему, у меня будут хорошие соседи.",
+          "en": "I think I will have good neighbours."
+        }
+      ],
+      [
+        {
+          "hu": "Gyere szombaton, háromra vagy negyed négyre!",
+          "ru": "Приходи в субботу, к трём или к четверти четвёртого!",
+          "en": "Come on Saturday, by three or a quarter past three!"
+        },
+        {
+          "hu": "Hívj fel kétszer, mert a csengő rossz.",
+          "ru": "Позвони мне дважды, потому что звонок сломан.",
+          "en": "Call me twice, because the bell is broken."
+        },
+        {
+          "hu": "Hozz egy tucat tojást is, kérlek.",
+          "ru": "Принеси, пожалуйста, ещё дюжину яиц.",
+          "en": "Please bring a dozen eggs as well."
+        },
+        {
+          "hu": "Tizenöt perc alatt itt vagy, ugye?",
+          "ru": "Ты будешь здесь за пятнадцать минут, да?",
+          "en": "You will be here in fifteen minutes, right?"
+        },
+        {
+          "hu": "Szia! Dóra",
+          "ru": "Пока! Дора",
+          "en": "Bye! Dóra"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "story",
+    "checked": "ai",
+    "title": {
+      "ru": "Тест Бенце",
+      "en": "Bence's test"
+    },
+    "names": [
+      "Bence",
+      "Dóra"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "A testvérem, Bence, tizenhárom éves, én pedig tizennyolc.",
+          "ru": "Моему брату Бенце тринадцать лет, а мне восемнадцать.",
+          "en": "My brother Bence is thirteen, and I am eighteen."
+        },
+        {
+          "hu": "Bence nem szeret számolni.",
+          "ru": "Бенце не любит считать.",
+          "en": "Bence does not like to count."
+        },
+        {
+          "hu": "Tegnap tesztet írt az iskolában, és nagyon félt.",
+          "ru": "Вчера в школе у него был тест, и он очень боялся.",
+          "en": "Yesterday he had a test at school, and he was very afraid."
+        },
+        {
+          "hu": "A teszten tizenöt feladat volt.",
+          "ru": "В тесте было пятнадцать заданий.",
+          "en": "There were fifteen problems in the test."
+        },
+        {
+          "hu": "Előző este én segítettem neki, mert mindig segítek.",
+          "ru": "Накануне вечером я ему помогала, потому что я всегда помогаю.",
+          "en": "The evening before, I helped him, because I always help."
+        },
+        {
+          "hu": "Együtt négyszer, sőt ötször néztük meg a feladatokat.",
+          "ru": "Вместе мы четыре, а то и пять раз просмотрели задания.",
+          "en": "Together we looked at the problems four, even five times."
+        },
+        {
+          "hu": "Bence sokszor mondta, hogy ő ezt nem tudja.",
+          "ru": "Бенце много раз говорил, что он этого не умеет.",
+          "en": "Bence said many times that he could not do this."
+        },
+        {
+          "hu": "Én is féltem, mert legalább hatvan százalék kellett neki.",
+          "ru": "Я тоже боялась, потому что ему нужно было минимум шестьдесят процентов.",
+          "en": "I was afraid too, because he needed at least sixty per cent."
+        },
+        {
+          "hu": "Kettest senki nem akart, ötöst is kevesen vártak.",
+          "ru": "Двойки никто не хотел, пятёрки тоже мало кто ждал.",
+          "en": "Nobody wanted a two, and few expected a five."
+        }
+      ],
+      [
+        {
+          "hu": "Reggel anya kétszer megkérdezte, hogy mindent tud-e.",
+          "ru": "Утром мама дважды спросила, всё ли он знает.",
+          "en": "In the morning Mom asked him twice whether he knew everything."
+        },
+        {
+          "hu": "Bence azt mondta, hogy igen, de nem volt biztos.",
+          "ru": "Бенце ответил, что да, но уверен не был.",
+          "en": "Bence said yes, but he was not sure."
+        },
+        {
+          "hu": "Negyed négy után jött haza, és sokáig nem beszélt.",
+          "ru": "Он пришёл домой после четверти четвёртого и долго молчал.",
+          "en": "He came home a quarter past three and did not speak for a long time."
+        },
+        {
+          "hu": "Aztán elmondta, hogy az első feladat könnyű volt.",
+          "ru": "Потом он рассказал, что первое задание было лёгким.",
+          "en": "Then he told us that the first problem was easy."
+        },
+        {
+          "hu": "A szomszéd néni háromszor is kérdezte, mi van Bencével.",
+          "ru": "Соседка трижды спрашивала, что с Бенце.",
+          "en": "The neighbour lady asked three times what was up with Bence."
+        },
+        {
+          "hu": "Hetven éves, de mindenre emlékszik, még az iskolájára is.",
+          "ru": "Ей семьдесят, но она всё помнит, даже свою школу.",
+          "en": "She is seventy, but she remembers everything, even her school."
+        },
+        {
+          "hu": "Azt mondta, hogy régen a hármas is nagy dolog volt.",
+          "ru": "Она сказала, что раньше и тройка была большим делом.",
+          "en": "She said that in the old days even a three was a big thing."
+        },
+        {
+          "hu": "A negyedik és az ötödik már nehéz volt.",
+          "ru": "Четвёртое и пятое уже были трудными.",
+          "en": "The fourth and the fifth were already hard."
+        },
+        {
+          "hu": "A negyedik feladatot még egyszer elmondta nekem.",
+          "ru": "Четвёртое задание он ещё раз рассказал мне.",
+          "en": "He told me about the fourth problem once more."
+        },
+        {
+          "hu": "Egy tucat gyerek ült a teremben, és mind csendben írt.",
+          "ru": "В классе сидела дюжина детей, и все молча писали.",
+          "en": "A dozen children sat in the room, and all wrote in silence."
+        },
+        {
+          "hu": "A tizenöt feladat legalább egy óráig tartott.",
+          "ru": "Пятнадцать заданий занимали минимум час.",
+          "en": "The fifteen problems took at least an hour."
+        },
+        {
+          "hu": "A hatodik feladatban egy tucat tojás és kétszer ennyi alma volt.",
+          "ru": "В шестом задании были дюжина яиц и вдвое больше яблок.",
+          "en": "In the sixth problem there were a dozen eggs and twice as many apples."
+        },
+        {
+          "hu": "Bence ezt háromszor számolta ki, és jó lett.",
+          "ru": "Бенце пересчитал это три раза, и получилось правильно.",
+          "en": "Bence worked this out three times, and it came out right."
+        },
+        {
+          "hu": "A hetedikben azt kérdezték, hogy a tizenhárom páros vagy páratlan.",
+          "ru": "В седьмом спрашивали, чётное число тринадцать или нечётное.",
+          "en": "The seventh asked whether thirteen is even or odd."
+        },
+        {
+          "hu": "Bence tudta, hogy az páratlan, és örült.",
+          "ru": "Бенце знал, что оно нечётное, и обрадовался.",
+          "en": "Bence knew that it is odd, and was glad."
+        },
+        {
+          "hu": "A nyolcadik feladatot négyszer olvasta el.",
+          "ru": "Восьмое задание он прочитал четыре раза.",
+          "en": "He read the eighth problem four times."
+        },
+        {
+          "hu": "A páros feladatok könnyűek voltak, a páratlanok nehezek.",
+          "ru": "Чётные задания были лёгкими, а нечётные трудными.",
+          "en": "The even problems were easy, the odd ones hard."
+        },
+        {
+          "hu": "A tizedik könnyebb volt, mint a hetedik.",
+          "ru": "Десятое было легче седьмого.",
+          "en": "The tenth was easier than the seventh."
+        },
+        {
+          "hu": "Dupla annyi időt kért, de nem kapta meg.",
+          "ru": "Он попросил вдвое больше времени, но не получил.",
+          "en": "He asked for twice as much time, but did not get it."
+        }
+      ],
+      [
+        {
+          "hu": "A nyolcadikban két szám volt, hetven és hetven.",
+          "ru": "В восьмом было два числа, семьдесят и семьдесят.",
+          "en": "In the eighth there were two numbers, seventy and seventy."
+        },
+        {
+          "hu": "Az egyik szám egyenlő a másikkal, ezt ő is látta.",
+          "ru": "Одно число равно другому, это он тоже видел.",
+          "en": "One number is equal to the other, he saw that too."
+        },
+        {
+          "hu": "A tizedik feladat egy milliárd forintról szólt.",
+          "ru": "Десятое задание было про миллиард форинтов.",
+          "en": "The tenth problem was about a billion forints."
+        },
+        {
+          "hu": "Bence nevetett, mert ennyi pénze még sosem volt.",
+          "ru": "Бенце смеялся, потому что у него ещё никогда не было столько денег.",
+          "en": "Bence laughed, because he had never had that much money."
+        },
+        {
+          "hu": "Az utolsó feladatban egyenlő részeket kellett csinálni.",
+          "ru": "В последнем задании нужно было сделать равные части.",
+          "en": "In the last problem he had to make equal parts."
+        },
+        {
+          "hu": "Ez neki nem volt nehéz, mert szereti a pénzt.",
+          "ru": "Это ему было нетрудно, потому что он любит деньги.",
+          "en": "That was not hard for him, because he likes money."
+        }
+      ],
+      [
+        {
+          "hu": "Ma a tanár megmondta, hogy hatvan százaléktól hármas jár.",
+          "ru": "Сегодня учитель сказал, что от шестидесяти процентов ставят тройку.",
+          "en": "Today the teacher said that sixty per cent gets a three."
+        },
+        {
+          "hu": "Tizenkettő jó válasz volt a tizenötből.",
+          "ru": "Двенадцать правильных ответов из пятнадцати.",
+          "en": "Twelve answers were right out of fifteen."
+        },
+        {
+          "hu": "Nyolcvan százalék nem egyenlő kilencvennel, mondta a tanár.",
+          "ru": "Восемьдесят процентов не равно девяноста, сказал учитель.",
+          "en": "Eighty per cent is not equal to ninety, said the teacher."
+        },
+        {
+          "hu": "Legfeljebb hetven százalékot vártunk, tehát ez nagyon jó.",
+          "ru": "Мы ждали самое большее семьдесят процентов, так что это очень хорошо.",
+          "en": "We expected seventy per cent at most, so this is very good."
+        },
+        {
+          "hu": "Kilencven százaléktól ötös, de az nagyon sok.",
+          "ru": "От девяноста процентов пятёрка, но это очень много.",
+          "en": "From ninety per cent a five, but that is a lot."
+        },
+        {
+          "hu": "Bence nyolcvan százalékot kapott, az jobb, mint a hármas.",
+          "ru": "Бенце получил восемьдесят процентов, это лучше тройки.",
+          "en": "Bence got eighty per cent, that is better than a three."
+        },
+        {
+          "hu": "Nem ötöst, de nem is kettest, és hármast sem.",
+          "ru": "Не пятёрку, но и не двойку, и даже не тройку.",
+          "en": "Not a five, but not a two either, and not even a three."
+        },
+        {
+          "hu": "Bence nagyon boldog volt, és anya is örült.",
+          "ru": "Бенце был очень счастлив, и мама тоже радовалась.",
+          "en": "Bence was very happy, and Mom was glad too."
+        },
+        {
+          "hu": "Apa ötszáz forintot adott neki, és Bence sokszor mondta, hogy köszönöm.",
+          "ru": "Папа дал ему пятьсот форинтов, и Бенце много раз говорил «спасибо».",
+          "en": "Dad gave him five hundred forints, and Bence said thank you many times."
+        },
+        {
+          "hu": "Egy milliárd helyett ötszáz forint is elég neki.",
+          "ru": "Вместо миллиарда ему хватит и пятисот форинтов.",
+          "en": "Instead of a billion, five hundred forints are enough for him."
+        },
+        {
+          "hu": "Én tizennyolc évesen is féltem a tesztektől.",
+          "ru": "Я и в восемнадцать лет боялась тестов.",
+          "en": "Even at eighteen I was afraid of tests."
+        },
+        {
+          "hu": "Este dupla pizzát kért, és meg is kapta.",
+          "ru": "Вечером он попросил двойную пиццу и получил её.",
+          "en": "In the evening he asked for a double pizza and got it."
+        },
+        {
+          "hu": "A következő tesztre már legalább kilencven százalék kell.",
+          "ru": "На следующий тест нужно уже минимум девяносто процентов.",
+          "en": "For the next test he needs at least ninety per cent."
+        },
+        {
+          "hu": "Majd sokszor megnézzük a feladatokat, és lesz ötös is.",
+          "ru": "Мы ещё много раз просмотрим задания, и будет даже пятёрка.",
+          "en": "We will look at the problems many times, and there will be a five too."
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,478 @@
+{
+  "short": {
+    "genre": "sms",
+    "checked": "ai",
+    "title": {
+      "ru": "Сообщение от Каты",
+      "en": "A text from Kata"
+    },
+    "names": [
+      "Peti",
+      "Kata"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Peti! Ma nem jövök.",
+          "ru": "Привет, Пети! Сегодня я не приду.",
+          "en": "Hi, Peti! I am not coming today."
+        },
+        {
+          "hu": "Fáj a derekam, és a bokám is fáj.",
+          "ru": "У меня болит поясница, и лодыжка тоже болит.",
+          "en": "My lower back hurts, and my ankle hurts too."
+        },
+        {
+          "hu": "Nem tudok jól lépni.",
+          "ru": "Я не могу нормально ходить.",
+          "en": "I cannot walk well."
+        }
+      ],
+      [
+        {
+          "hu": "Sokat ülök, és kevés a mozgás.",
+          "ru": "Я много сижу, а движения мало.",
+          "en": "I sit a lot, and there is little movement."
+        },
+        {
+          "hu": "Most otthon fekszem, és semmit nem csinálok.",
+          "ru": "Сейчас я лежу дома и ничего не делаю.",
+          "en": "Now I am lying at home and doing nothing."
+        },
+        {
+          "hu": "Holnap megyek az orvoshoz.",
+          "ru": "Завтра иду к врачу.",
+          "en": "I am going to the doctor tomorrow."
+        },
+        {
+          "hu": "Az orvos majd megnézi a gerincemet.",
+          "ru": "Врач посмотрит мой позвоночник.",
+          "en": "The doctor will look at my spine."
+        },
+        {
+          "hu": "Szerintem gyenge az izmom, és ez nem jó.",
+          "ru": "По-моему, мои мышцы слабые, и это плохо.",
+          "en": "I think my muscles are weak, and that is not good."
+        },
+        {
+          "hu": "Te mozogsz sokat, erős vagy.",
+          "ru": "Ты много двигаешься, ты сильный.",
+          "en": "You move a lot, you are strong."
+        },
+        {
+          "hu": "Majd írok, mit mond az orvos.",
+          "ru": "Я напишу, что скажет врач.",
+          "en": "I will write what the doctor says."
+        },
+        {
+          "hu": "A mellkasom is fáj egy kicsit, de a lélegzetem jó.",
+          "ru": "Грудная клетка тоже немного болит, но дыхание в порядке.",
+          "en": "My chest hurts a little too, but my breathing is fine."
+        },
+        {
+          "hu": "Na, szia, vigyázz magadra!",
+          "ru": "Ну, пока, береги себя!",
+          "en": "Well, bye, take care of yourself!"
+        },
+        {
+          "hu": "Kata",
+          "ru": "Ката",
+          "en": "Kata"
+        }
+      ]
+    ]
+  },
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "У врача",
+      "en": "At the doctor's"
+    },
+    "names": [
+      "Kata"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Jó napot, doktor úr! Fáj a derekam, és a mellkasom is fáj.",
+          "ru": "Добрый день, господин доктор! У меня болит поясница, и грудная клетка тоже болит.",
+          "en": "Good day, doctor! My lower back hurts, and my chest hurts too."
+        },
+        {
+          "hu": "Jó napot, Kata! Üljön le, kérem. Régen fáj?",
+          "ru": "Добрый день, Ката! Садитесь, пожалуйста. Давно болит?",
+          "en": "Good day, Kata! Please sit down. Has it hurt for long?"
+        },
+        {
+          "hu": "Már egy hete. Sokat ülök a munkahelyen, otthon pedig fekszem.",
+          "ru": "Уже неделю. Я много сижу на работе, а дома лежу.",
+          "en": "For a week now. I sit a lot at work, and at home I lie down."
+        },
+        {
+          "hu": "Értem. Nézem a gerincét. Itt fáj?",
+          "ru": "Понятно. Смотрю ваш позвоночник. Здесь болит?",
+          "en": "I see. I am looking at your spine. Does it hurt here?"
+        },
+        {
+          "hu": "Igen, ott nagyon fáj. Az ízületem is fáj, a csuklóm és a könyököm.",
+          "ru": "Да, там очень больно. Суставы тоже болят, запястье и локоть.",
+          "en": "Yes, it hurts a lot there. My joints hurt too, my wrist and my elbow."
+        },
+        {
+          "hu": "Csak egy kicsit érintem. Itt is fáj?",
+          "ru": "Я только слегка касаюсь. Здесь тоже болит?",
+          "en": "I am only touching it a little. Does it hurt here too?"
+        },
+        {
+          "hu": "Nem, itt nem fáj.",
+          "ru": "Нет, здесь не болит.",
+          "en": "No, it does not hurt here."
+        },
+        {
+          "hu": "Rendben. Most a pulzusát nézem. Jó, nem gyors.",
+          "ru": "Хорошо. Теперь смотрю ваш пульс. Хорошо, не частый.",
+          "en": "Okay. Now I am checking your pulse. Good, it is not fast."
+        },
+        {
+          "hu": "Doktor úr, nehéz a lélegzetem is.",
+          "ru": "Господин доктор, мне и дышать тяжело.",
+          "en": "Doctor, my breathing is hard too."
+        },
+        {
+          "hu": "Vegyen nagy lélegzetet! Így jó. Az izmai gyengék, ezért fáj a gerince.",
+          "ru": "Сделайте глубокий вдох! Вот так. Ваши мышцы слабые, поэтому болит позвоночник.",
+          "en": "Take a deep breath! That is good. Your muscles are weak, that is why your spine hurts."
+        },
+        {
+          "hu": "Gyenge vagyok? Nem vagyok kövér, de tényleg sokat ülök.",
+          "ru": "Я слабая? Я не толстая, но правда много сижу.",
+          "en": "Am I weak? I am not fat, but I really do sit a lot."
+        },
+        {
+          "hu": "Nem kövér, csak nem mozog eleget. Kell a fizikai mozgás.",
+          "ru": "Не толстая, просто мало двигаетесь. Нужна физическая нагрузка.",
+          "en": "Not fat, you just do not move enough. You need physical movement."
+        },
+        {
+          "hu": "Hány órát ül egy nap?",
+          "ru": "Сколько часов в день вы сидите?",
+          "en": "How many hours a day do you sit?"
+        },
+        {
+          "hu": "Nyolc órát. Mit csináljak? Menjek sétálni?",
+          "ru": "Восемь часов. Что мне делать? Пойти гулять?",
+          "en": "Eight hours. What should I do? Should I go for a walk?"
+        },
+        {
+          "hu": "Igen, az jó. Hogy van a bokája? És a combja?",
+          "ru": "Да, это хорошо. Как ваша лодыжка? А бедро?",
+          "en": "Yes, that is good. How is your ankle? And your thigh?"
+        },
+        {
+          "hu": "A bokám jó, de a combom gyenge.",
+          "ru": "Лодыжка в порядке, а бедро слабое.",
+          "en": "My ankle is fine, but my thigh is weak."
+        },
+        {
+          "hu": "Doktor úr, a tenyerem nem fáj, csak a csuklóm.",
+          "ru": "Доктор, ладонь не болит, только запястье.",
+          "en": "Doctor, my palm does not hurt, only my wrist."
+        },
+        {
+          "hu": "Jó, ez rendben van.",
+          "ru": "Хорошо, тут всё в порядке.",
+          "en": "Good, this is fine."
+        },
+        {
+          "hu": "Minden nap kell a mozgás, és nem jó, ha egész nap ül.",
+          "ru": "Движение нужно каждый день, и нехорошо, когда вы весь день сидите.",
+          "en": "You need movement every day, and it is not good when you sit all day."
+        },
+        {
+          "hu": "Értem, doktor úr. Az izmom nem erős, de holnap kezdem!",
+          "ru": "Понятно, господин доктор. Мои мышцы не сильные, но завтра начну!",
+          "en": "I see, doctor. My muscles are not strong, but I will start tomorrow!"
+        },
+        {
+          "hu": "Jó. Erős lesz az izma, és nem fáj majd a dereka.",
+          "ru": "Хорошо. Ваши мышцы станут сильными, и поясница не будет болеть.",
+          "en": "Good. Your muscles will be strong and your lower back will not hurt."
+        },
+        {
+          "hu": "Köszönöm szépen, doktor úr! Viszlát!",
+          "ru": "Большое спасибо, господин доктор! До свидания!",
+          "en": "Thank you very much, doctor! Goodbye!"
+        }
+      ]
+    ]
+  },
+  "long": {
+    "genre": "diary",
+    "checked": "ai",
+    "title": {
+      "ru": "Дневник: поход в горы",
+      "en": "Diary: a hike in the hills"
+    },
+    "names": [],
+    "paras": [
+      [
+        {
+          "hu": "Tegnap apával a hegyen voltunk.",
+          "ru": "Вчера мы с папой были в горах.",
+          "en": "Yesterday Dad and I were up in the hills."
+        },
+        {
+          "hu": "Reggel hétkor indultunk.",
+          "ru": "Мы вышли в семь утра.",
+          "en": "We set off at seven in the morning."
+        },
+        {
+          "hu": "Anya adott vizet és almát.",
+          "ru": "Мама дала воды и яблок.",
+          "en": "Mum gave us water and apples."
+        },
+        {
+          "hu": "Apa erős, én nem vagyok olyan erős.",
+          "ru": "Папа сильный, а я не такой сильный.",
+          "en": "Dad is strong, I am not that strong."
+        },
+        {
+          "hu": "Apának nagy bajusza van, és mozog, ha nevet.",
+          "ru": "У папы большие усы, и они двигаются, когда он смеётся.",
+          "en": "Dad has a big moustache, and it moves when he laughs."
+        }
+      ],
+      [
+        {
+          "hu": "Reggel a tükörben az arcomat néztem.",
+          "ru": "Утром я смотрел в зеркале на своё лицо.",
+          "en": "In the morning I looked at my face in the mirror."
+        },
+        {
+          "hu": "A hajam nem volt szép, az arcom pedig fáradt.",
+          "ru": "Волосы были не очень красивые, а лицо усталое.",
+          "en": "My hair was not nice and my face looked tired."
+        },
+        {
+          "hu": "Anya azt mondta, szép nap lesz, és jó a mozgás a testnek.",
+          "ru": "Мама сказала, что день будет хороший и что движение полезно для тела.",
+          "en": "Mum said it would be a nice day and that movement is good for the body."
+        }
+      ],
+      [
+        {
+          "hu": "Az út nagyon hosszú volt.",
+          "ru": "Дорога была очень длинной.",
+          "en": "The way was very long."
+        },
+        {
+          "hu": "Először jól mentem, minden lépés könnyű volt.",
+          "ru": "Сначала я шёл хорошо, каждый шаг был лёгким.",
+          "en": "At first I walked well, every step was easy."
+        },
+        {
+          "hu": "Egy óra után már fájt a combom.",
+          "ru": "Через час у меня уже болело бедро.",
+          "en": "After an hour my thigh already hurt."
+        },
+        {
+          "hu": "A lábujjam is fájt a cipőben.",
+          "ru": "Пальцы на ногах тоже болели в ботинках.",
+          "en": "My toes hurt in my shoes too."
+        },
+        {
+          "hu": "Az arcom piros volt, a homlokom forró.",
+          "ru": "Лицо у меня было красное, лоб горячий.",
+          "en": "My face was red and my forehead was hot."
+        },
+        {
+          "hu": "A hajam is forró volt.",
+          "ru": "Волосы тоже были горячими.",
+          "en": "My hair was hot too."
+        },
+        {
+          "hu": "Apa azt mondta, lépj lassan, és nézd az utat.",
+          "ru": "Папа сказал, иди медленно и смотри на дорогу.",
+          "en": "Dad said, step slowly and watch the path."
+        }
+      ],
+      [
+        {
+          "hu": "Aztán egy kis tónál voltunk.",
+          "ru": "Потом мы оказались у небольшого озера.",
+          "en": "Then we were at a little lake."
+        },
+        {
+          "hu": "A vízben néztem az arcomat.",
+          "ru": "В воде я смотрел на своё лицо.",
+          "en": "I looked at my face in the water."
+        },
+        {
+          "hu": "Apa a földön ült, és az álla fekete lett a földtől.",
+          "ru": "Папа сидел на земле, и подбородок у него стал чёрным от земли.",
+          "en": "Dad sat on the ground, and his chin got black from the soil."
+        },
+        {
+          "hu": "A körmöm is fekete volt a földtől.",
+          "ru": "Ногти у меня тоже были чёрные от земли.",
+          "en": "My nails were black from the dirt too."
+        },
+        {
+          "hu": "Nagyon nevettünk.",
+          "ru": "Мы очень смеялись.",
+          "en": "We laughed a lot."
+        },
+        {
+          "hu": "Apa megkérdezte, fáradt vagyok-e.",
+          "ru": "Папа спросил, не устал ли я.",
+          "en": "Dad asked if I was tired."
+        },
+        {
+          "hu": "Azt mondtam, egy kicsit.",
+          "ru": "Я сказал, что немного.",
+          "en": "I said a little."
+        },
+        {
+          "hu": "Apa is fáradt volt, de nem mondta.",
+          "ru": "Папа тоже устал, но не сказал.",
+          "en": "Dad was tired too, but he did not say so."
+        },
+        {
+          "hu": "Apa érintette a bokámat, és megkérdezte, fáj-e.",
+          "ru": "Папа потрогал мою лодыжку и спросил, болит ли она.",
+          "en": "Dad touched my ankle and asked if it hurt."
+        },
+        {
+          "hu": "Nem fájt, csak nagyon fáradt voltam.",
+          "ru": "Не болела, я просто очень устал.",
+          "en": "It did not hurt, I was just very tired."
+        },
+        {
+          "hu": "A talpam forró volt, a pulzusom gyors.",
+          "ru": "Подошвы горели, пульс был частым.",
+          "en": "The soles of my feet were hot and my pulse was fast."
+        }
+      ],
+      [
+        {
+          "hu": "Ültünk egy nagy kövön, és ettünk.",
+          "ru": "Мы сидели на большом камне и ели.",
+          "en": "We sat on a big rock and ate."
+        },
+        {
+          "hu": "Apa azt mondta, régen ő is gyenge volt.",
+          "ru": "Папа сказал, что раньше он тоже был слабым.",
+          "en": "Dad said that he was weak once too."
+        },
+        {
+          "hu": "Aztán sokat járt, és erős lett az izma.",
+          "ru": "Потом он много ходил, и мышцы у него стали сильными.",
+          "en": "Then he walked a lot and his muscles became strong."
+        },
+        {
+          "hu": "A mozgás jó a testnek, és az agynak is jó.",
+          "ru": "Движение полезно для тела, и для мозга тоже.",
+          "en": "Movement is good for the body, and for the brain too."
+        },
+        {
+          "hu": "Utána még két órát mentünk.",
+          "ru": "После этого мы шли ещё два часа.",
+          "en": "After that we walked for two more hours."
+        },
+        {
+          "hu": "Apa fogta a kezem.",
+          "ru": "Папа взял меня за руку.",
+          "en": "Dad took my hand."
+        },
+        {
+          "hu": "A tenyerem forró volt, az övé is.",
+          "ru": "Моя ладонь была горячей, его тоже.",
+          "en": "My palm was hot, and so was his."
+        },
+        {
+          "hu": "Fent nagy lélegzetet vettem.",
+          "ru": "Наверху я глубоко вдохнул.",
+          "en": "Up there I took a deep breath."
+        },
+        {
+          "hu": "Minden szép volt, és nagyon boldog voltam.",
+          "ru": "Всё было красиво, и я был очень счастлив.",
+          "en": "Everything was beautiful and I was very happy."
+        }
+      ],
+      [
+        {
+          "hu": "Ma reggel fáj az egész testem.",
+          "ru": "Сегодня утром у меня болит всё тело.",
+          "en": "This morning my whole body hurts."
+        },
+        {
+          "hu": "A combom, a derekam, minden izmom fáj.",
+          "ru": "Бедро, поясница, каждая мышца болит.",
+          "en": "My thigh, my lower back, every muscle hurts."
+        },
+        {
+          "hu": "Nem tudok jól lépni.",
+          "ru": "Я не могу нормально ходить.",
+          "en": "I cannot walk well."
+        },
+        {
+          "hu": "Anya nevet, és azt mondja, jó ez a mozgás.",
+          "ru": "Мама смеётся и говорит, что это хорошая нагрузка.",
+          "en": "Mum laughs and says this is good exercise."
+        },
+        {
+          "hu": "Apa is ül a konyhában, és fáj a dereka.",
+          "ru": "Папа тоже сидит на кухне, и у него болит поясница.",
+          "en": "Dad is sitting in the kitchen too, and his lower back hurts."
+        },
+        {
+          "hu": "Este anya nézte a bokámat.",
+          "ru": "Вечером мама осмотрела мою лодыжку.",
+          "en": "In the evening Mum looked at my ankle."
+        },
+        {
+          "hu": "A talpam és a lábujjam is piros volt.",
+          "ru": "Подошвы и пальцы на ногах тоже были красными.",
+          "en": "My sole and my toes were red too."
+        },
+        {
+          "hu": "Nem kell orvos, mondta.",
+          "ru": "Врач не нужен, сказала она.",
+          "en": "No need for a doctor, she said."
+        },
+        {
+          "hu": "Vacsorára anya sok jó dolgot adott, és sokat ettem.",
+          "ru": "На ужин мама дала много вкусного, и я много съел.",
+          "en": "For dinner Mum gave us lots of good things and I ate a lot."
+        },
+        {
+          "hu": "Apa nem evett sokat, csak ült, és az állát fogta.",
+          "ru": "Папа ел мало, просто сидел и держался за подбородок.",
+          "en": "Dad did not eat much, he just sat and held his chin."
+        },
+        {
+          "hu": "Apa azt mondta, a testünk fáradt, de az agyunk nem.",
+          "ru": "Папа сказал, что тело у нас устало, а мозг нет.",
+          "en": "Dad said our bodies were tired, but our brains were not."
+        },
+        {
+          "hu": "Anya szerint a pulzusom jó, az izmom pedig kicsit gyenge.",
+          "ru": "По мнению мамы, пульс у меня хороший, а мышцы немного слабые.",
+          "en": "Mum thinks my pulse is good and my muscles are a little weak."
+        },
+        {
+          "hu": "Holnap talán nem megyünk sehova.",
+          "ru": "Завтра, наверное, мы никуда не пойдём.",
+          "en": "Tomorrow maybe we are not going anywhere."
+        },
+        {
+          "hu": "Majd jövő héten megint megyünk.",
+          "ru": "А на следующей неделе пойдём снова.",
+          "en": "Next week we will go again."
+        }
+      ]
+    ]
+  }
+}
