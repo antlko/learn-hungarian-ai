@@ -57,7 +57,9 @@
           "hu": "A víz tiszta, és a tenger nem hideg.",
           "ru": "Вода чистая, и море не холодное.",
           "en": "The water is clean and the sea is not cold."
-        },
+        }
+      ],
+      [
         {
           "hu": "A szállás jó, és sok turista van itt.",
           "ru": "Жильё хорошее, и здесь много туристов.",
@@ -103,7 +105,9 @@
           "hu": "A repülő szombaton tízkor indul, az érkezés a fővárosban délben van.",
           "ru": "Самолёт вылетает в субботу в десять, прибытие в столицу в полдень.",
           "en": "The plane leaves on Saturday at ten, and the arrival in the capital is at noon."
-        },
+        }
+      ],
+      [
         {
           "hu": "A repülőtérre busszal megyünk, a menetrend szerint a busz hétkor indul.",
           "ru": "В аэропорт мы поедем на автобусе, по расписанию он отправляется в семь.",
@@ -135,7 +139,9 @@
           "hu": "A vonat a harmadik vágányról indul, a peron a nagy óra mellett van.",
           "ru": "Поезд отправляется с третьего пути, платформа рядом с большими часами.",
           "en": "The train leaves from the third track, and the platform is next to the big clock."
-        },
+        }
+      ],
+      [
         {
           "hu": "A kalauz mindig kedves, és sok utas kérdez tőle.",
           "ru": "Кондуктор всегда любезен, и многие пассажиры его о чём-то спрашивают.",
@@ -172,7 +178,9 @@
           "hu": "Az idegenvezető szerint a hegy és az erdő nagyon szép.",
           "ru": "По словам гида, гора и лес очень красивы.",
           "en": "According to the guide, the mountain and the forest are very beautiful."
-        },
+        }
+      ],
+      [
         {
           "hu": "Sok látnivaló van, a múzeum, a kikötő, és a hajó is.",
           "ru": "Достопримечательностей много, музей, порт и даже корабль.",
@@ -250,7 +258,9 @@
           "hu": "Az autópályán gyorsan mentünk.",
           "ru": "По автостраде мы ехали быстро.",
           "en": "We drove fast on the motorway."
-        },
+        }
+      ],
+      [
         {
           "hu": "Az autópálya hosszú volt, a határ pedig messze.",
           "ru": "Автострада была длинная, а граница далеко.",
@@ -287,7 +297,9 @@
           "hu": "A határ közel volt, de mi a hegynél maradtunk.",
           "ru": "Граница была близко, но мы остались у горы.",
           "en": "The border was close, but we stayed by the mountain."
-        },
+        }
+      ],
+      [
         {
           "hu": "A hegy alatt volt egy kis szállás és egy benzinkút.",
           "ru": "Под горой были небольшое жильё и заправка.",
@@ -307,7 +319,9 @@
           "hu": "Az útvonal három óra volt, a túra nem volt nehéz.",
           "ru": "Маршрут занимал три часа, поход был нетрудным.",
           "en": "The route took three hours, and the hike was not hard."
-        },
+        }
+      ],
+      [
         {
           "hu": "A látnivaló a hegyen a tó és a barlang volt.",
           "ru": "Достопримечательностью на горе были озеро и пещера.",
@@ -354,7 +368,9 @@
           "hu": "A szikla mellett az ösvény nehéz volt, de szép.",
           "ru": "У скалы тропа была трудной, но красивой.",
           "en": "By the rock the path was hard, but beautiful."
-        },
+        }
+      ],
+      [
         {
           "hu": "A barlangban sötét volt, ezért gyorsan elmentünk.",
           "ru": "В пещере было темно, поэтому мы быстро ушли.",
@@ -401,7 +417,9 @@
           "hu": "Dóra nevetett, hogy ez nem sivatag, és nem is másik kontinens.",
           "ru": "Дора смеялась, что это не пустыня и не другой континент.",
           "en": "Dóra laughed that this was no desert, and not another continent either."
-        },
+        }
+      ],
+      [
         {
           "hu": "Csak egy kis hegy, de az utazás nagyon jó volt.",
           "ru": "Просто небольшая гора, но поездка была очень хорошей.",

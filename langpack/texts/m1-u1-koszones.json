@@ -217,7 +217,9 @@
           "hu": "Egy magyar városban van egy új házam.",
           "ru": "В венгерском городе у меня новый дом.",
           "en": "In a Hungarian town I have a new house."
-        },
+        }
+      ],
+      [
         {
           "hu": "Nagyon szeretem ezt az országot.",
           "ru": "Я очень люблю эту страну.",
@@ -264,7 +266,9 @@
           "hu": "Én is köszönök neki.",
           "ru": "Я тоже здороваюсь с ним.",
           "en": "I greet him too."
-        },
+        }
+      ],
+      [
         {
           "hu": "Hogy vagy, Péter, kérdezem.",
           "ru": "Как дела, Петер, спрашиваю я.",
@@ -311,7 +315,9 @@
           "hu": "Szia, Olga! Hogy vagy?",
           "ru": "Привет, Ольга! Как ты?",
           "en": "Hi, Olga! How are you?"
-        },
+        }
+      ],
+      [
         {
           "hu": "Jól vagyok, köszönöm. És te?",
           "ru": "Хорошо, спасибо. А ты?",
@@ -326,7 +332,9 @@
           "hu": "Anna szívesen segít.",
           "ru": "Анна охотно помогает.",
           "en": "Anna gladly helps."
-        },
+        }
+      ],
+      [
         {
           "hu": "Sokat beszélünk, és sokat nevetünk.",
           "ru": "Мы много говорим и много смеёмся.",
@@ -373,7 +381,9 @@
           "hu": "Üdvözlöm, Tamás vagyok, mondja.",
           "ru": "Здравствуйте, я Тамаш, говорит он.",
           "en": "Good day, I am Tamás, he says."
-        },
+        }
+      ],
+      [
         {
           "hu": "Honnan származol, Tamás?",
           "ru": "Откуда ты родом, Тамаш?",
@@ -420,7 +430,9 @@
           "hu": "Valaki nevet, valaki mosolyog.",
           "ru": "Кто-то смеётся, кто-то улыбается.",
           "en": "Someone laughs, someone smiles."
-        },
+        }
+      ],
+      [
         {
           "hu": "Valaki hív engem.",
           "ru": "Кто-то зовёт меня.",
@@ -435,7 +447,9 @@
           "hu": "Tamás találkozik Péterrel.",
           "ru": "Тамаш знакомится с Петером.",
           "en": "Tamás meets Péter."
-        },
+        }
+      ],
+      [
         {
           "hu": "Péter üdvözli Tamást.",
           "ru": "Петер приветствует Тамаша.",
@@ -477,7 +491,9 @@
           "hu": "Jó éjszakát, Anna!",
           "ru": "Спокойной ночи, Анна!",
           "en": "Good night, Anna!"
-        },
+        }
+      ],
+      [
         {
           "hu": "Viszlát holnap, szia!",
           "ru": "До завтра, пока!",

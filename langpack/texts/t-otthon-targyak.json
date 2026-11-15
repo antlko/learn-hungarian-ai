@@ -1,397 +1,411 @@
 {
- "short": {
-  "genre": "sms",
-  "checked": "ai",
-  "title": {
-   "ru": "Что взять с собой",
-   "en": "What to bring"
+  "short": {
+    "genre": "sms",
+    "checked": "ai",
+    "title": {
+      "ru": "Что взять с собой",
+      "en": "What to bring"
+    },
+    "names": [
+      "Anna",
+      "Peti"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Szia, Peti! Itt Anna. Megvan a kulcs, már az új lakásban vagyok.",
+          "ru": "Привет, Пети! Это Анна. Ключ у меня, я уже в новой квартире.",
+          "en": "Hi, Peti! It's Anna. I've got the key, I'm already in the new flat."
+        },
+        {
+          "hu": "A lakás a földszinten van, és a kertben van egy kerítés.",
+          "ru": "Квартира на первом этаже, а в саду есть забор.",
+          "en": "The flat is on the ground floor, and there is a fence in the garden."
+        },
+        {
+          "hu": "Van itt egy hűtőszekrény, egy matrac és egy íróasztal.",
+          "ru": "Здесь есть холодильник, матрас и письменный стол.",
+          "en": "There is a fridge, a mattress and a desk here."
+        },
+        {
+          "hu": "Nincs serpenyő és nincs lábas. Hozol egyet?",
+          "ru": "Сковороды нет и кастрюли нет. Привезёшь?",
+          "en": "There is no frying pan and no saucepan. Can you bring some?"
+        }
+      ],
+      [
+        {
+          "hu": "A fürdőszobában nincs fogkrém, sampon és fésű sem.",
+          "ru": "В ванной нет ни зубной пасты, ни шампуня, ни расчёски.",
+          "en": "There is no toothpaste, no shampoo and no comb in the bathroom either."
+        },
+        {
+          "hu": "És nincs izzó. Hozol egy izzót és egy zseblámpát?",
+          "ru": "И лампочки нет. Привезёшь лампочку и фонарик?",
+          "en": "And there is no bulb. Can you bring a bulb and a torch?"
+        },
+        {
+          "hu": "A zseblámpában nincs elem, az is kell.",
+          "ru": "В фонарике нет батарейки, она тоже нужна.",
+          "en": "There is no battery in the torch, we need that too."
+        },
+        {
+          "hu": "Kérlek, hozz ollót, tűt és cérnát is!",
+          "ru": "Пожалуйста, привези ещё ножницы, иголку и нитку!",
+          "en": "Please bring scissors, a needle and thread too!"
+        }
+      ],
+      [
+        {
+          "hu": "Hozz vasalót, fogkefét és egy vázát is.",
+          "ru": "Привези ещё утюг, зубную щётку и вазу.",
+          "en": "Bring an iron, a toothbrush and a vase too."
+        },
+        {
+          "hu": "A kertben sok virág és növény van.",
+          "ru": "В саду много цветов и растений.",
+          "en": "There are lots of flowers and plants in the garden."
+        },
+        {
+          "hu": "Van létrád, fűrészed és lapátod? A bokor már nagy.",
+          "ru": "У тебя есть стремянка, пила и лопата? Куст уже большой.",
+          "en": "Do you have a ladder, a saw and a shovel? The bush is already big."
+        }
+      ],
+      [
+        {
+          "hu": "Hozz csavarhúzót is, a kalapács és a szög itt van.",
+          "ru": "Отвёртку тоже привези, молоток и гвозди уже здесь.",
+          "en": "Bring a screwdriver too, the hammer and the nails are here."
+        },
+        {
+          "hu": "Itt egy kandalló és egy kályha is van, a kémény új.",
+          "ru": "Здесь есть и камин, и печь, дымоход новый.",
+          "en": "There is a fireplace and a stove here too, and the chimney is new."
+        },
+        {
+          "hu": "A kertben kötél, drót és tégla is van, gyertya pedig kell.",
+          "ru": "В саду есть и верёвка, проволока и кирпичи, а свечи нужны.",
+          "en": "There are rope, wire and bricks in the garden too, and we need candles."
+        },
+        {
+          "hu": "Köszönöm! Holnap jössz?",
+          "ru": "Спасибо! Ты завтра приедешь?",
+          "en": "Thanks! Are you coming tomorrow?"
+        }
+      ]
+    ]
   },
-  "names": [
-   "Anna",
-   "Peti"
-  ],
-  "paras": [
-   [
-    {
-     "hu": "Szia, Peti! Itt Anna. Megvan a kulcs, már az új lakásban vagyok.",
-     "ru": "Привет, Пети! Это Анна. Ключ у меня, я уже в новой квартире.",
-     "en": "Hi, Peti! It's Anna. I've got the key, I'm already in the new flat."
+  "medium": {
+    "genre": "dialogue",
+    "checked": "ai",
+    "title": {
+      "ru": "Ключ от квартиры",
+      "en": "The key to the flat"
     },
-    {
-     "hu": "A lakás a földszinten van, és a kertben van egy kerítés.",
-     "ru": "Квартира на первом этаже, а в саду есть забор.",
-     "en": "The flat is on the ground floor, and there is a fence in the garden."
-    },
-    {
-     "hu": "Van itt egy hűtőszekrény, egy matrac és egy íróasztal.",
-     "ru": "Здесь есть холодильник, матрас и письменный стол.",
-     "en": "There is a fridge, a mattress and a desk here."
-    },
-    {
-     "hu": "Nincs serpenyő és nincs lábas. Hozol egyet?",
-     "ru": "Сковороды нет и кастрюли нет. Привезёшь?",
-     "en": "There is no frying pan and no saucepan. Can you bring some?"
-    }
-   ],
-   [
-    {
-     "hu": "A fürdőszobában nincs fogkrém, sampon és fésű sem.",
-     "ru": "В ванной нет ни зубной пасты, ни шампуня, ни расчёски.",
-     "en": "There is no toothpaste, no shampoo and no comb in the bathroom either."
-    },
-    {
-     "hu": "És nincs izzó. Hozol egy izzót és egy zseblámpát?",
-     "ru": "И лампочки нет. Привезёшь лампочку и фонарик?",
-     "en": "And there is no bulb. Can you bring a bulb and a torch?"
-    },
-    {
-     "hu": "A zseblámpában nincs elem, az is kell.",
-     "ru": "В фонарике нет батарейки, она тоже нужна.",
-     "en": "There is no battery in the torch, we need that too."
-    },
-    {
-     "hu": "Kérlek, hozz ollót, tűt és cérnát is!",
-     "ru": "Пожалуйста, привези ещё ножницы, иголку и нитку!",
-     "en": "Please bring scissors, a needle and thread too!"
-    },
-    {
-     "hu": "Hozz vasalót, fogkefét és egy vázát is.",
-     "ru": "Привези ещё утюг, зубную щётку и вазу.",
-     "en": "Bring an iron, a toothbrush and a vase too."
-    },
-    {
-     "hu": "A kertben sok virág és növény van.",
-     "ru": "В саду много цветов и растений.",
-     "en": "There are lots of flowers and plants in the garden."
-    },
-    {
-     "hu": "Van létrád, fűrészed és lapátod? A bokor már nagy.",
-     "ru": "У тебя есть стремянка, пила и лопата? Куст уже большой.",
-     "en": "Do you have a ladder, a saw and a shovel? The bush is already big."
-    },
-    {
-     "hu": "Hozz csavarhúzót is, a kalapács és a szög itt van.",
-     "ru": "Отвёртку тоже привези, молоток и гвозди уже здесь.",
-     "en": "Bring a screwdriver too, the hammer and the nails are here."
-    },
-    {
-     "hu": "Itt egy kandalló és egy kályha is van, a kémény új.",
-     "ru": "Здесь есть и камин, и печь, дымоход новый.",
-     "en": "There is a fireplace and a stove here too, and the chimney is new."
-    },
-    {
-     "hu": "A kertben kötél, drót és tégla is van, gyertya pedig kell.",
-     "ru": "В саду есть и верёвка, проволока и кирпичи, а свечи нужны.",
-     "en": "There are rope, wire and bricks in the garden too, and we need candles."
-    },
-    {
-     "hu": "Köszönöm! Holnap jössz?",
-     "ru": "Спасибо! Ты завтра приедешь?",
-     "en": "Thanks! Are you coming tomorrow?"
-    }
-   ]
-  ]
- },
- "medium": {
-  "genre": "dialogue",
-  "checked": "ai",
-  "title": {
-   "ru": "Ключ от квартиры",
-   "en": "The key to the flat"
+    "names": [
+      "Anna",
+      "Kovács"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Jó napot, Anna! Itt a kulcs, a lakás a földszinten van.",
+          "ru": "Добрый день, Анна! Вот ключ, квартира на первом этаже.",
+          "en": "Good afternoon, Anna! Here is the key, the flat is on the ground floor."
+        },
+        {
+          "hu": "Köszönöm, Kovács úr! Jaj, milyen szép nagy szoba, és milyen magas a mennyezet!",
+          "ru": "Спасибо, господин Ковач! Ой, какая красивая большая комната и какой высокий потолок!",
+          "en": "Thank you, Mr Kovács! Oh, what a lovely big room, and what a high ceiling!"
+        },
+        {
+          "hu": "Igen. Itt a kandalló, de a kályha jobb, mert a kémény új.",
+          "ru": "Да. Вот камин, но печь лучше, потому что дымоход новый.",
+          "en": "Yes. Here is the fireplace, but the stove is better, because the chimney is new."
+        },
+        {
+          "hu": "Szuper. A mosogató tiszta, és a hűtőszekrény is jó? Működik?",
+          "ru": "Отлично. Раковина чистая, а холодильник тоже хороший? Работает?",
+          "en": "Great. The sink is clean, and is the fridge good too? Does it work?"
+        },
+        {
+          "hu": "Persze, a hűtőszekrény új. A seprű és a vödör is itt van, nézze.",
+          "ru": "Конечно, холодильник новый. Веник и ведро тоже здесь, смотрите.",
+          "en": "Of course, the fridge is new. The broom and the bucket are here too, look."
+        },
+        {
+          "hu": "Köszönöm. Hol szárítom a lepedőt, és hol vasalok?",
+          "ru": "Спасибо. Где мне сушить простыню и где гладить?",
+          "en": "Thanks. Where do I dry the sheet, and where do I iron?"
+        },
+        {
+          "hu": "A lepedőt kint, a kerítésnél szárítja. A vasaló a szekrényben van.",
+          "ru": "Простыню сушите на улице, у забора. Утюг в шкафу.",
+          "en": "You dry the sheet outside, by the fence. The iron is in the wardrobe."
+        },
+        {
+          "hu": "Van ágynemű is, vagy hozok egy újat otthonról?",
+          "ru": "Постельное бельё тоже есть, или мне привезти своё из дома?",
+          "en": "Is there bedding too, or should I bring my own from home?"
+        },
+        {
+          "hu": "Ágynemű nincs, de a matrac új. Az íróasztal és a könyvespolc is itt van.",
+          "ru": "Белья нет, но матрас новый. Письменный стол и книжная полка тоже здесь.",
+          "en": "There is no bedding, but the mattress is new. The desk and the bookshelf are here too."
+        },
+        {
+          "hu": "Nem baj. A festményt hova tegyem? Van szög a házban?",
+          "ru": "Ничего. Куда мне повесить картину? В доме есть гвозди?",
+          "en": "Never mind. Where do I put the painting? Are there nails in the house?"
+        },
+        {
+          "hu": "Szög nincs, azt venni kell. A kalapács, a csavarhúzó és a létra itt van.",
+          "ru": "Гвоздей нет, их надо купить. Молоток, отвёртка и стремянка здесь.",
+          "en": "There are no nails, you have to buy them. The hammer, the screwdriver and the ladder are here."
+        },
+        {
+          "hu": "Köszönöm. A szobában nincs izzó, de talán van egy zseblámpa?",
+          "ru": "Спасибо. В комнате нет лампочки, но, может быть, есть фонарик?",
+          "en": "Thanks. There is no bulb in the room, but maybe there is a torch?"
+        },
+        {
+          "hu": "Van, és van két gyertya is. Elem nincs, azt is venni kell.",
+          "ru": "Есть, и две свечи тоже есть. Батарейки нет, её тоже надо купить.",
+          "en": "There is, and there are two candles too. There is no battery, you have to buy that too."
+        },
+        {
+          "hu": "Rendben, veszek elemet és izzót. És a kert? Az is az enyém?",
+          "ru": "Хорошо, куплю батарейку и лампочку. А сад? Он тоже мой?",
+          "en": "All right, I will buy a battery and a bulb. And the garden? Is that mine too?"
+        },
+        {
+          "hu": "Igen, a fű, a bokor és a növények is. A kerítés régi, de jó.",
+          "ru": "Да, и трава, и куст, и растения. Забор старый, но хороший.",
+          "en": "Yes, the grass, the bush and the plants too. The fence is old, but good."
+        },
+        {
+          "hu": "Nagyszerű! Holnap hozom a festményt, a vázát és a szöget is.",
+          "ru": "Замечательно! Завтра привезу картину, вазу и гвозди.",
+          "en": "Wonderful! Tomorrow I will bring the painting, the vase and the nails."
+        }
+      ]
+    ]
   },
-  "names": [
-   "Anna",
-   "Kovács"
-  ],
-  "paras": [
-   [
-    {
-     "hu": "Jó napot, Anna! Itt a kulcs, a lakás a földszinten van.",
-     "ru": "Добрый день, Анна! Вот ключ, квартира на первом этаже.",
-     "en": "Good afternoon, Anna! Here is the key, the flat is on the ground floor."
+  "long": {
+    "genre": "diary",
+    "checked": "ai",
+    "title": {
+      "ru": "Мой первый день в новом доме",
+      "en": "My first day in the new house"
     },
-    {
-     "hu": "Köszönöm, Kovács úr! Jaj, milyen szép nagy szoba, és milyen magas a mennyezet!",
-     "ru": "Спасибо, господин Ковач! Ой, какая красивая большая комната и какой высокий потолок!",
-     "en": "Thank you, Mr Kovács! Oh, what a lovely big room, and what a high ceiling!"
-    },
-    {
-     "hu": "Igen. Itt a kandalló, de a kályha jobb, mert a kémény új.",
-     "ru": "Да. Вот камин, но печь лучше, потому что дымоход новый.",
-     "en": "Yes. Here is the fireplace, but the stove is better, because the chimney is new."
-    },
-    {
-     "hu": "Szuper. A mosogató tiszta, és a hűtőszekrény is jó? Működik?",
-     "ru": "Отлично. Раковина чистая, а холодильник тоже хороший? Работает?",
-     "en": "Great. The sink is clean, and is the fridge good too? Does it work?"
-    },
-    {
-     "hu": "Persze, a hűtőszekrény új. A seprű és a vödör is itt van, nézze.",
-     "ru": "Конечно, холодильник новый. Веник и ведро тоже здесь, смотрите.",
-     "en": "Of course, the fridge is new. The broom and the bucket are here too, look."
-    },
-    {
-     "hu": "Köszönöm. Hol szárítom a lepedőt, és hol vasalok?",
-     "ru": "Спасибо. Где мне сушить простыню и где гладить?",
-     "en": "Thanks. Where do I dry the sheet, and where do I iron?"
-    },
-    {
-     "hu": "A lepedőt kint, a kerítésnél szárítja. A vasaló a szekrényben van.",
-     "ru": "Простыню сушите на улице, у забора. Утюг в шкафу.",
-     "en": "You dry the sheet outside, by the fence. The iron is in the wardrobe."
-    },
-    {
-     "hu": "Van ágynemű is, vagy hozok egy újat otthonról?",
-     "ru": "Постельное бельё тоже есть, или мне привезти своё из дома?",
-     "en": "Is there bedding too, or should I bring my own from home?"
-    },
-    {
-     "hu": "Ágynemű nincs, de a matrac új. Az íróasztal és a könyvespolc is itt van.",
-     "ru": "Белья нет, но матрас новый. Письменный стол и книжная полка тоже здесь.",
-     "en": "There is no bedding, but the mattress is new. The desk and the bookshelf are here too."
-    },
-    {
-     "hu": "Nem baj. A festményt hova tegyem? Van szög a házban?",
-     "ru": "Ничего. Куда мне повесить картину? В доме есть гвозди?",
-     "en": "Never mind. Where do I put the painting? Are there nails in the house?"
-    },
-    {
-     "hu": "Szög nincs, azt venni kell. A kalapács, a csavarhúzó és a létra itt van.",
-     "ru": "Гвоздей нет, их надо купить. Молоток, отвёртка и стремянка здесь.",
-     "en": "There are no nails, you have to buy them. The hammer, the screwdriver and the ladder are here."
-    },
-    {
-     "hu": "Köszönöm. A szobában nincs izzó, de talán van egy zseblámpa?",
-     "ru": "Спасибо. В комнате нет лампочки, но, может быть, есть фонарик?",
-     "en": "Thanks. There is no bulb in the room, but maybe there is a torch?"
-    },
-    {
-     "hu": "Van, és van két gyertya is. Elem nincs, azt is venni kell.",
-     "ru": "Есть, и две свечи тоже есть. Батарейки нет, её тоже надо купить.",
-     "en": "There is, and there are two candles too. There is no battery, you have to buy that too."
-    },
-    {
-     "hu": "Rendben, veszek elemet és izzót. És a kert? Az is az enyém?",
-     "ru": "Хорошо, куплю батарейку и лампочку. А сад? Он тоже мой?",
-     "en": "All right, I will buy a battery and a bulb. And the garden? Is that mine too?"
-    },
-    {
-     "hu": "Igen, a fű, a bokor és a növények is. A kerítés régi, de jó.",
-     "ru": "Да, и трава, и куст, и растения. Забор старый, но хороший.",
-     "en": "Yes, the grass, the bush and the plants too. The fence is old, but good."
-    },
-    {
-     "hu": "Nagyszerű! Holnap hozom a festményt, a vázát és a szöget is.",
-     "ru": "Замечательно! Завтра привезу картину, вазу и гвозди.",
-     "en": "Wonderful! Tomorrow I will bring the painting, the vase and the nails."
-    }
-   ]
-  ]
- },
- "long": {
-  "genre": "diary",
-  "checked": "ai",
-  "title": {
-   "ru": "Мой первый день в новом доме",
-   "en": "My first day in the new house"
-  },
-  "names": [
-   "Anna",
-   "Peti"
-  ],
-  "paras": [
-   [
-    {
-     "hu": "Ma költöztem az új lakásba.",
-     "ru": "Сегодня я переехала в новую квартиру.",
-     "en": "Today I moved into the new flat."
-    },
-    {
-     "hu": "Reggel nyolckor már a földszinten voltam.",
-     "ru": "Уже в восемь утра я была на первом этаже.",
-     "en": "By eight in the morning I was already on the ground floor."
-    },
-    {
-     "hu": "Peti is jött, és hozta a dobozokat.",
-     "ru": "Пети тоже пришёл и принёс коробки.",
-     "en": "Peti came too, and brought the boxes."
-    },
-    {
-     "hu": "Sok doboz volt, és mind nagyon nehéz volt.",
-     "ru": "Коробок было много, и все очень тяжёлые.",
-     "en": "There were many boxes, and all of them were very heavy."
-    },
-    {
-     "hu": "A hűtőszekrény is nehéz volt, de a konyhába vittük.",
-     "ru": "Холодильник тоже был тяжёлый, но мы отнесли его на кухню.",
-     "en": "The fridge was heavy too, but we took it to the kitchen."
-    },
-    {
-     "hu": "A nagy szobában volt egy kandalló, és magas volt a mennyezet.",
-     "ru": "В большой комнате был камин, а потолок был высокий.",
-     "en": "In the big room there was a fireplace, and the ceiling was high."
-    }
-   ],
-   [
-    {
-     "hu": "A konyha nem volt tiszta, ezért először a mosogatót mostam.",
-     "ru": "Кухня была не очень чистая, поэтому сначала я вымыла раковину.",
-     "en": "The kitchen was not clean, so first I washed the sink."
-    },
-    {
-     "hu": "A seprű a sarokban volt, a vödörben pedig volt egy kis víz.",
-     "ru": "Веник стоял в углу, а в ведре была немного воды.",
-     "en": "The broom was in the corner, and there was a little water in the bucket."
-    },
-    {
-     "hu": "Aztán a serpenyőt és a lábast is mostam.",
-     "ru": "Потом я помыла и сковороду, и кастрюлю.",
-     "en": "Then I washed the frying pan and the saucepan too."
-    },
-    {
-     "hu": "A fogkefét, a fogkrémet, a sampont és a fésűt a fürdőszobába tettem.",
-     "ru": "Зубную щётку, пасту, шампунь и расчёску я положила в ванную.",
-     "en": "I put the toothbrush, the toothpaste, the shampoo and the comb in the bathroom."
-    },
-    {
-     "hu": "Peti a fésűt a fogkefe mellé tette, és a fogkrém is ott maradt.",
-     "ru": "Пети положил расчёску рядом с зубной щёткой, и паста тоже осталась там.",
-     "en": "Peti put the comb next to the toothbrush, and the toothpaste stayed there too."
-    },
-    {
-     "hu": "Peti nevetett, mert nekem a fogkefe volt az első.",
-     "ru": "Пети смеялся, потому что для меня зубная щётка была первым делом.",
-     "en": "Peti laughed, because for me the toothbrush came first."
-    }
-   ],
-   [
-    {
-     "hu": "Délben jött a matrac, és mi tettük az ágyra a lepedőt.",
-     "ru": "В полдень привезли матрас, и мы постелили на кровать простыню.",
-     "en": "At noon the mattress came, and we put the sheet on the bed."
-    },
-    {
-     "hu": "Peti az íróasztalt és a könyvespolcot a szobába vitte.",
-     "ru": "Пети отнёс письменный стол и книжную полку в комнату.",
-     "en": "Peti took the desk and the bookshelf to the room."
-    },
-    {
-     "hu": "Nem volt csavarhúzó, de volt kalapács és sok szög.",
-     "ru": "Отвёртки не было, но были молоток и много гвоздей.",
-     "en": "There was no screwdriver, but there was a hammer and lots of nails."
-    },
-    {
-     "hu": "A mennyezeten nem volt izzó.",
-     "ru": "На потолке не было лампочки.",
-     "en": "There was no bulb on the ceiling."
-    },
-    {
-     "hu": "Peti a létrára állt, és tett egy újat a helyére.",
-     "ru": "Пети встал на стремянку и вкрутил новую на её место.",
-     "en": "Peti stood on the ladder and put a new one in its place."
-    },
-    {
-     "hu": "Utána a festményt is a falra tette.",
-     "ru": "Потом он повесил на стену ещё и картину.",
-     "en": "After that he put the painting on the wall too."
-    },
-    {
-     "hu": "A kalapáccsal még egy szöget is vert a falba, az a váza helye.",
-     "ru": "Молотком он вбил в стену ещё один гвоздь, там будет место для вазы.",
-     "en": "With the hammer he knocked one more nail into the wall, that is the vase's place."
-    }
-   ],
-   [
-    {
-     "hu": "Délután kint voltam a kertben.",
-     "ru": "После обеда я была в саду.",
-     "en": "In the afternoon I was outside in the garden."
-    },
-    {
-     "hu": "A kerítés régi volt, de a bokor és a virágok nagyon szépek.",
-     "ru": "Забор был старый, но куст и цветы очень красивые.",
-     "en": "The fence was old, but the bush and the flowers were very beautiful."
-    },
-    {
-     "hu": "A fűben találtam egy lapátot, egy téglát és egy kötelet.",
-     "ru": "В траве я нашла лопату, кирпич и верёвку.",
-     "en": "In the grass I found a shovel, a brick and a rope."
-    },
-    {
-     "hu": "Peti hozott egy fűrészt és egy kis drótot is.",
-     "ru": "Пети принёс ещё пилу и немного проволоки.",
-     "en": "Peti brought a saw and a little wire too."
-    },
-    {
-     "hu": "A fűrésszel dolgozott a bokornál, én a lapáttal a virágoknál.",
-     "ru": "Он работал пилой у куста, а я лопатой у цветов.",
-     "en": "He worked with the saw by the bush, and I worked with the shovel by the flowers."
-    },
-    {
-     "hu": "A téglát a kerítés mellé vittem, a kötelet és a drótot a bokorhoz tettem.",
-     "ru": "Кирпич я отнесла к забору, а верёвку и проволоку положила у куста.",
-     "en": "I took the brick to the fence, and put the rope and the wire by the bush."
-    },
-    {
-     "hu": "A vasalót Peti hozta, és én az ágyneműt is vasaltam.",
-     "ru": "Утюг принёс Пети, и я погладила и постельное бельё.",
-     "en": "Peti brought the iron, and I ironed the bedding too."
-    }
-   ],
-   [
-    {
-     "hu": "Egy kis lyuk volt a lepedőn, ezért tűt és cérnát kerestem.",
-     "ru": "На простыне была маленькая дырка, поэтому я искала иголку и нитку.",
-     "en": "There was a small hole in the sheet, so I looked for a needle and thread."
-    },
-    {
-     "hu": "Az ollót is a dobozban találtam.",
-     "ru": "Ножницы я тоже нашла в коробке.",
-     "en": "I found the scissors in the box too."
-    },
-    {
-     "hu": "A tűt és a cérnát pedig a szobába vittem.",
-     "ru": "А иголку с ниткой отнесла в комнату.",
-     "en": "And I took the needle and thread to the room."
-    }
-   ],
-   [
-    {
-     "hu": "Este a kandallónál két gyertya volt.",
-     "ru": "Вечером у камина стояли две свечи.",
-     "en": "In the evening there were two candles by the fireplace."
-    },
-    {
-     "hu": "A kályha nem működött, de a kémény jó volt.",
-     "ru": "Печь не работала, но дымоход был хороший.",
-     "en": "The stove did not work, but the chimney was fine."
-    },
-    {
-     "hu": "Egy növényt a vödörbe tettem, és egy virágot a vázába.",
-     "ru": "Одно растение я посадила в ведро, а цветок поставила в вазу.",
-     "en": "I put a plant in the bucket, and a flower in the vase."
-    },
-    {
-     "hu": "Az íróasztalon volt a zseblámpa, de az elem még nem jött.",
-     "ru": "На письменном столе лежал фонарик, но батарейка ещё не пришла.",
-     "en": "The torch was on the desk, but the battery had not come yet."
-    },
-    {
-     "hu": "Nagyon fáradt voltam, de boldog.",
-     "ru": "Я очень устала, но была счастлива.",
-     "en": "I was very tired, but happy."
-    },
-    {
-     "hu": "Peti elment, én pedig még sokáig néztem a kertet.",
-     "ru": "Пети ушёл домой, а я ещё долго смотрела на сад.",
-     "en": "Peti went home, and I looked at the garden for a long time."
-    },
-    {
-     "hu": "Ez az én új otthonom.",
-     "ru": "Это мой новый дом.",
-     "en": "This is my new home."
-    }
-   ]
-  ]
- }
+    "names": [
+      "Anna",
+      "Peti"
+    ],
+    "paras": [
+      [
+        {
+          "hu": "Ma költöztem az új lakásba.",
+          "ru": "Сегодня я переехала в новую квартиру.",
+          "en": "Today I moved into the new flat."
+        },
+        {
+          "hu": "Reggel nyolckor már a földszinten voltam.",
+          "ru": "Уже в восемь утра я была на первом этаже.",
+          "en": "By eight in the morning I was already on the ground floor."
+        },
+        {
+          "hu": "Peti is jött, és hozta a dobozokat.",
+          "ru": "Пети тоже пришёл и принёс коробки.",
+          "en": "Peti came too, and brought the boxes."
+        }
+      ],
+      [
+        {
+          "hu": "Sok doboz volt, és mind nagyon nehéz volt.",
+          "ru": "Коробок было много, и все очень тяжёлые.",
+          "en": "There were many boxes, and all of them were very heavy."
+        },
+        {
+          "hu": "A hűtőszekrény is nehéz volt, de a konyhába vittük.",
+          "ru": "Холодильник тоже был тяжёлый, но мы отнесли его на кухню.",
+          "en": "The fridge was heavy too, but we took it to the kitchen."
+        },
+        {
+          "hu": "A nagy szobában volt egy kandalló, és magas volt a mennyezet.",
+          "ru": "В большой комнате был камин, а потолок был высокий.",
+          "en": "In the big room there was a fireplace, and the ceiling was high."
+        }
+      ],
+      [
+        {
+          "hu": "A konyha nem volt tiszta, ezért először a mosogatót mostam.",
+          "ru": "Кухня была не очень чистая, поэтому сначала я вымыла раковину.",
+          "en": "The kitchen was not clean, so first I washed the sink."
+        },
+        {
+          "hu": "A seprű a sarokban volt, a vödörben pedig volt egy kis víz.",
+          "ru": "Веник стоял в углу, а в ведре была немного воды.",
+          "en": "The broom was in the corner, and there was a little water in the bucket."
+        }
+      ],
+      [
+        {
+          "hu": "Aztán a serpenyőt és a lábast is mostam.",
+          "ru": "Потом я помыла и сковороду, и кастрюлю.",
+          "en": "Then I washed the frying pan and the saucepan too."
+        },
+        {
+          "hu": "A fogkefét, a fogkrémet, a sampont és a fésűt a fürdőszobába tettem.",
+          "ru": "Зубную щётку, пасту, шампунь и расчёску я положила в ванную.",
+          "en": "I put the toothbrush, the toothpaste, the shampoo and the comb in the bathroom."
+        },
+        {
+          "hu": "Peti a fésűt a fogkefe mellé tette, és a fogkrém is ott maradt.",
+          "ru": "Пети положил расчёску рядом с зубной щёткой, и паста тоже осталась там.",
+          "en": "Peti put the comb next to the toothbrush, and the toothpaste stayed there too."
+        },
+        {
+          "hu": "Peti nevetett, mert nekem a fogkefe volt az első.",
+          "ru": "Пети смеялся, потому что для меня зубная щётка была первым делом.",
+          "en": "Peti laughed, because for me the toothbrush came first."
+        }
+      ],
+      [
+        {
+          "hu": "Délben jött a matrac, és mi tettük az ágyra a lepedőt.",
+          "ru": "В полдень привезли матрас, и мы постелили на кровать простыню.",
+          "en": "At noon the mattress came, and we put the sheet on the bed."
+        },
+        {
+          "hu": "Peti az íróasztalt és a könyvespolcot a szobába vitte.",
+          "ru": "Пети отнёс письменный стол и книжную полку в комнату.",
+          "en": "Peti took the desk and the bookshelf to the room."
+        },
+        {
+          "hu": "Nem volt csavarhúzó, de volt kalapács és sok szög.",
+          "ru": "Отвёртки не было, но были молоток и много гвоздей.",
+          "en": "There was no screwdriver, but there was a hammer and lots of nails."
+        },
+        {
+          "hu": "A mennyezeten nem volt izzó.",
+          "ru": "На потолке не было лампочки.",
+          "en": "There was no bulb on the ceiling."
+        },
+        {
+          "hu": "Peti a létrára állt, és tett egy újat a helyére.",
+          "ru": "Пети встал на стремянку и вкрутил новую на её место.",
+          "en": "Peti stood on the ladder and put a new one in its place."
+        }
+      ],
+      [
+        {
+          "hu": "Utána a festményt is a falra tette.",
+          "ru": "Потом он повесил на стену ещё и картину.",
+          "en": "After that he put the painting on the wall too."
+        },
+        {
+          "hu": "A kalapáccsal még egy szöget is vert a falba, az a váza helye.",
+          "ru": "Молотком он вбил в стену ещё один гвоздь, там будет место для вазы.",
+          "en": "With the hammer he knocked one more nail into the wall, that is the vase's place."
+        }
+      ],
+      [
+        {
+          "hu": "Délután kint voltam a kertben.",
+          "ru": "После обеда я была в саду.",
+          "en": "In the afternoon I was outside in the garden."
+        },
+        {
+          "hu": "A kerítés régi volt, de a bokor és a virágok nagyon szépek.",
+          "ru": "Забор был старый, но куст и цветы очень красивые.",
+          "en": "The fence was old, but the bush and the flowers were very beautiful."
+        },
+        {
+          "hu": "A fűben találtam egy lapátot, egy téglát és egy kötelet.",
+          "ru": "В траве я нашла лопату, кирпич и верёвку.",
+          "en": "In the grass I found a shovel, a brick and a rope."
+        },
+        {
+          "hu": "Peti hozott egy fűrészt és egy kis drótot is.",
+          "ru": "Пети принёс ещё пилу и немного проволоки.",
+          "en": "Peti brought a saw and a little wire too."
+        }
+      ],
+      [
+        {
+          "hu": "A fűrésszel dolgozott a bokornál, én a lapáttal a virágoknál.",
+          "ru": "Он работал пилой у куста, а я лопатой у цветов.",
+          "en": "He worked with the saw by the bush, and I worked with the shovel by the flowers."
+        },
+        {
+          "hu": "A téglát a kerítés mellé vittem, a kötelet és a drótot a bokorhoz tettem.",
+          "ru": "Кирпич я отнесла к забору, а верёвку и проволоку положила у куста.",
+          "en": "I took the brick to the fence, and put the rope and the wire by the bush."
+        },
+        {
+          "hu": "A vasalót Peti hozta, és én az ágyneműt is vasaltam.",
+          "ru": "Утюг принёс Пети, и я погладила и постельное бельё.",
+          "en": "Peti brought the iron, and I ironed the bedding too."
+        }
+      ],
+      [
+        {
+          "hu": "Egy kis lyuk volt a lepedőn, ezért tűt és cérnát kerestem.",
+          "ru": "На простыне была маленькая дырка, поэтому я искала иголку и нитку.",
+          "en": "There was a small hole in the sheet, so I looked for a needle and thread."
+        },
+        {
+          "hu": "Az ollót is a dobozban találtam.",
+          "ru": "Ножницы я тоже нашла в коробке.",
+          "en": "I found the scissors in the box too."
+        },
+        {
+          "hu": "A tűt és a cérnát pedig a szobába vittem.",
+          "ru": "А иголку с ниткой отнесла в комнату.",
+          "en": "And I took the needle and thread to the room."
+        }
+      ],
+      [
+        {
+          "hu": "Este a kandallónál két gyertya volt.",
+          "ru": "Вечером у камина стояли две свечи.",
+          "en": "In the evening there were two candles by the fireplace."
+        },
+        {
+          "hu": "A kályha nem működött, de a kémény jó volt.",
+          "ru": "Печь не работала, но дымоход был хороший.",
+          "en": "The stove did not work, but the chimney was fine."
+        },
+        {
+          "hu": "Egy növényt a vödörbe tettem, és egy virágot a vázába.",
+          "ru": "Одно растение я посадила в ведро, а цветок поставила в вазу.",
+          "en": "I put a plant in the bucket, and a flower in the vase."
+        },
+        {
+          "hu": "Az íróasztalon volt a zseblámpa, de az elem még nem jött.",
+          "ru": "На письменном столе лежал фонарик, но батарейка ещё не пришла.",
+          "en": "The torch was on the desk, but the battery had not come yet."
+        }
+      ],
+      [
+        {
+          "hu": "Nagyon fáradt voltam, de boldog.",
+          "ru": "Я очень устала, но была счастлива.",
+          "en": "I was very tired, but happy."
+        },
+        {
+          "hu": "Peti elment, én pedig még sokáig néztem a kertet.",
+          "ru": "Пети ушёл домой, а я ещё долго смотрела на сад.",
+          "en": "Peti went home, and I looked at the garden for a long time."
+        },
+        {
+          "hu": "Ez az én új otthonom.",
+          "ru": "Это мой новый дом.",
+          "en": "This is my new home."
+        }
+      ]
+    ]
+  }
 }

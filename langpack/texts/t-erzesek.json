@@ -53,7 +53,9 @@
           "hu": "Anya azt mondja, hogy kell egy kis kitartás.",
           "ru": "Мама говорит, что нужно немного упорства.",
           "en": "Mum says you need a little perseverance."
-        },
+        }
+      ],
+      [
         {
           "hu": "Reménykedem, de félek, hogy minden rossz lesz.",
           "ru": "Я надеюсь, но боюсь, что всё будет плохо.",
@@ -251,7 +253,9 @@
           "hu": "Egy rossz szó után minden fájdalmas volt.",
           "ru": "После одного плохого слова всё было болезненным.",
           "en": "After one bad word, everything was painful."
-        },
+        }
+      ],
+      [
         {
           "hu": "Ez a sértés nagyon fájt, mert én érzékeny vagyok.",
           "ru": "Эта обида очень ранила, ведь я чувствительная.",
@@ -293,7 +297,9 @@
           "hu": "Egy kicsit irigy voltam, sőt féltékeny is.",
           "ru": "Я немного завидовала, даже ревновала.",
           "en": "I was a little envious, even jealous."
-        },
+        }
+      ],
+      [
         {
           "hu": "Aztán bűntudatom lett, és a lelkiismeretem nem hagyott aludni.",
           "ru": "Потом мне стало совестно, и совесть не давала мне спать.",
@@ -313,7 +319,9 @@
           "hu": "Bennem sincs gyűlölet, csak szorongás.",
           "ru": "И во мне нет ненависти, только тревога.",
           "en": "There is no hatred in me either, only anxiety."
-        },
+        }
+      ],
+      [
         {
           "hu": "Néha azt gondolom, hogy a többiek nem szeretnek.",
           "ru": "Иногда я думаю, что другие меня не любят.",
@@ -355,7 +363,9 @@
           "hu": "Azt írta, hogy a gyűlölet és a magány nem segít senkinek.",
           "ru": "Она написала, что ненависть и одиночество никому не помогают.",
           "en": "She wrote that hatred and loneliness do not help anybody."
-        },
+        }
+      ],
+      [
         {
           "hu": "Kell az embernek egy kis részvét, és ő ezt tudja.",
           "ru": "Человеку нужно немного сочувствия, и она это знает.",
@@ -370,7 +380,9 @@
           "hu": "Szerinte kell egy kis kitartás és egy kis bátorság.",
           "ru": "По её мнению, нужны немного упорства и немного смелости.",
           "en": "In her view, you need a little perseverance and a little courage."
-        },
+        }
+      ],
+      [
         {
           "hu": "Azt is írta, hogy a szégyen nem jelent semmit.",
           "ru": "Ещё она написала, что стыд ничего не значит.",
@@ -412,7 +424,9 @@
           "hu": "A lelkesedés jó dolog, mert nem kell hozzá pénz.",
           "ru": "Энтузиазм это хорошо, ведь для него не нужны деньги.",
           "en": "Enthusiasm is a good thing, because you need no money for it."
-        },
+        }
+      ],
+      [
         {
           "hu": "Ez a lelkesedés jól esett.",
           "ru": "Этот энтузиазм был мне приятен.",
@@ -432,7 +446,9 @@
           "hu": "Ez az élvezet olyan egyszerű volt, és mégis nagy.",
           "ru": "Это удовольствие было таким простым и всё же большим.",
           "en": "That pleasure was so simple and yet great."
-        },
+        }
+      ],
+      [
         {
           "hu": "Már nem unatkoztam, és nem szégyelltem magam.",
           "ru": "Мне уже не было скучно, и мне не было стыдно за себя.",
@@ -474,7 +490,9 @@
           "hu": "Azt írta, hogy a félelmetes hétnek végre vége.",
           "ru": "Он написал, что страшной неделе наконец конец.",
           "en": "He wrote that the scary week is finally over."
-        },
+        }
+      ],
+      [
         {
           "hu": "Igaza van, a pánik elment, és nem jött vissza.",
           "ru": "Он прав, паника ушла и не вернулась.",

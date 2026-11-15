@@ -369,7 +369,7 @@ running-word count, `checked` is `ai` until a human vets the text (`native`). `l
   3-4, 2000 for 5-6 and themes) must reach 0.85; unit words, names exempt.
 - **V4 size** (an inference, R22): words per text, months 1-2: short 30-70, medium 90-160, long 180-280;
   months 3-4: 50-100 / 140-220 / 250-380; months 5-6 and themes: 70-130 / 180-300 / 320-480. Sentence cap
-  10 / 12 / 14 words. Paragraphs short 1-2, medium 2-4, long 3-6 (not for `dialogue`).
+  10 / 12 / 14 words. Paragraphs short 1-5, medium 2-8, long 3-16, at most 6 sentences each (not for `dialogue`).
 - **V5** (with `--require-all`) all three tiers, three different genres, at most one `dialogue`; a long text
   is connected prose (`story|myday|diary|blog|description|email`) always. **V6** ru and en for every sentence.
 - Report only: **recycling** (share of the unit's words appearing ≥3 times across the three texts, target

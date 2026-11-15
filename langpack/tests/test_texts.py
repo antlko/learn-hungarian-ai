@@ -168,9 +168,11 @@ def test_size_problems_report_words_sentence_cap_and_paragraphs(monkeypatch):
     long_sentence = " ".join(["ház"] * 11) + "."
     out = texts.size_problems(UNIT, "short", "note", [[long_sentence] * 3], "x")
     assert any("at most 10" in p for p in out)
-    five = [["Ház van."]] * 5
-    assert any("paragraphs" in p for p in texts.size_problems(UNIT, "short", "note", five, "x"))
-    assert not any("paragraphs" in p for p in texts.size_problems(UNIT, "short", "dialogue", five, "x"))
+    six = [["Ház van."]] * 6
+    assert any("paragraphs" in p for p in texts.size_problems(UNIT, "short", "note", six, "x"))
+    assert not any("paragraphs" in p for p in texts.size_problems(UNIT, "short", "dialogue", six, "x"))
+    wall = [["Ház van."] * 7]
+    assert any("at most 6" in p for p in texts.size_problems(UNIT, "short", "note", wall, "x"))
 
 
 # ── V5 / V6, shape ─────────────────────────────────────────────────────────

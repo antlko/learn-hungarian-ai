@@ -58,7 +58,9 @@
           "hu": "Ha hazaérsz, kérlek, hívd fel rögtön.",
           "ru": "Когда придёшь домой, пожалуйста, сразу позвони ей.",
           "en": "When you get home, please call her at once."
-        },
+        }
+      ],
+      [
         {
           "hu": "Vasárnap meglátogatjuk őt, és ott maradunk ebédre.",
           "ru": "В воскресенье мы её навестим и останемся там на обед.",
@@ -116,7 +118,9 @@
           "hu": "Azelőtt sosem volt baleset, és nem is féltem.",
           "ru": "Раньше аварий не было, и я не боялся.",
           "en": "There had never been an accident before, and I was not afraid."
-        },
+        }
+      ],
+      [
         {
           "hu": "Először nem történt semmi, de aztán hirtelen baleset lett.",
           "ru": "Сначала ничего не случилось, но потом вдруг произошла авария.",
@@ -163,7 +167,9 @@
           "hu": "Azután egy másik ember is jött, és nagy segítség volt.",
           "ru": "Потом пришёл ещё один человек, и это была большая помощь.",
           "en": "After that another person came too, and was a great help."
-        },
+        }
+      ],
+      [
         {
           "hu": "Szerencsére egy ember megtalálta a táskámat az úton.",
           "ru": "К счастью, один человек нашёл мою сумку на дороге.",
@@ -205,7 +211,9 @@
           "hu": "Nem akartam elfelejteni, hogy ma kezdődik a nagy munka.",
           "ru": "Я не хотел забыть, что сегодня начинается большая работа.",
           "en": "I did not want to forget that the big job begins today."
-        },
+        }
+      ],
+      [
         {
           "hu": "Ma már itt vagyok, és mindent elmondok.",
           "ru": "Сегодня я уже здесь и всё расскажу.",
@@ -260,7 +268,9 @@
           "hu": "Télen mindig hívtam nagyapát, és sokat beszéltünk.",
           "ru": "Зимой я всегда звонил дедушке, и мы много разговаривали.",
           "en": "In winter I always phoned grandpa, and we talked a lot."
-        },
+        }
+      ],
+      [
         {
           "hu": "A gyerekkor szép volt, de a nyár volt a legszebb.",
           "ru": "Детство было хорошим, но лето было самым лучшим.",
@@ -302,7 +312,9 @@
           "hu": "Misi az ősz óta lakott ott, és még nem ismerte az erdőt.",
           "ru": "Миши жил там с осени и ещё не знал леса.",
           "en": "Misi had lived there since autumn and did not know the forest yet."
-        },
+        }
+      ],
+      [
         {
           "hu": "Először csak a kertben játszottunk.",
           "ru": "Сначала мы просто играли в саду.",
@@ -344,7 +356,9 @@
           "hu": "Misi félt, én is féltem egy kicsit.",
           "ru": "Миши боялся, и я тоже немного боялся.",
           "en": "Misi was scared, and I was a little scared too."
-        },
+        }
+      ],
+      [
         {
           "hu": "Azelőtt nem féltem az erdőtől, de azután igen.",
           "ru": "Раньше я не боялся леса, а потом боялся.",
@@ -381,7 +395,9 @@
           "hu": "Miután megtudta, hogy minden rendben van, nem volt mérges.",
           "ru": "Узнав, что всё в порядке, он не сердился.",
           "en": "After he found out that all was well, he was not angry."
-        },
+        }
+      ],
+      [
         {
           "hu": "Előbb azt mondta, hogy ilyen előfordul, aztán nevetett.",
           "ru": "Сначала он сказал, что такое случается, а потом смеялся.",
@@ -423,7 +439,9 @@
           "hu": "Ez a történet nekem a legszebb élmény.",
           "ru": "Эта история для меня самое лучшее воспоминание.",
           "en": "This story is the loveliest experience for me."
-        },
+        }
+      ],
+      [
         {
           "hu": "Az érettségi előtt még egyszer elmentem oda.",
           "ru": "Перед выпускными экзаменами я ещё раз съездил туда.",
@@ -443,7 +461,9 @@
           "hu": "Misi azután elment a városba dolgozni.",
           "ru": "Потом Миши уехал работать в город.",
           "en": "Later Misi went to the city to work."
-        },
+        }
+      ],
+      [
         {
           "hu": "Az elmúlt években ritkán maradtam ott, de a tavalyi nyáron igen.",
           "ru": "В последние годы я редко оставался там, а прошлым летом да.",

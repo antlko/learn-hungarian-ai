@@ -241,7 +241,9 @@
           "hu": "Először foglalt a vonal, ezért várok öt percet.",
           "ru": "Сначала линия занята, и я жду пять минут.",
           "en": "At first the line is busy, so I wait five minutes."
-        },
+        }
+      ],
+      [
         {
           "hu": "Aztán ismét telefonálok, és egy női hang fogadja a hívást.",
           "ru": "Потом я снова звоню, и женский голос принимает звонок.",
@@ -293,7 +295,9 @@
           "hu": "Üzenetet hagy, hogy neki inkább kedden lenne jó.",
           "ru": "Она оставляет сообщение, что ей было бы лучше во вторник.",
           "en": "She leaves a message saying that Tuesday would be better for her."
-        },
+        }
+      ],
+      [
         {
           "hu": "Kedden nem vagyok szabad, csak szerdán.",
           "ru": "Во вторник я не свободна, только в среду.",
@@ -347,7 +351,9 @@
           "hu": "Nem sietek, mert van időm.",
           "ru": "Я не спешу, потому что у меня есть время.",
           "en": "I am not in a hurry, because I have time."
-        },
+        }
+      ],
+      [
         {
           "hu": "Otthon a telefonom hamarosan ismét csörög.",
           "ru": "Дома мой телефон скоро снова звонит.",
@@ -399,7 +405,9 @@
           "hu": "Végre elérem a hölgyet, és ő azt mondja, hogy ez nem gond.",
           "ru": "Наконец я дозваниваюсь до женщины, и она говорит, что это не проблема.",
           "en": "At last I reach the lady, and she says it is no problem."
-        },
+        }
+      ],
+      [
         {
           "hu": "Este a tévét nézem, és egy videót is nézek.",
           "ru": "Вечером я смотрю телевизор и ещё смотрю видео.",

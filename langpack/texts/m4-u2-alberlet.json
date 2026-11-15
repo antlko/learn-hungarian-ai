@@ -53,7 +53,9 @@
           "hu": "A letét két hónap, a közös költség külön van.",
           "ru": "Залог за два месяца, коммунальные расходы дома отдельно.",
           "en": "The deposit is two months, the service charge is separate."
-        },
+        }
+      ],
+      [
         {
           "hu": "Az ingatlan tiszta, a berendezés új.",
           "ru": "Квартира чистая, обстановка новая.",
@@ -256,7 +258,9 @@
           "hu": "A lakás világos és tágas, a kilátás szép.",
           "ru": "Квартира светлая и просторная, вид красивый.",
           "en": "The flat is bright and spacious, the view is nice."
-        },
+        }
+      ],
+      [
         {
           "hu": "Az erkélyről a belváros is látszik.",
           "ru": "С балкона виден и центр города.",
@@ -298,7 +302,9 @@
           "hu": "A villanyóra a lépcsőházban van.",
           "ru": "Электросчётчик находится на лестничной клетке.",
           "en": "The electricity meter is in the stairwell."
-        },
+        }
+      ],
+      [
         {
           "hu": "A fogyasztás kevés, ez a jegyzőkönyvben van.",
           "ru": "Расход небольшой, это записано в акте.",
@@ -345,7 +351,9 @@
           "hu": "A pincében és a padláson is van hely, és tiszta.",
           "ru": "И в подвале, и на чердаке есть место, и там чисто.",
           "en": "There is room in the cellar and in the attic too, and it is clean."
-        },
+        }
+      ],
+      [
         {
           "hu": "Marika néni szerint a hely csendes, a lakók nem zajosak.",
           "ru": "По словам тёти Марики, место тихое, жильцы не шумные.",
@@ -397,7 +405,9 @@
           "hu": "De a használat az enyém, és ez nekem elég.",
           "ru": "Но пользоваться ею буду я, и мне этого достаточно.",
           "en": "But the use is mine, and that is enough for me."
-        },
+        }
+      ],
+      [
         {
           "hu": "Dani kiadja a lakást, én bérelem.",
           "ru": "Дани сдаёт квартиру, а я её снимаю.",

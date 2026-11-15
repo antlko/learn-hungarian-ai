@@ -26,7 +26,9 @@
           "hu": "Túró, sajt, vaj és tojás.",
           "ru": "Творог, сыр, масло и яйца.",
           "en": "Quark, cheese, butter and eggs."
-        },
+        }
+      ],
+      [
         {
           "hu": "Sonka és joghurt is kell.",
           "ru": "Ветчина и йогурт тоже нужны.",
@@ -200,7 +202,9 @@
           "hu": "Anna szeret vásárolni, Péter nem.",
           "ru": "Анна любит делать покупки, Петер нет.",
           "en": "Anna likes shopping, Péter does not."
-        },
+        }
+      ],
+      [
         {
           "hu": "Ma Anna vásárol, Péter csak jön.",
           "ru": "Сегодня покупки делает Анна, Петер просто идёт.",
@@ -232,7 +236,9 @@
           "hu": "Anna paprikát, hagymát és fokhagymát vesz.",
           "ru": "Анна берёт перец, лук и чеснок.",
           "en": "Anna buys peppers, onions and garlic."
-        },
+        }
+      ],
+      [
         {
           "hu": "Krumpli és répa is kell.",
           "ru": "Картошка и морковь тоже нужны.",
@@ -274,7 +280,9 @@
           "hu": "A gyümölcs szép és friss.",
           "ru": "Фрукты красивые и свежие.",
           "en": "The fruit is lovely and fresh."
-        },
+        }
+      ],
+      [
         {
           "hu": "Az alma és a körte friss.",
           "ru": "Яблоки и груши свежие.",
@@ -311,7 +319,9 @@
           "hu": "Hal is van, de ma nem kell.",
           "ru": "Рыба тоже есть, но сегодня не нужна.",
           "en": "There is fish too, but we do not need it today."
-        },
+        }
+      ],
+      [
         {
           "hu": "Anna vesz sajtot, túrót és tojást.",
           "ru": "Анна берёт сыр, творог и яйца.",
@@ -348,7 +358,9 @@
           "hu": "A boltban van minden.",
           "ru": "В магазине есть всё.",
           "en": "The shop has everything."
-        },
+        }
+      ],
+      [
         {
           "hu": "Anna cukrot, lisztet, rizst, olajat és sót vesz.",
           "ru": "Анна берёт сахар, муку, рис, растительное масло и соль.",

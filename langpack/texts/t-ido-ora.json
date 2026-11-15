@@ -31,7 +31,9 @@
           "hu": "Te gyakran csak negyedóra múlva ébredsz.",
           "ru": "А ты часто просыпаешься только через четверть часа.",
           "en": "You often wake up only after a quarter of an hour."
-        },
+        }
+      ],
+      [
         {
           "hu": "Esténként folyton későn alszol el.",
           "ru": "А по вечерам ты постоянно поздно засыпаешь.",
@@ -101,7 +103,9 @@
           "hu": "Reggelente, hétkor és nyolckor, gyakran jön busz.",
           "ru": "По утрам, в семь и в восемь, автобусы идут часто.",
           "en": "In the mornings, at seven and eight, buses come often."
-        },
+        }
+      ],
+      [
         {
           "hu": "Utána, napközben, óránként van egy busz.",
           "ru": "После этого, в течение дня, автобус ходит раз в час.",
@@ -126,7 +130,9 @@
           "hu": "Hétköznap a busz rendszerint pontos.",
           "ru": "В будни автобус обычно приходит вовремя.",
           "en": "On weekdays the bus is usually on time."
-        },
+        }
+      ],
+      [
         {
           "hu": "Időnként késik, de ez ritka.",
           "ru": "Иногда он опаздывает, но это редкость.",
@@ -168,7 +174,9 @@
           "hu": "Ünnepnap utána is csak óránként jön, este nyolcig.",
           "ru": "В праздник и потом он ходит только раз в час, до восьми вечера.",
           "en": "On holidays it also only comes every hour after that, until eight in the evening."
-        },
+        }
+      ],
+      [
         {
           "hu": "Ünnepnap többnyire üres, mert mindenki otthon alszik.",
           "ru": "В праздники он большей частью пустой, потому что все спят дома.",
@@ -200,7 +208,9 @@
           "hu": "Olykor a karóra vagy az ébresztőóra nem pontos.",
           "ru": "Порой наручные часы или будильник идут неточно.",
           "en": "At times the watch or the alarm clock is not exact."
-        },
+        }
+      ],
+      [
         {
           "hu": "Ezért kérdezz meg valakit, vagy nézd meg a megállónál.",
           "ru": "Поэтому спроси кого-нибудь или посмотри на остановке.",
@@ -261,7 +271,9 @@
           "hu": "Rendszerint hamar felkelek, és még időm is van.",
           "ru": "Обычно я быстро встаю, и у меня ещё остаётся время.",
           "en": "Usually I get up quickly, and I even have time left."
-        },
+        }
+      ],
+      [
         {
           "hu": "Régen, valamikor, sokkal több időm volt reggelente.",
           "ru": "Раньше, когда-то, по утрам у меня было гораздо больше времени.",
@@ -318,7 +330,9 @@
           "hu": "Az ébresztőóra eddig soha nem szólt rosszul.",
           "ru": "Будильник до сих пор никогда не звонил не вовремя.",
           "en": "The alarm clock had never rung at the wrong time so far."
-        },
+        }
+      ],
+      [
         {
           "hu": "Mostanra tudom, hogy az óra volt rossz.",
           "ru": "Теперь я знаю, что часы были неисправны.",
@@ -333,7 +347,9 @@
           "hu": "Gyorsan felkeltem, és csak egy kávét ittam.",
           "ru": "Я быстро встала и выпила только чашку кофе.",
           "en": "I got up quickly and only drank a coffee."
-        },
+        }
+      ],
+      [
         {
           "hu": "A megálló közel van, de ekkor mégis siettem.",
           "ru": "Остановка близко, но тут я всё равно поспешила.",
@@ -385,7 +401,9 @@
           "hu": "Napközben sokat dolgoztam, utána Dórával találkoztam.",
           "ru": "В течение дня я много работала, а потом встретилась с Дорой.",
           "en": "During the day I worked a lot, and afterwards I met Dóra."
-        },
+        }
+      ],
+      [
         {
           "hu": "Napközben állandóan kávét iszom, de aznap alig.",
           "ru": "В течение дня я постоянно пью кофе, но в тот день почти нет.",
@@ -437,7 +455,9 @@
           "hu": "Időnként azt gondolom, hogy ő sosem késett.",
           "ru": "Порой я думаю, что он никогда не опаздывал.",
           "en": "From time to time I think that he never was late."
-        },
+        }
+      ],
+      [
         {
           "hu": "Olykor ő is késett, de ezt senkinek sem mondta.",
           "ru": "Иногда и он опаздывал, но никому об этом не говорил.",
@@ -452,7 +472,9 @@
           "hu": "Szerinte az életben a pontos ember nyer.",
           "ru": "По его словам, в жизни выигрывает пунктуальный человек.",
           "en": "According to him, in life the punctual person wins."
-        },
+        }
+      ],
+      [
         {
           "hu": "Mostanában gyakran az ő karóráját nézem.",
           "ru": "В последнее время я часто смотрю на его часы.",

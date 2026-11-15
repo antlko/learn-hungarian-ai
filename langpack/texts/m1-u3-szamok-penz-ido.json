@@ -85,7 +85,9 @@
           "hu": "Délben zárva van.",
           "ru": "В полдень закрыто.",
           "en": "At noon it is closed."
-        },
+        }
+      ],
+      [
         {
           "hu": "Délután két órától hat óráig van nyitva.",
           "ru": "После обеда открыто с двух до шести часов.",
@@ -144,7 +146,9 @@
           "hu": "Tamás szól a nőnek.",
           "ru": "Тамаш обращается к женщине.",
           "en": "Tamás speaks to the woman."
-        },
+        }
+      ],
+      [
         {
           "hu": "Ma nyitva van?",
           "ru": "Сегодня открыто?",
@@ -186,7 +190,9 @@
           "hu": "Egy hely, az ár ezer forint.",
           "ru": "Одно место, цена тысяча форинтов.",
           "en": "One seat, the price is one thousand forints."
-        },
+        }
+      ],
+      [
         {
           "hu": "Hú, ez drága! Nincs nálam készpénz.",
           "ru": "Ох, дорого! У меня нет наличных.",
@@ -264,7 +270,9 @@
           "hu": "A tej nem drága, a kenyér olcsó.",
           "ru": "Молоко не дорогое, хлеб дешёвый.",
           "en": "The milk is not expensive, the bread is cheap."
-        },
+        }
+      ],
+      [
         {
           "hu": "Mennyi az összeg? Összesen ezer forint.",
           "ru": "Какая сумма? Всего тысяча форинтов.",
@@ -301,7 +309,9 @@
           "hu": "A harmadik vevő kenyeret kér.",
           "ru": "Третий покупатель просит хлеб.",
           "en": "The third customer asks for bread."
-        },
+        }
+      ],
+      [
         {
           "hu": "Hány kenyeret kér? Kettőt vagy hármat?",
           "ru": "Сколько хлебов он просит? Два или три?",
@@ -348,7 +358,9 @@
           "hu": "Nyolc órától hét óráig dolgozom.",
           "ru": "С восьми до семи часов я работаю.",
           "en": "I work from eight o'clock to seven."
-        },
+        }
+      ],
+      [
         {
           "hu": "Négy órakor, hat órakor is sok vevő van.",
           "ru": "И в четыре, и в шесть часов много покупателей.",
@@ -363,7 +375,9 @@
           "hu": "Néha negyven, néha ötven ember van itt.",
           "ru": "Иногда сорок, иногда пятьдесят человек здесь.",
           "en": "Sometimes forty, sometimes fifty people are here."
-        },
+        }
+      ],
+      [
         {
           "hu": "Néha száz is jön!",
           "ru": "Иногда приходит и сто!",
@@ -405,7 +419,9 @@
           "hu": "Az összeg jó, nincs hiba.",
           "ru": "Сумма верная, ошибок нет.",
           "en": "The sum is right, there is no mistake."
-        },
+        }
+      ],
+      [
         {
           "hu": "Száz forint hiba is baj.",
           "ru": "Даже ошибка в сто форинтов — это беда.",

@@ -31,7 +31,9 @@
           "hu": "A megálló közel van, ott indul a busz.",
           "ru": "Остановка близко, там отходит автобус.",
           "en": "The stop is near, the bus leaves from there."
-        },
+        }
+      ],
+      [
         {
           "hu": "A bérlet nálam van.",
           "ru": "Проездной у меня.",
@@ -192,7 +194,9 @@
           "hu": "Autó nincs, kocsit nem vezet.",
           "ru": "Машины нет, за руль она не садится.",
           "en": "She has no car, she does not drive."
-        },
+        }
+      ],
+      [
         {
           "hu": "Gyalog messze van, ezért villamossal megy.",
           "ru": "Пешком далеко, поэтому она едет на трамвае.",
@@ -229,7 +233,9 @@
           "hu": "Egy kocsi parkol a járdán, ez nem jó.",
           "ru": "Машина припаркована на тротуаре, это нехорошо.",
           "en": "A car is parked on the pavement, that is not good."
-        },
+        }
+      ],
+      [
         {
           "hu": "A taxi áll a dugóban, a bicikli megy tovább.",
           "ru": "Такси стоит в пробке, а велосипед едет дальше.",
@@ -281,7 +287,9 @@
           "hu": "A metró gyorsan érkezik, Anna felszáll.",
           "ru": "Метро быстро приходит, Анна садится.",
           "en": "The metro arrives quickly, Anna gets on."
-        },
+        }
+      ],
+      [
         {
           "hu": "Aztán Anna leszáll, itt a kijárat.",
           "ru": "Потом Анна выходит, вот выход.",
@@ -330,7 +338,9 @@
           "hu": "A zebránál átmegy az úton.",
           "ru": "На переходе она переходит дорогу.",
           "en": "She crosses the road at the zebra crossing."
-        },
+        }
+      ],
+      [
         {
           "hu": "Egy bicikli és egy kerékpár áll a híd mellett.",
           "ru": "У моста стоят два велосипеда.",
@@ -362,7 +372,9 @@
           "hu": "Péter vezet, Anna nem vezet.",
           "ru": "Петер водит, Анна не водит.",
           "en": "Péter drives, Anna does not."
-        },
+        }
+      ],
+      [
         {
           "hu": "Anna autóval megy vissza Péterrel.",
           "ru": "Анна едет обратно с Петером на машине.",

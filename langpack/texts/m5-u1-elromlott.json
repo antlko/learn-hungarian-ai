@@ -95,7 +95,9 @@
           "hu": "A termék először jól működött, és a víz is meleg volt.",
           "ru": "Сначала изделие хорошо работало, и вода была тёплая.",
           "en": "At first the product worked well, and the water was warm too."
-        },
+        }
+      ],
+      [
         {
           "hu": "Most már csak hideg víz folyik, nem meleg.",
           "ru": "Теперь течёт только холодная вода, не тёплая.",
@@ -171,7 +173,9 @@
           "hu": "Tegnap a gép még új volt, ma már csak rossz.",
           "ru": "Вчера машина была ещё новой, а сегодня она просто сломана.",
           "en": "Yesterday the appliance was still new, today it is just broken."
-        },
+        }
+      ],
+      [
         {
           "hu": "Ma reggel még egyszer megnéztem, de ugyanaz a gond.",
           "ru": "Сегодня утром я посмотрела ещё раз, но проблема та же.",
@@ -191,7 +195,9 @@
           "hu": "Van rá garancia, ezért azonnali cserét kérek.",
           "ru": "На неё есть гарантия, поэтому прошу немедленную замену.",
           "en": "It has a warranty, so I ask for an immediate replacement."
-        },
+        }
+      ],
+      [
         {
           "hu": "A csere ingyen van, ugye?",
           "ru": "Замена бесплатная, верно?",
@@ -248,7 +254,9 @@
           "hu": "Büdös volt, nagyon büdös.",
           "ru": "Оно воняло, сильно воняло.",
           "en": "It smelled bad, very bad."
-        },
+        }
+      ],
+      [
         {
           "hu": "Aztán a fürdőszobába ment, de a víz hideg volt.",
           "ru": "Потом она пошла в ванную, но вода была холодная.",
@@ -280,7 +288,9 @@
           "hu": "A vezeték is ereszt, és ez veszélyes.",
           "ru": "Труба тоже подтекает, а это опасно.",
           "en": "The pipe is leaking too, and that is dangerous."
-        },
+        }
+      ],
+      [
         {
           "hu": "Aztán a mosógép sem működött.",
           "ru": "Потом и стиральная машина перестала работать.",
@@ -327,7 +337,9 @@
           "hu": "A vezeték régi volt, és a kábel nem csatlakozott jól.",
           "ru": "Провод был старый, и кабель плохо подключался.",
           "en": "The wire was old, and the cable was not connected well."
-        },
+        }
+      ],
+      [
         {
           "hu": "Ezért volt a zaj és a szag, mondta László.",
           "ru": "Поэтому и был шум и запах, сказал Ласло.",
@@ -364,7 +376,9 @@
           "hu": "Ilona nagyon megköszönte, mert a konyha megint világos volt.",
           "ru": "Илона очень поблагодарила, ведь на кухне снова было светло.",
           "en": "Ilona thanked him a lot, because the kitchen was bright again."
-        },
+        }
+      ],
+      [
         {
           "hu": "A gép megint működött, és a víz meleg lett.",
           "ru": "Машина снова работала, и вода стала горячей.",
@@ -423,7 +437,9 @@
           "hu": "Kata szerint a háznak régi vezetékei vannak, és mindenhol van gond.",
           "ru": "По словам Каты, в доме старая проводка, и проблемы везде.",
           "en": "According to Kata the house has old wiring and there is trouble everywhere."
-        },
+        }
+      ],
+      [
         {
           "hu": "Jó, hogy van egy jó mester, mondta Kata.",
           "ru": "Хорошо, что есть хороший мастер, сказала Ката.",
@@ -438,7 +454,9 @@
           "hu": "Kata is kért egy kávét.",
           "ru": "Ката тоже попросила кофе.",
           "en": "Kata asked for a coffee too."
-        },
+        }
+      ],
+      [
         {
           "hu": "Este Ilona még egyszer ellenőrizte a gépet.",
           "ru": "Вечером Илона ещё раз проверила машину.",

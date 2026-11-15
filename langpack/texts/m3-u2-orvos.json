@@ -21,7 +21,9 @@
           "hu": "Ön a háziorvosom, ezért írok.",
           "ru": "Вы мой участковый врач, поэтому я пишу.",
           "en": "You are my family doctor, that is why I am writing."
-        },
+        }
+      ],
+      [
         {
           "hu": "Tegnap óta beteg vagyok.",
           "ru": "Со вчерашнего дня я больна.",
@@ -225,7 +227,9 @@
           "hu": "A rendelés nyolckor van.",
           "ru": "Приём в восемь.",
           "en": "Consulting hours are at eight."
-        },
+        }
+      ],
+      [
         {
           "hu": "Már tíz páciens vár a rendelőben.",
           "ru": "В кабинете уже ждут десять пациентов.",
@@ -262,7 +266,9 @@
           "hu": "Szed gyógyszert? Egy tablettát, mondja.",
           "ru": "Принимаете лекарства? Одну таблетку, говорит она.",
           "en": "Do you take any medicine? One tablet, she says."
-        },
+        }
+      ],
+      [
         {
           "hu": "Mióta fáj, és nagy a fájdalom?",
           "ru": "С каких пор болит, и сильная ли боль?",
@@ -277,7 +283,9 @@
           "hu": "A vizsgálat nem hosszú.",
           "ru": "Осмотр недолгий.",
           "en": "The examination is not long."
-        },
+        }
+      ],
+      [
         {
           "hu": "A vérnyomás magas, de nincs nagy baj.",
           "ru": "Давление высокое, но ничего страшного.",
@@ -319,7 +327,9 @@
           "hu": "Ez nem kis seb, ez komoly sérülés.",
           "ru": "Это не царапина, это серьёзная травма.",
           "en": "This is not a scratch, it is a serious injury."
-        },
+        }
+      ],
+      [
         {
           "hu": "A sebre kenőcs kell, és injekció.",
           "ru": "На рану нужны мазь и укол.",
@@ -339,7 +349,9 @@
           "hu": "Éjjel nem alszik jól, mondja az apja.",
           "ru": "Ночью он плохо спит, говорит отец.",
           "en": "He does not sleep well at night, says his father."
-        },
+        }
+      ],
+      [
         {
           "hu": "A fájdalom nagy, ezért a kezelés sürgős.",
           "ru": "Боль сильная, поэтому лечение срочное.",
@@ -381,7 +393,9 @@
           "hu": "Ez sürgős, a szív nem vár.",
           "ru": "Это срочно, сердце ждать не может.",
           "en": "This is urgent, the heart does not wait."
-        },
+        }
+      ],
+      [
         {
           "hu": "A szívet a szakorvos vizsgálja meg.",
           "ru": "Сердце осмотрит специалист.",
@@ -423,7 +437,9 @@
           "hu": "A fogorvos a másik rendelőben van.",
           "ru": "Зубной врач в другом кабинете.",
           "en": "The dentist is in the other surgery."
-        },
+        }
+      ],
+      [
         {
           "hu": "Egy fiú is jön, mert köhög és beteg.",
           "ru": "Потом приходит мальчик, он кашляет и болеет.",
@@ -465,7 +481,9 @@
           "hu": "Én is beteg leszek, ha sokat dolgozom.",
           "ru": "Я тоже заболею, если буду много работать.",
           "en": "I will get ill too if I work a lot."
-        },
+        }
+      ],
+      [
         {
           "hu": "Holnap én is fogorvoshoz megyek, mert fáj a fogam.",
           "ru": "Завтра и я иду к зубному, потому что болит зуб.",

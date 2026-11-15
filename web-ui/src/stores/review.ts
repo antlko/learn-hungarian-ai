@@ -616,6 +616,11 @@ export const useReviewStore = defineStore('review', () => {
     if (mode.value !== m || sessionDay.value !== localDay()) return false
     if (sessionUser.value === null || sessionUser.value !== currentUser()) return false
     if (error.value || loading.value || queue.value.length === 0) return false
+    // A set answered to the last card is finished, not stopped: nothing is
+    // held mid-way, so the start screen must not say «you stopped here».
+    if (base.value.length > 0 && (summaryOpen.value ? base.value.length : pos.value) >= base.value.length) {
+      return false
+    }
     return (m === 'review' ? scope.value : practiceScope.value) === s
   }
 

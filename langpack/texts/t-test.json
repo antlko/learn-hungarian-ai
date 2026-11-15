@@ -53,7 +53,9 @@
           "hu": "Szerintem gyenge az izmom, és ez nem jó.",
           "ru": "По-моему, мои мышцы слабые, и это плохо.",
           "en": "I think my muscles are weak, and that is not good."
-        },
+        }
+      ],
+      [
         {
           "hu": "Te mozogsz sokat, erős vagy.",
           "ru": "Ты много двигаешься, ты сильный.",
@@ -280,7 +282,9 @@
           "hu": "A lábujjam is fájt a cipőben.",
           "ru": "Пальцы на ногах тоже болели в ботинках.",
           "en": "My toes hurt in my shoes too."
-        },
+        }
+      ],
+      [
         {
           "hu": "Az arcom piros volt, a homlokom forró.",
           "ru": "Лицо у меня было красное, лоб горячий.",
@@ -317,7 +321,9 @@
           "hu": "A körmöm is fekete volt a földtől.",
           "ru": "Ногти у меня тоже были чёрные от земли.",
           "en": "My nails were black from the dirt too."
-        },
+        }
+      ],
+      [
         {
           "hu": "Nagyon nevettünk.",
           "ru": "Мы очень смеялись.",
@@ -332,7 +338,9 @@
           "hu": "Azt mondtam, egy kicsit.",
           "ru": "Я сказал, что немного.",
           "en": "I said a little."
-        },
+        }
+      ],
+      [
         {
           "hu": "Apa is fáradt volt, de nem mondta.",
           "ru": "Папа тоже устал, но не сказал.",
@@ -374,7 +382,9 @@
           "hu": "A mozgás jó a testnek, és az agynak is jó.",
           "ru": "Движение полезно для тела, и для мозга тоже.",
           "en": "Movement is good for the body, and for the brain too."
-        },
+        }
+      ],
+      [
         {
           "hu": "Utána még két órát mentünk.",
           "ru": "После этого мы шли ещё два часа.",
@@ -426,7 +436,9 @@
           "hu": "Apa is ül a konyhában, és fáj a dereka.",
           "ru": "Папа тоже сидит на кухне, и у него болит поясница.",
           "en": "Dad is sitting in the kitchen too, and his lower back hurts."
-        },
+        }
+      ],
+      [
         {
           "hu": "Este anya nézte a bokámat.",
           "ru": "Вечером мама осмотрела мою лодыжку.",
@@ -446,7 +458,9 @@
           "hu": "Vacsorára anya sok jó dolgot adott, és sokat ettem.",
           "ru": "На ужин мама дала много вкусного, и я много съел.",
           "en": "For dinner Mum gave us lots of good things and I ate a lot."
-        },
+        }
+      ],
+      [
         {
           "hu": "Apa nem evett sokat, csak ült, és az állát fogta.",
           "ru": "Папа ел мало, просто сидел и держался за подбородок.",

@@ -224,7 +224,9 @@
           "hu": "A címkén ott volt a címzett és az irányítószám.",
           "ru": "На этикетке были получатель и индекс.",
           "en": "The label had the addressee and the postcode on it."
-        },
+        }
+      ],
+      [
         {
           "hu": "Aztán rám került a sor, és megkaptam a levelet.",
           "ru": "Потом подошла моя очередь, и я получила письмо.",
@@ -315,7 +317,9 @@
           "hu": "Elolvastam a levelet, és sokáig néztem a képeslapot.",
           "ru": "Я прочитала письмо и долго смотрела на открытку.",
           "en": "I read the letter and looked at the postcard for a long time."
-        },
+        }
+      ],
+      [
         {
           "hu": "Anna jól van, és nyáron meglátogat.",
           "ru": "У Анны всё хорошо, и летом она приедет в гости.",

@@ -126,7 +126,8 @@ RANGES = {
     "b": {"short": (70, 130), "medium": (180, 300), "long": (320, 480)},
 }
 MAX_SENTENCE = {"a1": 10, "a2": 12, "b": 14}
-PARAS = {"short": (1, 2), "medium": (2, 4), "long": (3, 6)}
+PARAS = {"short": (1, 5), "medium": (2, 8), "long": (3, 16)}
+MAX_PARA_SENTENCES = 6  # a wall of text is hard to read: split paragraphs of a prose text
 RECYCLE_MIN, RECYCLE_TARGET = 3, 0.70
 
 PAST_FROM_ORD = 304  # m3-u4-posta: where the course first teaches the past tense
@@ -364,6 +365,10 @@ def size_problems(unit: dict, tier: str, genre: str, hu_by_para: list[list[str]]
     plo, phi = PARAS[tier]
     if genre not in TURN_BASED and not plo <= len(hu_by_para) <= phi:
         out.append(f"{label}: {len(hu_by_para)} paragraphs, a {tier} text wants {plo}-{phi}")
+    if genre not in TURN_BASED:
+        for pi, para in enumerate(hu_by_para):
+            if len(para) > MAX_PARA_SENTENCES:
+                out.append(f"{label}: paragraph {pi} has {len(para)} sentences, at most {MAX_PARA_SENTENCES}")
     return out
 
 

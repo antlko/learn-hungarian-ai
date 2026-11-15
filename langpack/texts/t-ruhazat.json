@@ -28,7 +28,9 @@
           "hu": "Cipő és csizma, mert hideg van.",
           "ru": "Ботинки и сапоги, потому что холодно.",
           "en": "Shoes and boots, because it is cold."
-        },
+        }
+      ],
+      [
         {
           "hu": "Meleg kabát és kalap.",
           "ru": "Тёплое пальто и шляпа.",
@@ -60,7 +62,9 @@
           "hu": "Ott nem kell elegáns ruha.",
           "ru": "Там не нужна нарядная одежда.",
           "en": "You do not need smart clothes there."
-        },
+        }
+      ],
+      [
         {
           "hu": "Egy öv és egy pamut ing még jó lesz.",
           "ru": "Ремень и хлопковая рубашка ещё пригодятся.",
@@ -227,7 +231,9 @@
           "hu": "Nekem csak egy régi öltönyöm volt, és az is szakadt.",
           "ru": "У меня был только старый костюм, да и тот рваный.",
           "en": "I only had an old suit, and that was torn too."
-        },
+        }
+      ],
+      [
         {
           "hu": "A nadrág szűk volt, és a zseb is szakadt.",
           "ru": "Брюки были тесными, и карман тоже был порван.",
@@ -264,7 +270,9 @@
           "hu": "A zsebet és a cipzárt rendbe teszi.",
           "ru": "Карман и молнию он приведёт в порядок.",
           "en": "He would put the pocket and the zip right."
-        },
+        }
+      ],
+      [
         {
           "hu": "Azt is mondta, hogy a nadrág legyen egy kicsit bő.",
           "ru": "Ещё он сказал, что брюки лучше сделать чуть свободнее.",
@@ -306,7 +314,9 @@
           "hu": "Egy használt mellényt is találtam, és az nem volt drága.",
           "ru": "Ещё я нашёл жилет с рук, и он был недорогим.",
           "en": "I also found a second-hand waistcoat, and that was not expensive."
-        },
+        }
+      ],
+      [
         {
           "hu": "Vettem még egy zoknit és egy övet is, mert a régi öv szakadt.",
           "ru": "Я купил ещё носки и ремень, потому что старый ремень был порван.",
@@ -353,7 +363,9 @@
           "hu": "Az esküvőn a kabátomat a ruhatárban hagytam.",
           "ru": "На свадьбе я оставил пальто в гардеробе.",
           "en": "At the wedding I left my coat in the cloakroom."
-        },
+        }
+      ],
+      [
         {
           "hu": "Bence felesége, Eszter, fehér selyem ruhában volt.",
           "ru": "Жена Бенце, Эстер, была в белом шёлковом платье.",
@@ -383,7 +395,9 @@
           "hu": "Én nevettem, és azt mondtam, hogy a szabó nagyon jó.",
           "ru": "Я засмеялся и сказал, что портной очень хорош.",
           "en": "I laughed and said that the tailor was very good."
-        },
+        }
+      ],
+      [
         {
           "hu": "Este mindenki jól érezte magát, én is, bár a cipő szűk volt.",
           "ru": "Вечером всем было хорошо, и мне тоже, хотя ботинки были тесными.",

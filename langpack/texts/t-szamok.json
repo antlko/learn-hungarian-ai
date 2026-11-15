@@ -31,7 +31,9 @@
           "hu": "A tej hatvan forint, a kenyér nyolcvan.",
           "ru": "Молоко стоит шестьдесят форинтов, хлеб восемьдесят.",
           "en": "The milk is sixty forints, the bread is eighty."
-        },
+        }
+      ],
+      [
         {
           "hu": "A sajt több, kilencven forint.",
           "ru": "Сыр дороже, девяносто форинтов.",
@@ -63,7 +65,9 @@
           "hu": "Háromszor hívtalak, de nem jó a telefonod?",
           "ru": "Я звонила тебе три раза, у тебя что, телефон не работает?",
           "en": "I called you three times, is your phone not working?"
-        },
+        }
+      ],
+      [
         {
           "hu": "Hozol pénzt, kérlek?",
           "ru": "Принесёшь деньги, пожалуйста?",
@@ -109,7 +113,9 @@
           "hu": "A ház száma tizenhárom, az páratlan szám.",
           "ru": "Номер дома тринадцать, это нечётное число.",
           "en": "The house number is thirteen, an odd number."
-        },
+        }
+      ],
+      [
         {
           "hu": "A másik oldalon a számok párosak.",
           "ru": "На другой стороне номера чётные.",
@@ -146,7 +152,9 @@
           "hu": "Nem volt olcsó, de nem is nagyon drága.",
           "ru": "Это было недёшево, но и не слишком дорого.",
           "en": "It was not cheap, but not very expensive either."
-        },
+        }
+      ],
+      [
         {
           "hu": "A pénz felét már fizettem.",
           "ru": "Половину денег я уже заплатил.",
@@ -166,7 +174,9 @@
           "hu": "A konyhában dupla ablak van, ezért nem hideg.",
           "ru": "На кухне двойное окно, поэтому не холодно.",
           "en": "The kitchen has a double window, so it is not cold."
-        },
+        }
+      ],
+      [
         {
           "hu": "A lakás nyolcvan százaléka még üres, mert nincs semmim.",
           "ru": "Квартира на восемьдесят процентов ещё пуста, потому что у меня ничего нет.",
@@ -276,7 +286,9 @@
           "hu": "A teszten tizenöt feladat volt.",
           "ru": "В тесте было пятнадцать заданий.",
           "en": "There were fifteen problems in the test."
-        },
+        }
+      ],
+      [
         {
           "hu": "Előző este én segítettem neki, mert mindig segítek.",
           "ru": "Накануне вечером я ему помогала, потому что я всегда помогаю.",
@@ -328,7 +340,9 @@
           "hu": "A szomszéd néni háromszor is kérdezte, mi van Bencével.",
           "ru": "Соседка трижды спрашивала, что с Бенце.",
           "en": "The neighbour lady asked three times what was up with Bence."
-        },
+        }
+      ],
+      [
         {
           "hu": "Hetven éves, de mindenre emlékszik, még az iskolájára is.",
           "ru": "Ей семьдесят, но она всё помнит, даже свою школу.",
@@ -353,7 +367,9 @@
           "hu": "Egy tucat gyerek ült a teremben, és mind csendben írt.",
           "ru": "В классе сидела дюжина детей, и все молча писали.",
           "en": "A dozen children sat in the room, and all wrote in silence."
-        },
+        }
+      ],
+      [
         {
           "hu": "A tizenöt feladat legalább egy óráig tartott.",
           "ru": "Пятнадцать заданий занимали минимум час.",
@@ -373,7 +389,9 @@
           "hu": "A hetedikben azt kérdezték, hogy a tizenhárom páros vagy páratlan.",
           "ru": "В седьмом спрашивали, чётное число тринадцать или нечётное.",
           "en": "The seventh asked whether thirteen is even or odd."
-        },
+        }
+      ],
+      [
         {
           "hu": "Bence tudta, hogy az páratlan, és örült.",
           "ru": "Бенце знал, что оно нечётное, и обрадовался.",
@@ -415,7 +433,9 @@
           "hu": "A tizedik feladat egy milliárd forintról szólt.",
           "ru": "Десятое задание было про миллиард форинтов.",
           "en": "The tenth problem was about a billion forints."
-        },
+        }
+      ],
+      [
         {
           "hu": "Bence nevetett, mert ennyi pénze még sosem volt.",
           "ru": "Бенце смеялся, потому что у него ещё никогда не было столько денег.",
@@ -457,7 +477,9 @@
           "hu": "Kilencven százaléktól ötös, de az nagyon sok.",
           "ru": "От девяноста процентов пятёрка, но это очень много.",
           "en": "From ninety per cent a five, but that is a lot."
-        },
+        }
+      ],
+      [
         {
           "hu": "Bence nyolcvan százalékot kapott, az jobb, mint a hármas.",
           "ru": "Бенце получил восемьдесят процентов, это лучше тройки.",
@@ -477,7 +499,9 @@
           "hu": "Apa ötszáz forintot adott neki, és Bence sokszor mondta, hogy köszönöm.",
           "ru": "Папа дал ему пятьсот форинтов, и Бенце много раз говорил «спасибо».",
           "en": "Dad gave him five hundred forints, and Bence said thank you many times."
-        },
+        }
+      ],
+      [
         {
           "hu": "Egy milliárd helyett ötszáz forint is elég neki.",
           "ru": "Вместо миллиарда ему хватит и пятисот форинтов.",

@@ -53,7 +53,9 @@
           "hu": "A gyerekeknek virsli kell, ugye?",
           "ru": "Детям нужны сосиски, да?",
           "en": "The children want frankfurters, right?"
-        },
+        }
+      ],
+      [
         {
           "hu": "Ma este gulyás lesz, vagy főzelék?",
           "ru": "Сегодня вечером будет гуляш или овощное рагу?",
@@ -131,7 +133,9 @@
           "hu": "Aztán önts rá vizet, és főzd két órát.",
           "ru": "Потом налей воды и вари два часа.",
           "en": "Then pour water over it and cook it for two hours."
-        },
+        }
+      ],
+      [
         {
           "hu": "Közben néha nézd meg, és tedd bele a babot.",
           "ru": "Время от времени проверяй и добавь фасоль.",
@@ -190,7 +194,9 @@
           "hu": "A gulyás ebédre lesz kész, és együtt eszünk.",
           "ru": "Гуляш будет готов к обеду, и мы поедим вместе.",
           "en": "The goulash will be ready for lunch, and we will eat together."
-        },
+        }
+      ],
+      [
         {
           "hu": "Reggelire zsemle, méz és kakaó lesz.",
           "ru": "На завтрак будут булочки, мёд и какао.",
@@ -251,7 +257,9 @@
           "hu": "A piacon sok szép gyümölcs volt.",
           "ru": "На рынке было много красивых фруктов.",
           "en": "There was a lot of beautiful fruit at the market."
-        },
+        }
+      ],
+      [
         {
           "hu": "Az eper nagyon szép volt, de drága.",
           "ru": "Клубника была очень красивой, но дорогой.",
@@ -266,7 +274,9 @@
           "hu": "Vettem egy érett dinnyét és fél kiló cseresznyét.",
           "ru": "Я купил спелый арбуз и полкилограмма черешни.",
           "en": "I bought a ripe melon and half a kilo of cherries."
-        },
+        }
+      ],
+      [
         {
           "hu": "A gyerekeknek vettem egy kis csokoládét is.",
           "ru": "Для детей я купил ещё и шоколадку.",
@@ -308,7 +318,9 @@
           "hu": "Mondtam, hogy segítek.",
           "ru": "Я сказал, что помогу.",
           "en": "I said I would help."
-        },
+        }
+      ],
+      [
         {
           "hu": "Dóri adott gombát, és én vágtam fel.",
           "ru": "Дóри дала мне грибы, и я их нарезал.",
@@ -360,7 +372,9 @@
           "hu": "Dóri a spenótot dióval és mandulával adta.",
           "ru": "Дóри подала шпинат с грецкими орехами и миндалём.",
           "en": "Dóri served the spinach with walnuts and almonds."
-        },
+        }
+      ],
+      [
         {
           "hu": "A spenót egy kicsit keserű volt, de nagyon finom.",
           "ru": "Шпинат был немного горьковат, но очень вкусный.",
@@ -407,7 +421,9 @@
           "hu": "Ákos azt mondta, hogy a dinnye nagyon édes.",
           "ru": "Ákos сказал, что дыня очень сладкая.",
           "en": "Ákos said that the melon is very sweet."
-        },
+        }
+      ],
+      [
         {
           "hu": "Dóri adott egy kis mézet és csokoládét is az útra.",
           "ru": "Дóри дала мне на дорогу немного мёда и шоколада.",
@@ -449,7 +465,9 @@
           "hu": "Ha főtt kukorica is van, még jobb.",
           "ru": "Если есть ещё и варёная кукуруза, то ещё лучше.",
           "en": "If there is boiled sweetcorn too, it is even better."
-        },
+        }
+      ],
+      [
         {
           "hu": "Minden étkezés után arra gondoltam, hogy én is főzök egyszer.",
           "ru": "После каждой трапезы я думал, что и сам когда-нибудь приготовлю.",

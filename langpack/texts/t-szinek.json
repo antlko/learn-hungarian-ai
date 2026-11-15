@@ -45,7 +45,9 @@
           "hu": "A kép zöld és sárga, és nagyon fontos nekem.",
           "ru": "Картинка зелёная и жёлтая, и она очень важна для меня.",
           "en": "The picture is green and yellow, and it is very important to me."
-        },
+        }
+      ],
+      [
         {
           "hu": "Talán egy boltban hagytam, a nagy színes bolt mellett.",
           "ru": "Может быть, я оставил её в магазине, рядом с большим цветным магазином.",
@@ -195,7 +197,9 @@
           "hu": "Az ablak átlátszó és tiszta volt, de a szoba mégis szürke maradt.",
           "ru": "Окно было прозрачным и чистым, но комната всё равно осталась серой.",
           "en": "The window was transparent and clean, but the room stayed grey anyway."
-        },
+        }
+      ],
+      [
         {
           "hu": "Lili nem szerette a szobát.",
           "ru": "Лили не любила эту комнату.",
@@ -237,7 +241,9 @@
           "hu": "Dani a halvány árnyalatokat szerette.",
           "ru": "Дани нравились бледные оттенки.",
           "en": "Dani liked the pale shades."
-        },
+        }
+      ],
+      [
         {
           "hu": "Legyen a szoba színes, de ne tarka, mondta Dani.",
           "ru": "Пусть комната будет цветной, но не пёстрой, сказал Дани.",
@@ -311,7 +317,9 @@
           "hu": "Lili keze tele volt sárga festékkel, és a falon is volt egy sárga kéz.",
           "ru": "Руки у Лили были все в жёлтой краске, и на стене тоже был жёлтый отпечаток руки.",
           "en": "Lili's hand was full of yellow paint, and there was a yellow handprint on the wall too."
-        },
+        }
+      ],
+      [
         {
           "hu": "Délután az ablaknál sok fény volt, és a fal ragyogó volt.",
           "ru": "После обеда у окна было много света, и стена сияла.",
@@ -348,7 +356,9 @@
           "hu": "Éjszaka a sötétség sem volt ijesztő, mert a lámpa fénye csillogott a falon.",
           "ru": "Ночью и темнота не была страшной, потому что свет лампы блестел на стене.",
           "en": "At night even the darkness was not scary, because the light of the lamp glittered on the wall."
-        },
+        }
+      ],
+      [
         {
           "hu": "Vasárnap Lili egy képet festett a falra, egy nagy szivárványt.",
           "ru": "В воскресенье Лили нарисовала на стене картину, большую радугу.",

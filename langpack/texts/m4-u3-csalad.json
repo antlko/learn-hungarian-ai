@@ -25,7 +25,9 @@
           "hu": "Jön a húgom is, a legkisebb testvér.",
           "ru": "Придёт и моя младшая сестра, самая младшая из нас.",
           "en": "My younger sister is coming too, the youngest sibling."
-        },
+        }
+      ],
+      [
         {
           "hu": "Jön a nővérem és a férje, a sógorom.",
           "ru": "Придут моя старшая сестра и её муж, мой зять.",
@@ -62,7 +64,9 @@
           "hu": "Kérlek, vegyél valamit enni.",
           "ru": "Пожалуйста, купи что-нибудь поесть.",
           "en": "Please buy something to eat."
-        },
+        }
+      ],
+      [
         {
           "hu": "Ma sokat dolgozom, de este otthon vagyok.",
           "ru": "Я сегодня много работаю, но вечером буду дома.",
@@ -275,7 +279,9 @@
           "hu": "Az unokák nagyapának és nagymamának hívják őket.",
           "ru": "Внуки зовут их дедушкой и бабушкой.",
           "en": "The grandchildren call them grandpa and grandma."
-        },
+        }
+      ],
+      [
         {
           "hu": "A nagymama, a felesége, mellette ül.",
           "ru": "Бабушка, его жена, сидит рядом.",
@@ -322,7 +328,9 @@
           "hu": "Nekik van egy kisfiuk, Bence.",
           "ru": "У них есть маленький сын Бенце.",
           "en": "They have a little son, Bence."
-        },
+        }
+      ],
+      [
         {
           "hu": "Péter és én testvérek vagyunk, Laci is a testvérem.",
           "ru": "Мы с Петером брат и сестра, Лаци тоже мой брат.",
@@ -369,7 +377,9 @@
           "hu": "Szerintem Laci nagyon szerelmes.",
           "ru": "По-моему, Лаци очень влюблён.",
           "en": "I think Laci is very much in love."
-        },
+        }
+      ],
+      [
         {
           "hu": "Anna is szerelmes, és a szerelmük új.",
           "ru": "Анна тоже очень влюблена, и их любовь новая.",
@@ -416,7 +426,9 @@
           "hu": "Az após szigorú, az anyós pedig nagyon vicces.",
           "ru": "Свёкор строгий, а свекровь очень весёлая.",
           "en": "My father-in-law is strict, and my mother-in-law is very funny."
-        },
+        }
+      ],
+      [
         {
           "hu": "Anya és apa is itt vannak, ők a szüleim.",
           "ru": "Здесь и мама с папой, мои родители.",
@@ -458,7 +470,9 @@
           "hu": "Anya nővére elvált, de a volt férje ma is jó barát.",
           "ru": "Сестра мамы развелась, но её бывший муж и сегодня добрый друг.",
           "en": "Mum's sister is divorced, but her ex-husband is still a good friend today."
-        },
+        }
+      ],
+      [
         {
           "hu": "Nagyapa testvére özvegy, és ő is itt van.",
           "ru": "Брат дедушки вдовец, и он тоже здесь.",
@@ -495,7 +509,9 @@
           "hu": "A családnak jó, ha baba születik.",
           "ru": "Семье хорошо, когда рождается малыш.",
           "en": "It is good for a family when a baby is born."
-        },
+        }
+      ],
+      [
         {
           "hu": "Este mindenki együtt eszik, és jól érzi magát.",
           "ru": "Вечером все едят вместе и чувствуют себя хорошо.",

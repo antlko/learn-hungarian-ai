@@ -50,7 +50,9 @@
           "hu": "A tudomány és a természet is szót kap.",
           "ru": "Слово получат и наука, и природа.",
           "en": "Science and nature will have their say too."
-        },
+        }
+      ],
+      [
         {
           "hu": "A cél a jövő, a biztonság, a béke és a jó emlék.",
           "ru": "Цель будущее, мир и добрая память.",
@@ -212,7 +214,9 @@
           "hu": "Kata nem tudta, mi a probléma, és ideges lett.",
           "ru": "Ката не знала, в чём проблема, и занервничала.",
           "en": "Kata did not know what the problem was, and she got nervous."
-        },
+        }
+      ],
+      [
         {
           "hu": "Tizenöt percig várt a megállóban, de nem látott buszt.",
           "ru": "Пятнадцать минут она ждала на остановке, но автобуса не было.",
@@ -244,7 +248,9 @@
           "hu": "Kata azt gondolta, hogy a felelősség az övé, mert későn indult.",
           "ru": "Ката подумала, что ответственность на ней, ведь она вышла поздно.",
           "en": "Kata thought the responsibility was hers, because she had set off late."
-        },
+        }
+      ],
+      [
         {
           "hu": "Ezért ő fizette a taxit, és nem kért pénzt senkitől.",
           "ru": "Поэтому такси оплатила она сама и ни у кого не просила денег.",
@@ -286,7 +292,9 @@
           "hu": "A bizalom fontos a munkában, mondta.",
           "ru": "Доверие важно в работе, сказал он.",
           "en": "Trust is important at work, he said."
-        },
+        }
+      ],
+      [
         {
           "hu": "A munkában a jó szándék sokat számít, mondta még.",
           "ru": "В работе добрые намерения много значат, добавил он.",
@@ -333,7 +341,9 @@
           "hu": "Éva azt kérdezte, hogy mi a különbség a busz és a taxi között.",
           "ru": "Эва спросила, в чём разница между автобусом и такси.",
           "en": "Éva asked what the difference was between the bus and the taxi."
-        },
+        }
+      ],
+      [
         {
           "hu": "Kata azt mondta, hogy a busz olcsó, a taxi viszont gyors.",
           "ru": "Ката сказала, что автобус дешёвый, а такси зато быстрое.",
@@ -380,7 +390,9 @@
           "hu": "A célja egyszerű, nem késik többet.",
           "ru": "Её цель проста: больше не опаздывать.",
           "en": "Her goal is simple, she will not be late again."
-        },
+        }
+      ],
+      [
         {
           "hu": "Otthon még papírra írta a tervét.",
           "ru": "Дома она ещё записала свой план на бумаге.",

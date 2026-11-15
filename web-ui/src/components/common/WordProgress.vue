@@ -82,6 +82,7 @@ const deltaSpoken = computed(() => {
     data-testid="word-progress"
   >
     <div class="flex min-w-12 flex-1 flex-col gap-1" :class="size === 'row' ? 'max-w-28' : ''">
+      <div class="relative w-full">
       <div
         role="progressbar"
         aria-valuemin="0"
@@ -100,6 +101,20 @@ const deltaSpoken = computed(() => {
         <span class="absolute inset-y-0 left-[20%] w-px bg-foreground/35" aria-hidden="true" />
         <span class="absolute inset-y-0 left-[70%] w-px bg-foreground/35" aria-hidden="true" />
       </div>
+      <!-- The change sits ON the bar (absolute, out of flow): nothing beside it
+           appears or disappears, so the bar never shrinks and grows back. -->
+      <span
+        v-if="deltaText"
+        :key="`${deltaText}-${pct}`"
+        class="animate-tick-up absolute inset-y-0 right-0 my-auto inline-flex h-4 items-center gap-0.5 rounded-full border border-border-subtle bg-card px-1.5 text-xs font-medium leading-4 tabular-nums shadow-sm"
+        :class="(delta ?? 0) > 0 ? 'text-success' : 'text-muted-foreground'"
+        data-testid="word-progress-delta"
+      >
+        <ArrowDown v-if="(delta ?? 0) < 0" class="size-3" aria-hidden="true" />
+        <span aria-hidden="true">{{ deltaText }}</span>
+        <span class="sr-only">{{ deltaSpoken }}</span>
+      </span>
+      </div>
       <!-- The marks named with the existing stage words; the row has ticks only. -->
       <div
         v-if="named"
@@ -116,20 +131,10 @@ const deltaSpoken = computed(() => {
       :class="size === 'row' ? 'text-xs' : size === 'card' ? 'text-sm font-medium' : '-mt-1 text-sm font-medium'"
       aria-hidden="true"
     >
-      {{ pct }}%<span v-if="labelled" class="ml-1 text-xs font-normal text-muted-foreground">{{
+      <!-- Fixed width for «0%»…«100%»: the bar beside it never changes size. -->
+      <span class="inline-block min-w-[4ch] text-right">{{ pct }}%</span><span v-if="labelled" class="ml-1 text-xs font-normal text-muted-foreground">{{
         $t('wordProgress.label')
       }}</span>
-    </span>
-    <span
-      v-if="deltaText"
-      :key="`${deltaText}-${pct}`"
-      class="animate-tick-up inline-flex shrink-0 items-center gap-0.5 rounded-full px-1.5 text-xs font-medium tabular-nums"
-      :class="[(delta ?? 0) > 0 ? 'text-success' : 'text-muted-foreground', size === 'detail' ? '-mt-0.5' : '']"
-      data-testid="word-progress-delta"
-    >
-      <ArrowDown v-if="(delta ?? 0) < 0" class="size-3" aria-hidden="true" />
-      <span aria-hidden="true">{{ deltaText }}</span>
-      <span class="sr-only">{{ deltaSpoken }}</span>
     </span>
   </div>
 </template>

@@ -28,7 +28,9 @@
           "hu": "Áprilisban húsvét, a család jön hozzánk.",
           "ru": "В апреле Пасха, семья приедет к нам.",
           "en": "In April Easter, the family is coming to us."
-        },
+        }
+      ],
+      [
         {
           "hu": "Májusban az évforduló, kell egy ajándék!",
           "ru": "В мае годовщина, нужен подарок!",
@@ -60,7 +62,9 @@
           "hu": "Novemberben nincs semmi, csak a heti dolgok.",
           "ru": "В ноябре ничего нет, только дела на неделе.",
           "en": "In November there is nothing, only the weekly things."
-        },
+        }
+      ],
+      [
         {
           "hu": "Decemberben karácsony és szilveszter, és mindenki ünnepel.",
           "ru": "В декабре Рождество и Сильвестр, и все празднуют.",
@@ -157,7 +161,9 @@
           "hu": "Márciusban van egy nemzeti ünnep, tavasszal pedig húsvét.",
           "ru": "В марте есть национальный праздник, а весной ещё и Пасха.",
           "en": "In March there is a national holiday, and in spring there is also Easter."
-        },
+        }
+      ],
+      [
         {
           "hu": "Télen jön a karácsony, aztán a szilveszter és az újév.",
           "ru": "Зимой приходит Рождество, потом Сильвестр и Новый год.",
@@ -189,7 +195,9 @@
           "hu": "Naponta írom be a napi dolgokat.",
           "ru": "Каждый день я записываю дела на день.",
           "en": "Every day I write in the things for the day."
-        },
+        }
+      ],
+      [
         {
           "hu": "Hetente nézem a heti munkát és a hétvégét is.",
           "ru": "Каждую неделю я смотрю на рабочие дела на неделю и на выходные тоже.",
@@ -241,7 +249,9 @@
           "hu": "Itt van előttem a naptár, és nézem az egész évet.",
           "ru": "Передо мной календарь, и я смотрю на весь год.",
           "en": "The calendar is in front of me, and I am looking at the whole year."
-        },
+        }
+      ],
+      [
         {
           "hu": "Minden hónapban volt valami jó.",
           "ru": "В каждом месяце было что-то хорошее.",
@@ -278,7 +288,9 @@
           "hu": "Februárban Anna beteg volt, ezért otthon maradtunk.",
           "ru": "В феврале Анна болела, поэтому мы остались дома.",
           "en": "In February Anna was ill, so we stayed at home."
-        },
+        }
+      ],
+      [
         {
           "hu": "A hétvége is csendes volt, a tavaszi napokat vártuk.",
           "ru": "Выходные тоже были тихими, мы ждали весенних дней.",
@@ -293,7 +305,9 @@
           "hu": "A tavaszi nap szép volt, és mindenki nevetett.",
           "ru": "Весенний день был красивым, и все смеялись.",
           "en": "The spring day was nice, and everybody laughed."
-        },
+        }
+      ],
+      [
         {
           "hu": "Mi is mentünk, mert Anna szereti az ilyen napokat.",
           "ru": "Мы тоже пошли, потому что Анна любит такие дни.",
@@ -384,7 +398,9 @@
           "hu": "Karácsonykor a család együtt volt, és mindenki jól érezte magát.",
           "ru": "На Рождество семья была вместе, и всем было хорошо.",
           "en": "At Christmas the family was together, and everybody had a good time."
-        },
+        }
+      ],
+      [
         {
           "hu": "Szilveszterre Péter és Kata küldött nekünk egy meghívót.",
           "ru": "На Сильвестр Петер и Ката прислали нам приглашение.",
@@ -421,7 +437,9 @@
           "hu": "A tegnapi nap már régi.",
           "ru": "Вчерашний день уже старый.",
           "en": "Yesterday is already old."
-        },
+        }
+      ],
+      [
         {
           "hu": "A mai nap az enyém, a holnapi nap új.",
           "ru": "Сегодняшний мой, а завтрашний новый.",

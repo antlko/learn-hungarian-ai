@@ -52,7 +52,9 @@
           "hu": "Ha fázol, vegyél fel még egy pulóvert, jó?",
           "ru": "Если замёрзнешь, надень ещё свитер, хорошо?",
           "en": "If you feel cold, put on another jumper, okay?"
-        },
+        }
+      ],
+      [
         {
           "hu": "Délután süt a nap, de a hőmérséklet csak nyolc fok.",
           "ru": "После обеда будет светить солнце, но температура всего восемь градусов.",
@@ -105,7 +107,9 @@
           "hu": "Délelőtt a köd elmegy, és süt a nap.",
           "ru": "До обеда туман уйдёт, и выглянет солнце.",
           "en": "In the late morning the fog will go and the sun will come out."
-        },
+        }
+      ],
+      [
         {
           "hu": "Délután napos lesz az idő, és melegszik.",
           "ru": "После обеда будет солнечно и станет теплее.",
@@ -164,7 +168,9 @@
           "hu": "Hűl az idő, tíz fok lesz.",
           "ru": "Холодает, будет десять градусов.",
           "en": "It is getting colder, it will be ten degrees."
-        },
+        }
+      ],
+      [
         {
           "hu": "Este derült lesz az ég, és hideg.",
           "ru": "Вечером небо будет ясным и холодным.",
@@ -196,7 +202,9 @@
           "hu": "Aztán a hó olvad, és enyhe idő jön.",
           "ru": "Потом снег растает, и придёт мягкая погода.",
           "en": "Then the snow will melt and mild weather will come."
-        },
+        }
+      ],
+      [
         {
           "hu": "Kedden már süt a nap, és melegszik az idő.",
           "ru": "Во вторник уже светит солнце, и теплеет.",
@@ -257,7 +265,9 @@
           "hu": "Az előrejelzés szerint napos idő lesz.",
           "ru": "По прогнозу должна была быть солнечная погода.",
           "en": "According to the forecast the weather would be sunny."
-        },
+        }
+      ],
+      [
         {
           "hu": "Reggel valóban szép idő volt, és az ég derült volt.",
           "ru": "Утром и правда стояла хорошая погода, и небо было ясным.",
@@ -299,7 +309,9 @@
           "hu": "A szél is fújni kezdett, és hűvös lett.",
           "ru": "Начал дуть ветер, и стало прохладно.",
           "en": "The wind started to blow too and it became cool."
-        },
+        }
+      ],
+      [
         {
           "hu": "Zsófi fázott, ezért a sálat a nyakába tette.",
           "ru": "Зсофи замёрзла, поэтому обмотала шею шарфом.",
@@ -309,7 +321,9 @@
           "hu": "Bence azt mondta, ez csak egy kis felhő.",
           "ru": "Бенце сказал, что это всего лишь маленькое облако.",
           "en": "Bence said it was just a little cloud."
-        },
+        }
+      ],
+      [
         {
           "hu": "Aztán az ég nagyon sötét lett.",
           "ru": "Потом небо стало очень тёмным.",
@@ -361,7 +375,9 @@
           "hu": "Egy nagy fa alá álltak, de a szél hideg volt.",
           "ru": "Они встали под большое дерево, но ветер был холодным.",
           "en": "They stood under a big tree, but the wind was cold."
-        },
+        }
+      ],
+      [
         {
           "hu": "Egy kis jégeső is esett, és fehér lett a föld.",
           "ru": "Прошёл и небольшой град, и земля стала белой.",
@@ -408,7 +424,9 @@
           "hu": "A pocsolyákban ott volt a napfény.",
           "ru": "В лужах отражалось солнце.",
           "en": "The sunlight was there in the puddles."
-        },
+        }
+      ],
+      [
         {
           "hu": "Az eső után a levegő tiszta volt, és sok sár volt az úton.",
           "ru": "После дождя воздух был чистым, а на дороге было много грязи.",
@@ -433,7 +451,9 @@
           "hu": "Az előrejelzés nem mindig igaz, tudta meg.",
           "ru": "Прогноз не всегда верен, понял он.",
           "en": "The forecast is not always right, he found out."
-        },
+        }
+      ],
+      [
         {
           "hu": "Otthon forró teát kaptak, és az ablakból nézték az eget.",
           "ru": "Дома им дали горячий чай, и они смотрели из окна на небо.",

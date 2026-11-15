@@ -50,7 +50,9 @@
           "hu": "A tortában sincs mogyoró, ezért nincs gond.",
           "ru": "И в торте нет арахиса, так что проблем нет.",
           "en": "There are no peanuts in the cake either, so there is no problem."
-        },
+        }
+      ],
+      [
         {
           "hu": "Hozz egy üveg bort vagy egy desszertet, de igazán nem kell.",
           "ru": "Принеси бутылку вина или десерт, но это совсем не обязательно.",
@@ -265,7 +267,9 @@
           "hu": "Itt a vendég, mondta, és mindenki nevetett.",
           "ru": "Вот и гость, сказал он, и все засмеялись.",
           "en": "Here is the guest, he said, and everyone laughed."
-        },
+        }
+      ],
+      [
         {
           "hu": "Az asztalon sok étel és ital volt.",
           "ru": "На столе было много еды и напитков.",
@@ -307,7 +311,9 @@
           "hu": "Mindenki evett, és senki nem beszélt sokat.",
           "ru": "Все ели, и никто много не говорил.",
           "en": "Everyone ate, and nobody talked much."
-        },
+        }
+      ],
+      [
         {
           "hu": "A sertés nem volt nyers, hanem nagyon finom.",
           "ru": "Свинина была не сырая, а очень вкусная.",
@@ -349,7 +355,9 @@
           "hu": "Én azt mondtam, hogy Judit nagyon jól főz.",
           "ru": "Я сказала, что Юдит очень хорошо готовит.",
           "en": "I said that Judit cooks very well."
-        },
+        }
+      ],
+      [
         {
           "hu": "Aztán sokat beszéltünk a családról és a munkáról.",
           "ru": "Потом мы много говорили о семье и о работе.",
@@ -386,7 +394,9 @@
           "hu": "Én a menüt rendeltem, Péter marhahúst kért.",
           "ru": "Я заказала комплексный обед, Петер попросил говядину.",
           "en": "I ordered the set menu, Péter asked for beef."
-        },
+        }
+      ],
+      [
         {
           "hu": "Az ebéd finom volt, és a pincér fagylaltot ajánlott.",
           "ru": "Обед был вкусным, и официант посоветовал мороженое.",

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { X } from '@lucide/vue'
+import { Info, X } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import Note from '@/components/common/Note.vue'
 import SpeakButton from '@/components/common/SpeakButton.vue'
@@ -48,6 +48,7 @@ const lemma = ref<LemmaDetail | null>(null)
 const examples = ref<Example[]>([])
 /** The learner's own meaning for this form — typed, or kept from the AI entry. */
 const saved = ref<UserGloss | null>(null)
+const memoryOpen = ref(false)
 const loading = ref(false)
 const failed = ref(false)
 
@@ -244,9 +245,23 @@ const uncertain = computed(
         {{ $t(`reader.certainty.${analysis.certainty}`) }}
       </Note>
 
-      <!-- Where this word stands in memory: only for a word that has a card. -->
-      <div
+      <!-- Where this word stands in memory: a small «how well I know it» toggle,
+           closed by default, so the panel is about the word itself. -->
+      <button
         v-if="memory"
+        type="button"
+        class="inline-flex w-fit items-center gap-1.5 rounded-full border border-border-subtle px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        :aria-expanded="memoryOpen"
+        aria-controls="inspector-memory"
+        data-testid="inspector-memory-toggle"
+        @click="memoryOpen = !memoryOpen"
+      >
+        <Info class="size-3.5" aria-hidden="true" />
+        {{ $t('inspector.memory.toggle') }}
+      </button>
+      <div
+        v-if="memory && memoryOpen"
+        id="inspector-memory"
         class="flex flex-col gap-2 rounded-lg border border-border-subtle bg-background px-3 py-2.5"
         data-testid="inspector-memory"
       >

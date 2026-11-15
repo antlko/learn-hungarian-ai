@@ -45,7 +45,9 @@
           "hu": "A konyhában van hűtő, mosógép, tányér és pohár.",
           "ru": "На кухне есть холодильник, стиральная машина, тарелки и стаканы.",
           "en": "The kitchen has a fridge, a washing machine, plates and glasses."
-        },
+        }
+      ],
+      [
         {
           "hu": "A hálószobában van ágy, szekrény és szék.",
           "ru": "В спальне есть кровать, шкаф и стул.",
@@ -188,7 +190,9 @@
           "hu": "A kert is szép, a tető is jó.",
           "ru": "Сад тоже красивый, крыша тоже хорошая.",
           "en": "The garden is nice too, the roof is good too."
-        },
+        }
+      ],
+      [
         {
           "hu": "A lakás az első emeleten van.",
           "ru": "Квартира на втором этаже.",
@@ -247,7 +251,9 @@
           "hu": "Az asztal és a szék az ablak mellett van.",
           "ru": "Стол и стул стоят у окна.",
           "en": "The table and the chair are by the window."
-        },
+        }
+      ],
+      [
         {
           "hu": "Az asztalon van egy lámpa.",
           "ru": "На столе стоит лампа.",
@@ -284,7 +290,9 @@
           "hu": "Anna mosogat.",
           "ru": "Анна моет посуду.",
           "en": "Anna washes up."
-        },
+        }
+      ],
+      [
         {
           "hu": "A polcra teszi a tányért és a poharat.",
           "ru": "Она ставит на полку тарелку и стакан.",
@@ -326,7 +334,9 @@
           "hu": "A tükör és a függöny szép.",
           "ru": "Зеркало и занавеска красивые.",
           "en": "The mirror and the curtain are nice."
-        },
+        }
+      ],
+      [
         {
           "hu": "Hol van a porszívó? Itt van!",
           "ru": "Где пылесос? Вот он!",

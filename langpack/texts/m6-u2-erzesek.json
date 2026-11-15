@@ -30,7 +30,9 @@
           "hu": "Nem kell sírni, és nem kell félni.",
           "ru": "Не нужно плакать и не нужно бояться.",
           "en": "There is no need to cry and no need to be afraid."
-        },
+        }
+      ],
+      [
         {
           "hu": "Én büszke vagyok rád, mert őszinte voltál.",
           "ru": "Я горжусь тобой, ведь ты была честной.",
@@ -67,7 +69,9 @@
           "hu": "Nem vagy gyáva, csak fáradt vagy.",
           "ru": "Ты не трусиха, ты просто устала.",
           "en": "You are not a coward, you are just tired."
-        },
+        }
+      ],
+      [
         {
           "hu": "A bánat és a harag elmúlik, és újra vidám leszel.",
           "ru": "Печаль и злость пройдут, и ты снова будешь весёлой.",
@@ -87,7 +91,9 @@
           "hu": "Az érzelem nem baj, a büszkeségem pedig nagy.",
           "ru": "Чувства это не беда, а моя гордость велика.",
           "en": "Emotion is no problem, and my pride is great."
-        },
+        }
+      ],
+      [
         {
           "hu": "Holnap új nap lesz, és lesz remény és öröm.",
           "ru": "Завтра будет новый день, и будут надежда и радость.",
@@ -138,7 +144,9 @@
           "hu": "Az érzés furcsa, mert boldog vagyok, de egy kicsit ideges is.",
           "ru": "Чувство странное, ведь я счастлива, но немного и на взводе.",
           "en": "The feeling is odd, because I am happy but also a little on edge."
-        },
+        }
+      ],
+      [
         {
           "hu": "Az izgalom jó, de a stressz rossz.",
           "ru": "Волнение это хорошо, а стресс плохо.",
@@ -175,7 +183,9 @@
           "hu": "Egy kolléga sokat beszél, és ez néha idegesít.",
           "ru": "Один коллега много говорит, и это иногда мешает.",
           "en": "A colleague talks a lot and that sometimes bothers me."
-        },
+        }
+      ],
+      [
         {
           "hu": "Tegnap szörnyű stressz volt, és dühös lettem.",
           "ru": "Вчера был ужасный стресс, и я разозлилась.",
@@ -222,7 +232,9 @@
           "hu": "Néha csalódott vagyok, és néha elégedetlen is.",
           "ru": "Иногда я разочарована, а иногда и недовольна.",
           "en": "Sometimes I am disappointed and sometimes dissatisfied too."
-        },
+        }
+      ],
+      [
         {
           "hu": "Holnap is izgatott leszek, ez biztos.",
           "ru": "Завтра я тоже буду взволнована, это точно.",
@@ -247,7 +259,9 @@
           "hu": "Nem szenvedély, de szeretem a munkát.",
           "ru": "Это не страсть, но я люблю эту работу.",
           "en": "It is not a passion, but I like the work."
-        },
+        }
+      ],
+      [
         {
           "hu": "Egyik érzelem a másik után jön.",
           "ru": "Одно чувство сменяет другое.",
@@ -267,7 +281,9 @@
           "hu": "Este a nyugalom és a csend jó.",
           "ru": "Вечером покой и тишина приятны.",
           "en": "In the evening calm and quiet are nice."
-        },
+        }
+      ],
+      [
         {
           "hu": "Most már büszke vagyok magamra, és elégedett vagyok.",
           "ru": "Теперь я горжусь собой и довольна.",
@@ -328,7 +344,9 @@
           "hu": "Nem tudtam pihenni, mert aggódtam a vizsga miatt.",
           "ru": "Я не могла отдохнуть, потому что переживала из-за экзамена.",
           "en": "I could not rest because I was worried about the exam."
-        },
+        }
+      ],
+      [
         {
           "hu": "A stressz egész éjjel velem volt.",
           "ru": "Стресс был со мной всю ночь.",
@@ -370,7 +388,9 @@
           "hu": "A szívem gyorsan vert, és az izgalom nagy volt.",
           "ru": "Сердце быстро билось, и волнение было сильным.",
           "en": "My heart beat fast and the excitement was great."
-        },
+        }
+      ],
+      [
         {
           "hu": "Csalódott voltam magamban, és ez nagy szégyen volt.",
           "ru": "Я была разочарована в себе, и это был большой позор.",
@@ -395,7 +415,9 @@
           "hu": "A düh nem Dani ellen volt, hanem magam ellen.",
           "ru": "Злость была не на Дани, а на саму себя.",
           "en": "The rage was not against Dani but against myself."
-        },
+        }
+      ],
+      [
         {
           "hu": "Aztán sírni akartam.",
           "ru": "Потом мне захотелось плакать.",
@@ -437,7 +459,9 @@
           "hu": "Egy érdekes könyvem volt, de nem tudtam olvasni.",
           "ru": "У меня была интересная книга, но я не могла читать.",
           "en": "I had an interesting book but I could not read."
-        },
+        }
+      ],
+      [
         {
           "hu": "Szomorúság és harag volt bennem.",
           "ru": "Во мне были грусть и злость.",
@@ -489,7 +513,9 @@
           "hu": "Megkérdezte, hogy miért vagyok szomorú.",
           "ru": "Она спросила, почему я грущу.",
           "en": "She asked why I was sad."
-        },
+        }
+      ],
+      [
         {
           "hu": "Nem akartam mondani semmit, de elmondtam mindent.",
           "ru": "Я не хотела ничего говорить, но рассказала всё.",
@@ -514,7 +540,9 @@
           "hu": "Mari nem mondott nagy szavakat, csak vigasztalni akart.",
           "ru": "Мари не говорила громких слов, она просто хотела утешить.",
           "en": "Mari did not say big words, she just wanted to comfort me."
-        },
+        }
+      ],
+      [
         {
           "hu": "Aztán mégis sírtam egy kicsit, és ez nem volt szégyen.",
           "ru": "Потом я всё же немного поплакала, и это не было позором.",
@@ -561,7 +589,9 @@
           "hu": "Én nem vagyok gyáva, csak fáradt.",
           "ru": "Я не трусиха, я просто устала.",
           "en": "I am not a coward, just tired."
-        },
+        }
+      ],
+      [
         {
           "hu": "Este nyugodt lettem, és a nyugalom jó érzés volt.",
           "ru": "К вечеру я успокоилась, и покой был приятным чувством.",
@@ -581,7 +611,9 @@
           "hu": "Az izgalom után jön a nyugalom.",
           "ru": "После волнения приходит покой.",
           "en": "After the excitement comes the calm."
-        },
+        }
+      ],
+      [
         {
           "hu": "Holnap izgatott leszek, de nem félek.",
           "ru": "Завтра я буду взволнована, но не буду бояться.",

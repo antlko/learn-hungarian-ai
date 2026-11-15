@@ -31,7 +31,9 @@
           "hu": "Az én véleményem egyértelmű, de nem akarok vitatkozni.",
           "ru": "Моё мнение однозначно, но спорить я не хочу.",
           "en": "My opinion is clear, but I don't want to argue."
-        },
+        }
+      ],
+      [
         {
           "hu": "Nem vagyok dühös, csak kíváncsi.",
           "ru": "Я не злюсь, мне просто интересно.",
@@ -51,7 +53,9 @@
           "hu": "Szerintem ez jogos és helyes javaslat, ugye?",
           "ru": "По-моему, это справедливое и правильное предложение, правда?",
           "en": "I think this is a fair and correct suggestion, isn't it?"
-        },
+        }
+      ],
+      [
         {
           "hu": "Lehet, hogy tévedek.",
           "ru": "Возможно, я ошибаюсь.",
@@ -93,7 +97,9 @@
           "hu": "Ha önnek igaza van, elfogadom.",
           "ru": "Если вы правы, я соглашусь.",
           "en": "If you are right, I will accept it."
-        },
+        }
+      ],
+      [
         {
           "hu": "Ha nem, akkor kérem a bizonyítékot.",
           "ru": "Если нет, прошу доказательства.",
@@ -270,7 +276,9 @@
           "hu": "Péter sokáig gondolkodott, de nem talált jó érvet.",
           "ru": "Петер долго думал, но хорошего довода не нашёл.",
           "en": "Péter thought for a long time, but he found no good argument."
-        },
+        }
+      ],
+      [
         {
           "hu": "Végül azt mondta, hogy a hegy unalmas.",
           "ru": "В конце концов он сказал, что горы скучные.",
@@ -312,7 +320,9 @@
           "hu": "Én ezt nem hittem el, és ezt meg is mondtam.",
           "ru": "Я в это не поверила и так и сказала.",
           "en": "I did not believe it, and I said so."
-        },
+        }
+      ],
+      [
         {
           "hu": "Egy példa még nem bizonyíték, mondtam neki.",
           "ru": "Один пример ещё не доказательство, сказала я ему.",
@@ -327,7 +337,9 @@
           "hu": "Gábor tagadta, hogy téved, aztán mégis nevetett.",
           "ru": "Габор отрицал, что ошибается, а потом всё же засмеялся.",
           "en": "Gábor denied that he was wrong, then he laughed anyway."
-        },
+        }
+      ],
+      [
         {
           "hu": "Nem tudtam, kinek van igaza, talán mindkettőnknek.",
           "ru": "Я не знала, кто прав, может быть, оба.",
@@ -369,7 +381,9 @@
           "hu": "Mindenki egyetértett, még Péter is, mert ez igazságos.",
           "ru": "Все согласились, даже Петер, ведь это справедливо.",
           "en": "Everyone agreed, even Péter, because it is fair."
-        },
+        }
+      ],
+      [
         {
           "hu": "Péter elfogadta a javaslatot, de szerinte a tenger mindig jobb lesz.",
           "ru": "Петер принял предложение, но, по его мнению, море всегда будет лучше.",
@@ -384,7 +398,9 @@
           "hu": "Jó vita volt, a következtetés ésszerű, és senki nem volt mérges.",
           "ru": "Это был хороший спор, вывод разумен, и никто не сердился.",
           "en": "It was a good argument, the conclusion is sensible, and nobody was angry."
-        },
+        }
+      ],
+      [
         {
           "hu": "Valószínű, hogy jövőre is lesz vita, és valószínű, hogy ez nem baj.",
           "ru": "Вероятно, и в следующем году будет спор, и вероятно, это не беда.",
@@ -426,7 +442,9 @@
           "hu": "Ha a vélemények eltérők, a beszélgetés érdekes.",
           "ru": "Если мнения разные, разговор интересный.",
           "en": "If opinions are different, the conversation is interesting."
-        },
+        }
+      ],
+      [
         {
           "hu": "Ha a vélemények hasonlók, hamar vége a beszélgetésnek.",
           "ru": "Если мнения похожи, разговор быстро заканчивается.",
@@ -463,7 +481,9 @@
           "hu": "A második, hogy ha valami kérdéses, ezt őszintén mondjuk meg.",
           "ru": "Второе, чтобы, если что-то спорно, мы честно это сказали.",
           "en": "Second, if something is questionable we should say so honestly."
-        },
+        }
+      ],
+      [
         {
           "hu": "A harmadik, hogy mindenképpen hallani akarjuk a másikat.",
           "ru": "Третье, чтобы мы в любом случае хотели услышать другого.",
@@ -478,7 +498,9 @@
           "hu": "Nyilvánvaló, hogy az ember néha téved.",
           "ru": "Очевидно, что человек иногда ошибается.",
           "en": "It is obvious that a person is sometimes wrong."
-        },
+        }
+      ],
+      [
         {
           "hu": "Lehetetlen, hogy mindig nekem legyen igazam.",
           "ru": "Невозможно, чтобы я всегда была права.",

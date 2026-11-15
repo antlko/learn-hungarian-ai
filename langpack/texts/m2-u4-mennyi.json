@@ -28,7 +28,9 @@
           "hu": "Néhány darab, mindegyik kicsi.",
           "ru": "Несколько штук, все маленькие.",
           "en": "A few pieces, each one small."
-        },
+        }
+      ],
+      [
         {
           "hu": "Egy kilogramm sok, egy gramm kevés.",
           "ru": "Килограмм много, грамм мало.",
@@ -188,7 +190,9 @@
           "hu": "A zacskó nem túl nehéz, könnyű.",
           "ru": "Пакет не слишком тяжёлый, он лёгкий.",
           "en": "The bag is not too heavy, it is light."
-        },
+        }
+      ],
+      [
         {
           "hu": "Aztán kér egy csomagot és egy dobozt.",
           "ru": "Потом она берёт пачку и коробку.",
@@ -213,7 +217,9 @@
           "hu": "Egy liter, két liter, ez a mennyiség jó.",
           "ru": "Литр, два литра, такое количество подходит.",
           "en": "One litre, two litres, this quantity is good."
-        },
+        }
+      ],
+      [
         {
           "hu": "Egy szelet kenyér is kell.",
           "ru": "Ещё нужен ломтик хлеба.",
@@ -250,7 +256,9 @@
           "hu": "A méret nem jó, de a harmadik ruha jó.",
           "ru": "Размер не подходит, но третье платье хорошо.",
           "en": "The size is not right, but the third dress is good."
-        },
+        }
+      ],
+      [
         {
           "hu": "A méret különböző, a ruha nem egyforma.",
           "ru": "Размеры разные, платья не одинаковые.",
@@ -282,7 +290,9 @@
           "hu": "Az út nem széles, hanem keskeny.",
           "ru": "Дорога не широкая, а узкая.",
           "en": "The road is not wide but narrow."
-        },
+        }
+      ],
+      [
         {
           "hu": "A ház körülbelül tíz méter magas.",
           "ru": "Дом около десяти метров высотой.",

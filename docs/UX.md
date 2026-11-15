@@ -1134,10 +1134,13 @@ per-stage totals. A collapsible legend explains the stages (young = interval und
 Anki's convention). Stage, status, sort and search persist in the query string. Search goes
 through pack case-variants (never `COLLATE NOCASE`) and matches glosses too; sorts include
 «сначала шаткие», the browsing twin of practice's weak mode, and «по прогрессу». The word
-inspector (`WordInspector`) shows, for a word that has a card, a memory block: the `detail` bar,
+inspector (`WordInspector`) is about the word itself; for a word that has a card it adds a small
+button with an info icon, «Как я знаю это слово», that opens a memory block (closed by default): the `detail` bar,
 the stage chip, «вернётся через N дн», «повторений R · ошибок L», «вспомнить сейчас ≈93%»,
 up to eight dots of recent answers (filled = right, hollow = a miss; sr-only words) and, with
-more than one card, a compact bar per card. Verified at 390 px: not yet.
+more than one card, a compact bar per card. In the review card, the «+N»/«−N» change after an
+answer is drawn ON the progress bar (absolute, right end) and the number has a fixed width, so
+the bar never shrinks and grows back. Verified at 800 px; 390 px: not yet.
 
 **Lively pass (ADR-059; browser NOT exercised).** Four tinted tiles above the list — новое
 (mist) · учу (cream) · повторяю (sage) · закреплено (sage) — count WORDS from

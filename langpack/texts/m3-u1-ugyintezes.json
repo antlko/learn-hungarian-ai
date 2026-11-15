@@ -30,7 +30,9 @@
           "hu": "A régi engedélyem nemsokára lejár.",
           "ru": "Старое разрешение скоро истекает.",
           "en": "My old permit expires soon."
-        },
+        }
+      ],
+      [
         {
           "hu": "Az ügyintézés nem könnyű, mert külföldi vagyok.",
           "ru": "Хождение по инстанциям нелёгкое, ведь я иностранец.",
@@ -77,7 +79,9 @@
           "hu": "A születési hely és idő is kell.",
           "ru": "Место и дата рождения тоже нужны.",
           "en": "The place and date of birth are needed too."
-        },
+        }
+      ],
+      [
         {
           "hu": "Itthon kitöltöm, és aláírom.",
           "ru": "Дома заполняю и подписываю.",
@@ -97,7 +101,9 @@
           "hu": "Az adó rendben van, ez nem baj.",
           "ru": "С налогом всё в порядке, это не проблема.",
           "en": "The tax is in order, that is no problem."
-        },
+        }
+      ],
+      [
         {
           "hu": "Az állampolgárság nem kell, csak az engedély.",
           "ru": "Гражданство не нужно, только разрешение.",
@@ -144,7 +150,9 @@
           "hu": "Egy külföldi férfi is vár a folyosón.",
           "ru": "Иностранец тоже ждёт в коридоре.",
           "en": "A foreign man is waiting in the corridor too."
-        },
+        }
+      ],
+      [
         {
           "hu": "Kapok egy számot, és ülök.",
           "ru": "Получаю номер и сижу.",
@@ -169,7 +177,9 @@
           "hu": "Benyújtom a kérelmet és a nyilatkozatot.",
           "ru": "Подаю заявление и декларацию.",
           "en": "I submit the application and the declaration."
-        },
+        }
+      ],
+      [
         {
           "hu": "A hölgy megnézi az űrlapot, az adatokat és az aláírást.",
           "ru": "Женщина смотрит бланк, данные и подпись.",
@@ -194,7 +204,9 @@
           "hu": "Ott a pultnál kitöltök egy meghatalmazást, és aláírom.",
           "ru": "Тут же у стойки заполняю доверенность и подписываю.",
           "en": "Right there at the counter I fill in a power of attorney and sign it."
-        },
+        }
+      ],
+      [
         {
           "hu": "A születési adataim az űrlapon vannak.",
           "ru": "Данные о рождении есть в бланке.",
@@ -241,7 +253,9 @@
           "hu": "Az illetékről is kap igazolást.",
           "ru": "О госпошлине она тоже получает справку.",
           "en": "She gets a certificate about the fee too."
-        },
+        }
+      ],
+      [
         {
           "hu": "Este hív, és azt mondja, hogy kész.",
           "ru": "Вечером звонит и говорит, что готово.",
@@ -321,7 +335,9 @@
           "hu": "Eredeti okmány kell, a másolat nem elég.",
           "ru": "Нужен оригинал документа, копии мало.",
           "en": "The original document is needed, a copy is not enough."
-        },
+        }
+      ],
+      [
         {
           "hu": "Kell az útlevél vagy a személyi igazolvány.",
           "ru": "Нужен загранпаспорт или удостоверение личности.",

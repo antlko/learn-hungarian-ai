@@ -193,7 +193,9 @@
           "hu": "Ő nekem azt mondja, hogy „te”.",
           "ru": "Он мне говорит «ты».",
           "en": "He says «te» to me."
-        },
+        }
+      ],
+      [
         {
           "hu": "Én neki azt mondom, hogy „ön”.",
           "ru": "Я ему говорю «вы».",
@@ -230,7 +232,9 @@
           "hu": "Nekik azt mondom, hogy „te”.",
           "ru": "Им я говорю «ты».",
           "en": "I say «te» to them."
-        },
+        }
+      ],
+      [
         {
           "hu": "Szia, Anna! Te is itt vagy?",
           "ru": "Привет, Анна! Ты тоже здесь?",
@@ -267,7 +271,9 @@
           "hu": "Neki azt mondom, hogy „doktor úr”.",
           "ru": "Ему я говорю «господин доктор».",
           "en": "I say «doktor úr» to him."
-        },
+        }
+      ],
+      [
         {
           "hu": "Egy bácsi is jön az igazolványával.",
           "ru": "Приходит и дядя в годах со своим удостоверением.",
@@ -314,7 +320,9 @@
           "hu": "A hölgy az engedélyt kéri.",
           "ru": "Дама просит разрешение.",
           "en": "The lady asks for the permit."
-        },
+        }
+      ],
+      [
         {
           "hu": "Egy fiú és egy lány is jön.",
           "ru": "Приходят ещё парень и девушка.",
@@ -356,7 +364,9 @@
           "hu": "Az eladó azt mondja, hogy „mit tetszik kérni, asszonyom?”",
           "ru": "Она говорит: «Что желаете, госпожа?»",
           "en": "She says, «What would you like, madam?»"
-        },
+        }
+      ],
+      [
         {
           "hu": "Egy rendőr is áll ott.",
           "ru": "Там же стоит полицейский.",
@@ -393,7 +403,9 @@
           "hu": "De nekem csak Kata és Péter.",
           "ru": "Но для меня просто Ката и Петер.",
           "en": "But to me they are just Kata and Péter."
-        },
+        }
+      ],
+      [
         {
           "hu": "Bemutatom nekik Annát, és mind azt mondják, hogy „te”.",
           "ru": "Я представляю им Анну, и все говорят друг другу «ты».",

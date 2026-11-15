@@ -45,7 +45,9 @@
           "hu": "Kérünk önéletrajzot és bizonyítványt.",
           "ru": "Просим прислать резюме и аттестат.",
           "en": "Please send a CV and a certificate."
-        },
+        }
+      ],
+      [
         {
           "hu": "Jelentkezni a vezetőnél lehet.",
           "ru": "Откликнуться можно у руководителя.",
@@ -113,7 +115,9 @@
           "hu": "Sok tapasztalatom van, mert már öt éve dolgozom.",
           "ru": "У меня большой опыт, ведь я работаю уже пять лет.",
           "en": "I have a lot of experience, because I have been working for five years."
-        },
+        }
+      ],
+      [
         {
           "hu": "Most egy gyárban vagyok, műszakban dolgozom.",
           "ru": "Сейчас я на заводе, работаю посменно.",
@@ -187,7 +191,9 @@
           "hu": "A szabadság és a műszak is fontos nekem.",
           "ru": "Отпуск и смена тоже важны для меня.",
           "en": "Leave and the shift are important to me too."
-        },
+        }
+      ],
+      [
         {
           "hu": "A cég felvesz engem?",
           "ru": "Фирма примет меня на работу?",
@@ -251,7 +257,9 @@
           "hu": "A nagyapám nyugdíjas, régen szakács volt.",
           "ru": "Дедушка пенсионер, раньше был поваром.",
           "en": "My grandfather is a pensioner, he used to be a cook."
-        },
+        }
+      ],
+      [
         {
           "hu": "Péter, a barátom, titkár egy üzletben.",
           "ru": "Мой друг Петер секретарь в одном магазине.",
@@ -283,7 +291,9 @@
           "hu": "Nem volt prémium, és szabadnap is ritkán volt.",
           "ru": "Премий не было, и выходные случались редко.",
           "en": "There was no bonus, and days off were rare too."
-        },
+        }
+      ],
+      [
         {
           "hu": "Ezért felmondtam, mert a munka nem volt jó.",
           "ru": "Поэтому я уволился, ведь работа была нехорошая.",
@@ -335,7 +345,9 @@
           "hu": "A hirdetést az újságban találtam.",
           "ru": "Объявление я нашёл в газете.",
           "en": "I found the advertisement in the newspaper."
-        },
+        }
+      ],
+      [
         {
           "hu": "Egy vállalat új programozót és mérnököt keresett.",
           "ru": "Одна компания искала нового программиста и инженера.",
@@ -372,7 +384,9 @@
           "hu": "Kovács úr azt mondta, hogy a cég alkalmaz engem.",
           "ru": "Господин Ковач сказал, что фирма берёт меня.",
           "en": "Mr Kovács said that the company is hiring me."
-        },
+        }
+      ],
+      [
         {
           "hu": "A munkaszerződés állandó, a munkaidő nyolctól négyig tart.",
           "ru": "Трудовой договор постоянный, рабочее время с восьми до четырёх.",
@@ -409,7 +423,9 @@
           "hu": "Jövőre még egy tanfolyamot tervezek.",
           "ru": "В следующем году я планирую ещё одни курсы.",
           "en": "Next year I am planning another course."
-        },
+        }
+      ],
+      [
         {
           "hu": "Este az egész család nálunk volt.",
           "ru": "Вечером вся семья собралась у нас.",
@@ -434,7 +450,9 @@
           "hu": "Mind örültek az új munkakörnek és a szerződésnek.",
           "ru": "Все радовались моей новой должности и договору.",
           "en": "Everyone was happy about my new job role and the contract."
-        },
+        }
+      ],
+      [
         {
           "hu": "A kereset jó, a szabadság és a műszak is rendben van.",
           "ru": "Заработок хороший, отпуск и смены тоже в порядке.",

@@ -215,7 +215,9 @@
           "hu": "Bocsánat, nem értem, mondom.",
           "ru": "Простите, я не понимаю, говорю я.",
           "en": "Sorry, I don't understand, I say."
-        },
+        }
+      ],
+      [
         {
           "hu": "Lassan, kérem. Tud ismételni?",
           "ru": "Медленно, пожалуйста. Вы можете повторить?",
@@ -252,7 +254,9 @@
           "hu": "Egy szó, egy mondat, és újra egy szó.",
           "ru": "Слово, предложение и снова слово.",
           "en": "One word, one sentence, and one more word."
-        },
+        }
+      ],
+      [
         {
           "hu": "A kiejtés fontos, és ismételni kell, mondja Péter.",
           "ru": "Произношение важно, и нужно повторять, говорит Петер.",
@@ -299,7 +303,9 @@
           "hu": "Talán nem jó, de persze nem baj.",
           "ru": "Может быть, неправильно, но, конечно, ничего.",
           "en": "Maybe it is not right, but of course never mind."
-        },
+        }
+      ],
+      [
         {
           "hu": "Mit jelent ez a szó, kérdezem.",
           "ru": "Что значит это слово, спрашиваю я.",
@@ -341,7 +347,9 @@
           "hu": "Elnézést, kérem, hogyan mondják ezt?",
           "ru": "Простите, пожалуйста, как это говорят?",
           "en": "Excuse me, please, how do you say this?"
-        },
+        }
+      ],
+      [
         {
           "hu": "Csak egy szó kell, semmi más.",
           "ru": "Нужно только одно слово, больше ничего.",

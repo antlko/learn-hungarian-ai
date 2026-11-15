@@ -1509,6 +1509,7 @@
   },
   "inspector": {
     "memory": {
+      "toggle": "How well I know this word",
       "title": "Memory of the word",
       "returnsIn": "comes back in {when}",
       "dueNow": "due now",

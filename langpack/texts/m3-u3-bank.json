@@ -48,7 +48,9 @@
           "hu": "Az áram szolgáltatója nem vár, a rezsi a rezsi.",
           "ru": "Поставщик электричества не ждёт, коммуналка есть коммуналка.",
           "en": "The electricity provider does not wait, the bill is the bill."
-        },
+        }
+      ],
+      [
         {
           "hu": "Az utalás után a nyugtát is elmentem.",
           "ru": "После перевода я сохраню и квитанцию.",
@@ -121,7 +123,9 @@
           "hu": "Az internetes bankhoz kell egy jelszó és egy azonosító.",
           "ru": "Для интернет-банка нужны пароль и номер клиента.",
           "en": "For internet banking you need a password and a customer number."
-        },
+        }
+      ],
+      [
         {
           "hu": "A jelszó legyen jó, nem lehet egyszerű.",
           "ru": "Пароль должен быть хорошим, не простым.",
@@ -153,7 +157,9 @@
           "hu": "Az áram szolgáltatója küld egy csekket.",
           "ru": "Поставщик электричества присылает квитанцию.",
           "en": "The electricity provider sends a payment slip."
-        },
+        }
+      ],
+      [
         {
           "hu": "Az előfizetés havi díja is jön.",
           "ru": "Ежемесячная плата за подписку тоже приходит.",
@@ -190,7 +196,9 @@
           "hu": "Ha nincs pénz a számlán, a bank bírságot kér.",
           "ru": "Если на счёте нет денег, банк берёт штраф.",
           "en": "If there is no money in the account, the bank charges a fine."
-        },
+        }
+      ],
+      [
         {
           "hu": "Ha euró kell, váltasz a bankban.",
           "ru": "Если нужны евро, ты меняешь их в банке.",
@@ -205,7 +213,9 @@
           "hu": "Hitel nem kell, mert a kamat nagy.",
           "ru": "Кредит не нужен, потому что процент большой.",
           "en": "You do not need a loan, because the interest is high."
-        },
+        }
+      ],
+      [
         {
           "hu": "Egy kis tartozás is baj, a részlet minden hónapban jön.",
           "ru": "Даже небольшой долг это беда, платёж приходит каждый месяц.",
@@ -255,7 +265,9 @@
           "hu": "Dolgozó ember vagyok, és minden hónapban kapok fizetést.",
           "ru": "Я работающий человек и каждый месяц получаю зарплату.",
           "en": "I am a working person and I get a salary every month."
-        },
+        }
+      ],
+      [
         {
           "hu": "Ez a jövedelmem, más bevételem nincs.",
           "ru": "Это мой доход, другого поступления у меня нет.",
@@ -292,7 +304,9 @@
           "hu": "Ha késő, jön a bírság, és ez nagy veszteség.",
           "ru": "Если поздно, приходит штраф, и это большой убыток.",
           "en": "If it is late, a fine comes, and that is a big loss."
-        },
+        }
+      ],
+      [
         {
           "hu": "Ezért van egy megbízásom, és a bank átutal.",
           "ru": "Поэтому у меня есть поручение, и банк переводит.",
@@ -319,7 +333,9 @@
           "hu": "Kölcsön csak a családtól kérek, és nincs tartozásom.",
           "ru": "Заём я прошу только у семьи, и долгов у меня нет.",
           "en": "I ask for a loan only from the family, and I have no debts."
-        },
+        }
+      ],
+      [
         {
           "hu": "Ha valaki tartozik nekem, nem várok sokáig.",
           "ru": "Если кто-то мне должен, я не жду долго.",
@@ -378,7 +394,9 @@
           "hu": "Sok a csalás, és a pénzügyi fedezet fontos.",
           "ru": "Мошенничества много, и финансовое покрытие важно.",
           "en": "There is a lot of fraud, and financial cover is important."
-        },
+        }
+      ],
+      [
         {
           "hu": "A gazdasági helyzet nem mindig jó, de én nyugodt vagyok.",
           "ru": "Экономическая ситуация не всегда хороша, но я спокойна.",
@@ -410,7 +428,9 @@
           "hu": "A régi hitelkártya egy veszteség volt, ezért nincs több.",
           "ru": "Старая кредитная карта была убытком, поэтому больше нет.",
           "en": "The old credit card was a loss, so there are no more."
-        },
+        }
+      ],
+      [
         {
           "hu": "Az internetes előfizetés ingyenes, a többi díj nem.",
           "ru": "Интернет-подписка бесплатная, остальные платежи нет.",
