@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { Sparkles, ChevronDown, MessageCircleQuestion } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import Note from '@/components/common/Note.vue'
@@ -53,7 +53,11 @@ const props = defineProps<{
    */
   hasSaved?: boolean
 }>()
-const emit = defineEmits<{ saved: [gloss: UserGloss] }>()
+const emit = defineEmits<{
+  saved: [gloss: UserGloss]
+  /** Whether the model is reachable — the parent's header «Учитель» button shows on the same condition. */
+  available: [value: boolean]
+}>()
 
 const ui = useUiStore()
 
@@ -63,10 +67,12 @@ const loading = ref(false)
 const error = ref('')
 const saved = ref(false)
 const askOpen = ref(false)
+const askBox = ref<HTMLElement | null>(null)
 
 onMounted(async () => {
   try {
     status.value = await api.aiEntryStatus()
+    emit('available', !!status.value?.available)
   } catch {
     // No status means no button. A model that cannot be reached is not an
     // error on a word popover.
@@ -84,6 +90,22 @@ watch(
     askOpen.value = false
   },
 )
+
+/**
+ * Open the question box and bring it into view. The word sheet is long and the
+ * box sits at its end, so the header's «Учитель» button calls this.
+ */
+async function reveal() {
+  if (!status.value?.available) return
+  askOpen.value = true
+  await nextTick()
+  // The conversation grows after it mounts (history loads), so the first
+  // scroll alone can leave the box below the fold: align its top, then again.
+  const go = () => askBox.value?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+  go()
+  setTimeout(go, 350)
+}
+defineExpose({ reveal })
 
 /** The model's short name, for the label that travels with the entry. */
 const model = computed(() => (entry.value?.model || status.value?.model || '').split('/').pop() ?? '')
@@ -222,7 +244,7 @@ async function save() {
     <Note v-if="error" variant="error" class="text-xs">{{ error }}</Note>
 
     <!-- ── 2 · a question about this word, on every card ────────────────── -->
-    <div v-if="status?.available" class="flex flex-col gap-2">
+    <div v-if="status?.available" ref="askBox" class="flex flex-col gap-2">
       <button
         type="button"
         class="flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"

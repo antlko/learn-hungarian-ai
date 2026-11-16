@@ -122,7 +122,8 @@ func dumpTable(db *sql.DB, t table, userID int64) (Rows, error) {
 	// unchanged profile — which is what makes a round-trip test meaningful and
 	// a diff of two exports readable.
 	order := " ORDER BY rowid"
-	if t.Name == "translation_cache" || t.Name == "user_gloss" {
+	if t.Name == "translation_cache" || t.Name == "user_gloss" ||
+		t.Name == "sentence_translation_override" {
 		// WITHOUT ROWID tables have no rowid to order by.
 		order = ""
 	}

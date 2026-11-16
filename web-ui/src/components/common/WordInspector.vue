@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { Info, X } from '@lucide/vue'
+import { Info, Sparkles, X } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import Note from '@/components/common/Note.vue'
 import SpeakButton from '@/components/common/SpeakButton.vue'
@@ -49,6 +49,9 @@ const examples = ref<Example[]>([])
 /** The learner's own meaning for this form — typed, or kept from the AI entry. */
 const saved = ref<UserGloss | null>(null)
 const memoryOpen = ref(false)
+/** The word's AI panel (one per branch below) and whether its model is reachable. */
+const aiPanel = ref<InstanceType<typeof AiWordPanel> | null>(null)
+const aiAvailable = ref(false)
 const loading = ref(false)
 const failed = ref(false)
 
@@ -194,13 +197,27 @@ const uncertain = computed(
     :class="embedded ? '' : 'overflow-y-auto rounded-xl border border-border-subtle bg-card p-5 lg:w-80'"
   >
     <div class="flex items-start justify-between gap-2">
-      <div class="flex items-center gap-1">
+      <div class="flex min-w-0 items-center gap-1">
         <p class="text-xl font-medium" lang="hu">{{ word }}</p>
         <SpeakButton :text="word" />
       </div>
+      <div class="flex shrink-0 items-center gap-1">
+        <!-- The ask-about-this-word flow is far down a long sheet: reach it from the top. Same condition as its own button. -->
+        <button
+          v-if="aiAvailable && !loading"
+          type="button"
+          class="inline-flex h-11 min-w-11 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-border bg-transparent px-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:h-9"
+          :aria-label="$t('inspector.ai.teacherAria')"
+          :title="$t('inspector.ai.teacherAria')"
+          @click="aiPanel?.reveal()"
+        >
+          <Sparkles class="size-4" aria-hidden="true" />
+          <span class="max-[359px]:hidden">{{ $t('inspector.ai.teacher') }}</span>
+        </button>
       <Button v-if="!embedded" variant="ghost" size="icon" :aria-label="$t('common.close')" @click="emit('close')">
         <X class="size-4" aria-hidden="true" />
       </Button>
+      </div>
     </div>
 
     <p v-if="loading" class="text-sm text-muted-foreground">{{ $t('common.loading') }}</p>
@@ -214,9 +231,11 @@ const uncertain = computed(
       <Note variant="limit" bare class="text-xs">{{ $t('reader.noAnalysis') }}</Note>
       <SavedGloss v-if="saved" :form="word" :gloss="saved" @change="saved = $event" />
       <AiWordPanel
+        ref="aiPanel"
         :word="word"
         :has-pack-entry="false"
         :has-saved="!!saved"
+        @available="aiAvailable = $event"
         @saved="saved = $event"
       />
     </template>
@@ -379,7 +398,7 @@ const uncertain = computed(
         `hasPackEntry` keeps the AI ENTRY off this branch — the pack's own is
         better and the model must not compete with it. ADR-042.
       -->
-      <AiWordPanel :word="word" :has-pack-entry="true" />
+      <AiWordPanel ref="aiPanel" :word="word" :has-pack-entry="true" @available="aiAvailable = $event" />
     </template>
   </aside>
 </template>

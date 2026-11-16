@@ -37,6 +37,16 @@ const cribTimeout = 2 * time.Minute
 // weights. ADR-014 already established that a cached answer is served without
 // the model running; this is the same promise on a different screen.
 func (s *Server) attachCribs(userID int64, items []srs.QueueItem) error {
+	if err := s.attachCribCache(userID, items); err != nil {
+		return err
+	}
+	// Last: the learner's kept translation and the curated fixes outrank the
+	// pack and the cache. ADR-078.
+	return s.applySentenceFixes(userID, items, true)
+}
+
+// attachCribCache is the cache read of attachCribs, without the fixes.
+func (s *Server) attachCribCache(userID int64, items []srs.QueueItem) error {
 	target := s.cribLang()
 	for i := range items {
 		it := &items[i]

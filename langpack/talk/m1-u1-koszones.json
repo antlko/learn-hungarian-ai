@@ -313,15 +313,15 @@
         },
         {
           "who": "A",
-          "hu": "Péter. Orosz vagy?",
-          "ru": "Петер. Ты русская?",
-          "en": "Péter. Are you Russian?"
+          "hu": "Péter. Magyar vagy?",
+          "ru": "Петер. Ты венгерка?",
+          "en": "Péter. Are you Hungarian?"
         },
         {
           "who": "B",
-          "hu": "Igen, de már itt lakom.",
-          "ru": "Да, но уже живу здесь.",
-          "en": "Yes, but I live here now."
+          "hu": "Nem, de már itt lakom.",
+          "ru": "Нет, но уже живу здесь.",
+          "en": "No, but I live here now."
         },
         {
           "who": "A",

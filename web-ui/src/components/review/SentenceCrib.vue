@@ -24,13 +24,21 @@
  * fetch fails the crib stays silent and the button remains as the fallback.
  * A fetch is keyed to the sentence — it used to survive a card change and show
  * the previous card's translation under the next one.
+ *
+ * Third option, ADR-078: «Перевод учителя» asks the AI Teacher (services.llm)
+ * for a natural translation when the learner doubts the line above. It SAVES
+ * NOTHING by itself — the answer appears with its model and two buttons; only
+ * «Использовать вместо этого» keeps it as this sentence's translation from then
+ * on, and «Вернуть исходный» undoes that. Card size only; hidden without llm.
  */
 import { computed, ref, watch } from 'vue'
-import { Languages } from '@lucide/vue'
+import { Languages, Sparkles } from '@lucide/vue'
 import { api } from '@/api'
 import { useCapabilitiesStore } from '@/stores/capabilities'
 import { useUiStore } from '@/stores/ui'
-import type { Translation } from '@/types'
+import { describeError } from '@/lib/errors'
+import { pickGloss } from '@/lib/gloss'
+import type { SentenceTranslation, Translation } from '@/types'
 
 const props = withDefaults(
   defineProps<{
@@ -48,8 +56,10 @@ const props = withDefaults(
     auto?: boolean
     /** A machine translation the parent fetched (batched), shown below any pack line. */
     machine?: Translation | null
+    /** `text` is the learner's kept translation: offer to restore the original. */
+    kept?: boolean
   }>(),
-  { text: '', model: '', isFallback: false, size: 'card', auto: true, machine: null },
+  { text: '', model: '', isFallback: false, size: 'card', auto: true, machine: null, kept: false },
 )
 
 const caps = useCapabilitiesStore()
@@ -61,10 +71,26 @@ const failed = ref(false)
 /** The sentence a request is in flight for: one request per sentence at a time. */
 let inflight = ''
 
+/** After a keep or a reset on this screen: supersedes the props until the card changes. */
+const local = ref<{ text: string; model: string; isFallback: boolean; kept: boolean } | null>(null)
+const proposal = ref<SentenceTranslation | null>(null)
+const teaching = ref(false)
+const saving = ref(false)
+const teacherError = ref('')
+const effText = computed(() => (local.value ? local.value.text : props.text))
+const effModel = computed(() => (local.value ? local.value.model : props.model))
+const effFallback = computed(() => (local.value ? local.value.isFallback : props.isFallback))
+const isKept = computed(() => (local.value ? local.value.kept : props.kept))
+
 // A translation fetched for one sentence never shows under another.
 watch(
   () => props.hu,
   () => {
+    local.value = null
+    proposal.value = null
+    teaching.value = false
+    saving.value = false
+    teacherError.value = ''
     fetched.value = null
     loading.value = false
     failed.value = false
@@ -73,18 +99,71 @@ watch(
 )
 
 /** The human line: the pack's, in either language. */
-const packText = computed(() => (props.model ? '' : props.text))
+const packText = computed(() => (effModel.value ? '' : effText.value))
 /** The machine line: fetched here, or handed in from the cache with its model. */
 const machineText = computed(
-  () => fetched.value?.text || props.machine?.text || (props.model ? props.text : ''),
+  () => fetched.value?.text || props.machine?.text || (effModel.value ? effText.value : ''),
 )
-const machineModel = computed(() => fetched.value?.model || props.machine?.model || props.model || '')
+const machineModel = computed(() => fetched.value?.model || props.machine?.model || effModel.value || '')
 const shortModel = computed(() => machineModel.value.split('/').pop() ?? '')
 /** Offered when the learner's language is missing and something could supply it. */
 const canAsk = computed(
-  () => caps.available('mt') && !fetched.value && !machineText.value && (!packText.value || props.isFallback),
+  () => caps.available('mt') && !fetched.value && !machineText.value && (!packText.value || effFallback.value),
 )
 const inline = computed(() => props.size === 'inline')
+/** The AI Teacher is offered on the card only, and only when a model answers. */
+const canTeach = computed(() => !inline.value && caps.available('llm') && !!props.hu)
+const target = computed<'ru' | 'en'>(() => (ui.locale === 'ru' ? 'ru' : 'en'))
+
+async function askTeacher() {
+  const hu = props.hu
+  if (!hu || teaching.value) return
+  teaching.value = true
+  teacherError.value = ''
+  try {
+    const res = await api.teacherTranslate(hu, target.value)
+    if (props.hu === hu) proposal.value = res
+  } catch (e) {
+    if (props.hu === hu) teacherError.value = describeError(e)
+  } finally {
+    if (props.hu === hu) teaching.value = false
+  }
+}
+
+async function keepProposal() {
+  const hu = props.hu
+  const p = proposal.value
+  if (!p || saving.value) return
+  saving.value = true
+  teacherError.value = ''
+  try {
+    const res = await api.saveSentenceTranslation(hu, target.value, p.text, p.model)
+    if (props.hu !== hu) return
+    local.value = { text: res.text, model: res.model, isFallback: false, kept: true }
+    proposal.value = null
+  } catch (e) {
+    if (props.hu === hu) teacherError.value = describeError(e)
+  } finally {
+    if (props.hu === hu) saving.value = false
+  }
+}
+
+async function restoreOriginal() {
+  const hu = props.hu
+  if (saving.value) return
+  saving.value = true
+  teacherError.value = ''
+  try {
+    const res = await api.resetSentenceTranslation(hu, target.value)
+    if (props.hu !== hu) return
+    const g = pickGloss(res.sentenceRu, res.sentenceEn, ui.locale)
+    local.value = { text: g.text, model: res.sentenceModel, isFallback: g.isFallback, kept: false }
+  } catch (e) {
+    if (props.hu === hu) teacherError.value = describeError(e)
+  } finally {
+    if (props.hu === hu) saving.value = false
+  }
+}
 
 async function translate(auto = false) {
   const hu = props.hu
@@ -129,7 +208,7 @@ watch(
     >
       {{ packText }}
       <!-- The other language, said so — never passed off as the learner's. ADR-035 -->
-      <span v-if="isFallback" class="ml-1 text-[10px] text-uncertain">
+      <span v-if="effFallback" class="ml-1 text-[10px] text-uncertain">
         {{ inline ? $t('translation.fallbackShort') : $t('translation.fallback') }}
       </span>
     </p>
@@ -143,17 +222,69 @@ watch(
       {{ inline ? $t('translation.machineShort', { model: shortModel }) : $t('translation.machine', { model: shortModel }) }}
     </p>
 
-    <button
-      v-if="canAsk"
-      type="button"
-      class="flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-60"
-      :class="inline ? '-ml-2 self-start' : 'mx-auto'"
-      :disabled="loading"
-      @click="translate()"
+    <div :class="inline ? '' : 'flex flex-wrap items-center justify-center gap-x-2'">
+      <button
+        v-if="canAsk"
+        type="button"
+        class="flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-60"
+        :class="inline ? '-ml-2 self-start' : ''"
+        :disabled="loading"
+        @click="translate()"
+      >
+        <Languages class="size-3.5" aria-hidden="true" />
+        {{ loading ? $t('reader.translating') : $t('translation.toLocale') }}
+      </button>
+      <button
+        v-if="canTeach && !proposal"
+        type="button"
+        class="flex min-h-11 cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-60 sm:min-h-8"
+        :disabled="teaching"
+        @click="askTeacher"
+      >
+        <Sparkles class="size-3.5" aria-hidden="true" />
+        {{ teaching ? $t('translation.teacherAsking') : $t('translation.teacher') }}
+      </button>
+      <button
+        v-if="canTeach && isKept && !proposal"
+        type="button"
+        class="min-h-11 cursor-pointer rounded-md px-2 py-1 text-xs text-muted-foreground underline-offset-4 transition-colors hover:bg-accent hover:text-foreground hover:underline disabled:opacity-60 sm:min-h-8"
+        :disabled="saving"
+        @click="restoreOriginal"
+      >
+        {{ $t('translation.restore') }}
+      </button>
+    </div>
+
+    <!-- The Teacher's answer: labelled, and kept only on the learner's press. -->
+    <div
+      v-if="proposal"
+      class="mx-auto mt-1 flex w-full max-w-md flex-col items-center gap-1 rounded-md border border-border bg-card px-3 py-2"
+      role="status"
     >
-      <Languages class="size-3.5" aria-hidden="true" />
-      {{ loading ? $t('reader.translating') : $t('translation.toLocale') }}
-    </button>
+      <p class="text-base leading-relaxed text-foreground">{{ proposal.text }}</p>
+      <p class="text-[10px] leading-relaxed text-uncertain">
+        {{ $t('translation.teacherBy', { model: proposal.model.split('/').pop() }) }}
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        <button
+          type="button"
+          class="min-h-11 cursor-pointer rounded-md bg-primary px-3 py-1 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60 sm:min-h-8"
+          :disabled="saving"
+          @click="keepProposal"
+        >
+          {{ $t('translation.useInstead') }}
+        </button>
+        <button
+          type="button"
+          class="min-h-11 cursor-pointer rounded-md px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:min-h-8"
+          @click="proposal = null"
+        >
+          {{ $t('translation.close') }}
+        </button>
+      </div>
+    </div>
+
+    <p v-if="teacherError" class="text-[11px] text-muted-foreground">{{ teacherError }}</p>
 
     <p v-if="failed" class="text-[11px] text-muted-foreground">
       {{ $t('translation.unreachable') }}

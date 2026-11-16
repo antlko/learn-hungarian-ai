@@ -154,6 +154,8 @@ var manifest = []table{
 	{Name: "course_progress", UserColumn: "user_id", Scope: "user_id = ?"},
 	{Name: "translation_cache", UserColumn: "user_id", Scope: "user_id = ?"},
 	{Name: "user_gloss", UserColumn: "user_id", Scope: "user_id = ?"},
+	// The learner's kept replacement for a sentence translation (ADR-078).
+	{Name: "sentence_translation_override", UserColumn: "user_id", Scope: "user_id = ?"},
 	{
 		Name: "practice_log", UserColumn: "user_id", Scope: "user_id = ?",
 		Refs: map[string]string{"card_id": "card"},

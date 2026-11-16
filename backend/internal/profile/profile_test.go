@@ -88,6 +88,8 @@ func seed(t *testing.T, d *db.DB, dir string, email string) int64 {
 	               VALUES (?, '2026-03-01', 12, 480000, 0)`, uid)
 	exec(t, d.DB, `INSERT INTO user_gloss (user_id, form, gloss, source, model)
 	               VALUES (?, 'kinyitom', 'я открываю это', 'machine', 'nllb-200')`, uid)
+	exec(t, d.DB, `INSERT INTO sentence_translation_override (user_id, source_hash, source, target_lang, text, model)
+	               VALUES (?, 'h1', 'Mindenkinek a magáét.', 'ru', 'Всем своё.', 'teacher-model')`, uid)
 
 	// Settings: one ordinary, one secret. The secret must not cross.
 	exec(t, d.DB, `INSERT INTO settings (user_id, key, value, secret) VALUES (?, 'locale', 'ru', 0)`, uid)

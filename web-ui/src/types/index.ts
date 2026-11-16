@@ -159,6 +159,19 @@ export interface Translation {
   cached: boolean
 }
 
+/** A sentence translation with the model that wrote it (the AI Teacher's, or the kept line). ADR-078. */
+export interface SentenceTranslation {
+  text: string
+  model: string
+}
+
+/** The crib after a kept translation is reset: what the card shows without it. */
+export interface OriginalSentence {
+  sentenceRu: string
+  sentenceEn: string
+  sentenceModel: string
+}
+
 /** What the last press of «Проверить» found, per service. */
 export interface CheckResult {
   at: Date
@@ -321,6 +334,8 @@ export interface QueueItem {
    * beside the text and never in a tooltip.
    */
   sentenceModel?: string
+  /** The learner replaced the translation with one they kept (the AI Teacher's). ADR-078. */
+  sentenceKept?: boolean
   lemmaId?: number
   /** Dictionary form of the target word — the cue a cloze cannot be answered without. */
   lemma?: string

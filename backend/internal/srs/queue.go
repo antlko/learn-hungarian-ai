@@ -68,6 +68,9 @@ type QueueItem struct {
 	// well-formed, so it has to say who wrote it. The client prints this beside
 	// the text, never in a tooltip. See ADR-018.
 	SentenceModel string `json:"sentenceModel,omitempty"`
+	// SentenceKept: the learner replaced the translation with one they chose
+	// to keep (the AI Teacher's); the crib offers to restore the original.
+	SentenceKept bool `json:"sentenceKept,omitempty"`
 	// SentenceID identifies the pack sentence this note was built from, for
 	// that lookup. Never on the wire — it is a pack row id, not the client's
 	// business.

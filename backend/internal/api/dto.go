@@ -192,6 +192,35 @@ type TranslationDTO struct {
 	Cached bool   `json:"cached"`
 }
 
+// TeacherTranslateRequest asks the AI Teacher to translate one sentence.
+type TeacherTranslateRequest struct {
+	HU     string `json:"hu"`
+	Target string `json:"target"` // "ru" | "en"
+}
+
+// SaveSentenceTranslationRequest keeps a translation as the sentence's own.
+type SaveSentenceTranslationRequest struct {
+	HU     string `json:"hu"`
+	Target string `json:"target"`
+	Text   string `json:"text"`
+	Model  string `json:"model"`
+}
+
+// SentenceTranslationDTO is a translation with the model that wrote it: the
+// Teacher's answer, or the kept line echoed back. Model is never empty.
+type SentenceTranslationDTO struct {
+	Text  string `json:"text"`
+	Model string `json:"model"`
+}
+
+// OriginalSentenceDTO is the crib after a kept translation is reset: the
+// translation the card would show without it. Fields are empty when there is none.
+type OriginalSentenceDTO struct {
+	SentenceRU    string `json:"sentenceRu"`
+	SentenceEN    string `json:"sentenceEn"`
+	SentenceModel string `json:"sentenceModel"`
+}
+
 type TranslateResponse struct {
 	Translations []TranslationDTO `json:"translations"`
 }

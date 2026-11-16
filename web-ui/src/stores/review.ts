@@ -625,11 +625,26 @@ export const useReviewStore = defineStore('review', () => {
   }
 
   /**
+   * A sitting held at a set's summary: the set is finished, so it is not
+   * «stopped» (canResume says no and the start screen shows no banner), but
+   * the next set of the same sitting is waiting — the session keeps its counts.
+   */
+  function canContinueSet(m: 'review' | 'practice', s: QueueScope): boolean {
+    if (mode.value !== m || sessionDay.value !== localDay()) return false
+    if (sessionUser.value === null || sessionUser.value !== currentUser()) return false
+    if (!betweenSets.value) return false
+    return (m === 'review' ? scope.value : practiceScope.value) === s
+  }
+
+  /**
    * Pick the held sitting up where it was. Only the answer-latency clock is
    * reset, so the time spent on another screen is not graded as slowness.
    */
   function resume() {
     shownAt = performance.now()
+    // Coming back from the start screen after a set's summary: «Продолжить»
+    // means the next set, not the summary again.
+    if (betweenSets.value) startNextSet()
     if (done.value && mode.value === 'review') void load(scope.value, { keepSession: true })
   }
 
@@ -660,6 +675,7 @@ export const useReviewStore = defineStore('review', () => {
 
   return {
     canResume,
+    canContinueSet,
     resume,
     discard,
     resumeSummary,

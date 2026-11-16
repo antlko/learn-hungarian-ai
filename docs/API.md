@@ -462,6 +462,21 @@ the learner accepts it, which re-saves it as `manual`. See
 ]}
 ```
 
+### `/api/sentence-translation` — the AI Teacher's translation, kept on request
+
+[ADR-078](../.claude/DECISIONS.md#adr-078). For a learner who doubts the pack's or the machine's line under a sentence.
+
+| Method | Path | Notes |
+|---|---|---|
+| `POST` | `/api/sentence-translation/teacher` | `{hu, target: "ru"\|"en"}` → `{text, model}`. One LLM call, natural idiomatic rendering. **Saves nothing.** 400 blank / over 1,000 characters / other target; 503 `errors.llmOff` / `errors.llmNoModel`; 502 `errors.teacherTranslateFailed` |
+| `PUT` | `/api/sentence-translation` | `{hu, target, text, model}` → `{text, model}`: keeps `text` as this sentence's translation for this learner. `model` is required (always labelled) |
+| `DELETE` | `/api/sentence-translation?hu=&target=` | forgets it → `{sentenceRu, sentenceEn, sentenceModel}`: what the card shows without it |
+
+Learner data in `sentence_translation_override` (exported and imported with the profile). The review
+queue, the practice queue and the tutor's card context apply the precedence **kept translation >
+curated fix (`internal/sentfix/sentence_fixes.json`, human, no label) > pack > machine cache**; a queue
+item with a kept line has `sentenceKept: true` and `sentenceModel` set.
+
 ### `GET /api/mt/status` · `POST /api/mt/warmup`
 
 ```jsonc

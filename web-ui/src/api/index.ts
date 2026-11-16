@@ -56,6 +56,8 @@ import type {
   ProfileSize,
   UserGloss,
   Translation,
+  SentenceTranslation,
+  OriginalSentence,
   FeatureMastery,
   LevelEstimate,
   BandWordsResponse,
@@ -368,6 +370,20 @@ export const api = {
    */
   translate: (texts: string[], target: string) =>
     http.post<{ translations: Translation[] }>('/api/translate', { texts, target }),
+
+  /** The AI Teacher's translation of one sentence. Saves nothing; 503 when `services.llm` is off. ADR-078. */
+  teacherTranslate: (hu: string, target: 'ru' | 'en') =>
+    http.post<SentenceTranslation>('/api/sentence-translation/teacher', { hu, target }),
+
+  /** Keep a translation as the sentence's own, from here on. Only on the learner's press. */
+  saveSentenceTranslation: (hu: string, target: 'ru' | 'en', text: string, model: string) =>
+    http.put<SentenceTranslation>('/api/sentence-translation', { hu, target, text, model }),
+
+  /** Forget the kept translation; returns what the card shows without it. */
+  resetSentenceTranslation: (hu: string, target: 'ru' | 'en') =>
+    http.del<OriginalSentence>(
+      `/api/sentence-translation?hu=${encodeURIComponent(hu)}&target=${target}`,
+    ),
 
   /**
    * What the translation sidecar is doing, in its own words.

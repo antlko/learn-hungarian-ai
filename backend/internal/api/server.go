@@ -517,6 +517,11 @@ func (s *Server) buildApp() *fiber.App {
 	api.Post("/texts/:id/level", s.requireAuth, s.handleLLMLevel)
 	api.Post("/knowledge/lemma", s.requireAuth, s.handleSetKnown)
 	api.Post("/translate", s.requireAuth, s.handleTranslate)
+	// The AI Teacher's translation of a sentence (saves nothing) and the
+	// learner's explicit keep / reset of it. ADR-078.
+	api.Post("/sentence-translation/teacher", s.requireAuth, s.handleTeacherTranslate)
+	api.Put("/sentence-translation", s.requireAuth, s.handleSaveSentenceTranslation)
+	api.Delete("/sentence-translation", s.requireAuth, s.handleDeleteSentenceTranslation)
 	// The translation sidecar's own state, which the capability probe cannot
 	// carry: it flattens the 503 a downloading model returns into "unreachable".
 	api.Get("/mt/status", s.requireAuth, s.handleMTStatus)

@@ -27,9 +27,9 @@
           "en": "I am Kata, the new neighbour."
         },
         {
-          "hu": "Orosz vagyok, de itt lakom.",
-          "ru": "Я русская, но живу здесь.",
-          "en": "I am Russian, but I live here."
+          "hu": "Nem vagyok magyar, de itt lakom.",
+          "ru": "Я не венгерка, но живу здесь.",
+          "en": "I am not Hungarian, but I live here."
         },
         {
           "hu": "Nagyon örülök a találkozásnak!",
@@ -113,16 +113,16 @@
       ],
       [
         {
-          "hu": "Honnan jössz? Orosz vagy?",
-          "ru": "Откуда ты? Ты русская?",
-          "en": "Where are you from? Are you Russian?"
+          "hu": "Honnan jössz? Magyar vagy?",
+          "ru": "Откуда ты? Ты венгерка?",
+          "en": "Where are you from? Are you Hungarian?"
         }
       ],
       [
         {
-          "hu": "Igen, orosz vagyok. Egy nagy városból származom.",
-          "ru": "Да, я русская. Я родом из большого города.",
-          "en": "Yes, I am Russian. I come from a big city."
+          "hu": "Nem, nem vagyok magyar. Egy nagy városból származom.",
+          "ru": "Нет, я не венгерка. Я родом из большого города.",
+          "en": "No, I am not Hungarian. I come from a big city."
         }
       ],
       [
@@ -209,9 +209,9 @@
           "en": "I am twenty-six years old."
         },
         {
-          "hu": "Orosz vagyok, de most külföldön lakom.",
-          "ru": "Я русская, но сейчас живу за границей.",
-          "en": "I am Russian, but now I live abroad."
+          "hu": "Nem vagyok magyar, de most külföldön lakom.",
+          "ru": "Я не венгерка, но сейчас живу за границей.",
+          "en": "I am not Hungarian, but now I live abroad."
         },
         {
           "hu": "Egy magyar városban van egy új házam.",

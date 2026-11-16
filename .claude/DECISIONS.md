@@ -3130,3 +3130,20 @@ S is FSRS stability in days. 180 days (`srs.ProgressFullDays`) is a declared dis
 **Rejected.** (1) Letting colloquial words in through `texts_allow.tsv`: no level gate, no marker count, no banned list. (2) Hard-coding a "colloquial" flag per text without a lexicon: nothing would stop an A1 text from using B1 slang. (3) Writing colloquial text straight into the standard tiers: a learner could not tell which register they read, and the word-frequency gate would block most particles.
 
 **Consequences.** The evidence base is thin ([R23](research/23-colloquial-register.md)): the level of each particle and the marker thresholds are our judgement; a native speaker must review the lexicon and every text before they are called authentic. Docs: LANGPACK.md, `langpack/talk/README.md`. The Go and Vue layers read `register`, `tier`, `who` and `scene*` from the catalogue (other agents). Open: native review; retuning sizes, the 20% cap and levels after reading real output.
+
+## ADR-078 — Teacher translation of a sentence, kept on request; curated sentence fixes
+
+**Status:** accepted 2026-11-16 *(user decision)* · builds on [ADR-014](#adr-014) (machine text is labelled), [ADR-027](#adr-027) (the tutor mints nothing), [ADR-067](#adr-067) (the crib)
+
+**Context.** A pack sentence can be translated wrongly: «Mindenkinek a magáét.» showed «Кесарю кесарево.» (the idiom is «Каждому своё.»). The pack is read-only, and the learner had no way to doubt a line and ask for another.
+
+**Decision.**
+- Third option in the crib: «Перевод учителя» → `POST /api/sentence-translation/teacher` (one `services.llm` call, saves nothing). The answer shows with its model; **only** «Использовать вместо этого» (`PUT`) keeps it; «Вернуть исходный» (`DELETE`) undoes it.
+- Kept lines live in `sentence_translation_override` (migration 00022): learner data, exported/imported with the profile like `user_gloss`; labelled with the model; never a note, card, gloss or schedule state.
+- Precedence wherever a queue builds a crib (`attachCribs`): **kept > curated fix > pack > machine cache.**
+- Curated fixes: `internal/sentfix/sentence_fixes.json` (embedded, keyed by normalised Hungarian, `ru`/`en` optional), human work, no model label. First entry: «Mindenkinek a magáét.» → «Каждому своё.» / "To each their own.".
+- Button hidden when the llm capability is absent; the app is fully usable without it.
+
+**Rejected.** (1) Editing the pack: read-only by invariant. (2) Saving the Teacher's answer on ask: a wrong translation would persist unseen. (3) Free-text editing of the translation: out of scope.
+
+**Consequences.** Only the card-size crib offers the Teacher; the word inspector's example lines (inline size) do not. A kept line is per sentence text and per language, so a rewording of the sentence has no kept line.

@@ -710,8 +710,9 @@ function previewLabel(key: 'again' | 'hard' | 'good' | 'easy'): string {
  */
 async function nextSet() {
   if (!store.betweenSets) return
-  store.startNextSet()
-  await focusAnswer()
+  // Not straight into the next set: the start screen shows what the next one
+  // holds (new words, what is due), and «Продолжить» there deals it.
+  await router.push('/review')
 }
 
 /**
@@ -977,7 +978,7 @@ function startFrom(query: LocationQuery) {
   const practice = String(query.practice ?? '')
   if (PRACTICE_SCOPE.test(practice)) {
     // A sitting held in the store survives navigation (ADR-065).
-    if (store.canResume('practice', practice as QueueScope)) {
+    if (store.canResume('practice', practice as QueueScope) || store.canContinueSet('practice', practice as QueueScope)) {
       store.resume()
       void focusAnswer()
       return
@@ -987,7 +988,7 @@ function startFrom(query: LocationQuery) {
   }
   const wanted = String(query.scope ?? '')
   const scope = REVIEW_SCOPE.test(wanted) ? (wanted as QueueScope) : 'all'
-  if (store.canResume('review', scope)) {
+  if (store.canResume('review', scope) || store.canContinueSet('review', scope)) {
     store.resume()
     void focusAnswer()
     return
@@ -1531,6 +1532,7 @@ const ratingKeys = [
           :text="sentenceTranslation.text"
           :is-fallback="sentenceTranslation.isFallback"
           :model="store.current.sentenceModel"
+          :kept="store.current.sentenceKept"
           class="mt-3"
         />
 
@@ -1722,6 +1724,7 @@ const ratingKeys = [
               :text="sentenceTranslation.text"
               :is-fallback="sentenceTranslation.isFallback"
               :model="store.current.sentenceModel"
+          :kept="store.current.sentenceKept"
             />
           </div>
         </div>

@@ -52,6 +52,14 @@ rendering, and then takes it apart word by word — which suffix, which harmony 
 compares it with the learner's own attempt when there is one. The prompt's language rule is
 about the *explanation*, never the material: v2's «Отвечай ТОЛЬКО ПО-РУССКИ», first line and
 last, made a 1.7B model hand «напиши на венгерском …» back as the Russian sentence unchanged.
+
+**Teacher sentence translation** ([ADR-078](../.claude/DECISIONS.md#adr-078)). Beside the
+sentence crib on a review card, «Перевод учителя» makes one stateless `services.llm` call that
+translates the Hungarian sentence naturally (an idiom by its equivalent). It is not a chat turn and
+saves nothing; the answer is shown with its model, and only the learner's press on «Использовать
+вместо этого» keeps it as that sentence's translation (`PUT /api/sentence-translation`). The Teacher
+still mints no note, card, gloss or schedule state. Its prompt avoids the word `ONLY`. The button is
+hidden when the model is off.
 A translated sentence is labelled like every other Hungarian the tutor writes, dictionary-checked
 word by word (a backticked span up to 200 characters is split, §6), and still becomes nothing.
 
