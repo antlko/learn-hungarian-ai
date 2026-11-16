@@ -137,17 +137,40 @@ export function speak(text: string, opts: SpeakOptions = {}): boolean {
   const voice = pickVoice(opts.voiceName)
   if (!voice) return false
 
-  window.speechSynthesis.cancel()
+  const synth = window.speechSynthesis
   const utter = new SpeechSynthesisUtterance(spokenForm(trimmed))
   utter.voice = voice
   utter.lang = voice.lang
   utter.rate = Math.min(1.5, Math.max(0.5, opts.rate ?? 1))
-  if (opts.onEnd) utter.addEventListener('end', opts.onEnd)
-  if (opts.onError) utter.addEventListener('error', opts.onError)
-  window.speechSynthesis.speak(utter)
+  // An utterance that is cancelled fires `error`/`end` too; only the CURRENT
+  // one may report, or a stale cancel flips `speaking` off under the new word.
+  const mine = ++generation
+  if (opts.onEnd) utter.addEventListener('end', () => mine === generation && opts.onEnd?.())
+  if (opts.onError) utter.addEventListener('error', () => mine === generation && opts.onError?.())
+
+  clearTimeout(pendingSpeak)
+  if (synth.speaking || synth.pending) {
+    // Chrome and Safari silently DROP an utterance queued in the same tick as
+    // `cancel()` — the "arrow keys sometimes say nothing" bug. Let the engine
+    // finish tearing the old one down first.
+    synth.cancel()
+    pendingSpeak = setTimeout(() => {
+      if (mine !== generation) return
+      synth.resume()
+      synth.speak(utter)
+    }, 60)
+  } else {
+    synth.resume()
+    synth.speak(utter)
+  }
   return true
 }
 
+let generation = 0
+let pendingSpeak: ReturnType<typeof setTimeout> | undefined
+
 export function cancelSpeech(): void {
+  generation++
+  clearTimeout(pendingSpeak)
   if (speechSupported()) window.speechSynthesis.cancel()
 }
