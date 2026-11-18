@@ -8,7 +8,7 @@
 #   docker compose up -d                                 core only
 #   docker compose --profile llm up -d                   + a local model
 #   docker compose --profile mt up -d                    + sentence translation
-#   docker compose --profile tts up -d                   + Piper speech (same image, offline)
+#   docker compose --profile tts up -d                   + Piper speech (same image; first start downloads ~0.3 GB once, offline after)
 #
 # Tired of typing the flag? Put the profiles you want in a `.env` beside this
 # file — `COMPOSE_PROFILES=mt,llm` — and plain `docker compose up -d` brings them
@@ -68,14 +68,15 @@ services:
 
   # --- optional: Piper speech -------------------------------------------------
   # Hungarian card audio and read-aloud from three Piper voices. NO separate image
-  # and no download: the `full` tanulom image carries the offline Piper runtime and
-  # the voices inside its binary (ADR-080), so this service is the same image started
-  # as `component run tts`. Settings -> Services -> speech: provider local, endpoint
-  # http://tts:5000. (Inside the main container the same thing is Settings ->
-  # Components -> Включить / Enable; use this profile only to isolate it.) Needs the
-  # `full` image, NOT `:latest-slim` (distroless has no libc: the runtime cannot run).
-  # Piper and espeak-ng are GPL-3.0-or-later; their source is in the image under
-  # /usr/share/doc/tanulom/tts-source/. First start unpacks ~430 MB into the volume.
+  # and nothing baked in (ADR-081): this is the `full` tanulom image started as
+  # `component run tts`, which downloads the Piper runtime and the three voices
+  # (~0.4 GB) ONCE, on first start, from the project's public repository (hash-pinned)
+  # into the tanulom-tts-data volume, then runs offline. Settings -> Services -> speech:
+  # provider local, endpoint http://tts:5000. The simpler way is no profile at all:
+  # Settings -> Components -> Install / Установить inside the main container does the
+  # same into tanulom-data. Needs the `full` image, NOT `:latest-slim` (distroless has
+  # no libc: the downloaded runtime cannot run). Piper and espeak-ng are GPL-3.0-or-later;
+  # their source is in the repository at services/tts/vendor/source/.
   tts:
     profiles: ['tts']
     image: ghcr.io/antlko/learn-hungarian-ai:latest

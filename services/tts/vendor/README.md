@@ -1,9 +1,10 @@
-# Vendored offline Piper runtime (ADR-080)
+# Vendored Piper runtime: the project's own mirror (ADR-080, ADR-081)
 
-Committed so that Piper keeps working with no network, forever, even if PyPI or GitHub disappear.
-Nothing in this directory is fetched at install time; the app verifies it against `MANIFEST.sha256`,
-unpacks the Python for the host platform and `pip install --no-index --require-hashes` the wheels
-from the same directory.
+Committed so that Piper does not depend on PyPI, python-build-standalone or any third party at install time.
+The installed app **downloads these files once** from this repository (`raw.githubusercontent.com/<repo>/<ref>/services/tts/vendor/...`)
+and verifies each one against `MANIFEST.sha256` / `requirements.lock`, which are compiled into the binary; then it
+unpacks the Python for the host platform and runs `pip install --no-index --require-hashes` from the downloaded
+copy. The repository is the mirror: **the files must be pushed to the ref before a tag can install them.**
 
 ## Contents
 - `MANIFEST.sha256` — `sha256  size  relative-path` for every file here (except this README, the manifest and the lock).
@@ -24,8 +25,10 @@ github.com/OHF-Voice/piper1-gpl + espeak-ng/espeak-ng (tag archives; no upstream
 `make tts-verify` re-hashes everything offline and also checks `requirements.lock` against the wheels.
 
 ## How it ships
-`make tts-stage` (`scripts/tts_stage.sh`, also run by the Dockerfile `full` stage) copies the manifest, the lock, **one**
-platform directory and the three voices into the gitignored `backend/internal/components/ttsbundle/data/`, which the
-`-tags ttsbundle` build embeds (≈ 265 MB for darwin-arm64; release binary ≈ 311 MB). `source/` is never embedded; the
-Docker `full` image carries it under `/usr/share/doc/tanulom/tts-source/`. The app verifies only the running
-platform's files against `MANIFEST.sha256`.
+It does not ship inside the binary or the Docker image (no `ttsbundle` tag, no staging step). The app downloads one
+platform directory (≈ 277 MB with the voices) at Install and deletes the download cache after a successful install.
+`make sync-components` copies `MANIFEST.sha256` and `requirements.lock` (and `langpack/voices/MANIFEST.sha256`) into
+`backend/internal/components/ttsfetch/data/`, which the binary embeds. `source/` is never downloaded: it is the GPL
+Corresponding Source and **stays in this repository at the same tag** as the object code the app fetches. Do not remove it.
+For an air-gapped host, copy this tree and `langpack/voices/` and use `--tts-runtime-dir` / `--voices-dir`, or serve it
+behind `--tts-base-url`.

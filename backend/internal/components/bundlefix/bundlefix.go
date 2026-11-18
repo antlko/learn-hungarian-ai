@@ -1,7 +1,9 @@
 // Package bundlefix builds a tiny stand-in for services/tts/vendor so tests
 // never unpack the real 25 MB interpreter: a "python" tarball whose python3 is
 // a shell script that records its argv and environment and creates the files a
-// pip install would. Test support only; nothing in the server imports it.
+// pip install would. Mirror lays the same files out like the repository (what a
+// download mirror serves) with matching manifests. Test support only; nothing in
+// the server imports it.
 package bundlefix
 
 import (
@@ -15,6 +17,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"tanulom/internal/components/ttsfetch"
 )
 
 // Options tweak the stub.
@@ -100,4 +104,50 @@ func tarball(python3 string) []byte {
 	_ = tw.Close()
 	_ = gz.Close()
 	return raw.Bytes()
+}
+
+// Voices are the three personas' stand-in files: name -> bytes.
+func Voices() map[string][]byte {
+	out := map[string][]byte{}
+	for _, p := range []string{"anna", "berta", "imre"} {
+		out["hu_HU-"+p+"-medium.onnx"] = []byte("onnx-" + p + strings.Repeat("-model", 200))
+		out["hu_HU-"+p+"-medium.onnx.json"] = []byte(`{"voice":"` + p + `"}`)
+	}
+	return out
+}
+
+// Mirror writes a repository-shaped tree under root —
+// services/tts/vendor/<platform>/... and langpack/voices/... — and returns the
+// manifests that pin exactly those bytes (what the binary embeds in production).
+func Mirror(root, platform string, o Options) (ttsfetch.Manifests, error) {
+	vendor := filepath.Join(root, "services", "tts", "vendor")
+	if err := Write(vendor, platform, o); err != nil {
+		return ttsfetch.Manifests{}, err
+	}
+	vdir := filepath.Join(root, "langpack", "voices")
+	if err := os.MkdirAll(vdir, 0o755); err != nil {
+		return ttsfetch.Manifests{}, err
+	}
+	vs := Voices()
+	var names []string
+	for n := range vs {
+		names = append(names, n)
+	}
+	sort.Strings(names)
+	var vm strings.Builder
+	for _, n := range names {
+		if err := os.WriteFile(filepath.Join(vdir, n), vs[n], 0o644); err != nil {
+			return ttsfetch.Manifests{}, err
+		}
+		fmt.Fprintf(&vm, "%s  %d  %s\n", sum(vs[n]), len(vs[n]), n)
+	}
+	man, err := os.ReadFile(filepath.Join(vendor, "MANIFEST.sha256"))
+	if err != nil {
+		return ttsfetch.Manifests{}, err
+	}
+	lock, err := os.ReadFile(filepath.Join(vendor, "requirements.lock"))
+	if err != nil {
+		return ttsfetch.Manifests{}, err
+	}
+	return ttsfetch.Manifests{Vendor: man, Lock: lock, Voices: []byte(vm.String())}, nil
 }

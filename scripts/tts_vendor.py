@@ -6,6 +6,8 @@
                          OHF-Voice/piper1-gpl, espeak-ng/espeak-ng), verifies the PyPI sha256
                          digests and the upstream SHA256SUMS, rewrites MANIFEST.sha256
                          and requirements.lock.
+  tts_vendor.py voices   OFFLINE. Rewrites langpack/voices/MANIFEST.sha256 (sha256, size, name of the
+                         three hu_HU-*-medium.onnx and .onnx.json). `vendor` calls it too.
   tts_vendor.py verify   OFFLINE. Re-hashes every vendored file against MANIFEST.sha256
                          and requirements.lock against the wheels. Exit 1 on any drift.
 
@@ -20,6 +22,9 @@ import urllib.request
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 VENDOR = os.path.join(ROOT, "services", "tts", "vendor")
+VOICES = os.path.join(ROOT, "langpack", "voices")
+VOICES_MANIFEST = os.path.join(VOICES, "MANIFEST.sha256")
+PERSONAS = ("anna", "berta", "imre")
 
 PBS_TAG = "20261110"
 PBS_PY = "3.12.16"
@@ -138,6 +143,7 @@ def vendor():
         put(os.path.join(VENDOR, "source", fn), fetch(url), want)
     write_lock()
     write_manifest()
+    write_voices_manifest()
 
 
 def all_files():
@@ -175,6 +181,38 @@ def write_manifest():
             f.write("%s  %d  %s\n" % (sha256(os.path.join(VENDOR, rel)), os.path.getsize(os.path.join(VENDOR, rel)), rel))
 
 
+def voice_files():
+    out = []
+    for p in PERSONAS:
+        out += ["hu_HU-%s-medium.onnx" % p, "hu_HU-%s-medium.onnx.json" % p]
+    return out
+
+
+def write_voices_manifest():
+    with open(VOICES_MANIFEST, "w") as f:
+        for fn in voice_files():
+            p = os.path.join(VOICES, fn)
+            f.write("%s  %d  %s\n" % (sha256(p), os.path.getsize(p), fn))
+
+
+def verify_voices(bad):
+    if not os.path.exists(VOICES_MANIFEST):
+        bad.append("langpack/voices/MANIFEST.sha256 missing; run `make tts-vendor`")
+        return
+    listed = {}
+    for line in open(VOICES_MANIFEST).read().splitlines():
+        h, size, fn = line.split("  ", 2)
+        listed[fn] = (h, int(size))
+    if sorted(listed) != sorted(voice_files()):
+        bad.append("voices manifest lists the wrong files")
+    for fn, (h, size) in sorted(listed.items()):
+        p = os.path.join(VOICES, fn)
+        if not os.path.exists(p):
+            bad.append("missing: voices/" + fn)
+        elif os.path.getsize(p) != size or sha256(p) != h:
+            bad.append("voice differs from its manifest: " + fn)
+
+
 def verify():
     bad = []
     if not os.path.exists(MANIFEST):
@@ -194,6 +232,7 @@ def verify():
     for rel in all_files():
         if rel not in listed:
             bad.append("not in MANIFEST: " + rel)
+    verify_voices(bad)
     # requirements.lock must equal the wheels' hashes
     if not bad:
         want = {}
@@ -211,6 +250,6 @@ def verify():
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2 or sys.argv[1] not in ("vendor", "verify"):
+    if len(sys.argv) != 2 or sys.argv[1] not in ("vendor", "verify", "voices"):
         sys.exit(__doc__)
-    {"vendor": vendor, "verify": verify}[sys.argv[1]]()
+    {"vendor": vendor, "verify": verify, "voices": write_voices_manifest}[sys.argv[1]]()

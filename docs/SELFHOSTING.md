@@ -210,25 +210,37 @@ the app's secrets. `pip` alone also sees `HTTP(S)_PROXY`/`SSL_CERT_FILE` if you 
 **If the app is killed hard** (`kill -9`, OOM): on Linux the kernel stops the children with it; on macOS they may keep running until the next start, which finds and stops them (`<id>/run.pid`). A child that stays up but never answers `/health` for 5 minutes is stopped and shown as failed.
 
 **Not covered.** The tutor's LLM (Ollama) is not embedded (multi-GB, GPU libraries): keep it external
-or on the `llm` profile. `tts` (Piper speech) is managed too, from a bundled offline runtime; `asr` does not exist yet. No real install was run by the authors when
+or on the `llm` profile. `tts` (Piper speech) is managed too, downloaded once from the project's repository; `asr` does not exist yet. No real install was run by the authors when
 this was written; treat the first one as a trial and read the log tail the card shows.
 
 ### Piper speech (`tts`)
 
-Optional and **fully offline** ([ADR-080](../.claude/DECISIONS.md#adr-080)). The Python runtime, the
-wheels (Piper and espeak-ng, GPL-3.0, with their source) and the three voices are inside the release
-binary and the Docker **full** image. In Settings → Components press **Включить**: the app checks file
-hashes, unpacks the bundled interpreter and starts Piper, with no download and no PyPI; it works with
-the network unplugged. **Выключить** stops it. All three voices stay in memory while it is on:
-about **255 MB RAM** right after enabling (measured on macOS arm64, all three voices loaded; it grew to ≈ 480 MB after synthesising in an earlier Python 3.11 run, so budget ≈ 450 MB). Supported: macOS 14+ on Apple silicon, Linux amd64 (glibc 2.28+), Linux arm64.
-Not supported: Intel macOS, Windows, and the distroless **slim** image (no bundle): speech there is the
-browser's own voice. A from-source build needs `--tts-runtime-dir services/tts/vendor` (or the
-`ttsbundle` tag). Voice files: `TANULOM_VOICES_DIR` / `--voices-dir` if set (the full image needs none);
-otherwise the embedded ones, then `<data>/voices`. The release binary is ≈ 311 MB on macOS arm64 with the runtime and voices inside (≈ 40 MB without). The GPL
-source of Piper and espeak-ng ships in the image under `/usr/share/doc/tanulom/tts-source/`. Or run
-`docker compose --profile tts up -d` (the same `full` image started as `component run tts`, no separate
-build) and point speech at `http://tts:5000`. Smoke test with no network:
-`docker run --rm --network none -v tmp:/data <full-image> component run tts`.
+Optional ([ADR-081](../.claude/DECISIONS.md#adr-081)). The binary and both images contain **no** Piper bytes
+(`full` image ≈ 195 MB, binary ≈ 46 MB). In Settings → Components press **Установить**: the server downloads
+the Python runtime, the wheels and the three voices **once** (≈ 277 MB; about a minute on a fast link) from the
+project's public repository on `raw.githubusercontent.com`, checks every file against hashes compiled into the
+binary, unpacks it (≈ 430 MB on disk) and starts Piper (≈ 70 s in total in our measurement). From then on
+nothing uses the network: start, stop and boot are offline. **Выключить** stops it; **Удалить** removes the
+runtime, the voices and the download cache. If the download fails, the files already fetched are kept and the
+next press resumes. The Stop button during install cancels it.
+
+- **Needs GitHub reachable once** for the first install. For a machine with no access: run a mirror with the
+  same layout and set `TANULOM_TTS_BASE_URL` (`https`, or `http://127.0.0.1`), or point
+  `TANULOM_TTS_RUNTIME_DIR` and `TANULOM_VOICES_DIR` at a local copy of `services/tts/vendor` and
+  `langpack/voices` (no download at all).
+- **Behind a proxy:** the download honours the standard `HTTPS_PROXY` / `NO_PROXY` environment of the server
+  process. HTTPS stays end to end and every file is sha256-pinned, so a proxy cannot alter the content.
+- **Download limits:** each file must be 1 byte to 256 MiB, the whole plan at most 1 GiB; a size that differs
+  from the manifest is refused; 3 attempts per file (1 s, 3 s pauses) on network errors, 5xx and 429; a download
+  with no bytes for 60 s, or no response header within 30 s, counts as a network failure, and so does a file that takes longer than its size at 100 KB/s plus 60 s (the partial file is deleted).
+- **Supported:** macOS 14+ on Apple silicon, Linux amd64 (glibc 2.28+), Linux arm64, in the **full** image.
+  **Not supported:** macOS Intel, Windows, the distroless **slim** image: speech there is the browser's own voice.
+- **RAM:** ≈ 255 MB after load, ≈ 480 MB after synthesising (budget about 300-500 MB); zero when stopped.
+- Piper and espeak-ng are GPL-3.0; the corresponding source is in the repository at
+  `services/tts/vendor/source/`, next to the files the install downloads.
+- `docker compose --profile tts up -d` runs the same `full` image as `component run tts`, which downloads on its
+  first start into its own volume; point speech at `http://tts:5000`. Installing inside the main container
+  is simpler. Use an absolute data directory when running the binary directly.
 
 ### What `--profile` means
 
@@ -256,7 +268,7 @@ Settings → Services. Keys are stored in SQLite, never in `config.yaml`.
 | Full dictionary (after install) | no more than the core, plus the pack's page cache | 252 MB file (260 MB extra while installing) | LANGPACK.md |
 | `mt` translator | 200–400 MB resident | ~2.4 GB downloaded to build, ~600 MB kept | services/mt README (model card), not measured by us |
 | `llm` Ollama, 7–8B model | 8–16 GB (CPU) or a GPU | ~1.5 GB image + ~5 GB per model | rough; not measured |
-| `tts` Piper voices | ≈ 255 MB resident right after enabling (≈ 480 MB after synthesising in an earlier run; zero when disabled) | ~300–340 MB vendored runtime + ~190 MB voices, inside the full image and the release binary (unpacked copy ≈ 0.5 GB under the data dir) | measured on macOS arm64 |
+| `tts` Piper voices | ≈ 255 MB resident after load (≈ 480 MB after synthesis; zero when stopped), ≈ 300 MB budget | none in the image; ≈ 277 MB downloaded once, ≈ 430 MB on disk under the data dir (the download cache is deleted after install) | measured on macOS arm64 |
 | `asr` | n/a | n/a | **not built** |
 
 The core runs on a Raspberry Pi or a NAS; the image is built for `amd64` and `arm64`. Do not run

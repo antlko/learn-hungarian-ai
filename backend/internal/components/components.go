@@ -27,7 +27,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/fs"
 	"log/slog"
 	"net"
 	"os"
@@ -37,7 +36,7 @@ import (
 	"sync"
 	"time"
 
-	"tanulom/internal/components/ttsbundle"
+	"tanulom/internal/components/ttsfetch"
 )
 
 // Component ids this package manages.
@@ -81,9 +80,8 @@ const (
 	KeyStartFailed   = "errors.componentStartFailed"
 	KeyCrashed       = "errors.componentCrashed"
 	KeyPipBroken     = "errors.componentPipBroken"
-	// KeyNoVoices: the tts install is refused while no Piper voice files are
-	// where the operator pointed the server (ADR-079). The files are committed
-	// to the repository; nothing is ever downloaded.
+	// KeyNoVoices: with an operator-supplied runtime directory (--tts-runtime-dir)
+	// the voices are the operator's too; the install is refused while there are none.
 	KeyNoVoices = "errors.componentNoVoices"
 )
 
@@ -130,8 +128,9 @@ type spec struct {
 	// voices: the service reads Piper voice files from the operator's voices
 	// directory (Options.VoicesDir), passed as TTS_VOICES_DIR.
 	voices bool
-	// bundled: the runtime ships with the binary (ADR-080): no Python probe, no
-	// venv, no network. Enable/Disable instead of Install.
+	// bundled: the runtime is a hash-pinned set of files of the project's repository
+	// (ADR-081), fetched once at install and then local: no Python probe, no venv,
+	// no network after install. Enable/Disable on top of Install.
 	bundled bool
 	// torch: the model needs a one-time conversion that imports torch, which is
 	// installed from the CPU index first and uninstalled afterwards (~800 MB).
@@ -179,8 +178,13 @@ type Status struct {
 	// Voices are the Piper personas (anna, berta, imre) whose model files are in
 	// the voices directory. Only the tts component fills it.
 	Voices []string
-	// Bundled: the component's runtime is carried by the binary (ADR-080).
+	// Bundled: the runtime is a pinned set of repository files, fetched once (ADR-081).
 	Bundled bool
+	// Installed: a finished install is on disk (runtime stamp, interpreter and
+	// voices) whatever the process state is.
+	Installed bool
+	// DownloadBytes / DownloadTotal: progress of the fetch step, 0 outside it.
+	DownloadBytes, DownloadTotal int64
 }
 
 // Options configure a Manager. Zero values are production defaults; tests
@@ -191,12 +195,16 @@ type Options struct {
 	// env TANULOM_VOICES_DIR; never a route or a config field). Empty means
 	// `<DataDir>/voices`.
 	VoicesDir string
-	// TTSRuntimeDir is the operator's offline runtime bundle (flag
-	// --tts-runtime-dir / env TANULOM_TTS_RUNTIME_DIR; never a route or config
-	// field). Empty means the bundle embedded in the binary, if any.
+	// TTSRuntimeDir is the operator's local runtime tree shaped like
+	// services/tts/vendor (flag --tts-runtime-dir / env TANULOM_TTS_RUNTIME_DIR;
+	// never a route or config field). Set: nothing is downloaded (development,
+	// an air-gapped mirror). Empty: the runtime is fetched at install (ADR-081).
 	TTSRuntimeDir string
-	// EmbeddedBundle returns the binary's own bundle; default ttsbundle.FS.
-	EmbeddedBundle func() (fs.FS, bool)
+	// Fetch configures the download: the operator's mirror (--tts-base-url),
+	// the ref (ttsfetch.RefFor(version)) and, in tests, the HTTP client.
+	Fetch ttsfetch.Config
+	// Manifests replaces the embedded manifests (tests only).
+	Manifests *ttsfetch.Manifests
 	// Rename replaces os.Rename in the runtime swap (tests only).
 	Rename   func(from, to string) error
 	Runner   Runner
@@ -275,6 +283,10 @@ type comp struct {
 	// loadErr: a bundled child's /health said `failed` (a voice would not load);
 	// the supervisor fails the component instead of restarting a deterministic failure.
 	loadErr string
+	// cancelRun ends a running enable (Stop during an install).
+	cancelRun context.CancelFunc
+	// dlBytes / dlTotal: progress of the fetch step (ADR-081).
+	dlBytes, dlTotal int64
 }
 
 // New builds a Manager. It does no work and touches no disk until used.
@@ -305,9 +317,6 @@ func New(o Options) *Manager {
 	}
 	if o.GOARCH == "" {
 		o.GOARCH = runtime.GOARCH
-	}
-	if o.EmbeddedBundle == nil {
-		o.EmbeddedBundle = ttsbundle.FS
 	}
 	if o.PollInterval <= 0 {
 		o.PollInterval = 500 * time.Millisecond
@@ -355,7 +364,7 @@ func marker(dir string) string            { return filepath.Join(dir, ".installe
 
 func (m *Manager) installedOnDisk(id string) bool {
 	if specs[id].bundled {
-		return m.runtimeReady(id)
+		return m.runtimePresent(id) && m.voicesInstalled()
 	}
 	_, err := os.Stat(marker(m.final(id)))
 	return err == nil
@@ -441,10 +450,13 @@ func (m *Manager) Status(id string) Status {
 		Available: avail, UnavailableKey: key, PythonVersion: py.version,
 		State: c.state, Step: c.step, Progress: c.progress, Port: c.port,
 		ErrorKey: c.errKey, ErrorDetail: c.errMsg, Log: c.log.last(40),
-		DiskNeed: c.spec.diskNeed, RAMNeed: c.spec.ramNeed, Bundled: c.spec.bundled,
+		DiskNeed: c.spec.diskNeed, RAMNeed: c.spec.ramNeed, Bundled: c.spec.bundled, Installed: onDisk,
 	}
 	if c.spec.bundled {
 		st.PythonVersion = ""
+		if c.state == StateInstalling && c.step == StepFetch {
+			st.DownloadBytes, st.DownloadTotal = c.dlBytes, c.dlTotal
+		}
 		// While an enable waits for the child to load the voices, the card keeps
 		// showing that step instead of a bare "starting".
 		if c.busy && c.state == StateStarting {
@@ -548,10 +560,15 @@ func (m *Manager) AutoStart(wanted func(id string) bool) {
 		if !wanted(id) {
 			continue
 		}
-		if specs[id].bundled {
-			// Unpacking on first boot happens in enable's own goroutine.
-			if err := m.enable(id, false); err != nil && !errors.Is(err, ErrBusy) && !errors.Is(err, ErrInstalled) {
-				slog.Warn("components: autostart failed", "component", id, "error", err)
+		if specs[id].bundled && !m.installedOnDisk(id) {
+			// Never fetch at boot (ADR-081): an operator's local runtime unpacks
+			// offline in enable's own goroutine, anything else waits for «Установить».
+			if m.localRuntime() {
+				if err := m.enable(id, false); err != nil && !errors.Is(err, ErrBusy) && !errors.Is(err, ErrInstalled) {
+					slog.Warn("components: autostart failed", "component", id, "error", err)
+				}
+			} else {
+				slog.Info("components: not installed, nothing to start", "component", id)
 			}
 			continue
 		}

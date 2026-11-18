@@ -84,8 +84,5 @@ config.local.yaml
 langpack/cache/tutor/
 
 .agent-context
-# Staged by the Makefile for `-tags ttsbundle` builds (ADR-080); never committed.
-backend/internal/components/ttsbundle/data/
-
 # `make tts` unpacks the vendored runtime here.
 .tts-data/

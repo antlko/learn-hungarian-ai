@@ -2,7 +2,7 @@
 
 A small HTTP service on port `5000` that speaks Hungarian with three [Piper](https://github.com/rhasspy/piper)
 voices (`hu_HU-anna`, `hu_HU-berta`, `hu_HU-imre`, medium). It is the managed component `tts`:
-the binary unpacks its offline Python runtime and runs it as a child process (`tanulom component run tts`,
+the binary downloads the Python runtime and the voices once from the project repository (hash-pinned, [ADR-081](../../.claude/DECISIONS.md#adr-081)), unpacks them and runs Piper as a child process (`tanulom component run tts`,
 [ADR-061](../../.claude/DECISIONS.md#adr-061)), or it runs as the `tts` compose profile (the `full` image). The app
 works without it; the `device` provider (the browser's own voices,
 [ADR-012](../../.claude/DECISIONS.md#adr-012)) stays the default.
@@ -21,20 +21,21 @@ matching `.onnx.json`. The core passes it from `TANULOM_VOICES_DIR` (fallback `<
 ## Voice models
 
 The model files live in [`../../langpack/voices/`](../../langpack/voices) and are **committed to the
-repository by the owner**; nothing is downloaded from the UI. About 190 MB of `.onnx` can be committed
+repository by the owner**; the app downloads them from there once at Install (hash-checked). About 190 MB of `.onnx` can be committed
 plainly or with Git LFS. Licences: [`../../langpack/LICENSES.md`](../../langpack/LICENSES.md). The Piper
-engine and espeak-ng are GPL-3.0; the runtime is vendored under [`vendor/`](vendor/README.md) (no PyPI at
-install time, [ADR-080](../../.claude/DECISIONS.md#adr-080)) and only ever runs as a separate process.
+engine and espeak-ng are GPL-3.0; the runtime is vendored under [`vendor/`](vendor/README.md) (downloaded from this repository, not PyPI,
+[ADR-081](../../.claude/DECISIONS.md#adr-081)) and only ever runs as a separate process.
 
 ## Run natively
 
-`make tts` serves on `http://localhost:5000` from the vendored runtime, offline: it is
+`make tts` serves on `http://localhost:5000` from the local vendored tree (no download): it is
 `tanulom component run tts --host 127.0.0.1 --port 5000 --data-dir .tts-data --voices-dir langpack/voices
 --tts-runtime-dir services/tts/vendor` (the first start unpacks ≈ 430 MB into the gitignored `.tts-data/`).
-`make tts-smoke` is the offline proof (network cut, three voices synthesise, nothing left listening).
+`make tts-smoke` is the end-to-end proof (install through a local http mirror with the network cut, three voices synthesise, Enable offline, Uninstall).
 
 ## Docker
 
 There is no separate image: the `tts` compose profile runs the `full` tanulom image as
-`component run tts` (runtime and voices are embedded in its binary; the GPL source is in
-`/usr/share/doc/tanulom/tts-source/`). The distroless `slim` image has no libc and no speech.
+`component run tts`, which downloads the runtime and voices (≈ 277 MB) on its first start from the project repository
+into its volume. Nothing Piper is baked into the image (≈ 195 MB); the GPL source is in this repository at
+`services/tts/vendor/source/`. The distroless `slim` image has no libc and no speech.

@@ -11,21 +11,21 @@ import (
 )
 
 func TestComponentArgs(t *testing.T) {
-	rest, dir, _, _, ok := componentArgs([]string{"component", "run", "mt"})
+	rest, dir, _, _, _, ok := componentArgs([]string{"component", "run", "mt"})
 	if !ok || dir != "" || !reflect.DeepEqual(rest, []string{"run", "mt"}) {
 		t.Fatalf("%v %q %v", rest, dir, ok)
 	}
-	rest, dir, _, _, ok = componentArgs([]string{"--data-dir", "/x", "component", "run", "mt"})
+	rest, dir, _, _, _, ok = componentArgs([]string{"--data-dir", "/x", "component", "run", "mt"})
 	if !ok || dir != "/x" || len(rest) != 2 {
 		t.Fatalf("%v %q %v", rest, dir, ok)
 	}
-	rest, dir, voices, rt, ok := componentArgs([]string{"--voices-dir", "/v", "--data-dir=/x", "--tts-runtime-dir", "/r", "component", "run", "tts"})
-	if !ok || dir != "/x" || voices != "/v" || rt != "/r" || len(rest) != 2 {
-		t.Fatalf("%v %q %q %q %v", rest, dir, voices, rt, ok)
+	rest, dir, voices, rt, base, ok := componentArgs([]string{"--voices-dir", "/v", "--data-dir=/x", "--tts-runtime-dir", "/r", "--tts-base-url=http://127.0.0.1:9", "component", "run", "tts"})
+	if !ok || dir != "/x" || voices != "/v" || rt != "/r" || base != "http://127.0.0.1:9" || len(rest) != 2 {
+		t.Fatalf("%v %q %q %q %q %v", rest, dir, voices, rt, base, ok)
 	}
 	// The server's own invocations are never taken for this mode.
 	for _, a := range [][]string{nil, {"--addr", ":1"}, {"reset-password"}, {"--version"}} {
-		if _, _, _, _, ok := componentArgs(a); ok {
+		if _, _, _, _, _, ok := componentArgs(a); ok {
 			t.Fatalf("%v taken as component mode", a)
 		}
 	}
@@ -67,5 +67,14 @@ func TestComponentRunTTSWithoutARuntimeSaysSoAndNamesTheFlag(t *testing.T) {
 	code := runComponentTo([]string{"run", "tts", "--port", "5999"}, t.TempDir(), &o, &e, mk)
 	if code != 1 || !strings.Contains(e.String(), "--tts-runtime-dir") {
 		t.Fatalf("exit %d, stderr %q", code, e.String())
+	}
+}
+
+func TestComponentRunRefusesAnUnsafeTTSBaseURL(t *testing.T) {
+	for _, u := range []string{"http://example.com", "ftp://127.0.0.1", "https://user:pw@example.com"} {
+		var o, e bytes.Buffer
+		if code := runComponentTo([]string{"run", "tts", "--port", "5999", "--tts-base-url", u}, t.TempDir(), &o, &e, nil); code != 2 || !strings.Contains(e.String(), "--tts-base-url") {
+			t.Errorf("%s: exit %d, stderr %q", u, code, e.String())
+		}
 	}
 }

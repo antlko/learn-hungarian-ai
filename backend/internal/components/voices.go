@@ -13,12 +13,11 @@ var Personas = []string{"anna", "berta", "imre"}
 func VoiceFile(persona string) string { return "hu_HU-" + persona + "-medium.onnx" }
 
 // VoicesDir is the directory the tts child is told to read: the operator's
-// --voices-dir when it holds a voice, else the voices embedded in the binary
-// (extracted under `<data>/components/tts/voices` when the component is enabled),
-// else `<data>/voices`. Read from Options and the bundle only: no route, no
-// config field.
+// --voices-dir when it holds a voice, else the voices downloaded at install
+// (`<data>/components/tts/voices`), else `<data>/voices`. Read from Options only:
+// no route, no config field.
 func (m *Manager) VoicesDir() string {
-	dir, _, _ := m.voiceSource()
+	dir, _ := m.voiceSource()
 	return dir
 }
 
@@ -26,7 +25,7 @@ func (m *Manager) VoicesDir() string {
 // source, in Personas order. It reads on every call (two stats per persona), so
 // adding a file needs no restart.
 func (m *Manager) Voices() []string {
-	_, _, v := m.voiceSource()
+	_, v := m.voiceSource()
 	return v
 }
 

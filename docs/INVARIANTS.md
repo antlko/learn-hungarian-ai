@@ -23,7 +23,7 @@ whole file. Each rule is here because breaking it caused a real bug.
   directly.
 - **Managed components never block boot and the app never needs them.** `internal/components`
   installs and supervises `mt` (PyPI path) and `tts` (Piper speech, [ADR-079](../.claude/DECISIONS.md#adr-079);
-  bundled, no pip index, [ADR-080](../.claude/DECISIONS.md#adr-080)) as child processes ([ADR-061](../.claude/DECISIONS.md#adr-061)).
+  one-time hash-pinned download from the project repo, no pip index, [ADR-080](../.claude/DECISIONS.md#adr-080), [ADR-081](../.claude/DECISIONS.md#adr-081)) as child processes ([ADR-061](../.claude/DECISIONS.md#adr-061)).
   `AutoStart` runs in a goroutine and only logs; with everything absent (the default, and the whole
   of the distroless image, which ships no Python) the app is exactly what it was. A managed
   service's endpoint is **never stored**: `provider: managed` plus a port that exists only in the
@@ -31,15 +31,20 @@ whole file. Each rule is here because breaking it caused a real bug.
   it, so do not read `cfg.Services.MT`/`.TTS` directly for a call. `Service.Paused` (ADR-068) is honoured in that same function (paused resolves to `off`; `managedWanted` = managed && !paused), and `PUT /api/settings` must never clear it. Children get an ALLOWLISTED env (never
   `TANULOM_*` or a secret), run only the sources embedded in the binary (`make sync-components` after
   editing `services/<id>/`; a test fails on drift), and no route accepts a URL, path or argument.
-  The one path a child is told about besides its own directory is the Piper **voices directory**:
-  operator flag `--voices-dir` / `TANULOM_VOICES_DIR` (default `<data>/voices`), never a route or a
-  config field; the tts install is refused (`errors.componentNoVoices`) while it holds no voice pair.
+  The one path a child is told about besides its own directory is the Piper **voices directory**
+  (installed under `<data>`, or operator flag `--voices-dir` / `TANULOM_VOICES_DIR` for a local tree),
+  never a route or a config field.
   Installs are atomic (`<id>.installing/` renamed on success) and a failure leaves nothing.
-- **tts runtime is vendored and offline.** Enabling `tts` never opens a socket beyond loopback: no pip
-  index, no URL. Every file is hash-pinned in `services/tts/vendor/MANIFEST.sha256` and verified before
-  unpacking; the bundle comes from operator flag `--tts-runtime-dir` / `TANULOM_TTS_RUNTIME_DIR` or the
-  `ttsbundle` build tag, never a route. Piper and espeak-ng (GPL) stay a separate process, never linked
-  or loaded into the Go binary. Disable frees the models' memory ([ADR-080](../.claude/DECISIONS.md#adr-080)).
+- **tts runtime is fetched once from the project repository, hash-pinned.** Only «Установить» touches the
+  network, once: over https (or `http` to `127.0.0.1`/`localhost` for a mirror) from a single
+  allowlisted host, `raw.githubusercontent.com`, repo and ref built by the server (ref = the build's
+  `vX.Y.Z` tag, else `main`), never a URL from a route, config or the client. Every file is verified
+  against manifests compiled into the binary (`services/tts/vendor/MANIFEST.sha256`,
+  `requirements.lock`, `langpack/voices/MANIFEST.sha256`); a mismatch is `componentBundleCorrupt` and
+  nothing is installed. After install nothing touches the network (boot, start, stop; `pip --no-index`).
+  Operator overrides only: `--tts-runtime-dir`, `--voices-dir`, `--tts-base-url`. Piper and espeak-ng
+  (GPL) are not in the binary or image and stay a separate process, never linked or loaded into Go;
+  their source stays in the repo next to the object code ([ADR-081](../.claude/DECISIONS.md#adr-081)).
 - **Secrets never leave the server and never enter YAML.** Stored in SQLite, stripped from DTOs
   (presence exposed as `secrets: {k: true}`), preserved on `PUT` when blank or omitted.
 - **Route guards are UX only** — the API enforces roles independently.

@@ -5,7 +5,56 @@ the project uses [semantic versioning](https://semver.org/). Every design decisi
 is an ADR in [`.claude/DECISIONS.md`](.claude/DECISIONS.md), and every pedagogical claim traces to a
 note in [`.claude/research/`](.claude/research/README.md).
 
+## [1.5.1] — 2026-11-18 — Smaller images: Piper is downloaded once from the project repository
+
+v1.5.0 carried the Piper runtime and the voices inside the app, which made the binary 326 MB and the
+Docker image 555 MB. That was too big. They are now fetched once, on demand, from the project's own
+repository ([ADR-081](.claude/DECISIONS.md), amends ADR-080). Reading, the voices and the audio bar are unchanged.
+
+### Changed
+- **Size:** the binary goes from 326 MB to **46 MB** and the `full` Docker image from 555 MB to **195 MB**;
+  no Piper bytes are inside either.
+- **Settings → Components → Speech:** «Установить» downloads the runtime and the three voices **once**,
+  about **277 MB**, from the project's public repository on GitHub, unpacks them (≈ 430 MB on disk) and
+  starts Piper (≈ 70 s end to end in our measurement). Every file is checked against hashes built into the
+  app; a file that does not match is refused. Afterwards starting, stopping and booting use no network.
+- **Buttons:** «Установить» (first time), «Выключить» / «Включить» (afterwards, offline), «Удалить»
+  (removes the runtime, the voices and the download cache). A failed download keeps what it fetched and the
+  next press resumes; «Остановить» during the install cancels it.
+- **Operators:** new `--tts-base-url` / `TANULOM_TTS_BASE_URL` for a mirror with the same layout (https, or
+  http to localhost); `--tts-runtime-dir` and `--voices-dir` now mean "use this local tree, do not download".
+  This is the way to install on a machine that cannot reach GitHub.
+
+### Removed
+- The embedded runtime and voices: the `ttsbundle` build tag, `make tts-stage`, `TTS_BUNDLE` and
+  `scripts/tts_stage.sh`. `make tts-smoke` now tests the real install through a local mirror with the network
+  cut, then Enable offline, then Uninstall.
+
+### Requirements and limits
+- The first install needs GitHub (`raw.githubusercontent.com`) reachable, or a mirror, or a local tree.
+  Speech works offline after that. The files live in the repository (not on PyPI), pinned by hash.
+- Supported: macOS 14+ on Apple silicon, Linux amd64 (glibc 2.28+), Linux arm64, in the `full` image. Not
+  supported: macOS Intel, Windows, the `slim` image (the browser voice is used). About 300 MB of RAM while on.
+- Use an absolute `--data-dir`; a relative one breaks unpacking.
+- A tagged release fetches from its own tag. A dev or untagged build fetches from `main` and may report a
+  corrupt bundle if `main` has moved on.
+- Licences: Piper and espeak-ng are GPL-3.0 and no longer inside the binary or image. The runtime the app
+  downloads is the vendored object code in this repository, and the corresponding source stays next to it
+  in `services/tts/vendor/source/`; keep it there. Anna and Berta are fine-tuned from `hifi_tts_92`, whose
+  licence is still unconfirmed (`langpack/LICENSES.md`).
+- **Not verified:** the Linux amd64 bundle was not executed on a real host (arm64 only); the
+  sentence-by-sentence playback with real audio was not heard end to end in an automated browser, so
+  listen to a text once.
+
+### Upgrade notes
+- From 1.5.0: nothing migrates. Open Settings → Components and press «Установить» (a 1.5.0 install had
+  nothing to keep). The repository history carries the runtime and voices (≈ 560 MB), so a fresh clone is large.
+- Docker: the optional compose `tts` profile now downloads on its first start into its own volume;
+  installing from Settings inside the main container does the same and is simpler.
+
 ## [1.5.0] — 2026-11-18 — Hungarian voices in the reader, offline
+
+*Superseded by 1.5.1: 1.5.0 shipped the runtime and voices embedded (326 MB binary, 555 MB image); 1.5.1 downloads them once instead, for size.*
 
 The reader can now read any text aloud with natural Hungarian voices that run on your own
 computer, and the separate Listen tab is folded into the reader. Piper and the three voices ship

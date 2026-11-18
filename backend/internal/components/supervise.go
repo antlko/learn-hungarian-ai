@@ -20,8 +20,8 @@ func (m *Manager) Start(id string) error {
 	if err != nil {
 		return err
 	}
-	if c.spec.bundled && !m.installedOnDisk(id) {
-		return m.enable(id, false) // unpack first, then start
+	if c.spec.bundled && !m.installedOnDisk(id) && m.localRuntime() {
+		return m.enable(id, false) // an operator's local runtime: unpack offline, then start
 	}
 	m.mu.Lock()
 	if c.busy || c.claim {
@@ -56,9 +56,13 @@ func (m *Manager) Stop(id string) error {
 		return err
 	}
 	m.mu.Lock()
-	busy := c.busy
+	busy, cancel := c.busy, c.cancelRun
 	m.mu.Unlock()
 	if busy {
+		if cancel != nil { // «Выключить» during an install: abort it
+			cancel()
+			return nil
+		}
 		return ErrBusy
 	}
 	if m.stopSupervisor(c) {

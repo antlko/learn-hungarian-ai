@@ -6,7 +6,6 @@ import (
 	"compress/gzip"
 	"context"
 	"errors"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -15,6 +14,7 @@ import (
 	"time"
 
 	"tanulom/internal/components/bundlefix"
+	"tanulom/internal/components/ttsfetch"
 )
 
 // ---- the offline tts runtime (ADR-080) ----
@@ -81,7 +81,6 @@ func newBundledHarness(t *testing.T, bo bundlefix.Options, mods ...func(*Options
 	bh.harness = newHarness(t, append([]func(*Options){func(o *Options) {
 		o.TTSRuntimeDir, o.VoicesDir = bundle, voices
 		o.GOOS, o.GOARCH = "linux", "amd64"
-		o.EmbeddedBundle = func() (fs.FS, bool) { return nil, false }
 		o.OnLog = func(_, line string) {
 			if s, ok := strings.CutPrefix(line, "step: "); ok {
 				bh.smu.Lock()
@@ -318,8 +317,12 @@ func TestStaleStampTriggersAFullReExtract(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(b.root(), stampName), []byte("manifest=old\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if b.m.Installed(TTS) {
-		t.Fatal("a stale stamp still counts as installed")
+	if b.m.runtimeReady(TTS) {
+		t.Fatal("a stale stamp still counts as current")
+	}
+	// ...but the environment is still there: Start and boot keep using it (ADR-081).
+	if !b.m.Installed(TTS) {
+		t.Fatal("a stale stamp made the environment disappear")
 	}
 	b.steps = nil
 	b.install(t, TTS)
@@ -341,7 +344,7 @@ func TestStaleStampTriggersAFullReExtract(t *testing.T) {
 	if err := os.WriteFile(man, append([]byte("# refreshed\n"), raw...), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if b.m.Installed(TTS) {
+	if b.m.runtimeReady(TTS) {
 		t.Error("a changed MANIFEST kept the old environment current")
 	}
 }
@@ -477,10 +480,13 @@ func TestUnsupportedPlatformsAndMissingBundlesMakeTheCardUnavailable(t *testing.
 	if st := b.m.Status(TTS); st.Available || st.UnavailableKey != KeyNoTtsRuntime {
 		t.Errorf("bundle without the platform: %+v", st)
 	}
-	// No bundle at all: no flag, nothing embedded.
-	b = newBundledHarness(t, bundlefix.Options{}, func(o *Options) { o.TTSRuntimeDir = "" })
+	// Download mode, but the pinned manifest has no files for this platform.
+	b = newBundledHarness(t, bundlefix.Options{}, func(o *Options) {
+		o.TTSRuntimeDir = ""
+		o.Manifests = &ttsfetch.Manifests{Vendor: []byte("# nothing\n"), Voices: []byte("# nothing\n")}
+	})
 	if st := b.m.Status(TTS); st.Available || st.UnavailableKey != KeyNoTtsRuntime {
-		t.Errorf("no bundle: %+v", st)
+		t.Errorf("manifest without the platform: %+v", st)
 	}
 	// mt is untouched by any of this.
 	if st := b.m.Status(MT); st.Bundled || st.UnavailableKey == KeyNoTtsRuntime {
@@ -488,85 +494,32 @@ func TestUnsupportedPlatformsAndMissingBundlesMakeTheCardUnavailable(t *testing.
 	}
 }
 
-func TestEmbeddedBundleIsUsedWhenNoDirIsGiven(t *testing.T) {
+func TestVoicesResolveFlagThenInstalledThenDataDir(t *testing.T) {
 	b := newBundledHarness(t, bundlefix.Options{})
-	emb := os.DirFS(b.bundle)
-	b.m.opt.TTSRuntimeDir = ""
-	b.m.opt.EmbeddedBundle = func() (fs.FS, bool) { return emb, true }
-	b.install(t, TTS)
-	// The operator's directory wins over the embedded one.
-	other := t.TempDir()
-	if err := bundlefix.Write(other, fixturePlatform, bundlefix.Options{}); err != nil {
-		t.Fatal(err)
-	}
-	_ = os.WriteFile(filepath.Join(other, "MARK"), nil, 0o644)
-	b.m.opt.TTSRuntimeDir = other
-	bd, key := b.m.locateBundle()
-	if key != "" || bd.fsys == nil {
-		t.Fatal(key)
-	}
-	if _, err := fs.Stat(bd.fsys, "MARK"); err != nil {
-		t.Error("the --tts-runtime-dir bundle did not take precedence over the embedded one")
-	}
-}
-
-func TestVoicesResolveFlagThenEmbeddedThenDataDir(t *testing.T) {
-	emb := t.TempDir()
-	writeVoices(t, filepath.Join(emb, "voices"), "anna", "berta")
-	b := newBundledHarness(t, bundlefix.Options{}, func(o *Options) {
-		o.EmbeddedBundle = func() (fs.FS, bool) { return os.DirFS(emb), true }
-	})
 	// 1. the flag dir has voices: it wins.
-	if d, e, v := b.m.voiceSource(); d != b.voices || e != nil || len(v) != 3 {
-		t.Errorf("flag: %q %v %v", d, e, v)
+	if d, v := b.m.voiceSource(); d != b.voices || len(v) != 3 {
+		t.Errorf("flag: %q %v", d, v)
 	}
-	// 2. the flag dir is empty: the embedded voices, extracted under components/tts/voices.
-	empty := t.TempDir()
-	b.m.opt.VoicesDir = empty
-	d, e, v := b.m.voiceSource()
-	if d != filepath.Join(b.root(), "voices") || e == nil || strings.Join(v, ",") != "anna,berta" {
-		t.Errorf("embedded: %q %v %v", d, e, v)
-	}
-	if got := strings.Join(b.m.Voices(), ","); got != "anna,berta" {
-		t.Errorf("Voices() = %q before extraction", got)
-	}
-	b.install(t, TTS)
-	if got := envOf(b.r.starts[0], "TTS_VOICES_DIR"); got != filepath.Join(b.root(), "voices") {
-		t.Errorf("TTS_VOICES_DIR = %q", got)
-	}
-	got, _ := os.ReadFile(filepath.Join(b.root(), "voices", VoiceFile("anna")))
-	if string(got) != "x-anna" {
-		t.Errorf("extracted voice = %q", got)
-	}
-	// Extraction is hash-checked: a damaged copy is replaced, a good one left alone.
-	good := filepath.Join(b.root(), "voices", VoiceFile("berta"))
-	hurt := filepath.Join(b.root(), "voices", VoiceFile("anna"))
-	_ = os.WriteFile(hurt, []byte("damaged"), 0o644)
-	old := time.Now().Add(-time.Hour)
-	_ = os.Chtimes(good, old, old)
-	if err := b.m.extractVoices(context.Background()); err != nil {
-		t.Fatal(err)
-	}
-	if got, _ := os.ReadFile(hurt); string(got) != "x-anna" {
-		t.Errorf("a damaged extracted voice was kept: %q", got)
-	}
-	if fi, _ := os.Stat(good); !fi.ModTime().Before(time.Now().Add(-30 * time.Minute)) {
-		t.Error("an intact extracted voice was rewritten")
+	// 2. the flag dir is empty: the voices installed under components/tts/voices.
+	b.m.opt.VoicesDir = t.TempDir()
+	writeVoices(t, filepath.Join(b.root(), "voices"), "anna", "berta")
+	if d, v := b.m.voiceSource(); d != filepath.Join(b.root(), "voices") || strings.Join(v, ",") != "anna,berta" {
+		t.Errorf("installed: %q %v", d, v)
 	}
 	// 3. neither: <data>/voices.
-	b.m.opt.EmbeddedBundle = func() (fs.FS, bool) { return nil, false }
+	_ = os.RemoveAll(filepath.Join(b.root(), "voices"))
 	writeVoices(t, filepath.Join(b.dir, "voices"), "imre")
-	if d, _, v := b.m.voiceSource(); d != filepath.Join(b.dir, "voices") || strings.Join(v, ",") != "imre" {
+	if d, v := b.m.voiceSource(); d != filepath.Join(b.dir, "voices") || strings.Join(v, ",") != "imre" {
 		t.Errorf("data dir: %q %v", d, v)
 	}
-	// none at all: refused with the voices key, before anything is unpacked.
+	// With an operator runtime tree and no voices at all: refused with the voices key,
+	// before anything is unpacked.
 	b2 := newBundledHarness(t, bundlefix.Options{}, func(o *Options) { o.VoicesDir = t.TempDir() })
 	if err := b2.m.Install(context.Background(), TTS); errKey(err) != KeyNoVoices {
 		t.Fatalf("Install without voices = %v", err)
 	}
 	b2.noResidue(t)
 	// A model without its .onnx.json is not a voice.
-	_ = os.Remove(filepath.Join(b2.m.opt.VoicesDir, "x"))
 	_ = os.WriteFile(filepath.Join(b2.m.opt.VoicesDir, VoiceFile("anna")), []byte("x"), 0o644)
 	if err := b2.m.Install(context.Background(), TTS); errKey(err) != KeyNoVoices {
 		t.Fatalf("a lone .onnx counted as a voice: %v", err)

@@ -123,8 +123,10 @@ type Server struct {
 	// field).
 	speech    *speech.Service
 	voicesDir string
-	// ttsRuntimeDir: the operator's offline tts bundle (WithTTSRuntimeDir).
+	// ttsRuntimeDir: the operator's local tts runtime tree (WithTTSRuntimeDir).
 	ttsRuntimeDir string
+	// ttsBaseURL: the operator's mirror of the repository layout (WithTTSBaseURL).
+	ttsBaseURL string
 }
 
 // Option adjusts a Server before its components are built. Operator-level
@@ -135,10 +137,16 @@ type Option func(*Server)
 // voice files (--voices-dir / TANULOM_VOICES_DIR). Empty keeps `<data>/voices`.
 func WithVoicesDir(dir string) Option { return func(s *Server) { s.voicesDir = dir } }
 
-// WithTTSRuntimeDir points the tts component at an offline runtime bundle on
-// disk (operator flag --tts-runtime-dir; ADR-080). Empty means the bundle
-// embedded in the binary, if any. Never a route or a config field.
+// WithTTSRuntimeDir points the tts component at a local runtime tree shaped like
+// services/tts/vendor (operator flag --tts-runtime-dir; ADR-080): nothing is
+// downloaded. Empty means the runtime is fetched at install (ADR-081). Never a
+// route or a config field.
 func WithTTSRuntimeDir(dir string) Option { return func(s *Server) { s.ttsRuntimeDir = dir } }
+
+// WithTTSBaseURL points the tts download at an operator's mirror of the
+// repository layout (--tts-base-url / TANULOM_TTS_BASE_URL; https, or http on
+// loopback; validated by the caller). Empty means raw.githubusercontent.com.
+func WithTTSBaseURL(u string) Option { return func(s *Server) { s.ttsBaseURL = u } }
 
 // New wires a server against a data directory, creating it if needed.
 func New(dataDir string, opts ...Option) (*Server, error) {

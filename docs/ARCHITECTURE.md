@@ -424,13 +424,16 @@ in-memory state `absent → installing → installed → starting → running �
   `internal/components/src/` is what `go:embed` carries. `make sync-components` refreshes it and
   `TestEmbeddedSourcesMatchServices` fails on drift.
 
-**Speech (`tts`, [ADR-079](../.claude/DECISIONS.md#adr-079), amended by [ADR-080](../.claude/DECISIONS.md#adr-080)).** `services/tts/app.py` is a stdlib
+**Speech (`tts`, [ADR-079](../.claude/DECISIONS.md#adr-079), amended by [ADR-080](../.claude/DECISIONS.md#adr-080) and [ADR-081](../.claude/DECISIONS.md#adr-081)).** `services/tts/app.py` is a stdlib
 `ThreadingHTTPServer` over `piper-tts==1.8.0` (`from piper import PiperVoice`, a separate process: GPL stays
 out of the Go binary). The runtime (standalone Python + hash-pinned wheels, `services/tts/vendor/`) and the
-voices are **vendored, never downloaded**: Enable verifies and unpacks them offline; release builds
-(`-tags ttsbundle`) embed them. Voices resolve `Options.VoicesDir` (flag `--voices-dir` /
-`TANULOM_VOICES_DIR`, wired through `api.WithVoicesDir`), then the embedded copy, then `<data>/voices`; `Manager.Voices()` lists personas with both `.onnx` and `.onnx.json` and
-`claimInstall` refuses `errors.componentNoVoices` when there are none. `internal/speech` renders
+voices are **not in the binary**: `internal/components/ttsfetch` downloads them once at Install from the
+project repository (single allowlisted host, ref = version tag or `main`, 3 attempts per file, 60 s stall
+limit, redirects off-host refused) into a cache, verifies each file against manifests compiled into the binary
+(`ttsfetch/data/`, filled by `make sync-components`), unpacks the bundled Python and runs `pip --no-index` from the
+cache, then deletes it. Operator overrides `--tts-runtime-dir`, `--voices-dir` (local tree, no download) and
+`--tts-base-url` (mirror) are wired through `api.With…`, never a route. Voices resolve `Options.VoicesDir`, then
+`<data>/voices`; `Manager.Voices()` lists personas with both `.onnx` and `.onnx.json`. `internal/speech` renders
 through the resolved endpoint (`api.speechEndpoint` → `resolveService`, so paused = off): sentence/word
 text → sha256 cache key (voice, model hash, style, text) → `<data>/cache/tts/` WAV, with a
 single-flight per key, one synthesis at a time against the child, a 30 s deadline and LRU pruning.

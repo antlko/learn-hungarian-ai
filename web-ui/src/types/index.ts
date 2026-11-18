@@ -1795,7 +1795,7 @@ export interface ManagedStatus {
   unavailableKey?: string
   pythonVersion?: string
   state: ManagedState
-  /** i18n key: component.step.venv | pip | model | start (mt); verify | unpack | voices (tts, bundled). */
+  /** i18n key: component.step.venv | pip | model | start (mt); fetch | verify | unpack | voices (tts, bundled). */
   step?: string
   /** 0..1 over the whole install; never goes back within a job. */
   progress?: number
@@ -1812,11 +1812,16 @@ export interface ManagedStatus {
   /** tts only: the voice ids found in the voices folder (e.g. `anna`); empty or missing = none. */
   voices?: string[]
   /**
-   * tts: the runtime ships with the binary and works offline (ADR-080). The card says
-   * Включить / Выключить, never «Установить»; `unavailableKey` is errors.componentNoTtsRuntime
-   * where there is no runtime (device speech is then the floor).
+   * tts: the runtime is a hash-pinned set of files of the project's repository, downloaded
+   * once at install and offline after (ADR-081). `unavailableKey` is errors.componentNoTtsRuntime
+   * where this platform has no runtime (device speech is then the floor).
    */
   bundled: boolean
+  /** tts: a finished install is on disk (stamp, interpreter, voices), running or not. */
+  installed: boolean
+  /** tts, while step is component.step.fetch: bytes fetched so far / all bytes; 0 otherwise. */
+  downloadBytes: number
+  downloadTotal: number
 }
 
 /** Piper personas the server knows (hu_HU anna, berta, imre). */

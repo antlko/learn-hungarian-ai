@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v3"
 
 	"tanulom/internal/components"
+	"tanulom/internal/components/ttsfetch"
 	"tanulom/internal/config"
 )
 
@@ -38,11 +39,18 @@ type ManagedDTO struct {
 	// in display order (anna, berta, imre). Absent for other components and when
 	// none were found — the card then says so and install is refused.
 	Voices []string `json:"voices,omitempty"`
-	// Bundled (tts): the runtime ships with the binary and works offline
-	// (ADR-080). The card then says Включить / Выключить instead of Установить,
-	// and `unavailableKey` is errors.componentNoTtsRuntime when this platform or
-	// build has no runtime (device speech remains the floor).
+	// Bundled (tts): the runtime is a hash-pinned set of files of the project's
+	// repository, downloaded once at install and offline after (ADR-081).
+	// `unavailableKey` is errors.componentNoTtsRuntime when this platform has no
+	// runtime (device speech remains the floor).
 	Bundled bool `json:"bundled"`
+	// Installed: a finished install is on disk (stamp, interpreter, voices),
+	// whether or not the child runs: the card offers Включить / Выключить.
+	Installed bool `json:"installed"`
+	// DownloadBytes / DownloadTotal: progress of the step component.step.fetch
+	// (bytes of the files fetched so far / all of them); 0 outside that step.
+	DownloadBytes int64 `json:"downloadBytes"`
+	DownloadTotal int64 `json:"downloadTotal"`
 }
 
 func managedDTO(st components.Status) *ManagedDTO {
@@ -51,6 +59,7 @@ func managedDTO(st components.Status) *ManagedDTO {
 		State: string(st.State), Step: st.Step, Progress: st.Progress, Port: st.Port,
 		ErrorKey: st.ErrorKey, ErrorDetail: st.ErrorDetail, Log: st.Log,
 		DiskNeed: st.DiskNeed, RAMNeed: st.RAMNeed, Voices: st.Voices, Bundled: st.Bundled,
+		Installed: st.Installed, DownloadBytes: st.DownloadBytes, DownloadTotal: st.DownloadTotal,
 	}
 }
 
@@ -59,6 +68,8 @@ func managedDTO(st components.Status) *ManagedDTO {
 func (s *Server) newComponents(mods ...func(*components.Options)) *components.Manager {
 	o := components.Options{
 		DataDir: s.dataDir, VoicesDir: s.voicesDir, TTSRuntimeDir: s.ttsRuntimeDir,
+		// The ref the pinned files are read from, and the operator's mirror (ADR-081).
+		Fetch: ttsfetch.Config{BaseURL: s.ttsBaseURL, Ref: ttsfetch.RefFor(Version)},
 		// A finished install selects itself: provider=managed, through the one
 		// sanctioned config path. No endpoint is stored — see resolveService.
 		OnInstalled: func(id string) error {

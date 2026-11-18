@@ -47,13 +47,14 @@ const emit = defineEmits<{
 /** Components with install-method tabs. tts/asr are not built and keep their one line. */
 const tabbed = computed(() => props.comp.built && ['mt', 'llm'].includes(props.comp.id))
 /**
- * The speech engine (tts) has no Docker or own-server tabs: its voice files live
- * in the app's folder, so the only way to run it is the built-in copy.
+ * The speech engine (tts) has no Docker or own-server tabs: the app downloads its
+ * files once from the project repository (ADR-081), so the only way to run it is
+ * the built-in copy.
  */
 const ownEngine = computed(() => props.comp.built && props.comp.id === 'tts' && !!props.comp.managed)
 const voicesText = computed(() => {
   const v = props.comp.managed?.voices ?? []
-  return v.length ? t('settings.components.tts.voicesFound', { n: v.length, list: v.join(', ') }) : ''
+  return v.length && props.comp.managed?.installed ? t('settings.components.tts.voicesFound', { n: v.length, list: v.join(', ') }) : ''
 })
 /**
  * The built-in copy speaks for this card when it is the chosen provider, or
@@ -62,7 +63,7 @@ const voicesText = computed(() => {
 const mg = computed(() => {
   const m = props.comp.managed
   if (!m) return undefined
-  return props.service?.provider === 'managed' || m.state !== 'absent' ? m : undefined
+  return props.service?.provider === 'managed' || m.state !== 'absent' || m.bundled ? m : undefined
 })
 
 const { t, te } = useI18n()
@@ -86,7 +87,7 @@ const chip = computed(() => {
     const label = t(`component.${m.bundled ? 'stateBundled' : 'state'}.${m.state}`)
     switch (m.state) {
       case 'installing':
-        // Bundled unpack progress is coarse: the step list on the card says where it is, no number here.
+        // Bundled progress is a step list (and MB while fetching) on the card; no percentage here.
         if (m.bundled) return { icon: Loader, text: label, cls: 'text-foreground' }
         return { icon: Loader, text: `${label} ${Math.round((m.progress ?? 0) * 100)}%`, cls: 'text-foreground' }
       case 'starting':
@@ -99,6 +100,10 @@ const chip = computed(() => {
         }
       case 'failed':
         return { icon: TriangleAlert, text: label, cls: 'text-foreground' }
+      case 'absent':
+        // Bundled and not downloaded yet: a plain fact, not an error.
+        if (m.bundled) return { icon: CircleDashed, text: label, cls: 'text-muted-foreground' }
+        break
       case 'stopped':
       case 'installed':
         return { icon: Square, text: label, cls: 'text-muted-foreground' }
@@ -187,7 +192,7 @@ const tint = computed(() => {
 
     <template v-if="ownEngine && comp.managed">
       <p v-if="voicesText" class="text-xs leading-relaxed">{{ voicesText }}</p>
-      <p v-else-if="!noRuntime && comp.managed.available" class="text-xs leading-relaxed text-foreground">{{ $t('settings.components.tts.noVoices') }}</p>
+      <p v-else-if="!noRuntime && comp.managed.available && comp.managed.installed && comp.managed.state !== 'installing' && comp.managed.state !== 'starting'" class="text-xs leading-relaxed text-foreground">{{ $t('settings.components.tts.noVoices') }}</p>
       <ManagedTab
         :id="comp.id"
         :managed="comp.managed"

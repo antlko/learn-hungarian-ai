@@ -13,7 +13,9 @@ import (
 	"syscall"
 	"time"
 
+	"tanulom/internal/api"
 	"tanulom/internal/components"
+	"tanulom/internal/components/ttsfetch"
 	"tanulom/internal/state"
 )
 
@@ -26,30 +28,33 @@ container from the same image can host it:
 
 --host defaults to 0.0.0.0 and --port to the service's own (mt 5003, tts 5000).
 --voices-dir (tts only, or $TANULOM_VOICES_DIR) holds the Piper voice files.
---tts-runtime-dir (tts only, or $TANULOM_TTS_RUNTIME_DIR) is the offline runtime bundle
-(services/tts/vendor); without it the bundle embedded in the binary is used, if any.
+--tts-runtime-dir (tts only, or $TANULOM_TTS_RUNTIME_DIR) is a local runtime tree shaped like
+services/tts/vendor: nothing is downloaded. Without it the runtime and the voices are fetched
+once from the project's public repository (hash-pinned), and everything runs offline after.
+--tts-base-url (tts only, or $TANULOM_TTS_BASE_URL) is a mirror of that repository's layout
+(https, or http on localhost).
 The sidecar has no authentication: publish it on the compose network only.`
 
 // componentArgs finds the "component" subcommand. A leading `--data-dir X`
-// (the server's flag), `--voices-dir X` and `--tts-runtime-dir X` are accepted
-// in front of it and carried over.
-func componentArgs(args []string) (rest []string, dataDir, voicesDir, runtimeDir string, ok bool) {
+// (the server's flag), `--voices-dir X`, `--tts-runtime-dir X` and
+// `--tts-base-url X` are accepted in front of it and carried over.
+func componentArgs(args []string) (rest []string, dataDir, voicesDir, runtimeDir, baseURL string, ok bool) {
 	for len(args) > 0 {
 		a := args[0]
 		if a == "component" {
-			return args[1:], dataDir, voicesDir, runtimeDir, true
+			return args[1:], dataDir, voicesDir, runtimeDir, baseURL, true
 		}
 		var dst *string
-		for _, name := range []string{"data-dir", "voices-dir", "tts-runtime-dir"} {
+		for _, name := range []string{"data-dir", "voices-dir", "tts-runtime-dir", "tts-base-url"} {
 			switch {
 			case a == "--"+name || a == "-"+name:
 				if len(args) < 2 {
-					return nil, "", "", "", false
+					return nil, "", "", "", "", false
 				}
-				dst = leadTarget(name, &dataDir, &voicesDir, &runtimeDir)
+				dst = leadTarget(name, &dataDir, &voicesDir, &runtimeDir, &baseURL)
 				*dst, args = args[1], args[2:]
 			case strings.HasPrefix(a, "--"+name+"=") || strings.HasPrefix(a, "-"+name+"="):
-				dst = leadTarget(name, &dataDir, &voicesDir, &runtimeDir)
+				dst = leadTarget(name, &dataDir, &voicesDir, &runtimeDir, &baseURL)
 				*dst, args = a[strings.Index(a, "=")+1:], args[1:]
 			}
 			if dst != nil {
@@ -57,18 +62,20 @@ func componentArgs(args []string) (rest []string, dataDir, voicesDir, runtimeDir
 			}
 		}
 		if dst == nil {
-			return nil, "", "", "", false
+			return nil, "", "", "", "", false
 		}
 	}
-	return nil, "", "", "", false
+	return nil, "", "", "", "", false
 }
 
-func leadTarget(name string, data, voices, runtime *string) *string {
+func leadTarget(name string, data, voices, runtime, base *string) *string {
 	switch name {
 	case "data-dir":
 		return data
 	case "voices-dir":
 		return voices
+	case "tts-base-url":
+		return base
 	}
 	return runtime
 }
@@ -93,14 +100,19 @@ func runComponentTo(args []string, lead string, stdout, stderr io.Writer, mk fun
 	}
 	fs := flag.NewFlagSet("component run", flag.ContinueOnError)
 	fs.SetOutput(stderr)
-	var host, dataDir, voicesDir, runtimeDir string
+	var host, dataDir, voicesDir, runtimeDir, baseURL string
 	var port int
 	fs.StringVar(&host, "host", "", "bind address: 0.0.0.0 (default) or 127.0.0.1")
 	fs.IntVar(&port, "port", 0, "port, 1024-65535 (default: the service's own)")
 	fs.StringVar(&voicesDir, "voices-dir", os.Getenv("TANULOM_VOICES_DIR"), "Piper voice files for tts (default: <data>/voices)")
-	fs.StringVar(&runtimeDir, "tts-runtime-dir", os.Getenv("TANULOM_TTS_RUNTIME_DIR"), "offline tts runtime bundle (default: the one embedded in the binary)")
+	fs.StringVar(&runtimeDir, "tts-runtime-dir", os.Getenv("TANULOM_TTS_RUNTIME_DIR"), "local tts runtime tree (default: download it once from the project repository)")
+	fs.StringVar(&baseURL, "tts-base-url", os.Getenv("TANULOM_TTS_BASE_URL"), "mirror of the repository layout for the tts download (https, or http on localhost)")
 	fs.StringVar(&dataDir, "data-dir", lead, "data directory (default: $TANULOM_DATA_DIR or ./data)")
 	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	if err := ttsfetch.ValidateBaseURL(baseURL); err != nil {
+		fmt.Fprintf(stderr, "--tts-base-url: %v\n", err)
 		return 2
 	}
 	if id == "" && fs.NArg() == 1 {
@@ -131,7 +143,8 @@ func runComponentTo(args []string, lead string, stdout, stderr io.Writer, mk fun
 	if mk != nil {
 		mgr = mk(dir)
 	} else {
-		mgr = components.New(components.Options{DataDir: dir, VoicesDir: absDir(voicesDir), TTSRuntimeDir: absDir(runtimeDir), OnLog: func(id, l string) { out("[" + id + "] " + l) }})
+		mgr = components.New(components.Options{DataDir: dir, VoicesDir: absDir(voicesDir), TTSRuntimeDir: absDir(runtimeDir),
+			Fetch: ttsfetch.Config{BaseURL: baseURL, Ref: ttsfetch.RefFor(api.Version)}, OnLog: func(id, l string) { out("[" + id + "] " + l) }})
 	}
 	defer func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

@@ -2,19 +2,25 @@ package components
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"regexp"
 	"time"
+
+	"tanulom/internal/components/ttsfetch"
 )
 
-// Enable / Disable of a bundled component (ADR-080). «Включить» never touches
-// the network: it verifies the bundle, unpacks the interpreter, installs the
-// wheels from the bundle with pip --no-index, writes runtime.stamp and starts
-// the child, which loads every voice into memory. A current stamp skips straight
-// to the start. Disable is Stop (the API layer also resets the provider).
+// Install / Enable / Disable of a bundled component (ADR-080, ADR-081).
+// «Установить» fetches the pinned files from the project's repository ONCE
+// (package ttsfetch), then verifies them, unpacks the interpreter, installs the
+// wheels with pip --no-index, writes runtime.stamp, moves the voices into place
+// and starts the child, which loads every voice into memory. After that nothing
+// touches the network: a current stamp and voices skip straight to the start,
+// and Start / boot use the unpacked environment. Disable is Stop (the API layer
+// also resets the provider).
 
 var reHashMismatch = regexp.MustCompile(`(?i)do not match the hashes|hash mismatch|THESE PACKAGES DO NOT MATCH`)
 
@@ -42,10 +48,18 @@ func (m *Manager) enable(id string, handover bool) error {
 	if err := m.claimEnable(c); err != nil {
 		return err
 	}
+	ctx, cancel := context.WithCancel(m.ctx)
+	m.mu.Lock()
+	c.cancelRun = cancel
+	m.mu.Unlock()
 	m.wg.Add(1)
 	go func() {
 		defer m.wg.Done()
-		m.runEnable(m.ctx, c, false, handover)
+		defer cancel()
+		m.runEnable(ctx, c, false, handover)
+		m.mu.Lock()
+		c.cancelRun = nil
+		m.mu.Unlock()
 	}()
 	return nil
 }
@@ -57,14 +71,14 @@ func (m *Manager) claimEnable(c *comp) error {
 	if _, key := m.locateBundle(); key != "" {
 		return &Error{Key: key}
 	}
-	if len(m.Voices()) == 0 {
+	if m.localRuntime() && len(m.Voices()) == 0 {
 		return &Error{Key: KeyNoVoices}
 	}
 	if wkey := m.writable(); wkey != "" {
 		return &Error{Key: wkey}
 	}
-	ready := m.runtimeReady(id)
-	if !ready {
+	runtimeOK, voicesOK := m.runtimeReady(id), m.voicesInstalled()
+	if !runtimeOK || !voicesOK {
 		free, err := m.opt.Disk.Free(m.dir)
 		if err != nil {
 			return &Error{Key: KeyReadOnly, Detail: m.redact(err.Error())}
@@ -85,7 +99,11 @@ func (m *Manager) claimEnable(c *comp) error {
 	c.busy = true
 	m.installing = id
 	c.state, c.step, c.progress, c.port = StateInstalling, StepVoices, 0, 0
-	if !ready {
+	c.dlBytes, c.dlTotal = 0, 0
+	switch {
+	case !m.localRuntime() && (!runtimeOK || !voicesOK):
+		c.step = StepFetch
+	case !runtimeOK:
 		c.step = StepVerify
 	}
 	c.errKey, c.errMsg = "", ""
@@ -116,6 +134,10 @@ func (m *Manager) runEnable(ctx context.Context, c *comp, foreground, handover b
 			m.installing = ""
 			c.state, c.step, c.port = StateFailed, "", 0
 			c.errKey, c.errMsg = key, m.redact(detail)
+			if detail == "cancelled" {
+				// Stop pressed during an install: back to what is on disk, no error.
+				c.state, c.errKey, c.errMsg = "", "", ""
+			}
 		})
 		slog.Warn("components: enable failed", "component", id, "key", key)
 	}
@@ -135,6 +157,22 @@ func (m *Manager) runEnable(ctx context.Context, c *comp, foreground, handover b
 			}
 			fail(key, fmt.Sprintf("%s: %v", what, err))
 		}
+	}
+
+	// fetched: the download step ran, so the later steps fill the upper half of the bar.
+	fetched := false
+	at := func(p float64) float64 {
+		if fetched {
+			return 0.5 + 0.5*p
+		}
+		return p
+	}
+	if !m.localRuntime() && (!m.runtimeReady(id) || !m.voicesInstalled()) {
+		if err := m.fetch(ctx, c); err != nil {
+			m.failFetch(ctx, err, fail)
+			return
+		}
+		fetched = true
 	}
 
 	if !m.runtimeReady(id) {
@@ -166,14 +204,14 @@ func (m *Manager) runEnable(ctx context.Context, c *comp, foreground, handover b
 			return
 		}
 
-		m.setStep(c, StepVerify, 0.02)
-		tarball, err := verifyCopy(ctx, b, man, lock, wheels, func(f float64) { m.progress(c, 0.02+0.28*f) })
+		m.setStep(c, StepVerify, at(0.02))
+		tarball, err := verifyCopy(ctx, b, man, lock, wheels, func(f float64) { m.progress(c, at(0.02+0.28*f)) })
 		if err != nil {
 			failErr(err, "verify")
 			return
 		}
 
-		m.setStep(c, StepUnpack, 0.3)
+		m.setStep(c, StepUnpack, at(0.3))
 		if err := untarGz(ctx, tarball, unpack); err != nil {
 			failErr(err, "unpack")
 			return
@@ -184,7 +222,7 @@ func (m *Manager) runEnable(ctx context.Context, c *comp, foreground, handover b
 			fail(KeyBundleCorrupt, "the archive has no python/bin/python3")
 			return
 		}
-		m.progress(c, 0.55)
+		m.progress(c, at(0.55))
 		pip := []string{py, "-I", "-m", "pip", "install", "--no-index", "--no-deps", "--require-hashes",
 			"--only-binary=:all:", "-r", filepath.Join(wheels, lockName), "--find-links", wheels}
 		err = m.opt.Runner.Run(ctx, Cmd{Path: pip[0], Args: pip[1:], Dir: stage, Env: bundledPipEnv(home)},
@@ -198,7 +236,7 @@ func (m *Manager) runEnable(ctx context.Context, c *comp, foreground, handover b
 			failErr(fmt.Errorf("%w\n%s", err, relevantTail(lines, 8)), "pip install")
 			return
 		}
-		m.progress(c, 0.75)
+		m.progress(c, at(0.75))
 
 		// Commit. The stamp goes last, so a crash leaves "not unpacked", never "half".
 		// Rename-swap: the live runtime is only discarded after the new one is in place.
@@ -239,11 +277,13 @@ func (m *Manager) runEnable(ctx context.Context, c *comp, foreground, handover b
 		_ = os.RemoveAll(stage)
 	}
 
-	m.setStep(c, StepVoices, 0.8)
-	if err := m.extractVoices(ctx); err != nil {
+	m.setStep(c, StepVoices, at(0.8))
+	if err := m.installVoices(ctx); err != nil {
 		failErr(err, "voices")
 		return
 	}
+	// Everything is in place: the download cache (~0.4 GB) has done its job.
+	_ = os.RemoveAll(m.cacheDir(id))
 	if ctx.Err() != nil {
 		fail(KeyInstallFailed, "cancelled")
 		return
@@ -291,11 +331,11 @@ func (m *Manager) runEnable(ctx context.Context, c *comp, foreground, handover b
 }
 
 // uninstallBundled removes the unpacked environment (interpreter, stamp, the
-// extracted voices, staging) and never the bundle itself.
+// installed voices, staging) and the download cache, never an operator's tree.
 func (m *Manager) uninstallBundled(id string) error {
 	root := m.final(id)
 	var first error
-	for _, p := range []string{"python", "python.old", stampName, stampName + ".tmp", ".unpack", "voices"} {
+	for _, p := range []string{"python", "python.old", stampName, stampName + ".tmp", ".unpack", "voices", "cache"} {
 		if err := os.RemoveAll(filepath.Join(root, p)); err != nil && first == nil {
 			first = err
 		}
@@ -309,4 +349,52 @@ func (m *Manager) rename(from, to string) error {
 		return m.opt.Rename(from, to)
 	}
 	return os.Rename(from, to)
+}
+
+// fetch downloads what the install is missing into the cache tree. Files that
+// are already valid cost no request, so a retry resumes. Progress goes to the
+// card (bytes done / total) without flooding the change hook.
+func (m *Manager) fetch(ctx context.Context, c *comp) error {
+	id := c.spec.id
+	f, err := ttsfetch.New(m.opt.Fetch)
+	if err != nil {
+		return err
+	}
+	files, err := ttsfetch.Plan(m.manifests(), platformDir(m.opt.GOOS, m.opt.GOARCH), !m.runtimeReady(id), !m.voicesInstalled())
+	if err != nil {
+		return err
+	}
+	m.setStep(c, StepFetch, 0.01)
+	var last time.Time
+	return f.Fetch(ctx, m.cacheDir(id), files, func(done, total int64) {
+		m.mu.Lock()
+		c.dlBytes, c.dlTotal = done, total
+		if total > 0 {
+			if p := 0.02 + 0.48*float64(done)/float64(total); p > c.progress {
+				c.progress = min(p, 1)
+			}
+		}
+		m.mu.Unlock()
+		if now := time.Now(); done == total || now.Sub(last) > 250*time.Millisecond {
+			last = now
+			m.changed(id)
+		}
+	})
+}
+
+// failFetch maps a fetch failure to the key the card shows.
+func (m *Manager) failFetch(ctx context.Context, err error, fail func(key, detail string)) {
+	var fe *ttsfetch.Error
+	switch {
+	case ctx.Err() != nil:
+		fail(KeyInstallFailed, "cancelled")
+	case errors.As(err, &fe) && fe.Kind == ttsfetch.KindCorrupt:
+		fail(KeyBundleCorrupt, fe.Error())
+	case errors.As(err, &fe):
+		fail(KeyTTSDownloadFailed, fe.Error())
+	case reDisk.MatchString(err.Error()):
+		fail(KeyDiskFull, err.Error())
+	default:
+		fail(KeyInstallFailed, "fetch: "+err.Error())
+	}
 }

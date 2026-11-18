@@ -111,10 +111,10 @@ optional override in `config.yaml` and `GET/PUT /api/settings` (`settings.langpa
 | `GET` | `/api/admin/pack/install` | `{state, bytes, total, errorKey, restartRequired, published, sizeBytes, url}` |
 | `POST` | `/api/admin/restart` | → **202** `{supervised: bool}`; ~400 ms later the process gets SIGTERM (graceful shutdown). `supervised` is true iff `TANULOM_SUPERVISED=1`. **409** while an install runs |
 | `GET` | `/api/admin/components` | `[{id, configured, reachable, state, progress, model, ramHint, composeProfile, built, managed?}]` — `managed` on `mt` and `tts`, below |
-| `POST` | `/api/admin/components/:id/install` | `:id` is `mt` or `tts` (anything else **404** `errors.componentUnknown`). **202** with the `managed` object; the job runs in the background and the card polls `GET /api/admin/components`. **409** `errors.componentBusy` (a job runs) / `errors.componentInstalled`; **422** `errors.componentNoVoices` (`tts` only: none of `hu_HU-{anna,berta,imre}-medium.onnx` + `.onnx.json` is in the voices directory — checked before anything is created) / `errors.componentNoPython` (or `errors.componentNoPythonSlimImage` on the `:latest-slim` image) / `errors.componentReadOnly`; **507** `errors.diskFull` (preflight, nothing written) |
+| `POST` | `/api/admin/components/:id/install` | `:id` is `mt` or `tts` (anything else **404** `errors.componentUnknown`). **202** with the `managed` object; the job runs in the background and the card polls `GET /api/admin/components`. For `tts` this is **Install** = download (once) + verify + unpack + start (below). **409** `errors.componentBusy` (a job runs) / `errors.componentInstalled`; **422** `errors.componentNoTtsRuntime` (`tts`: no runtime for this platform) / `errors.componentNoVoices` (`tts` with an operator `--voices-dir`: no persona pair there) / `errors.componentNoPython` (or `errors.componentNoPythonSlimImage` on the `:latest-slim` image) / `errors.componentReadOnly`; **507** `errors.diskFull` (preflight, nothing written) |
 | `POST` | `/api/admin/components/:id/start` | **202**; **409** `errors.componentNotInstalled` / `errors.componentBusy`. Idempotent while running |
-| `POST` | `/api/admin/components/:id/stop` | **202**; SIGTERM then SIGKILL after 5 s. Idempotent. **409** `errors.componentBusy` during an install |
-| `POST` | `/api/admin/components/:id/uninstall` | **202**; stops the child, deletes `<data>/components/<id>/`, and sets `services.<id>.provider` to `off` iff it was `managed`. **409** `errors.componentBusy` during an install |
+| `POST` | `/api/admin/components/:id/stop` | **202**; SIGTERM then SIGKILL after 5 s. Idempotent. **409** `errors.componentBusy` during an install (`mt`); for `tts` it is **Disable** and **also cancels a running install** |
+| `POST` | `/api/admin/components/:id/uninstall` | **202**; stops the child, deletes `<data>/components/<id>/` (for `tts`: unpacked environment + voices + download cache), and sets `services.<id>.provider` to `off` iff it was `managed` (`tts`: `device`). **409** `errors.componentBusy` during an install |
 
 All four are admin-only (403 for a learner, 401 signed out) and take no body: nothing a client sends
 can reach a command line ([ADR-061](../.claude/DECISIONS.md#adr-061)).
@@ -123,16 +123,18 @@ can reach a command line ([ADR-061](../.claude/DECISIONS.md#adr-061)).
 // `managed` on the mt and tts rows of GET /api/admin/components (and the 202 body above)
 { "available": true,            // python3>=3.10 with venv+pip found AND the data dir is writable
   "unavailableKey": "errors.componentNoPython",  // | errors.componentReadOnly | errors.componentNoTtsRuntime
-                                // (tts: no bundled runtime on this platform/build; device voice is the floor)
-                                // | errors.componentBundleCorrupt (tts: a bundled file fails MANIFEST.sha256) — only when available=false
-  "bundled": true,              // tts only (ADR-080): the runtime ships with the binary, nothing is downloaded
+                                // (tts: no runtime for this platform; device voice is the floor)
+                                // | errors.componentBundleCorrupt — only when available=false
+  "bundled": true,              // tts only (ADR-080/081): the runtime is a hash-pinned set of repo files, downloaded once at install
+  "installed": true,            // tts: a finished install is on disk (stamp, interpreter, voices), running or not
+  "downloadBytes": 52428800, "downloadTotal": 270000000,  // tts, only while step=component.step.fetch (else 0)
   "pythonVersion": "3.12.1",
   "state": "running",           // absent | installing | installed | starting | running | failed | stopped
   "step": "component.step.pip", // installing only: component.step.venv|pip|model|start (mt);
-                                // component.step.verify|unpack|voices (tts, bundled; unpack progress is coarse)
+                                // component.step.fetch|verify|unpack|voices (tts; fetch is determinate via downloadBytes/downloadTotal)
   "progress": 0.42,             // 0..1 over the whole install, never decreases within a job
   "port": 41873,                // 127.0.0.1 only, in memory; absent unless starting/running
-  "errorKey": "errors.componentNetwork",   // | errors.componentInstallFailed | errors.diskFull | errors.componentStartFailed | errors.componentCrashed
+  "errorKey": "errors.componentNetwork",   // tts: errors.ttsDownloadFailed (network/HTTP, retry resumes per file) | errors.componentBundleCorrupt (hash/size mismatch, file deleted) | errors.componentNoTtsRuntime; | errors.componentInstallFailed | errors.diskFull | errors.componentStartFailed | errors.componentCrashed
   "errorDetail": "short redacted tail of the failing command",
   "log": ["…last ≤40 lines, paths outside the data dir reduced to their last element…"],
   "diskNeed": "≈6 GB (estimate)", "ramNeed": "≈2–3 GB (estimate, not measured)",
@@ -140,19 +142,22 @@ can reach a command line ([ADR-061](../.claude/DECISIONS.md#adr-061)).
                                           // (in that order); absent for mt and when none were found
 ```
 
-`tts` is the Piper speech component ([ADR-079](../.claude/DECISIONS.md#adr-079)). Its voice files are
-**not downloaded**: they are committed to the repository and read from the operator's voices
-directory — `--voices-dir` / `TANULOM_VOICES_DIR`, default `<data>/voices`. That directory is never
-settable through a route or `config.yaml`. Install is refused with `errors.componentNoVoices` while it
-holds no persona pair; the card shows what was found (`voices`).
+`tts` is the Piper speech component ([ADR-079](../.claude/DECISIONS.md#adr-079), amended by ADR-080/081).
+Its engine and voices are **downloaded once** from the project's own public repository, never from a
+user-supplied URL (fixed host and layout; operator-only overrides `--tts-base-url`, `--tts-runtime-dir`,
+`--voices-dir`, never a route or `config.yaml`).
 
-**Bundled `tts` (ADR-080) reads these routes as a switch.** `install` and `start` both mean
-**Enable** (verify files → unpack the runtime once → start → the child loads every voice into
-memory; the row stays `installing` with `step` verify|unpack|voices until it answers `running`) and set
-`provider = "managed"`. `stop` means **Disable**: the child is stopped, its memory is freed and
-`provider` becomes `device` (so a restart does not switch it on again). `uninstall` removes the
-unpacked environment and extracted voices (the bundle itself stays) and sets `provider` to `device`
-(not `off`). No route downloads anything; no new routes exist.
+**`tts` reads these routes as install, then a switch.** `install` = **Install**: fetch (every file's
+sha256 and size checked against a manifest compiled into the binary; files already valid in the cache are
+kept, so a retry fetches only what is missing) → verify → unpack the runtime → start → the child loads
+every voice into memory; the row stays `installing` with `step` fetch|verify|unpack|voices until it
+answers `running`, and sets `provider = "managed"`. `start` on an installed-but-stopped component =
+**Enable** (no network). `stop` = **Disable** (child stopped, memory freed, `provider` becomes `device`,
+so a restart does not switch it on again) **and cancels an install in progress**. `uninstall` removes the
+unpacked environment, the voices and the download cache (frees ≈0.5 GB), leaves `provider = device`, and
+the row returns to `installed: false`. Failures: `errors.ttsDownloadFailed` (network/HTTP),
+`errors.componentBundleCorrupt` (hash/size mismatch; the file is discarded, so installing again re-fetches
+it), `errors.componentNoTtsRuntime` (unsupported platform). No new routes exist.
 
 On success of an install the server sets `services.<id>.provider = "managed"` itself; the settings
 DTO then carries `provider: "managed", endpoint: ""`. A `managed` service whose child is not running

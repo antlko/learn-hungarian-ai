@@ -14,16 +14,19 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
+
+	"tanulom/internal/components/ttsfetch"
 )
 
-// The offline `tts` runtime (ADR-080). A bundle is a directory tree shaped like
+// The `tts` runtime (ADR-080, ADR-081). A bundle is a directory tree shaped like
 // services/tts/vendor — MANIFEST.sha256, requirements.lock and one directory per
-// platform holding a python-build-standalone tarball plus a wheelhouse — that
-// comes from the operator's --tts-runtime-dir or from the binary itself
-// (package ttsbundle, build tag `ttsbundle`). Nothing here opens a socket.
+// platform holding a python-build-standalone tarball plus a wheelhouse. It comes
+// either from the operator's --tts-runtime-dir (a local tree; nothing is fetched)
+// or from the download cache, which package ttsfetch fills ONCE from the
+// project's public repository against the manifests compiled into the binary.
+// Everything after the fetch reads local files only.
 
 const (
 	manifestName = "MANIFEST.sha256"
@@ -40,16 +43,20 @@ var (
 
 // Keys and steps of the bundled runtime.
 const (
+	StepFetch  = "component.step.fetch"
 	StepVerify = "component.step.verify"
 	StepUnpack = "component.step.unpack"
 	StepVoices = "component.step.voices"
 
-	// KeyNoTtsRuntime: this platform has no bundled runtime, or this build and
-	// the operator's flag provide none. Device speech remains the floor.
+	// KeyNoTtsRuntime: this platform has no runtime in the manifest (or the
+	// operator's directory has none). Device speech remains the floor.
 	KeyNoTtsRuntime = "errors.componentNoTtsRuntime"
 	// KeyBundleCorrupt: a bundled file does not match MANIFEST.sha256 (or the
 	// archive is malformed). Nothing is installed.
 	KeyBundleCorrupt = "errors.componentBundleCorrupt"
+	// KeyTTSDownloadFailed: the files could not be fetched from the project's
+	// repository (network, HTTP status). Already-valid files are kept; retry.
+	KeyTTSDownloadFailed = "errors.ttsDownloadFailed"
 )
 
 // platformDir is the vendor sub-directory of a GOOS/GOARCH, "" when unsupported.
@@ -61,36 +68,56 @@ func platformDir(goos, goarch string) string {
 	return ""
 }
 
-// bundle is a located runtime: its tree and the platform directory in it.
+// bundle is a located runtime: its tree and the platform directory in it. man
+// and lock, when set, are the pinned bytes (download mode: the embedded
+// manifests; the cache tree holds only the files); else they are read from fsys.
 type bundle struct {
 	fsys     fs.FS
 	platform string
+	man      []byte
+	lock     []byte
 }
 
-// locateBundle finds the runtime: the operator's directory first, then the one
-// embedded in the binary. The second result is "" or KeyNoTtsRuntime.
+// localRuntime: the operator supplied the runtime tree; nothing is downloaded.
+func (m *Manager) localRuntime() bool { return m.opt.TTSRuntimeDir != "" }
+
+// cacheDir is where the fetch puts its files, shaped like services/tts/vendor.
+func (m *Manager) cacheDir(id string) string { return filepath.Join(m.final(id), "cache") }
+
+func (m *Manager) manifests() ttsfetch.Manifests {
+	if m.opt.Manifests != nil {
+		return *m.opt.Manifests
+	}
+	return ttsfetch.Embedded()
+}
+
+// locateBundle finds the runtime: the operator's directory, else (download mode)
+// the cache tree pinned by the embedded manifests. The second result is "" or
+// KeyNoTtsRuntime (unsupported platform, or no files for it in the manifest).
 func (m *Manager) locateBundle() (bundle, string) {
 	platform := platformDir(m.opt.GOOS, m.opt.GOARCH)
 	if platform == "" {
 		return bundle{}, KeyNoTtsRuntime
 	}
-	var candidates []fs.FS
 	if d := m.opt.TTSRuntimeDir; d != "" {
-		candidates = append(candidates, os.DirFS(d))
-	}
-	if m.opt.EmbeddedBundle != nil {
-		if f, ok := m.opt.EmbeddedBundle(); ok {
-			candidates = append(candidates, f)
-		}
-	}
-	for _, f := range candidates {
+		f := os.DirFS(d)
 		if st, err := fs.Stat(f, platform); err != nil || !st.IsDir() {
-			continue
+			return bundle{}, KeyNoTtsRuntime
 		}
 		if st, err := fs.Stat(f, manifestName); err != nil || !st.Mode().IsRegular() {
-			continue
+			return bundle{}, KeyNoTtsRuntime
 		}
 		return bundle{fsys: f, platform: platform}, ""
+	}
+	mf := m.manifests()
+	es, err := parseManifest(mf.Vendor)
+	if err != nil {
+		return bundle{}, KeyNoTtsRuntime
+	}
+	for _, e := range es {
+		if strings.HasPrefix(e.path, platform+"/") {
+			return bundle{fsys: os.DirFS(m.cacheDir(TTS)), platform: platform, man: mf.Vendor, lock: mf.Lock}, ""
+		}
 	}
 	return bundle{}, KeyNoTtsRuntime
 }
@@ -114,6 +141,9 @@ func (b bundle) stamp() (string, error) {
 // readMeta reads MANIFEST and lock once; verifyCopy and the stamp both use
 // these bytes, so the stamp names exactly what was verified.
 func (b bundle) readMeta() (man, lock []byte, err error) {
+	if b.man != nil {
+		return b.man, b.lock, nil
+	}
 	if man, err = fs.ReadFile(b.fsys, manifestName); err != nil {
 		return nil, nil, err
 	}
@@ -140,6 +170,17 @@ func (m *Manager) runtimeReady(id string) bool {
 	}
 	have, err := os.ReadFile(filepath.Join(m.final(id), stampName))
 	if err != nil || string(have) != want {
+		return false
+	}
+	st, err := os.Stat(m.python3(id))
+	return err == nil && st.Mode().IsRegular()
+}
+
+// runtimePresent: a stamp and an interpreter exist, whatever manifest they were
+// built from. Start and boot use this, so an upgraded binary keeps running the
+// environment it has instead of fetching anything.
+func (m *Manager) runtimePresent(id string) bool {
+	if _, err := os.Stat(filepath.Join(m.final(id), stampName)); err != nil {
 		return false
 	}
 	st, err := os.Stat(m.python3(id))
@@ -487,143 +528,82 @@ func noSymlinkAncestor(dest, rel string) error {
 
 // ---- voices ----
 
-// embeddedVoices is the bundle's voices/ directory when it holds a voice.
-func (m *Manager) embeddedVoices() (fs.FS, bool) {
-	if m.opt.EmbeddedBundle == nil {
-		return nil, false
-	}
-	root, ok := m.opt.EmbeddedBundle()
-	if !ok {
-		return nil, false
-	}
-	sub, err := fs.Sub(root, "voices")
-	if err != nil || len(findVoicesFS(sub)) == 0 {
-		return nil, false
-	}
-	return sub, true
-}
-
-func findVoicesFS(fsys fs.FS) []string {
-	var out []string
-	for _, p := range Personas {
-		f := VoiceFile(p)
-		a, e1 := fs.Stat(fsys, f)
-		b, e2 := fs.Stat(fsys, f+".json")
-		if e1 == nil && e2 == nil && a.Mode().IsRegular() && b.Mode().IsRegular() {
-			out = append(out, p)
-		}
-	}
-	return out
-}
-
-// extractedVoices is where embedded voices are unpacked.
+// extractedVoices is where the downloaded voices live.
 func (m *Manager) extractedVoices() string { return filepath.Join(m.final(TTS), "voices") }
 
-// voiceSource picks where voices come from, in order: the operator's
-// --voices-dir, the voices embedded in the binary (extracted under
-// <data>/components/tts/voices), then <data>/voices. The first with at least
-// one voice wins; with none, the operator's dir (else <data>/voices).
-func (m *Manager) voiceSource() (dir string, embedded fs.FS, voices []string) {
+// voiceSource picks where voices are read from, in order: the operator's
+// --voices-dir, the voices installed under <data>/components/tts/voices, then
+// <data>/voices. The first with at least one voice wins; with none, the
+// operator's dir (else <data>/voices).
+func (m *Manager) voiceSource() (dir string, voices []string) {
 	if d := m.opt.VoicesDir; d != "" {
 		if v := FindVoices(d); len(v) > 0 {
-			return d, nil, v
+			return d, v
 		}
 	}
-	if e, ok := m.embeddedVoices(); ok {
-		return m.extractedVoices(), e, findVoicesFS(e)
+	if d := m.extractedVoices(); len(FindVoices(d)) > 0 {
+		return d, FindVoices(d)
 	}
 	def := filepath.Join(m.opt.DataDir, "voices")
 	if v := FindVoices(def); len(v) > 0 {
-		return def, nil, v
+		return def, v
 	}
 	if m.opt.VoicesDir != "" {
-		return m.opt.VoicesDir, nil, nil
+		return m.opt.VoicesDir, nil
 	}
-	return def, nil, nil
+	return def, nil
 }
 
-// extractVoices copies the embedded voice files to the extracted directory,
-// skipping a file whose bytes already hash the same. A no-op for any other source.
-func (m *Manager) extractVoices(ctx context.Context) error {
-	dir, emb, _ := m.voiceSource()
-	if emb == nil {
+// voicesInstalled: the voices an enable needs are in place. With an operator's
+// runtime tree any voice source counts; otherwise the operator's voices
+// directory, or all three downloaded voices.
+func (m *Manager) voicesInstalled() bool {
+	if m.localRuntime() {
+		return len(m.Voices()) > 0
+	}
+	if d := m.opt.VoicesDir; d != "" && len(FindVoices(d)) > 0 {
+		return true
+	}
+	return len(FindVoices(m.extractedVoices())) == len(Personas)
+}
+
+// installVoices moves the downloaded voices from the cache into the live
+// voices directory, hashing each against the embedded VOICES manifest first
+// (what was verified on arrival is verified again before it is used). A no-op
+// with an operator's runtime tree or voices directory.
+func (m *Manager) installVoices(ctx context.Context) error {
+	if m.localRuntime() || m.voicesInstalled() {
 		return nil
 	}
+	es, err := ttsfetch.ParseManifest(m.manifests().Voices)
+	if err != nil {
+		return corrupt("voices manifest: %v", err)
+	}
+	dir := m.extractedVoices()
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
 	}
-	ents, err := fs.ReadDir(emb, ".")
-	if err != nil {
-		return err
-	}
-	var names []string
-	for _, e := range ents {
-		if strings.HasPrefix(e.Name(), "hu_HU-") && !e.IsDir() {
-			names = append(names, e.Name())
-		}
-	}
-	sort.Strings(names)
-	for _, name := range names {
+	for _, e := range es {
 		if err := ctx.Err(); err != nil {
 			return err
 		}
-		if err := copyIfDifferent(emb, name, filepath.Join(dir, name)); err != nil {
+		dst := filepath.Join(dir, e.Path)
+		if ttsfetch.Valid(dst, e.Size, e.Sum) {
+			continue
+		}
+		src := filepath.Join(m.cacheDir(TTS), "voices", e.Path)
+		if !ttsfetch.Valid(src, e.Size, e.Sum) {
+			return corrupt("voice %s does not match its pin", e.Path)
+		}
+		if err := os.Rename(src, dst); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func fileSum(r io.Reader) (string, int64, error) {
-	h := sha256.New()
-	n, err := io.Copy(h, r)
-	return hex.EncodeToString(h.Sum(nil)), n, err
-}
-
-func copyIfDifferent(src fs.FS, name, dst string) error {
-	in, err := src.Open(name)
-	if err != nil {
-		return err
-	}
-	defer in.Close()
-	want, wantN, err := fileSum(in)
-	if err != nil {
-		return err
-	}
-	if f, err := os.Open(dst); err == nil {
-		have, haveN, _ := fileSum(f)
-		_ = f.Close()
-		if haveN == wantN && have == want {
-			return nil
-		}
-	}
-	in2, err := src.Open(name)
-	if err != nil {
-		return err
-	}
-	defer in2.Close()
-	tmp := dst + ".tmp"
-	out, err := os.OpenFile(tmp, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
-	if err != nil {
-		return err
-	}
-	h := sha256.New()
-	_, err = io.Copy(io.MultiWriter(out, h), in2)
-	if cerr := out.Close(); err == nil {
-		err = cerr
-	}
-	if err == nil && hex.EncodeToString(h.Sum(nil)) != want {
-		err = corrupt("%s changed while it was read", name)
-	}
-	if err != nil {
-		_ = os.Remove(tmp)
-		return err
-	}
-	return os.Rename(tmp, dst)
-}
-
-// IsBundled reports whether the component ships offline (no install from the
-// network; Enable/Disable instead of Install).
+// IsBundled reports whether the component is a pinned set of repository files
+// (ADR-081): the API maps start/stop onto Enable/Disable for it.
 func IsBundled(id string) bool { return specs[id].bundled }
 
 // asError returns err as an *Error when it is one.

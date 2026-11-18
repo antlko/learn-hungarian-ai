@@ -17,7 +17,7 @@ import (
 // keyed *Errors for the preflight.
 func (m *Manager) Install(ctx context.Context, id string) error {
 	if specs[id].bundled {
-		return m.enable(id, true) // «Включить»: offline, no Python probe
+		return m.enable(id, true) // «Установить» / «Включить»: no Python probe
 	}
 	c, py, err := m.claimInstall(id)
 	if err != nil {

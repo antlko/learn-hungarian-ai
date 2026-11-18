@@ -1793,20 +1793,30 @@ you lose without it, and a state chip that carries a shape and text (never colou
   once something is installed. Switching away is allowed (the server stops the child).
 - **Translator** reuses the Services card's live block (`MtBlock`: download bytes, retry); its
   state still lives in `SettingsView`, so the Services row and this card cannot disagree.
-- **Speech (tts)** is the bundled engine (ADR-080): no Docker/own-server tabs, and **no install or
-  download** — the runtime and the three voices ship inside the app and work offline, so the card is
-  an on/off switch (`managed.bundled`). Primary action «Включить» (off / failed) or «Выключить»
-  (running); a quiet «Удалить распакованную среду» with a hint (frees disk; rebuilt on the next
-  «Включить»), shown whenever `state` is not `absent` (nothing unpacked yet), hidden while enabling.
-  While enabling the card lists the steps in order, the current one with a spinner, finished ones
-  ticked: «Проверка файлов» → «Распаковка среды» → «Голоса загружаются в память» (`component.step.verify|unpack|voices`),
-  over an indeterminate bar — unpack progress is coarse, so no percentage is drawn. State words are
-  `component.stateBundled.*` (выключено / включается / включено). Running: «Найдено голосов: 3 (anna,
-  berta, imre)» and «Занимает ≈300 МБ памяти, пока включено.»; after «Выключить»: «память свободна,
-  озвучка идёт голосом вашего устройства». Unavailable: `errors.componentNoTtsRuntime` (this platform/build has no
-  bundled Piper) → one calm sentence, no buttons at all; `errors.componentBundleCorrupt` → the
-  sentence and only «Проверить». Settings → Озвучка gets a «Голос чтения» select while the engine
-  answers and reloads it after every enable/disable; the reader falls back to the device voice silently.
+- **Speech (tts)** is the project-hosted engine (ADR-081): no Docker/own-server tabs. The engine and the
+  three voices are **not inside the app**: «Установить» downloads them ONCE from the project's own public
+  repository onto this server (hash-verified, ≈270 МБ); after that everything runs locally and offline
+  (`managed.bundled`, `managed.installed`). States:
+  - **Not installed** (`installed=false`, idle): primary «Установить» + one calm line «Скачает движок и три
+    голоса из репозитория проекта (≈270 МБ) один раз. Дальше озвучка работает без интернета.»
+    (`component.need.tts`); chip «не установлено».
+  - **Installing**: ordered step list, current step with a spinner, done ones ticked: «Скачиваю из репозитория
+    проекта» (`component.step.fetch`: determinate `role=progressbar`, `aria-valuenow/max` = `downloadBytes/
+    downloadTotal`, caption «N из M МБ» — bytes only, no invented percentage) → «Проверка файлов» → «Распаковка
+    среды» → «Голоса загружаются в память» (indeterminate bar). Secondary «Отмена» (the stop route cancels
+    an install). Buttons stay mounted (`aria-busy`/`aria-disabled`) so focus is kept; the step is announced
+    through one polite `role=status`, the ticking bytes are not.
+  - **Installed, stopped**: primary «Включить»; quiet «Удалить» with the hint «Удалит скачанные файлы и
+    распакованную среду, освободит ≈0,5 ГБ. Установить можно снова.»
+  - **Running**: «Выключить» + «Удалить», «Занимает ≈300 МБ памяти, пока включено.», «Найдено голосов: 3 (anna,
+    berta, imre)».
+  - **Failed**: `errors.ttsDownloadFailed` (network/HTTP; says already-downloaded files are not fetched twice) or
+    `errors.componentBundleCorrupt` (a downloaded file failed its check and was discarded; installing again
+    fetches it again), then «Установить» (or «Включить» when an install exists on disk) again.
+  - **Unavailable** (`errors.componentNoTtsRuntime`: no Piper runtime for this platform): one calm sentence, no
+    buttons; the device voice is the floor.
+  Settings → Озвучка gets a «Голос чтения» select while the engine answers and reloads it after every
+  install/enable/disable/remove; the reader falls back to the device voice silently.
 - **Speech recognition** reports `built: false` as «пока не
   сделано» in the repository's own words — no compose command, no «Проверить», no «на связи».
   The Services row for a component that is not built reads «пока не сделано» too (tts keeps

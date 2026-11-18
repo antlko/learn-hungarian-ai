@@ -400,11 +400,12 @@
         "title": "Voice",
         "what": "Natural Hungarian voices (Piper) that run on this computer, instead of your device's voice.",
         "voicesFound": "Voices found: {n} ({list})",
-        "noVoices": "No voice files found in the app's voices folder. Add them there, then turn it on.",
+        "noVoices": "No voice files found. Press Remove and install again.",
+        "install": "Install",
         "enable": "Turn on",
         "disable": "Turn off",
-        "freeDisk": "Remove the unpacked runtime",
-        "freeDiskHint": "Frees disk space. The engine and voices stay inside the app and are unpacked again the next time you turn it on.",
+        "freeDisk": "Remove",
+        "freeDiskHint": "Deletes the downloaded files and the unpacked environment and frees about 0.5 GB. You can install again.",
         "memoryNote": "Uses about 300 MB of memory while it is on.",
         "memoryFreed": "Off: the memory is freed and the reader uses your device's voice.",
         "without": "Nothing is lost without it: speech uses your device's voice.",
@@ -592,8 +593,8 @@
       "stopped": "stopped"
     },
     "stateBundled": {
-      "absent": "off",
-      "installing": "turning on",
+      "absent": "not installed",
+      "installing": "installing",
       "installed": "off",
       "starting": "turning on",
       "running": "on",
@@ -601,7 +602,9 @@
       "stopped": "off"
     },
     "chip": { "running": "running · port {port} · internal only" },
+    "download": { "mb": "{done} of {total} MB" },
     "step": {
+      "fetch": "Downloading from the project repository",
       "verify": "Checking files",
       "unpack": "Unpacking the runtime",
       "voices": "Loading voices into memory",
@@ -610,12 +613,12 @@
       "model": "Downloading the model",
       "start": "Starting"
     },
-    "need": { "mt": "Downloads and runs the service right here: about 6 GB on disk and 2–3 GB of memory (estimate, not measured).", "tts": "The engine and the three voices are already inside the app, no internet needed. Turning on loads the voices into memory." },
+    "need": { "mt": "Downloads and runs the service right here: about 6 GB on disk and 2–3 GB of memory (estimate, not measured).", "tts": "Downloads the engine and the three voices from the project repository (≈270 MB) once. After that, speech works without the internet." },
     "managed": {
       "will": "Downloads and runs the service right here: ≈{disk} on disk, ≈{ram} memory — an estimate.",
       "tip": {
         "mt": "Downloads Python libraries and the NLLB-200 translation model. Everything lives in the app's data folder, and the service listens only inside this computer. Sizes are estimates, not measurements.",
-        "tts": "The Piper engine and its voices ship with the app and work offline. Turning on unpacks the engine into the app's data folder (once) and loads the voices into memory. It listens only inside this computer."
+        "tts": "Installing downloads the Piper engine and three voices once from the project's public GitHub repository (files are checked against checksums, ≈270 MB) and unpacks them into the data folder. After that everything works offline: turning on loads the voices into memory. It listens only inside this computer."
       },
       "useOther": "Pick another tab: Docker or Docker Compose (the :latest image has Python), or Own server.",
       "keepOpen": "The install runs on the server: you can close this page.",
@@ -714,7 +717,8 @@
     "componentCrashed": "The component keeps stopping. See the log for details.",
     "componentPipBroken": "pip does not work in this Python. Check your Python or pick another method.",
     "componentNoTtsRuntime": "Local speech is not available on this device; the device voice is used instead.",
-    "componentBundleCorrupt": "The bundled speech files are damaged, so nothing was set up. Reinstall the app and try again.",
+    "componentBundleCorrupt": "A downloaded file failed its check and was discarded. Press Install again and it will be fetched again.",
+    "ttsDownloadFailed": "Could not download the files from the project repository. Check the connection and press Install again; what was already downloaded is not fetched twice.",
     "componentNoVoices": "No voice files were found, so speech cannot be installed. Put the three Piper voice files (.onnx and .onnx.json) where the server expects them and try again.",
     "ttsUnavailable": "The voice service is not answering; the device voice is used instead.",
     "ttsTimeout": "The voice service took too long; the device voice is used instead.",

@@ -21,6 +21,7 @@ import (
 	"github.com/gofiber/fiber/v3"
 
 	"tanulom/internal/api"
+	"tanulom/internal/components/ttsfetch"
 	"tanulom/internal/config"
 	"tanulom/internal/logger"
 	"tanulom/internal/state"
@@ -32,13 +33,16 @@ func main() {
 		os.Exit(runResetPassword(os.Args[2:]))
 	}
 
-	if rest, lead, voices, runtimeDir, ok := componentArgs(os.Args[1:]); ok {
+	if rest, lead, voices, runtimeDir, baseURL, ok := componentArgs(os.Args[1:]); ok {
 		logger.Init()
 		if voices != "" {
 			_ = os.Setenv("TANULOM_VOICES_DIR", voices) // read back by runComponentTo
 		}
 		if runtimeDir != "" {
 			_ = os.Setenv("TANULOM_TTS_RUNTIME_DIR", runtimeDir)
+		}
+		if baseURL != "" {
+			_ = os.Setenv("TANULOM_TTS_BASE_URL", baseURL)
 		}
 		os.Exit(runComponent(rest, lead))
 	}
@@ -50,6 +54,7 @@ func main() {
 		dataDir     string
 		voicesDir   string
 		runtimeDir  string
+		baseURL     string
 		showVersion bool
 	)
 	flag.StringVar(&addr, "addr", envOr("TANULOM_ADDR", ""), "HTTP listen address")
@@ -57,7 +62,9 @@ func main() {
 	flag.StringVar(&voicesDir, "voices-dir", envOr("TANULOM_VOICES_DIR", ""),
 		"directory with the Piper voice files for the tts component (default: <data>/voices)")
 	flag.StringVar(&runtimeDir, "tts-runtime-dir", envOr("TANULOM_TTS_RUNTIME_DIR", ""),
-		"offline runtime bundle for the tts component (default: the one embedded in the binary)")
+		"local runtime tree for the tts component, nothing is downloaded (default: fetch it once from the project repository)")
+	flag.StringVar(&baseURL, "tts-base-url", envOr("TANULOM_TTS_BASE_URL", ""),
+		"mirror of the repository layout for the tts download: https, or http on localhost (default: raw.githubusercontent.com)")
 	flag.BoolVar(&showVersion, "version", false, "print version and exit")
 	flag.Parse()
 
@@ -69,7 +76,11 @@ func main() {
 	dir := resolveDataDir(dataDir)
 	slog.Info("starting tanulom", "version", api.Version, "data_dir", dir)
 
-	srv, err := api.New(dir, api.WithVoicesDir(absDir(voicesDir)), api.WithTTSRuntimeDir(absDir(runtimeDir)))
+	if err := ttsfetch.ValidateBaseURL(baseURL); err != nil {
+		slog.Error("invalid --tts-base-url", "error", err)
+		os.Exit(2)
+	}
+	srv, err := api.New(dir, api.WithVoicesDir(absDir(voicesDir)), api.WithTTSRuntimeDir(absDir(runtimeDir)), api.WithTTSBaseURL(baseURL))
 	if err != nil {
 		slog.Error("startup failed", "error", err)
 		os.Exit(1)
