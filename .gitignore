@@ -35,12 +35,10 @@ node_modules/
 # pack, which is the exact state [ADR-010] removes. ~16 MB, refreshed by
 # `make starter`, which is rare.
 
-# ── Piper voice models — fetched, not committed ───────────────
-# 60 MB each and redistributable from rhasspy/piper-voices, so they are a
-# download rather than a repository. `make voices` fetches them; only the small
-# .json voice cards are tracked, which is what records WHICH three voices the
-# ear trainer expects and under what licence.
-langpack/voices/*.onnx
+# ── Piper voice models — COMMITTED by the owner ───────────────
+# langpack/voices/hu_HU-{anna,berta,imre}-medium.onnx (+ .onnx.json) are tracked,
+# not ignored. Licences: see langpack/LICENSES.md (voice datasets CC0; the anna and
+# berta fine-tune base needs confirming). Do not add a pattern here that hides them.
 
 # ── language pack build artefacts ─────────────────────────────
 langpack/cache/
