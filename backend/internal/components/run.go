@@ -41,7 +41,7 @@ func DefaultPort(id string) int { return specs[id].defPort }
 func ValidateRun(id, host string, port int) (string, int, error) {
 	sp, ok := specs[id]
 	if !ok {
-		return "", 0, fmt.Errorf("%w: unknown component %q (want mt)", ErrUsage, id)
+		return "", 0, fmt.Errorf("%w: unknown component %q (want mt or tts)", ErrUsage, id)
 	}
 	if host == "" {
 		host = DefaultRunHost
@@ -66,6 +66,24 @@ func ValidateRun(id, host string, port int) (string, int, error) {
 // preflight (writable data dir, usable Python) runs either way, because the
 // venv's interpreter is a link to the system one and means nothing without it.
 func (m *Manager) EnsureInstalled(ctx context.Context, id string) (string, error) {
+	if specs[id].bundled {
+		// Offline runtime: verify, unpack, install the wheels from the bundle.
+		c, err := m.get(id)
+		if err != nil {
+			return "", err
+		}
+		if err := m.claimEnable(c); err != nil {
+			return "", err
+		}
+		m.runEnable(ctx, c, true, false)
+		m.mu.Lock()
+		st, key, msg := c.state, c.errKey, c.errMsg
+		m.mu.Unlock()
+		if st == StateFailed {
+			return "", &Error{Key: key, Detail: msg}
+		}
+		return m.python3(id), nil
+	}
 	if m.Installed(id) {
 		if wkey := m.writable(); wkey != "" {
 			return "", &Error{Key: wkey}
@@ -181,7 +199,11 @@ func (m *Manager) foregroundReady(ctx context.Context, c *comp, p Proc, port int
 			return nil
 		case <-t.C:
 		}
-		if m.opt.Prober.Alive(ctx, port) {
+		ok, bad := m.probeReady(ctx, c, port)
+		if bad != "" {
+			return fmt.Errorf("the service could not start: %s", bad)
+		}
+		if ok {
 			break
 		}
 		if time.Now().After(deadline) {

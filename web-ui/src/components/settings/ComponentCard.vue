@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { Check, CircleDashed, Loader, Minus, Square, TriangleAlert, Unplug } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import ComponentMethods from '@/components/settings/ComponentMethods.vue'
+import ManagedTab from '@/components/settings/ManagedTab.vue'
 import ProgressRing from '@/components/visual/ProgressRing.vue'
 import CheckLine from '@/components/settings/CheckLine.vue'
 import type { Capability, CheckResult, ComponentStatus, Service } from '@/types'
@@ -46,6 +47,15 @@ const emit = defineEmits<{
 /** Components with install-method tabs. tts/asr are not built and keep their one line. */
 const tabbed = computed(() => props.comp.built && ['mt', 'llm'].includes(props.comp.id))
 /**
+ * The speech engine (tts) has no Docker or own-server tabs: its voice files live
+ * in the app's folder, so the only way to run it is the built-in copy.
+ */
+const ownEngine = computed(() => props.comp.built && props.comp.id === 'tts' && !!props.comp.managed)
+const voicesText = computed(() => {
+  const v = props.comp.managed?.voices ?? []
+  return v.length ? t('settings.components.tts.voicesFound', { n: v.length, list: v.join(', ') }) : ''
+})
+/**
  * The built-in copy speaks for this card when it is the chosen provider, or
  * when it exists at all (a half-installed one must not hide behind «не настроен»).
  */
@@ -56,6 +66,11 @@ const mg = computed(() => {
 })
 
 const { t, te } = useI18n()
+
+/** No bundled runtime on this platform/build: nothing to press, not even «Проверить» (a probe cannot change it). */
+const noRuntime = computed(
+  () => !!props.comp.managed?.bundled && props.comp.managed.unavailableKey === 'errors.componentNoTtsRuntime',
+)
 
 /** The backend's hint is English prose; a known component renders from i18n instead. */
 const ramText = computed(() => {
@@ -68,9 +83,11 @@ const chip = computed(() => {
   const m = mg.value
   if (props.cap?.paused) return { icon: Square, text: t('capabilities.paused'), cls: 'text-muted-foreground' }
   if (m) {
-    const label = t(`component.state.${m.state}`)
+    const label = t(`component.${m.bundled ? 'stateBundled' : 'state'}.${m.state}`)
     switch (m.state) {
       case 'installing':
+        // Bundled unpack progress is coarse: the step list on the card says where it is, no number here.
+        if (m.bundled) return { icon: Loader, text: label, cls: 'text-foreground' }
         return { icon: Loader, text: `${label} ${Math.round((m.progress ?? 0) * 100)}%`, cls: 'text-foreground' }
       case 'starting':
         return { icon: Loader, text: label, cls: 'text-foreground' }
@@ -103,7 +120,7 @@ const chip = computed(() => {
 
 const ringValue = computed<number | null>(() => {
   const m = mg.value
-  if (m) return m.state === 'installing' && (m.progress ?? 0) > 0 ? (m.progress ?? 0) : null
+  if (m) return !m.bundled && m.state === 'installing' && (m.progress ?? 0) > 0 ? (m.progress ?? 0) : null
   const c = props.comp
   return c.built && c.configured && c.state === 'loading' && c.progress > 0 ? c.progress : null
 })
@@ -168,6 +185,22 @@ const tint = computed(() => {
 
     <div v-if="liveVisible"><slot /></div>
 
+    <template v-if="ownEngine && comp.managed">
+      <p v-if="voicesText" class="text-xs leading-relaxed">{{ voicesText }}</p>
+      <p v-else-if="!noRuntime && comp.managed.available" class="text-xs leading-relaxed text-foreground">{{ $t('settings.components.tts.noVoices') }}</p>
+      <ManagedTab
+        :id="comp.id"
+        :managed="comp.managed"
+        :busy="busy ?? false"
+        :error="actionError ?? ''"
+        :is-admin="isAdmin ?? false"
+        @install="emit('install')"
+        @start="emit('start')"
+        @stop="emit('stop')"
+        @uninstall="emit('uninstall')"
+      />
+    </template>
+
     <ComponentMethods
       v-if="tabbed"
       :comp="comp"
@@ -189,7 +222,7 @@ const tint = computed(() => {
     />
 
     <Button
-      v-if="comp.built && !tabbed"
+      v-if="comp.built && !tabbed && !noRuntime"
       size="sm"
       variant="outline"
       class="self-start"
@@ -198,6 +231,6 @@ const tint = computed(() => {
     >
       {{ $t('settings.components.check') }}
     </Button>
-    <CheckLine v-if="comp.built && !tabbed" :result="result" :checking="checking" />
+    <CheckLine v-if="comp.built && !tabbed && !noRuntime" :result="result" :checking="checking" />
   </section>
 </template>

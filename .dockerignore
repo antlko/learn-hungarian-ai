@@ -18,3 +18,15 @@ backend/internal/web/dist
 .env.*
 *.db
 *.sqlite
+
+# ADR-080: the `full` stage embeds the vendored Piper runtime and the voices, ships
+# the GPL source beside them, and stages with scripts/tts_stage.sh. Re-included
+# precisely (later patterns win); the rest of services/ and langpack/ stays out.
+!services/tts/vendor
+!langpack/voices
+!langpack/LICENSES.md
+!scripts/tts_stage.sh
+
+# The staged embed dir and the dev scratch dir are build outputs, never context.
+backend/internal/components/ttsbundle/data
+.tts-data

@@ -110,8 +110,8 @@ optional override in `config.yaml` and `GET/PUT /api/settings` (`settings.langpa
 | `POST` | `/api/admin/pack/install` | starts the single install job → **202** with the status below. **409** `errors.packInstallBusy` while one runs; **422** `errors.packNotPublished` when the effective checksum (stored, else the binary's) is empty — no request is made |
 | `GET` | `/api/admin/pack/install` | `{state, bytes, total, errorKey, restartRequired, published, sizeBytes, url}` |
 | `POST` | `/api/admin/restart` | → **202** `{supervised: bool}`; ~400 ms later the process gets SIGTERM (graceful shutdown). `supervised` is true iff `TANULOM_SUPERVISED=1`. **409** while an install runs |
-| `GET` | `/api/admin/components` | `[{id, configured, reachable, state, progress, model, ramHint, composeProfile, built, managed?}]` — `managed` on `mt` only, below |
-| `POST` | `/api/admin/components/:id/install` | `:id` is `mt` (anything else **404** `errors.componentUnknown`). **202** with the `managed` object; the job runs in the background and the card polls `GET /api/admin/components`. **409** `errors.componentBusy` (a job runs) / `errors.componentInstalled`; **422** `errors.componentNoPython` (or `errors.componentNoPythonSlimImage` on the `:latest-slim` image) / `errors.componentReadOnly`; **507** `errors.diskFull` (preflight, nothing written) |
+| `GET` | `/api/admin/components` | `[{id, configured, reachable, state, progress, model, ramHint, composeProfile, built, managed?}]` — `managed` on `mt` and `tts`, below |
+| `POST` | `/api/admin/components/:id/install` | `:id` is `mt` or `tts` (anything else **404** `errors.componentUnknown`). **202** with the `managed` object; the job runs in the background and the card polls `GET /api/admin/components`. **409** `errors.componentBusy` (a job runs) / `errors.componentInstalled`; **422** `errors.componentNoVoices` (`tts` only: none of `hu_HU-{anna,berta,imre}-medium.onnx` + `.onnx.json` is in the voices directory — checked before anything is created) / `errors.componentNoPython` (or `errors.componentNoPythonSlimImage` on the `:latest-slim` image) / `errors.componentReadOnly`; **507** `errors.diskFull` (preflight, nothing written) |
 | `POST` | `/api/admin/components/:id/start` | **202**; **409** `errors.componentNotInstalled` / `errors.componentBusy`. Idempotent while running |
 | `POST` | `/api/admin/components/:id/stop` | **202**; SIGTERM then SIGKILL after 5 s. Idempotent. **409** `errors.componentBusy` during an install |
 | `POST` | `/api/admin/components/:id/uninstall` | **202**; stops the child, deletes `<data>/components/<id>/`, and sets `services.<id>.provider` to `off` iff it was `managed`. **409** `errors.componentBusy` during an install |
@@ -120,19 +120,39 @@ All four are admin-only (403 for a learner, 401 signed out) and take no body: no
 can reach a command line ([ADR-061](../.claude/DECISIONS.md#adr-061)).
 
 ```jsonc
-// `managed` on the mt row of GET /api/admin/components (and the 202 body above)
+// `managed` on the mt and tts rows of GET /api/admin/components (and the 202 body above)
 { "available": true,            // python3>=3.10 with venv+pip found AND the data dir is writable
-  "unavailableKey": "errors.componentNoPython",  // | errors.componentReadOnly — only when available=false
+  "unavailableKey": "errors.componentNoPython",  // | errors.componentReadOnly | errors.componentNoTtsRuntime
+                                // (tts: no bundled runtime on this platform/build; device voice is the floor)
+                                // | errors.componentBundleCorrupt (tts: a bundled file fails MANIFEST.sha256) — only when available=false
+  "bundled": true,              // tts only (ADR-080): the runtime ships with the binary, nothing is downloaded
   "pythonVersion": "3.12.1",
   "state": "running",           // absent | installing | installed | starting | running | failed | stopped
-  "step": "component.step.pip", // installing only: component.step.venv|pip|model|start
+  "step": "component.step.pip", // installing only: component.step.venv|pip|model|start (mt);
+                                // component.step.verify|unpack|voices (tts, bundled; unpack progress is coarse)
   "progress": 0.42,             // 0..1 over the whole install, never decreases within a job
   "port": 41873,                // 127.0.0.1 only, in memory; absent unless starting/running
   "errorKey": "errors.componentNetwork",   // | errors.componentInstallFailed | errors.diskFull | errors.componentStartFailed | errors.componentCrashed
   "errorDetail": "short redacted tail of the failing command",
   "log": ["…last ≤40 lines, paths outside the data dir reduced to their last element…"],
-  "diskNeed": "≈6 GB (estimate)", "ramNeed": "≈2–3 GB (estimate, not measured)" }
+  "diskNeed": "≈6 GB (estimate)", "ramNeed": "≈2–3 GB (estimate, not measured)",
+  "voices": ["anna", "berta", "imre"] }  // tts only: personas whose model files the server found
+                                          // (in that order); absent for mt and when none were found
 ```
+
+`tts` is the Piper speech component ([ADR-079](../.claude/DECISIONS.md#adr-079)). Its voice files are
+**not downloaded**: they are committed to the repository and read from the operator's voices
+directory — `--voices-dir` / `TANULOM_VOICES_DIR`, default `<data>/voices`. That directory is never
+settable through a route or `config.yaml`. Install is refused with `errors.componentNoVoices` while it
+holds no persona pair; the card shows what was found (`voices`).
+
+**Bundled `tts` (ADR-080) reads these routes as a switch.** `install` and `start` both mean
+**Enable** (verify files → unpack the runtime once → start → the child loads every voice into
+memory; the row stays `installing` with `step` verify|unpack|voices until it answers `running`) and set
+`provider = "managed"`. `stop` means **Disable**: the child is stopped, its memory is freed and
+`provider` becomes `device` (so a restart does not switch it on again). `uninstall` removes the
+unpacked environment and extracted voices (the bundle itself stays) and sets `provider` to `device`
+(not `off`). No route downloads anything; no new routes exist.
 
 On success of an install the server sets `services.<id>.provider = "managed"` itself; the settings
 DTO then carries `provider: "managed", endpoint: ""`. A `managed` service whose child is not running
@@ -727,7 +747,7 @@ delete the feature reviews the probes produced, because those were real retrieva
 | `GET` | `/api/hvpt/contrasts` | ✅ | per-contrast state; **no contrast is ever complete** [R7] |
 | `POST` | `/api/listen/material` | ✅ | multipart `transcript` + `title`, and **`audio` is optional**; the transcript is ingested as a normal text (coverage pre-check for free) and the response carries the verdict |
 | `GET` | `/api/listen/:id/state` | ✅ | the three-pass position [R13] |
-| `POST` | `/api/listen/:id/progress` | ✅ | `{pass, positionS, secondsHeard}` — seconds are clamped to 60 per report: **hours accumulate, they cannot be claimed**. Feeds the word-order listening gate [R15] and the daily ledger |
+| `POST` | `/api/listen/:id/progress` | ✅ | `{pass, positionS, secondsHeard}` — seconds are clamped to 60 per report: **hours accumulate, they cannot be claimed**. Feeds the word-order listening gate [R15] and the daily ledger. `pass` is 1..3 inside listening mode; **`0` = audio played in the reader outside listening mode** ([ADR-079](../.claude/DECISIONS.md#adr-079)): the seconds go to `listen_log` (pass 0) and `daily_log.listen_s` exactly like the others, but `listen_state` is not written (its `pass` is CHECK 1..3 and there is nothing to resume). Any other `pass` is 400 |
 
 HVPT trials never carry the played member — it is held server-side like a drill's expected
 answer (ADR-008 applies). The audio URL, the talker id and the rate are in the payload, because
@@ -840,9 +860,44 @@ last 200 messages. The answer language is the client's rendered locale, falling 
 
 ## Speech & LLM *(v1.1)*
 
+### Piper speech — shipped ([ADR-079](../.claude/DECISIONS.md#adr-079))
+
+The reader speaks a text with three local Piper voices (`hu_HU` anna, berta, imre; medium) through the
+managed `tts` component. All three routes need a signed-in user. Nothing here is a card, a gloss or a
+score. The device voice (Web Speech API) stays the floor ([ADR-012](../.claude/DECISIONS.md#adr-012)):
+a client treats **503 and 504 as "use the device voice" without an error banner**.
+
+| Method | Path | Notes |
+|---|---|---|
+| `GET` | `/api/speech/voices` | `SpeechVoicesDTO` below. Unavailable is a normal **200** with `available:false, voices:[]` (component not installed, stopped, paused — paused resolves to `off`, ADR-068 — or unreachable) |
+| `POST` | `/api/speech/tts` | `{text, voice, style}` → `{url, durationS}`. **400** bad text / voice / style; **503** `errors.ttsUnavailable` (child absent or unreachable); **504** `errors.ttsTimeout` (30 s) |
+| `GET` | `/api/speech/audio/:file` | the cached WAV. `:file` must match `^[0-9a-f]{64}\.wav$` (anything else, including `../`, is **404**); `Cache-Control: private, max-age=31536000, immutable`; byte ranges (**206**) so the browser can seek |
+
+```jsonc
+// GET /api/speech/voices
+{ "available": true,
+  "voices": [ { "id": "anna", "name": "Anna", "gender": "female" },   // id: anna | berta | imre
+              { "id": "imre", "name": "Imre", "gender": "male" } ] }  // only voices the child can render
+// POST /api/speech/tts   request
+{ "text": "Szia! Ma együtt olvasunk.", "voice": "anna", "style": "sentence" }  // style: sentence | word; empty = sentence
+// response
+{ "url": "/api/speech/audio/<64 hex>.wav", "durationS": 1.58 }
+```
+
+- **Text** is NFC-normalised and whitespace-collapsed server-side, then must be 1..1000 UTF-8 bytes.
+- **`style: "word"`** renders `"<word>."` at `length_scale` 1.4 (Piper renders a bare word badly);
+  `"sentence"` renders as given at 1.0. **Speed is the browser's** `playbackRate` (0.5–1.5,
+  `preservesPitch`) and is not part of the cache key.
+- **Cache** `<data>/cache/tts/<h[:2]>/<h>.wav` (not under `media/`), key = sha256 of voice, the
+  voice **model file's hash**, style and normalised text; pruned oldest-first from 512 MiB to 400 MiB.
+  One synthesis per key at a time (single-flight) and one at a time against the child.
+  A replayed sentence makes no synthesis call. The client prefetches the next one or two sentences.
+- The child (`services/tts`) speaks `GET /health`, `GET /voices` → `[{id, sampleRate, modelHash}]` and
+  `POST /synthesize {text, voice, lengthScale}` → `audio/wav`; a compose sidecar
+  (`services.tts: local` + endpoint) answers the same way.
+
 | Method | Path | Status | Notes |
 |---|---|---|---|
-| `POST` | `/api/speech/tts` | ⏳ P8 | text → audio; content-addressed cache |
 | `POST` | `/api/speech/asr` | ⏳ P8 | audio → transcript + confidence |
 | `POST` | `/api/speech/score` | ⏳ P8 | target + audio → **explicit segmental feedback** + enqueued HVPT contrasts |
 | `POST` | `/api/llm/generate` | ⏳ P9 | comprehensible input; returns `attested` per span |

@@ -692,6 +692,10 @@ func (s *Server) audioAvailable() bool {
 		return false
 	case config.ProviderDevice:
 		return true
+	case config.ProviderManaged:
+		// Selected but perhaps not running right now: the device voice is the
+		// floor (ADR-079), so audio directions stay on.
+		return true
 	default:
 		return tts.Endpoint != ""
 	}

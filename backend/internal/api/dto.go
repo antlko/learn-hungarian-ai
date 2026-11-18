@@ -273,3 +273,33 @@ type LemmaCardMemory struct {
 	Progress  int    `json:"progress"`
 	Stage     string `json:"stage"`
 }
+
+// SpeechVoiceDTO is one Piper persona the learner can pick (ADR-079). Name and
+// gender are chrome for the picker; they come from a static table, not the model.
+type SpeechVoiceDTO struct {
+	ID     string `json:"id"`     // anna | berta | imre
+	Name   string `json:"name"`   // Anna | Berta | Imre
+	Gender string `json:"gender"` // female | male
+}
+
+// SpeechVoicesDTO is GET /api/speech/voices. Unavailable is a normal answer,
+// not an error: available=false, voices=[] and the client uses device speech.
+type SpeechVoicesDTO struct {
+	Available bool             `json:"available"`
+	Voices    []SpeechVoiceDTO `json:"voices"`
+}
+
+// SpeechTTSRequest is POST /api/speech/tts.
+type SpeechTTSRequest struct {
+	Text  string `json:"text"`
+	Voice string `json:"voice"`
+	// Style is "sentence" (default when empty) or "word" (rendered as a slow
+	// one-word sentence, because Piper renders bare words badly).
+	Style string `json:"style"`
+}
+
+// SpeechTTSResponse is the rendering: a cache URL and its length in seconds.
+type SpeechTTSResponse struct {
+	URL       string  `json:"url"` // /api/speech/audio/<64 hex>.wav
+	DurationS float64 `json:"durationS"`
+}

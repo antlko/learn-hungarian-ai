@@ -47,8 +47,8 @@ Building the app is not studying. The app should say so, and it does.
 | Contrasts get FSRS maintenance forever; selection weight never zero | `internal/hvpt/hvpt.go` `contrastWeights` | [R7](../.claude/research/07-hvpt.md) |
 | Listening hours accumulate from playback, cannot be claimed | `handlers_listen.go` (60 s clamp) | [R15](../.claude/research/15-hungarian-difficulty.md) |
 | Pronunciation feedback names the phoneme *(v1.1, not yet built)* | `internal/speech/feedback.go` | [R8](../.claude/research/08-capt-asr.md) |
-| Segments → ASR; prosody → shadowing *(SpeakView is v1.1)* | `SpeakView` / `ListenView.vue` | [R8](../.claude/research/08-capt-asr.md), [R13](../.claude/research/13-shadowing.md) |
-| Three-pass listening protocol as UI state | `ListenView.vue` | [R13](../.claude/research/13-shadowing.md) |
+| Segments → ASR; prosody → shadowing *(SpeakView is v1.1)* | `SpeakView` / `ListenMode.vue` | [R8](../.claude/research/08-capt-asr.md), [R13](../.claude/research/13-shadowing.md) |
+| Three-pass listening protocol as UI state | `ListenMode.vue` | [R13](../.claude/research/13-shadowing.md) |
 | Correction is prompt-then-reveal, enforced server-side *(v1.1, not yet built)* | `handlers_write.go`, `prompts/correct-writing.md` | [R9](../.claude/research/09-corrective-feedback.md) |
 | Errors generate targeted drills | `internal/drill/from_error.go` | [R9](../.claude/research/09-corrective-feedback.md) |
 | Voice-first roleplay *(v1.1, not yet built)* | `internal/speech`, `prompts/roleplay-system.md` | [R10](../.claude/research/10-llm-tutors.md) |

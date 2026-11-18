@@ -593,8 +593,8 @@ func (c *Config) Validate() (clamped []ErrClamped, err error) {
 				return nil, fmt.Errorf("services.%s: endpoint required when provider is %q", name, s.Provider)
 			}
 		case ProviderManaged:
-			if name != "mt" {
-				return nil, fmt.Errorf("services.%s.provider: %q is only valid for mt", name, s.Provider)
+			if name != "mt" && name != "tts" {
+				return nil, fmt.Errorf("services.%s.provider: %q is only valid for mt and tts", name, s.Provider)
 			}
 		case ProviderLocal:
 			if s.Endpoint == "" {

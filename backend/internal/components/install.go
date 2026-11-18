@@ -16,6 +16,9 @@ import (
 // ErrBusy while one runs, ErrInstalled when there is nothing to install, and
 // keyed *Errors for the preflight.
 func (m *Manager) Install(ctx context.Context, id string) error {
+	if specs[id].bundled {
+		return m.enable(id, true) // «Включить»: offline, no Python probe
+	}
 	c, py, err := m.claimInstall(id)
 	if err != nil {
 		return err
@@ -35,6 +38,9 @@ func (m *Manager) claimInstall(id string) (*comp, pyInfo, error) {
 	c, err := m.get(id)
 	if err != nil {
 		return nil, pyInfo{}, err
+	}
+	if c.spec.voices && len(m.Voices()) == 0 {
+		return nil, pyInfo{}, &Error{Key: KeyNoVoices}
 	}
 	py := m.python()
 	if wkey := m.writable(); wkey != "" {
@@ -194,7 +200,10 @@ func (m *Manager) runInstall(ctx context.Context, c *comp, python string, foregr
 			fail(KeyReadOnly, err.Error())
 			return
 		}
-		env := []string{sp.modelEnv + "=" + modelDir}
+		env := []string{}
+		if sp.modelEnv != "" {
+			env = append(env, sp.modelEnv+"="+modelDir)
+		}
 		if err := run([]string{venvPy, "-c", sp.prepare}, srcDir, env...); err != nil {
 			cmdFail(err, "model preparation")
 			return
@@ -320,6 +329,8 @@ func classifyOne(s string) string {
 	switch {
 	case reDisk.MatchString(s):
 		return KeyDiskFull
+	case reHashMismatch.MatchString(s):
+		return KeyBundleCorrupt
 	case reNetwork.MatchString(s):
 		return KeyNetwork
 	}
@@ -362,9 +373,13 @@ func (m *Manager) Uninstall(id string) error {
 	m.mu.Unlock()
 
 	m.stopSupervisor(c)
-	err = os.RemoveAll(m.final(id))
-	if e2 := os.RemoveAll(m.stage(id)); err == nil {
-		err = e2
+	if c.spec.bundled {
+		err = m.uninstallBundled(id)
+	} else {
+		err = os.RemoveAll(m.final(id))
+		if e2 := os.RemoveAll(m.stage(id)); err == nil {
+			err = e2
+		}
 	}
 	m.set(c, func(c *comp) {
 		c.busy = false

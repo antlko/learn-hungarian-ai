@@ -6,16 +6,20 @@ import (
 	"testing"
 )
 
-// "managed" is a sidecar the binary runs itself (ADR-061): valid for mt only,
-// with no endpoint stored.
+// "managed" is a sidecar the binary runs itself (ADR-061): valid for mt and tts
+// (ADR-079), with no endpoint stored.
 func TestManagedProviderValidation(t *testing.T) {
 	c := Default()
 	c.Services.MT.Provider = ProviderManaged
 	if _, err := c.Validate(); err != nil {
 		t.Errorf("mt managed should validate: %v", err)
 	}
+	c = Default()
+	c.Services.TTS.Provider = ProviderManaged
+	if _, err := c.Validate(); err != nil {
+		t.Errorf("tts managed should validate: %v", err)
+	}
 	for name, set := range map[string]func(*Config){
-		"tts": func(c *Config) { c.Services.TTS.Provider = ProviderManaged },
 		"asr": func(c *Config) { c.Services.ASR.Provider = ProviderManaged },
 		"llm": func(c *Config) { c.Services.LLM.Provider = ProviderManaged },
 	} {

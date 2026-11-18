@@ -68,7 +68,13 @@ outside — held *inside*, it would put a non-commercial restriction on a pack r
 
 | Source | Used for | Licence | Attribution |
 |---|---|---|---|
-| [Piper](https://github.com/rhasspy/piper) voices `hu_HU-anna`, `hu_HU-berta`, `hu_HU-imre` | synthetic talkers, card audio | **MIT** (models per voice card — verify each) | Rhasspy / Piper contributors |
+| [Piper](https://github.com/rhasspy/piper) voices `hu_HU-anna`, `hu_HU-berta`, `hu_HU-imre` | synthetic talkers, card audio | Voice datasets **CC0 1.0** ([OHF-Voice voice-datasets](https://github.com/OHF-Voice/voice-datasets)); `anna` and `berta` are fine-tuned from `hifi_tts_92` (en_US) — **its licence must be confirmed**; `imre` from `rdh` (nl_BE, CC0). Check each voice card | Rhasspy / Piper contributors, OHF-Voice |
+| piper-tts 1.8.0 and espeak-ng (not a data source) | speech synthesis at runtime | **GPL-3.0-or-later** — vendored wheel plus Corresponding Source in `services/tts/vendor/source/` (`piper1-gpl-v1.8.0.tar.gz` for the C bridge and CMake, `espeak-ng-724808c.tar.gz` for espeak-ng; the PyPI sdist `piper_tts-1.8.0.tar.gz` is Python-only and does not contain espeak-ng); also copied to `/usr/share/doc/tanulom/tts-source/` in the `full` image; runs as a **separate process** (aggregation), never linked into our binary | Rhasspy / OHF-Voice / espeak-ng contributors |
+| onnxruntime 1.32.0 (vendored wheel) | neural inference for Piper | **MIT** | Microsoft |
+| numpy (vendored wheel) | Piper dependency | **BSD-3-Clause**; bundled OpenBLAS **BSD-3-Clause**; bundled libgfortran **GPL-3.0 with GCC Runtime Library Exception** | NumPy developers |
+| protobuf, flatbuffers, packaging, pathvalidate (vendored wheels) | onnxruntime / Piper dependencies | verify when vendored (read each wheel `METADATA`) | respective authors |
+| CPython 3.12 (python-build-standalone, vendored) | the bundled interpreter | **PSF License**; bundled libraries (OpenSSL, SQLite, zlib, ncurses, …) — see the upstream licence file inside the tarball | Python Software Foundation; astral-sh/python-build-standalone |
+| Standing note | voices `anna` and `berta` | fine-tuned from `hifi_tts_92`; **its licence still needs confirming** — not resolved | — |
 | [Mozilla Common Voice — Hungarian](https://commonvoice.mozilla.org/hu/datasets) | **human talkers for HVPT** | **CC0 1.0** | Mozilla Common Voice contributors |
 
 ## Obligations this creates

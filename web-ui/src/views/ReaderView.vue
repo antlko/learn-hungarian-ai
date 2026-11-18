@@ -2,6 +2,7 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import { useActiveTime } from '@/composables/useActiveTime'
+import { useListenReporter } from '@/composables/useListenReporter'
 import { useRoute } from 'vue-router'
 import { toast } from 'vue-sonner'
 import { useI18n } from 'vue-i18n'
@@ -14,6 +15,9 @@ import BackButton from '@/components/common/BackButton.vue'
 import Note from '@/components/common/Note.vue'
 import SpeakButton from '@/components/common/SpeakButton.vue'
 import CoverageMeter from '@/components/reader/CoverageMeter.vue'
+import ListenMode from '@/components/reader/ListenMode.vue'
+import ReaderAudioBar from '@/components/reader/ReaderAudioBar.vue'
+import VoicePicker from '@/components/reader/VoicePicker.vue'
 import WordDetail from '@/components/reader/WordDetail.vue'
 import { api } from '@/api'
 import { cn } from '@/lib/utils'
@@ -21,6 +25,8 @@ import { prefersReducedMotion } from '@/lib/motion'
 import { useCapabilitiesStore } from '@/stores/capabilities'
 import { useFeaturesStore } from '@/stores/features'
 import { useSpeechStore } from '@/stores/speech'
+import { useTtsStore, type PlayItem } from '@/stores/tts'
+import { chunkForTts } from '@/lib/tts'
 import { useUiStore } from '@/stores/ui'
 import type { LemmaStatus, ScoredSentence, StoredToken, TextDetail, Translation } from '@/types'
 
@@ -48,6 +54,7 @@ const route = useRoute()
 const { t } = useI18n()
 const catalogue = useFeaturesStore()
 const speech = useSpeechStore()
+const tts = useTtsStore()
 const caps = useCapabilitiesStore()
 const ui = useUiStore()
 
@@ -56,6 +63,14 @@ const rail = ref<ScoredSentence[]>([])
 const selected = ref<number | null>(null)
 const loading = ref(true)
 const error = ref('')
+
+/** `?mode=listen`: the three-pass listening mode instead of plain reading. */
+const listening = computed(() => route.query.mode === 'listen')
+/** The pass `ListenMode` is on; pass 1 hides the transcript, so the text goes too. */
+const listenPass = ref(1)
+/** A recording is sounding (not the sentence engine): read_s must stand still. */
+const recPlaying = ref(false)
+const hideText = computed(() => listening.value && listenPass.value === 1)
 
 const words = computed(() => detail.value?.tokens.filter((t) => t.isWord) ?? [])
 
@@ -72,12 +87,12 @@ const words = computed(() => detail.value?.tokens.filter((t) => t.isWord) ?? [])
  * The gap is read out of the body rather than guessed. Offsets are BYTE offsets
  * into UTF-8 and JavaScript indexes UTF-16, so the slice happens in bytes and
  * is decoded back — the same trap that put the review screen's cloze blank in
- * the middle of a word. `ListenView` reconstructs its sentences this way too.
+ * the middle of a word. `ListenMode` reconstructs its sentences this way too.
  *
  * A blank line starts a new paragraph; a single newline is a line break inside
  * one. Both are the author's, and both are information about the text.
  */
-type Piece = { tok: StoredToken; gap: string }
+type Piece = { tok: StoredToken; gap: string; same: boolean }
 
 const paragraphs = computed<Piece[][]>(() => {
   const d = detail.value
@@ -92,15 +107,17 @@ const paragraphs = computed<Piece[][]>(() => {
   d.tokens.forEach((tok, i) => {
     const next = d.tokens[i + 1]
     const gap = next && next.start > tok.end ? dec.decode(bytes.slice(tok.end, next.start)) : ''
+    // The gap after the last token of a sentence is not part of it (audio bar highlight).
+    const same = !!next && next.sentIdx === tok.sentIdx
     // A blank line closes the paragraph, and its whitespace is consumed by the
     // break rather than rendered.
     if (/\n[^\S\n]*\n/.test(gap)) {
-      para.push({ tok, gap: '' })
+      para.push({ tok, gap: '', same })
       out.push(para)
       para = []
       return
     }
-    para.push({ tok, gap })
+    para.push({ tok, gap, same })
   })
   if (para.length) out.push(para)
   return out
@@ -153,7 +170,8 @@ let speakTimer: ReturnType<typeof setTimeout> | undefined
 
 function speakSelected() {
   clearTimeout(speakTimer)
-  if (!autoSpeak.value || !speech.usable) return
+  // While the audio bar is reading, a word spoken over it would be noise.
+  if (!autoSpeak.value || !speech.usable || tts.status === 'playing') return
   speakTimer = setTimeout(() => {
     const tk = selectedToken.value
     if (tk) speech.speak(tk.form)
@@ -269,13 +287,61 @@ async function setStatus(lemmaId: number, status: LemmaStatus) {
  * "bejelentette , hogy". A card wants one clean line, so unlike the rendered
  * text this deliberately flattens any line break inside the sentence.
  */
+function flatten(forms: string[]): string {
+  return forms.join(' ').replace(/\s+([.,!?;:…])/g, '$1')
+}
+
 function sentenceOf(tk: StoredToken): string {
   if (!detail.value) return ''
-  return detail.value.tokens
-    .filter((x) => x.sentIdx === tk.sentIdx)
-    .map((x) => x.form)
-    .join(' ')
-    .replace(/\s+([.,!?;:…])/g, '$1')
+  return flatten(detail.value.tokens.filter((x) => x.sentIdx === tk.sentIdx).map((x) => x.form))
+}
+
+/**
+ * The text as utterances for the audio bar: one per sentence, in order, built in
+ * one pass (the per-token `sentenceOf` would be quadratic on a long text). A
+ * sentence with no letters in it is not spoken; one longer than the server
+ * accepts is cut at a comma or a space.
+ */
+const playItems = computed<PlayItem[]>(() => {
+  const bySent = new Map<number, string[]>()
+  for (const tk of detail.value?.tokens ?? []) {
+    const forms = bySent.get(tk.sentIdx)
+    if (forms) forms.push(tk.form)
+    else bySent.set(tk.sentIdx, [tk.form])
+  }
+  const out: PlayItem[] = []
+  for (const [sentIdx, forms] of [...bySent].sort((a, b) => a[0] - b[0])) {
+    const text = flatten(forms)
+    if (!/\p{L}/u.test(text)) continue
+    for (const piece of chunkForTts(text)) out.push({ sentIdx, text: piece })
+  }
+  return out
+})
+
+/** «Слушать весь текст»: from the selected sentence, or from the top. */
+async function playAll() {
+  clearTimeout(speakTimer)
+  const from = selectedToken.value
+    ? Math.max(0, playItems.value.findIndex((i) => i.sentIdx >= selectedToken.value!.sentIdx))
+    : 0
+  const ok = await tts.play(playItems.value, from)
+  if (!ok) toast.error(t(speech.supported ? 'speech.noVoice' : 'speech.unsupported'))
+}
+
+/** Keep the sentence being read in view, and say which it is by more than colour: it is also tinted. */
+watch(
+  () => tts.currentSent,
+  async (idx) => {
+    if (idx === null) return
+    await nextTick()
+    document
+      .querySelector(`[data-sent="${idx}"]`)
+      ?.scrollIntoView({ block: 'center', behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
+  },
+)
+
+function sentClass(sentIdx: number, joined = true) {
+  return joined && tts.currentSent === sentIdx ? 'bg-primary/15!' : ''
 }
 
 /**
@@ -487,6 +553,7 @@ function onKey(e: KeyboardEvent) {
         // and `speak` cancels whatever is in flight — without this, the
         // sentence starts and is cut off 140ms later by its own first word.
         clearTimeout(speakTimer)
+        tts.stop()
         speech.speak(sentenceOf(tk))
       }
       break
@@ -503,10 +570,29 @@ function onKey(e: KeyboardEvent) {
 useActiveTime({
   report: (seconds) => api.readingProgress(seconds),
   enabled: () => !loading.value && !error.value && !!detail.value,
+  // Playback is credited as listening time below; the same seconds are not reading.
+  paused: () => tts.status === 'playing' || recPlaying.value,
 })
+
+/**
+ * Seconds of sound that actually came out, to the day's listening total.
+ * Not in listening mode: `ListenMode` reports those with the real pass, and two
+ * reporters would count the same second twice.
+ */
+const reporter = useListenReporter(() => Number(route.params.id))
+watch(
+  () => tts.audible,
+  (on) => {
+    if (on && !listening.value) reporter.begin()
+    // Buffering between two sentences also drops `audible`: that is not a pause,
+    // and ending here would post one report per sentence.
+    else if (tts.status !== 'playing' || listening.value) reporter.end()
+  },
+)
 
 onMounted(() => {
   void load()
+  void tts.load()
   void catalogue.ensure()
   // Cheap and cached server-side; without it the translate control would be
   // absent on a hard refresh straight into the reader.
@@ -516,6 +602,7 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('keydown', onKey)
   clearTimeout(speakTimer)
+  tts.stop()
   speech.cancel()
 })
 </script>
@@ -577,6 +664,17 @@ onUnmounted(() => {
           />
         </div>
 
+        <ReaderAudioBar :can-play="playItems.length > 0" @play="playAll" />
+
+        <ListenMode
+          v-if="listening"
+          :key="detail.text.id"
+          :detail="detail"
+          :items="playItems"
+          @update:pass="listenPass = $event"
+          @update:rec-playing="recPlaying = $event"
+        />
+
         <!--
           The text is the primary object of this screen and the only raised
           surface on it: everything else here — the meter, the rail, the key
@@ -588,6 +686,7 @@ onUnmounted(() => {
           encourage, which is volume.
         -->
         <article
+          v-if="!hideText"
           class="max-w-prose rounded-xl border border-tint-cream-edge bg-tint-cream/40 p-6 text-lg leading-relaxed shadow-raised max-md:-mx-4 max-md:rounded-none max-md:border-x-0 max-md:px-4 max-md:py-5 max-md:text-[1.0625rem] max-md:leading-[1.8] max-md:shadow-none sm:p-8"
           lang="hu"
         >
@@ -596,18 +695,23 @@ onUnmounted(() => {
               ><span
                 v-if="p.tok.isWord"
                 :data-token="p.tok.index"
-                :class="[tokenClass(p.tok), 'max-md:scroll-mb-[45dvh]']"
+                :data-sent="p.tok.sentIdx"
+                :class="[tokenClass(p.tok), sentClass(p.tok.sentIdx), 'max-md:scroll-mb-[45dvh]']"
                 @click="select(p.tok.index)"
                 >{{ p.tok.form }}</span
-              ><span v-else>{{ p.tok.form }}</span
-              ><br v-if="p.gap.includes('\n')" /><template v-else>{{ p.gap }}</template></template
+              ><span v-else :class="sentClass(p.tok.sentIdx)">{{ p.tok.form }}</span
+              ><br v-if="p.gap.includes('\n')" /><span
+                v-else-if="p.gap"
+                :class="sentClass(p.tok.sentIdx, p.same)"
+                >{{ p.gap }}</span
+              ></template
             >
           </p>
         </article>
 
 
         <!-- n+1 rail -->
-        <section v-if="rail.length" class="flex flex-col gap-2">
+        <section v-if="rail.length && !hideText" class="flex flex-col gap-2">
           <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
             {{ $t('reader.nPlusOne') }}
           </h2>
@@ -638,6 +742,8 @@ onUnmounted(() => {
         <KeyBar :items="keyHints" storage-key="tanulom.keybar.reader" />
       </template>
     </div>
+
+    <VoicePicker />
 
     <WordDetail
       v-if="detail && !isPhone"

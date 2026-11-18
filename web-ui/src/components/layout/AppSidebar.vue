@@ -9,7 +9,6 @@ import {
   ChartNoAxesColumn,
   Ear,
   GraduationCap,
-  Headphones,
   House,
   Settings,
   Table2,
@@ -82,7 +81,6 @@ const items = computed(() =>
     { to: '/library', icon: BookOpen, label: t('nav.read'), dot: minutesOwed.value },
     { to: '/grammar', icon: Table2, label: t('nav.grammar') },
     ...(llmMissing.value ? [] : [{ to: '/tutor', icon: GraduationCap, label: t('nav.tutor') }]),
-    { to: '/listen', icon: Headphones, label: t('nav.listen') },
     { to: '/ear', icon: Ear, label: t('nav.ear') },
   ] as { to: string; icon: Component; label: string; badge?: number; dot?: boolean }[],
 )

@@ -210,8 +210,25 @@ the app's secrets. `pip` alone also sees `HTTP(S)_PROXY`/`SSL_CERT_FILE` if you 
 **If the app is killed hard** (`kill -9`, OOM): on Linux the kernel stops the children with it; on macOS they may keep running until the next start, which finds and stops them (`<id>/run.pid`). A child that stays up but never answers `/health` for 5 minutes is stopped and shown as failed.
 
 **Not covered.** The tutor's LLM (Ollama) is not embedded (multi-GB, GPU libraries): keep it external
-or on the `llm` profile. `tts`/`asr` do not exist yet. No real install was run by the authors when
+or on the `llm` profile. `tts` (Piper speech) is managed too, from a bundled offline runtime; `asr` does not exist yet. No real install was run by the authors when
 this was written; treat the first one as a trial and read the log tail the card shows.
+
+### Piper speech (`tts`)
+
+Optional and **fully offline** ([ADR-080](../.claude/DECISIONS.md#adr-080)). The Python runtime, the
+wheels (Piper and espeak-ng, GPL-3.0, with their source) and the three voices are inside the release
+binary and the Docker **full** image. In Settings → Components press **Включить**: the app checks file
+hashes, unpacks the bundled interpreter and starts Piper, with no download and no PyPI; it works with
+the network unplugged. **Выключить** stops it. All three voices stay in memory while it is on:
+about **255 MB RAM** right after enabling (measured on macOS arm64, all three voices loaded; it grew to ≈ 480 MB after synthesising in an earlier Python 3.11 run, so budget ≈ 450 MB). Supported: macOS 14+ on Apple silicon, Linux amd64 (glibc 2.28+), Linux arm64.
+Not supported: Intel macOS, Windows, and the distroless **slim** image (no bundle): speech there is the
+browser's own voice. A from-source build needs `--tts-runtime-dir services/tts/vendor` (or the
+`ttsbundle` tag). Voice files: `TANULOM_VOICES_DIR` / `--voices-dir` if set (the full image needs none);
+otherwise the embedded ones, then `<data>/voices`. The release binary is ≈ 311 MB on macOS arm64 with the runtime and voices inside (≈ 40 MB without). The GPL
+source of Piper and espeak-ng ships in the image under `/usr/share/doc/tanulom/tts-source/`. Or run
+`docker compose --profile tts up -d` (the same `full` image started as `component run tts`, no separate
+build) and point speech at `http://tts:5000`. Smoke test with no network:
+`docker run --rm --network none -v tmp:/data <full-image> component run tts`.
 
 ### What `--profile` means
 
@@ -239,7 +256,8 @@ Settings → Services. Keys are stored in SQLite, never in `config.yaml`.
 | Full dictionary (after install) | no more than the core, plus the pack's page cache | 252 MB file (260 MB extra while installing) | LANGPACK.md |
 | `mt` translator | 200–400 MB resident | ~2.4 GB downloaded to build, ~600 MB kept | services/mt README (model card), not measured by us |
 | `llm` Ollama, 7–8B model | 8–16 GB (CPU) or a GPU | ~1.5 GB image + ~5 GB per model | rough; not measured |
-| `speech` (`tts`, `asr`) | n/a | n/a | **not built** |
+| `tts` Piper voices | ≈ 255 MB resident right after enabling (≈ 480 MB after synthesising in an earlier run; zero when disabled) | ~300–340 MB vendored runtime + ~190 MB voices, inside the full image and the release binary (unpacked copy ≈ 0.5 GB under the data dir) | measured on macOS arm64 |
+| `asr` | n/a | n/a | **not built** |
 
 The core runs on a Raspberry Pi or a NAS; the image is built for `amd64` and `arm64`. Do not run
 `mt` and a local 8B model on a small box at the same time without a memory limit

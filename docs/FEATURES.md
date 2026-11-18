@@ -100,10 +100,12 @@ Optional: the tutor, linked from every lesson.
 - **Optional, translator.** A machine-translated crib under a sentence, always labelled with the
   model, never used as a card answer.
 
-## Listen and Ear
+## Listening and Ear
 
-- **Listen**: a three-pass protocol (blind, with text, shadowing) with loop and speed control, and
-  dictation. Your listening time counts toward the day.
+- **Listening mode (in the reader)**: open any text and switch to «Аудирование» — a three-pass
+  protocol (blind, with text, dictation) with sentence-by-sentence shadowing, loop and speed control.
+  Your own text with an optional recording is added in the Library. Your listening time counts toward
+  the day.
 - **Ear training**: minimal pairs (words that differ by one sound, such as `kerek / kérek`) with
   several voices, because varied voices are what makes this training work. A session with too few
   voices is refused with the numbers. No contrast is ever marked "done".

@@ -28,6 +28,9 @@ const ENABLED_KEY = 'tanulom.speech'
  * localStorage, beside the sound setting and for the same reason: which voices
  * exist depends on the machine, so the answer cannot live in an account.
  */
+/** Set by the tts store: a word or sentence 🔊 pauses the whole-text player instead of talking over it. */
+let beforeSpeak: (() => void) | null = null
+
 export const useSpeechStore = defineStore('speech', () => {
   const supported = ref(speechSupported())
   const voiceNames = ref<string[]>(hungarianVoices().map((v) => v.name))
@@ -99,6 +102,8 @@ export const useSpeechStore = defineStore('speech', () => {
    */
   function speak(text: string, rate?: number): boolean {
     if (!usable.value) return false
+    // Anything else that is talking (the reader's audio bar) steps aside first.
+    beforeSpeak?.()
     const started = speakNow(text, {
       rate: rate ?? defaultRate.value,
       voiceName: preferred.value || undefined,
@@ -128,5 +133,8 @@ export const useSpeechStore = defineStore('speech', () => {
     toggle,
     speak,
     cancel,
+    setBeforeSpeak: (fn: (() => void) | null) => {
+      beforeSpeak = fn
+    },
   }
 })

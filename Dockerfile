@@ -14,14 +14,10 @@ RUN npm ci
 COPY web-ui/ ./
 RUN npm run build-only
 
-# --- Stage 2: build the static Go binary (embeds the SPA) ---
-# Runs natively on the build platform and cross-compiles to the target arch,
-# which is fast and safe because the SQLite driver is pure Go (CGO disabled).
-FROM --platform=$BUILDPLATFORM golang:1.26 AS build
-# TARGETOS/TARGETARCH are injected by BuildKit from the target platform.
-ARG TARGETOS
-ARG TARGETARCH
-ARG VERSION=dev
+# --- Stage 2: the Go tree with the freshly built SPA embedded ---
+# Runs natively on the build platform; the two binaries below cross-compile to the
+# target arch, which is fast and safe because the SQLite driver is pure Go (CGO off).
+FROM --platform=$BUILDPLATFORM golang:1.26 AS gosrc
 WORKDIR /src
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download
@@ -29,6 +25,16 @@ COPY backend/ ./
 # Embed the freshly built SPA into the binary.
 RUN rm -rf ./internal/web/dist
 COPY --from=web /web/dist ./internal/web/dist
+
+# --- Stage 2a: the binary for `slim` -- built WITHOUT the ttsbundle tag ---
+# distroless/static has no libc, so the bundled python-build-standalone could not
+# run there anyway: the managed speech component is unavailable on `slim` (device
+# voices are the floor) and nothing is embedded that could never be used.
+FROM gosrc AS build
+# TARGETOS/TARGETARCH are injected by BuildKit from the target platform.
+ARG TARGETOS
+ARG TARGETARCH
+ARG VERSION=dev
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
     go build -trimpath -ldflags="-s -w -X tanulom/internal/api.Version=${VERSION}" \
     -o /tanulom ./cmd/tanulom
@@ -37,16 +43,38 @@ RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
 # next stage explains why that matters.
 RUN mkdir -p /data
 
+# --- Stage 2b: the binary for `full` -- WITH -tags ttsbundle (ADR-080) ---
+# Stages the TARGET platform's slice of the committed offline Piper runtime
+# (services/tts/vendor: python-build-standalone + wheels, hash-pinned) and the
+# three voices into the gitignored ttsbundle/data, exactly as `make tts-stage`
+# does (same scripts/tts_stage.sh), then embeds them. No network is used for
+# speech, now or at runtime. The app re-verifies every file against
+# MANIFEST.sha256 before it unpacks anything.
+FROM gosrc AS build-full
+ARG TARGETOS
+ARG TARGETARCH
+ARG VERSION=dev
+COPY scripts/tts_stage.sh /scripts/tts_stage.sh
+COPY services/tts/vendor/ /vendor/
+COPY langpack/voices/ /voices/
+RUN sh /scripts/tts_stage.sh $TARGETOS $TARGETARCH /vendor /voices ./internal/components/ttsbundle/data \
+ && rm -rf /vendor /voices
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
+    go build -trimpath -tags ttsbundle -ldflags="-s -w -X tanulom/internal/api.Version=${VERSION}" \
+    -o /tanulom ./cmd/tanulom
+
 # --- Stage 3: `full` image -- the binary plus Python, for managed components ---
 # Published as `:latest` (and `:latest-full`, kept as an alias). It is NOT the
 # default for a contributor's plain `docker build .`, which builds the LAST stage
 # (the distroless `slim` one below) -- smaller and faster to build. Build this
 # one with:
 #   docker build --target full -t tanulom:full .
-# It exists so Settings -> Components can create a venv and `pip install` the
-# optional analyser/translator INSIDE this one container, with no sidecars. The
-# python:slim image already ships venv and ensurepip, so nothing is apt-installed.
-# The distroless `slim` image is smaller and has no Python (`:latest-slim`).
+# It exists so Settings -> Components can run the optional components INSIDE this
+# one container, with no sidecars: the Piper speech runtime and the three voices
+# are embedded in the binary (ADR-080; python-build-standalone is glibc >= 2.28,
+# this base is Debian bookworm, glibc 2.36), and the translator/analyser use the
+# image's own Python (venv + ensurepip, nothing is apt-installed).
+# The distroless `slim` image is smaller, has no Python and no speech (`:latest-slim`).
 FROM python:3.12-slim-bookworm AS full
 LABEL org.opencontainers.image.title="tanulom (full)" \
       org.opencontainers.image.description="Self-hosted, research-grounded Hungarian trainer, with Python for managed components" \
@@ -57,9 +85,13 @@ LABEL org.opencontainers.image.title="tanulom (full)" \
 # with either image. HOME exists so pip and venvs have somewhere to write.
 RUN groupadd --gid 65532 nonroot \
  && useradd --uid 65532 --gid 65532 --home-dir /home/nonroot --create-home --shell /usr/sbin/nologin nonroot
-COPY --from=build /tanulom /tanulom
+COPY --from=build-full /tanulom /tanulom
 # /data in the image, owned by 65532: see the explanation in the final stage.
 COPY --from=build --chown=65532:65532 /data /data
+# Piper (GPL-3.0-or-later) and espeak-ng ship inside the binary as object code, so
+# their Corresponding Source and the licence notes travel with the image (ADR-080).
+COPY services/tts/vendor/source/ /usr/share/doc/tanulom/tts-source/
+COPY langpack/LICENSES.md /usr/share/doc/tanulom/LICENSES.md
 ENV TANULOM_DATA_DIR=/data \
     TANULOM_ADDR=:8012 \
     TANULOM_SUPERVISED=1 \

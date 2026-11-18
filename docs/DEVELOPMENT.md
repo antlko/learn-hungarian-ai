@@ -36,7 +36,7 @@ reads as "the button is still not there".
 | `make dev` | Runs the Go API **and** the Vite dev server in one terminal. Ctrl-C stops both. |
 | `make backend` / `make frontend` | Either half alone, when you want two terminals. |
 | `make spa` | Builds the SPA and embeds it into `backend/internal/web/dist`. |
-| `make build` | `spa`, then the static `CGO_ENABLED=0` binary into `bin/tanulom`. |
+| `make build` | `spa`, `tts-stage`, then the static `CGO_ENABLED=0` binary into `bin/tanulom` built with `-tags ttsbundle`: the Piper runtime of the **target** platform and the three voices are inside (≈ 311 MB on macOS arm64; ≈ 40 MB without). `TTS_BUNDLE=0 make build` builds without them and skips staging; `GOOS=linux GOARCH=arm64 make build` cross-builds and stages that platform. `make dev`, `make backend`, `make test` and plain `go build` never use the tag. |
 | `make run` | `build`, then serves UI + API from that one binary against `./data`. |
 | `make test` | Everything CI gates on: Go vet/build/test with `-race`, then type-check, lint (locale parity included), SPA build, then `docs-check`. |
 | `make docs-check` | Research citations resolve, every note states its code impact, both locales carry the same keys. `scripts/docs-check.sh`. |
@@ -45,7 +45,12 @@ reads as "the button is still not there".
 | `make langpack` | Rebuilds `data/langpack-hu-v1.sqlite` (see the caveats below). |
 | `make refresh-curriculum` (alias `make refresh`) | Rewrites the lessons, features, minimal pairs and course in an existing pack. Seconds, no downloads. Stop the server first. |
 | `make texts` / `make texts-check` | `texts`: validates `langpack/texts/*.json` against `$(PACK)` (read-only) and rewrites the committed `backend/internal/readsets/catalog.json` the binary embeds ([ADR-076](../.claude/DECISIONS.md#adr-076)); `texts-check`: fails when that file is stale (no pack needed). Edit texts, `make texts`, commit, deploy: no `make refresh`. |
-| `make audio` | Renders the ear trainer's clips into `data/media/hvpt` with Piper (from the venv) and ffmpeg; `make voices` fetches the three CC0 talkers first. |
+| `make audio` | Renders the ear trainer's clips into `data/media/hvpt` with Piper (from the venv) and ffmpeg; `make voices` fetches the three CC0 talkers first (the same files are committed in `langpack/voices` by the owner). |
+| `make tts` | Runs the Piper speech component on `http://localhost:5000` from the **vendored** runtime, with no pip, no PyPI and no network: `go run ./cmd/tanulom component run tts --host 127.0.0.1 --port 5000 --data-dir .tts-data --voices-dir langpack/voices --tts-runtime-dir services/tts/vendor`. The first start unpacks ≈ 430 MB into the gitignored `.tts-data/` (`TTS_SCRATCH=` to move it); Ctrl-C stops it. |
+| `make tts-stage` | Stages the **target** platform's `MANIFEST.sha256`, `requirements.lock`, `<platform>/` and the voices (not `source/`, not other platforms) into the gitignored `backend/internal/components/ttsbundle/data/` that `-tags ttsbundle` embeds (≈ 265 MB for darwin-arm64); depends on `tts-verify`, idempotent. Unsupported platforms fail with a clear message. A tag build with nothing staged does not compile, so `make build` always runs it first rather than relying on a placeholder. |
+| `make tts-vendor` | Maintainer only, **the one target that uses the network**: refreshes `services/tts/vendor/` (python-build-standalone tarballs, hash-pinned wheels, GPL source, `MANIFEST.sha256`, `requirements.lock`). Roughly 0.5 GB of repository churn per refresh. |
+| `make tts-verify` | Re-hashes `services/tts/vendor/` against `MANIFEST.sha256`, offline. |
+| `make tts-smoke` | Offline proof ([ADR-080](../.claude/DECISIONS.md#adr-080)), `scripts/tts_smoke.sh`: builds the tag binary into a temp dir, starts `component run tts` with **no** runtime or voices flags and the network cut (macOS `sandbox-exec`, Linux `unshare -rn`; `HTTPS_PROXY` points at a dead port), waits for `/health`, asks the child directly for anna, berta and imre and asserts each reply is a RIFF/WAVE longer than 0.5 s, then kills it and asserts nothing listens. Needs no external service; takes about 15 s on a warm cache. |
 | `make subtitles` / `make verbs` | Add the recurrence-filtered OpenSubtitles sentences / the generated indicative verb cells to an existing pack. |
 | `make tutor-kb` | Regenerates the tutor's reference corpus (`backend/internal/tutor/kb/src-*.md`). |
 | `make sync-components` | Copies `services/mt` sources into `backend/internal/components/src/` (what the binary embeds for managed components, [ADR-061](../.claude/DECISIONS.md#adr-061)); run it after editing a service, `TestEmbeddedSourcesMatchServices` fails otherwise. |
@@ -176,7 +181,10 @@ Speech is not one of them. `tts` defaults to the `device` provider — the brows
 Speech API — so the 🔊 controls, the `listen`/`spell` review directions and the listening
 screen's read-aloud all work with nothing running
 ([ADR-012](../.claude/DECISIONS.md#adr-012)). A TTS sidecar is still supported and still
-better. To develop the no-voice path, disable Hungarian voices in the OS or switch the toggle
+better: `make tts` runs the Piper component natively on `:5000` from the vendored runtime, and `make dev`/`make backend` pass
+`--voices-dir ../langpack/voices` (absolute) and `--tts-runtime-dir ../services/tts/vendor` so the managed `tts` component finds the committed
+models (`TANULOM_VOICES_DIR` is the env equivalent). `make build`, release and Docker `full` use the build tag `ttsbundle`, which embeds the platform's vendor bundle and voices; dev and `make test` do not. `make sync-components` copies `services/tts` sources into the
+Go package that embeds them. To develop the no-voice path, disable Hungarian voices in the OS or switch the toggle
 off in **Settings → Speech**: the UI must show the reason, never a silent dead button.
 
 ## The tutor's reference corpus

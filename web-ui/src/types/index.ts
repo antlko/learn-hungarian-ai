@@ -1791,11 +1791,11 @@ export type ManagedState =
 /** The service the app downloads and runs itself (ADR-050). Every field but `available`/`state` may be missing. */
 export interface ManagedStatus {
   available: boolean
-  /** i18n key (errors.componentNoPython | errors.componentReadOnly) when `available` is false. */
+  /** i18n key (errors.componentNoPython | errors.componentReadOnly | errors.componentNoTtsRuntime) when `available` is false. */
   unavailableKey?: string
   pythonVersion?: string
   state: ManagedState
-  /** i18n key: component.step.venv | pip | model | start. */
+  /** i18n key: component.step.venv | pip | model | start (mt); verify | unpack | voices (tts, bundled). */
   step?: string
   /** 0..1 over the whole install; never goes back within a job. */
   progress?: number
@@ -1809,6 +1809,37 @@ export interface ManagedStatus {
   /** Human estimates from the server's constants, not measurements. */
   diskNeed?: string
   ramNeed?: string
+  /** tts only: the voice ids found in the voices folder (e.g. `anna`); empty or missing = none. */
+  voices?: string[]
+  /**
+   * tts: the runtime ships with the binary and works offline (ADR-080). The card says
+   * Включить / Выключить, never «Установить»; `unavailableKey` is errors.componentNoTtsRuntime
+   * where there is no runtime (device speech is then the floor).
+   */
+  bundled: boolean
+}
+
+/** Piper personas the server knows (hu_HU anna, berta, imre). */
+export type TtsVoiceId = 'anna' | 'berta' | 'imre'
+export type TtsGender = 'female' | 'male'
+
+/** GET /api/speech/voices. `available:false` = no local engine: the app speaks with the device voice. */
+export interface SpeechVoices {
+  available: boolean
+  voices: { id: TtsVoiceId; name: string; gender: TtsGender }[]
+}
+
+/** POST /api/speech/tts. 400 bad input, 503 engine unreachable, 504 timeout. */
+export interface TtsRequest {
+  text: string
+  voice: TtsVoiceId
+  /** `word` renders a lone word slowly as a one-word sentence. */
+  style: 'sentence' | 'word'
+}
+export interface TtsResult {
+  /** /api/speech/audio/<64hex>.wav — playable by <audio src>. */
+  url: string
+  durationS: number
 }
 
 /** POST /api/library/sets/:code/import. `created` is false when the learner already had it. */

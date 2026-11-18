@@ -52,7 +52,7 @@ func TestValidateRun(t *testing.T) {
 		{"mt", "::1", 1024, "", 0, true},
 		{"mt", "10.0.0.5", 5003, "", 0, true},
 		{"mt", "0.0.0.0", 1024, "0.0.0.0", 1024, false},
-		{"tts", "", 0, "", 0, true},
+		{"asr", "", 0, "", 0, true},
 		{"mt", "localhost", 0, "", 0, true},
 		{"mt", "http://x", 0, "", 0, true},
 		{"mt", "", 80, "", 0, true},
@@ -188,7 +188,7 @@ func TestRunForegroundReturnsChildExitCode(t *testing.T) {
 
 func TestRunForegroundRefusesBadInputBeforeAnyWork(t *testing.T) {
 	h := newHarness(t)
-	code, err := h.m.RunForeground(context.Background(), "tts", RunOptions{})
+	code, err := h.m.RunForeground(context.Background(), "asr", RunOptions{})
 	if code != 2 || !errors.Is(err, ErrUsage) {
 		t.Fatalf("%d %v", code, err)
 	}
@@ -206,5 +206,12 @@ func TestManagedModeStillBindsLoopback(t *testing.T) {
 	h.r.mu.Unlock()
 	if !strings.Contains(env, "MT_HOST=127.0.0.1") {
 		t.Fatalf("managed child must stay on loopback:\n%s", env)
+	}
+}
+
+func TestValidateRunTTSDefaultsToItsOwnPort(t *testing.T) {
+	host, port, err := ValidateRun("tts", "", 0)
+	if err != nil || host != "0.0.0.0" || port != 5000 {
+		t.Fatalf("%q %d %v", host, port, err)
 	}
 }

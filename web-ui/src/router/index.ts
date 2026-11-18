@@ -69,7 +69,8 @@ const routes: RouteRecordRaw[] = [
   // from the deck browser — not sidebar-level: it is somewhere you go when you
   // want a word back, not part of any daily loop.
   { path: '/known', name: 'known', component: () => import('@/views/KnownWordsView.vue') },
-  { path: '/listen', name: 'listen', component: () => import('@/views/ListenView.vue') },
+  // The listening screen became the reader's listening mode (ADR-079); old links land on the shelf.
+  { path: '/listen', redirect: '/library' },
   {
     path: '/grammar/placement',
     name: 'placement',

@@ -20,6 +20,9 @@ func (m *Manager) Start(id string) error {
 	if err != nil {
 		return err
 	}
+	if c.spec.bundled && !m.installedOnDisk(id) {
+		return m.enable(id, false) // unpack first, then start
+	}
 	m.mu.Lock()
 	if c.busy || c.claim {
 		m.mu.Unlock()
@@ -123,10 +126,19 @@ func (m *Manager) childEnvAt(c *comp, host string, port int) []string {
 	sp := c.spec
 	root := m.final(sp.id)
 	env := baseEnv(filepath.Join(root, "home"))
+	env = append(env, sp.hostEnv+"="+host, sp.portEnv+"="+strconv.Itoa(port))
+	if sp.modelEnv != "" {
+		env = append(env, sp.modelEnv+"="+filepath.Join(root, "models", sp.modelSub))
+	}
+	if sp.voices {
+		// The one path outside the data directory a child is told about, and it
+		// comes from the operator's flag, never from a request.
+		env = append(env, "TTS_VOICES_DIR="+m.VoicesDir())
+	}
+	if sp.bundled {
+		env = append(env, "TTS_PRELOAD=all") // /health is ready only after every voice is loaded
+	}
 	return append(env,
-		sp.hostEnv+"="+host,
-		sp.portEnv+"="+strconv.Itoa(port),
-		sp.modelEnv+"="+filepath.Join(root, "models", sp.modelSub),
 		// After conversion torch is uninstalled on purpose; transformers then
 		// logs a scary-sounding advisory about it. Keep the log about real problems.
 		"TRANSFORMERS_VERBOSITY=error",
@@ -139,6 +151,15 @@ func (m *Manager) childCmd(c *comp, port int) Cmd { return m.childCmdAt(c, "127.
 
 func (m *Manager) childCmdAt(c *comp, host string, port int) Cmd {
 	root := m.final(c.spec.id)
+	if c.spec.bundled {
+		// The bundled interpreter, isolated: no site, no PYTHON* from anywhere.
+		return Cmd{
+			Path: m.python3(c.spec.id),
+			Args: []string{"-I", filepath.Join(root, "src", "app.py")},
+			Dir:  filepath.Join(root, "src"),
+			Env:  m.childEnvAt(c, host, port),
+		}
+	}
 	return Cmd{
 		Path: filepath.Join(root, "venv", "bin", "python"),
 		Args: []string{filepath.Join(root, "src", "app.py")},
@@ -213,7 +234,13 @@ func (m *Manager) supervise(ctx context.Context, c *comp) {
 			c.port = 0
 			timedOut := c.timedOut
 			c.timedOut = false
+			loadErr := c.loadErr
+			c.loadErr = ""
 			m.mu.Unlock()
+			if loadErr != "" && ctx.Err() == nil {
+				fail(KeyStartFailed, loadErr)
+				return
+			}
 			if timedOut && ctx.Err() == nil {
 				fail(KeyStartFailed, fmt.Sprintf("the service did not answer /health within %s\n%s",
 					m.opt.ReadyTimeout, tail(tailOf(&rmu, recent), 6)))
@@ -299,7 +326,18 @@ func (m *Manager) awaitReady(ctx context.Context, c *comp, p Proc, gen, port int
 			return
 		case <-t.C:
 		}
-		if m.opt.Prober.Alive(ctx, port) {
+		ok, bad := m.probeReady(ctx, c, port)
+		if bad != "" {
+			// A voice would not load: deterministic, so no restart loop.
+			m.mu.Lock()
+			if c.gen == gen {
+				c.loadErr = bad
+			}
+			m.mu.Unlock()
+			m.terminate(p)
+			return
+		}
+		if ok {
 			m.mu.Lock()
 			if c.gen == gen && c.state == StateStarting {
 				c.state, c.errMsg = StateRunning, ""
@@ -374,4 +412,28 @@ func (m *Manager) openRunLog(id string) (func(string), func()) {
 		}
 	}
 	return write, closeFn
+}
+
+// probeReady asks a child whether it is up. A plain service is up when /health
+// answers at all (a model still loading answers 503). A bundled one preloads
+// every voice, so it is up only when /health says `ready`; `failed` comes back
+// as the second result (its own error text) and is never retried.
+func (m *Manager) probeReady(ctx context.Context, c *comp, port int) (ok bool, failed string) {
+	if !c.spec.bundled {
+		return m.opt.Prober.Alive(ctx, port), ""
+	}
+	h, err := m.opt.Prober.Health(ctx, port)
+	if err != nil {
+		return false, ""
+	}
+	switch h.Status {
+	case "ready":
+		return true, ""
+	case "failed":
+		if h.Error == "" {
+			return false, "the service reported a failure"
+		}
+		return false, h.Error
+	}
+	return false, ""
 }

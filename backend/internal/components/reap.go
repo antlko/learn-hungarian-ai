@@ -29,7 +29,7 @@ func (m *Manager) reapStale() {
 			continue
 		}
 		pid, _ := strconv.Atoi(strings.TrimSpace(string(b)))
-		if cmd, alive := m.opt.ProcInfo(pid); alive && strings.Contains(cmd, filepath.Join(m.final(id), "venv")) {
+		if cmd, alive := m.opt.ProcInfo(pid); alive && strings.Contains(cmd, filepath.Join(m.final(id), runtimeDir(id))) {
 			m.opt.SignalPID(pid, false)
 			deadline := time.Now().Add(m.opt.StopGrace)
 			for time.Now().Before(deadline) {
@@ -44,4 +44,12 @@ func (m *Manager) reapStale() {
 		}
 		_ = os.Remove(m.pidFile(id))
 	}
+}
+
+// runtimeDir is the directory under the component that holds its interpreter.
+func runtimeDir(id string) string {
+	if specs[id].bundled {
+		return "python"
+	}
+	return "venv"
 }

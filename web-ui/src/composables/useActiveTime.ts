@@ -1,4 +1,4 @@
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, toValue, type MaybeRefOrGetter } from 'vue'
 
 /**
  * Time the learner actually spent on a screen, reported to the server.
@@ -38,6 +38,12 @@ export interface ActiveTimeOptions {
    *  tick, so a view can stop the clock while it is showing a loading state or
    *  an error instead of content. */
   enabled?: () => boolean
+  /**
+   * True while something else is already crediting this time — the reader's
+   * audio bar reports playback as listening (`useListenReporter`), and the same
+   * seconds must not also land in `read_s` (ADR-044: one second, one counter).
+   */
+  paused?: MaybeRefOrGetter<boolean>
 }
 
 const INTERACTIONS = ['keydown', 'pointerdown', 'wheel', 'scroll', 'touchstart'] as const
@@ -57,6 +63,7 @@ export function useActiveTime(opts: ActiveTimeOptions) {
   function active() {
     if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return false
     if (opts.enabled && !opts.enabled()) return false
+    if (opts.paused && toValue(opts.paused)) return false
     return Date.now() - lastInteraction < idleAfterMs
   }
 

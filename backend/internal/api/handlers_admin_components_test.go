@@ -176,7 +176,7 @@ func TestComponentUnknownIDIs404(t *testing.T) {
 	t.Parallel()
 	s, c := newAdmin(t)
 	withFakeManager(t, s, 1)
-	for _, id := range []string{"tts", "llm", "pack", "..%2Fetc"} {
+	for _, id := range []string{"asr", "llm", "pack", "..%2Fetc"} {
 		var e struct{ Error string }
 		resp := c.json(http.MethodPost, "/api/admin/components/"+id+"/install", nil, &e)
 		if resp.StatusCode != http.StatusNotFound || e.Error != "errors.componentUnknown" {
@@ -185,7 +185,7 @@ func TestComponentUnknownIDIs404(t *testing.T) {
 	}
 }
 
-func TestComponentsListCarriesManagedOnMTOnly(t *testing.T) {
+func TestComponentsListCarriesManagedOnMTAndTTSOnly(t *testing.T) {
 	t.Parallel()
 	s, c := newAdmin(t)
 	withFakeManager(t, s, 1, func(o *components.Options) {
@@ -199,6 +199,10 @@ func TestComponentsListCarriesManagedOnMTOnly(t *testing.T) {
 			m := r.Managed
 			if m == nil || m.Available || m.UnavailableKey != "errors.componentNoPython" || m.State != "absent" || m.DiskNeed == "" || m.RAMNeed == "" {
 				t.Errorf("%s: %+v", r.ID, m)
+			}
+		case "tts":
+			if r.Managed == nil || r.Managed.State != "absent" || r.Managed.DiskNeed == "" {
+				t.Errorf("tts: %+v", r.Managed)
 			}
 		default:
 			if r.Managed != nil {

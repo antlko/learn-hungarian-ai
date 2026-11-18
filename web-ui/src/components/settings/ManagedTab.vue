@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Check, Copy, Play, RotateCw, Square, Trash2 } from '@lucide/vue'
+import { Check, Circle, Copy, Loader, Play, Power, PowerOff, RotateCw, Square, Trash2 } from '@lucide/vue'
 import InfoTip from '@/components/common/InfoTip.vue'
 import BottomSheet from '@/components/common/BottomSheet.vue'
 import { Button } from '@/components/ui/button'
@@ -11,7 +11,8 @@ import type { ManagedStatus } from '@/types'
  * «Встроенный»: the app downloads the service and runs it itself, on 127.0.0.1.
  * The server owns every fact on this panel; the browser only draws it and asks
  * for a transition. Disk and RAM figures are the server's estimates and are
- * labelled as such. Browser flow not exercised.
+ * labelled as such. Only the idle (absent) state of the tts card was exercised
+ * in a browser; the install/enable transitions were not.
  */
 const props = defineProps<{
   id: string
@@ -26,6 +27,18 @@ const emit = defineEmits<{ install: []; start: []; stop: []; uninstall: [] }>()
 const { t, te } = useI18n()
 
 const st = computed(() => props.managed.state)
+/**
+ * tts ships inside the app (ADR-080): no download, so the card is a switch —
+ * Включить loads the voices into memory, Выключить frees them. `absent` means
+ * nothing is unpacked yet, any other state means an unpacked environment exists.
+ */
+const bundled = computed(() => props.managed.bundled)
+const noRuntime = computed(
+  () => bundled.value && !props.managed.available && props.managed.unavailableKey === 'errors.componentNoTtsRuntime',
+)
+const STEPS = ['component.step.verify', 'component.step.unpack', 'component.step.voices'] as const
+const stepIdx = computed(() => STEPS.indexOf((props.managed.step ?? '') as (typeof STEPS)[number]))
+const stateLabel = (s: string) => t(bundled.value ? `component.stateBundled.${s}` : `component.state.${s}`)
 const working = computed(() => st.value === 'installing' || st.value === 'starting')
 const pct = computed(() => Math.round(Math.max(0, Math.min(1, props.managed.progress ?? 0)) * 100))
 const stepLabel = computed(() => {
@@ -38,7 +51,7 @@ const failText = computed(() => {
 })
 const unavailable = computed(() => {
   const k = props.managed.unavailableKey
-  return k && te(k) ? t(k) : t('errors.componentNoPython')
+  return k && te(k) ? t(k) : t(bundled.value ? 'errors.componentBundleCorrupt' : 'errors.componentNoPython')
 })
 /** Per-component sentence from i18n; the backend's English strings are only a fallback. */
 const willText = computed(() => {
@@ -90,8 +103,8 @@ const canAct = computed(() => props.isAdmin && !props.busy && !working.value)
 
 /** One polite sentence for assistive tech: the state, never the ticking percentage. */
 const announce = computed(() => {
-  const base = t(`component.state.${st.value}`)
-  return stepLabel.value && st.value === 'installing' ? `${base}: ${stepLabel.value}` : base
+  const base = stateLabel(st.value)
+  return stepLabel.value && working.value ? `${base}: ${stepLabel.value}` : base
 })
 
 const confirmOpen = ref(false)
@@ -106,17 +119,30 @@ function confirmUninstall() {
     <p class="sr-only" role="status" aria-live="polite">{{ announce }}</p>
 
     <!-- Honest one-liner: what pressing the button does, and that sizes are estimates. -->
-    <p v-if="st === 'absent' || st === 'failed'" class="text-xs leading-relaxed">
+    <p v-if="(st === 'absent' || st === 'failed') && !(bundled && !managed.available)" class="text-xs leading-relaxed">
       {{ willText }}
       <InfoTip>{{ $t(`component.managed.tip.${id}`) }}</InfoTip>
     </p>
 
     <p v-if="!managed.available" class="text-xs leading-relaxed text-foreground" data-testid="managed-unavailable">
-      {{ unavailable }} {{ $t('component.managed.useOther') }}
+      {{ unavailable }} <template v-if="!bundled">{{ $t('component.managed.useOther') }}</template>
     </p>
 
     <!-- installing / starting -->
-    <div v-if="working" class="flex flex-col gap-1.5">
+    <div v-if="working && bundled" class="flex flex-col gap-1.5" data-testid="enable-steps">
+      <ol class="flex flex-col gap-1 text-xs">
+        <li v-for="(k, i) in STEPS" :key="k" class="flex items-center gap-1.5" :class="i > stepIdx ? 'text-muted-foreground' : ''">
+          <Loader v-if="i === stepIdx" class="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+          <Check v-else-if="i < stepIdx" class="size-3.5 text-known" aria-hidden="true" />
+          <Circle v-else class="size-3.5" aria-hidden="true" />
+          <span :class="i === stepIdx ? 'font-medium' : ''">{{ $t(k) }}</span>
+        </li>
+      </ol>
+      <div class="h-1.5 w-full overflow-hidden rounded-full bg-muted" role="progressbar" :aria-label="stateLabel(st)">
+        <div class="h-full w-1/3 animate-pulse rounded-full bg-learning motion-reduce:animate-none" />
+      </div>
+    </div>
+    <div v-else-if="working" class="flex flex-col gap-1.5">
       <div class="flex items-baseline justify-between gap-2 text-xs">
         <span class="font-medium">{{ stepLabel || $t(`component.state.${st}`) }}</span>
         <span v-if="st === 'installing'" class="tabular-nums text-muted-foreground">{{ pct }}%</span>
@@ -143,17 +169,57 @@ function confirmUninstall() {
     <!-- failed: the sentence first, in ink; the technical tail lives in «Подробности» -->
     <p v-if="st === 'failed'" class="text-xs leading-relaxed text-foreground">{{ failText }}</p>
 
-    <p v-if="st === 'running'" class="text-xs leading-relaxed text-known">
-      {{ $t('component.managed.runningLine') }}
-    </p>
-    <p v-if="st === 'running' || st === 'stopped' || st === 'installed'" class="text-[11px] text-muted-foreground">
-      {{ $t('component.managed.noRestart') }}
-    </p>
+    <template v-if="bundled">
+      <p v-if="st === 'running'" class="text-[11px] text-muted-foreground">{{ $t('settings.components.tts.memoryNote') }}</p>
+      <p v-if="st === 'stopped' || st === 'installed'" class="text-[11px] text-muted-foreground">
+        {{ $t('settings.components.tts.memoryFreed') }}
+      </p>
+    </template>
+    <template v-else>
+      <p v-if="st === 'running'" class="text-xs leading-relaxed text-known">
+        {{ $t('component.managed.runningLine') }}
+      </p>
+      <p v-if="st === 'running' || st === 'stopped' || st === 'installed'" class="text-[11px] text-muted-foreground">
+        {{ $t('component.managed.noRestart') }}
+      </p>
+    </template>
 
     <p v-if="error" class="text-xs text-error" role="alert">{{ error }}</p>
 
+    <!-- bundled (tts): a switch, and a quiet way to free the unpacked copy; nothing at all where there is no runtime -->
+    <div v-if="bundled" class="flex flex-col gap-1.5">
+      <div v-if="managed.available" class="flex flex-wrap items-center gap-2">
+        <Button
+          v-if="st !== 'running'"
+          class="min-h-11 sm:min-h-9 aria-disabled:pointer-events-none aria-disabled:opacity-50"
+          :aria-disabled="!canAct"
+          :aria-busy="working"
+          @click="canAct && emit('start')"
+        >
+          <RotateCw v-if="st === 'failed'" class="size-3.5" aria-hidden="true" /><Power v-else class="size-3.5" aria-hidden="true" />{{ $t('settings.components.tts.enable') }}
+        </Button>
+        <Button v-if="st === 'running'" variant="outline" class="min-h-11 sm:min-h-9" :disabled="!canAct" @click="emit('stop')">
+          <PowerOff class="size-3.5" aria-hidden="true" />{{ $t('settings.components.tts.disable') }}
+        </Button>
+        <Button
+          v-if="st !== 'absent' && !working"
+          variant="ghost"
+          size="sm"
+          class="min-h-11 text-muted-foreground sm:min-h-8"
+          :disabled="!canAct"
+          @click="emit('uninstall')"
+        >
+          <Trash2 class="size-3.5" aria-hidden="true" />{{ $t('settings.components.tts.freeDisk') }}
+        </Button>
+      </div>
+      <p v-if="managed.available && st !== 'absent' && !working" class="text-[11px] text-muted-foreground">
+        {{ $t('settings.components.tts.freeDiskHint') }}
+      </p>
+      <p v-if="!isAdmin && !noRuntime" class="text-[11px] text-muted-foreground">{{ $t('settings.adminOnly') }}</p>
+    </div>
+
     <!-- actions -->
-    <div class="flex flex-wrap items-center gap-2">
+    <div v-else class="flex flex-wrap items-center gap-2">
       <Button
         v-if="st === 'absent'"
         class="min-h-11 sm:min-h-9"

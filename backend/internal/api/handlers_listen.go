@@ -175,6 +175,10 @@ func (s *Server) handleListenState(c fiber.Ctx) error {
 // ListenProgressRequest reports playback: position/pass changes and seconds
 // actually heard since the last report.
 type ListenProgressRequest struct {
+	// Pass is 1..3 inside listening mode. 0 means "audio played in the reader,
+	// outside listening mode" (ADR-079): the seconds still count as listening
+	// (log + daily ledger, so the curriculum gate sees them) but no position is
+	// stored, because there is no pass to resume.
 	Pass      int     `json:"pass"`
 	PositionS float64 `json:"positionS"`
 	// SecondsHeard is the audible playtime since the previous report. Bounded
@@ -195,8 +199,8 @@ func (s *Server) handleListenProgress(c fiber.Ctx) error {
 	if err := decode(c, &req); err != nil {
 		return err
 	}
-	if req.Pass < 1 || req.Pass > 3 {
-		return badRequest("pass must be 1, 2 or 3")
+	if req.Pass < 0 || req.Pass > 3 {
+		return badRequest("pass must be 0, 1, 2 or 3")
 	}
 	// One report covers at most a minute of listening: hours accumulate from
 	// many small true reports, and a fabricated giant one is clamped.
@@ -213,13 +217,16 @@ func (s *Server) handleListenProgress(c fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "no such text")
 	}
 
-	if _, err := s.db.Exec(`
-		INSERT INTO listen_state (user_id, text_id, pass, position_s, updated_at)
-		VALUES (?,?,?,?,?)
-		ON CONFLICT(user_id, text_id) DO UPDATE SET
-		  pass=excluded.pass, position_s=excluded.position_s, updated_at=excluded.updated_at`,
-		u.ID, id, req.Pass, req.PositionS, db.FmtTime(time.Now())); err != nil {
-		return err
+	// listen_state.pass is CHECK 1..3: pass 0 never touches it.
+	if req.Pass > 0 {
+		if _, err := s.db.Exec(`
+			INSERT INTO listen_state (user_id, text_id, pass, position_s, updated_at)
+			VALUES (?,?,?,?,?)
+			ON CONFLICT(user_id, text_id) DO UPDATE SET
+			  pass=excluded.pass, position_s=excluded.position_s, updated_at=excluded.updated_at`,
+			u.ID, id, req.Pass, req.PositionS, db.FmtTime(time.Now())); err != nil {
+			return err
+		}
 	}
 	if req.SecondsHeard > 0 {
 		if _, err := s.db.Exec(`

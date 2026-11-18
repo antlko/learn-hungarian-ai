@@ -45,7 +45,7 @@ const byId = computed(() => {
 })
 
 /*
-  The built-in copy (mt). One poll of GET /api/admin/components every 2 s,
+  The built-in copy (mt, tts). One poll of GET /api/admin/components every 2 s,
   ONLY while some copy is installing or starting and the tab is visible; a short
   grace after pressing a button covers the moment before the server reports the
   new state. When the work ends the stored provider may have changed (the server
@@ -58,7 +58,7 @@ let graceTimer: ReturnType<typeof setTimeout> | undefined
 const acting = ref<Partial<Record<ComponentId, boolean>>>({})
 const actionError = ref<Partial<Record<ComponentId, string>>>({})
 
-async function act(id: 'mt', action: 'install' | 'start' | 'stop' | 'uninstall') {
+async function act(id: 'mt' | 'tts', action: 'install' | 'start' | 'stop' | 'uninstall') {
   acting.value[id] = true
   actionError.value[id] = ''
   try {
@@ -135,10 +135,10 @@ const sidecars = computed(() =>
         :models="c.id === 'llm' ? llmModels : []"
         @check="emit('check')"
         @save="(p) => emit('save-service', c.id, p)"
-        @install="act(c.id as 'mt', 'install')"
-        @start="act(c.id as 'mt', 'start')"
-        @stop="act(c.id as 'mt', 'stop')"
-        @uninstall="act(c.id as 'mt', 'uninstall')"
+        @install="act(c.id as 'mt' | 'tts', 'install')"
+        @start="act(c.id as 'mt' | 'tts', 'start')"
+        @stop="act(c.id as 'mt' | 'tts', 'stop')"
+        @uninstall="act(c.id as 'mt' | 'tts', 'uninstall')"
       >
         <!-- The translator keeps its own live block (download progress, retry). -->
         <slot v-if="c.id === 'mt'" name="mt" />

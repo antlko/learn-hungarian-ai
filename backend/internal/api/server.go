@@ -30,6 +30,7 @@ import (
 	"tanulom/internal/lang"
 	"tanulom/internal/morph"
 	"tanulom/internal/readsets"
+	"tanulom/internal/speech"
 	"tanulom/internal/srs"
 	"tanulom/internal/tutor"
 	"tanulom/internal/web"
@@ -116,17 +117,38 @@ type Server struct {
 	// Managed sidecars (ADR-061): children of this process, supervised. Never
 	// nil after New; a test may replace it with one built on a fake runner.
 	components *components.Manager
+
+	// Piper speech (ADR-079): the on-disk cache and the renderer, and the
+	// operator-chosen voices directory (flag/env only, never a route or a config
+	// field).
+	speech    *speech.Service
+	voicesDir string
+	// ttsRuntimeDir: the operator's offline tts bundle (WithTTSRuntimeDir).
+	ttsRuntimeDir string
 }
 
+// Option adjusts a Server before its components are built. Operator-level
+// inputs that must not be reachable from a request or from config.yaml live here.
+type Option func(*Server)
+
+// WithVoicesDir points the tts component at the directory holding the Piper
+// voice files (--voices-dir / TANULOM_VOICES_DIR). Empty keeps `<data>/voices`.
+func WithVoicesDir(dir string) Option { return func(s *Server) { s.voicesDir = dir } }
+
+// WithTTSRuntimeDir points the tts component at an offline runtime bundle on
+// disk (operator flag --tts-runtime-dir; ADR-080). Empty means the bundle
+// embedded in the binary, if any. Never a route or a config field.
+func WithTTSRuntimeDir(dir string) Option { return func(s *Server) { s.ttsRuntimeDir = dir } }
+
 // New wires a server against a data directory, creating it if needed.
-func New(dataDir string) (*Server, error) {
-	return NewWithCatalog(dataDir, nil)
+func New(dataDir string, opts ...Option) (*Server, error) {
+	return NewWithCatalog(dataDir, nil, opts...)
 }
 
 // NewWithCatalog is New with an explicit reading-text catalogue (tests); nil
 // means the one embedded in the binary. A malformed embedded catalogue is a
 // build defect, so boot fails rather than run with an empty library.
-func NewWithCatalog(dataDir string, cat *readsets.Catalog) (*Server, error) {
+func NewWithCatalog(dataDir string, cat *readsets.Catalog, opts ...Option) (*Server, error) {
 	if cat == nil {
 		var err error
 		if cat, err = readsets.Default(); err != nil {
@@ -160,6 +182,10 @@ func NewWithCatalog(dataDir string, cat *readsets.Catalog) (*Server, error) {
 		pending: drill.NewPending(), hvptPending: hvpt.NewPending(),
 		packInstaller: lang.NewInstaller(dataDir), stopProcess: signalSelfTerm}
 	s.bgCtx, s.bgCancel = context.WithCancel(context.Background())
+	for _, o := range opts {
+		o(s)
+	}
+	s.speech = speech.New(filepath.Join(dataDir, "cache", "tts"))
 	s.components = s.newComponents()
 	s.reconcileStepsOnce()
 	s.backfillNoteOriginsOnce()
@@ -485,6 +511,12 @@ func (s *Server) buildApp() *fiber.App {
 	api.Post("/listen/material", s.requireAuth, s.handleListenUpload)
 	api.Get("/listen/:id/state", s.requireAuth, s.handleListenState)
 	api.Post("/listen/:id/progress", s.requireAuth, s.handleListenProgress)
+
+	// Piper speech (ADR-079). Cached WAVs live outside /media on purpose: they
+	// are a cache, served only through the auth-checked route below.
+	api.Get("/speech/voices", s.requireAuth, s.handleSpeechVoices)
+	api.Post("/speech/tts", s.requireAuth, limitBody(speechBodyLimit), s.handleSpeechTTS)
+	api.Get("/speech/audio/:file", s.requireAuth, s.handleSpeechAudio)
 
 	// The guided course and the hand-off catalogue.
 	api.Get("/course", s.requireAuth, s.handleCourse)

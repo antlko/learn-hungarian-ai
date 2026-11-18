@@ -25,7 +25,9 @@ package components
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"net"
 	"os"
@@ -34,11 +36,14 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"tanulom/internal/components/ttsbundle"
 )
 
 // Component ids this package manages.
 const (
-	MT = "mt"
+	MT  = "mt"
+	TTS = "tts"
 )
 
 // State is the word the Components card draws.
@@ -76,6 +81,10 @@ const (
 	KeyStartFailed   = "errors.componentStartFailed"
 	KeyCrashed       = "errors.componentCrashed"
 	KeyPipBroken     = "errors.componentPipBroken"
+	// KeyNoVoices: the tts install is refused while no Piper voice files are
+	// where the operator pointed the server (ADR-079). The files are committed
+	// to the repository; nothing is ever downloaded.
+	KeyNoVoices = "errors.componentNoVoices"
 )
 
 // Error carries an i18n key for the API layer.
@@ -116,8 +125,14 @@ type spec struct {
 	defPort       int // the service's own default (services/<id>/app.py), used by `component run`
 	hostEnv       string
 	portEnv       string
-	modelEnv      string
+	modelEnv      string // "" = the service has no model directory (tts)
 	modelSub      string // under models/
+	// voices: the service reads Piper voice files from the operator's voices
+	// directory (Options.VoicesDir), passed as TTS_VOICES_DIR.
+	voices bool
+	// bundled: the runtime ships with the binary (ADR-080): no Python probe, no
+	// venv, no network. Enable/Disable instead of Install.
+	bundled bool
 	// torch: the model needs a one-time conversion that imports torch, which is
 	// installed from the CPU index first and uninstalled afterwards (~800 MB).
 	torch bool
@@ -137,10 +152,15 @@ var specs = map[string]spec{
 		defPort: 5003, hostEnv: "MT_HOST", portEnv: "MT_PORT", modelEnv: "MT_MODEL_DIR", modelSub: "nllb-ct2",
 		torch: true, prepare: "import app; app.prepare_model()", pipExpected: 30,
 	},
+	TTS: {
+		id: TTS, files: []string{"app.py"}, bundled: true,
+		diskNeedBytes: 1 * gb, diskNeed: "≈0.5 GB", ramNeed: "≈300 MB with all three voices (measured)",
+		defPort: 5000, hostEnv: "TTS_HOST", portEnv: "TTS_PORT", voices: true,
+	},
 }
 
 // IDs lists the managed component ids.
-func IDs() []string { return []string{MT} }
+func IDs() []string { return []string{MT, TTS} }
 
 // Status is what GET /api/admin/components reports under `managed`.
 type Status struct {
@@ -156,12 +176,29 @@ type Status struct {
 	Log            []string
 	DiskNeed       string
 	RAMNeed        string
+	// Voices are the Piper personas (anna, berta, imre) whose model files are in
+	// the voices directory. Only the tts component fills it.
+	Voices []string
+	// Bundled: the component's runtime is carried by the binary (ADR-080).
+	Bundled bool
 }
 
 // Options configure a Manager. Zero values are production defaults; tests
 // replace the seams.
 type Options struct {
-	DataDir  string
+	DataDir string
+	// VoicesDir is where the Piper voice files live (operator flag --voices-dir /
+	// env TANULOM_VOICES_DIR; never a route or a config field). Empty means
+	// `<DataDir>/voices`.
+	VoicesDir string
+	// TTSRuntimeDir is the operator's offline runtime bundle (flag
+	// --tts-runtime-dir / env TANULOM_TTS_RUNTIME_DIR; never a route or config
+	// field). Empty means the bundle embedded in the binary, if any.
+	TTSRuntimeDir string
+	// EmbeddedBundle returns the binary's own bundle; default ttsbundle.FS.
+	EmbeddedBundle func() (fs.FS, bool)
+	// Rename replaces os.Rename in the runtime swap (tests only).
+	Rename   func(from, to string) error
 	Runner   Runner
 	LookPath func(string) (string, error)
 	Disk     DiskInfo
@@ -180,7 +217,8 @@ type Options struct {
 	// ProcInfo / SignalPID are the pid-file reaper's seams.
 	ProcInfo      func(pid int) (cmdline string, alive bool)
 	SignalPID     func(pid int, force bool)
-	GOOS          string        // default runtime.GOOS; picks the torch install path
+	GOOS          string        // default runtime.GOOS; picks the torch install path and the bundle platform
+	GOARCH        string        // default runtime.GOARCH; picks the bundle platform
 	PollInterval  time.Duration // readiness polling, default 500 ms
 	StopGrace     time.Duration // SIGTERM -> SIGKILL, default 5 s
 	Backoff       func(n int) time.Duration
@@ -234,6 +272,9 @@ type comp struct {
 	claim bool
 	// timedOut: awaitReady gave up on this generation; the supervisor fails it.
 	timedOut bool
+	// loadErr: a bundled child's /health said `failed` (a voice would not load);
+	// the supervisor fails the component instead of restarting a deterministic failure.
+	loadErr string
 }
 
 // New builds a Manager. It does no work and touches no disk until used.
@@ -261,6 +302,12 @@ func New(o Options) *Manager {
 	}
 	if o.GOOS == "" {
 		o.GOOS = runtime.GOOS
+	}
+	if o.GOARCH == "" {
+		o.GOARCH = runtime.GOARCH
+	}
+	if o.EmbeddedBundle == nil {
+		o.EmbeddedBundle = ttsbundle.FS
 	}
 	if o.PollInterval <= 0 {
 		o.PollInterval = 500 * time.Millisecond
@@ -307,6 +354,9 @@ func (m *Manager) stage(id string) string { return filepath.Join(m.dir, id+".ins
 func marker(dir string) string            { return filepath.Join(dir, ".installed") }
 
 func (m *Manager) installedOnDisk(id string) bool {
+	if specs[id].bundled {
+		return m.runtimeReady(id)
+	}
 	_, err := os.Stat(marker(m.final(id)))
 	return err == nil
 }
@@ -375,6 +425,11 @@ func (m *Manager) Status(id string) Status {
 	env := m.environment(false)
 	py := env.py
 	avail, key := py.ok, py.key
+	if specs[id].bundled {
+		// No Python is probed for a bundled component: the interpreter is ours.
+		_, bkey := m.locateBundle()
+		avail, key = bkey == "", bkey
+	}
 	if env.wkey != "" {
 		avail, key = false, env.wkey
 	}
@@ -386,7 +441,18 @@ func (m *Manager) Status(id string) Status {
 		Available: avail, UnavailableKey: key, PythonVersion: py.version,
 		State: c.state, Step: c.step, Progress: c.progress, Port: c.port,
 		ErrorKey: c.errKey, ErrorDetail: c.errMsg, Log: c.log.last(40),
-		DiskNeed: c.spec.diskNeed, RAMNeed: c.spec.ramNeed,
+		DiskNeed: c.spec.diskNeed, RAMNeed: c.spec.ramNeed, Bundled: c.spec.bundled,
+	}
+	if c.spec.bundled {
+		st.PythonVersion = ""
+		// While an enable waits for the child to load the voices, the card keeps
+		// showing that step instead of a bare "starting".
+		if c.busy && c.state == StateStarting {
+			st.State, st.Step = StateInstalling, StepVoices
+		}
+	}
+	if c.spec.voices {
+		st.Voices = m.Voices()
 	}
 	if st.Available {
 		st.UnavailableKey = ""
@@ -479,7 +545,17 @@ func (m *Manager) Shutdown(ctx context.Context) {
 // Never blocks on a child and only logs failures — boot must not depend on it.
 func (m *Manager) AutoStart(wanted func(id string) bool) {
 	for _, id := range IDs() {
-		if !wanted(id) || !m.installedOnDisk(id) {
+		if !wanted(id) {
+			continue
+		}
+		if specs[id].bundled {
+			// Unpacking on first boot happens in enable's own goroutine.
+			if err := m.enable(id, false); err != nil && !errors.Is(err, ErrBusy) && !errors.Is(err, ErrInstalled) {
+				slog.Warn("components: autostart failed", "component", id, "error", err)
+			}
+			continue
+		}
+		if !m.installedOnDisk(id) {
 			continue
 		}
 		if err := m.Start(id); err != nil {

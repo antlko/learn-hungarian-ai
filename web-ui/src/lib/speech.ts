@@ -110,6 +110,8 @@ export interface SpeakOptions {
   voiceName?: string
   onEnd?: () => void
   onError?: () => void
+  /** The utterance was superseded or cancelled by something else, so neither `onEnd` nor `onError` will report. */
+  onInterrupt?: () => void
 }
 
 /**
@@ -145,8 +147,8 @@ export function speak(text: string, opts: SpeakOptions = {}): boolean {
   // An utterance that is cancelled fires `error`/`end` too; only the CURRENT
   // one may report, or a stale cancel flips `speaking` off under the new word.
   const mine = ++generation
-  if (opts.onEnd) utter.addEventListener('end', () => mine === generation && opts.onEnd?.())
-  if (opts.onError) utter.addEventListener('error', () => mine === generation && opts.onError?.())
+  utter.addEventListener('end', () => (mine === generation ? opts.onEnd?.() : opts.onInterrupt?.()))
+  utter.addEventListener('error', () => (mine === generation ? opts.onError?.() : opts.onInterrupt?.()))
 
   clearTimeout(pendingSpeak)
   if (synth.speaking || synth.pending) {

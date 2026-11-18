@@ -67,7 +67,7 @@ container.
   ([ADR-059](../.claude/DECISIONS.md#adr-059)). `meta.width: 'wide'` (`max-w-6xl`) is the only
   exception, for the reader. **Dashboard pages (Today, Progress) use the full 5xl width; a view
   that is a single reading or form column puts `page-narrow` (`mx-auto w-full max-w-3xl`, defined
-  once in `tailwind.css`) on its root** — Settings, Users, Library, Resources, Listen, Ear, Words,
+  once in `tailwind.css`) on its root** — Settings, Users, Library, Resources, Ear, Words,
   Known words, Placement, Review start, Grammar, Unit, Tutor. A view's root otherwise sets no
   `max-w-*`, `mx-auto`, `px-*` or `pt-*` of its own. The content is wrapped in `RouteFade`
   (§14.3): fade + 6px rise on a path change.
@@ -88,7 +88,6 @@ container.
 │   Read       │                                                      │
 │   Grammar    │                                                      │
 │   Tutor *    │            (* only when an LLM is configured)        │
-│   Listen     │                                                      │
 │   Ear        │                                                      │
 │ ─────────    │                                                      │
 │   Progress   │                                                      │
@@ -104,7 +103,7 @@ from the bottom-tab sheet and Progress.
 disabled with a one-line reason, never silently missing.
 
 **The shell, as built.** The sidebar orders by the daily loops — Today (which carries the course as a road — there is no Plan item), Review (with the
-`dueNow` badge), Read, Grammar, Listen, Ear — and nothing for features that are not built (the earlier «скоро» group of Speak and Write was removed: a row that does nothing reads as breakage). It **collapses to a 56px
+`dueNow` badge), Read, Grammar, Ear — and nothing (Listen is no longer a tab: it is the reader's listening mode, §5) for features that are not built (the earlier «скоро» group of Speak and Write was removed: a row that does nothing reads as breakage). It **collapses to a 56px
 icon rail** (PanelLeft button at the foot, persisted per device in `tanulom.sidebar`, the badge
 becoming a dot on the icon). Below `md` the rail is replaced by the bottom tabs (below); an earlier off-canvas drawer behind a
 hamburger was dropped, and before that the fixed 224px column ate 60% of a phone screen.
@@ -1074,6 +1073,53 @@ do, because a learner who thinks this is a delete will not use it. See
   out of the translated sentence drops the panel rather than captioning the next line with the
   previous line's meaning.
 - An **"analysis is wrong"** link on the rail writes a `morph_correction` override.
+- **Audio bar** (`ReaderAudioBar`, sticky above the text; ADR-079). «Слушать весь текст» reads the whole
+  text sentence by sentence from the selected sentence (or the top); while it plays the bar shows
+  «Пауза» / «Продолжить» and «Стоп», the sentence being read is tinted (`bg-primary/15`, a whole
+  sentence, not a word timeline — Piper gives none) and kept in view (instant under reduced motion).
+  **Скорость** 0.5–1.5× is `audio.playbackRate` with `preservesPitch`, remembered per device. The
+  **Голос** menu lists the personas (Anna/Berta — женский, Imre — мужской) only while the local
+  engine answers; otherwise the bar says «системный голос» (title: the local voices are not
+  running) and the device voice reads the same text, with no error. A render that fails 503/504
+  mid-text moves to the device voice from that sentence, silently. Sentences i+1 and i+2 are
+  rendered ahead (max 2 requests in flight) and a sentence already rendered is never requested
+  again. Playback seconds go to the day's listening total (`pass: 0`, every 15 s, on pause, on
+  hiding the tab and on leaving) and **stop counting as reading time** while the audio plays.
+  The «Аудирование» toggle switches to the listening mode below (`?mode=listen`; in that mode the bar
+  keeps only the voice menu and «Вернуться к чтению» — `reader.audio.exitListenMode`).
+  `s` and «Читать вслух» stay device speech; `s` stops the bar.
+- **Persona picker** (`VoicePicker`, `BottomSheet dialog`): opens on the first Piper playback when no voice
+  is stored, and from the bar's menu or Settings → Озвучка. Three cards — an initial in a circle
+  (chrome, no drawing), name, «женский»/«мужской», ▶ «Послушать» plays «Szia! Ma együtt olvasunk.»,
+  «Выбрать» stores it in `localStorage` `tanulom.tts.voice` (this browser). Closing without choosing
+  cancels the playback that asked. Never shown while the engine is unavailable.
+
+### 5.0 Listening mode (`?mode=listen`) — the three passes as UI state
+
+The old Listen tab is gone; this is its behaviour on the reader's current text
+(`components/reader/ListenMode.vue`, [ADR-079](../.claude/DECISIONS.md#adr-079),
+[R13](../.claude/research/13-shadowing.md)). A card under the audio bar holds the pass switcher
+(① о чём это · ② с транскриптом · ③ диктант — the learner's own claim, persisted server-side via
+`/api/listen/:id/state`; the app never advances it), the source line, the sentence player and the
+speed slider.
+
+- **Pass 1 hides the transcript**: the reader's text and the n+1 rail are not drawn and the card says
+  why — that IS the pass. **Pass 2** shows the reader's own text, with the sentence being read tinted
+  (read-aloud texts). **Pass 3** is per-sentence dictation with a character diff, where missed `á`/`ö`
+  diacritics light up red.
+- **Two sources of sound.** A text with an uploaded recording plays it through `<audio src=/media/…>`:
+  position resumes, A/B loop («Повтор: начало/конец»). Any other text is read by the shared sentence
+  engine (`stores/tts.ts`: local voice when it answers, the device voice otherwise), chained sentence by
+  sentence with «Ещё раз» / «Следующее» and an `n / N` counter — shadowing is a sentence repeat.
+  The card says plainly that a synthesiser is worse input than a speaker.
+- **Speed** 0.5–1.5× (`preservesPitch`). Element coverage below ~90% shows the honest warning first.
+- **Hours.** Seconds actually heard are posted to `/api/listen/:id/progress` with the REAL pass (1|2|3)
+  about every 50 s, on pause, on a pass change and on leaving (the server clamps one report to 60 s) and
+  feed the word-order listening gate and the daily ledger. In this mode the reader's plain-playback
+  reporter (`pass: 0`) and its reading clock stand down, so one second is counted once.
+- **Own material.** Library has a collapsed section «Свой текст с аудио» (title, transcript — required,
+  optional audio file; `/api/listen/material`); after saving it opens `/read/:id?mode=listen`. `/listen`
+  redirects to `/library`.
 
 ### 5.1 The library
 
@@ -1152,30 +1198,10 @@ the same way. Verified at 390 px: not yet.
 
 ---
 
-## 6. Listen
+## 6. Listen — folded into Read
 
-The three-pass protocol is enforced state, not advice ([R13](../.claude/research/13-shadowing.md)).
-
-```
-┌─ Hungarian with Sziszi · ep.14 ───────────────────────────────────────────┐
-│  ① Вслепую  ─────  ② С текстом  ─────  ③ Shadowing                        │
-│     ▲ вы здесь                                                            │
-│                                                                           │
-│  ▶ ──────●───────────────────────────────  4:12 / 11:38   0.8×  A⟷B      │
-│                                                                           │
-│  Транскрипт скрыт. Слушайте. Отметьте, где потеряли нить.                 │
-│                                        [ потерял нить ]  [ дальше → ]     │
-└───────────────────────────────────────────────────────────────────────────┘
-```
-
-Pass 2 reveals the transcript with unknown elements highlighted. Pass 3 scrolls it for shadowing
-and optionally records. **Pre-check:** if element coverage of the transcript is below ~90%, a
-banner warns the material is too hard and offers something easier — the brief's own rule.
-
-**Dictation** is a sub-mode with character-level diff, which is where `a/á` and `ö/ő` errors
-surface most sharply.
-
-Playback uses `preservesPitch` so vowel quality is not corrupted at reduced speed.
+There is no Listen screen or nav item. Listening is the reader's optional listening mode (§5.0);
+`/listen` redirects to `/library`, where the own-material upload now lives.
 
 ---
 
@@ -1212,23 +1238,9 @@ trials never share a talker. The session-done screen shows the numbers and then 
 no contrast is ever finished; the contrast map uses dashes for never-trained contrasts, not
 zeros. The played member never reaches the client until after the choice.
 
-### 7.1 Listen — the three passes as UI state
+### 7.1 Listen
 
-A material = a transcript, and **optionally** an uploaded audio file. The transcript is
-required — passes 2–3 and the coverage pre-check are built on it, and it goes through the
-normal text ingest. The audio file is not: requiring one meant the loop could not start until
-the learner had found a recording *and* a matching transcript, which nobody does, so on a fresh
-install this screen was an empty list above an upload form. Without a file the learner's own
-browser reads the transcript aloud, sentence by sentence, with the current sentence marked in
-pass 2 ([ADR-012](../.claude/DECISIONS.md#adr-012)). The list labels which materials are
-recordings and which are synthesised, and the player states plainly that a synthesiser is worse
-input than a speaker. The pass switcher is the learner's
-own claim, persisted server-side; the app never advances it. Pass 1 hides the transcript —
-that IS the pass. Pass 3 is per-sentence dictation with a character diff, which is where missed
-`á`/`ö` diacritics light up red. A/B loop, 0.5–1.5× with `preservesPitch`. Element coverage
-below ~90% shows the honest warning before playback. Heard seconds are reported as they play
-(clamped to 60 s per report — hours accumulate, they cannot be claimed) and feed both the
-word-order listening gate and the daily ledger.
+Moved: see §5.0 (listening mode of the reader).
 
 ---
 
@@ -1781,7 +1793,21 @@ you lose without it, and a state chip that carries a shape and text (never colou
   once something is installed. Switching away is allowed (the server stops the child).
 - **Translator** reuses the Services card's live block (`MtBlock`: download bytes, retry); its
   state still lives in `SettingsView`, so the Services row and this card cannot disagree.
-- **Speech server, speech recognition** report `built: false` as «пока не
+- **Speech (tts)** is the bundled engine (ADR-080): no Docker/own-server tabs, and **no install or
+  download** — the runtime and the three voices ship inside the app and work offline, so the card is
+  an on/off switch (`managed.bundled`). Primary action «Включить» (off / failed) or «Выключить»
+  (running); a quiet «Удалить распакованную среду» with a hint (frees disk; rebuilt on the next
+  «Включить»), shown whenever `state` is not `absent` (nothing unpacked yet), hidden while enabling.
+  While enabling the card lists the steps in order, the current one with a spinner, finished ones
+  ticked: «Проверка файлов» → «Распаковка среды» → «Голоса загружаются в память» (`component.step.verify|unpack|voices`),
+  over an indeterminate bar — unpack progress is coarse, so no percentage is drawn. State words are
+  `component.stateBundled.*` (выключено / включается / включено). Running: «Найдено голосов: 3 (anna,
+  berta, imre)» and «Занимает ≈300 МБ памяти, пока включено.»; after «Выключить»: «память свободна,
+  озвучка идёт голосом вашего устройства». Unavailable: `errors.componentNoTtsRuntime` (this platform/build has no
+  bundled Piper) → one calm sentence, no buttons at all; `errors.componentBundleCorrupt` → the
+  sentence and only «Проверить». Settings → Озвучка gets a «Голос чтения» select while the engine
+  answers and reloads it after every enable/disable; the reader falls back to the device voice silently.
+- **Speech recognition** reports `built: false` as «пока не
   сделано» in the repository's own words — no compose command, no «Проверить», no «на связи».
   The Services row for a component that is not built reads «пока не сделано» too (tts keeps
   «говорит устройство» where the device has a voice, [ADR-012](../.claude/DECISIONS.md#adr-012)).
@@ -2254,8 +2280,8 @@ Visual only; no behaviour, route or gate logic changed. Browser **not** exercise
   failed blush, not built cream) and always print the state word.
 - **Login / Setup** — a cream-washed page; paprika string over the wordmark; the form card
   stays the single raised object.
-- **Listen / Ear / Users / Resources / 404** — tinted option and list cards; balaton on the
-  Listen empty state and the Ear start card; Resources groups carry tinted icon chips; the 404
+- **Ear / Users / Resources / 404** — tinted option and list cards; balaton on the
+  Ear start card; Resources groups carry tinted icon chips; the 404
   shows the tram strip.
 - **Shell** — the active sidebar row is a mist pill with a primary icon; bottom tabs put a mist
   pill behind the active icon; the topbar due chip is cream, the streak sage, the level chip

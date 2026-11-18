@@ -196,6 +196,61 @@ func TestEarTrainingLoop(t *testing.T) {
 	}
 }
 
+// Pass 0 is reader playback outside listening mode (ADR-079): it feeds the log
+// and the daily ledger the gate reads, never the per-text pass state.
+func TestListenProgressPassZeroCountsButStoresNoState(t *testing.T) {
+	t.Parallel()
+	s, c := newEarServer(t, []string{"a1"})
+
+	var buf bytes.Buffer
+	mw := multipart.NewWriter(&buf)
+	mw.WriteField("title", "Hírek")
+	mw.WriteField("transcript", "A házban van a könyv. Látom a házat.")
+	mw.Close()
+	req := httptest.NewRequest(http.MethodPost, "/api/listen/material", &buf)
+	req.Header.Set("Content-Type", mw.FormDataContentType())
+	if c.cookie != "" {
+		req.Header.Set("Cookie", c.cookie)
+	}
+	resp, err := c.app.App().Test(req, fiber.TestConfig{Timeout: 90 * time.Second})
+	if err != nil || resp.StatusCode != http.StatusCreated {
+		t.Fatalf("upload: %v %v", err, resp)
+	}
+	var created struct {
+		ID int64 `json:"id"`
+	}
+	json.NewDecoder(resp.Body).Decode(&created)
+	resp.Body.Close()
+	path := "/api/listen/" + itoa64s(created.ID) + "/progress"
+
+	var out struct {
+		TotalHours float64 `json:"totalHours"`
+	}
+	c.json(http.MethodPost, path, ListenProgressRequest{Pass: 0, SecondsHeard: 45}, &out)
+	if out.TotalHours < 45.0/3600-1e-6 {
+		t.Errorf("pass 0 seconds did not reach the gate's total: %v", out.TotalHours)
+	}
+	var logRows int
+	var logPass int
+	s.db.QueryRow(`SELECT COUNT(*), COALESCE(MAX(pass),-1) FROM listen_log WHERE text_id = ?`, created.ID).Scan(&logRows, &logPass)
+	if logRows != 1 || logPass != 0 {
+		t.Errorf("listen_log rows=%d pass=%d, want 1 row with pass 0", logRows, logPass)
+	}
+	var states int
+	s.db.QueryRow(`SELECT COUNT(*) FROM listen_state WHERE text_id = ?`, created.ID).Scan(&states)
+	if states != 0 {
+		t.Errorf("pass 0 wrote %d listen_state rows", states)
+	}
+	// The clamp still applies, and out-of-range passes are still refused.
+	c.json(http.MethodPost, path, ListenProgressRequest{Pass: 0, SecondsHeard: 999999}, &out)
+	if out.TotalHours > (45+60)/3600.0+1e-6 {
+		t.Errorf("pass 0 bypassed the 60 s clamp: %v", out.TotalHours)
+	}
+	if r := c.json(http.MethodPost, path, ListenProgressRequest{Pass: 4}, nil); r.StatusCode != http.StatusBadRequest {
+		t.Errorf("pass 4 = %d, want 400", r.StatusCode)
+	}
+}
+
 // The listening loop feeds the word-order gate: hours accumulate from reports
 // and the curriculum reads them.
 func TestListeningHoursFeedTheCurriculumGate(t *testing.T) {

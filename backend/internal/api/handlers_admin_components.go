@@ -34,6 +34,15 @@ type ManagedDTO struct {
 	Log            []string `json:"log,omitempty"`
 	DiskNeed       string   `json:"diskNeed"`
 	RAMNeed        string   `json:"ramNeed"`
+	// Voices (tts only): the Piper personas whose model files the server found,
+	// in display order (anna, berta, imre). Absent for other components and when
+	// none were found — the card then says so and install is refused.
+	Voices []string `json:"voices,omitempty"`
+	// Bundled (tts): the runtime ships with the binary and works offline
+	// (ADR-080). The card then says Включить / Выключить instead of Установить,
+	// and `unavailableKey` is errors.componentNoTtsRuntime when this platform or
+	// build has no runtime (device speech remains the floor).
+	Bundled bool `json:"bundled"`
 }
 
 func managedDTO(st components.Status) *ManagedDTO {
@@ -41,7 +50,7 @@ func managedDTO(st components.Status) *ManagedDTO {
 		Available: st.Available, UnavailableKey: st.UnavailableKey, PythonVersion: st.PythonVersion,
 		State: string(st.State), Step: st.Step, Progress: st.Progress, Port: st.Port,
 		ErrorKey: st.ErrorKey, ErrorDetail: st.ErrorDetail, Log: st.Log,
-		DiskNeed: st.DiskNeed, RAMNeed: st.RAMNeed,
+		DiskNeed: st.DiskNeed, RAMNeed: st.RAMNeed, Voices: st.Voices, Bundled: st.Bundled,
 	}
 }
 
@@ -49,7 +58,7 @@ func managedDTO(st components.Status) *ManagedDTO {
 // place the manager reaches back into the server.
 func (s *Server) newComponents(mods ...func(*components.Options)) *components.Manager {
 	o := components.Options{
-		DataDir: s.dataDir,
+		DataDir: s.dataDir, VoicesDir: s.voicesDir, TTSRuntimeDir: s.ttsRuntimeDir,
 		// A finished install selects itself: provider=managed, through the one
 		// sanctioned config path. No endpoint is stored — see resolveService.
 		OnInstalled: func(id string) error {
@@ -171,6 +180,10 @@ func (s *Server) handleComponentInstall(c fiber.Ctx) error {
 
 func (s *Server) handleComponentStart(c fiber.Ctx) error {
 	id := c.Params("id")
+	if components.IsBundled(id) {
+		// Enable: unpack when needed, start, hand over provider=managed.
+		return s.handleComponentInstall(c)
+	}
 	if err := s.components.Start(id); err != nil {
 		return componentError(err)
 	}
@@ -181,6 +194,13 @@ func (s *Server) handleComponentStop(c fiber.Ctx) error {
 	id := c.Params("id")
 	if err := s.components.Stop(id); err != nil {
 		return componentError(err)
+	}
+	if components.IsBundled(id) {
+		// Disable: the child is gone (its memory with it) and the provider goes
+		// back to the device voice, so a restart does not switch it on again.
+		if err := s.resetManaged(id, config.ProviderDevice); err != nil {
+			return err
+		}
 	}
 	return s.componentResponse(c, id)
 }
@@ -193,15 +213,29 @@ func (s *Server) handleComponentUninstall(c fiber.Ctx) error {
 	if err := s.components.Uninstall(id); err != nil {
 		return componentError(err)
 	}
-	if cfg := s.Config(); serviceField(&cfg, id).Provider == config.ProviderManaged {
-		if _, err := s.updateConfig(func(cfg *config.Config) {
-			*serviceField(cfg, id) = config.Service{Provider: config.ProviderOff}
-		}); err != nil {
-			return err
-		}
+	after := config.ProviderOff
+	if components.IsBundled(id) {
+		after = config.ProviderDevice
+	}
+	if err := s.resetManaged(id, after); err != nil {
+		return err
 	}
 	s.invalidateCapabilityCache()
 	return s.componentResponse(c, id)
+}
+
+// resetManaged moves a service off provider=managed (and only then: a service
+// the owner pointed elsewhere is left alone) to `to`.
+func (s *Server) resetManaged(id, to string) error {
+	cfg := s.Config()
+	if serviceField(&cfg, id).Provider != config.ProviderManaged {
+		return nil
+	}
+	_, err := s.updateConfig(func(cfg *config.Config) {
+		*serviceField(cfg, id) = config.Service{Provider: to}
+	})
+	s.invalidateCapabilityCache()
+	return err
 }
 
 // shutdownComponents stops every child; bounded so a wedged one cannot hold

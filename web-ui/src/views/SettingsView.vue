@@ -20,9 +20,12 @@ import { showAccentKeys } from '@/lib/accentKeys'
 import { useSettingsStore } from '@/stores/settings'
 import { useCapabilitiesStore } from '@/stores/capabilities'
 import { useSpeechStore } from '@/stores/speech'
+import { useTtsStore } from '@/stores/tts'
+import { PERSONAS } from '@/lib/tts'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
 import type {
+  TtsVoiceId,
   CapabilityName,
   ComponentStatus,
   GlossLang,
@@ -37,6 +40,7 @@ import type {
 const store = useSettingsStore()
 const caps = useCapabilitiesStore()
 const speech = useSpeechStore()
+const tts = useTtsStore()
 const auth = useAuthStore()
 
 // The edition name, or nothing. An unknown value is shown as-is rather than
@@ -54,6 +58,7 @@ const { t, te } = useI18n()
 const loaded = ref(false)
 
 onMounted(async () => {
+  void tts.load()
   await store.load()
   await caps.refresh()
   await refreshMT()
@@ -131,7 +136,7 @@ async function saveService(id: string, patch: Partial<Service>) {
   if (!cur) return
   try {
     await store.update({ services: { ...s.value.services, [id]: { ...cur, ...patch } } })
-    await Promise.all([caps.refresh(), refreshMT(), loadComponents()])
+    await Promise.all([caps.refresh(), refreshMT(), loadComponents(), tts.load(true)])
     toast.success(t('common.saved'))
   } catch (e) {
     toast.error(describeError(e))
@@ -145,7 +150,7 @@ async function saveService(id: string, patch: Partial<Service>) {
 async function reloadAfterManaged() {
   try {
     await store.load()
-    await Promise.all([caps.refresh(), refreshMT(), loadComponents()])
+    await Promise.all([caps.refresh(), refreshMT(), loadComponents(), tts.load(true)])
   } catch {
     // The next manual «Проверить» will redraw; a toast on a background refresh is noise.
   }
@@ -165,7 +170,12 @@ const providers: ServiceProvider[] = ['off', 'local', 'openai']
 // `/translate`, not the chat API — the server rejects it, so offering it here
 // would be an option whose only outcome is a validation error. [ADR-014]
 const providersFor = (name: CapabilityName): ServiceProvider[] => {
-  if (name === 'tts') return ['device', ...providers]
+  if (name === 'tts') {
+    // The bundled engine is chosen by turning it on; the select must be able to show that choice.
+    const m = managedOf(name)
+    const withManaged = m && (s.value?.services[name]?.provider === 'managed' || m.state !== 'absent')
+    return withManaged ? ['device', ...providers, 'managed'] : ['device', ...providers]
+  }
   if (name === 'mt') {
     const base = providers.filter((p) => p !== 'openai')
     // `managed` is offered once there is something to run (or it is already chosen):
@@ -767,6 +777,21 @@ function previewVoice() {
           <Button variant="outline" :disabled="!speech.usable" @click="previewVoice">
             {{ $t('speech.preview') }}
           </Button>
+        </div>
+
+        <!-- The Piper persona; absent while the local engine is not running, and then the device voice below is what speaks. -->
+        <div v-if="tts.piperReady" class="flex max-w-xs flex-col gap-1.5">
+          <Label for="persona">{{ $t('settings.speech.persona') }}</Label>
+          <Select
+            id="persona"
+            :model-value="tts.activeVoice"
+            @update:model-value="(v) => tts.setVoice(String(v) as TtsVoiceId)"
+          >
+            <option value="" disabled>{{ $t('tts.pick.choose') }}</option>
+            <option v-for="p in PERSONAS.filter((x) => tts.voices.some((v) => v.id === x.id))" :key="p.id" :value="p.id">
+              {{ $t(`tts.voice.${p.id}`) }} · {{ $t(`tts.gender.${p.gender}`) }}
+            </option>
+          </Select>
         </div>
 
         <!--

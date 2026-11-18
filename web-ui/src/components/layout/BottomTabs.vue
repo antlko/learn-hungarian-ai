@@ -9,7 +9,6 @@ import {
   Ear,
   Ellipsis,
   GraduationCap,
-  Headphones,
   House,
   ListChecks,
   Settings,
@@ -65,7 +64,6 @@ const more = computed(() => [
   ...(llmMissing.value
     ? []
     : [{ to: '/tutor', icon: GraduationCap, label: t('nav.tutor'), match: ['tutor'] }]),
-  { to: '/listen', icon: Headphones, label: t('nav.listen'), match: ['listen'] },
   { to: '/ear', icon: Ear, label: t('nav.ear'), match: ['ear'] },
   { to: '/words', icon: ListChecks, label: t('words.title'), match: ['words', 'known'] },
   { to: '/progress', icon: ChartNoAxesColumn, label: t('nav.progress'), match: ['progress'] },

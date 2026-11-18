@@ -8,6 +8,7 @@
 #   docker compose up -d                                 core only
 #   docker compose --profile llm up -d                   + a local model
 #   docker compose --profile mt up -d                    + sentence translation
+#   docker compose --profile tts up -d                   + Piper speech (same image, offline)
 #
 # Tired of typing the flag? Put the profiles you want in a `.env` beside this
 # file — `COMPOSE_PROFILES=mt,llm` — and plain `docker compose up -d` brings them
@@ -19,9 +20,9 @@
 # (http://mt:5003), so they cannot clash with anything on your host. Add `ports:`
 # yourself only if you want to reach one from outside.
 #
-# NOTE: the `speech` services (tts, asr) are NOT BUILT yet and are commented out
-# below, so no profile ever points at a missing build context. `mt`
-# builds from source in this repository; `llm` pulls a published Ollama image.
+# NOTE: `asr` is NOT BUILT yet and is commented out below, so no profile ever
+# points at a missing build context. `mt`
+# builds from source in this repository; `tts` runs the `full` image; `llm` pulls a published Ollama image.
 # See services/README.md.
 
 services:
@@ -55,21 +56,37 @@ services:
       # TZ: Europe/Budapest
     restart: unless-stopped
 
-  # --- NOT BUILT: speech (tts, asr) -------------------------------------------
-  # Planned: Piper voices for card audio, a Whisper fine-tune for dictation. The
-  # build contexts are empty, so these are commented out rather than left to
-  # fail. The app speaks through the browser's own voices meanwhile (ADR-012).
+  # --- NOT BUILT: asr ----------------------------------------------------------
+  # Planned: a Whisper fine-tune for dictation. The build context is empty, so
+  # this is commented out rather than left to fail.
   #
-  # tts:
-  #   profiles: ['speech']
-  #   build: ./services/tts
-  #   expose: ['5000']
-  #   volumes: [tanulom-voices:/voices]
   # asr:
-  #   profiles: ['speech']
+  #   profiles: ['asr']
   #   build: ./services/asr
   #   expose: ['5001']
   #   volumes: [tanulom-models:/models]
+
+  # --- optional: Piper speech -------------------------------------------------
+  # Hungarian card audio and read-aloud from three Piper voices. NO separate image
+  # and no download: the `full` tanulom image carries the offline Piper runtime and
+  # the voices inside its binary (ADR-080), so this service is the same image started
+  # as `component run tts`. Settings -> Services -> speech: provider local, endpoint
+  # http://tts:5000. (Inside the main container the same thing is Settings ->
+  # Components -> Включить / Enable; use this profile only to isolate it.) Needs the
+  # `full` image, NOT `:latest-slim` (distroless has no libc: the runtime cannot run).
+  # Piper and espeak-ng are GPL-3.0-or-later; their source is in the image under
+  # /usr/share/doc/tanulom/tts-source/. First start unpacks ~430 MB into the volume.
+  tts:
+    profiles: ['tts']
+    image: ghcr.io/antlko/learn-hungarian-ai:latest
+    # From source instead: build: {context: ., target: full}
+    command: ['component', 'run', 'tts']
+    container_name: tanulom-tts
+    expose:
+      - '5000'
+    volumes:
+      - tanulom-tts-data:/data
+    restart: unless-stopped
 
   # --- optional: sentence translation ---------------------------------------
   # NLLB-200-distilled-600M on your own CPU, so "what does this line mean?" in
@@ -118,3 +135,4 @@ services:
 volumes:
   tanulom-data:
   tanulom-ollama:
+  tanulom-tts-data:

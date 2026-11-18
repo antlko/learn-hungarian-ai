@@ -15,6 +15,7 @@ import {
   Plus,
   Search,
   Trash2,
+  Upload,
 } from '@lucide/vue'
 import { describeError } from '@/lib/errors'
 import { pickGloss } from '@/lib/gloss'
@@ -314,6 +315,43 @@ async function add() {
 }
 
 /**
+ * «Свой текст с аудио»: a text with an optional recording, opened straight in
+ * listening mode. The transcript is required (the three passes and the coverage
+ * check are built on it); without audio the text is read by the sentence engine.
+ */
+const audioOpen = ref(false)
+const upTitle = ref('')
+const upTranscript = ref('')
+const upFile = ref<File | null>(null)
+const upFileInput = ref<HTMLInputElement | null>(null)
+const uploading = ref(false)
+
+function onUpFile(e: Event) {
+  upFile.value = (e.target as HTMLInputElement).files?.[0] ?? null
+}
+
+async function uploadWithAudio() {
+  if (!upTranscript.value.trim()) return
+  uploading.value = true
+  try {
+    const form = new FormData()
+    form.set('title', upTitle.value)
+    form.set('transcript', upTranscript.value)
+    if (upFile.value) form.set('audio', upFile.value)
+    const res = await api.listenUpload(form)
+    upTitle.value = ''
+    upTranscript.value = ''
+    upFile.value = null
+    if (upFileInput.value) upFileInput.value.value = ''
+    await router.push({ path: `/read/${res.id}`, query: { mode: 'listen' } })
+  } catch (e) {
+    toast.error(describeError(e))
+  } finally {
+    uploading.value = false
+  }
+}
+
+/**
  * Deleting a text, in two clicks.
  *
  * A text is not cheap: it carries its analysis, its coverage history and its
@@ -407,6 +445,66 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
         </Button>
       </CardContent>
     </Card>
+
+    <!-- A text with its own recording: collapsed, because most learners never need it. -->
+    <section class="rounded-xl border border-tint-cream-edge bg-tint-cream/40">
+      <button
+        type="button"
+        class="flex min-h-11 w-full cursor-pointer items-center justify-between gap-2 rounded-xl px-4 text-left text-sm font-medium focus-visible:outline-2 focus-visible:outline-ring"
+        :aria-expanded="audioOpen"
+        aria-controls="own-audio"
+        @click="audioOpen = !audioOpen"
+      >
+        <span class="flex items-center gap-2">
+          <Headphones class="size-4 text-muted-foreground" aria-hidden="true" />
+          {{ $t('reader.listen.ownTitle') }}
+        </span>
+        <ChevronDown
+          class="size-4 text-muted-foreground transition-transform"
+          :class="audioOpen ? 'rotate-180' : ''"
+          aria-hidden="true"
+        />
+      </button>
+      <div v-if="audioOpen" id="own-audio" class="flex flex-col gap-3 px-4 pb-4">
+        <p class="text-xs leading-relaxed text-muted-foreground">{{ $t('reader.listen.ownHint') }}</p>
+        <Input v-model="upTitle" :placeholder="$t('library.title')" />
+        <textarea
+          v-model="upTranscript"
+          :placeholder="$t('reader.listen.transcriptHint')"
+          rows="4"
+          class="w-full rounded-md border border-input bg-transparent px-3 py-2 text-base placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:text-sm"
+          lang="hu"
+        />
+        <div class="flex flex-col gap-1.5">
+          <Label for="own-audio-file" class="text-xs text-muted-foreground">
+            {{ $t('reader.listen.audioOptional') }}
+          </Label>
+          <input
+            id="own-audio-file"
+            ref="upFileInput"
+            type="file"
+            accept="audio/*"
+            class="text-xs text-muted-foreground"
+            @change="onUpFile"
+          />
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <Button
+            class="min-h-11"
+            :disabled="uploading || !upTranscript.trim()"
+            @click="uploadWithAudio"
+          >
+            <Upload class="size-4" aria-hidden="true" />
+            {{ uploading ? $t('common.saving') : $t('reader.listen.upload') }}
+          </Button>
+          <!-- The reason the button is inert, beside the button. -->
+          <span v-if="!upTranscript.trim()" class="text-xs text-muted-foreground">
+            {{ $t('reader.listen.needTranscript') }}
+          </span>
+        </div>
+        <p class="text-xs leading-relaxed text-muted-foreground">{{ $t('reader.listen.whyTranscript') }}</p>
+      </div>
+    </section>
 
     <div
       v-if="texts && setGroups.length"

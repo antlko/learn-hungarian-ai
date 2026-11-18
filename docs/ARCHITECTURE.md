@@ -372,6 +372,13 @@ on purpose — the client is honest, and the clamp means it does not have to be 
 `read_s` sits beside `listen_s` rather than being folded into the total because the total is the
 one figure a learner cannot act on: «21 минута» does not say whether the reading counted.
 
+**Listening is a mode of the reader ([ADR-079](../.claude/DECISIONS.md#adr-079)).** There is no
+Listen screen: `/read/:id?mode=listen` mounts `components/reader/ListenMode.vue`, which keeps the
+three passes (`listen_state`) and posts `/api/listen/:id/progress` with the real pass. Plain playback
+from the audio bar posts `pass: 0` (`composables/useListenReporter.ts`); in listening mode only
+`ListenMode` reports, and `useActiveTime`'s `paused` keeps `read_s` from counting the same seconds, so
+`listen_s` (the word-order gate's source) is credited once.
+
 ### 5.10 Morpheme-aware diff — `internal/morph/diff.go`
 
 Segment the learner's answer and the target, align morphemes, classify the divergence:
@@ -380,7 +387,7 @@ not the mere fact of being wrong, drives what gets drilled next.
 
 ### 5.10b Managed components — `internal/components`
 
-[ADR-061](../.claude/DECISIONS.md#adr-061). The binary can install and run `mt` itself.
+[ADR-061](../.claude/DECISIONS.md#adr-061). The binary can install and run `mt` and `tts` itself.
 `components.Manager` (one per `Server`) owns, per id: an install job, a supervised child and an
 in-memory state `absent → installing → installed → starting → running → failed | stopped` (the
 `managed` object of [API.md](API.md)).
@@ -398,7 +405,8 @@ in-memory state `absent → installing → installed → starting → running �
   directory when it came after the rename — and records `errorKey` (+ a redacted tail).
 - **Supervision.** The child is `venv/bin/python src/app.py` in its own process group with an
   allowlisted environment (`PATH`, `HOME=<comp>/home`, `LANG`, and the service's own
-  `*_HOST=127.0.0.1`/`*_PORT`/`*_MODEL_DIR`) — never the server's. The port comes from
+  `*_HOST=127.0.0.1`/`*_PORT`/`*_MODEL_DIR`; `tts` gets `TTS_VOICES_DIR` instead of a model dir) —
+  never the server's. The port comes from
   `127.0.0.1:0` at each start and lives in memory only (an `EADDRINUSE` exit re-picks without
   counting as a crash). Output goes to a 200-line ring buffer and a 1 MiB rotating `run.log`,
   both path-redacted. Crashes restart with exponential backoff (1 s … 30 s); more than 5 in 10 min
@@ -415,6 +423,20 @@ in-memory state `absent → installing → installed → starting → running �
 - **Sources.** `services/<id>/` is the truth (the Dockerfiles build from it); the copy in
   `internal/components/src/` is what `go:embed` carries. `make sync-components` refreshes it and
   `TestEmbeddedSourcesMatchServices` fails on drift.
+
+**Speech (`tts`, [ADR-079](../.claude/DECISIONS.md#adr-079), amended by [ADR-080](../.claude/DECISIONS.md#adr-080)).** `services/tts/app.py` is a stdlib
+`ThreadingHTTPServer` over `piper-tts==1.8.0` (`from piper import PiperVoice`, a separate process: GPL stays
+out of the Go binary). The runtime (standalone Python + hash-pinned wheels, `services/tts/vendor/`) and the
+voices are **vendored, never downloaded**: Enable verifies and unpacks them offline; release builds
+(`-tags ttsbundle`) embed them. Voices resolve `Options.VoicesDir` (flag `--voices-dir` /
+`TANULOM_VOICES_DIR`, wired through `api.WithVoicesDir`), then the embedded copy, then `<data>/voices`; `Manager.Voices()` lists personas with both `.onnx` and `.onnx.json` and
+`claimInstall` refuses `errors.componentNoVoices` when there are none. `internal/speech` renders
+through the resolved endpoint (`api.speechEndpoint` → `resolveService`, so paused = off): sentence/word
+text → sha256 cache key (voice, model hash, style, text) → `<data>/cache/tts/` WAV, with a
+single-flight per key, one synthesis at a time against the child, a 30 s deadline and LRU pruning.
+`api/handlers_speech.go` is the thin HTTP layer (`GET /api/speech/voices`, `POST /api/speech/tts`,
+`GET /api/speech/audio/:file`). A child-side espeak-ng quirk is handled in `app.py`: its data path
+buffer is ~160 bytes, so a long venv path is reached through a short symlink in the temp dir.
 
 ### 5.11 The guided course — `internal/course`
 

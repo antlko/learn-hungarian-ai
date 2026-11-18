@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -31,8 +32,14 @@ func main() {
 		os.Exit(runResetPassword(os.Args[2:]))
 	}
 
-	if rest, lead, ok := componentArgs(os.Args[1:]); ok {
+	if rest, lead, voices, runtimeDir, ok := componentArgs(os.Args[1:]); ok {
 		logger.Init()
+		if voices != "" {
+			_ = os.Setenv("TANULOM_VOICES_DIR", voices) // read back by runComponentTo
+		}
+		if runtimeDir != "" {
+			_ = os.Setenv("TANULOM_TTS_RUNTIME_DIR", runtimeDir)
+		}
 		os.Exit(runComponent(rest, lead))
 	}
 
@@ -41,10 +48,16 @@ func main() {
 	var (
 		addr        string
 		dataDir     string
+		voicesDir   string
+		runtimeDir  string
 		showVersion bool
 	)
 	flag.StringVar(&addr, "addr", envOr("TANULOM_ADDR", ""), "HTTP listen address")
 	flag.StringVar(&dataDir, "data-dir", "", "data directory (default: $TANULOM_DATA_DIR or ./data)")
+	flag.StringVar(&voicesDir, "voices-dir", envOr("TANULOM_VOICES_DIR", ""),
+		"directory with the Piper voice files for the tts component (default: <data>/voices)")
+	flag.StringVar(&runtimeDir, "tts-runtime-dir", envOr("TANULOM_TTS_RUNTIME_DIR", ""),
+		"offline runtime bundle for the tts component (default: the one embedded in the binary)")
 	flag.BoolVar(&showVersion, "version", false, "print version and exit")
 	flag.Parse()
 
@@ -56,7 +69,7 @@ func main() {
 	dir := resolveDataDir(dataDir)
 	slog.Info("starting tanulom", "version", api.Version, "data_dir", dir)
 
-	srv, err := api.New(dir)
+	srv, err := api.New(dir, api.WithVoicesDir(absDir(voicesDir)), api.WithTTSRuntimeDir(absDir(runtimeDir)))
 	if err != nil {
 		slog.Error("startup failed", "error", err)
 		os.Exit(1)
@@ -114,6 +127,18 @@ func resolveDataDir(flagDir string) string {
 		return st.DataDir
 	}
 	return "./data"
+}
+
+// absDir makes an operator-given directory absolute: the tts child runs from
+// another working directory and receives the path in its environment.
+func absDir(p string) string {
+	if p == "" {
+		return ""
+	}
+	if abs, err := filepath.Abs(p); err == nil {
+		return abs
+	}
+	return p
 }
 
 func envOr(key, fallback string) string {

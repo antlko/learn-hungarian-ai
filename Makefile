@@ -23,7 +23,22 @@ LANGPACK_DIR := langpack
 # halves of one target disagreed about where the pack lives.
 STARTER_DIR  ?= $(CURDIR)/backend/internal/lang/starter
 VOICES_DIR   := $(LANGPACK_DIR)/voices
+# Offline Piper runtime (ADR-080): committed source of truth, and the gitignored
+# directory `-tags ttsbundle` embeds (staged by `make tts-stage`).
+TTS_VENDOR    := $(CURDIR)/services/tts/vendor
+TTS_DATA      := $(CURDIR)/$(BACKEND_DIR)/internal/components/ttsbundle/data
+# The platform the binary is built FOR (go build honours the GOOS/GOARCH env or
+# make variables), not the host: `make build GOOS=linux GOARCH=arm64` stages that.
+TARGET_OS     := $(or $(GOOS),$(shell go env GOOS))
+TARGET_ARCH   := $(or $(GOARCH),$(shell go env GOARCH))
+# TTS_BUNDLE=0 builds the binary WITHOUT the embedded runtime + voices (~40 MB).
+TTS_BUNDLE    ?= 1
+# Where `make tts` unpacks the runtime (never ./data: it is not the learner's).
+# macOS AirPlay Receiver listens on *:5000; a loopback bind still works, override if it does not.
+TTS_PORT      ?= 5000
+TTS_SCRATCH   ?= $(CURDIR)/.tts-data
 MT_DIR        ?= $(CURDIR)/services/mt
+TTS_DIR       ?= $(CURDIR)/services/tts
 # Absolute, and outside the repo: the weights are 600 MB of build output that a
 # `git clean` has no business deciding about.
 MT_MODEL_DIR  ?= $(HOME)/.cache/tanulom-mt
@@ -86,7 +101,7 @@ dev: $(WEB_DIR)/node_modules ensure-spa ## Backend + Vite together in the foregr
 # make can see would strand it holding the port. Exiting 0 from the trap keeps a
 # deliberate Ctrl-C from being reported as a failed build.
 	@trap 'kill 0; exit 0' INT TERM; \
-		( cd '$(BACKEND_DIR)' && exec go run ./cmd/tanulom --data-dir '$(DATA_DIR)' --addr '$(DEV_ADDR)' ) & \
+		( cd '$(BACKEND_DIR)' && exec go run ./cmd/tanulom --data-dir '$(DATA_DIR)' --addr '$(DEV_ADDR)' --voices-dir '$(abspath $(VOICES_DIR))' --tts-runtime-dir '$(TTS_VENDOR)' ) & \
 		( cd '$(WEB_DIR)' && exec npm run dev ) & \
 		wait
 
@@ -94,7 +109,7 @@ dev: $(WEB_DIR)/node_modules ensure-spa ## Backend + Vite together in the foregr
 backend: ensure-spa ## Run the Go API alone, on the port the Vite proxy expects
 	$(call need,go,$(GO_HINT))
 	@mkdir -p '$(DATA_DIR)'
-	cd '$(BACKEND_DIR)' && go run ./cmd/tanulom --data-dir '$(DATA_DIR)' --addr '$(DEV_ADDR)'
+	cd '$(BACKEND_DIR)' && go run ./cmd/tanulom --data-dir '$(DATA_DIR)' --addr '$(DEV_ADDR)' --voices-dir '$(abspath $(VOICES_DIR))' --tts-runtime-dir '$(TTS_VENDOR)'
 
 .PHONY: frontend
 frontend: $(WEB_DIR)/node_modules ## Run the Vite dev server alone on :5173
@@ -109,13 +124,16 @@ spa: $(WEB_DIR)/node_modules ## Build the SPA and embed it into the Go tree
 	cp -r '$(WEB_DIR)/dist' '$(EMBED_DIR)'
 
 .PHONY: build
-build: spa ## SPA + static binary into bin/tanulom (CGO_ENABLED=0, one file, no runtime deps)
+build: spa $(if $(filter 0,$(TTS_BUNDLE)),,tts-stage) ## SPA + static binary into bin/tanulom (CGO_ENABLED=0, one file; embeds the Piper runtime + voices unless TTS_BUNDLE=0)
 	$(call need,go,$(GO_HINT))
 	@mkdir -p '$(CURDIR)/bin'
-	cd '$(BACKEND_DIR)' && CGO_ENABLED=0 go build -trimpath \
+# -tags ttsbundle embeds the staged ttsbundle/data (ADR-080). A tag build with
+# nothing staged does not compile (go:embed), so tts-stage is a hard dependency
+# above rather than a placeholder: a binary that silently lacks speech is worse.
+	cd '$(BACKEND_DIR)' && CGO_ENABLED=0 go build -trimpath $(if $(filter 0,$(TTS_BUNDLE)),,-tags ttsbundle) \
 		-ldflags='-s -w -X tanulom/internal/api.Version=$(VERSION)' \
 		-o '$(CURDIR)/$(BIN)' ./cmd/tanulom
-	@printf '\n  built %s (version %s)\n\n' '$(BIN)' '$(VERSION)'
+	@printf '\n  built %s (version %s, %s/%s, piper bundle: %s)\n\n' '$(BIN)' '$(VERSION)' '$(TARGET_OS)' '$(TARGET_ARCH)' '$(if $(filter 0,$(TTS_BUNDLE)),no,yes)'
 
 .PHONY: run
 run: build ## Build, then serve UI + API from the single binary against ./data
@@ -139,7 +157,7 @@ reset-learner: ## Start over: delete the learner database + config in ./data (ke
 test: test-backend test-frontend docs-check ## Everything CI gates on: backend, frontend, docs
 
 .PHONY: docs-check
-docs-check: ## Research citations resolve, notes state their code impact, locales match
+docs-check: tts-verify ## Offline hash check of the vendored Piper runtime (ADR-080); research citations resolve, notes state their code impact, locales match
 	@sh scripts/docs-check.sh
 
 .PHONY: palette-check
@@ -302,8 +320,43 @@ voices: ## Fetch the three Piper voice models the ear trainer renders with (180 
 # outside its package), so services/<id>/ stays the source of truth and the copy
 # under backend/internal/components/src/ is generated. A Go test fails on drift.
 .PHONY: sync-components
-sync-components: ## Copy services/mt sources into the Go package that embeds them (ADR-061)
+sync-components: ## Copy services/mt and services/tts sources into the Go package that embeds them (ADR-061)
 	cp services/mt/app.py services/mt/requirements.txt services/mt/requirements-convert.txt backend/internal/components/src/mt/
+	mkdir -p backend/internal/components/src/tts
+	cp services/tts/app.py backend/internal/components/src/tts/
+
+.PHONY: tts
+tts: ensure-spa tts-verify ## Run the Piper speech sidecar from the vendored runtime on :5000 (voices from langpack/voices)
+	$(call need,go,$(GO_HINT))
+# The same code path as the managed component and the Docker `tts` profile:
+# verify the bundle, unpack its Python into a scratch data dir, pip install the
+# wheels with --no-index, serve. Nothing is fetched. First start unpacks ~150 MB.
+	@mkdir -p '$(TTS_SCRATCH)'
+	@printf '\n  speech  http://localhost:%s\n  voices  %s\n  scratch %s\n\n' '$(TTS_PORT)' '$(abspath $(VOICES_DIR))' '$(TTS_SCRATCH)'
+	cd '$(BACKEND_DIR)' && go run ./cmd/tanulom component run tts --host 127.0.0.1 --port $(TTS_PORT) \
+		--data-dir '$(TTS_SCRATCH)' --voices-dir '$(abspath $(VOICES_DIR))' --tts-runtime-dir '$(TTS_VENDOR)'
+
+# ── Offline Piper runtime (ADR-080) ──────────────────────────────────────────
+# services/tts/vendor/ is COMMITTED: per-platform python-build-standalone + a wheelhouse,
+# hash-pinned in MANIFEST.sha256 / requirements.lock. Nothing is fetched at install time.
+.PHONY: tts-vendor
+tts-vendor: ## MAINTAINER ONLY, USES THE NETWORK: refresh services/tts/vendor (pypi.org, files.pythonhosted.org, github.com astral-sh/python-build-standalone + OHF-Voice/piper1-gpl + espeak-ng/espeak-ng)
+	$(call need,$(PYTHON),$(PY_HINT))
+	'$(PYTHON)' scripts/tts_vendor.py vendor
+	'$(PYTHON)' scripts/tts_vendor.py verify
+
+.PHONY: tts-verify
+tts-verify: ## Offline: re-hash services/tts/vendor against MANIFEST.sha256 and requirements.lock
+	@$(PYTHON) scripts/tts_vendor.py verify
+
+.PHONY: tts-stage
+tts-stage: tts-verify ## Stage the TARGET platform's Piper runtime + the 3 voices into the gitignored ttsbundle/data (for -tags ttsbundle)
+	@sh scripts/tts_stage.sh '$(TARGET_OS)' '$(TARGET_ARCH)' '$(TTS_VENDOR)' '$(abspath $(VOICES_DIR))' '$(TTS_DATA)'
+
+.PHONY: tts-smoke
+tts-smoke: ensure-spa tts-stage ## OFFLINE proof: tag build, network cut, 3 voices synthesise through the child; needs no external service
+	$(call need,go,$(GO_HINT))
+	@sh scripts/tts_smoke.sh '$(CURDIR)'
 
 .PHONY: mt
 mt: ## Run the local translator natively on :5003 (first run downloads ~2.4 GB)

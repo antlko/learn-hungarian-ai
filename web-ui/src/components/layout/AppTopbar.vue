@@ -46,7 +46,6 @@ const TITLE_KEYS: Record<string, string> = {
   grammar: 'nav.grammar',
   placement: 'nav.grammar',
   tutor: 'nav.tutor',
-  listen: 'nav.listen',
   ear: 'nav.ear',
   progress: 'nav.progress',
   words: 'words.title',

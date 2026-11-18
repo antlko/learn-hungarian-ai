@@ -16,6 +16,9 @@ import type {
   HvptContrast,
   HvptSession,
   ListenState,
+  SpeechVoices,
+  TtsRequest,
+  TtsResult,
   UndoResult,
   CourseResponse,
   EnrolResult,
@@ -348,6 +351,10 @@ export const api = {
   hvptContrasts: () =>
     http.get<{ contrasts: HvptContrast[]; talkers: number }>('/api/hvpt/contrasts'),
 
+  // ── local speech (Piper) ──────────────────────────────────────────────
+  speechVoices: () => http.get<SpeechVoices>('/api/speech/voices'),
+  speechTts: (body: TtsRequest) => http.post<TtsResult>('/api/speech/tts', body),
+
   // ── listening ─────────────────────────────────────────────────────────
   listenUpload: (form: FormData) =>
     http.postForm<{ id: number; title: string; audioPath: string; coverage: Coverage; verdict: CoverageVerdict }>(
@@ -357,6 +364,7 @@ export const api = {
 
   listenState: (id: number) => http.get<ListenState>(`/api/listen/${id}/state`),
 
+  /** `pass: 0` = playback outside listening mode (the reader's audio bar); it still counts as listening time. */
   listenProgress: (id: number, body: { pass: number; positionS: number; secondsHeard: number }) =>
     http.post<{ ok: boolean; totalHours: number }>(`/api/listen/${id}/progress`, body),
 
@@ -464,7 +472,7 @@ export const api = {
   /** Admin: the pack and every optional sidecar in one list (ADR-049). */
   adminComponents: () => http.get<ComponentStatus[]>('/api/admin/components'),
   /** Admin: install | start | stop | uninstall the app-run copy of mt. 202 = started; 409 = a job is running. */
-  componentAction: (id: 'mt', action: 'install' | 'start' | 'stop' | 'uninstall') =>
+  componentAction: (id: 'mt' | 'tts', action: 'install' | 'start' | 'stop' | 'uninstall') =>
     http.post<unknown>(`/api/admin/components/${id}/${action}`, {}),
   /** Admin: start the full-pack download. 422 errors.packNotPublished, 409 busy. */
   packInstallStart: () => http.post<PackInstallStatus>('/api/admin/pack/install', {}),

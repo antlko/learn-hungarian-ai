@@ -5,6 +5,82 @@ the project uses [semantic versioning](https://semver.org/). Every design decisi
 is an ADR in [`.claude/DECISIONS.md`](.claude/DECISIONS.md), and every pedagogical claim traces to a
 note in [`.claude/research/`](.claude/research/README.md).
 
+## [1.5.0] — 2026-11-18 — Hungarian voices in the reader, offline
+
+The reader can now read any text aloud with natural Hungarian voices that run on your own
+computer, and the separate Listen tab is folded into the reader. Piper and the three voices ship
+**inside the app**: turning speech on never touches the network, so it keeps working even if the
+upstream projects disappear ([ADR-079](.claude/DECISIONS.md), [ADR-080](.claude/DECISIONS.md)).
+
+### Learner-visible
+- **Listen to any text.** The reader has an audio bar: play the whole text sentence by sentence
+  from the sentence you selected, pause, resume, stop, speed 0.5–1.5×, the current sentence is
+  highlighted and scrolled into view. The next sentences are prepared ahead, so there is no gap.
+- **Choose who reads to you.** The first time you press play, a dialog offers three voices:
+  Anna and Berta (female), Imre (male), each with a sample line. The choice is remembered in the
+  browser and can be changed from the audio bar or Settings → Speech.
+- **Listening mode inside Reading.** The Listen tab is gone; «Аудирование» is a toggle in the reader
+  (`/read/:id?mode=listen`) that keeps everything it had: the three passes (transcript hidden →
+  shown → dictation with a diff), repeat/next shadowing by sentence, speed, the coverage warning,
+  and recordings with an A/B loop. Uploading your own text with audio moved to the Library
+  («Свой текст с аудио»). `/listen` redirects to the Library.
+- **Listening hours still count.** All audible playback is reported to the same listening ledger
+  that gates the curriculum, and reading time pauses while audio plays, so no second is counted twice.
+- **Silent fallback.** If the local voices are off or fail, the reader falls back to your device's
+  speech without an error banner. Review cards and practice still use device speech.
+
+### Settings → Components
+- **Speech (Piper) is an on/off switch, not an installer.** «Включить» checks the bundled files,
+  unpacks them and loads the three voices into memory (about 300 MB while on); «Выключить» frees the
+  memory and returns to device speech and survives a restart. «Удалить распакованную среду» frees
+  disk space; the engine and voices stay inside the app and are unpacked again on the next «Включить».
+- No download, no pip, no model fetch. On a platform without a bundled runtime the card says so
+  calmly and the device voice is used.
+
+### Under the hood
+- **Vendored, hash-pinned runtime** in `services/tts/vendor/` (371 MB): a standalone Python 3.12 and
+  seven wheels (piper-tts 1.8.0, onnxruntime 1.32.0, numpy and four small ones) for macOS arm64,
+  Linux amd64 and Linux arm64, every file pinned in `MANIFEST.sha256`/`requirements.lock`.
+  `make tts-vendor` is the only target that uses the network (run by a maintainer);
+  `make tts-verify` re-hashes everything offline and is part of `make docs-check`.
+- **Release builds embed it.** `make build` stages one platform and builds with `-tags ttsbundle`
+  (`TTS_BUNDLE=0` opts out): the binary grows to about 326 MB on macOS arm64 and «Включить» works
+  with no flags. Dev and test builds stay tag-less. The `full` Docker image does the same
+  (about 555 MB, linux/arm64 measured); `slim` has no speech.
+- **The three voice models are committed** to the repository (3 × 63 MB, no Git LFS).
+- **Server API**: `GET /api/speech/voices`, `POST /api/speech/tts`, `GET /api/speech/audio/:file`
+  (auth required; a content-addressed cache under `<data>/cache/tts`, pruned at 512 MiB);
+  `ListenProgressRequest.pass` accepts 0 for playback outside listening mode.
+- **Offline proof**: `make tts-smoke` synthesises all three voices with outbound network denied
+  (macOS `sandbox-exec`, Linux `unshare -rn`); the same was verified with `docker run --network none`.
+- Extraction is hardened (tar-slip, symlink and size limits), files are verified while copied and
+  unpacked from the verified copy, and the runtime is swapped in atomically.
+
+### Licences and obligations
+- Piper and its bundled espeak-ng are **GPL-3.0-or-later**. They run as a separate process and are
+  never linked into the Go binary. Their corresponding source (`piper_tts` sdist, `piper1-gpl`
+  v1.8.0, espeak-ng at the pinned commit) is committed in `services/tts/vendor/source/` and shipped
+  in the `full` image under `/usr/share/doc/tanulom/tts-source/`. If you redistribute a binary or
+  image, ship that source with it.
+- The voice datasets are CC0. **Anna and Berta are fine-tuned from `hifi_tts_92` (en_US), whose
+  licence is not yet confirmed**; this is recorded as open in `langpack/LICENSES.md`.
+
+### Requirements and limits
+- Bundled speech runs on macOS 14+ on Apple silicon, Linux amd64 (glibc 2.28+) and Linux arm64.
+  Not supported: macOS Intel, Windows, and the `slim` image (the device voice is used there).
+- The Linux bundles are verified by hash and by an offline Docker run on arm64; the linux/amd64
+  bundle was not executed on a real host. Audio playback was verified through the server, the
+  Settings flow and code review; the sentence-by-sentence playback chain with real audio was not
+  heard end-to-end in an automated browser (it has no audio clock), so listen to a text once.
+- Piper is not shown to be thread-safe, so synthesis is serialised. Pronunciation scoring and
+  speech recognition are still not built.
+
+### Upgrade notes
+- The repository grows by about 560 MB (371 MB vendored runtime + 190 MB voices); refreshing the
+  vendored runtime adds that again, so do it rarely.
+- No database migration. Existing listening state and logs are kept as they are.
+- The «Слух» (Ear) screen and its minimal-pair training are unchanged; only the Listen tab moved.
+
 ## [Unreleased] — polish pass
 
 Answers to the owner's sixteen points: install clarity, mobile, how the app learns, statistics,

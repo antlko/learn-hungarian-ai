@@ -449,7 +449,7 @@ func TestInstallTwiceIsRefusedWhenInstalled(t *testing.T) {
 func TestUnknownComponent(t *testing.T) {
 	h := newHarness(t)
 	for _, err := range []error{
-		h.m.Install(context.Background(), "tts"), h.m.Start("llm"), h.m.Stop("x"), h.m.Uninstall("../etc"),
+		h.m.Install(context.Background(), "asr"), h.m.Start("llm"), h.m.Stop("x"), h.m.Uninstall("../etc"),
 	} {
 		if !errors.Is(err, ErrUnknown) {
 			t.Errorf("err = %v", err)
@@ -777,7 +777,7 @@ func TestEmbeddedSourcesMatchServices(t *testing.T) {
 }
 
 func TestEmbeddedAppsBindToTheConfiguredHost(t *testing.T) {
-	for id, host := range map[string]string{MT: "MT_HOST"} {
+	for id, host := range map[string]string{MT: "MT_HOST", TTS: "TTS_HOST"} {
 		b, _ := Source(id, "app.py")
 		if !bytes.Contains(b, []byte(`os.environ.get("`+host+`", "0.0.0.0")`)) {
 			t.Errorf("%s/app.py does not read %s", id, host)

@@ -10,7 +10,6 @@
     "plan": "Plan",
     "review": "Review",
     "read": "Read",
-    "listen": "Listen",
     "speak": "Speak",
     "ear": "Ear",
     "grammar": "Grammar",
@@ -325,6 +324,7 @@
       "gateThreshold": "Interleaving threshold",
       "gateHint": "Topics are drilled in blocks until accuracy reaches this threshold, and only then interleaved. Interleaving too early prevents the rule from consolidating — this contradicts the common advice, deliberately."
     },
+    "speech": { "persona": "Reading voice" },
     "components": {
       "title": "Components",
       "intro": "The app works without any of these. All of them are optional.",
@@ -398,7 +398,15 @@
       },
       "tts": {
         "title": "Voice",
-        "what": "Your own speech-synthesis server instead of your device's voice.",
+        "what": "Natural Hungarian voices (Piper) that run on this computer, instead of your device's voice.",
+        "voicesFound": "Voices found: {n} ({list})",
+        "noVoices": "No voice files found in the app's voices folder. Add them there, then turn it on.",
+        "enable": "Turn on",
+        "disable": "Turn off",
+        "freeDisk": "Remove the unpacked runtime",
+        "freeDiskHint": "Frees disk space. The engine and voices stay inside the app and are unpacked again the next time you turn it on.",
+        "memoryNote": "Uses about 300 MB of memory while it is on.",
+        "memoryFreed": "Off: the memory is freed and the reader uses your device's voice.",
         "without": "Nothing is lost without it: speech uses your device's voice.",
         "notBuilt": "Not built yet - speech uses your device's voice."
       },
@@ -583,18 +591,31 @@
       "failed": "failed",
       "stopped": "stopped"
     },
+    "stateBundled": {
+      "absent": "off",
+      "installing": "turning on",
+      "installed": "off",
+      "starting": "turning on",
+      "running": "on",
+      "failed": "failed",
+      "stopped": "off"
+    },
     "chip": { "running": "running · port {port} · internal only" },
     "step": {
+      "verify": "Checking files",
+      "unpack": "Unpacking the runtime",
+      "voices": "Loading voices into memory",
       "venv": "Preparing the environment",
       "pip": "Downloading libraries",
       "model": "Downloading the model",
       "start": "Starting"
     },
-    "need": { "mt": "Downloads and runs the service right here: about 6 GB on disk and 2–3 GB of memory (estimate, not measured)." },
+    "need": { "mt": "Downloads and runs the service right here: about 6 GB on disk and 2–3 GB of memory (estimate, not measured).", "tts": "The engine and the three voices are already inside the app, no internet needed. Turning on loads the voices into memory." },
     "managed": {
       "will": "Downloads and runs the service right here: ≈{disk} on disk, ≈{ram} memory — an estimate.",
       "tip": {
-        "mt": "Downloads Python libraries and the NLLB-200 translation model. Everything lives in the app's data folder, and the service listens only inside this computer. Sizes are estimates, not measurements."
+        "mt": "Downloads Python libraries and the NLLB-200 translation model. Everything lives in the app's data folder, and the service listens only inside this computer. Sizes are estimates, not measurements.",
+        "tts": "The Piper engine and its voices ship with the app and work offline. Turning on unpacks the engine into the app's data folder (once) and loads the voices into memory. It listens only inside this computer."
       },
       "useOther": "Pick another tab: Docker or Docker Compose (the :latest image has Python), or Own server.",
       "keepOpen": "The install runs on the server: you can close this page.",
@@ -692,6 +713,11 @@
     "componentStartFailed": "The component could not be started. See the log for details.",
     "componentCrashed": "The component keeps stopping. See the log for details.",
     "componentPipBroken": "pip does not work in this Python. Check your Python or pick another method.",
+    "componentNoTtsRuntime": "Local speech is not available on this device; the device voice is used instead.",
+    "componentBundleCorrupt": "The bundled speech files are damaged, so nothing was set up. Reinstall the app and try again.",
+    "componentNoVoices": "No voice files were found, so speech cannot be installed. Put the three Piper voice files (.onnx and .onnx.json) where the server expects them and try again.",
+    "ttsUnavailable": "The voice service is not answering; the device voice is used instead.",
+    "ttsTimeout": "The voice service took too long; the device voice is used instead.",
     "tutorStopped": "The answer was stopped.",
     "tutorNoMessage": "That question is no longer in the chat.",
     "tutorNoCard": "No such card — the word may have been set aside.",
@@ -1009,6 +1035,50 @@
     "markKnown": "Known",
     "ignore": "Ignore",
     "addCard": "Add card",
+    "audio": {
+      "label": "Listen to the text",
+      "playAll": "Listen to the whole text",
+      "pause": "Pause",
+      "resume": "Resume",
+      "stop": "Stop",
+      "speed": "Speed",
+      "voice": "Voice",
+      "listenMode": "Listening mode",
+      "exitListenMode": "Back to reading"
+    },
+    "listen": {
+      "ownTitle": "Your own text with audio",
+      "ownHint": "Paste a Hungarian text and, if you have one, a recording of it. It opens in listening mode.",
+      "transcriptHint": "Paste the Hungarian text (required)",
+      "whyTranscript": "The text is required: passes 2–3 and the comprehensibility check are built on it. It goes through the same analysis as a reading text.",
+      "upload": "Add and listen",
+      "audioOptional": "An audio file, if you have one. Without it a voice reads the text.",
+      "needTranscript": "Paste the text first.",
+      "coverageWarn": "You know {pct}% of the words in this text — below ~90% this is decoding, not listening practice. Consider an easier text first; the thresholds are English-derived and indicative only.",
+      "pass1": "Pass 1 · gist",
+      "pass2": "Pass 2 · with transcript",
+      "pass3": "Pass 3 · dictation",
+      "pass1Hint": "First pass: no transcript. Listen for what it is about — the transcript appears in pass 2.",
+      "heard": "heard: {min} min",
+      "speed": "speed",
+      "loopSetA": "Loop start",
+      "loopSetB": "Loop end",
+      "loopClear": "Clear loop",
+      "dictation": "Sentence {n}/{of} — type what you hear.",
+      "dictationPlaceholder": "type the sentence…",
+      "sourceRecording": "recording",
+      "sourceSpeech": "read by a synthetic voice",
+      "synthCaveat": "Read by a synthesiser, not a person: vowel length comes through less clearly. Fine for passes 1–2 and dictation.",
+      "startReading": "Read aloud",
+      "stopReading": "Stop",
+      "repeatSentence": "Again",
+      "nextSentence": "Next",
+      "intro": {
+        "what": "The same material is worked through three times, each time with a different job.",
+        "passes": "1) Audio only, no text: get used to the pace and to where words end. 2) Audio with the transcript: check what you heard against what was said. 3) Sentence dictation: confirm it was hearing and not guesswork.",
+        "caveat": "With no recording, a synthetic voice reads the text — the installed speech engine if there is one, otherwise your device's voice — and individual words may sound unnatural. A transcript is required: the coverage check and passes 2 and 3 are all built on it."
+      }
+    },
     "autoSpeak": "Read along",
     "autoSpeakHint": "Speak each word you stop on. Your device does the talking.",
     "translateSentence": "Translate the sentence",
@@ -1316,42 +1386,6 @@
       "start": "Start the round"
     }
   },
-  "listen": {
-    "title": "Listen",
-    "add": "Add material",
-    "upload": "Add",
-    "transcriptHint": "Paste the Hungarian text (required)",
-    "whyTranscript": "The text is required: passes 2–3 and the comprehensibility check are built on it. It goes through the same analysis as a reading text.",
-    "materials": "Materials",
-    "empty": "No materials yet. Paste any Hungarian text and your device's voice will read it. An audio file is welcome but not required.",
-    "coverageWarn": "You know {pct}% of the words in this text — below ~90% this is decoding, not listening practice. Consider an easier text first; the thresholds are English-derived and indicative only.",
-    "pass1": "Pass 1 · gist",
-    "pass2": "Pass 2 · with transcript",
-    "pass3": "Pass 3 · dictation",
-    "pass1Hint": "First pass: no transcript. Listen for what it is about — the transcript appears in pass 2.",
-    "heard": "heard: {min} min",
-    "speed": "speed",
-    "loopSetA": "Loop start",
-    "loopSetB": "Loop end",
-    "loopClear": "Clear loop",
-    "dictation": "Sentence {n}/{of} — type what you hear.",
-    "dictationPlaceholder": "type the sentence…",
-    "audioOptional": "An audio file, if you have one. Without it your device's own voice reads the text.",
-    "needTranscript": "Paste the text first.",
-    "sourceRecording": "recording",
-    "sourceDevice": "read by your device",
-    "deviceVoiceCaveat": "Read by your system's synthesiser, not a person: vowel length comes through less clearly. Fine for passes 1–2 and dictation.",
-    "startReading": "Read aloud",
-    "stopReading": "Stop",
-    "repeatSentence": "Again",
-    "nextSentence": "Next",
-    "intro": {
-      "title": "How this works",
-      "what": "The same material is worked through three times, each time with a different job.",
-      "passes": "1) Audio only, no text: get used to the pace and to where words end. 2) Audio with the transcript: check what you heard against what was said. 3) Sentence dictation: confirm it was hearing and not guesswork.",
-      "caveat": "With no recording, your device's own voice reads the text — the quality depends on the voices installed on your system, and individual words may sound unnatural. A transcript is required: the coverage check and passes 2 and 3 are all built on it."
-    }
-  },
   "progress": {
     "title": "Progress",
     "where": {
@@ -1488,6 +1522,25 @@
       "inputTooHard": "Input too hard: average element coverage of what you read was {pct}% — below the ~90% floor, reading is decoding.",
       "noLivePractice": "No live practice attested in 30 days. The app cannot do this loop for you — that is exactly why it is on the Today screen."
     }
+  },
+  "tts": {
+    "voice": {
+      "anna": "Anna",
+      "berta": "Berta",
+      "imre": "Imre"
+    },
+    "gender": {
+      "female": "female voice",
+      "male": "male voice"
+    },
+    "pick": {
+      "title": "Who should read to you?",
+      "hint": "Pick a voice for the texts. You can change it any time in the audio bar or in Settings.",
+      "sample": "Listen",
+      "choose": "Choose"
+    },
+    "systemVoice": "system voice",
+    "unavailable": "The local voices are not running, so your device's voice reads."
   },
   "speech": {
     "play": "Speak",

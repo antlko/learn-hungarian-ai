@@ -82,7 +82,7 @@ type ComponentDTO struct {
 	ComposeProfile string  `json:"composeProfile"`
 	// Built is false for a sidecar this repository does not yet ship.
 	Built bool `json:"built"`
-	// Managed is present on mt: the binary can install and run it itself.
+	// Managed is present on mt and tts: the binary can install and run it itself.
 	Managed *ManagedDTO `json:"managed,omitempty"`
 }
 
@@ -95,7 +95,7 @@ var componentTable = []struct {
 }{
 	{"pack", "", "", true},
 	{"mt", "mt", "≈2.4 GB model download (RAM not measured)", true},
-	{"tts", "speech", "", false},
+	{"tts", "tts", "≈300 MB per loaded voice (measured)", true},
 	{"asr", "speech", "", false},
 	{"llm", "llm", "", true},
 }
@@ -204,6 +204,8 @@ func (s *Server) handleAdminComponents(c fiber.Ctx) error {
 					}
 				}
 			}
+		case "tts":
+			d.Managed = managedDTO(s.components.Status("tts"))
 		case "llm":
 			d.Model = cfg.Services.LLM.Model
 		}

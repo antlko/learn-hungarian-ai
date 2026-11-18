@@ -93,7 +93,7 @@ curriculum:
                                   # down to it. Empty = none booked (no default on purpose)
 
 services:                   # endpoints only — keys live in SQLite      [ADR-005]
-  tts: {provider: device}   # DEFAULT — the learner's browser speaks it, no endpoint
+  tts: {provider: device}   # DEFAULT — the learner's browser speaks it, no endpoint; `managed` = Piper run by the binary
   asr: {provider: local, endpoint: "http://asr:5001"}
   llm: {provider: off,   endpoint: "http://ollama:11434", model: "qwen3:8b"}
   mt:  {provider: off,   endpoint: "http://mt:5003"}    # `managed` (mt only): installed + run by the binary, no endpoint stored (ADR-061)
@@ -121,7 +121,7 @@ written with the suffix already on it is requested as `/v1/v1/chat/completions` 
 answers with a 404 under a services row that never went green.
 
 `provider` is one of `off`, `local`, `openai` — and, **for `tts` only**, `device`, **for `mt`
-only**, `managed`. `managed` means the binary installed the service itself and runs it as a
+and `tts`**, `managed`. `managed` means the binary installed the service itself and runs it as a
 child process ([ADR-061](../.claude/DECISIONS.md#adr-061)): the endpoint is **never stored** (any
 `endpoint` sent with it is dropped) because the port is ephemeral and known only to the running
 manager; it is written automatically when an install finishes and reset to `off` by Uninstall.
@@ -171,6 +171,30 @@ is downloading, ready or failed (with the service's own reason), «Скачат�
 failed download, and the provider `<Select>` is the on/off switch. Neither the app nor this file
 can start the container — see [ADR-015](../.claude/DECISIONS.md#adr-015). Put
 `COMPOSE_PROFILES=mt` in `.env` so `docker compose up -d` includes it.
+
+**Piper voices directory (`tts` managed).** `--voices-dir` / `TANULOM_VOICES_DIR` names the directory
+with `hu_HU-{anna,berta,imre}-medium.onnx` + `.onnx.json`; unset, it is `<data>/voices`. The full
+Docker image sets nothing (the voices are embedded in the binary); `make dev` passes `langpack/voices` (absolute). Not a
+`config.yaml` field. The model files are committed to the repository by the owner; the UI never
+downloads them (about 190 MB, plain commit). Resolution order: `--voices-dir`, then voices embedded in
+a `ttsbundle` build (extracted to `<data>/components/tts/voices`), then `<data>/voices`.
+
+**Piper runtime directory (`tts` managed).** `--tts-runtime-dir` / `TANULOM_TTS_RUNTIME_DIR` names a
+directory laid out like `services/tts/vendor/` (`MANIFEST.sha256`, `requirements.lock`, per-platform
+python tarball + wheels). Operator-only: never a route and never a `config.yaml` field. Unset, the
+bundle embedded by the `ttsbundle` build tag is used (release binary, Docker `full`); with neither,
+`tts` is unavailable (`errors.componentNoTtsRuntime`) and the device voice speaks. `make dev` and `make backend`
+pass the absolute `services/tts/vendor`. The flag is also accepted as a **leading** flag before the `component`
+subcommand (`tanulom --tts-runtime-dir X component run tts`), like `--data-dir` and `--voices-dir`.
+`TTS_BUNDLE=0 make build` omits the embedded bundle (build-time switch, not a runtime option).
+
+**Enable / Disable (`tts`).** Включить verifies the bundle hashes, unpacks the bundled Python, installs
+the wheels with `pip --no-index` (no network, ever), starts Piper and loads all voices into memory
+(RSS ≈ 255 MB measured on macOS arm64 with all three voices loaded and nothing synthesised yet; ≈ 480 MB after synthesising in an
+earlier Python 3.11 run; budget ≈ 450 MB), then sets `provider: managed`. Выключить stops the child (memory freed) and sets
+`provider: device`; the choice survives a restart. «Удалить распакованную среду» (Uninstall) stops the child, deletes the
+unpacked interpreter and the extracted voices to free disk, and leaves the provider at `device`; the
+bundle stays and Enable works again offline. See [ADR-080](../.claude/DECISIONS.md#adr-080).
 
 **`tts` defaults to `device`, not to `off`.** Device speech is the Web Speech API in the
 learner's browser: no endpoint, nothing to deploy, and a Hungarian voice on every desktop OS.
