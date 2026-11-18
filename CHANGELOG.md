@@ -5,6 +5,31 @@ the project uses [semantic versioning](https://semver.org/). Every design decisi
 is an ADR in [`.claude/DECISIONS.md`](.claude/DECISIONS.md), and every pedagogical claim traces to a
 note in [`.claude/research/`](.claude/research/README.md).
 
+## [1.5.2] — 2026-11-18 — Fix: flaky tests of the Piper download path broke CI
+
+Tests only; the application behaves exactly as in 1.5.1 (same binary logic, same files, same
+manifests, so installs from the `v1.5.2` tag fetch the same pinned bytes).
+
+### Fixed
+- **CI failure on `v1.5.1`**: `TestContextCancelAbortsAndLeavesNoPartial` (download cancellation)
+  reported "the download never started" after 5 s on a loaded runner. Its "download started"
+  signal was a non-blocking send on an unbuffered channel: when the HTTP handler ran before the
+  test reached its receive, the signal was dropped for good. The channel is now buffered, the
+  wait is 30 s, and if the download ends early the test now reports the error instead of a bare
+  timeout. I could not reproduce the failure on a quiet or loaded development machine, so this is
+  the most plausible cause, not a proven one; the new diagnostic will name any other cause.
+- **Two more timing races found while stress-testing under CPU load** (12 busy loops, `-race`):
+  `TestStopDuringTheDownloadCancelsWithoutAnErrorOrPartialFiles` announced a size that differed
+  from the pinned size, so the loader sometimes rejected the file as corrupt before the test's
+  Stop arrived (it now announces the real size and then stalls); and
+  `TestWhileTheVoicesLoadTheCardKeepsShowingTheVoicesStep` checked the child's endpoint the instant
+  the start was counted, a moment before it is recorded (it now waits for it).
+- After the fixes, 60 stress runs of the Piper packages passed with no failure.
+
+### Known, not changed
+- `TestCrashRestartsWithBackoffThenFails` (the translator `mt` supervisor, present since v1.4.0)
+  can fail when the machine is heavily overloaded; it did not fail on CI and is out of scope here.
+
 ## [1.5.1] — 2026-11-18 — Smaller images: Piper is downloaded once from the project repository
 
 v1.5.0 carried the Piper runtime and the voices inside the app, which made the binary 326 MB and the

@@ -337,7 +337,10 @@ func TestValidFilesAreKeptAndCostNoRequest(t *testing.T) {
 
 func TestContextCancelAbortsAndLeavesNoPartial(t *testing.T) {
 	fx := newFixture()
-	started := make(chan struct{})
+	// Buffered: the handler may run BEFORE the test reaches its receive (slow CI under
+	// -race). With an unbuffered channel the non-blocking send below would be dropped
+	// for good and the test would wait for a signal that never comes.
+	started := make(chan struct{}, 1)
 	srv, _ := fx.server(t, func(w http.ResponseWriter, r *http.Request, p string, body []byte) bool {
 		w.Header().Set("Content-Length", fmt.Sprint(len(body)))
 		_, _ = w.Write(body[:1000])
@@ -355,7 +358,10 @@ func TestContextCancelAbortsAndLeavesNoPartial(t *testing.T) {
 	go func() { done <- fetcher(t, srv.URL).Fetch(ctx, dir, fx.files, nil) }()
 	select {
 	case <-started:
-	case <-time.After(5 * time.Second):
+	case err := <-done:
+		// Fetch ended before the first byte was served: say WHY instead of timing out.
+		t.Fatalf("Fetch returned before the download started: %v", err)
+	case <-time.After(30 * time.Second):
 		t.Fatal("the download never started")
 	}
 	cancel()

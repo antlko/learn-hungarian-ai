@@ -302,21 +302,32 @@ func TestDownloadFailureHasItsOwnKeyAndResumesWithoutRefetching(t *testing.T) {
 func TestStopDuringTheDownloadCancelsWithoutAnErrorOrPartialFiles(t *testing.T) {
 	mr := newMirrorHarness(t, bundlefix.Options{})
 	started := make(chan struct{})
+	var once sync.Once // the hook can run again on a retry; a second close would panic
 	mr.setHook(func(w http.ResponseWriter, r *http.Request, p string) bool {
 		if !strings.HasSuffix(p, ".tar.gz") {
 			return false
 		}
-		w.Header().Set("Content-Length", "100000")
+		// Announce the file's REAL pinned size, then stall after one byte: a size that
+		// differs from the pin would be refused as corrupt at once, racing the Stop below.
+		size := int64(100000)
+		if fi, err := os.Stat(filepath.Join(mr.root, filepath.FromSlash(p))); err == nil {
+			size = fi.Size()
+		}
+		w.Header().Set("Content-Length", fmt.Sprint(size))
 		_, _ = w.Write([]byte("x"))
 		w.(http.Flusher).Flush()
-		close(started)
+		once.Do(func() { close(started) })
 		<-r.Context().Done()
 		return true
 	})
 	if err := mr.m.Install(context.Background(), TTS); err != nil {
 		t.Fatal(err)
 	}
-	<-started
+	select {
+	case <-started:
+	case <-time.After(30 * time.Second):
+		t.Fatal("the download never started")
+	}
 	if err := mr.m.Stop(TTS); err != nil {
 		t.Fatal(err)
 	}

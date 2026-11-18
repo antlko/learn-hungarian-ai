@@ -625,8 +625,13 @@ func TestWhileTheVoicesLoadTheCardKeepsShowingTheVoicesStep(t *testing.T) {
 		}
 		time.Sleep(2 * time.Millisecond)
 	}
-	if b.m.Endpoint(TTS) == "" {
-		t.Error("the endpoint is not resolvable while loading")
+	// startCount is bumped inside Start; the supervisor records the child's port a
+	// moment later, so the endpoint is polled (an instantaneous check is a race).
+	for b.m.Endpoint(TTS) == "" {
+		if time.Now().After(deadline) {
+			t.Fatalf("the endpoint is not resolvable while loading: %+v", b.m.Status(TTS))
+		}
+		time.Sleep(2 * time.Millisecond)
 	}
 	b.pr.mu.Lock()
 	b.pr.health = []Health{{Status: "ready"}}
