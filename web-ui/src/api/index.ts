@@ -73,6 +73,7 @@ import type {
   ReviewOrder,
   Settings,
   UpdateSettingsRequest,
+  LLMProfileRequest,
   UpdateSettingsResponse,
 } from '@/types'
 
@@ -133,6 +134,15 @@ export const api = {
 
   updateSettings: (body: UpdateSettingsRequest) =>
     http.put<UpdateSettingsResponse>('/api/settings', body),
+
+  /** Admin: saved tutor profiles (ADR-082). Each returns the fresh settings. */
+  createLlmProfile: (body: LLMProfileRequest) =>
+    http.post<Settings>('/api/admin/llm-profiles', body),
+  updateLlmProfile: (id: string, body: LLMProfileRequest) =>
+    http.put<Settings>(`/api/admin/llm-profiles/${id}`, body),
+  deleteLlmProfile: (id: string) => http.del<Settings>(`/api/admin/llm-profiles/${id}`),
+  activateLlmProfile: (id: string) =>
+    http.post<Settings>(`/api/admin/llm-profiles/${id}/activate`),
 
   capabilities: () => http.get<Capability[]>('/api/capabilities'),
   /** Admin: switch one optional service off/on without losing its settings (ADR-068). Returns the fresh capability list. */

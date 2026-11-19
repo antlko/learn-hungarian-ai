@@ -5,6 +5,23 @@ the project uses [semantic versioning](https://semver.org/). Every design decisi
 is an ADR in [`.claude/DECISIONS.md`](.claude/DECISIONS.md), and every pedagogical claim traces to a
 note in [`.claude/research/`](.claude/research/README.md).
 
+## [1.6.0] — 2026-11-19 — Several saved AI tutors, switch with one click
+
+### Added
+- **Saved AI tutor profiles** (ADR-082). In Settings → Services, under «ИИ-учитель», an admin can
+  save the current tutor (address + model) under a name such as «Домашний ПК» or «Ноутбук» and switch
+  between them with one choice; the status line refreshes right away. Profiles can be renamed and
+  removed. Up to 8 profiles, names up to 40 characters and unique.
+- Admin endpoints `POST /api/admin/llm-profiles`, `PUT`/`DELETE /api/admin/llm-profiles/:id` and
+  `POST /api/admin/llm-profiles/:id/activate`; `llmProfiles` and `llmActive` in the settings DTO;
+  `llm_profiles` and `llm_active` in `config.yaml`.
+
+### Notes
+- `services.llm` stays the single active slot, so nothing that talks to the tutor changed. A hand
+  edit of the active tutor shows «Текущий (не сохранён)» and never rewrites a saved profile.
+- The access key is still one for all profiles (a per-profile key is a possible later step).
+- A duplicate-name error from validation is shown in English in the Russian UI for now.
+
 ## [1.5.2] — 2026-11-18 — Fix: flaky tests of the Piper download path broke CI
 
 Tests only; the application behaves exactly as in 1.5.1 (same binary logic, same files, same

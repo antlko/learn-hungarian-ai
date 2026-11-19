@@ -96,6 +96,8 @@ services:                   # endpoints only — keys live in SQLite      [ADR-0
   tts: {provider: device}   # DEFAULT — the learner's browser speaks it, no endpoint; `managed` = Piper run by the binary
   asr: {provider: local, endpoint: "http://asr:5001"}
   llm: {provider: off,   endpoint: "http://ollama:11434", model: "qwen3:8b"}
+  llm_profiles: []          # saved tutors [{id, name, provider, endpoint, model}], max 8, names unique  [ADR-082]
+  llm_active: ""            # id of the profile `llm` was copied from; "" = edited by hand since
   mt:  {provider: off,   endpoint: "http://mt:5003"}    # `managed` (mt only): installed + run by the binary, no endpoint stored (ADR-061)
 langpack:                   # OVERRIDE for the OPTIONAL full language pack      [ADR-049]
   url: ""                   # EMPTY = the binary's pinned URL (release tag langpack-hu-v1)
@@ -133,6 +135,11 @@ one. `openai` stays refused for `mt`.
 A sidecar run by `tanulom component run` in a second compose service (SELFHOSTING.md) is the ordinary `local`
 provider with the service's address (`http://tanulom-mt:5003`): it is not `managed`, nothing is stored about it
 beyond that endpoint, and the app never starts or stops it.
+
+**Saved tutors (ADR-082).** `llm` stays the one active tutor; `llm_profiles` are named presets of its
+provider/endpoint/model, and switching copies one into `llm` (Settings → Services, or `POST
+/api/admin/llm-profiles/:id/activate`). Editing `llm` by hand clears `llm_active`. The API key is one global
+secret shared by every profile (known limit).
 
 **`llm` is what the grammar tutor and the text-level second opinion talk to.** Any
 OpenAI-compatible chat endpoint: `provider: local` for Ollama, llama.cpp or vLLM on your own

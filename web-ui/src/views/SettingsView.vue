@@ -15,6 +15,7 @@ import InfoTip from '@/components/common/InfoTip.vue'
 import Note from '@/components/common/Note.vue'
 import DataPanel from '@/components/settings/DataPanel.vue'
 import ComponentsPanel from '@/components/settings/ComponentsPanel.vue'
+import LlmProfiles from '@/components/settings/LlmProfiles.vue'
 import MtBlock from '@/components/settings/MtBlock.vue'
 import { showAccentKeys } from '@/lib/accentKeys'
 import { useSettingsStore } from '@/stores/settings'
@@ -635,11 +636,8 @@ function previewVoice() {
           </CardTitle>
         </CardHeader>
         <CardContent class="flex flex-col gap-4">
-          <div
-            v-for="name in SERVICE_NAMES"
-            :key="name"
-            class="grid items-end gap-3 sm:grid-cols-[10rem_1fr_auto]"
-          >
+          <template v-for="name in SERVICE_NAMES" :key="name">
+          <div class="grid items-end gap-3 sm:grid-cols-[10rem_1fr_auto]">
             <div class="flex flex-col gap-1.5">
               <Label :for="`prov-${name}`">{{ $t(`capabilities.${name}`) }}</Label>
               <Select :id="`prov-${name}`" v-model="s.services[name].provider">
@@ -698,6 +696,15 @@ function previewVoice() {
               {{ serviceStatus(name).label }}
             </span>
           </div>
+          <LlmProfiles
+            v-if="name === 'llm' && auth.isAdmin"
+            :profiles="s.llmProfiles"
+            :active="s.llmActive"
+            :current="s.services.llm"
+            :saving="store.saving"
+            @changed="reloadAfterManaged"
+          />
+          </template>
 
           <Button
             class="self-start"

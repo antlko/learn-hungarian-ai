@@ -29,6 +29,9 @@ func (c Config) Clone() Config {
 	if c.Services.MT.Voices != nil {
 		out.Services.MT.Voices = append([]string(nil), c.Services.MT.Voices...)
 	}
+	if c.Services.LLMProfiles != nil {
+		out.Services.LLMProfiles = append([]LLMProfile(nil), c.Services.LLMProfiles...)
+	}
 	if c.Review.BurySiblings != nil {
 		v := *c.Review.BurySiblings
 		out.Review.BurySiblings = &v

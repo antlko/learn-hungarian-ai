@@ -280,3 +280,59 @@ func TestPausedSurvivesCloneAndYAML(t *testing.T) {
 		t.Fatal("paused must have no default")
 	}
 }
+
+func TestLLMProfilesValidateCloneAndRoundTrip(t *testing.T) {
+	t.Parallel()
+	good := func() Config {
+		c := Default()
+		c.Services.LLMProfiles = []LLMProfile{
+			{ID: "a", Name: "Home PC", Provider: ProviderLocal, Endpoint: "http://pc:11434", Model: "qwen3:8b"},
+			{ID: "b", Name: "Laptop", Provider: ProviderOff},
+		}
+		c.Services.LLMActive = "a"
+		return c
+	}
+	c := good()
+	if _, err := c.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	cp := c.Clone()
+	cp.Services.LLMProfiles[0].Name = "changed"
+	if c.Services.LLMProfiles[0].Name != "Home PC" {
+		t.Fatal("Clone shares the profiles slice")
+	}
+	dir := t.TempDir()
+	if err := Save(dir, c); err != nil {
+		t.Fatal(err)
+	}
+	back, err := Load(dir)
+	if err != nil || len(back.Services.LLMProfiles) != 2 || back.Services.LLMActive != "a" {
+		t.Fatalf("round trip: %v %+v", err, back.Services)
+	}
+	if d := Default(); len(d.Services.LLMProfiles) != 0 || d.Services.LLMActive != "" {
+		t.Fatal("normalize invented profiles")
+	}
+
+	bad := map[string]func(*Config){
+		"dup id":        func(c *Config) { c.Services.LLMProfiles[1].ID = "a" },
+		"dup name":      func(c *Config) { c.Services.LLMProfiles[1].Name = " home pc " },
+		"empty name":    func(c *Config) { c.Services.LLMProfiles[1].Name = "  " },
+		"long name":     func(c *Config) { c.Services.LLMProfiles[1].Name = strings.Repeat("я", MaxLLMProfileNameLen+1) },
+		"local no ep":   func(c *Config) { c.Services.LLMProfiles[1].Provider = ProviderLocal },
+		"bad provider":  func(c *Config) { c.Services.LLMProfiles[1].Provider = "managed" },
+		"unknown activ": func(c *Config) { c.Services.LLMActive = "zzz" },
+		"too many": func(c *Config) {
+			for i := 0; i < MaxLLMProfiles; i++ {
+				c.Services.LLMProfiles = append(c.Services.LLMProfiles,
+					LLMProfile{ID: "x" + string(rune('a'+i)), Name: "n" + string(rune('a'+i)), Provider: ProviderOff})
+			}
+		},
+	}
+	for name, mut := range bad {
+		c := good()
+		mut(&c)
+		if _, err := c.Validate(); err == nil {
+			t.Errorf("%s: want error", name)
+		}
+	}
+}

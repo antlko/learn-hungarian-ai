@@ -1587,6 +1587,12 @@ not list, and the field offers the list as a datalist — type-ahead, because no
 answers the route and a name the row cannot verify is still allowed. The tutor panel says the
 same thing (`errors.llmNoModel`) with its link to this screen.
 
+**Saved tutors (ADR-082).** Under the «ИИ-учитель» row (admins only) sits a small block «Сохранённые учителя»:
+a select of the saved profiles (switching applies at once and the status redraws), «Сохранить как…» (inline
+name field; the current server and model become a profile and the active one), and rename / remove icons for
+the selected profile. After a hand edit of the address or model the select reads «Текущий (не сохранён)».
+At most 8; the access key is shared by all (hint line). Errors via `describeError`.
+
 **Services** gained a **translator block**, because the generic row cannot describe this one.
 Every optional service is probed the same way — `GET /health`, under 500 is reachable — and for
 `mt` that flattens three different situations into one grey «нет связи»: never deployed, model

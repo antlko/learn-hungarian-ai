@@ -443,6 +443,18 @@
       "unknownModel": "not served by this endpoint",
       "managed": "From the app"
     },
+    "llmProfiles": {
+      "label": "Saved teachers",
+      "unsaved": "Current (not saved)",
+      "none": "No saved teachers yet.",
+      "saveAs": "Save as…",
+      "rename": "Rename",
+      "remove": "Remove from the list",
+      "name": "Name",
+      "namePlaceholder": "For example: Home PC",
+      "full": "You can keep up to 8 saved teachers.",
+      "hint": "Switching changes the server and model at once. The access key is one for all of them."
+    },
     "clamped": "“{field}” was pulled back into range: {from} became {to}.",
     "curriculum": {
       "title": "Exam",
@@ -711,6 +723,7 @@
     "componentInstallFailed": "The install failed. See the log for details.",
     "componentUnknown": "There is no such component.",
     "serviceUnknown": "There is no such service.",
+    "llmProfileUnknown": "There is no such tutor profile.",
     "componentNotInstalled": "Install the component first.",
     "componentInstalled": "The component is already installed.",
     "componentStartFailed": "The component could not be started. See the log for details.",

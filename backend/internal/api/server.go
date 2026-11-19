@@ -574,6 +574,10 @@ func (s *Server) buildApp() *fiber.App {
 	// and the components overview. The pack's URL and checksum come from
 	// config.yaml, never from these requests. ADR-049.
 	api.Post("/admin/services/:name/paused", s.requireAuth, s.requireAdmin, s.handleServicePaused)
+	api.Post("/admin/llm-profiles", s.requireAuth, s.requireAdmin, s.handleLLMProfileCreate)
+	api.Put("/admin/llm-profiles/:id", s.requireAuth, s.requireAdmin, s.handleLLMProfileUpdate)
+	api.Delete("/admin/llm-profiles/:id", s.requireAuth, s.requireAdmin, s.handleLLMProfileDelete)
+	api.Post("/admin/llm-profiles/:id/activate", s.requireAuth, s.requireAdmin, s.handleLLMProfileActivate)
 	api.Post("/admin/pack/install", s.requireAuth, s.requireAdmin, s.handlePackInstallStart)
 	api.Get("/admin/pack/install", s.requireAuth, s.requireAdmin, s.handlePackInstallStatus)
 	api.Post("/admin/components/:id/install", s.requireAuth, s.requireAdmin, s.handleComponentInstall)

@@ -3215,3 +3215,20 @@ S is FSRS stability in days. 180 days (`srs.ProgressFullDays`) is a declared dis
 - Relative `--data-dir` breaks unpacking (use an absolute path). macOS 14+ for the runtime.
 - **GPL.** Piper and espeak-ng are no longer inside the binary or image. The runtime the user downloads from the repository is the vendored GPL object code, so the repository itself conveys it; the corresponding source stays in the same tree at the same tag (`services/tts/vendor/source/`: `piper_tts` sdist, `piper1-gpl` v1.8.0, espeak-ng `724808c`) and the notice stays with it. Never remove that directory. They still run as a separate process over loopback and are never linked into Go.
 - **Not verified:** the linux/amd64 bundle was never executed on a real host; the sentence-by-sentence playback with real audio was not heard in an automated browser. A sandbox artefact: under `sandbox-exec`, whole-body file serving truncates (seen in the smoke test only).
+
+## ADR-082 — Saved tutor profiles: one active slot plus presets
+
+**Status:** accepted 2026-11-18 *(user request: a stronger model on the home PC, the laptop at work)*
+
+**Context.** `services.llm` (provider, endpoint, model) is read at many call sites (`s.service("llm")`, `llm.New`, probes, capabilities). The learner wants several named tutors and one-click switching.
+
+**Decision.**
+- `services.llm` **stays the single active config**; nothing that reads it changes. New `services.llm_profiles: [{id, name, provider, endpoint, model}]` are presets, and `services.llm_active` is the id the active slot was last copied from.
+- **Activate** copies the profile's provider/endpoint/model into `services.llm` through `Server.updateConfig`, drops the capability cache, and keeps `paused`. **Create** saves the current (or given) values and makes the new profile active; **update** of the active profile moves the active slot too; **delete** leaves the tutor as it is and clears `llm_active`.
+- **Hand edits.** The ordinary `PUT /api/settings` path still edits `services.llm`. If the result differs from the active profile, `llm_active` is cleared and the UI shows «Текущий (не сохранён)»; the profile itself is never changed silently. "Save as…" turns the current tutor into a profile.
+- Validation (`config.Validate`): ≤ 8 profiles, unique non-empty ids, unique case-insensitive names ≤ 40 characters, provider `off|local|openai` with an endpoint for the last two, `llm_active` must exist. `normalize()` invents nothing.
+- Admin-only endpoints, like all config.
+
+**Known limit.** The API key is the one global `llmKey` (SQLite); profiles carry no secret, so two `openai` profiles at different vendors need the key swapped by hand. Per-profile keys are a possible later step.
+
+**Rejected.** Replacing `services.llm` by a list plus an index (touches every call site and every probe); storing profiles in SQLite (config.yaml is where endpoints live, ADR-005).

@@ -96,6 +96,10 @@ export interface Settings {
   hvpt: { minTalkers: number; trialsPerSession: number; rateJitter: number }
   curriculum: { focusUnlockListeningHours: number; examDate: string }
   services: Record<string, Service>
+  /** Saved tutor presets (ADR-082). `services.llm` stays the active one. */
+  llmProfiles: LLMProfile[]
+  /** Id of the profile `services.llm` was taken from; '' when edited by hand since. */
+  llmActive: string
   /** Where the optional full language pack downloads from; empty sha256 = not published. */
   langpack: { url: string; sha256: string }
   /** Presence only — a secret's value never reaches the client. */
@@ -116,6 +120,22 @@ export interface Service {
   voices?: string[]
   /** Output only: set through `api.setServicePaused`, never through the settings PUT. */
   paused?: boolean
+}
+
+export interface LLMProfile {
+  id: string
+  name: string
+  provider: ServiceProvider
+  endpoint: string
+  model?: string
+}
+
+/** Body of POST/PUT /api/admin/llm-profiles. The API key is one global secret, not per profile. */
+export interface LLMProfileRequest {
+  name: string
+  provider: ServiceProvider
+  endpoint: string
+  model: string
 }
 
 export interface UpdateSettingsRequest {

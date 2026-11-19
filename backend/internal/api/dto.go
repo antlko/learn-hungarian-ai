@@ -65,8 +65,12 @@ type SettingsDTO struct {
 	HVPT       HVPTDTO               `json:"hvpt"`
 	Curriculum CurriculumDTO         `json:"curriculum"`
 	Services   map[string]ServiceDTO `json:"services"`
-	LangPack   LangPackDTO           `json:"langpack"`
-	Secrets    map[string]bool       `json:"secrets"`
+	// LLMProfiles are the saved tutor presets; LLMActive is the id the active
+	// `services.llm` was last taken from, "" when it differs (ADR-082).
+	LLMProfiles []LLMProfileDTO `json:"llmProfiles"`
+	LLMActive   string          `json:"llmActive"`
+	LangPack    LangPackDTO     `json:"langpack"`
+	Secrets     map[string]bool `json:"secrets"`
 }
 
 // LangPackDTO is where the optional full pack is downloaded from. Admin-edited
@@ -141,6 +145,23 @@ type ServiceDTO struct {
 	Voices   []string `json:"voices,omitempty"`
 	// Paused is output only: PUT /api/settings never reads it (ADR-068).
 	Paused bool `json:"paused,omitempty"`
+}
+
+// LLMProfileDTO is one saved tutor preset. No key: that is one global secret.
+type LLMProfileDTO struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Provider string `json:"provider"`
+	Endpoint string `json:"endpoint"`
+	Model    string `json:"model,omitempty"`
+}
+
+// LLMProfileRequest is the body of POST/PUT /api/admin/llm-profiles.
+type LLMProfileRequest struct {
+	Name     string `json:"name"`
+	Provider string `json:"provider"`
+	Endpoint string `json:"endpoint"`
+	Model    string `json:"model"`
 }
 
 // UpdateSettingsRequest is a partial update. Nil fields are left unchanged.

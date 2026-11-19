@@ -151,6 +151,7 @@ func (s *Server) handleUpdateSettings(c fiber.Ctx) error {
 			target.Model = svc.Model
 			target.Voices = svc.Voices
 		}
+		detachLLMProfileIfEdited(cfg)
 	})
 	if err != nil {
 		return err

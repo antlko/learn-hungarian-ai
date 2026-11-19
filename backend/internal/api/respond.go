@@ -113,8 +113,10 @@ func settingsDTO(c config.Config, secrets map[string]bool) SettingsDTO {
 			"llm": svc(c.Services.LLM),
 			"mt":  svc(c.Services.MT),
 		},
-		LangPack: LangPackDTO{URL: effURL, SHA256: c.LangPack.SHA256},
-		Secrets:  secrets,
+		LLMProfiles: llmProfilesDTO(c.Services.LLMProfiles),
+		LLMActive:   c.Services.LLMActive,
+		LangPack:    LangPackDTO{URL: effURL, SHA256: c.LangPack.SHA256},
+		Secrets:     secrets,
 	}
 }
 
@@ -124,4 +126,14 @@ func jsonUnmarshalString(s string, dst any) error {
 		return nil
 	}
 	return json.Unmarshal([]byte(s), dst)
+}
+
+// llmProfilesDTO renders the saved tutor presets; never nil, so the client
+// can iterate without a guard.
+func llmProfilesDTO(ps []config.LLMProfile) []LLMProfileDTO {
+	out := make([]LLMProfileDTO, 0, len(ps))
+	for _, p := range ps {
+		out = append(out, LLMProfileDTO{ID: p.ID, Name: p.Name, Provider: p.Provider, Endpoint: p.Endpoint, Model: p.Model})
+	}
+	return out
 }

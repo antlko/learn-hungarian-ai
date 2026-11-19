@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"gopkg.in/yaml.v3"
 )
@@ -118,6 +119,12 @@ const (
 	GoalReading      = "reading"
 	GoalConversation = "conversation"
 	GoalExam         = "exam"
+)
+
+// Tutor profile limits (ADR-082).
+const (
+	MaxLLMProfiles       = 8
+	MaxLLMProfileNameLen = 40
 )
 
 // Provider selects where an optional capability is served from. See ADR-005.
@@ -324,11 +331,27 @@ type Services struct {
 	TTS Service `yaml:"tts"`
 	ASR Service `yaml:"asr"`
 	LLM Service `yaml:"llm"`
+	// LLMProfiles are saved, named presets of the tutor's provider/endpoint/model
+	// (ADR-082). `LLM` above stays the single ACTIVE config every call site reads;
+	// activating a profile copies its fields into it. LLMActive is the id of the
+	// profile `LLM` was last copied from, "" when it was edited by hand since.
+	// The API key stays the one global `llmKey` (SQLite), not per profile.
+	LLMProfiles []LLMProfile `yaml:"llm_profiles,omitempty"`
+	LLMActive   string       `yaml:"llm_active,omitempty"`
 	// MT is sentence translation for the reader — a dedicated translation
 	// model, not a chat model. It is deliberately NOT the `llm` slot: what it
 	// produces is a crib for a sentence the learner is looking at, and it is
 	// labelled as machine output wherever it appears. See ADR-014.
 	MT Service `yaml:"mt"`
+}
+
+// LLMProfile is one saved tutor preset. No secret: see Services.LLMProfiles.
+type LLMProfile struct {
+	ID       string `yaml:"id"`
+	Name     string `yaml:"name"`
+	Provider string `yaml:"provider"`
+	Endpoint string `yaml:"endpoint,omitempty"`
+	Model    string `yaml:"model,omitempty"`
 }
 
 type Service struct {
@@ -606,6 +629,9 @@ func (c *Config) Validate() (clamped []ErrClamped, err error) {
 				name, map[bool]string{true: ", device"}[name == "tts"], s.Provider)
 		}
 	}
+	if err := c.Services.validateLLMProfiles(); err != nil {
+		return nil, err
+	}
 	if err := validLangPackURL(c.LangPack.URL); err != nil {
 		return nil, err
 	}
@@ -679,6 +705,51 @@ func Save(dataDir string, c Config) error {
 	}
 	if err := os.Rename(tmpName, p); err != nil {
 		return fmt.Errorf("replace config: %w", err)
+	}
+	return nil
+}
+
+// validateLLMProfiles checks the saved tutor presets: unique ids and names,
+// the same provider/endpoint rules as the llm service, a bounded count, and an
+// active id that points at a real profile.
+func (sv Services) validateLLMProfiles() error {
+	if len(sv.LLMProfiles) > MaxLLMProfiles {
+		return fmt.Errorf("services.llm_profiles: at most %d profiles", MaxLLMProfiles)
+	}
+	ids := map[string]bool{}
+	names := map[string]bool{}
+	for i, p := range sv.LLMProfiles {
+		if strings.TrimSpace(p.ID) == "" {
+			return fmt.Errorf("services.llm_profiles[%d]: id required", i)
+		}
+		if ids[p.ID] {
+			return fmt.Errorf("services.llm_profiles: duplicate id %q", p.ID)
+		}
+		ids[p.ID] = true
+		name := strings.TrimSpace(p.Name)
+		if name == "" {
+			return fmt.Errorf("services.llm_profiles[%d]: name required", i)
+		}
+		if utf8.RuneCountInString(name) > MaxLLMProfileNameLen {
+			return fmt.Errorf("services.llm_profiles[%d]: name longer than %d characters", i, MaxLLMProfileNameLen)
+		}
+		key := strings.ToLower(name)
+		if names[key] {
+			return fmt.Errorf("services.llm_profiles: duplicate name %q", name)
+		}
+		names[key] = true
+		switch p.Provider {
+		case ProviderOff:
+		case ProviderLocal, ProviderOpenAI:
+			if strings.TrimSpace(p.Endpoint) == "" {
+				return fmt.Errorf("services.llm_profiles[%d]: endpoint required when provider is %q", i, p.Provider)
+			}
+		default:
+			return fmt.Errorf("services.llm_profiles[%d].provider: want off, local or openai, got %q", i, p.Provider)
+		}
+	}
+	if sv.LLMActive != "" && !ids[sv.LLMActive] {
+		return fmt.Errorf("services.llm_active: no profile %q", sv.LLMActive)
 	}
 	return nil
 }
