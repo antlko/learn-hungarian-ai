@@ -249,7 +249,7 @@ function onKey(e: KeyboardEvent) {
   }
 }
 
-defineExpose({ thread, messages, asking, remove, del })
+defineExpose({ thread, messages, asking, remove, del, submit })
 </script>
 
 <template>

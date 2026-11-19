@@ -1048,6 +1048,16 @@ do, because a learner who thinks this is a delete will not use it. See
   screen entirely on a narrow window. The `t` key is **gone**: a keystroke at the bottom of the
   key strip went a release without being found, and one visible button beats a shortcut plus a
   line of documentation about it.
+- **Two engines for the sentence, side by side ([ADR-083](../.claude/DECISIONS.md#adr-083)).**
+  Under the sentence the rail shows **«Перевести предложение»** (the machine translator, as before,
+  when `services/mt` answers) and **«Перевести ИИ-учителем»** (`POST /api/sentence-translation/teacher`,
+  when `services.llm` answers). With only one of them, only that button is drawn (the tutor alone is
+  the plain «Перевести предложение»). Each result is its own labelled panel — «Перевод нейросети
+  {model}» or «Перевод ИИ-учителя, {model}» — and both can be on screen at once; both reset when the
+  cursor leaves the sentence. Neither has a save button: translation is display-only.
+- **«Объяснить слово в предложении»** (shown when the tutor answers) opens «Спросить об этом слове»
+  and sends one prepared question that quotes the sentence (≤ 600 characters of it) into the word's
+  ordinary tutor thread — same history, same guardrails, nothing minted, no schedule touched.
 - **Word detail rail** shows the breakdown of *this exact form*, not just the dictionary entry.
 - **`n+1` rail** surfaces sentences scoring in the sweet spot, with the unknown elements named.
 - **Keyboard:** `←`/`→` word (`j`/`k` alias) · `Enter` add card · `Space` mark known ·
@@ -1064,11 +1074,11 @@ do, because a learner who thinks this is a delete will not use it. See
   spoken lower-case**: every engine announces a capital letter rather than reading it, so the
   definite article `A` at the head of a sentence came out as «nagy A» — "capital A"
   (`lib/speech.ts`).
-- **Sentence translation, where the learner has deployed one.** `t` renders the selected
-  sentence into the UI language via `services/mt`, and the panel names the model that wrote it —
+- **Sentence translation, where the learner has deployed one.** A button in the word rail (the
+  `t` key is gone) renders the selected sentence into the UI language via `services/mt`, and the panel names the model that wrote it —
   in the panel, not in a tooltip, because it is the only text on the screen that no person and no
   corpus stands behind ([ADR-014](../.claude/DECISIONS.md#adr-014)). Without the service the
-  control is **not drawn at all** and `t` is not advertised in the key hint: the reader has to
+  control is **not drawn at all**: the reader has to
   read as complete on the default install, which is the one where this is off. Walking the cursor
   out of the translated sentence drops the panel rather than captioning the next line with the
   previous line's meaning.

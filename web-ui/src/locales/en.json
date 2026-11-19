@@ -1099,6 +1099,9 @@
     "autoSpeak": "Read along",
     "autoSpeakHint": "Speak each word you stop on. Your device does the talking.",
     "translateSentence": "Translate the sentence",
+    "translateSentenceAi": "Translate with the AI teacher",
+    "explainInContext": "Explain the word in this sentence",
+    "explainInContextQuestion": "Explain the word «{word}» in the sentence: «{sentence}». What does it mean here, and why is it in this form?",
     "translating": "Translating…",
     "paradigm": "Paradigm",
     "nPlusOne": "Sentences at your level (n+1)",
@@ -1142,7 +1145,8 @@
     "machineShort": "machine translation, {model}",
     "notConfigured": "No translator is set up. Settings → Services → Translation.",
     "unreachable": "The translator is not answering. It may still be loading its model.",
-    "machine": "Neural translation, {model}. Nobody has checked this line — use it as a crib, not as the answer."
+    "machine": "Neural translation, {model}. Nobody has checked this line — use it as a crib, not as the answer.",
+    "teacher": "AI teacher translation, {model}. Nobody has checked this line — use it as a crib, not as the answer."
   },
   "library": {
     "sets": {

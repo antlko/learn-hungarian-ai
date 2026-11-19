@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
-import { BookmarkPlus, Check, EyeOff, Languages, Plus } from '@lucide/vue'
+import { BookmarkPlus, Check, EyeOff, Languages, MessageCircleQuestion, Plus, Sparkles } from '@lucide/vue'
 import { describeError } from '@/lib/errors'
 import { Button } from '@/components/ui/button'
 import AiWordPanel from '@/components/common/AiWordPanel.vue'
@@ -17,6 +17,7 @@ import { useFeaturesStore } from '@/stores/features'
 import { useUiStore } from '@/stores/ui'
 import type {
   Example,
+  SentenceTranslation,
   LemmaDetail,
   LemmaStatus,
   StoredToken,
@@ -90,6 +91,55 @@ const saved = ref<UserGloss | null>(null)
 const saving = ref(false)
 
 const canTranslate = computed(() => caps.available('mt'))
+const canTeach = computed(() => caps.available('llm'))
+
+/**
+ * The AI teacher's translation of the sentence, beside the machine one (ADR-083).
+ * Owned here (the machine one is the reader's): keyed on the sentence TEXT so a
+ * late answer for a sentence the cursor has left is dropped. Display-only — no
+ * save button: it never becomes a gloss, a card or an answer (ADR-014/078).
+ */
+const teacherTranslation = ref<SentenceTranslation | null>(null)
+const teaching = ref(false)
+let teachSeq = 0
+const teacherModel = computed(() => (teacherTranslation.value?.model ?? '').split('/').pop() ?? '')
+
+async function translateWithTeacher() {
+  const hu = props.sentence
+  if (!hu || !canTeach.value || teaching.value) return
+  const seq = ++teachSeq
+  teaching.value = true
+  teacherTranslation.value = null
+  try {
+    const res = await api.teacherTranslate(hu, ui.locale === 'ru' ? 'ru' : 'en')
+    if (seq === teachSeq) teacherTranslation.value = res
+  } catch (e) {
+    if (seq === teachSeq) toast.error(describeError(e))
+  } finally {
+    if (seq === teachSeq) teaching.value = false
+  }
+}
+watch(
+  () => props.sentence,
+  () => {
+    teachSeq++
+    teacherTranslation.value = null
+    teaching.value = false
+  },
+)
+
+/** The panel's own word on whether the tutor answers; the explain button needs it, not just the capability. */
+const aiAvailable = ref(false)
+const aiPanel = ref<InstanceType<typeof AiWordPanel> | null>(null)
+/** The tutor's question is capped at 1000 characters; the sentence gets the room that is left. */
+const SENTENCE_IN_QUESTION = 600
+function explainInContext() {
+  const tk = props.token
+  const s = (props.sentence ?? '').trim()
+  if (!tk || !s) return
+  const sentence = s.length > SENTENCE_IN_QUESTION ? `${s.slice(0, SENTENCE_IN_QUESTION)}…` : s
+  void aiPanel.value?.explainInContext(t('reader.explainInContextQuestion', { word: tk.form, sentence }))
+}
 /** No dictionary entry means no lemma to hang a knowledge state on. */
 const unknownToPack = computed(() => !!props.token && !props.token.lemmaId)
 
@@ -352,20 +402,40 @@ const statusDisabledReason = computed(() =>
         it belongs to, rather than under the article where it was easy to miss
         and only reachable by a key nobody could see.
       -->
-      <div v-if="canTranslate && sentence" class="flex flex-col gap-2">
-        <Button
-          size="sm"
-          variant="ghost"
-          class="self-start"
-          :disabled="translatingSentence"
-          @click="emit('translateSentence')"
-        >
-          <Languages class="size-3.5" aria-hidden="true" />
-          {{ translatingSentence ? $t('reader.translating') : $t('reader.translateSentence') }}
-        </Button>
+      <div v-if="(canTranslate || canTeach) && sentence" class="flex flex-col gap-2">
+        <div class="flex flex-wrap gap-1.5">
+          <Button
+            v-if="canTranslate"
+            size="sm"
+            variant="ghost"
+            :disabled="translatingSentence"
+            @click="emit('translateSentence')"
+          >
+            <Languages class="size-3.5" aria-hidden="true" />
+            {{ translatingSentence ? $t('reader.translating') : $t('reader.translateSentence') }}
+          </Button>
+          <!-- The second engine. With the translator off it is the only button
+               and takes the plain label. -->
+          <Button
+            v-if="canTeach"
+            size="sm"
+            variant="ghost"
+            :disabled="teaching"
+            @click="translateWithTeacher"
+          >
+            <Sparkles class="size-3.5" aria-hidden="true" />
+            {{
+              teaching
+                ? $t('reader.translating')
+                : canTranslate
+                  ? $t('reader.translateSentenceAi')
+                  : $t('reader.translateSentence')
+            }}
+          </Button>
+        </div>
 
         <div
-          v-if="sentenceTranslation"
+          v-if="canTranslate && sentenceTranslation"
           class="flex flex-col gap-1.5 rounded-lg border border-border-subtle bg-background p-2.5"
         >
           <p class="text-xs leading-snug text-muted-foreground" lang="hu">
@@ -385,6 +455,29 @@ const statusDisabledReason = computed(() =>
             }}
           </p>
         </div>
+
+        <div
+          v-if="canTeach && teacherTranslation"
+          class="flex flex-col gap-1.5 rounded-lg border border-border-subtle bg-background p-2.5"
+        >
+          <p class="text-xs leading-snug text-muted-foreground" lang="hu">{{ sentence }}</p>
+          <p class="text-sm leading-relaxed">{{ teacherTranslation.text }}</p>
+          <p class="text-[10px] leading-relaxed text-uncertain">
+            {{ $t('translation.teacher', { model: teacherModel }) }}
+          </p>
+        </div>
+
+        <Button
+          v-if="canTeach && aiAvailable"
+          size="sm"
+          variant="ghost"
+          class="self-start"
+          :disabled="aiPanel?.asking"
+          @click="explainInContext"
+        >
+          <MessageCircleQuestion class="size-3.5" aria-hidden="true" />
+          {{ $t('reader.explainInContext') }}
+        </Button>
       </div>
 
       <!-- The breakdown of THIS occurrence, named rather than tagged: the
@@ -508,10 +601,12 @@ const statusDisabledReason = computed(() =>
         moment, without leaving the text.
       -->
       <AiWordPanel
+        ref="aiPanel"
         :word="token.form"
         :has-pack-entry="!unknownToPack"
         :has-saved="!!saved"
         @saved="saved = $event"
+        @available="aiAvailable = $event"
       />
     </template>
   </aside>

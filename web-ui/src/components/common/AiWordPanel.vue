@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { Sparkles, ChevronDown, MessageCircleQuestion } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import Note from '@/components/common/Note.vue'
@@ -68,6 +68,7 @@ const error = ref('')
 const saved = ref(false)
 const askOpen = ref(false)
 const askBox = ref<HTMLElement | null>(null)
+const conversation = useTemplateRef<InstanceType<typeof TutorConversation>>('conversation')
 
 onMounted(async () => {
   try {
@@ -105,7 +106,31 @@ async function reveal() {
   go()
   setTimeout(go, 350)
 }
-defineExpose({ reveal })
+
+/**
+ * «Объяснить слово в предложении»: open the word's own conversation and send
+ * one prepared question that carries the sentence. Nothing new on the model's
+ * side — it is an ordinary question in the ordinary thread, so every tutor
+ * guardrail and the history apply (ADR-083).
+ */
+async function explainInContext(question: string) {
+  if (!status.value?.available) return
+  const word = props.word
+  await reveal()
+  // The conversation mounts on `askOpen` and then loads the word's thread;
+  // `ask` ignores a question until the thread is there, so wait for it
+  // (bounded — a thread that never loads simply leaves the box open).
+  // Never send one word's question into another word's thread.
+  for (let i = 0; i < 40 && props.word === word && !conversation.value?.thread?.available; i++) {
+    await new Promise((r) => setTimeout(r, 100))
+  }
+  if (props.word === word && conversation.value?.thread?.available) {
+    await conversation.value.submit(question)
+  }
+}
+/** Whether the word conversation is answering — the parent disables its trigger meanwhile. */
+const asking = computed(() => !!conversation.value?.asking)
+defineExpose({ reveal, explainInContext, asking })
 
 /** The model's short name, for the label that travels with the entry. */
 const model = computed(() => (entry.value?.model || status.value?.model || '').split('/').pop() ?? '')
@@ -268,6 +293,7 @@ async function save() {
       -->
       <TutorConversation
         v-if="askOpen"
+        ref="conversation"
         :key="word"
         kind="word"
         :word="word"

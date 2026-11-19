@@ -5,6 +5,12 @@ the project uses [semantic versioning](https://semver.org/). Every design decisi
 is an ADR in [`.claude/DECISIONS.md`](.claude/DECISIONS.md), and every pedagogical claim traces to a
 note in [`.claude/research/`](.claude/research/README.md).
 
+## [1.6.1] — 2026-11-19 — Reader: translate and explain with the AI teacher
+
+### Added
+- **Reader: translate a sentence with the AI teacher** (ADR-083) beside the machine translator; each result is labelled with its source and model. If only one of them is available, only that button is shown.
+- **Reader: «Объяснить слово в предложении»** asks the AI teacher about the selected word with its sentence, in the word's usual conversation.
+
 ## [1.6.0] — 2026-11-19 — Several saved AI tutors, switch with one click
 
 ### Added

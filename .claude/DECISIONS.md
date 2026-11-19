@@ -3232,3 +3232,15 @@ S is FSRS stability in days. 180 days (`srs.ProgressFullDays`) is a declared dis
 **Known limit.** The API key is the one global `llmKey` (SQLite); profiles carry no secret, so two `openai` profiles at different vendors need the key swapped by hand. Per-profile keys are a possible later step.
 
 **Rejected.** Replacing `services.llm` by a list plus an index (touches every call site and every probe); storing profiles in SQLite (config.yaml is where endpoints live, ADR-005).
+
+## ADR-083 — Reader: two sentence-translation engines side by side, and «explain in context»
+
+**Status:** accepted 2026-11-19 *(user request: translate a sentence with the AI teacher too, keep the machine translator, add «explain the word» in the sentence)*
+
+**Context.** The reader's rail translated a sentence only through `services/mt`. ADR-078 already gave an AI-teacher sentence translation (`POST /api/sentence-translation/teacher`), used only on the review card.
+
+**Decision.**
+- The rail offers both engines as separate buttons, each only when its service answers (`caps.available('mt'|'llm')`). The machine translator keeps its place and label (default); the tutor is «Перевести ИИ-учителем», or the plain «Перевести предложение» when it is the only engine. Results are kept per engine, labelled with source and model, may both be visible, and reset with the sentence. No save-as-gloss on either (ADR-014, ADR-078).
+- «Объяснить слово в предложении» sends a prepared question that includes the sentence into the **existing word tutor thread** (`kind="word"`, ADR-042) — no new LLM path, so ADR-027/046 guardrails and history apply. The sentence is cut to 600 characters to stay under `tutor.QuestionLimit` (1000).
+
+**Rejected.** A new "explain in context" endpoint (a second prompt to keep honest); replacing MT by the tutor (the translator is cheap, offline-capable, and the default).
