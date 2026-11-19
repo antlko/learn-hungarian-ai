@@ -1,6 +1,6 @@
 // Package lang locates, verifies and opens the Hungarian language pack — a
 // versioned, read-only SQLite file holding lemmas, wordforms, morphological
-// features, sentences, minimal pairs and the curriculum.
+// features, sentences and the curriculum.
 //
 // The pack is kept separate from the learner database on purpose: upgrading it is
 // a file swap that cannot put learner data at risk. See ADR-002 and
@@ -31,7 +31,7 @@ var FilePattern = regexp.MustCompile(`^langpack-hu-v(\d+(?:\.\d+)?)\.sqlite$`)
 // different things and the difference is not academic: a truncated download or
 // an interrupted copy leaves a zero-byte langpack-hu-v1.sqlite, which the old
 // name-only check reported as present. The server then started with morphology,
-// reading, drills, the ear trainer and the curriculum all dead behind a message
+// reading, drills and the curriculum all dead behind a message
 // telling the user to download a pack that was, as far as they could see,
 // already there. Verifying costs one Open per candidate at startup.
 func Detect(dataDir string) (version string, ok bool) {

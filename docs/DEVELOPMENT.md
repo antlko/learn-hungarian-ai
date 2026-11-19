@@ -43,9 +43,9 @@ reads as "the button is still not there".
 | `make test-backend` / `make test-frontend` | Either half. |
 | `make lint` / `make fmt` | gofmt + `go vet` + oxlint/eslint; or rewrite in place. |
 | `make langpack` | Rebuilds `data/langpack-hu-v1.sqlite` (see the caveats below). |
-| `make refresh-curriculum` (alias `make refresh`) | Rewrites the lessons, features, minimal pairs and course in an existing pack. Seconds, no downloads. Stop the server first. |
+| `make refresh-curriculum` (alias `make refresh`) | Rewrites the lessons, features and course in an existing pack. Seconds, no downloads. Stop the server first. |
 | `make texts` / `make texts-check` | `texts`: validates `langpack/texts/*.json` against `$(PACK)` (read-only) and rewrites the committed `backend/internal/readsets/catalog.json` the binary embeds ([ADR-076](../.claude/DECISIONS.md#adr-076)); `texts-check`: fails when that file is stale (no pack needed). Edit texts, `make texts`, commit, deploy: no `make refresh`. |
-| `make audio` | Renders the ear trainer's clips into `data/media/hvpt` with Piper (from the venv) and ffmpeg; `make voices` fetches the three CC0 talkers first (the same files are committed in `langpack/voices` by the owner). |
+| `make voices` | Fetches the three CC0 Piper voice models (the same files are committed in `langpack/voices` by the owner). |
 | `make tts` | Runs the Piper speech component on `http://localhost:5000` from the **local vendored tree** (no download): `go run ./cmd/tanulom component run tts --host 127.0.0.1 --port 5000 --data-dir .tts-data --voices-dir langpack/voices --tts-runtime-dir services/tts/vendor`. The first start unpacks ≈ 430 MB into the gitignored `.tts-data/` (`TTS_SCRATCH=` to move it); Ctrl-C stops it. |
 | `make tts-vendor` | Maintainer only, **the one target that uses the network**: refreshes `services/tts/vendor/` (python-build-standalone tarballs, hash-pinned wheels, GPL source, `MANIFEST.sha256`, `requirements.lock`) and rewrites the voices manifest. Roughly 0.5 GB of repository history per refresh. Then run `make sync-components`. |
 | `make tts-verify` | Re-hashes `services/tts/vendor/` and `langpack/voices/` against their manifests and `requirements.lock`, offline; part of `make docs-check`. |
@@ -120,33 +120,27 @@ Both run in `.github/workflows/ci.yml` on every PR, and `make test` runs the sam
 
 You do **not** need to build the pack to develop, and there is nothing to fetch: the binary
 installs its embedded starter pack into the data directory on first boot. It is a real pack —
-5,725 lemmas, the whole 24-unit course, every minimal pair — so every screen works against it. To rebuild — see [`LANGPACK.md`](LANGPACK.md) — expect hours and tens
+5,725 lemmas, the whole 24-unit course, so every screen works against it. To rebuild — see [`LANGPACK.md`](LANGPACK.md) — expect hours and tens
 of GB of scratch space; it is built on a workstation — CI does not build packs, it tests
 against the embedded starter.
 
 **Editing content does not cost a rebuild.** The lessons (`pipeline/lessons.py`), the feature
-inventory, the minimal pairs and the course are pure Python literals, so
+inventory and the course are pure Python literals, so
 `make refresh-curriculum` rewrites those tables in an existing pack in seconds. Stop the server
 first — the app treats a pack as read-only and this is a build step writing to one — and then
 run `make starter` and commit, or the binary goes on shipping the old text.
 
 ### Upgrading your own pack
 
-A pack you built earlier keeps its old lessons, pairs and clips until you refresh it. The ear
-trainer's pairs changed in ADR-033 (every member is now a real word), and the clips are named
-by word, so the old files are not reused. With the **server stopped**:
+A pack you built earlier keeps its old lessons until you refresh it. With the **server stopped**:
 
 ```bash
 cp data/langpack-hu-v1.sqlite data/langpack-hu-v1.sqlite.bak-$(date +%Y%m%d)
-make refresh          # lessons, features, pairs, course — seconds; pair_audio rows follow the pairs
-rm -rf data/media/hvpt
-make audio            # Piper from the venv + ffmpeg; expect "rendered 342 clips (skipped 0)"
+make refresh          # lessons, features, course — seconds
 ```
 
-Then start the server and open «Слух»: three voices, no pair marked «(нет слова)». Your
-contrast progress keys on the contrast, not on the pair id, so nothing is lost. `make audio`
-is incremental — a clip that already exists is skipped — which is why the old directory is
-removed first: with it in place the target reports `rendered 0` and looks broken.
+An older pack may still carry the removed ear trainer's `minimal_pair` / `pair_audio` tables; they are
+unused and harmless, and `<data>/media/hvpt` can be deleted by hand (ADR-084).
 
 ## The embedded SPA has no modification times
 

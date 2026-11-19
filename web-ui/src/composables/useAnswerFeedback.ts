@@ -6,9 +6,9 @@ import { play } from '@/lib/sound'
  *
  * [R1] The testing effect grows when feedback follows the retrieval attempt —
  * see .claude/research/01-retrieval-practice.md. Every screen where the learner
- * is graded (review, grammar drills, placement, the ear trainer) owes the same
+ * is graded (review, grammar drills, placement) owes the same
  * response the moment the server's answer lands: a sound and a movement. This
- * exists so all four give the same one, rather than four near-misses.
+ * exists so all of them give the same one, rather than near-misses.
  *
  * THE SOUND NEVER DELAYS THE UI. `signal` sets the reactive state first and
  * nothing here is awaited: `play()` builds oscillator nodes and returns, it

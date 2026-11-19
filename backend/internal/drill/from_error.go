@@ -14,8 +14,8 @@ import (
 // because the remedies are genuinely different skills: a wrong allomorph needs
 // repetition volume, a wrong case needs the rule restated, and a dropped vowel
 // length needs the EAR — no amount of typing practice fixes a contrast the
-// learner cannot hear. Corrective feedback that names the error and routes to
-// the right remedy outperforms simply supplying the answer. [R9], [R15]
+// learner cannot hear. Corrective feedback that names the error and says what
+// kind of remedy it is outperforms simply supplying the answer. [R9], [R15]
 //
 // There is deliberately no follow-up QUEUE table. A queue drifts: items are
 // enqueued from an error, the learner then fixes the weakness elsewhere, and the
@@ -38,7 +38,7 @@ type Target struct {
 	// recognition MCQ for a harmony error would let the learner pass by
 	// elimination without ever producing the form.
 	Kinds []Kind `json:"kinds"`
-	// Remedy names what will fix it. Not always a drill — see RemedyEar.
+	// Remedy names what will fix it. Not always a drill — see RemedyPerception.
 	Remedy Remedy `json:"remedy"`
 	Misses int    `json:"misses"`
 }
@@ -52,11 +52,12 @@ const (
 	// RemedyRule: the rule itself is not held. Rule card, then recognition, then
 	// production. [R4]
 	RemedyRule Remedy = "drill.remedy.rule"
-	// RemedyEar: a perception problem wearing a spelling costume. Vowel length
-	// and rounding are phonemic in Hungarian and absent from both our learners'
-	// L1s, so the fix is HVPT, not more typing. Saying so out loud matters: the
-	// app must not pretend a typing drill treats a hearing problem.
-	RemedyEar Remedy = "drill.remedy.ear"
+	// RemedyPerception: a perception problem wearing a spelling costume. Vowel
+	// length and rounding are phonemic in Hungarian and absent from both our
+	// learners' L1s, so more typing will not fix it. There is no drill for it
+	// (the ear trainer was removed, ADR-084); the app says so instead of
+	// pretending a typing drill treats a hearing problem.
+	RemedyPerception Remedy = "drill.remedy.perception"
 	// RemedyVocabulary: a different word entirely. This is the review loop's
 	// job, not the grammar drill's.
 	RemedyVocabulary Remedy = "drill.remedy.vocabulary"
@@ -80,7 +81,7 @@ func remedyFor(class morph.ErrorClass) (Remedy, []Kind) {
 	case morph.ErrPossessor:
 		return RemedyRule, []Kind{KindMCQ, KindTransform}
 	case morph.ErrVowelLength, morph.ErrVowelQuality:
-		return RemedyEar, nil
+		return RemedyPerception, nil
 	case morph.ErrStem:
 		return RemedyVocabulary, nil
 	case morph.ErrSpelling:

@@ -11,7 +11,7 @@ import (
 // "Wrong" is almost useless feedback. What a learner needs is *which part* was
 // wrong and *why*, because the remedy differs completely: a wrong harmony
 // variant needs volume, a wrong case needs the rule restated, and a dropped
-// vowel length needs ear training rather than more writing.
+// vowel length is a perception problem that more writing will not fix.
 //
 // Corrective feedback that names the error and prompts a repair outperforms
 // simply supplying the answer, so the diff feeds both the display and the
@@ -26,8 +26,8 @@ const (
 	ErrVowelLength ErrorClass = "vowel_length" // hat/hát — phonemic, needs the ear
 	// ErrVowelQuality is rounding: tor/tör. The front rounded vowels have no
 	// counterpart in Russian or English at all, so this is a perception problem
-	// before it is a writing problem. Separate from length because it routes to
-	// a different minimal-pair contrast in the ear trainer.
+	// before it is a writing problem. Separate from length because it is a
+	// different contrast from length.
 	ErrVowelQuality ErrorClass = "vowel_quality"
 	ErrCase         ErrorClass = "case"
 	ErrDefinite     ErrorClass = "definiteness"
@@ -70,7 +70,7 @@ func normalise(s string) string {
 // Vowel folding, used only to DETECT an error, never to accept one.
 //
 // Two separate folds because they are two separate mistakes with two separate
-// remedies, even though both route to ear training:
+// remedies, even though both are perception problems:
 //
 //   - LENGTH: hat/hát, tör/tőr. Phonemic in Hungarian, absent from Russian and
 //     English, and by far the highest-frequency error.
@@ -138,7 +138,7 @@ func DiffForms(typed, expected string, a *Analyzer) Diff {
 	d.CommonPrefix, d.CommonSuffix = commonAffixes(t, e)
 
 	// Vowel length first: it is the highest-frequency error for a learner whose
-	// L1 has no phonemic length, and its remedy is ear training rather than more
+	// L1 has no phonemic length, and its remedy is not more
 	// writing, so it must not be mislabelled as a spelling slip.
 	if stripLength(t) == stripLength(e) {
 		d.Class = ErrVowelLength

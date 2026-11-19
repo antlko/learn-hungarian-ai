@@ -45,7 +45,7 @@ ALLOWED_SOURCES = (ALLOWED_SOURCE, AUTHORED_SOURCE)
 # What backend/internal/lang expects to find (pack.go Counts + the readers).
 REQUIRED_TABLES = (
     "pack_meta", "lemma", "lemma_gloss", "wordform", "paradigm", "morph_feature",
-    "sentence", "sentence_trans", "sentence_token", "minimal_pair", "pair_audio",
+    "sentence", "sentence_trans", "sentence_token",
     "grammar_topic", "course_unit", "course_word", "resource",
     "reading_set", "reading_set_sentence", "ngram",
 )

@@ -5,7 +5,5 @@
 # target runs through that interpreter. The stages that read Wiktionary and
 # Tatoeba use only the standard library (urllib, sqlite3, bz2, zipfile).
 pytest>=8.0
-# `make audio` — the ear trainer's clips (python -m piper); ffmpeg encodes them.
-piper-tts>=1.2
 # `make langpack` — the morphological analysis behind the full pack:
 #   pip install -r requirements-build.txt

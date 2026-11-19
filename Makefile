@@ -18,9 +18,7 @@ LANGPACK_DIR := langpack
 # relative path this resolved to langpack/backend/internal/lang/starter and
 # `make starter` silently wrote the embedded pack into a shadow directory that
 # nothing reads — so the binary went on shipping whatever was committed, which
-# is the exact failure CLAUDE.md warns about. The media tarball on the next
-# line is written from the repo root and was landing correctly, so the two
-# halves of one target disagreed about where the pack lives.
+# is the exact failure CLAUDE.md warns about.
 STARTER_DIR  ?= $(CURDIR)/backend/internal/lang/starter
 VOICES_DIR   := $(LANGPACK_DIR)/voices
 # Piper runtime (ADR-080, ADR-081): the committed source of truth the app downloads
@@ -44,14 +42,13 @@ DATA_DIR      ?= $(CURDIR)/data
 PACK          ?= $(DATA_DIR)/langpack-hu-v1.sqlite
 # The pipeline's interpreter: the project virtualenv when `make venv` (part of
 # `make deps`) has created it, else whatever python3 is on PATH. Piper lives in
-# the venv, so a system python renders nothing — `make audio` once reported
-# "rendered 0 clips" for exactly that reason.
+# the venv, so a system python renders nothing.
 VENV          := $(LANGPACK_DIR)/.venv
 # ABSOLUTE: the pipeline recipes `cd langpack` first, so a relative venv path
 # resolved against the wrong directory and `make refresh`/`make langpack` died
 # with «No such file or directory» for anyone who had run `make deps`.
 PYTHON        ?= $(if $(wildcard $(VENV)/bin/python),$(CURDIR)/$(VENV)/bin/python,python3)
-# The ear trainer's three CC0 Hungarian talkers. Pinned to `main` because
+# The three CC0 Hungarian Piper voices. Pinned to `main` because
 # rhasspy/piper-voices publishes no tags; the .json voice cards beside each
 # model are tracked, so a swapped model is visible in a diff.
 PIPER_BASE    ?= https://huggingface.co/rhasspy/piper-voices/resolve/main/hu/hu_HU
@@ -225,7 +222,7 @@ refresh: refresh-curriculum ## Alias for refresh-curriculum
 refresh-curriculum: ## Rewrite lessons/features/course in an existing pack (seconds, no downloads)
 	$(call need,$(PYTHON),$(PY_HINT))
 	@test -s '$(PACK)' || { echo 'need $(PACK) first — run: make langpack'; exit 1; }
-# The lessons, the feature inventory, the minimal pairs and the course are pure
+# The lessons, the feature inventory and the course are pure
 # Python literals: nothing about them needs Wiktionary or Tatoeba, so editing a
 # lesson must not cost a multi-hour `make langpack`. Stop the server first — the
 # app treats a pack as read-only and this is a build step writing to one.
@@ -276,27 +273,19 @@ tutor-kb: ## Regenerate the grammar tutor's reference corpus from its open sourc
 		--out '$(CURDIR)/backend/internal/tutor/kb' --pack '$(PACK)'
 
 .PHONY: starter
-starter: ## Rebuild the starter pack + audio that ship INSIDE the binary
+starter: ## Rebuild the starter pack that ships INSIDE the binary
 	$(call need,$(PYTHON),$(PY_HINT))
 	@test -s '$(PACK)' || { echo 'need $(PACK) first — run: make langpack'; exit 1; }
 	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.starter \
 		--full '$(PACK)' --out '$(STARTER_DIR)/langpack-hu-starter.sqlite'
-	@# The ear trainer's clips ride along, so a fresh install has working audio
-	@# with no download. Opus, so the whole inventory is well under a megabyte.
-	@# COPYFILE_DISABLE and the exclude are both needed on macOS: without them
-	@# bsdtar packs an AppleDouble `._x` sidecar next to every clip AND HIDES
-	@# THEM FROM `tar tzf`, so the binary ships 385 junk files that only a
-	@# non-Apple reader can see. Ask python3 -m tarfile -l if you ever doubt it.
-	COPYFILE_DISABLE=1 tar czf '$(STARTER_DIR)/media.tar.gz' \
-		--exclude '._*' --exclude '.DS_Store' -C '$(DATA_DIR)/media' hvpt
 
 .PHONY: voices
-voices: ## Fetch the three Piper voice models the ear trainer renders with (180 MB)
+voices: ## Fetch the three Piper voice models (180 MB)
 	$(call need,curl,Install curl)
 	@mkdir -p '$(VOICES_DIR)'
 # 60 MB each, redistributable, and identical on every machine — a download, not
-# a repository. The .json voice cards ARE tracked, so what the ear trainer
-# expects is recorded even before anyone runs this.
+# a repository. The .json voice cards ARE tracked, so what is expected
+# is recorded even before anyone runs this.
 	@for v in anna berta imre; do \
 		f='$(VOICES_DIR)'/hu_HU-$$v-medium.onnx; \
 		if [ -s "$$f" ]; then printf '  have %s\n' "$$f"; continue; fi; \
@@ -306,7 +295,7 @@ voices: ## Fetch the three Piper voice models the ear trainer renders with (180 
 			&& mv "$$f.part" "$$f" \
 			|| { rm -f "$$f.part"; echo "  failed: hu_HU-$$v-medium.onnx" >&2; exit 1; }; \
 	done
-	@printf '\n  voices in %s — now run: make audio\n\n' '$(VOICES_DIR)'
+	@printf '\n  voices in %s\n\n' '$(VOICES_DIR)'
 
 # The managed-components manager embeds the sidecar sources (go:embed cannot reach
 # outside its package), so services/<id>/ stays the source of truth and the copy
@@ -372,14 +361,6 @@ mt: ## Run the local translator natively on :5003 (first run downloads ~2.4 GB)
 	@printf '\n  translator  http://localhost:5003\n  model dir   %s\n' '$(MT_MODEL_DIR)'
 	@printf '  Settings -> Services -> translation: provider local, endpoint http://localhost:5003\n\n'
 	cd '$(MT_DIR)' && MT_MODEL_DIR='$(MT_MODEL_DIR)' ./.venv/bin/python app.py
-
-.PHONY: audio
-audio: voices ## Render the ear-trainer clips into data/media (needs piper + ffmpeg)
-	$(call need,$(PYTHON),$(PY_HINT))
-	$(call need,ffmpeg,Install ffmpeg (macOS: brew install ffmpeg) — the clips are encoded to Opus with it)
-	@'$(PYTHON)' -c 'import piper' 2>/dev/null || { echo 'piper is not installed for $(PYTHON) — run: make deps'; exit 1; }
-	cd '$(LANGPACK_DIR)' && '$(PYTHON)' -m pipeline.minimal_pairs \
-		--pack '$(PACK)' --media '$(DATA_DIR)/media' --voices-dir ./voices
 
 ##@ Housekeeping
 

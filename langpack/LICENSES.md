@@ -23,7 +23,6 @@ This is a legal obligation, not a courtesy. This file is surfaced in the app und
 |---|---|---|---|
 | [Tatoeba](https://tatoeba.org) | example sentences, HU↔EN/RU links | **CC BY 2.0 FR**; some sentences CC0 | "Tatoeba Project contributors" |
 | Authored dialogues (`pipeline/dialogues.py`) | one short conversation per course unit, reading sets only | **CC BY-SA 4.0** (the pack's own licence) | written by an AI for tanulom, **not checked by a native speaker**; labelled so in the UI; never used for drills or the n-gram index |
-| Tatoeba **audio** | HVPT + sentence audio | **per-clip — set by the contributor** | recorded per clip in `pair_audio.license`; clips without a permissive licence are excluded |
 | [hermitdave/FrequencyWords](https://github.com/hermitdave/FrequencyWords) (`hu_50k`, OpenSubtitles) | frequency ranks | **CC BY-SA 4.0** | Hermit Dave; derived from OpenSubtitles via OPUS |
 | [OPUS OpenSubtitles](https://opus.nlpl.eu/OpenSubtitles/) v2018, `hu-ru` and `en-hu` | conversational example sentences and their translations | **free for research use**; the corpus is derived from opensubtitles.org and OPUS asks that the paper be cited rather than granting an explicit content licence | P. Lison and J. Tiedemann, *OpenSubtitles2016: Extracting Large Parallel Corpora from Movie and TV Subtitles*, LREC 2016 |
 | [Hungarian Webcorpus 2.0](https://hlt.bme.hu/en/resources/webcorpus2) | n-gram attestation index, lemma frequency | **CC BY-SA 4.0** (Wikipedia subcorpus); Common Crawl terms for the CC subcorpus | SZTAKI-HLT / BME |
@@ -68,14 +67,13 @@ outside — held *inside*, it would put a non-commercial restriction on a pack r
 
 | Source | Used for | Licence | Attribution |
 |---|---|---|---|
-| [Piper](https://github.com/rhasspy/piper) voices `hu_HU-anna`, `hu_HU-berta`, `hu_HU-imre` | synthetic talkers, card audio | Voice datasets **CC0 1.0** ([OHF-Voice voice-datasets](https://github.com/OHF-Voice/voice-datasets)); `anna` and `berta` are fine-tuned from `hifi_tts_92` (en_US) — **its licence must be confirmed**; `imre` from `rdh` (nl_BE, CC0). Check each voice card | Rhasspy / Piper contributors, OHF-Voice |
+| [Piper](https://github.com/rhasspy/piper) voices `hu_HU-anna`, `hu_HU-berta`, `hu_HU-imre` | synthetic voices, read-aloud | Voice datasets **CC0 1.0** ([OHF-Voice voice-datasets](https://github.com/OHF-Voice/voice-datasets)); `anna` and `berta` are fine-tuned from `hifi_tts_92` (en_US) — **its licence must be confirmed**; `imre` from `rdh` (nl_BE, CC0). Check each voice card | Rhasspy / Piper contributors, OHF-Voice |
 | piper-tts 1.8.0 and espeak-ng (not a data source) | speech synthesis at runtime | **GPL-3.0-or-later** — vendored wheel (downloaded by the app from this repository, not shipped inside the binary or image) plus Corresponding Source in this repository at `services/tts/vendor/source/` (`piper1-gpl-v1.8.0.tar.gz` for the C bridge and CMake, `espeak-ng-724808c.tar.gz` for espeak-ng; the PyPI sdist `piper_tts-1.8.0.tar.gz` is Python-only and does not contain espeak-ng); the repository conveys both the object code and the source at the same tag, so keep that directory and the notice in place; the images do not contain them; runs as a **separate process** (aggregation), never linked into our binary | Rhasspy / OHF-Voice / espeak-ng contributors |
 | onnxruntime 1.32.0 (vendored wheel) | neural inference for Piper | **MIT** | Microsoft |
 | numpy (vendored wheel) | Piper dependency | **BSD-3-Clause**; bundled OpenBLAS **BSD-3-Clause**; bundled libgfortran **GPL-3.0 with GCC Runtime Library Exception** | NumPy developers |
 | protobuf, flatbuffers, packaging, pathvalidate (vendored wheels) | onnxruntime / Piper dependencies | verify when vendored (read each wheel `METADATA`) | respective authors |
 | CPython 3.12 (python-build-standalone, vendored) | the bundled interpreter | **PSF License**; bundled libraries (OpenSSL, SQLite, zlib, ncurses, …) — see the upstream licence file inside the tarball | Python Software Foundation; astral-sh/python-build-standalone |
 | Standing note | voices `anna` and `berta` | fine-tuned from `hifi_tts_92`; **its licence still needs confirming** — not resolved | — |
-| [Mozilla Common Voice — Hungarian](https://commonvoice.mozilla.org/hu/datasets) | **human talkers for HVPT** | **CC0 1.0** | Mozilla Common Voice contributors |
 
 ## Obligations this creates
 
@@ -84,10 +82,7 @@ outside — held *inside*, it would put a non-commercial restriction on a pack r
 2. **Share-alike.** The pack is CC BY-SA 4.0. Anyone redistributing a modified pack must do the
    same. This does **not** extend to the application code (MIT) — the pack is data the program
    reads, not a derivative of the program.
-3. **Per-clip audio filtering.** Tatoeba audio licences are chosen by the individual contributor.
-   `pipeline/sentences.py` **must** check each clip and record the licence in `pair_audio.license`;
-   clips whose licence cannot be resolved are excluded. This is a pack quality gate.
-4. **No paywalled or scraped content.** The pipeline fetches only the pinned, publicly licensed
+3. **No paywalled or scraped content.** The pipeline fetches only the pinned, publicly licensed
    sources listed above, verified by SHA256.
 
 ## Verifying
@@ -96,6 +91,6 @@ outside — held *inside*, it would put a non-commercial restriction on a pack r
 cd langpack && python -m pipeline.verify_licenses --pack ../dist/langpack-hu-v1.sqlite
 ```
 
-Checks that every `pair_audio` and `sentence` row carries a resolvable licence, and that
+Checks that every `sentence` row carries a resolvable licence, and that
 `pack_meta.attribution` matches this file. It runs as a release gate in
 `.github/workflows/langpack.yml`.

@@ -52,6 +52,7 @@ In Vue, the same convention in a `<!-- -->` or `//` comment above the component 
 | R21 | [21-graded-authored-texts.md](21-graded-authored-texts.md) | A connected, graded, authored text per unit beats a bag of corpus sentences at A1–A2; labelled AI-written | Medium |
 | R22 | [22-text-length-and-genre.md](22-text-length-and-genre.md) | Three texts per topic (short/medium/long, different genres) as a narrow-reading cluster; tier sizes are an inference | Medium |
 | R23 | [23-colloquial-register.md](23-colloquial-register.md) | Spoken Hungarian differs from the written norm in particles, clippings and ellipsis; our evidence is thin and AI-written, so the register rules are checkable and reviewed, not proven | Low |
+| R24 | [24-written-corrective-feedback.md](24-written-corrective-feedback.md) | A marked essay names place, fix, reason and rule; hint-first is the default but a lock is not; every model claim is labelled; nothing becomes a card | Low-Medium |
 
 ## Confidence scale
 

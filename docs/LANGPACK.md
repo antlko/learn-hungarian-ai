@@ -64,13 +64,6 @@ sentence(id, hu TEXT, source TEXT, license TEXT,
 sentence_trans(sentence_id, lang, text)
 sentence_token(sentence_id, idx, form, lemma_id, feats)   -- pre-analysed → n+1 is a SQL join
 
--- ─── phonetics ──────────────────────────────────────────────────────────
-minimal_pair(id, a TEXT, b TEXT, contrast TEXT,
-             ipa_a TEXT, ipa_b TEXT, context_sentence TEXT)
-pair_audio(pair_id, member TEXT CHECK(member IN ('a','b')),
-           talker_id TEXT, talker_kind TEXT,   -- 'piper' | 'human'
-           rate REAL, path TEXT, license TEXT)
-
 -- ─── curriculum ─────────────────────────────────────────────────────────
 grammar_topic(id, code TEXT, level TEXT,
               title_ru, title_en, explain_md_ru, explain_md_en,
@@ -101,12 +94,11 @@ under Settings → Data.
 |---|---|---|
 | [kaikki.org Hungarian](https://kaikki.org/dictionary/Hungarian/) (wiktextract) | glosses, IPA, **full inflection tables**; 72,781 forms, 49,653 noun + 17,730 verb senses | CC BY-SA / GFDL |
 | Russian Wiktionary edition, same toolchain | RU glosses — **thinner than EN**, hence fallback | CC BY-SA |
-| [Tatoeba](https://tatoeba.org/en/downloads) | example sentences, HU↔EN/RU links, some audio | CC BY 2.0 FR / CC0; **audio licence is per-clip — filter** |
+| [Tatoeba](https://tatoeba.org/en/downloads) | example sentences, HU↔EN/RU links, audio is not imported | CC BY 2.0 FR / CC0; **audio licence is per-clip — filter** |
 | [hermitdave/FrequencyWords](https://github.com/hermitdave/FrequencyWords) `hu_50k` | frequency ranks (OpenSubtitles, spoken-register weighted) | CC BY-SA 4.0 |
 | [Hungarian Webcorpus 2.0](https://hlt.bme.hu/en/resources/webcorpus2) | n-gram attestation index, lemma frequency | CC BY-SA 4.0 (Wikipedia subcorpus) |
 | [UD Hungarian](https://github.com/UniversalDependencies/UD_Hungarian) | feature inventory; **golden test data** | CC BY-SA |
-| [Common Voice HU](https://commonvoice.mozilla.org/hu/datasets) | **human talkers for HVPT** | CC0 |
-| [Piper hu_HU](https://huggingface.co/rhasspy/piper-voices/tree/main/hu/hu_HU) — anna, berta, imre | synthetic talkers, card audio | MIT |
+| [Piper hu_HU](https://huggingface.co/rhasspy/piper-voices/tree/main/hu/hu_HU) — anna, berta, imre | synthetic voices, read-aloud | MIT |
 | [morphdb.hu](http://mokk.bme.hu/resources/morphdb-hu/) / [emMorph](https://github.com/dlt-rilmta/emMorph) | fallback suffix rules | see repo |
 
 **Attribution is a shipping requirement, not a nicety.** CC BY-SA obliges attribution and
@@ -211,7 +203,7 @@ fetch → normalise → analyse → merge → score → emit
 | normalise | `wiktionary.py`, `wiktionary_ru.py`, `frequency.py` | JSONL → `lemma`, `lemma_gloss`, `paradigm`, IPA; frequency → ranks |
 | analyse | *(in `build.py`)* | **No tagger and no `analyse.py`.** Tokens of Tatoeba sentences are linked to lemmas by dictionary lookup (`sentence_token.feats` is empty); `wordform` is Wiktionary paradigms ∪ generated rows (`verbs.py`, attested wins) |
 | merge | `features.py` | resolve lemma identity across sources; derive `morph_feature` incl. allomorph tables from harmony class |
-| score | `sentences.py`, `minimal_pairs.py`, `curriculum.py`, `lessons.py`, `ngram.py` | sentence difficulty; CEFR estimate per lemma; contrast inventory + audio rendering; topic DAG + lesson text; n-gram counts |
+| score | `sentences.py`, `curriculum.py`, `lessons.py`, `ngram.py` | sentence difficulty; CEFR estimate per lemma; topic DAG + lesson text; n-gram counts |
 | emit | `emit.py` | write SQLite, create indexes, `VACUUM`, checksum, `manifest.json` |
 
 ### Editing a lesson without a full rebuild
@@ -222,8 +214,8 @@ both locales. They were one file, and that is why every lesson used to be a sing
 now states the rule, shows the paradigm as a paradigm, works through examples and names the
 mistake a learner actually makes — which is [R4] applied rather than cited.
 
-Four tables are computed from Python literals alone and need nothing downloaded —
-`morph_feature`, `grammar_topic`, `minimal_pair`, and `course_unit`/`course_word`. Rewriting
+Three tables are computed from Python literals alone and need nothing downloaded —
+`morph_feature`, `grammar_topic`, and `course_unit`/`course_word`. Rewriting
 them in an existing pack takes seconds:
 
 ```bash
@@ -232,13 +224,11 @@ make starter                     # then re-embed, and COMMIT the result
 ```
 
 `pipeline/refresh.py` validates everything **before** it opens the file for writing — including
-every minimal-pair member against the pack's own `wordform` table ([ADR-033](../.claude/DECISIONS.md#adr-033))
-— and swaps all five tables in one transaction: a pack left half-rewritten by a content error
-is worse than one carrying the old text. The ear trainer's `pair_audio` rows follow their pair
-to its new id and the rows of pairs that are gone are dropped, so a refresh never plays one
-pair's clips under another. **Stop the server first** — the app treats a pack as read-only, and
-this is a build step writing to one. After a refresh that changed the pairs, `make audio`
-renders the missing clips (`rm -rf data/media/hvpt` first to drop the old id-named files).
+the course against the pack's own `lemma` table
+— and swaps all the tables in one transaction: a pack left half-rewritten by a content error
+is worse than one carrying the old text. A pack built before ADR-084 may still carry the removed ear trainer's `minimal_pair` and
+`pair_audio` tables; refresh leaves them alone and the app ignores them. **Stop the server first** — the
+app treats a pack as read-only, and this is a build step writing to one.
 
 ### Growing the course
 
@@ -516,22 +506,6 @@ guardrail.
 **These sentences never reach the starter pack.** See
 [LICENSES.md](../langpack/LICENSES.md#opensubtitles-and-redistribution--the-line-this-project-draws).
 
-### The ear trainer's clips are citation-form, and why
-
-The first render sent Piper the bare word. Its VITS voices are trained on sentences, and an
-isolated three-letter word is out of distribution: the inventory came out with a **median clip
-of 0.35 s** (minimum 0.16 s) in which the kor/kór vowel-length contrast — the thing HVPT exists
-to teach — was physically absent. Learners heard "different words entirely" and scored at
-chance, which is exactly what stimuli carrying no signal produce.
-
-The render now produces **citation forms**: the word as a one-word sentence (`kór.`), slowed by
-`CITATION_SCALE` (HVPT stimuli in the literature are clear citation speech, not conversational
-tempo), with enough trailing silence that the Opus encode cannot clip a final consonant —
-öt/őt is decided in the last hundred milliseconds. Measured effect: the long member is now
-consistently 15–25% longer than its short partner, at every voice and rate, which is the
-natural Hungarian ratio. Re-render an existing inventory with `make audio` after
-`--force`-clearing, or delete `data/media/hvpt` first.
-
 ### Verb conjugations, generated
 
 Wiktionary's extraction is spotty for verbs: `hoz` arrived with 24 forms, holding `hoztuk`
@@ -628,36 +602,10 @@ no attested material to build items from, and the app reports those topics as
 topics produce drills on hu-v1 (the five added by [ADR-055](../.claude/DECISIONS.md#adr-055) are
 taught by explanation and say so).
 
----
+### The audio render stage — removed
 
-### The audio render stage
-
-Every pair member is a word the dictionary carries ([ADR-033](../.claude/DECISIONS.md#adr-033)):
-`minimal_pairs.unattested` runs in the build after the lexicon and in `refresh` before it
-writes, and either refuses the pack naming the form. Clips are named by the **word**
-(`hvpt/kor-ef012f_anna_100.ogg` — diacritics folded, a hash keeping `kor` and `kór` apart),
-never by the pair id, which `refresh` reassigns; `refresh` moves `pair_audio` rows to their
-pair's new id and drops the rows of pairs that are gone.
-
-`pair_audio` is populated by `make audio` (which fetches the voice models first — see below),
-or directly by `python -m pipeline.minimal_pairs --pack … --media … --voices-dir …`. It renders
-every pair member × three Piper voices (`hu_HU-{anna,berta,imre}-medium`, dataset licence
-**CC0** per the model cards) × two rates (1.0, 0.85) into `<media>/hvpt/` — **342 Opus clips in
-an Ogg container, 513 KB** for the 32-pair inventory, transcoded with `ffmpeg` where it is
-available and left as WAV where it is not. That size is why the whole inventory rides inside the
-binary.
-
-Idempotent in both directions: a re-run skips synthesis for a clip already on disk but still
-upserts its `pair_audio` row, so rebuilding the pack does not silently leave the audio
-unregistered. That was a real failure — a pack rebuild wiped `pair_audio` and the ear trainer
-went quiet while 384 perfectly good files sat in `media/hvpt/`.
-
-Rate variants are recorded as rates and **never counted as talkers**: three synthetic voices are
-three talkers and the app says so. The shipped default is `hvpt.minTalkers = 3` — every CC0
-Hungarian voice that exists — against the five [R7](../.claude/research/07-hvpt.md) evidences.
-The shortfall is stated in the product rather than rounded away; see
-[PEDAGOGY §2.7](PEDAGOGY.md). A session below the configured floor is refused **with the
-numbers**, never silently degraded.
+The ear trainer's minimal-pair inventory and its clip rendering stage (`pipeline/minimal_pairs.py`,
+`make audio`) were removed by ADR-084. New packs carry no `minimal_pair` / `pair_audio` tables.
 
 The models themselves are 60 MB each and are **not** in the repository: `make voices` fetches
 them from `rhasspy/piper-voices`, and only the small `.json` voice cards beside them are
@@ -680,8 +628,8 @@ So there are two editions, distinguished by `pack_meta.edition`:
 | sentences | 15 416 (12 000 chosen by the selection rule below, plus those pulled in for the reading sets and for the intermediate / advanced course words), all Tatoeba, fully resolvable inside the starter's lemma set | 60 000 |
 | lemmas with a Russian gloss | 3 168 | 8 620 |
 | course words | 3 645 (all of them) | 3 645 |
-| curriculum, features, minimal pairs, course, resources, n-grams | complete | complete |
-| size | ~24.1 MB gzipped + 0.9 MB audio | 252 MB |
+| curriculum, features, course, resources, n-grams | complete | complete |
+| size | ~24.1 MB gzipped | 252 MB |
 
 `langpack/pipeline/starter.py` derives it from the full pack. The selection rule that matters:
 a sentence is kept only when **every** word token resolves to a kept lemma, so the reader and
@@ -707,20 +655,14 @@ Each is checked by a test or by the pipeline itself, and each currently passes.
 | Every `grammar_topic` has non-empty `explain_md` in **both** locales | 100% | [R4](../.claude/research/04-explicit-instruction.md) — a topic without an explanation cannot be taught explicitly |
 | Every `grammar_topic` lesson is a lesson, not a blurb | ≥ 800 chars, both locales | a paragraph of context above an exercise is not explicit instruction; see `pipeline/lessons.py` |
 | Every `morph_feature` has labels in both locales | 100% | [ADR-004](../.claude/DECISIONS.md#adr-004) |
-| Every `pair_audio` row has a resolvable licence | 100% | Tatoeba audio licensing is per-clip |
 | Every `course_word.lemma` resolves in `lemma` | 100% | a course word the pack cannot look up is a word the app cannot teach — enforced in `pipeline/course.py` `validate()` |
 | Every `course_unit.topic_codes` entry is a real `grammar_topic.code` | 100% | the plan screen links units to the grammar DAG |
 | No lemma is taught by two units | 100% | a duplicate wastes a slot in a fixed syllabus and makes "words left in this unit" wrong |
 | Every `resource.url` resolves | 100% | a dead link is worse than an omitted one at the exact moment the course hands over |
-| ≥ 3 distinct talkers per HVPT contrast | 100% of contrasts (measured: 3, on every one) | [R7](../.claude/research/07-hvpt.md) — talker variability is the active ingredient. **Three, not the five R7 evidences**: three is every CC0 Hungarian voice that exists |
 | `manifest.json` checksums match the emitted file | exact | reproducibility |
 | No `wordform.form` without a letter in it | 100% | Wiktionary's empty-cell marker `-` was imported as a real form and won every shortest-form tie-break |
 | Every `paradigm` cell prefers the attested form where one exists | 100% | the table is shown to a learner; a generated cell that contradicts the dictionary teaches the wrong form |
 
-Note the talker row. The **evidence** figure in [R7](../.claude/research/07-hvpt.md) is five
-talkers; three is what exists under a free licence for Hungarian. The pack is gated at what it
-ships and the shortfall is stated in the product, not rounded up here — see
-[PEDAGOGY §2.7](PEDAGOGY.md).
 
 ### Measured, not gated: what the analysis is actually worth
 

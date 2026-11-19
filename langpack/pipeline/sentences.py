@@ -5,8 +5,7 @@ explicit that cards must be sentences, never bare words (§3), because a bare
 lemma teaches nothing about the morphology that carries the meaning.
 
 Licensing: sentence text is CC BY 2.0 FR. **Audio licences are per clip**, chosen
-by the individual contributor, so audio is not imported here at all; the HVPT
-rendering stage handles it with an explicit per-clip check.
+by the individual contributor, so audio is not imported here at all.
 """
 
 from __future__ import annotations

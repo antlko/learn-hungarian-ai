@@ -45,11 +45,6 @@ func writeTestPack(t testing.TB, dataDir string) {
 		CREATE TABLE grammar_topic (id INTEGER PRIMARY KEY, code TEXT, level TEXT,
 			title_ru TEXT, title_en TEXT, explain_md_ru TEXT, explain_md_en TEXT,
 			prereq_codes TEXT, feature_ids TEXT, teach_order INTEGER);
-		CREATE TABLE minimal_pair (id INTEGER PRIMARY KEY, a TEXT, b TEXT, contrast TEXT,
-			priority INTEGER, gloss_a_ru TEXT, gloss_b_ru TEXT, gloss_a_en TEXT,
-			gloss_b_en TEXT, context_a TEXT, context_b TEXT);
-		CREATE TABLE pair_audio (pair_id INTEGER, member TEXT, talker_id TEXT,
-			talker_kind TEXT, rate REAL, path TEXT, license TEXT);
 		CREATE TABLE ngram (gram TEXT, n INTEGER, count INTEGER);`); err != nil {
 		t.Fatal(err)
 	}

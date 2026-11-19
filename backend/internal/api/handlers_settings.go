@@ -125,11 +125,6 @@ func (s *Server) handleUpdateSettings(c fiber.Ctx) error {
 			cfg.Drill.Definiteness.DemonstrativePct = v.DemonstrativePct
 			cfg.Drill.HarmonyLatencyMs = v.HarmonyLatencyMs
 		}
-		if v := req.HVPT; v != nil {
-			cfg.HVPT.MinTalkers = v.MinTalkers
-			cfg.HVPT.TrialsPerSession = v.TrialsPerSession
-			cfg.HVPT.RateJitter = v.RateJitter
-		}
 		if v := req.Curriculum; v != nil {
 			cfg.Curriculum.FocusUnlockListeningHours = v.FocusUnlockListeningHours
 			cfg.Curriculum.ExamDate = v.ExamDate

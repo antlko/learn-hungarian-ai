@@ -34,7 +34,7 @@ The docs total ~700 KB (≈175k tokens). Reading them whole is the failure mode 
 | --- | --- |
 | Scheduling, FSRS, review queue, undo, burial, sets | `docs/ARCHITECTURE.md` §srs/review; `docs/INVARIANTS.md` rules on review/replay/burial |
 | Drills, options, grading, `produce`/`cloze` | `docs/ARCHITECTURE.md` drill; ADR-008/017/060 |
-| A screen's look, copy, keys, a11y, colours | `docs/UX.md` — only that screen's `## N.` section (outline: Shell 2, Today 3, Review 4, Read 5, Listen 6, Ear 7, Grammar 8, Progress 9, Settings 10, colours 11, a11y 12, design system 14) |
+| A screen's look, copy, keys, a11y, colours | `docs/UX.md` — only that screen's `## N.` section (outline: Shell 2, Today 3, Review 4, Read 5, Listen 6, Grammar 8, Progress 9, Settings 10, colours 11, a11y 12, design system 14) |
 | An endpoint or DTO | `docs/API.md` section for it; `backend/internal/api/dto.go`; mirror in `web-ui/src/types` |
 | Config field | `docs/CONFIGURATION.md`; `backend/internal/config` |
 | Language pack, build pipeline, sources | `docs/LANGPACK.md` |
@@ -146,6 +146,7 @@ One line each; **full text, reasons and ADR links: `docs/INVARIANTS.md`** (grep 
 - No LLM Hungarian becomes a card without `internal/corpus/attest.go` — except learner-reviewed, labelled
   AI sentences for unillustrated course words (ADR-073); AI dictionary entry is a separate
   path (ADR-042). Reading-set texts (short/medium/long per unit) are the one AI-written Hungarian shipped (in the catalogue; legacy packs: `source='authored'`, ADR-066/075), filtered out everywhere else; provenance is kept in data, no UI badge.
+- The writing check («Письмо») marks a text and mints nothing: no card/gloss/state write, model-labelled, parsed on read, ADR-085.
 - MT is display-only and always labelled with its model; `lib/gloss.ts` picks gloss language.
 - App fully usable with every sidecar stopped; managed components never block boot; endpoints never stored.
 - `services.llm` needs a model name (`llm.New` → `ErrNoModel`).
@@ -156,7 +157,6 @@ One line each; **full text, reasons and ADR links: `docs/INVARIANTS.md`** (grep 
 - Uncertain analyses, fallback glosses, unattested output, low-confidence ASR are labelled in the UI (not reading-set texts, ADR-075);
   "we have not built this" is a supported outcome; the guided course is finite (24+20+20 core units).
 - Export is a full dump, never `.apkg`; import replaces for the acting user only.
-- HVPT contrasts are never "complete"; every minimal-pair member must be a dictionary word.
 
 **Frontend conventions**
 - Learner-facing copy has no jargon (no "corpus", slugs, feature ids). Feature labels come from the pack

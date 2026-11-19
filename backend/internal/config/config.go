@@ -69,26 +69,6 @@ const (
 	DefaultDemonstrativePct  = 25
 	DefaultHarmonyLatencyMs  = 2500
 
-	// HVPT talker variability is the active ingredient, not a nicety. See [R7].
-	//
-	// EvidenceMinTalkers is what the literature asks for. DefaultMinTalkers is
-	// what we ship, and they differ on purpose: the language pack carries three
-	// synthetic Piper voices, because three is how many freely-licensed
-	// Hungarian voices exist. Shipping the evidence number would mean the ear
-	// trainer refuses every session out of the box — a screen nobody can ever
-	// pass, which teaches nothing and reads as a broken feature.
-	//
-	// So the shipped floor is the number we can actually meet, and the Ear
-	// screen states the shortfall permanently: three voices, the research wants
-	// five, the effect is correspondingly weaker. That is the project's rule —
-	// a known limitation is stated in the product, not only in the docs — and
-	// it is recorded as a documented divergence in docs/PEDAGOGY.md. Adding
-	// human recordings raises the count; rate variants deliberately do not.
-	EvidenceMinTalkers      = 5
-	DefaultMinTalkers       = 3
-	DefaultTrialsPerSession = 40
-	DefaultRateJitter       = 0.10
-
 	DefaultFocusUnlockListeningHours = 40
 
 	// The downloadable full pack is committed in this repository
@@ -159,7 +139,6 @@ type Config struct {
 	Review     Review     `yaml:"review"`
 	Mining     Mining     `yaml:"mining"`
 	Drill      Drill      `yaml:"drill"`
-	HVPT       HVPT       `yaml:"hvpt"`
 	Curriculum Curriculum `yaml:"curriculum"`
 	Services   Services   `yaml:"services"`
 	LangPack   LangPack   `yaml:"langpack"`
@@ -263,7 +242,7 @@ func (r Review) BurySiblingsEnabled() bool {
 // Vowel length and rounding are phonemic in Hungarian — hat and hát are
 // different words — so an accepted accentless answer is never a silent pass:
 // it rates Hard, the diff shows exactly which mark was dropped, and the error
-// class still routes to the ear trainer. What tolerance buys is that a learner
+// class still names the perception gap. What tolerance buys is that a learner
 // typing on a plain keyboard is not failed on hardware. The `spell` direction
 // is exempt: its whole purpose is the diacritics.
 func (r Review) AccentToleranceEnabled() bool {
@@ -309,12 +288,6 @@ type Drill struct {
 type Definiteness struct {
 	DefiniteObjectPct int `yaml:"definiteObjectPct"`
 	DemonstrativePct  int `yaml:"demonstrativePct"`
-}
-
-type HVPT struct {
-	MinTalkers       int     `yaml:"minTalkers"`
-	TrialsPerSession int     `yaml:"trialsPerSession"`
-	RateJitter       float64 `yaml:"rateJitter"`
 }
 
 type Curriculum struct {
@@ -454,15 +427,6 @@ func (c *Config) normalize() {
 	if c.Drill.HarmonyLatencyMs == 0 {
 		c.Drill.HarmonyLatencyMs = DefaultHarmonyLatencyMs
 	}
-	if c.HVPT.MinTalkers == 0 {
-		c.HVPT.MinTalkers = DefaultMinTalkers
-	}
-	if c.HVPT.TrialsPerSession == 0 {
-		c.HVPT.TrialsPerSession = DefaultTrialsPerSession
-	}
-	if c.HVPT.RateJitter == 0 {
-		c.HVPT.RateJitter = DefaultRateJitter
-	}
 	if c.Curriculum.FocusUnlockListeningHours == 0 {
 		c.Curriculum.FocusUnlockListeningHours = DefaultFocusUnlockListeningHours
 	}
@@ -579,16 +543,10 @@ func (c *Config) Validate() (clamped []ErrClamped, err error) {
 		return nil, errors.New("drill.definiteness percentages must sum to <= 100")
 	}
 
-	if c.HVPT.MinTalkers < 2 {
-		return nil, errors.New("hvpt.minTalkers must be >= 2")
-	}
 	if d := c.Curriculum.ExamDate; d != "" {
 		if _, err := time.Parse("2006-01-02", d); err != nil {
 			return nil, fmt.Errorf("curriculum.examDate: want YYYY-MM-DD, got %q", d)
 		}
-	}
-	if c.HVPT.TrialsPerSession < 1 {
-		return nil, errors.New("hvpt.trialsPerSession must be >= 1")
 	}
 
 	for name, s := range map[string]Service{

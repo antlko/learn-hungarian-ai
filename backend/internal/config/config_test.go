@@ -74,7 +74,6 @@ func TestValidateRejects(t *testing.T) {
 			c.Drill.Definiteness.DefiniteObjectPct = 80
 			c.Drill.Definiteness.DemonstrativePct = 40
 		}},
-		{"too few talkers", func(c *Config) { c.HVPT.MinTalkers = 1 }},
 		{"provider without endpoint", func(c *Config) {
 			c.Services.TTS = Service{Provider: ProviderLocal}
 		}},
@@ -334,5 +333,18 @@ func TestLLMProfilesValidateCloneAndRoundTrip(t *testing.T) {
 		if _, err := c.Validate(); err == nil {
 			t.Errorf("%s: want error", name)
 		}
+	}
+}
+
+// ADR-084: a config.yaml written before the ear trainer was removed still has
+// an `hvpt:` block. It must load, not fail on an unknown key.
+func TestLoadIgnoresRemovedHVPTBlock(t *testing.T) {
+	dir := t.TempDir()
+	yml := "hvpt:\n  minTalkers: 1\n  trialsPerSession: 0\n  rateJitter: 0.5\n"
+	if err := os.WriteFile(filepath.Join(dir, "config.yaml"), []byte(yml), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Load(dir); err != nil {
+		t.Fatalf("Load with a stale hvpt block: %v", err)
 	}
 }

@@ -50,7 +50,7 @@ func NewStore(db *sql.DB) *Store { return &Store{db: db} }
 // state at this moment, not a sum).
 func (s *Store) Record(userID int64, day string, kind string, durationMs int64, dueLeft int) error {
 	col := map[string]string{
-		"review": "reviews", "drill": "drills", "trial": "trials",
+		"review": "reviews", "drill": "drills",
 	}[kind]
 	if col == "" {
 		return fmt.Errorf("unknown interaction kind %q", kind)

@@ -34,7 +34,6 @@ func buildPackGz(t *testing.T, lemmas ...string) []byte {
 		`CREATE TABLE sentence (id INTEGER PRIMARY KEY, hu TEXT)`,
 		`CREATE TABLE morph_feature (id TEXT)`,
 		`CREATE TABLE grammar_topic (id INTEGER)`,
-		`CREATE TABLE minimal_pair (id INTEGER)`,
 	} {
 		if _, err := db.Exec(q); err != nil {
 			t.Fatal(err)

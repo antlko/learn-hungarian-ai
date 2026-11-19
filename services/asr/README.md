@@ -6,8 +6,7 @@ build. Nothing in the app calls this service; the config row exists so the setti
 to live when it is built.
 
 What you have instead: card audio and spoken words use the browser's own voices (the `device`
-provider, [ADR-012](../../.claude/DECISIONS.md#adr-012)), and the ear trainer plays clips shipped
-inside the binary. There is no dictation checking or pronunciation scoring.
+provider, [ADR-012](../../.claude/DECISIONS.md#adr-012)). There is no dictation checking or pronunciation scoring.
 
 ## If it is built
 

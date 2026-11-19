@@ -7,9 +7,9 @@ import {
   ChevronRight,
   BrainCircuit,
   ChartNoAxesColumn,
-  Ear,
   GraduationCap,
   House,
+  PenLine,
   Settings,
   Table2,
   Users,
@@ -80,8 +80,8 @@ const items = computed(() =>
     },
     { to: '/library', icon: BookOpen, label: t('nav.read'), dot: minutesOwed.value },
     { to: '/grammar', icon: Table2, label: t('nav.grammar') },
+    { to: '/write', icon: PenLine, label: t('nav.write') },
     ...(llmMissing.value ? [] : [{ to: '/tutor', icon: GraduationCap, label: t('nav.tutor') }]),
-    { to: '/ear', icon: Ear, label: t('nav.ear') },
   ] as { to: string; icon: Component; label: string; badge?: number; dot?: boolean }[],
 )
 

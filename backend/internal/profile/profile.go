@@ -137,10 +137,6 @@ var manifest = []table{
 	},
 	{Name: "topic_progress", UserColumn: "user_id", Scope: "user_id = ?"},
 	{Name: "drill_attempt", UserColumn: "user_id", Scope: "user_id = ?"},
-	{Name: "hvpt_contrast_state", UserColumn: "user_id", Scope: "user_id = ?"},
-	// hvpt_trial.pair_id points into the read-only pack, not at anything here,
-	// so it is carried verbatim and not remapped.
-	{Name: "hvpt_trial", UserColumn: "user_id", Scope: "user_id = ?"},
 	{
 		Name: "listen_state", UserColumn: "user_id", Scope: "user_id = ?",
 		Refs: map[string]string{"text_id": "text"},
@@ -170,6 +166,12 @@ var manifest = []table{
 		Name: "tutor_message", UserColumn: "user_id", Scope: "user_id = ?",
 		Refs:     map[string]string{"thread_id": "tutor_thread", "card_id": "card"},
 		ZeroRefs: map[string]bool{"thread_id": true, "card_id": true},
+	},
+	// «Письмо» (ADR-085): the learner's own pieces and the checks on them.
+	{Name: "writing_piece", UserColumn: "user_id", Scope: "user_id = ?", IDColumn: "id"},
+	{
+		Name: "writing_check", UserColumn: "user_id", Scope: "user_id = ?",
+		Refs: map[string]string{"piece_id": "writing_piece"},
 	},
 }
 

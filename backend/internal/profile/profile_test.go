@@ -125,6 +125,18 @@ func seed(t *testing.T, d *db.DB, dir string, email string) int64 {
 	// A second thread with no note and no card: the zero-ref path.
 	exec(t, d.DB, `INSERT INTO tutor_thread (user_id, title, kind, note_id) VALUES (?, 'свободный', '', 0)`, uid)
 
+	// A piece of writing with two checks, one of them interrupted: the child
+	// rows must follow the parent's new id.
+	var pieceID int64
+	if err := d.QueryRow(`INSERT INTO writing_piece (user_id, topic_code, title, level, body)
+	                      VALUES (?, 'a1-me', 'Én', 'A1', 'Én vagyok Anna.') RETURNING id`, uid).Scan(&pieceID); err != nil {
+		t.Fatal(err)
+	}
+	for i, src := range []string{"external", "local"} {
+		exec(t, d.DB, `INSERT INTO writing_check (piece_id, user_id, source, model, lang, prompt_version, checked_text, raw, interrupted)
+		               VALUES (?, ?, ?, 'm', 'ru', 1, 'Én vagyok Anna.', 'TANULOM-CHECK 1', ?)`, pieceID, uid, src, i)
+	}
+
 	return uid
 }
 
@@ -583,4 +595,64 @@ func rewriteEnvelope(t *testing.T, archive []byte, fn func(map[string]any)) []by
 		t.Fatal(err)
 	}
 	return buf.Bytes()
+}
+
+// ADR-084: an export made before the ear trainer was removed still carries its
+// two tables. They are no longer in the manifest, so the import ignores them
+// and everything else comes through.
+func TestOldExportWithHVPTTablesStillImports(t *testing.T) {
+	src, srcDir := openDB(t)
+	uid := seed(t, src, srcDir, "learner@example.com")
+	var buf bytes.Buffer
+	if err := Export(src.DB, srcDir, uid, "test", &buf); err != nil {
+		t.Fatal(err)
+	}
+	old := rewriteEnvelope(t, buf.Bytes(), func(env map[string]any) {
+		tables := env["tables"].(map[string]any)
+		tables["hvpt_contrast_state"] = map[string]any{"columns": []any{"user_id", "contrast"}, "rows": []any{[]any{1, "a/á"}}}
+		tables["hvpt_trial"] = map[string]any{"columns": []any{"id", "user_id", "pair_id"}, "rows": []any{[]any{1, 1, 3}}}
+	})
+
+	dst, dstDir := openDB(t)
+	dstUID := freshUser(t, dst, "elsewhere@example.com")
+	rep := mustImport(t, dst, dstDir, dstUID, old)
+	if !rep.ReplayOK {
+		t.Errorf("the replay check failed: %s", rep.ReplayWarning)
+	}
+	if _, ok := rep.RowsByTable["hvpt_trial"]; ok {
+		t.Error("hvpt_trial was imported although the table no longer exists")
+	}
+	if rep.RowsByTable["note"] == 0 {
+		t.Error("the learner's notes did not come through")
+	}
+}
+
+// Writing checks hang off their piece by an id that import re-assigns; a check
+// must land on the copy of ITS piece (ADR-085).
+func TestWritingChecksFollowTheirPieceAcrossImport(t *testing.T) {
+	src, srcDir := openDB(t)
+	uid := seed(t, src, srcDir, "learner@example.com")
+	var buf bytes.Buffer
+	if err := Export(src.DB, srcDir, uid, "test", &buf); err != nil {
+		t.Fatal(err)
+	}
+	dst, dstDir := openDB(t)
+	dstUID := freshUser(t, dst, "elsewhere@example.com")
+	exec(t, dst.DB, `INSERT INTO writing_piece (user_id, title) VALUES (?, 'bump')`, dstUID)
+	mustImport(t, dst, dstDir, dstUID, buf.Bytes())
+
+	var pieces, checks, orphans int
+	if err := dst.QueryRow(`SELECT COUNT(*) FROM writing_piece WHERE user_id = ?`, dstUID).Scan(&pieces); err != nil {
+		t.Fatal(err)
+	}
+	if err := dst.QueryRow(`SELECT COUNT(*) FROM writing_check c JOIN writing_piece p ON p.id = c.piece_id
+	                        WHERE c.user_id = ? AND p.user_id = ? AND p.title = 'Én'`, dstUID, dstUID).Scan(&checks); err != nil {
+		t.Fatal(err)
+	}
+	if err := dst.QueryRow(`SELECT COUNT(*) FROM writing_check WHERE piece_id NOT IN (SELECT id FROM writing_piece)`).Scan(&orphans); err != nil {
+		t.Fatal(err)
+	}
+	if pieces != 1 || checks != 2 || orphans != 0 {
+		t.Errorf("pieces=%d checks=%d orphans=%d, want 1/2/0 (import replaces)", pieces, checks, orphans)
+	}
 }

@@ -69,7 +69,7 @@ func Import(db *sql.DB, dataDir string, userID int64, r io.ReaderAt, size int64,
 	}
 
 	// old id -> new id, per table, built as parents are inserted and read as
-	// children are. The four tables with an IDColumn are the only entries.
+	// children are. Only the tables with an IDColumn (note, card, text, tutor_thread, writing_piece) get entries.
 	remap := map[string]map[int64]int64{}
 	skipped := map[string]bool{}
 

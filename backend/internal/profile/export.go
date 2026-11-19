@@ -160,8 +160,8 @@ func dumpTable(db *sql.DB, t table, userID int64) (Rows, error) {
 // mediaFiles lists the audio this learner's texts point at.
 //
 // Driven off `text.audio_path` rather than by walking <dataDir>/media, because
-// that directory also holds the HVPT clips, which belong to the language pack
-// and not to any learner.
+// that directory also holds cached speech and other files that belong to no
+// learner.
 func mediaFiles(db *sql.DB, dataDir string, userID int64) ([]MediaFile, error) {
 	rows, err := db.Query(
 		`SELECT audio_path FROM text WHERE user_id = ? AND audio_path <> ''`, userID)

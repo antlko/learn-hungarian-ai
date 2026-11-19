@@ -7,7 +7,7 @@ Everything lives in one data directory, mounted at `/data` in Docker.
 ├── config.yaml              # settings — hand-editable, rewritten atomically by the app
 ├── tanulom.db               # users, sessions, secrets, all learner data
 ├── langpack-hu-v1.sqlite    # the language pack (read-only; installed from the binary)
-└── media/                   # HVPT clips installed on first boot; TTS cache and recordings
+└── media/                   # TTS cache and recordings
 ```
 
 The schema is created and upgraded **automatically at start**. There is no migrate command, and
@@ -77,14 +77,6 @@ drill:                      # the blocked → interleaved gate            [R5]
     definiteObjectPct: 55
     demonstrativePct: 25
   harmonyLatencyMs: 2500    # harmony counts as automated below this median latency
-
-hvpt:
-  # 3, not the 5 [R7] evidences: three is every CC0 Hungarian voice that exists.
-  # The gap is stated in the product, and the refusal below carries both numbers.
-  # Raise it if you add human recordings — see docs/PEDAGOGY.md §2.7.
-  minTalkers: 3             # a session below this is refused           [R7]
-  trialsPerSession: 40
-  rateJitter: 0.10
 
 curriculum:
   focusUnlockListeningHours: 40   # word-order/focus stays locked until this [R15]
@@ -232,7 +224,7 @@ Accepts a typed answer that differs from the target only in diacritics — `visz
 `viszlát` — because a plain English keyboard cannot produce the marks. Never a silent pass:
 the answer rates **Hard** so it returns sooner, the diff underlines the dropped mark, the
 response carries `acceptedWithAccents: true`, and in the grammar drills the error class still
-routes the miss to the ear trainer. The `spell` review direction is exempt — it exists
+files the miss as a perception problem (no drill). The `spell` review direction is exempt — it exists
 precisely to train the diacritics being forgiven. Both defaults follow the `*bool` pattern
 (`burySiblings`): the zero value must not be confusable with "off".
 
@@ -249,3 +241,6 @@ precisely to train the diacritics being forgiven. Both defaults follow the `*boo
    exposed as a boolean), and are preserved on `PUT` when blank or omitted.
 5. **Validation rejects, it does not clamp silently** — except for documented clamps
    (`desiredRetention`), which are reported back in the response so the UI can explain.
+
+> **Removed key.** `hvpt:` (`minTalkers`, `trialsPerSession`, `rateJitter`) belonged to the ear trainer,
+> which was removed (ADR-084). An old `config.yaml` that still contains it loads fine; the key is ignored.

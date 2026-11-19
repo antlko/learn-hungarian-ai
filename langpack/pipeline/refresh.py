@@ -4,12 +4,11 @@
 several gigabytes and takes hours. That is the right price for the lexicon and
 the sentence corpus, and an absurd one for a typo in a grammar lesson.
 
-Five groups of tables in the pack are computed from Python literals alone and depend on
+Four groups of tables in the pack are computed from Python literals alone and depend on
 nothing that has to be downloaded:
 
     morph_feature   the feature inventory, labels and explanations
     grammar_topic   the teaching DAG and every lesson
-    minimal_pair    the ear trainer's contrasts
     course_unit     the guided course, and course_word with it
 
 This command rewrites exactly those, in place, in an existing pack. Everything
@@ -34,11 +33,11 @@ import json
 import sqlite3
 from pathlib import Path
 
-from . import course, curriculum, features, minimal_pairs
+from . import course, curriculum, features
 
 # table -> (columns, row-builder). Order matters: course_word references
 # course_unit, so units are written first.
-REFRESHED = ("morph_feature", "grammar_topic", "minimal_pair", "course_unit", "course_word")
+REFRESHED = ("morph_feature", "grammar_topic", "course_unit", "course_word")
 
 
 def _rows_morph_feature() -> list[tuple]:
@@ -58,14 +57,6 @@ def _rows_grammar_topic() -> list[tuple]:
     ]
 
 
-def _rows_minimal_pair() -> list[tuple]:
-    return [
-        (p.a, p.b, p.contrast, p.priority, p.gloss_a_ru, p.gloss_b_ru,
-         p.gloss_a_en, p.gloss_b_en, p.context_a, p.context_b)
-        for p in minimal_pairs.PAIRS
-    ]
-
-
 def _rows_course_unit() -> list[tuple]:
     return [
         (u["code"], u["month"], u["ord"], u["title_ru"], u["title_en"],
@@ -80,8 +71,6 @@ COLUMNS = {
                       "explain_ru", "explain_en", "teach_order", "prereq_ids", "grid"],
     "grammar_topic": ["code", "level", "title_ru", "title_en", "explain_md_ru",
                       "explain_md_en", "prereq_codes", "feature_ids", "teach_order"],
-    "minimal_pair": ["a", "b", "contrast", "priority", "gloss_a_ru", "gloss_b_ru",
-                     "gloss_a_en", "gloss_b_en", "context_a", "context_b"],
     "course_unit": ["code", "month", "ord", "title_ru", "title_en", "goal_ru",
                     "goal_en", "situation_ru", "situation_en", "topic_codes", "track", "tier"],
     "course_word": ["unit_code", "lemma", "upos", "gloss_ru", "gloss_en", "note", "ord"],
@@ -90,7 +79,6 @@ COLUMNS = {
 BUILDERS = {
     "morph_feature": _rows_morph_feature,
     "grammar_topic": _rows_grammar_topic,
-    "minimal_pair": _rows_minimal_pair,
     "course_unit": _rows_course_unit,
     "course_word": course.words,
 }
@@ -124,8 +112,6 @@ def refresh(pack: Path) -> dict[str, int]:
     # curriculum error is worse than one carrying the old lessons.
     problems = features.validate()
     problems += curriculum.validate(set(features.by_id()))
-    problems += minimal_pairs.validate()
-    problems += minimal_pairs.unattested_in(pack)
     problems += course.validate(_pack_lemmas(pack), {t.code for t in curriculum.TOPICS})
     if problems:
         raise SystemExit("refusing to write: " + "\n  ".join([""] + problems))
@@ -133,18 +119,11 @@ def refresh(pack: Path) -> dict[str, int]:
     conn = sqlite3.connect(pack)
     written: dict[str, int] = {}
     try:
-        with conn:  # one transaction: all four tables swap together or none do
+        with conn:  # one transaction: all the tables swap together or none do
             have = {
                 r[0] for r in conn.execute(
                     "SELECT name FROM sqlite_master WHERE type='table'")
             }
-            # The pairs' old ids, so their audio rows can follow them: the
-            # rewrite assigns ids in list order, and a row left pointing at
-            # id 5 would play the old pair 5's clips for whatever pair 5 is now.
-            old_pairs = {
-                r[0]: (r[1], r[2])
-                for r in conn.execute("SELECT id, a, b FROM minimal_pair")
-            } if "minimal_pair" in have else {}
             # `track` arrived after the first packs. The app opens a pack
             # read-only and cannot add a column, so this build step does.
             if "course_unit" in have:
@@ -171,21 +150,6 @@ def refresh(pack: Path) -> dict[str, int]:
                     rows,
                 )
                 written[table] = len(rows)
-
-            # Audio rows follow their pair to its new id; rows of a pair that
-            # is gone are dropped. Through negative ids, so a swap of two pairs
-            # cannot collide halfway.
-            if "pair_audio" in have and old_pairs:
-                new_ids = {
-                    (a, b): i for i, a, b in conn.execute("SELECT id, a, b FROM minimal_pair")
-                }
-                conn.execute("UPDATE pair_audio SET pair_id = -pair_id")
-                for old_id, key in old_pairs.items():
-                    if key in new_ids:
-                        conn.execute("UPDATE pair_audio SET pair_id = ? WHERE pair_id = ?",
-                                     (new_ids[key], -old_id))
-                dropped = conn.execute("DELETE FROM pair_audio WHERE pair_id < 0").rowcount
-                written["pair_audio (dropped)"] = dropped
 
             # Indexes added to schema.sql after a pack was built are not in that
             # pack, and the app cannot create them: it opens the pack read-only.

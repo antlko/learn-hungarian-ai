@@ -572,7 +572,7 @@
     Hungarian is marked `lang="hu"` and set here, in ONE place (ADR-036): the
     material's face, a touch larger than the interface around it, with the
     serif's optical sizing on. Utilities win over this layer, so a `font-mono`
-    diff well, the ear trainer's mono options and every `text-*` size stay as
+    diff well and every `text-*` size stay as
     authored; a nested `lang="hu"` inherits rather than compounding; the
     answer box stays in Inter, because its diff is set in mono beside it.
   */

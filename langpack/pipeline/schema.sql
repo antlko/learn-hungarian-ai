@@ -105,34 +105,6 @@ CREATE INDEX idx_stoken_lemma ON sentence_token(lemma_id);
 -- callers enumerate the casings (morph.CaseVariants) rather than folding.
 CREATE INDEX idx_stoken_form ON sentence_token(form);
 
--- ─── phonetics ────────────────────────────────────────────────────────────
-CREATE TABLE minimal_pair (
-    id         INTEGER PRIMARY KEY,
-    a          TEXT NOT NULL,
-    b          TEXT NOT NULL,
-    contrast   TEXT NOT NULL,
-    priority   INTEGER NOT NULL,
-    gloss_a_ru TEXT NOT NULL, gloss_b_ru TEXT NOT NULL,
-    gloss_a_en TEXT NOT NULL, gloss_b_en TEXT NOT NULL,
-    context_a  TEXT NOT NULL DEFAULT '',
-    context_b  TEXT NOT NULL DEFAULT ''
-);
-CREATE INDEX idx_pair_contrast ON minimal_pair(contrast);
-
--- Audio is added by the rendering stage. `talker_id` is recorded on every clip
--- because talker variability is the active ingredient of HVPT, and the Ear view
--- reports how many distinct talkers a session actually used.
-CREATE TABLE pair_audio (
-    pair_id   INTEGER NOT NULL REFERENCES minimal_pair(id),
-    member    TEXT NOT NULL CHECK (member IN ('a','b')),
-    talker_id TEXT NOT NULL,
-    talker_kind TEXT NOT NULL CHECK (talker_kind IN ('piper','human')),
-    rate      REAL NOT NULL DEFAULT 1.0,
-    path      TEXT NOT NULL,
-    license   TEXT NOT NULL,
-    PRIMARY KEY (pair_id, member, talker_id, rate)
-);
-
 -- ─── curriculum ───────────────────────────────────────────────────────────
 CREATE TABLE grammar_topic (
     id            INTEGER PRIMARY KEY,

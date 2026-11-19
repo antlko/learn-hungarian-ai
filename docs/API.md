@@ -736,9 +736,9 @@ practise next, including the cases a drill cannot treat:
 ```
 
 `remedy` is deliberately not always a drill. A vowel-length or rounding error returns
-`drill.remedy.ear`: those contrasts are not distinguishable to a Russian or English ear without
-training, and no amount of typing practice fixes that — the app says so rather than pretending
-otherwise. `drill.remedy.vocabulary` routes back to the review deck.
+`drill.remedy.perception`: those contrasts are hard to tell apart by ear without long practice,
+and no amount of typing practice fixes that — there is no drill for it (the ear trainer was
+removed, ADR-084), so the app lists it as non-actionable rather than pretending otherwise. `drill.remedy.vocabulary` routes back to the review deck.
 
 `GET /api/placement` walks an adaptive ladder up the DAG, three items per topic, stopping after
 two consecutive failed topics. It returns the next probe, or — when done — the `seeds` it
@@ -747,20 +747,13 @@ No topic is ever seeded `mastered`, and a seed carries the number of observation
 so the gate knows how thin the estimate is. `{"action":"reset"}` discards the test; it does not
 delete the feature reviews the probes produced, because those were real retrievals.
 
-## HVPT & listening
+## Listening
 
 | Method | Path | Status | Notes |
 |---|---|---|---|
-| `GET` | `/api/hvpt/session` | ✅ | a trial set. Below `hvpt.minTalkers` distinct voices it returns `refused: {have, need}` with **no trials** — a designed screen, not an error status |
-| `POST` | `/api/hvpt/answer` | ✅ | `{trialId, chosen, rtMs}` → reveals `played` **plus `audioA`/`audioB`**, both members' clips from the trial's own talker, so the UI can play the two words back to back — the comparison is the corrective feedback, and it exists only after the answer (ADR-008 holds before it). Updates the contrast's FSRS + accuracy. Replay of an id is 410 |
-| `GET` | `/api/hvpt/contrasts` | ✅ | per-contrast state; **no contrast is ever complete** [R7] |
 | `POST` | `/api/listen/material` | ✅ | multipart `transcript` + `title`, and **`audio` is optional**; the transcript is ingested as a normal text (coverage pre-check for free) and the response carries the verdict |
 | `GET` | `/api/listen/:id/state` | ✅ | the three-pass position [R13] |
 | `POST` | `/api/listen/:id/progress` | ✅ | `{pass, positionS, secondsHeard}` — seconds are clamped to 60 per report: **hours accumulate, they cannot be claimed**. Feeds the word-order listening gate [R15] and the daily ledger. `pass` is 1..3 inside listening mode; **`0` = audio played in the reader outside listening mode** ([ADR-079](../.claude/DECISIONS.md#adr-079)): the seconds go to `listen_log` (pass 0) and `daily_log.listen_s` exactly like the others, but `listen_state` is not written (its `pass` is CHECK 1..3 and there is nothing to resume). Any other `pass` is 400 |
-
-HVPT trials never carry the played member — it is held server-side like a drill's expected
-answer (ADR-008 applies). The audio URL, the talker id and the rate are in the payload, because
-talker variability is the mechanism and must be auditable on screen.
 
 **A listening material does not need an audio file.** Requiring one meant the loop could not
 start until the learner had found a recording *and* a matching transcript, which nobody does, so
@@ -805,7 +798,7 @@ export"* in the shape ADR-011 itself named as honest. **Not** an `.apkg`: that r
 
 | Method | Path | Status | Notes |
 | --- | --- | --- | --- |
-| `GET` | `/api/profile/export` | ✅ | streams `tanulom-profile-<date>.zip`: `profile.json` (every user-scoped table — both FSRS state spaces, the review log, texts and their tokens, glosses, the daily ledger, tutor threads) plus `media/` for the learner's own audio. Columns are **discovered** via `PRAGMA table_info`, so a migration cannot silently drop one. `settings` rows with `secret = 1` are **omitted**, and the screen says so. Acting user only — there is no route that reads another account |
+| `GET` | `/api/profile/export` | ✅ | streams `tanulom-profile-<date>.zip`: `profile.json` (every user-scoped table — both FSRS state spaces, the review log, texts and their tokens, glosses, the daily ledger, tutor threads, writing pieces and their checks) plus `media/` for the learner's own audio. Columns are **discovered** via `PRAGMA table_info`, so a migration cannot silently drop one. `settings` rows with `secret = 1` are **omitted**, and the screen says so. Acting user only — there is no route that reads another account |
 | `GET` | `/api/profile/size` | ✅ | `{notes, cards, reviews, texts, words, threads, days}` — what an import is about to replace, in the learner's own units, for the confirm dialog |
 | `POST` | `/api/profile/import` | ✅ | multipart `profile=<zip>` → the report: `{tables, totalRows, mediaFiles, skippedColumns?, replayOk, replayChecked, replayWarning?, secretsOmitted}`. **REPLACES**, in one transaction, for the acting user only. 400 on a `formatVersion` newer than this binary's, on an archive that is not a profile, and on a failed integrity check. That check is the **replay property**: every card's log is replayed through `internal/srs/replay.go` and compared to the state it arrived with — a mismatch on the same architecture is corruption and rolls back, while one across two architectures is a *warning* naming the fuzz/FMA reason (ARCHITECTURE.md §5.7). Surrogate ids are re-assigned and every reference rewritten |
 
@@ -867,6 +860,40 @@ card, a gloss or either state space** — pinned by `handlers_tutor_test.go`. A 
 last 200 messages. The answer language is the client's rendered locale, falling back to
 `locale.ui`. Full design: [`TUTOR.md`](TUTOR.md).
 
+
+## Writing («Письмо»)
+
+[ADR-085](../.claude/DECISIONS.md#adr-085). All routes need a signed-in learner (not admin); every id is
+the acting user's — another learner's piece or check is **404** `errors.writingNotFound`. Nothing here
+creates a card, note, gloss or review. Parsing, anchoring, attestation and the lesson link are computed
+**on read** from the stored raw answer and the checked text. Errors are i18n keys in `{"error": key}`.
+Limits: body ≤ 6000 characters, title ≤ 120 (400 `errors.writingTooLong`), pasted raw ≤ 64 KiB (413
+`errors.writingTooLong`), model label ≤ 80 (clipped), ≤ 30 checks per piece (409
+`errors.writingTooManyChecks`).
+
+| Method | Path | Status | Notes |
+|---|---|---|---|
+| `GET` | `/api/writing/topics` | ✅ | `{topics: [{code, level, genre, titleRu, titleEn, briefRu, briefEn, minWords, maxWords}]}` — the embedded catalogue (about 8 per level A1–B2; genre `email\|description\|narrative\|opinion`). The word range is advice |
+| `GET` | `/api/writing` | ✅ | `{pieces: [{id, title, topicCode, level, words, updatedAt, checks, lastCheck?: {source, model, createdAt}}]}`, newest edit first |
+| `POST` | `/api/writing` | ✅ | `{topicCode?, level?, title?}` → **201** `WritingPieceDTO`. Empty `topicCode` = free topic; empty title becomes the topic's title in the UI locale; unknown topic 404 `errors.writingNoTopic`; invalid level → `A2` (or the topic's) |
+| `GET` | `/api/writing/:id` | ✅ | `WritingPieceDTO`: `{id, title, topicCode, level, body, words, createdAt, updatedAt, checks: [summary], latest: WritingCheckDTO \| null}`. A summary is `{id, source, model, lang, createdAt, status, truncated, interrupted, level, errorCount}`; `checks` is newest first; `latest` is the newest in full |
+| `PUT` | `/api/writing/:id` | ✅ | `{title, body}` (autosave) → `WritingPieceDTO` with `latest: null` (autosave builds no check, only the summaries) |
+| `DELETE` | `/api/writing/:id` | ✅ | 204; its checks are deleted with it |
+| `POST` | `/api/writing/:id/prompt` | ✅ | `{lang}` (`ru`\|`en`, else the UI locale) → `{prompt, text, promptVersion}`. **Stores nothing.** `text` is the essay embedded in the prompt (the client returns it with the paste). 400 `errors.writingEmpty` on an empty body |
+| `POST` | `/api/writing/:id/checks/external` | ✅ | `{lang, text, raw, model?}` → **201** `WritingCheckDTO`. `raw` is the pasted chat answer in any form; `text` the essay the prompt carried (empty = current body); `model` the learner's label (default `external`). Nothing recognisable → **422** `errors.writingUnparseable` and **nothing is stored** |
+| `POST` | `/api/writing/:id/checks/local` | ✅ | `{lang}` → SSE (`text/event-stream`) on `services.llm` (503 `errors.llmOff` / `errors.llmNoModel` before the stream; 409 `errors.writingBusy` when a check of this learner is running; 400 `errors.writingEmpty`). Events: `progress {chars, errors}` about once a second (`errors` = complete `[ERROR]` blocks so far), then `done {check: WritingCheckDTO}` or `error {error: key}` (`errors.writingCheckFailed` when the model produced nothing — nothing stored). A stopped, cut-off or timed-out answer is **stored** with `interrupted: true`; the answer is stored even if the client disconnects. maxTokens 3000, temperature 0.2, 300 s |
+| `POST` | `/api/writing/checks/stop` | ✅ | 204, idempotent: stops this learner's running local check; what arrived is kept, marked interrupted |
+| `GET` | `/api/writing/:id/checks/:checkId` | ✅ | one `WritingCheckDTO` (any check in the history) |
+| `DELETE` | `/api/writing/:id/checks/:checkId` | ✅ | 204 |
+
+**`WritingCheckDTO`** — `{id, source: "local"|"external", model, lang, createdAt, status: "ok"|"partial"|"failed", truncated, interrupted, dropped, level, summary, strengths[], vocab[], corrected, raw, errors[], segments[]}`.
+`errors[]`: `{n (1-based, printed on the text), quote, fix, type, hint, why, rule, example, anchored, unattested[], topicCode?, topicTitle?}`;
+`type` is one of `spelling, vowel_length, harmony, case, possessive, definiteness, agreement, verb_form, preverb, word_order, article, word_choice, missing_word, extra_word, punctuation, style, other`.
+`unattested` lists Hungarian words of `fix` and the Hungarian part of `example` that the dictionary does not carry (display-only flag, «Нет в словаре»).
+`topicCode`/`topicTitle` (in the check's `lang`) are present only when the grammar topic that best explains the error type exists in the installed pack; open it at `/grammar?topic=<topicCode>`.
+`segments[]`: `{text, errors: number[]}` — the checked text cut so that the texts concatenate to it; `errors` are **0-based indices into `errors[]`** (error number = index + 1) of every error whose quote covers the segment (overlaps possible, `[]` for plain text). An error with `anchored: false` is in `errors[]` but in no segment. The browser must render segments by interpolation and never handles text offsets.
+`level` is the CEFR level the model assigned to the text (`""` if none). Hungarian in `quote`, `fix`, `example`, `corrected` is model-written: display only.
+
 ## Speech & LLM *(v1.1)*
 
 ### Piper speech — shipped ([ADR-079](../.claude/DECISIONS.md#adr-079))
@@ -908,7 +935,7 @@ a client treats **503 and 504 as "use the device voice" without an error banner*
 | Method | Path | Status | Notes |
 |---|---|---|---|
 | `POST` | `/api/speech/asr` | ⏳ P8 | audio → transcript + confidence |
-| `POST` | `/api/speech/score` | ⏳ P8 | target + audio → **explicit segmental feedback** + enqueued HVPT contrasts |
+| `POST` | `/api/speech/score` | ⏳ P8 | target + audio → **explicit segmental feedback**  |
 | `POST` | `/api/llm/generate` | ⏳ P9 | comprehensible input; returns `attested` per span |
 | `POST` | `/api/llm/correct` | ⏳ P9 | staged correction — **server releases stage 3 only after an attempt** |
 | `POST` | `/api/llm/roleplay` | ⏳ P9 | scenario turn, optionally voice in/out |
@@ -925,5 +952,5 @@ dedicated translation model rather than the `llm` slot. See
 
 | Path | Serves |
 |---|---|
-| `/media/*` | cached TTS, HVPT clips, learner recordings |
+| `/media/*` | cached TTS, learner recordings |
 | `/*` | SPA catch-all from the embedded FS |

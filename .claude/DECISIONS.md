@@ -266,6 +266,9 @@ caches the verdict. That cost is paid once per topic per process.
 
 ## ADR-010 — The pack ships inside the binary; there is no download step
 
+> **Superseded in part by [ADR-084](#adr-084).** The ear trainer's audio archive (`media.tar.gz`) no longer
+> ships in the binary; only the pack is embedded.
+
 **Status:** accepted · 2026-08-22 · **supersedes** the "download a pack on first run" plan in
 Phase 2 and the `packPresent: false` empty state it implied
 
@@ -1524,7 +1527,7 @@ worth having, and the AI-teacher page was three clicks and a retyped question aw
 
 ## ADR-033 — The ear trainer plays words: every minimal-pair member is in the dictionary
 
-**Status:** accepted · 2026-09-03 *(user decision)* · see [R7](research/07-hvpt.md),
+**Status:** **superseded by [ADR-084](#adr-084)** (the ear trainer was removed) · was accepted 2026-09-03 *(user decision)* · see [R7](research/07-hvpt.md),
 [ADR-010](#adr-010)
 
 **Context.** The first learner on the ear trainer: «как будто таких окончаний слов или слов
@@ -3244,3 +3247,39 @@ S is FSRS stability in days. 180 days (`srs.ProgressFullDays`) is a declared dis
 - «Объяснить слово в предложении» sends a prepared question that includes the sentence into the **existing word tutor thread** (`kind="word"`, ADR-042) — no new LLM path, so ADR-027/046 guardrails and history apply. The sentence is cut to 600 characters to stay under `tutor.QuestionLimit` (1000).
 
 **Rejected.** A new "explain in context" endpoint (a second prompt to keep honest); replacing MT by the tutor (the translator is cheap, offline-capable, and the default).
+
+## ADR-084 — The ear trainer («Слух», HVPT) is removed completely
+
+**Status:** accepted 2026-11-19 *(user request: «слух фичу нужно удалить, выпилить полностью»)* · **supersedes** [ADR-033](#adr-033) and the ear-trainer parts of [ADR-010](#adr-010) and the HVPT items in docs/PEDAGOGY.md §2.2, §2.7
+
+**Context.** The minimal-pair trainer (`internal/hvpt`, `/ear`, `/api/hvpt/*`, Settings card, embedded clips) was built on [R7](research/07-hvpt.md). The owner no longer wants it in the product.
+
+**Decision.** Remove it end to end, not hide it.
+- **Code:** `internal/hvpt`, its handlers and DTOs, the `hvpt:` config block (and `EvidenceMinTalkers`/`DefaultMinTalkers`/`DefaultTrialsPerSession`/`DefaultRateJitter`), the `trial` daily-log kind, the `EarView` route, nav items, Settings card, `ear.*` / `settings.hvpt.*` locale keys, the embedded `media.tar.gz` and its extraction, `make audio`, `pipeline/minimal_pairs.py` and the `minimal_pair` / `pair_audio` tables from the pack schema, build, refresh and release gate. The pipeline stays importable; its tests pass.
+- **Data (irreversible, approved by the user):** migration `00023_drop_hvpt.sql` drops `hvpt_trial` and `hvpt_contrast_state` and deletes the `hvpt_steps_reconciled` marker. `profile` no longer exports them; an older export that still contains those tables imports cleanly (unknown tables are skipped). `daily_log.trials` stays (history; nothing writes it any more).
+- **Old config:** an existing `config.yaml` with an `hvpt:` block still loads (YAML is not strict); the key is dropped on the next write.
+- **The vowel-error remedy** `drill.remedy.ear` becomes `drill.remedy.perception`: it names the problem (a hearing/pronunciation gap that typing will not fix), carries no drill kinds and is not actionable, so the Grammar screen lists it under «exercises will not fix these». It no longer points at a trainer that does not exist.
+- **Kept:** Piper TTS and its voices (ADR-080/081), read-aloud, the reader's listening mode and `/api/listen/*`, the listening-hours gate, `vowel_length` / `vowel_quality` error classes and tutor prompts, [R7](research/07-hvpt.md) (research is history).
+- **Starter pack:** the committed `langpack-hu-starter.sqlite.gz` was NOT rebuilt in this change, so it still contains the unused `minimal_pair` / `pair_audio` tables (harmless; nothing reads them). The next `make starter` drops them.
+- **Clips on disk:** `<dataDir>/media/hvpt` is left alone; it can be deleted by hand.
+
+**Rejected.** Hiding the screen behind a flag (the code and the pack data would rot unseen); keeping the tables "just in case" (the user asked for a full removal and the history has no other reader).
+
+## ADR-085 — «Письмо» (Writing): essays checked by the AI teacher or an external chat, one schema, nothing minted
+
+**Status:** accepted 2026-11-19 *(user request: write essays on topics; check them with the local AI teacher OR by pasting a ready prompt into ChatGPT-style chats and the answer back; show errors in red with why, the right form and the rule)* · **supersedes** the parts of [R9](research/09-corrective-feedback.md)'s "What this changes" for writing: the server-enforced three-stage reveal and the LLM-written drills (`handlers_write.go`, `prompts/correct-writing.md` v1) · research [R24](research/24-written-corrective-feedback.md)
+
+**Context.** The learner writes Hungarian texts and wants a teacher's markup: where each error is, why it is wrong, how it should be, which rule. A local small model is often too weak; a strong external chat is free to use but outside the app. Both must end in one screen.
+
+**Decision.**
+- **One format, one parser.** The prompt (`internal/writing.Build`, `PromptVersion = 1`) asks for versioned line-tagged plain text `TANULOM-CHECK 1` with `[ERROR]` blocks of `KEY: value` lines inside ONE ```text block — not JSON (small models break it and truncation loses everything) and not Markdown (lost when a chat's rendered answer is copied). `writing.Parse` is forgiving (fences, chatter, bold keys, bullets, CRLF, `<think>`, missing header, truncation) and runs **on read** from the stored raw answer, so a parser fix upgrades old checks. Only `raw` and the exact checked text are stored.
+- **Anchoring on the server.** Each error carries an exact `QUOTE` and a 1-based `NTH`; `writing.Anchor` resolves it against the snapshot that was checked (exact, then case/space/quote-folded, then accent-folded if unique) and returns `segments[]`. Offsets never reach the browser (UTF-8 bytes server, UTF-16 browser). An unplaceable error is listed, not highlighted.
+- **Two ways to check.** *External:* `POST …/prompt` builds the prompt and stores nothing; the learner pastes the answer back to `POST …/checks/external` (unparseable → 422, nothing stored, the paste stays in the UI; the model label is the learner's own words, default `external`). *Local:* `POST …/checks/local` streams from `services.llm` over SSE (`llm.Client.Stream`; maxTokens 3000, 300 s), single-flight per learner, stored by a goroutine the server waits for **even if the browser leaves**, an interrupted answer kept with its complete errors and marked; nothing arrived → nothing stored.
+- **Explanations in the learner's locale** (`lang`), instructions in English, Hungarian (QUOTE, FIX, EXAMPLE, CORRECTED) display-only. The prompt never contains the word `ONLY` (pinned by a test).
+- **Honesty.** Every check shows its model and "a model wrote this, it can be wrong"; Hungarian words of FIX/EXAMPLE the dictionary lacks are flagged («Нет в словаре»); the lesson link (`GrammarTopicHint`) is emitted only when the topic exists in the installed pack.
+- **Nothing is minted.** No path from `writing_piece`/`writing_check` to `note`, `card`, `user_gloss`, either state space, `review_log`, `feature_review`, `practice_log` or `daily_log`; a test counts those tables around every endpoint. "Add the corrected word to cards" is deliberately out of scope.
+- **Hint-first is a default, not a lock.** The UI locates the error and shows the HINT; the fix is one click away; a «Показать все исправления» switch (remembered in `localStorage`) is the learner's. This supersedes R9's server-enforced staging for writing (rationale in R24).
+- **Data.** Migration `00024_writing.sql`: `writing_piece` (body ≤ 6000 characters, title ≤ 120) and `writing_check` (raw ≤ 64 KiB, model label ≤ 80, ≤ 30 per piece). Deleting a piece deletes its checks (the learner's own text). Both tables are in the profile export/import manifest. Topics are an authored catalogue in the binary (`internal/writing/topics.json`, ~8 per level A1–B2, ru+en titles and briefs, no Hungarian); the word range is advice.
+- **Surface.** Routes `/write`, `/write/:id`; nav item «Письмо»/«Writing», always visible (the external path needs no sidecar). Any signed-in learner; not admin-only.
+
+**Rejected.** JSON output; Markdown output; a server-enforced staged reveal (a lock on information the learner can read in the chat); model-written drills (LLM Hungarian entering practice, [R16](research/16-debunked.md)); storing parsed results (a parser fix would not reach old checks); keeping nothing when a local check is interrupted (it cost minutes).

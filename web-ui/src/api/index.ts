@@ -12,9 +12,6 @@ import type {
   CheckpointVerdict,
   Overview,
   CoverageVerdict,
-  HvptAnswer,
-  HvptContrast,
-  HvptSession,
   ListenState,
   SpeechVoices,
   TtsRequest,
@@ -352,15 +349,6 @@ export const api = {
   lemmaExamples: (id: number, limit = 3) =>
     http.get<{ examples: Example[] }>(`/api/lemma/${id}/examples?limit=${limit}`),
 
-  // ── ear trainer ───────────────────────────────────────────────────────
-  hvptSession: () => http.get<HvptSession>('/api/hvpt/session'),
-
-  hvptAnswer: (body: { trialId: string; chosen: 'a' | 'b'; rtMs: number }) =>
-    http.post<HvptAnswer>('/api/hvpt/answer', body),
-
-  hvptContrasts: () =>
-    http.get<{ contrasts: HvptContrast[]; talkers: number }>('/api/hvpt/contrasts'),
-
   // ── local speech (Piper) ──────────────────────────────────────────────
   speechVoices: () => http.get<SpeechVoices>('/api/speech/voices'),
   speechTts: (body: TtsRequest) => http.post<TtsResult>('/api/speech/tts', body),
@@ -493,3 +481,4 @@ export const api = {
 
 export { ApiError } from './http'
 export { tutorApi, TutorError } from './tutor'
+export { writingApi } from './writing'

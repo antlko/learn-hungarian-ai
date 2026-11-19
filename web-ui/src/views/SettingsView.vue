@@ -2,7 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
-import { BrainCircuit, Ear, GraduationCap, Info, Languages, Server, Table2, Volume2, VolumeOff, Bell } from '@lucide/vue'
+import { BrainCircuit, GraduationCap, Info, Languages, Server, Table2, Volume2, VolumeOff, Bell } from '@lucide/vue'
 import SectionChip from '@/components/settings/SectionChip.vue'
 import { describeError } from '@/lib/errors'
 import { Button } from '@/components/ui/button'
@@ -77,30 +77,6 @@ async function saveReview() {
     toast.warning(t('settings.clamped', { field: c.field, from: c.from, to: c.to }))
   }
   if (!res.clamped?.length) toast.success(t('common.saved'))
-}
-
-/**
- * The ear trainer's talker floor.
- *
- * This card exists because the refusal screen already promised it: below the
- * floor the Ear session refuses with "an administrator can lower the bar in
- * settings (hvpt.minTalkers)", and there was no such control anywhere — the app
- * was pointing at a button it had not built. The pack ships three synthetic
- * voices, so a floor of five means the trainer never runs at all.
- *
- * Lowering it costs real effect and the hint says so. [R7]
- */
-async function saveHVPT() {
-  if (!s.value) return
-  try {
-    const res = await store.update({ hvpt: s.value.hvpt })
-    for (const c of res.clamped ?? []) {
-      toast.warning(t('settings.clamped', { field: c.field, from: c.from, to: c.to }))
-    }
-    if (!res.clamped?.length) toast.success(t('common.saved'))
-  } catch (e) {
-    toast.error(describeError(e))
-  }
 }
 
 async function saveCurriculum() {
@@ -470,52 +446,6 @@ function previewVoice() {
               disabled
             />
           </div>
-        </CardContent>
-      </Card>
-
-      <!-- The ear trainer's talker floor — the control the refusal screen
-           has always told people to come here and change. [R7] -->
-      <Card variant="quiet">
-        <CardHeader>
-          <CardTitle class="flex items-center gap-2.5 text-base">
-            <SectionChip :icon="Ear" tint="cream" />
-            {{ $t('settings.hvpt.title') }}
-            <InfoTip>{{ $t('settings.hvpt.hint') }}</InfoTip>
-          </CardTitle>
-        </CardHeader>
-        <CardContent class="flex flex-col gap-4">
-          <div class="grid gap-4 sm:grid-cols-2">
-            <div class="flex flex-col gap-1.5">
-              <Label for="minTalkers" class="flex items-center gap-0.5">
-                {{ $t('settings.hvpt.minTalkers') }}
-                <InfoTip>{{ $t('settings.hvpt.floorCaveat') }}</InfoTip>
-              </Label>
-              <Input
-                id="minTalkers"
-                v-model.number="s.hvpt.minTalkers"
-                type="number"
-                min="2"
-                max="12"
-              />
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <Label for="trials">{{ $t('settings.hvpt.trialsPerSession') }}</Label>
-              <Input
-                id="trials"
-                v-model.number="s.hvpt.trialsPerSession"
-                type="number"
-                min="1"
-                max="200"
-              />
-            </div>
-          </div>
-          <Button
-            class="self-start"
-            :disabled="store.saving || !auth.isAdmin"
-            @click="saveHVPT"
-          >
-            {{ store.saving ? $t('common.saving') : $t('common.save') }}
-          </Button>
         </CardContent>
       </Card>
 

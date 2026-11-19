@@ -62,7 +62,7 @@ The first page is the setup wizard: it creates the administrator account (passwo
 ten characters — a length, not a composition rule) and asks for the interface language and the
 gloss language. Everything lives under the one volume: `tanulom.db` (accounts, progress, review
 log), `config.yaml`, `langpack-hu-v1.sqlite` (the read-only pack; the starter edition is installed on
-first boot and Settings says which edition you have) and `media/` (the ear trainer's clips).
+first boot and Settings says which edition you have) and `media/` (cached speech and recordings).
 Back up the volume and you have backed up everything. A per-learner export also exists
 (Settings → Data, below; [ADR-040](../.claude/DECISIONS.md#adr-040)).
 
@@ -76,7 +76,7 @@ docker compose --profile llm up -d                     # + Ollama
 
 | Profile | Adds | Rough footprint |
 |---|---|---|
-| *(none)* | SRS, reader, grammar, HVPT, listening, progress | ~40 MB image |
+| *(none)* | SRS, reader, grammar, listening, progress | ~40 MB image |
 | `mt` | Hungarian → Russian/English sentence translation in the reader | ~600 MB model, 200–400 MB resident |
 | `speech` | *not built yet* — the browser speaks | n/a |
 | `llm` | local tutor and roleplay | ~5 GB+ depending on model |
@@ -378,7 +378,7 @@ in the app that does it, and there should not be one at the shell either.
 
 Two entries are reproducible and can be left out of an archive if size matters: the language
 pack (the starter edition reinstalls itself from the binary on the next boot; the full one is
-rebuilt with `make langpack`) and `media/hvpt/` (re-rendered by `make audio`).
+rebuilt with `make langpack`) (the removed ear trainer's `media/hvpt/`, if you still have it, can simply be deleted).
 
 ## Updating
 

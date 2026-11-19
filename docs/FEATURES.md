@@ -81,7 +81,7 @@ due date. The estimate of memory is computed by the FSRS library, not invented.
   hurts beginners ([PEDAGOGY.md](PEDAGOGY.md), R5).
 - **13 of the 33 topics have exercises.** The rest are explained only and say so; they do not lock
   anything after them. Where an error cannot be fixed by typing practice (vowel length), the app
-  routes you to ear training instead.
+  says so and lists it as something no exercise here treats.
 
 Optional: the tutor, linked from every lesson.
 
@@ -100,17 +100,14 @@ Optional: the tutor, linked from every lesson.
 - **Optional, translator.** A machine-translated crib under a sentence, always labelled with the
   model, never used as a card answer.
 
-## Listening and Ear
+## Listening
 
 - **Listening mode (in the reader)**: open any text and switch to «Аудирование» — a three-pass
   protocol (blind, with text, dictation) with sentence-by-sentence shadowing, loop and speed control.
   Your own text with an optional recording is added in the Library. Your listening time counts toward
   the day.
-- **Ear training**: minimal pairs (words that differ by one sound, such as `kerek / kérek`) with
-  several voices, because varied voices are what makes this training work. A session with too few
-  voices is refused with the numbers. No contrast is ever marked "done".
 
-Optional: nothing. The voices are clips inside the app; spoken words use your browser's voices.
+Optional: nothing. Spoken words use your browser's voices.
 
 ## Tutor
 
@@ -121,6 +118,18 @@ model: any OpenAI-compatible endpoint; `qwen3:8b` is recommended and a 1.7B mode
 ([TUTOR.md](TUTOR.md)). The AI dictionary entry for a word the pack lacks works the same way.
 
 Optional: yes, entirely. Without a model the tutor entry points are hidden or say why.
+
+## Writing
+
+«Письмо»: write a text on a topic (about 8 per level A1–B2, or your own) and have it marked like a
+teacher would: the wrong places underlined in red, then for each one a hint, the right form, why,
+the rule and one more example, plus a short summary, strengths and the whole text corrected. Check it
+with the **AI teacher** on this computer (streamed, no copying) or in an **external chat** such as
+ChatGPT: the app writes the prompt, you copy it there and paste the answer back. Both end on the
+same screen, labelled with who checked it. The check is a marking, **not a source of cards**:
+nothing from it enters your reviews. Drafts autosave; old checks are kept and deletable.
+
+Optional: the AI teacher needs a model ([TUTOR.md](TUTOR.md)); the external-chat path needs nothing.
 
 ## Progress
 
@@ -199,7 +208,6 @@ gloss language and fall back to English with a visible label where Russian is mi
 - Only **13 of 33** grammar topics have exercises.
 - **Speech recognition is not built** (`services/asr`), nor synthesized card audio
   (`services/tts`); the browser's voices are used. Hungarian ASR in general has about 11% word error rate.
-- The ear trainer has **three** synthetic voices where the research asks for five or more.
 - Optional sidecars are labelled as untested where they are: the analyser's container has not
   been run in CI and its memory use is a published figure, not ours.
-- No offline mode, no speaking practice, no writing corrector.
+- No offline mode, no speaking practice.

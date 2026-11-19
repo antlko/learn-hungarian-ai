@@ -191,6 +191,15 @@ whole file. Each rule is here because breaking it caused a real bug.
   tally is a log with no «N in a row» threshold, and that «В корзину» is the one control that
   removes a word. **No completion bar: there is no denominator, and inventing one is the score
   [R14] rules out** ([ADR-039](../.claude/DECISIONS.md#adr-039)).
+- **The writing check marks; it mints nothing.** No code path from `writing_piece` /
+  `writing_check` to `note`, `card`, `user_gloss`, `lemma_state`, `morph_state`, `review_log`,
+  `feature_review`, `practice_log` or `daily_log` — `handlers_writing_test.go` counts those tables
+  around every endpoint ([ADR-085](../.claude/DECISIONS.md#adr-085)). Model-written Hungarian
+  (FIX, EXAMPLE, CORRECTED) is display-only, labelled with the model, and unknown words are
+  flagged against the dictionary. Parsing and anchoring run **on read** from the stored raw answer
+  and checked text; the browser renders `segments` by interpolation, never `v-html`, and never
+  handles offsets. The prompt never contains the word `ONLY` (a test pins it). The lesson link is
+  emitted only when the topic exists in the installed pack.
 - **The grammar tutor explains; it mints nothing.** No code path from `tutor_message` to `note`,
   `card`, `user_gloss` or either state space — `handlers_tutor_test.go` counts those tables
   before and after a question. Every answer names its model and lists the backticked Hungarian
@@ -246,14 +255,6 @@ whole file. Each rule is here because breaking it caused a real bug.
 - **`COLLATE NOCASE` defeats the pack's indexes.** `idx_wordform_form` is BINARY-collated, so
   `WHERE form = ? COLLATE NOCASE` scans two million rows. Use `caseVariants` +
   `IN (?,?,?)` — `internal/morph/casefold.go`.
-- **No HVPT contrast is ever marked complete.** Effects decay; contrasts get FSRS maintenance
-  forever, and the adaptive selection weight has a positive floor. A session below
-  `hvpt.minTalkers` distinct voices is **refused with the numbers**, never silently degraded.
-  See [R7](../.claude/research/07-hvpt.md). **Every pair member is a word the dictionary
-  carries** ([ADR-033](../.claude/DECISIONS.md#adr-033)): the inventory once held a dozen
-  non-words glossed «(нет слова)», and the learner's verdict was «как будто таких слов нет».
-  `minimal_pairs.unattested` refuses the build and the refresh; clips are named by the word,
-  never by the pair id, which a refresh reassigns.
 - **The review log replays to stored state bit-for-bit** — fuzz is seeded, so this includes due
   dates. Undo is delete-and-replay on that property (`internal/srs/replay.go`); do not add
   stored-previous-state bookkeeping beside it, and keep `review_time` at millisecond precision.
@@ -430,7 +431,7 @@ whole file. Each rule is here because breaking it caused a real bug.
   [ADR-059](../.claude/DECISIONS.md#adr-059)). The line art in `components/art` is decorative
   (`aria-hidden`), under 2 KB a motif, and lives on empty states, the done screen, 404, under
   the wordmark at the two doors — and, as **two-tone** pieces (line `currentColor` + `--art-fill`),
-  the six Budapest/Balaton drawings in the places UX.md §14.9 lists (Library/Words/Listen/Ear
+  the six Budapest/Balaton drawings in the places UX.md §14.9 lists (Library/Words/Listen
   empty, Grammar not-started, Today's header strip and rest state). A drawing never draws
   progress and never sits on a `Note`, a graded card or the Progress screen's metrics.
   **The one ring** is `components/visual/ProgressRing.vue`, and only for a derived share with a
@@ -480,12 +481,13 @@ This project's credibility rests on not overclaiming. These are product requirem
   to the `explained` phase and says so; a topic the pack cannot supply attested material for
   reports `noMaterial` rather than inventing answers. Thirteen of thirty-three topics produce
   drills on hu-v1, and the app does not pretend otherwise.
-- **An error a drill cannot fix is routed, not drilled.** A vowel-length or rounding mistake is
-  a perception problem; `internal/drill/from_error.go` returns `drill.remedy.ear` and the UI
-  says that typing practice will not treat it.
+- **An error a drill cannot fix is named, not drilled.** A vowel-length or rounding mistake is
+  a perception problem; `internal/drill/from_error.go` returns `drill.remedy.perception` (no drill
+  kinds, not actionable) and the UI says that typing practice will not treat it. There is no
+  ear trainer to route to (removed, ADR-084).
 - Known limitations are stated in the product, not only in docs: FSRS's efficiency figure is a
   simulation; per-user FSRS optimisation is absent in v1.0; coverage thresholds are
-  English-derived; Hungarian ASR has ~11% WER; only 3 synthetic voices exist for HVPT.
+  English-derived; Hungarian ASR has ~11% WER; only 3 free synthetic Hungarian voices exist.
 - **The guided course ends, and says so.** Three FINITE tiers — 24 basic, 20 intermediate, 20
   advanced core units (`course_unit.tier`; 64 in all) — then `handedOver` and a catalogue of real
   Hungarian ([ADR-057](../.claude/DECISIONS.md#adr-057), which extends the original 24-unit course at the

@@ -15,7 +15,7 @@ func TestExactMatch(t *testing.T) {
 
 func TestVowelLengthIsItsOwnErrorClass(t *testing.T) {
 	// `hat` and `hát` are different words, so this is not a typo — and its
-	// remedy is ear training, not more writing. Mislabelling it as a spelling
+	// remedy is not more writing. Mislabelling it as a spelling
 	// slip would send the learner to the wrong drill.
 	for _, tc := range []struct{ typed, expected string }{
 		{"hat", "hát"},
@@ -163,8 +163,8 @@ func TestEditDistanceBound(t *testing.T) {
 
 func TestVowelQualityIsSeparateFromLength(t *testing.T) {
 	// `tor` vs `tőr` differs in rounding AND length, so it is not a length
-	// error — and it is certainly not a typo. Both classes route to ear
-	// training, but to different minimal-pair contrasts.
+	// error — and it is certainly not a typo. Both classes are perception
+	// problems, but different ones.
 	for _, tc := range []struct {
 		typed, expected string
 		want            ErrorClass

@@ -22,7 +22,6 @@ from . import (
     emit,
     features,
     frequency,
-    minimal_pairs,
     resources,
     sentences,
     subtitles,
@@ -111,25 +110,6 @@ def main() -> int:
     )
     stats["topics"] = n
     print(f"  topics: {n}")
-
-    # ── minimal pairs ────────────────────────────────────────────────────
-    problems = minimal_pairs.validate()
-    if problems:
-        print("minimal pairs are invalid:", *problems, sep="\n  ")
-        return 1
-    n = emit.bulk(
-        conn, "minimal_pair",
-        ["a", "b", "contrast", "priority", "gloss_a_ru", "gloss_b_ru",
-         "gloss_a_en", "gloss_b_en", "context_a", "context_b"],
-        (
-            (p.a, p.b, p.contrast, p.priority, p.gloss_a_ru, p.gloss_b_ru,
-             p.gloss_a_en, p.gloss_b_en, p.context_a, p.context_b)
-            for p in minimal_pairs.PAIRS
-        ),
-    )
-    stats["minimal_pairs"] = n
-    stats["contrasts"] = len(minimal_pairs.contrasts())
-    print(f"  minimal pairs: {n} across {stats['contrasts']} contrasts")
 
     # ── lexicon ──────────────────────────────────────────────────────────
     lemma_ids: dict[tuple[str, str], int] = {}
@@ -489,14 +469,6 @@ def main() -> int:
         ],
         "attribution": "See langpack/LICENSES.md. Pack data is CC BY-SA 4.0.",
     }
-    # The ear trainer's pairs against the dictionary just built: a member the
-    # language does not have is not a stimulus, and the build says which.
-    missing = minimal_pairs.unattested(conn)
-    if missing:
-        print("minimal pairs name forms the dictionary does not carry:", *missing, sep="\n  ")
-        conn.close()
-        return 1
-
     emit.finalise(conn, index_ddl, meta)
     conn.close()
 

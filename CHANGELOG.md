@@ -5,6 +5,17 @@ the project uses [semantic versioning](https://semver.org/). Every design decisi
 is an ADR in [`.claude/DECISIONS.md`](.claude/DECISIONS.md), and every pedagogical claim traces to a
 note in [`.claude/research/`](.claude/research/README.md).
 
+## [1.7.0] — 2026-11-19 — «Письмо» (Writing) added, «Слух» (ear trainer) removed
+
+### Added
+- **«Письмо» (Writing)** (ADR-085, R24): a «Письмо» screen with pieces of writing with autosave, an authored topic catalogue, a ready prompt for an external chat, a forgiving parser for the pasted answer, and a streamed check by the AI teacher (`/api/writing/*`). Every check is labelled with its model, anchored to the text on the server, and **creates no cards**. Migration `00024_writing.sql`; both tables travel with the profile export/import. The learner can check a piece with the AI teacher (streamed) or copy a ready prompt into an external chat and paste the answer back; errors are shown in red with a hint, the fix, why and the grammar rule.
+- `.claude/prompts/correct-writing.md` is now v2 (the line-tagged `TANULOM-CHECK 1` format); the three-stage server reveal and model-written drills of v1 are dropped for writing.
+
+### Removed
+- **The ear trainer («Слух», minimal-pair listening) is gone completely** (ADR-084): the screen, its API, Settings card, `hvpt:` config block, the embedded clip archive, `make audio` and the pipeline stage that rendered them. Migration `00023_drop_hvpt.sql` **permanently deletes** the learner's old ear-trainer history (`hvpt_trial`, `hvpt_contrast_state`). Old profile exports that contain those tables still import; an old `config.yaml` with an `hvpt:` block still loads.
+- Vowel-length and vowel-quality mistakes in grammar drills are now listed as "no exercise here fixes this" (new key `drill.remedy.perception`) instead of pointing to the trainer.
+- The old clips under `<dataDir>/media/hvpt` are no longer used; delete the folder by hand if you want the space back.
+
 ## [1.6.2] — 2026-11-19 — Reader: close buttons on translations, the three sentence actions in one row
 
 ### Changed

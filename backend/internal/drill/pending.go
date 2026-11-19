@@ -22,10 +22,8 @@ import (
 // the learner one keystroke. An item that has expired returns a clear error and
 // the client fetches a new one.
 //
-// The store is generic because the ear trainer needs precisely this, for
-// precisely this reason, and used to hold a line-for-line copy of it that had
-// already fallen behind — no Forget, no configurable limits. The reasoning
-// above is the whole justification for both, so it lives with the one
+// The store is generic so any served-item flow can reuse it. The reasoning
+// above is the whole justification, so it lives with the one
 // implementation rather than in a comment pointing at another comment.
 
 const (

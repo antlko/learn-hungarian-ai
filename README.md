@@ -57,14 +57,6 @@ The lesson comes first; the drill sits behind a button.
 
 <img src="docs/screenshots/grammar-m.png" alt="Grammar — mobile" width="320">
 
-### Ear trainer
-
-A real word, two candidates, three voices — perception practice for sounds typing cannot fix.
-
-![Ear trainer — desktop](docs/screenshots/ear.png)
-
-<img src="docs/screenshots/ear-m.png" alt="Ear trainer — mobile" width="320">
-
 ---
 
 ## Why another language app
@@ -96,7 +88,6 @@ Three places where we follow the evidence instead of the intuition:
 | Intuition | What the evidence says | What we do |
 |---|---|---|
 | Interleave grammar from the start — desirable difficulty! | Interleaving is **g = 0.42** overall and **attenuated for rule-based language material**; blocked practice first is *required* below a competence floor ([Brunmair & Richter 2019](https://www.psychologie.uni-wuerzburg.de/fileadmin/06020400/2019/Brunmair_Richter_in_press__2019_META-ANALYSIS_OF_INTERLEAVED_LEARNING.pdf); [Hwang 2025](https://onlinelibrary.wiley.com/doi/10.1111/lang.12659)) | Blocked until 80% rolling accuracy, **then** interleaved — and the app tells you why |
-| Ear training is a one-and-done fix | HVPT works (**g = 0.92**) but **decays at 1–2 months** ([Uchihara et al. 2025](https://www.cambridge.org/core/journals/studies-in-second-language-acquisition/article/high-variability-phonetic-training-hvpt-a-metaanalysis-of-l2-perceptual-training-studies/6ABB8C1F32D88D53EA8D05A4565E76F6)) | No contrast is ever "complete" — they come back on schedule, forever |
 | Just tell the learner the right answer | Feedback that makes you **produce** the repair beats being handed it ([Li 2010](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-9922.2010.00561.x)) | Locate → hint → reveal, and the reveal is gated server-side until you've tried |
 
 Full map: [`docs/PEDAGOGY.md`](docs/PEDAGOGY.md).
@@ -108,8 +99,8 @@ Full map: [`docs/PEDAGOGY.md`](docs/PEDAGOGY.md).
 2. It **teaches in a path**: Today shows your estimated level, the one next thing to do and a
    roadmap of the 24-unit course. Then the course ends and hands you real Hungarian to read.
 3. It **reviews with FSRS**, tracking words *and* grammar facts (suffixes) separately.
-4. It reads, listens and drills: a reader for your own texts, ready-made reading sets, ear
-   training, grammar lessons with exercises, and an optional AI tutor.
+4. It reads, listens and drills: a reader for your own texts, ready-made reading sets,
+   grammar lessons with exercises, and an optional AI tutor.
 5. It **works on a phone** (bottom tabs, touch-sized review) and in Russian or English.
 
 Everything the app does, in plain words: **[docs/FEATURES.md](docs/FEATURES.md)**.
@@ -213,7 +204,7 @@ pack, not a demo — measured from the embedded file:
 | example sentences | 12,858 (all Tatoeba, human-written) | ~60,000 |
 | Russian glosses (lemmas) | 2,598 | 8,620 |
 | the 24-unit course + 12 theme units (1,938 words) | all | all |
-| grammar lessons (33 topics), ear-training pairs and clips | all | all |
+| grammar lessons (33 topics) | all | all |
 
 The full dictionary only **widens lookup**: more rare words found when you click in the reader,
 more example sentences. No feature depends on it. (Full-pack figures are from
@@ -248,7 +239,7 @@ start command is always yours.
 |---|---|---|---|
 | **Translator** (MT) | NLLB-200-distilled-600M, a small translation model that runs on your CPU | a **labelled** machine crib («машинный перевод, модель …») under Hungarian sentences in the reader, so you need not paste text into someone else's chat. Never used as a card's answer. | `docker compose --profile mt up -d`; ~2.4 GB downloaded on first build, ~600 MB kept, 200–400 MB RAM. Weights are CC-BY-NC. |
 | **Tutor model** (LLM) | any OpenAI-compatible endpoint | the grammar tutor and AI dictionary entries. `qwen3:8b` is recommended; a 1.7B model cannot do the job ([docs/TUTOR.md](docs/TUTOR.md)). | Local Ollama via `--profile llm` plus `ollama pull qwen3:8b` (~5 GB, a step nobody does for you), or a hosted API. |
-| **Speech** | text-to-speech / recognition services | nothing yet: `services/tts` and `services/asr` are **not built**. Audio today is your browser's own voices (the `device` provider) plus the ear trainer's clips already in the binary. | n/a |
+| **Speech** | text-to-speech / recognition services | nothing yet: `services/tts` and `services/asr` are **not built**. Audio today is your browser's own voices (the `device` provider). | n/a |
 
 Setup details, ports and memory sizing: [docs/SELFHOSTING.md](docs/SELFHOSTING.md).
 
@@ -264,7 +255,7 @@ The short version; [docs/FEATURES.md](docs/FEATURES.md) is the real list.
 - **Grammar** — a path of topics; lesson first, then exercises, gated in numbers you can see.
 - **Read / Library** — paste a URL, `.srt` or `.epub`, or import a ready-made reading set; mine
   words into your deck.
-- **Listen and Ear** — graded listening and multi-talker minimal-pair training.
+- **Listening** — graded listening, a mode of the reader.
 - **Tutor** — a grammar chat in your language (needs a model).
 - **Progress** — estimated level, text coverage, the lemma curve, activity calendar, suffix heatmap.
 - **Yours** — one data directory; export or import a full profile.
@@ -293,8 +284,7 @@ Tiny, fast, `amd64` + `arm64` — it runs on a NAS or a Raspberry Pi.
 Stated in the app, not buried here: FSRS's efficiency figure comes from simulation, not a trial;
 per-user FSRS optimisation isn't in v1.0; the 95/98% coverage thresholds were derived for
 English; the level shown is an estimate (it can be off by a sublevel or two); speech recognition
-is not built; and the ear trainer ships **three** synthetic voices where the research asks for
-five or more, because three is how many freely-licensed Hungarian voices exist. Not every grammar
+is not built. Not every grammar
 topic has exercises (13 of 33 do); the others say so and teach by explanation. Full list:
 [docs/FEATURES.md](docs/FEATURES.md#known-limits).
 

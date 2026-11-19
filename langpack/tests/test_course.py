@@ -214,9 +214,6 @@ def test_at_least_nine_in_ten_words_can_be_a_cloze(starter_conn):
 
 def test_refresh_adds_the_track_and_tier_columns_to_an_older_pack(starter, tmp_path, monkeypatch):
     """The app opens a pack read-only and cannot add a column; refresh must."""
-    # The starter has no lemmas for the ear trainer's rarer pair members, which
-    # refresh would (rightly) refuse on; that gate is not what is tested here.
-    monkeypatch.setattr(refresh.minimal_pairs, "unattested_in", lambda _p: [])
     pack = tmp_path / "old.sqlite"
     shutil.copy(starter, pack)
     conn = sqlite3.connect(pack)

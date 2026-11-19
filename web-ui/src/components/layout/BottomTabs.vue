@@ -6,11 +6,11 @@ import {
   BookOpen,
   BrainCircuit,
   ChartNoAxesColumn,
-  Ear,
   Ellipsis,
   GraduationCap,
   House,
   ListChecks,
+  PenLine,
   Settings,
   Table2,
   Users,
@@ -57,6 +57,7 @@ const tabs = computed<Tab[]>(() => [
   },
   { to: '/library', icon: BookOpen, label: t('nav.read'), match: ['library', 'read'] },
   { to: '/grammar', icon: Table2, label: t('nav.grammar'), match: ['grammar', 'placement'] },
+  { to: '/write', icon: PenLine, label: t('nav.write'), match: ['write', 'write-piece'] },
 ])
 
 const llmMissing = computed(() => caps.list.length > 0 && !caps.byName.llm?.configured)
@@ -64,7 +65,6 @@ const more = computed(() => [
   ...(llmMissing.value
     ? []
     : [{ to: '/tutor', icon: GraduationCap, label: t('nav.tutor'), match: ['tutor'] }]),
-  { to: '/ear', icon: Ear, label: t('nav.ear'), match: ['ear'] },
   { to: '/words', icon: ListChecks, label: t('words.title'), match: ['words', 'known'] },
   { to: '/progress', icon: ChartNoAxesColumn, label: t('nav.progress'), match: ['progress'] },
   ...(auth.isAdmin ? [{ to: '/users', icon: Users, label: t('nav.users'), match: ['users'] }] : []),

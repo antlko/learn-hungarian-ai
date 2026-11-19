@@ -1,13 +1,11 @@
 package lang
 
 import (
-	"archive/tar"
 	"compress/gzip"
 	"embed"
 	"errors"
 	"fmt"
 	"io"
-	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -22,7 +20,7 @@ import (
 //
 // So the binary carries a compact pack: the whole curriculum, the top ~4600
 // lemmas with their forms and glosses, twelve thousand sentences the starter can
-// fully explain, every minimal pair, and the ear trainer's audio. It is enough
+// fully explain. It is enough
 // to work through the first months for real. The 252 MB pack is an UPGRADE that
 // widens the vocabulary — offered, never required.
 //
@@ -30,13 +28,6 @@ import (
 
 //go:embed starter/langpack-hu-starter.sqlite.gz
 var starterPack []byte
-
-// starterMedia holds the pre-rendered ear-trainer audio. Optional: a build made
-// without ffmpeg ships an empty archive and the Ear screen says its audio is
-// missing, which is the honest degradation.
-//
-//go:embed starter/media.tar.gz
-var starterMedia []byte
 
 // StarterVersion is the pack version the embedded starter installs as. It must
 // match the version the pipeline stamps, or Open will refuse its own artefact.
@@ -89,12 +80,6 @@ func EnsurePack(dataDir string) (version string, installed bool, err error) {
 	if err := os.Rename(tmp, dest); err != nil {
 		return "", false, fmt.Errorf("install starter pack: %w", err)
 	}
-
-	if err := extractStarterMedia(dataDir); err != nil {
-		// Audio is a nice-to-have; the pack is not. Log and carry on — the Ear
-		// screen already reports missing audio honestly.
-		slog.Warn("starter media not installed", "error", err)
-	}
 	return StarterVersion, true, nil
 }
 
@@ -113,65 +98,6 @@ func gunzipTo(gz []byte, dest string) error {
 		return err
 	}
 	return out.Close()
-}
-
-// extractStarterMedia unpacks the embedded audio into <dataDir>/media, skipping
-// files that already exist so a re-install never clobbers a learner's own media.
-func extractStarterMedia(dataDir string) error {
-	if len(starterMedia) == 0 {
-		return nil
-	}
-	zr, err := gzip.NewReader(strings.NewReader(string(starterMedia)))
-	if err != nil {
-		return err
-	}
-	defer zr.Close()
-
-	root := filepath.Join(dataDir, "media")
-	tr := tar.NewReader(zr)
-	for {
-		hdr, err := tr.Next()
-		if errors.Is(err, io.EOF) {
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-		if hdr.Typeflag != tar.TypeReg {
-			continue
-		}
-		// AppleDouble sidecars and Finder droppings are not media. The Makefile
-		// already builds the tarball without them, but the tarball is built on
-		// whatever machine ran `make starter`, and macOS tar adds these while
-		// hiding them from its own listing — so a recipe alone is not a
-		// guarantee. Refusing them here is.
-		if base := filepath.Base(hdr.Name); strings.HasPrefix(base, "._") || base == ".DS_Store" {
-			continue
-		}
-		// Tar paths come from our own build, but a path that escapes the media
-		// directory is worth refusing on principle rather than on trust.
-		dest := filepath.Join(root, filepath.Clean("/"+hdr.Name))
-		if !strings.HasPrefix(dest, root+string(os.PathSeparator)) {
-			continue
-		}
-		if _, err := os.Stat(dest); err == nil {
-			continue
-		}
-		if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
-			return err
-		}
-		f, err := os.Create(dest)
-		if err != nil {
-			return err
-		}
-		if _, err := io.Copy(f, tr); err != nil {
-			f.Close()
-			return err
-		}
-		if err := f.Close(); err != nil {
-			return err
-		}
-	}
 }
 
 // EmbeddedStarterBytes reports the size of the embedded pack, for the About

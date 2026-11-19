@@ -8,7 +8,7 @@ to actually learn from on day one, and the full pack is an upgrade.
 
 What "enough" means here, concretely:
 
-  * every morph_feature, grammar_topic, minimal_pair and course unit — the
+  * every morph_feature, grammar_topic and course unit — the
     curriculum is small and is the whole spine of the app;
   * the top-N lemmas by corpus frequency plus every lemma the course names, with
     their glosses, their attested wordforms and their display paradigm;
@@ -44,8 +44,6 @@ TABLES_COPIED_WHOLE = (
     "pack_meta",
     "morph_feature",
     "grammar_topic",
-    "minimal_pair",
-    "pair_audio",
     "ngram",
 )
 
@@ -295,7 +293,7 @@ def build(full: Path, out: Path, *, lemmas: int, sentences: int) -> None:
     counts = {
         t: dst.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
         for t in (
-            "lemma", "wordform", "sentence", "sentence_token", "minimal_pair",
+            "lemma", "wordform", "sentence", "sentence_token",
             "ngram", "course_unit", "course_word", "resource",
         )
         if t in have_out

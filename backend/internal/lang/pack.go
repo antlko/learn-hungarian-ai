@@ -139,7 +139,7 @@ func (p *Pack) Close() error {
 func (p *Pack) Counts() (map[string]int, error) {
 	out := map[string]int{}
 	for _, t := range []string{
-		"lemma", "wordform", "sentence", "morph_feature", "grammar_topic", "minimal_pair",
+		"lemma", "wordform", "sentence", "morph_feature", "grammar_topic",
 	} {
 		var n int
 		if err := p.db.QueryRow(`SELECT COUNT(*) FROM ` + t).Scan(&n); err != nil {

@@ -17,8 +17,8 @@ Screen by screen. Design principles first, because they explain the individual d
    one sentence, in plain language. A learner who does not trust the system will override it.
 5. **Uncertainty is visible.** Fallback glosses, uncertain morphological analyses, unattested
    LLM output and low-confidence ASR are all labelled. Never a confident-looking wrong answer.
-6. **Austerity where it is a drill.** The Ear trainer is two buttons on a blank field. It is
-   not an experience; it is 10 minutes of forced-choice repetition.
+6. **Austerity where it is a drill.** A drill is a blank field and a verdict. It is
+   not an experience; it is a few minutes of repetition.
 7. **Light first**: light is the default and both themes are complete; only an explicit toggle (stored as `tanulom.theme`) changes it — the OS preference is not consulted.
    A fresh install opens on paper (`:root` carries the light palette; `.dark` is the override) —
    flipped from dark-first when the first learner read the dark default as unfinished rather
@@ -67,7 +67,7 @@ container.
   ([ADR-059](../.claude/DECISIONS.md#adr-059)). `meta.width: 'wide'` (`max-w-6xl`) is the only
   exception, for the reader. **Dashboard pages (Today, Progress) use the full 5xl width; a view
   that is a single reading or form column puts `page-narrow` (`mx-auto w-full max-w-3xl`, defined
-  once in `tailwind.css`) on its root** — Settings, Users, Library, Resources, Ear, Words,
+  once in `tailwind.css`) on its root** — Settings, Users, Library, Resources, Words,
   Known words, Placement, Review start, Grammar, Unit, Tutor. A view's root otherwise sets no
   `max-w-*`, `mx-auto`, `px-*` or `pt-*` of its own. The content is wrapped in `RouteFade`
   (§14.3): fade + 6px rise on a path change.
@@ -88,7 +88,6 @@ container.
 │   Read       │                                                      │
 │   Grammar    │                                                      │
 │   Tutor *    │            (* only when an LLM is configured)        │
-│   Ear        │                                                      │
 │ ─────────    │                                                      │
 │   Progress   │                                                      │
 │   Accounts † │            († admin only)                            │
@@ -103,7 +102,7 @@ from the bottom-tab sheet and Progress.
 disabled with a one-line reason, never silently missing.
 
 **The shell, as built.** The sidebar orders by the daily loops — Today (which carries the course as a road — there is no Plan item), Review (with the
-`dueNow` badge), Read, Grammar, Ear — and nothing (Listen is no longer a tab: it is the reader's listening mode, §5) for features that are not built (the earlier «скоро» group of Speak and Write was removed: a row that does nothing reads as breakage). It **collapses to a 56px
+`dueNow` badge), Read, Grammar — and nothing (Listen is no longer a tab: it is the reader's listening mode, §5) for features that are not built (the earlier «скоро» group of Speak and Write was removed: a row that does nothing reads as breakage). It **collapses to a 56px
 icon rail** (PanelLeft button at the foot, persisted per device in `tanulom.sidebar`, the badge
 becoming a dot on the icon). Below `md` the rail is replaced by the bottom tabs (below); an earlier off-canvas drawer behind a
 hamburger was dropped, and before that the fixed 224px column ate 60% of a phone screen.
@@ -1215,38 +1214,49 @@ There is no Listen screen or nav item. Listening is the reader's optional listen
 
 ---
 
-## 7. Ear (HVPT)
+## 7. Write — «Письмо»
 
-Deliberately austere. This is a drill.
+*(Takes the place of the removed ear trainer, [ADR-084](../.claude/DECISIONS.md#adr-084); `/ear` still
+falls through to the 404 screen.)* The backend exists ([ADR-085](../.claude/DECISIONS.md#adr-085));
+this section is the intended behaviour of the screens built on it. Nav item «Письмо» / «Writing»
+(`nav.write`, lucide `PenLine`) in the sidebar, bottom tabs and top bar, **always visible** — the
+external-chat path needs no sidecar.
 
-```
-                         контраст:  ö / ő
+### 7.2 List — `/write`
+Pieces newest edit first: title, topic, level, word count, «проверено: <модель> · <дата>» when checked.
+«Новое сочинение» opens a dialog: a level filter (default the estimated level, else A2), topic cards
+(title + brief in the UI locale, genre, advised length) and «Свободная тема». Empty state explains the
+feature in one sentence and offers the button.
 
-                              🔊  (imre)
+### 7.3 Editor — `/write/:id`
+Topic brief card; title field; one `<textarea lang="hu" spellcheck="false" autocapitalize="off">`; a word
+counter «92 слова · цель 80–120» — **advice, never a lock**. Autosave about 1.5 s after typing stops, with a
+status («сохранено» / «сохраняю…» / error through `describeError`); it is flushed before a prompt is built.
+Two actions:
+- **«Проверить ИИ-учителем»** — only when `caps.available('llm')`; a small-model warning when
+  `modelParamsB < 7` recommends the external chat. While running: «получено 1 240 знаков, 3 ошибки» and
+  **Стоп** (what is complete is kept, marked «прервано»).
+- **«Проверить во внешнем чате»** — a two-step dialog: (1) read-only preview of the prompt and
+  «Скопировать задание», with a note to use the chat's own code-block Copy button; (2) a paste
+  field, an optional «Какой чат?» label (default «внешний чат») and «Показать разбор». An answer that
+  cannot be read shows «не удалось разобрать» and **keeps the paste**; nothing is stored.
 
-                    ┌──────────┐    ┌──────────┐
-                    │   tör    │    │   tőr    │
-                    └──────────┘    └──────────┘
-                         ←               →
-
-              23/40      точность 78%      дикторов: 6
-```
-
-- 2AFC, immediate green/red, both members replayable after the answer. **Both members are
-  words** ([ADR-033](../.claude/DECISIONS.md#adr-033)): the inventory once paired a real word
-  with a nonce one — `csak`/`sak`, `tuz`/`tűz` — and «как будто таких слов нет» was the
-  learner's exact reading of it. The build now refuses a member the dictionary does not carry.
-- **Talker badge** and a **distinct-talker count** for the session — because talker variability
-  is the mechanism and we make it auditable ([R7](../.claude/research/07-hvpt.md)).
-- **No completion badge, ever.** Contrasts return on an FSRS schedule indefinitely.
-- **Keyboard:** `←`/`→` choose · `r` replay · `space` next.
-
-**As built.** Below `hvpt.minTalkers` distinct voices the session is a REFUSAL SCREEN carrying
-the numbers ("в этом паке 3 голоса, нужно 5") and the honest trade-off of lowering the bar in
-settings — never a silently degraded session. The session plan rotates voices so consecutive
-trials never share a talker. The session-done screen shows the numbers and then explicitly says
-no contrast is ever finished; the contrast map uses dashes for never-trained contrasts, not
-zeros. The played member never reaches the client until after the choice.
+### 7.4 Result
+Header «Разбор: qwen3:8b · ИИ-учитель на этом компьютере» or «Разбор: ChatGPT · ответ внешнего чата,
+вставлен вами» with the date; the standing line «Разбор написала модель — она может ошибаться. Ничего
+отсюда не становится карточками.» The text is rendered from `segments` **by interpolation only (never
+`v-html`)**: a red wavy underline, a tinted background and a superscript number — colour is not the only
+signal; a click scrolls to and focuses the card. Each error card: number, type label (plain words:
+«падеж», «долгота гласной»…), «Было» (struck red), the HINT, «Показать исправление» → «Как правильно»
+(green), «Почему», «Правило», «Пример», «Открыть урок» (`/grammar?topic=<topicCode>`, only when the
+server sent one), «Нет в словаре: …» in the uncertain hue (§11). A global **«Показать все
+исправления»** switch (hint-first is the default) is remembered in `localStorage` (try/catch). An error that
+could not be placed says «не нашли это место в тексте». `partial` shows «часть ответа не разобрана» with
+«Показать исходный ответ» (a `<pre>`); a failed local answer says «Модель ответила не по формату —
+проверьте во внешнем чате» with that button; `level` reads «модель оценивает текст примерно как A2».
+Then summary, strengths, vocabulary notes and the corrected text (copyable), and the piece's history of
+checks, each deletable. Mobile: cards stack under the text; both themes use the design tokens (§14).
+Copy has no jargon; every key exists in ru and en.
 
 ### 7.1 Listen
 
@@ -1570,15 +1580,13 @@ statement that the lemma targets come from the brief and are estimates.
 Sections, in order: **Review** (desired retention, new-card limit with the governor curve,
 direction weighting by goal) · **Grammar drills** (the competence gate, exposed on purpose) ·
 **Curriculum** (the exam date) · **Language** (UI locale, gloss language, fallback behaviour) ·
-**Ear trainer** (the talker floor and trials per session — the control the HVPT refusal screen
-has always told people to come here and change, and which did not exist) ·
 **Components** (admin only — see §10.1a) · **Services** (TTS/ASR/LLM/MT provider, endpoint, key, test button, latency) ·
 **About** (version, pack version and edition) · **Speech** and **Sound**, which sit outside the
 settings payload because they are device preferences, not account ones.
 
 **Save is admin-gated on every card, not some of them.** `PUT /api/settings` is admin-only, but
-only HVPT and Services said so; Review, Curriculum and Language drew an enabled button that
-answered with a bare 403. All five are now disabled for a learner, with one line at the foot of
+only Services said so; Review, Curriculum and Language drew an enabled button that
+answered with a bare 403. All of them are now disabled for a learner, with one line at the foot of
 the screen saying why — gating without a reason reads as a broken control.
 
 **The `tts` row no longer contradicts the Speech card.** With `tts.provider: off` it said
@@ -1852,7 +1860,7 @@ type-checked and built, not run end to end.
 - Every interactive element is keyboard-reachable with a visible focus ring. Tailwind v4 resets
   buttons to `cursor: default`; reuse `buttonVariants` rather than hand-rolling `<button>`.
 - `prefers-reduced-motion` disables all transitions and the progress-ring animations.
-- Audio is never the sole carrier of a correctness signal — HVPT feedback is colour **and**
+- Audio is never the sole carrier of a correctness signal — answer feedback is colour **and**
   icon **and** text.
 - Contrast targets WCAG AA in both themes; the knowledge palette is verified against
   deuteranopia and protanopia simulation.
@@ -1870,7 +1878,7 @@ needs the server; the README and ARCHITECTURE.md said otherwise for a while and 
 (ADR-038). What the brief asks for — the review queue and its audio on the metro, answers
 queued locally and synced on reconnect, last-write-wins per card since one learner cannot
 conflict with themselves — is the next phase after the release, with its own ADR when it
-lands. Reading, grammar and the ear trainer would stay online in that phase too.
+lands. Reading and grammar would stay online in that phase too.
 
 ---
 
@@ -2182,7 +2190,7 @@ is the one that already exists, applied in sequence.
 ### 14.7 The calm panel
 
 The product is full of statements it is a design decision to make: a topic with no drill
-generator, an ear session refused below the talker floor, a coverage warning, words the pack has
+generator, a coverage warning, words the pack has
 no attested sentence for, a placement test that will not call three items mastery. Rendered in
 `uncertain` or `error` from edge to edge, every one of them looked like a crash — and an app
 that reports its own integrity as a fault teaches you not to trust either.
@@ -2217,7 +2225,6 @@ awaited, and `play()` swallows its own failures.
 - Grammar drills and Placement — `components/grammar/DrillItem.vue`, so both screens answer
   identically through the one component that owns the item; `sessionComplete` on a finished
   batch.
-- Ear — `views/EarView.vue`, on the trial response; `sessionComplete` at the end of a session.
 
 The three milestones are fired where the fact behind them becomes provable: a unit in
 `views/TodayView.vue` (off the refetched plan, because "done" is a fact about the review deck), a
@@ -2258,11 +2265,11 @@ the tram strip 360×80; `scripts/check_art.py` enforces size and the bans):
 | Tram on the Danube | `art/ArtTram.vue` | Today header strip |
 | Thermal-bath cupola | `art/ArtThermalDome.vue` | Today «nothing due» rest state |
 | Paprika string | `art/ArtPaprikaString.vue` | Words empty |
-| Balaton waves | `art/ArtBalaton.vue` | Listen / Ear empty |
+| Balaton waves | `art/ArtBalaton.vue` | Listen empty |
 
 (D3b also places: the Chain Bridge in the Library header and the Resources empty state, the
 parliament dome in the Grammar header, the paprika string above the login and setup wordmark,
-the balaton waves on the Ear start card, the tram on the 404 — all outside any `Note`, card
+the tram on the 404 — all outside any `Note`, card
 body or metric.)
 
 Placed with `Illustration` (`chainBridge · parliament · tram · thermal · paprika · balaton`).
@@ -2306,8 +2313,7 @@ Visual only; no behaviour, route or gate logic changed. Browser **not** exercise
   failed blush, not built cream) and always print the state word.
 - **Login / Setup** — a cream-washed page; paprika string over the wordmark; the form card
   stays the single raised object.
-- **Ear / Users / Resources / 404** — tinted option and list cards; balaton on the
-  Ear start card; Resources groups carry tinted icon chips; the 404
+- **Users / Resources / 404** — tinted option and list cards; Resources groups carry tinted icon chips; the 404
   shows the tram strip.
 - **Shell** — the active sidebar row is a mist pill with a primary icon; bottom tabs put a mist
   pill behind the active icon; the topbar due chip is cream, the streak sage, the level chip

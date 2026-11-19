@@ -173,7 +173,7 @@ async function submit() {
             <template v-if="auth.bootstrap?.packPresent">
               <ul class="flex flex-col gap-1.5 text-sm">
                 <li
-                  v-for="key in ['vocabulary', 'course', 'audio']"
+                  v-for="key in ['vocabulary', 'course']"
                   :key="key"
                   class="flex items-start gap-2"
                 >

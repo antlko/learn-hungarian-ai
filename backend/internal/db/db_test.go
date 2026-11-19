@@ -181,3 +181,48 @@ func TestPurgeExpiredSessions(t *testing.T) {
 		t.Errorf("live session was purged: %v", err)
 	}
 }
+
+// ADR-084: the ear trainer's tables and its reconcile marker go away on an
+// existing install, and unrelated state survives.
+func TestDropHVPTMigrationRemovesOldEarTrainerState(t *testing.T) {
+	d := open(t)
+	uid, err := d.CreateUser("a@example.com", "hash", RoleAdmin)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Rewind to a pre-00023 database: tables back, marker set, migration unrecorded.
+	for _, q := range []string{
+		`CREATE TABLE hvpt_contrast_state (user_id INTEGER, contrast TEXT)`,
+		`CREATE TABLE hvpt_trial (id INTEGER PRIMARY KEY, user_id INTEGER)`,
+		`INSERT INTO hvpt_trial (user_id) VALUES (1)`,
+		`INSERT OR REPLACE INTO app_meta (key, value) VALUES ('hvpt_steps_reconciled', 'v1')`,
+		`INSERT OR REPLACE INTO app_meta (key, value) VALUES ('steps_reconciled', 'v1')`,
+		// Later migrations (00024 writing) are rewound too, so goose re-applies
+		// 23 and then them in order.
+		`DROP TABLE writing_check`,
+		`DROP TABLE writing_piece`,
+		`DELETE FROM goose_db_version WHERE version_id >= 23`,
+	} {
+		if _, err := d.DB.Exec(q); err != nil {
+			t.Fatalf("%s: %v", q, err)
+		}
+	}
+	if err := migrate(d.DB); err != nil {
+		t.Fatalf("migrate: %v", err)
+	}
+	for _, tbl := range []string{"hvpt_trial", "hvpt_contrast_state"} {
+		var n int
+		if err := d.DB.QueryRow(`SELECT COUNT(*) FROM sqlite_master WHERE name = ?`, tbl).Scan(&n); err != nil || n != 0 {
+			t.Errorf("%s still exists after the migration (n=%d err=%v)", tbl, n, err)
+		}
+	}
+	if _, ok, _ := d.Meta("hvpt_steps_reconciled"); ok {
+		t.Error("the hvpt reconcile marker survived")
+	}
+	if _, ok, _ := d.Meta("steps_reconciled"); !ok {
+		t.Error("an unrelated app_meta key was deleted")
+	}
+	if _, err := d.UserByID(uid); err != nil {
+		t.Errorf("the user did not survive: %v", err)
+	}
+}

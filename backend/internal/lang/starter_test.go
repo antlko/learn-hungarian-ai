@@ -1,14 +1,7 @@
 package lang
 
 import (
-	"archive/tar"
-	"bytes"
-	"compress/gzip"
-	"errors"
-	"io"
 	"os"
-	"path/filepath"
-	"strings"
 	"testing"
 
 	_ "modernc.org/sqlite"
@@ -43,13 +36,6 @@ func TestEnsurePackInstallsIntoAnEmptyDir(t *testing.T) {
 	if p.Meta.Edition != EditionStarter {
 		t.Errorf("edition = %q, want %q", p.Meta.Edition, EditionStarter)
 	}
-
-	// The ear trainer needs its clips beside the pack, or the first session
-	// refuses with a talker count of zero.
-	clips, _ := filepath.Glob(filepath.Join(dir, "media", "hvpt", "*.ogg"))
-	if len(clips) < 300 {
-		t.Errorf("installed %d clips into media/hvpt, want the inventory", len(clips))
-	}
 }
 
 // Second boot must be a no-op. If it were not, every restart would overwrite a
@@ -80,55 +66,5 @@ func TestEnsurePackLeavesAnInstalledPackAlone(t *testing.T) {
 	}
 	if !after.ModTime().Equal(before.ModTime()) {
 		t.Error("the pack file was rewritten on a boot that had nothing to do")
-	}
-}
-
-// What the binary carries is what every install gets, so the tarball's contents
-// are a shipped artefact and deserve a test.
-//
-// This exists because of a real failure: `make starter` on macOS packed an
-// AppleDouble `._x` sidecar beside all 384 clips, and bsdtar HIDES those from
-// its own `tar tzf` listing — so the tarball looked clean, and every fresh
-// install silently grew 385 junk files. Go's tar reader shows them, so this
-// test can see what the build machine could not.
-func TestEmbeddedMediaCarriesOnlyMedia(t *testing.T) {
-	zr, err := gzip.NewReader(bytes.NewReader(starterMedia))
-	if err != nil {
-		t.Fatalf("the embedded media tarball does not decompress: %v", err)
-	}
-	defer zr.Close()
-
-	clips := 0
-	tr := tar.NewReader(zr)
-	for {
-		hdr, err := tr.Next()
-		if errors.Is(err, io.EOF) {
-			break
-		}
-		if err != nil {
-			t.Fatalf("reading the tarball: %v", err)
-		}
-		base := filepath.Base(hdr.Name)
-		if strings.HasPrefix(base, "._") || base == ".DS_Store" {
-			t.Errorf("%s is a Finder artefact, not media — rebuild with `make starter`", hdr.Name)
-			continue
-		}
-		if hdr.Typeflag != tar.TypeReg {
-			continue
-		}
-		if filepath.Ext(base) != ".ogg" {
-			t.Errorf("%s is not an Opus clip; the ear trainer plays .ogg only", hdr.Name)
-			continue
-		}
-		if !strings.HasPrefix(hdr.Name, "hvpt/") {
-			t.Errorf("%s is outside hvpt/, which is the only tree the pack references", hdr.Name)
-		}
-		clips++
-	}
-
-	// A floor, not the exact count: adding contrasts must not fail this test,
-	// but shipping a tarball that lost its clips has to.
-	if clips < 300 {
-		t.Errorf("the embedded tarball has %d clips; the ear trainer needs its inventory", clips)
 	}
 }

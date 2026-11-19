@@ -144,7 +144,7 @@ const topicTitle = (t: Topic) => (ui.locale === 'ru' ? t.titleRu : t.titleEn)
 /** Recent mistakes a grammar drill cannot fix — said plainly. See from_error.go. */
 const nonDrillable = computed(() =>
   store.followUp.filter(
-    (f) => f.remedy === 'drill.remedy.ear' || f.remedy === 'drill.remedy.vocabulary',
+    (f) => f.remedy === 'drill.remedy.perception' || f.remedy === 'drill.remedy.vocabulary',
   ),
 )
 

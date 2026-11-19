@@ -18,7 +18,7 @@ Optional sidecars add speech, translation and an LLM. Nothing in v1.0 requires a
                     │  ┌────────────────────────────────────┐  │
                     │  │ Fiber v3 · API + SPA catch-all     │  │
                     │  ├────────────────────────────────────┤  │
-                    │  │ srs · morph · mining · drill · hvpt│  │
+                    │  │ srs · morph · mining · drill      │  │
                     │  │ curriculum · course · stats · lang │  │
                     │  └───────┬──────────────────┬─────────┘  │
                     │          ▼                  ▼            │
@@ -77,8 +77,8 @@ Two SQLite files in the data dir, plus one YAML.
 | Store | Holds | Mutability |
 |---|---|---|
 | `config.yaml` | settings: review params, mining weights, drill thresholds, service endpoints | hand-editable; app writes atomically |
-| `tanulom.db` | users, sessions, **secrets**, notes, cards, review logs, both state spaces, texts, drills, HVPT trials + contrast states, the listening ledger, the daily ledger, checkpoints, corrections, `course_progress` | read-write |
-| `langpack-hu-vN.sqlite` | lemmas, wordforms, paradigms, features, sentences, minimal pairs, curriculum, n-grams, the guided course (`course_unit`, `course_word`) and the hand-off catalogue (`resource`) | **read-only**, `ATTACH`ed |
+| `tanulom.db` | users, sessions, **secrets**, notes, cards, review logs, both state spaces, texts, drills, the listening ledger, the daily ledger, checkpoints, corrections, `course_progress` | read-write |
+| `langpack-hu-vN.sqlite` | lemmas, wordforms, paradigms, features, sentences, curriculum, n-grams, the guided course (`course_unit`, `course_word`) and the hand-off catalogue (`resource`) | **read-only**, `ATTACH`ed |
 
 **Invariants.**
 
@@ -103,8 +103,7 @@ Two SQLite files in the data dir, plus one YAML.
 
 **There is always a pack.** The binary embeds one (`internal/lang/starter.go`), and
 `lang.EnsurePack` installs it into the data directory on first boot — gunzip beside the target,
-**prove it opens**, then rename into place. The ear trainer's clips ride along in the same
-embedded archive, skipping any file already present so a re-install never clobbers learner media.
+**prove it opens**, then rename into place.
 
 Two failures shaped this:
 
@@ -112,14 +111,14 @@ Two failures shaped this:
   screen except Settings is dead, and the newcomer is asked to solve a distribution problem
   before reading a word of Hungarian. The starter pack — the whole curriculum and course, the
   5,725 lemmas with their 587,898 forms and glosses (and all 1,938 course words), 12,858
-  sentences it can fully explain, every minimal pair — is 19.8 MB
-  gzipped in the binary, beside 513 KB of Opus clips, and is enough to work through the first
+  sentences it can fully explain — is 19.8 MB
+  gzipped in the binary and is enough to work through the first
   months for real. The 252 MB full pack is an **upgrade** that widens the vocabulary, built with
   `make langpack`; it is offered, never required.
 - **`lang.Detect` verifies that a candidate opens, rather than trusting the filename.** A
   truncated download or an interrupted copy leaves a zero-byte `langpack-hu-v1.sqlite`, which
   the old name-only check reported as present. The server then started with morphology, reading,
-  drills, the ear trainer and the curriculum all dead, behind a message telling the user to
+  drills and the curriculum all dead, behind a message telling the user to
   download a pack that was, as far as they could see, already there. Verifying costs one `Open`
   per candidate at startup, and newest-first means a working older pack beats a broken new one.
 
@@ -150,7 +149,6 @@ cmd/tanulom
               ├── curriculum ── lang
               ├── course ── lang
               ├── drill ── curriculum, morph, srs, lang, db
-              ├── hvpt ── drill, srs, lang, db
               ├── stats ── db
               ├── mt ── config (optional sidecar; a nil client is "switched off")
               ├── components ── (embeds services/mt; installs + supervises it as a child; imports nothing from internal/)
@@ -181,6 +179,16 @@ explains; it mints nothing ([ADR-027](../.claude/DECISIONS.md#adr-027)), and
 labelled with the model that wrote it wherever it appears
 ([ADR-014](../.claude/DECISIONS.md#adr-014)); the guardrail `corpus` provides for generated
 Hungarian cannot catch a translation that is merely wrong, so labelling is the whole defence.
+
+**Never:** `writing` importing anything but the standard library and `x/text` (it is pure: topics,
+prompt, parser, anchoring), or `internal/api` writing a check into `note`, `card`, `user_gloss` or
+either state space — the writing check marks, it mints nothing
+([ADR-085](../.claude/DECISIONS.md#adr-085)). `writing_check` stores only the raw model answer and
+the text that was checked; `handlers_writing.go` re-runs `writing.Parse` + `writing.Anchor` on every
+read, so the DTO (segments, anchored flags, dictionary-unattested words, lesson link verified against
+the pack) always reflects the current parser. The local check is an SSE stream on `llm.Client.Stream`
+with a per-learner single-flight (`Server.writingFlights`) that stores its result via `Server.bg`
+even if the browser has gone.
 
 `internal/export` is **gone**, with the `.apkg`/CSV/backup endpoints it served. Data safety is a
 filesystem property here: the data directory is self-contained, so a backup is a `tar` of a
@@ -342,14 +350,10 @@ compares the structural fields exactly and allows stability to differ, reporting
 names the reason. No interchange format could make this check; it is the one thing a full dump
 buys over a copied SQLite file.
 
-### 5.8 The ear trainer — `internal/hvpt`
+### 5.8 (removed)
 
-2AFC identification over the pack's minimal pairs. Three [R7] rules are load-bearing:
-**multiple talkers are the active ingredient** (a session below `hvpt.minTalkers` distinct
-voices is refused with the numbers, and the session plan rotates voices so consecutive trials
-never share one); identification, not same/different; **no contrast is ever complete** — every
-contrast stays on FSRS maintenance with a positive selection weight forever. The played member
-is held server-side (ADR-008 applies to trials too).
+The ear trainer (`internal/hvpt`, HVPT minimal-pair trainer) was removed completely by ADR-084. The
+number is kept so section references stay valid.
 
 ### 5.9 The daily ledger and the streak — `internal/stats`
 
@@ -603,7 +607,6 @@ GET /api/capabilities
 | Change what unlocks what | `langpack/pipeline/curriculum.py` (the DAG) + `internal/drill/resolve.go` (how it is walked) |
 | Add an exercise type | a generator in `internal/drill/generate.go`, a `Kind`, and a branch in `web-ui/src/components/grammar/DrillItem.vue` |
 | Find the surface form of a paradigm cell | `internal/morph/forms.go` — **never** the pack's `paradigm` table, which is generator-only |
-| Add a minimal pair | `langpack/pipeline/minimal_pairs.py`, then `python -m pipeline.minimal_pairs --pack … --media … --voices-dir …` to render its audio |
 | Change what counts as a streak day | `internal/stats/streak.go` (`Day.Met`) |
 | Add a checkpoint criterion | `internal/stats/checkpoint.go` (`Specs`) + both locale files |
 | Change a course unit's words or its goal | `langpack/pipeline/course_mN.py` (one module per month), then rebuild the pack. Never in Go — the syllabus is pack content |
@@ -618,7 +621,7 @@ GET /api/capabilities
 | Name a morphological feature | `langpack/pipeline/features.py`, then `make refresh-curriculum` **and** `make starter`. Never in the UI — a feature label is a fact about the language and versions with the pack. Only the FAMILY names (`Падежи`, `Время`) live in `vue-i18n`, because they name a category rather than a feature |
 | Add an optional service | a `Service` field in `internal/config`, a line in `clone.go`, the probe map in `handlers_capabilities.go`, `serviceField`, `settingsDTO`, `SERVICE_NAMES` in `SettingsView.vue`, and `capabilities.<name>` in **both** locales |
 | Change the schema | new `internal/db/migrations/NNNNN_name.sql`; never edit an applied one |
-| Add a language | out of scope for v1 — the pack schema is language-agnostic but the curriculum and minimal pairs are not |
+| Add a language | out of scope for v1 — the pack schema is language-agnostic but the curriculum is not |
 
 ---
 

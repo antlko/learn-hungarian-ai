@@ -6,7 +6,7 @@ else, and their compose entries are commented out so no profile points at a miss
 | Directory | Service | Profile | Status | Adds |
 |---|---|---|---|---|
 | [`mt/`](mt/) | **NLLB-200-distilled-600M** | `mt` | **built** | sentence translation in the reader |
-| [`tts/`](tts/) | Piper — 3 Hungarian voices | `speech` | not built | card audio, ear-training talkers (the browser speaks meanwhile) |
+| [`tts/`](tts/) | Piper — 3 Hungarian voices | `speech` | not built | card audio (the browser speaks meanwhile) |
 | [`asr/`](asr/) | faster-whisper (Hungarian fine-tune) | `speech` | not built | dictation checking, pronunciation scoring |
 
 ## Managed mode: the binary can run `mt` itself

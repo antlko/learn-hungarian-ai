@@ -406,6 +406,7 @@ prompt makes it; the good answer a learner may have seen elsewhere came from a b
 ## 11. What it is not
 
 Not a conversation partner ([R10] wants voice for that, and it is Phase 9); not a writing
-corrector (`correct-writing.md`, prompt-then-reveal, also Phase 9); not a substitute for Loop 4
+corrector (that is «Письмо», [ADR-085](../.claude/DECISIONS.md#adr-085), with its own prompt
+`correct-writing.md` and the same rule: the model explains and marks, it mints nothing); not a substitute for Loop 4
 ([R16 §7](../.claude/research/16-debunked.md)). And not a source of study material: the
 reader and the course make cards, and the tutor explains why the cards say what they say.

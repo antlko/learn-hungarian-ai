@@ -30,7 +30,7 @@ type DrillNextResponse struct {
 	Topic TopicDTO     `json:"topic"`
 	Items []drill.Item `json:"items"`
 	// FollowUp is what recent mistakes say to work on, including the honest
-	// cases a grammar drill cannot fix — a vowel-length error is an ear problem
+	// cases a grammar drill cannot fix — a vowel-length error is a hearing problem
 	// and the app says so instead of drilling typing. See from_error.go.
 	FollowUp []drill.Target `json:"followUp,omitempty"`
 	// Unavailable explains an empty batch rather than showing a blank screen.

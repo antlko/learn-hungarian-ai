@@ -26,7 +26,6 @@ import (
 	"tanulom/internal/curriculum"
 	"tanulom/internal/db"
 	"tanulom/internal/drill"
-	"tanulom/internal/hvpt"
 	"tanulom/internal/lang"
 	"tanulom/internal/morph"
 	"tanulom/internal/readsets"
@@ -97,16 +96,14 @@ type Server struct {
 	// The guided syllabus: the pack's answer to "what do I do today".
 	syllabus *course.Syllabus
 
-	// The ear trainer's material and its own served-trial store.
-	hvptInv     *hvpt.Inventory
-	hvptPending *hvpt.Pending
-
 	// The grammar tutor's reference corpus, embedded in the binary, and the
 	// one-question-in-flight guard per learner. A corpus that fails to load
 	// leaves the tutor unavailable with a reason; nothing else is affected.
 	// ADR-027.
 	tutorKB      *tutor.KB
 	tutorFlights sync.Map
+	// writingFlights is the one in-flight local writing check per learner (ADR-085).
+	writingFlights sync.Map
 
 	// The full language pack's in-app install (ADR-049), and the process
 	// signal behind "restart" — a field so a test can observe it instead of
@@ -187,7 +184,7 @@ func NewWithCatalog(dataDir string, cat *readsets.Catalog, opts ...Option) (*Ser
 	}
 
 	s := &Server{dataDir: dataDir, cfg: cfg, db: database, sets: cat,
-		pending: drill.NewPending(), hvptPending: hvpt.NewPending(),
+		pending:       drill.NewPending(),
 		packInstaller: lang.NewInstaller(dataDir), stopProcess: signalSelfTerm}
 	s.bgCtx, s.bgCancel = context.WithCancel(context.Background())
 	for _, o := range opts {
@@ -235,17 +232,6 @@ func (s *Server) reconcileStepsOnce() {
 		}
 	}
 
-	if _, done, err := s.db.Meta("hvpt_steps_reconciled"); err == nil && !done {
-		contrasts, err := hvpt.ReconcileSteps(s.db.DB, sched, cfg.Drill.GateWindow)
-		if err != nil {
-			slog.Error("HVPT steps reconciliation failed; will retry next start", "error", err)
-		} else {
-			slog.Info("HVPT steps reconciled", "contrasts_changed", contrasts)
-			if err := s.db.SetMeta("hvpt_steps_reconciled", "v1"); err != nil {
-				slog.Error("could not record hvpt steps reconciliation", "error", err)
-			}
-		}
-	}
 }
 
 // loadPack installs the embedded starter pack if the data directory has no
@@ -287,9 +273,6 @@ func (s *Server) loadPack() {
 	s.dag = dag
 	s.drills = drill.NewGenerator(p, s.analyzer, dag)
 
-	// The HVPT inventory is optional the same way the curriculum is: a pack
-	// without audio still serves everything else, and the Ear screen says what
-	// is missing instead of erroring.
 	// A pack without a course still serves everything else; the plan screen
 	// says the pack carries no syllabus rather than the app refusing to boot.
 	syl, err := course.Load(p)
@@ -298,13 +281,6 @@ func (s *Server) loadPack() {
 	} else {
 		s.syllabus = syl
 	}
-
-	inv, err := hvpt.LoadInventory(p)
-	if err != nil {
-		slog.Error("hvpt inventory unavailable", "error", err)
-		return
-	}
-	s.hvptInv = inv
 }
 
 // applyPendingPack swaps in a pack an admin installed from Settings (ADR-049).
@@ -515,6 +491,21 @@ func (s *Server) buildApp() *fiber.App {
 	api.Post("/tutor/:id/stop", s.requireAuth, s.handleTutorStop)
 	api.Delete("/tutor/:id", s.requireAuth, s.handleTutorDelete)
 
+	// «Письмо» (ADR-085): pieces of writing and the checks on them. Per-user,
+	// any signed-in learner; nothing here creates a card (a test counts).
+	api.Get("/writing/topics", s.requireAuth, s.handleWritingTopics)
+	api.Post("/writing/checks/stop", s.requireAuth, s.handleWritingCheckStop)
+	api.Get("/writing", s.requireAuth, s.handleWritingList)
+	api.Post("/writing", s.requireAuth, s.handleWritingCreate)
+	api.Get("/writing/:id", s.requireAuth, s.handleWritingGet)
+	api.Put("/writing/:id", s.requireAuth, s.handleWritingUpdate)
+	api.Delete("/writing/:id", s.requireAuth, s.handleWritingDelete)
+	api.Post("/writing/:id/prompt", s.requireAuth, s.handleWritingPrompt)
+	api.Post("/writing/:id/checks/external", s.requireAuth, s.handleWritingExternal)
+	api.Post("/writing/:id/checks/local", s.requireAuth, s.handleWritingCheckLocal)
+	api.Get("/writing/:id/checks/:checkId", s.requireAuth, s.handleWritingCheckGet)
+	api.Delete("/writing/:id/checks/:checkId", s.requireAuth, s.handleWritingCheckDelete)
+
 	// Listening.
 	api.Post("/listen/material", s.requireAuth, s.handleListenUpload)
 	api.Get("/listen/:id/state", s.requireAuth, s.handleListenState)
@@ -534,11 +525,6 @@ func (s *Server) buildApp() *fiber.App {
 	api.Post("/course/units/:code/words/:lemma/propose", s.requireAuth, s.handleCourseWordPropose)
 	api.Post("/course/units/:code/words/:lemma/accept", s.requireAuth, s.handleCourseWordAccept)
 	api.Get("/resources", s.requireAuth, s.handleResources)
-
-	// Ear trainer.
-	api.Get("/hvpt/session", s.requireAuth, s.handleHVPTSession)
-	api.Post("/hvpt/answer", s.requireAuth, s.handleHVPTAnswer)
-	api.Get("/hvpt/contrasts", s.requireAuth, s.handleHVPTContrasts)
 
 	// Reading library.
 	api.Get("/texts", s.requireAuth, s.handleListTexts)

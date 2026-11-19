@@ -81,8 +81,7 @@ jobs:
       - name: The embedded artefacts are present
         run: |
           missing=0
-          for f in backend/internal/lang/starter/langpack-hu-starter.sqlite.gz \
-                   backend/internal/lang/starter/media.tar.gz; do
+          for f in backend/internal/lang/starter/langpack-hu-starter.sqlite.gz; do
             if [ ! -s "$f" ]; then
               echo "::error file=$f::missing or empty — regenerate with 'make starter' and commit it"
               missing=1

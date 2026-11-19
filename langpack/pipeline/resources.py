@@ -178,7 +178,7 @@ RESOURCES: list[dict] = [
 
     # ── listening ───────────────────────────────────────────────────────────
     # The Listen screen needs a transcript. The first two rows have one; the
-    # last three are ear training and say so.
+    # last three are listening practice and say so.
     {
         "kind": "listening",
         "title": "FSI Hungarian Graded Reader",

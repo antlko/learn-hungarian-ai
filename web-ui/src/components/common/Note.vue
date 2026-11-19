@@ -2,8 +2,8 @@
 /**
  * The calm panel — how this app says something it cannot or will not do.
  *
- * The product is full of these: a topic with no drill generator, an ear session
- * refused below the talker floor, a coverage warning, words the pack has no
+ * The product is full of these: a topic with no drill generator, a coverage
+ * warning, words the pack has no
  * attested sentence for, a pack with no course in it. Every one of them is a
  * DECISION (see the honesty rules in CLAUDE.md), and before this component they
  * were rendered in `text-uncertain` or `text-error` from edge to edge — which

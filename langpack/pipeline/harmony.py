@@ -126,8 +126,7 @@ def lengthen_final_vowel(word: str) -> str:
     `alma` + `-t` -> `almát`, `epe` + `-t` -> `epét`. This applies to stem-final
     `a`/`e` only, and it is one of the first things learners get wrong because
     the change is invisible in speech if you have no vowel-length contrast in
-    your L1 -- which is the case for Russian and English speakers. See
-    .claude/research/07-hvpt.md.
+    your L1 -- which is the case for Russian and English speakers.
     """
     if not word:
         return word

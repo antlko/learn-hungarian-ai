@@ -62,7 +62,9 @@ const routes: RouteRecordRaw[] = [
     // A chat app: history rail + conversation, like ChatGPT (ADR-031).
     meta: { width: 'wide' },
   },
-  { path: '/ear', name: 'ear', component: () => import('@/views/EarView.vue') },
+  // «Письмо» (ADR-085): pieces list and the editor with its checks.
+  { path: '/write', name: 'write', component: () => import('@/views/WritingListView.vue') },
+  { path: '/write/:id(\\d+)', name: 'write-piece', component: () => import('@/views/WritingView.vue') },
   { path: '/progress', name: 'progress', component: () => import('@/views/ProgressView.vue') },
   { path: '/words', name: 'words', component: () => import('@/views/WordsView.vue') },
   // The words the learner set aside. Reached from the review card's banner and

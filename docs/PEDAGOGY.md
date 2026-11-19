@@ -42,14 +42,11 @@ Building the app is not studying. The app should say so, and it does.
 | `n+1` selection targets 1–2 unknown elements at ≥90% coverage | `internal/mining/score.go` | [R6](../.claude/research/06-lexical-coverage.md) |
 | Reader optimised for volume, not lookup | `ReaderView.vue` | [R11](../.claude/research/11-extensive-reading.md) |
 | Adult content, difficulty controlled by selection not infantilisation | `internal/mining` | [R11](../.claude/research/11-extensive-reading.md) |
-| Multi-talker HVPT, `hvpt.minTalkers` enforced; refusal carries the numbers | `internal/hvpt/hvpt.go` `SessionPlan` (ships **3**, not the evidence's 5 — §2.7) | [R7](../.claude/research/07-hvpt.md) |
-| Consecutive trials rotate talkers by construction | `internal/hvpt/hvpt.go` | [R7](../.claude/research/07-hvpt.md) |
-| Contrasts get FSRS maintenance forever; selection weight never zero | `internal/hvpt/hvpt.go` `contrastWeights` | [R7](../.claude/research/07-hvpt.md) |
 | Listening hours accumulate from playback, cannot be claimed | `handlers_listen.go` (60 s clamp) | [R15](../.claude/research/15-hungarian-difficulty.md) |
 | Pronunciation feedback names the phoneme *(v1.1, not yet built)* | `internal/speech/feedback.go` | [R8](../.claude/research/08-capt-asr.md) |
 | Segments → ASR; prosody → shadowing *(SpeakView is v1.1)* | `SpeakView` / `ListenMode.vue` | [R8](../.claude/research/08-capt-asr.md), [R13](../.claude/research/13-shadowing.md) |
 | Three-pass listening protocol as UI state | `ListenMode.vue` | [R13](../.claude/research/13-shadowing.md) |
-| Correction is prompt-then-reveal, enforced server-side *(v1.1, not yet built)* | `handlers_write.go`, `prompts/correct-writing.md` | [R9](../.claude/research/09-corrective-feedback.md) |
+| Writing is marked with place, fix, reason and rule; hint-first by default, not locked *(ADR-085)* | `internal/writing`, `handlers_writing.go`, `prompts/correct-writing.md` | [R9](../.claude/research/09-corrective-feedback.md), [R24](../.claude/research/24-written-corrective-feedback.md) |
 | Errors generate targeted drills | `internal/drill/from_error.go` | [R9](../.claude/research/09-corrective-feedback.md) |
 | Voice-first roleplay *(v1.1, not yet built)* | `internal/speech`, `prompts/roleplay-system.md` | [R10](../.claude/research/10-llm-tutors.md) |
 | Corpus attestation guardrail *(v1.1; the pack ships the `ngram` index already)* | `internal/corpus/attest.go` | [R10](../.claude/research/10-llm-tutors.md) |
@@ -68,12 +65,11 @@ Building the app is not studying. The app should say so, and it does.
 | Prerequisites are met at `interleaved`, not `mastered` | `internal/drill/resolve.go` | [R5](../.claude/research/05-interleaving.md) |
 | A topic with no exercises says so instead of blocking the curriculum | `Phase.Explained`, `internal/drill/schedule.go` | [R4](../.claude/research/04-explicit-instruction.md) |
 | Placement never seeds "mastered", and seeds carry their own observation count | `internal/curriculum/placement.go` | [R3](../.claude/research/03-fsrs.md) |
-| A vowel-length error routes to the ear, not to more typing | `internal/drill/from_error.go` | [R8](../.claude/research/08-capt-asr.md), [R15](../.claude/research/15-hungarian-difficulty.md) |
+| A vowel-length error is a perception problem, not more typing: it is listed as non-actionable (`drill.remedy.perception`) | `internal/drill/from_error.go` | [R8](../.claude/research/08-capt-asr.md), [R15](../.claude/research/15-hungarian-difficulty.md) |
 | Drill answers are real retrievals and enter the morphological state space | `internal/srs/review.go` `GradeFeatures` | [R1](../.claude/research/01-retrieval-practice.md) |
 | Loop 4 un-completable by the app | `TodayView.vue` | [R16](../.claude/research/16-debunked.md) §7 |
 | Reading time counts toward the day's minutes, clamped and gated on visible-and-interacting; the streak's definition is unchanged | `composables/useActiveTime.ts`, `handlers_reading.go`, `stats/streak.go` | [R14](../.claude/research/14-motivation.md) |
 | A topic's FIRST visit lands on the lesson; a topic with answered drills lands on the exercise | `GrammarView.vue` `drillsLead` | [R4](../.claude/research/04-explicit-instruction.md), [R5](../.claude/research/05-interleaving.md) |
-| The ear trainer states what it trains and what it cannot promise BEFORE it plays anything | `EarView.vue` | [R7](../.claude/research/07-hvpt.md) |
 | The card names which learning step it is on and what ends them — from the scheduler's own `RemainingSteps`, never a «N correct» threshold | `internal/srs/memory.go`, `MemoryMeter.vue` | [R14](../.claude/research/14-motivation.md), [R18](../.claude/research/18-sessions-and-progress.md) §4 |
 | A model may write a dictionary entry for a word the pack lacks; it is labelled, checked word by word, and never material | `handlers_ai_entry.go`, `.claude/prompts/word-entry.md` | [R10](../.claude/research/10-llm-tutors.md) |
 | The day's queue dealt in sets; a miss returns at the set's end once its step has elapsed | `stores/review.ts`, `lib/sets.ts` | [R18](../.claude/research/18-sessions-and-progress.md) §1–§2 |
@@ -123,7 +119,7 @@ plain-language explanation — we are holding interleaving back on purpose, and 
 When interleaving does start, it mixes *confusable* items (definite vs indefinite of the same
 verb; `-ban` vs `-ba` on the same noun), because discriminability is the mechanism.
 
-### 2.2 HVPT durability
+### 2.2 HVPT durability (feature removed)
 
 **Source plan §1.1:** HVPT has "подтверждённым долгосрочным удержанием".
 
@@ -131,9 +127,8 @@ verb; `-ban` vs `-ba` on the same noun), because discriminability is the mechani
 (g = 0.92 pre/post across 79 studies) but syntheses report **effects diminishing at one- to
 two-month follow-up**. Durability is the method's weak point, not its strength.
 
-**What we do instead.** No contrast is ever marked complete. Every contrast carries FSRS state
-and receives maintenance trials indefinitely (`internal/hvpt/store.go`). There is no "done"
-badge in the Ear view, by design.
+**What we did.** The ear trainer built on this evidence was removed (ADR-084); the note stays as the
+reason it was built that way, and the research file `07-hvpt.md` is kept.
 
 ### 2.3 Coverage thresholds
 
@@ -169,7 +164,7 @@ g = 0.69, but **g = 0.86 with explicit corrective feedback** and materially less
 feedback such as plain dictation.
 
 **What we do instead.** Feedback names the phoneme, states the contrast, and enqueues the
-matching HVPT pair — *"you produced `ö` where `ő` was required; the vowel is short"*. Never a
+matching contrast — *"you produced `ö` where `ő` was required; the vowel is short"*. Never a
 similarity score alone. And because Hungarian WER ≈ 11%, feedback is gated behind a confidence
 threshold and labelled as fallible.
 
@@ -177,9 +172,9 @@ threshold and labelled as fallible.
 
 **Source plan §6.1 #3** already asks for correction-plus-drills. We add the ordering constraint:
 [R9](../.claude/research/09-corrective-feedback.md) finds **prompts beat recasts**, so the
-learner must attempt the repair before the answer is revealed. It will be enforced
-server-side in `handlers_write.go`, not merely in the UI — the writing loop is Phase 9 and
-nothing of it is built yet.
+learner must attempt the repair before the answer is revealed. **Superseded for writing** by [ADR-085](../.claude/DECISIONS.md#adr-085) and
+[R24](../.claude/research/24-written-corrective-feedback.md): the check is hint-first by default
+but the reveal is not locked, and the model writes no drills.
 
 ### 2.6 Where the app must implement its own SRS
 
@@ -198,24 +193,11 @@ dropped: see [PLAN §10.5](../.claude/PLAN.md).
 
 ---
 
-### 2.7 The HVPT talker floor is what we can meet, not what the evidence asks for
+### 2.7 The HVPT talker floor (feature removed)
 
-[R7](../.claude/research/07-hvpt.md) is unambiguous that talker variability is the active
-ingredient and that five or more distinct voices is the number the training effects were
-measured at. `config.EvidenceMinTalkers` records that.
-
-`config.DefaultMinTalkers` ships **3**, and the two differ on purpose. Three is how many
-freely-licensed Hungarian TTS voices exist (`hu_HU-{anna,berta,imre}`, CC0). Shipping the
-evidence number would mean the ear trainer refuses every session on every fresh install — a
-screen nobody can pass, which trains nothing and reads as a broken feature rather than as an
-honest limit.
-
-So the shipped floor is the one we can actually meet, and the Ear screen states the shortfall
-permanently: three synthetic voices, the research wants five or more, the effect is weaker in
-proportion. Rate variants are recorded as rates and **never** counted as extra talkers — that
-would be the dishonest version of this fix. Adding human recordings to the pack raises the
-count and the caveat goes away; an admin who has other voices can raise `hvpt.minTalkers`
-themselves.
+The ear trainer refused sessions below a talker floor and shipped 3 voices against the research's 5, stating
+the shortfall in the product. The trainer was removed (ADR-084), and with it the floor and
+`config.EvidenceMinTalkers` / `DefaultMinTalkers`.
 
 ### 2.8 The app teaches a fixed syllabus before it teaches self-direction
 
@@ -274,6 +256,5 @@ These appear in the UI, not only here:
 3. **Coverage thresholds are English-derived.**
 4. **Hungarian ASR has ~11% WER** — the recogniser will sometimes contradict a correct learner.
 5. **LLM Hungarian is weaker than its English** — hence attestation gating.
-6. **HVPT has only 3 synthetic voices available**; we reach the 5-talker floor with Common
-   Voice recordings and rate jitter, and the Ear view reports how many talkers a session used.
+6. **There are only 3 free synthetic Hungarian voices**; the ear trainer that needed five was removed (ADR-084).
 7. **The app cannot replace a teacher**, and the Today view says so where Loop 4 lives.

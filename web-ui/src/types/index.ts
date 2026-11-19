@@ -93,7 +93,6 @@ export interface Settings {
     demonstrativePct: number
     harmonyLatencyMs: number
   }
-  hvpt: { minTalkers: number; trialsPerSession: number; rateJitter: number }
   curriculum: { focusUnlockListeningHours: number; examDate: string }
   services: Record<string, Service>
   /** Saved tutor presets (ADR-082). `services.llm` stays the active one. */
@@ -143,7 +142,6 @@ export interface UpdateSettingsRequest {
   review?: Settings['review']
   mining?: Settings['mining']
   drill?: Settings['drill']
-  hvpt?: Settings['hvpt']
   curriculum?: Settings['curriculum']
   services?: Record<string, Service>
   langpack?: Settings['langpack']
@@ -1173,7 +1171,7 @@ export interface DrillItem {
 export type Remedy =
   | 'drill.remedy.volume'
   | 'drill.remedy.rule'
-  | 'drill.remedy.ear'
+  | 'drill.remedy.perception'
   | 'drill.remedy.vocabulary'
   | 'drill.remedy.none'
 
@@ -1238,55 +1236,6 @@ export interface PlacementResponse {
   total: number
   results: PlacementResult[]
   seeds?: PlacementSeed[]
-}
-
-// ─── Ear trainer (HVPT) ────────────────────────────────────────────────────
-
-export interface HvptPair {
-  id: number
-  a: string
-  b: string
-  contrast: string
-  priority: number
-  glossARu: string
-  glossBRu: string
-  glossAEn: string
-  glossBEn: string
-}
-
-/** One 2AFC trial. The played member is NOT here — the server holds it. */
-export interface HvptTrial {
-  id: string
-  pair: HvptPair
-  audioUrl: string
-  talkerId: string
-  rate: number
-}
-
-export interface HvptSession {
-  trials: HvptTrial[]
-  talkers: number
-  today: { trials: number; correct: number; talkers: number }
-  /** The honest refusal: fewer distinct talkers than the floor requires. */
-  refused?: { have: number; need: number }
-}
-
-export interface HvptAnswer {
-  correct: boolean
-  played: 'a' | 'b'
-  accuracy: number
-  total: number
-  /** Both members' clips from the trial's talker, for after-answer replay. */
-  audioA?: string
-  audioB?: string
-}
-
-export interface HvptContrast {
-  contrast: string
-  seen: boolean
-  accuracy: number
-  total: number
-  due: boolean
 }
 
 // ─── Listening ─────────────────────────────────────────────────────────────
@@ -1881,4 +1830,152 @@ export interface DeckStages {
   new: number
   /** Ten decile counts (0–9, 10–19 … 90–100) of words with a reviewed card (ADR-070). */
   progress: number[]
+}
+
+// ── «Письмо» (Writing, ADR-085) — mirrors backend/internal/api/dto.go ─────
+// Hungarian in a check (quote, fix, example, corrected) is model-written and
+// display-only. Render it by interpolation, never as HTML.
+
+export type WritingLevel = 'A1' | 'A2' | 'B1' | 'B2'
+export type WritingGenre = 'email' | 'description' | 'narrative' | 'opinion'
+
+export interface WritingTopic {
+  code: string
+  level: WritingLevel
+  genre: WritingGenre
+  titleRu: string
+  titleEn: string
+  briefRu: string
+  briefEn: string
+  minWords: number
+  maxWords: number
+}
+
+export interface WritingLastCheck {
+  source: 'local' | 'external'
+  model: string
+  createdAt: string
+}
+
+export interface WritingListItem {
+  id: number
+  title: string
+  topicCode: string
+  level: string
+  words: number
+  updatedAt: string
+  checks: number
+  lastCheck?: WritingLastCheck
+}
+
+export interface WritingCreateRequest {
+  topicCode?: string
+  level?: string
+  title?: string
+}
+
+export type WritingErrorType =
+  | 'spelling'
+  | 'vowel_length'
+  | 'harmony'
+  | 'case'
+  | 'possessive'
+  | 'definiteness'
+  | 'agreement'
+  | 'verb_form'
+  | 'preverb'
+  | 'word_order'
+  | 'article'
+  | 'word_choice'
+  | 'missing_word'
+  | 'extra_word'
+  | 'punctuation'
+  | 'style'
+  | 'other'
+
+export interface WritingError {
+  /** 1-based; the number printed on the text. */
+  n: number
+  quote: string
+  fix: string
+  type: WritingErrorType | string
+  hint: string
+  why: string
+  rule: string
+  example: string
+  anchored: boolean
+  unattested: string[]
+  topicCode?: string
+  topicTitle?: string
+}
+
+export interface WritingSegment {
+  text: string
+  /** 0-based indices into the check's `errors`; empty for plain text. */
+  errors: number[]
+}
+
+export interface WritingCheckSummary {
+  id: number
+  source: 'local' | 'external'
+  model: string
+  lang: string
+  createdAt: string
+  status: 'ok' | 'partial' | 'failed'
+  truncated: boolean
+  interrupted: boolean
+  level: string
+  errorCount: number
+}
+
+export interface WritingCheck {
+  id: number
+  source: 'local' | 'external'
+  model: string
+  lang: string
+  createdAt: string
+  status: 'ok' | 'partial' | 'failed'
+  truncated: boolean
+  interrupted: boolean
+  dropped: number
+  level: string
+  summary: string
+  strengths: string[]
+  vocab: string[]
+  corrected: string
+  raw: string
+  errors: WritingError[]
+  segments: WritingSegment[]
+}
+
+export interface WritingPiece {
+  id: number
+  title: string
+  topicCode: string
+  level: string
+  body: string
+  words: number
+  createdAt: string
+  updatedAt: string
+  checks: WritingCheckSummary[]
+  latest: WritingCheck | null
+}
+
+export interface WritingPromptResponse {
+  prompt: string
+  text: string
+  promptVersion: number
+}
+
+export interface WritingExternalRequest {
+  lang: string
+  text: string
+  raw: string
+  model?: string
+}
+
+/** Progress of a running local check (`progress` SSE event). */
+export interface WritingProgress {
+  chars: number
+  errors: number
 }

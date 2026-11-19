@@ -62,7 +62,6 @@ type SettingsDTO struct {
 	Review     ReviewDTO             `json:"review"`
 	Mining     MiningDTO             `json:"mining"`
 	Drill      DrillDTO              `json:"drill"`
-	HVPT       HVPTDTO               `json:"hvpt"`
 	Curriculum CurriculumDTO         `json:"curriculum"`
 	Services   map[string]ServiceDTO `json:"services"`
 	// LLMProfiles are the saved tutor presets; LLMActive is the id the active
@@ -126,12 +125,6 @@ type DrillDTO struct {
 	HarmonyLatencyMs  int     `json:"harmonyLatencyMs"`
 }
 
-type HVPTDTO struct {
-	MinTalkers       int     `json:"minTalkers"`
-	TrialsPerSession int     `json:"trialsPerSession"`
-	RateJitter       float64 `json:"rateJitter"`
-}
-
 type CurriculumDTO struct {
 	FocusUnlockListeningHours int `json:"focusUnlockListeningHours"`
 	// ExamDate is the booked exam (ISO date), the [R14] countdown anchor.
@@ -170,7 +163,6 @@ type UpdateSettingsRequest struct {
 	Review     *ReviewDTO            `json:"review,omitempty"`
 	Mining     *MiningDTO            `json:"mining,omitempty"`
 	Drill      *DrillDTO             `json:"drill,omitempty"`
-	HVPT       *HVPTDTO              `json:"hvpt,omitempty"`
 	Curriculum *CurriculumDTO        `json:"curriculum,omitempty"`
 	Services   map[string]ServiceDTO `json:"services,omitempty"`
 	LangPack   *LangPackDTO          `json:"langpack,omitempty"`
@@ -323,4 +315,171 @@ type SpeechTTSRequest struct {
 type SpeechTTSResponse struct {
 	URL       string  `json:"url"` // /api/speech/audio/<64 hex>.wav
 	DurationS float64 `json:"durationS"`
+}
+
+// ── «Письмо» (Writing, ADR-085) ───────────────────────────────────────────
+// Hungarian in a check (quote, fix, example, corrected) is model-written and
+// display-only; nothing here is a card. The browser never handles text
+// offsets: it renders `segments` by interpolation.
+
+// WritingTopicDTO is one authored task from the embedded catalogue. Titles and
+// briefs come in both locales; the client picks one. The word range is advice.
+type WritingTopicDTO struct {
+	Code     string `json:"code"`
+	Level    string `json:"level"` // A1 | A2 | B1 | B2
+	Genre    string `json:"genre"` // email | description | narrative | opinion
+	TitleRU  string `json:"titleRu"`
+	TitleEN  string `json:"titleEn"`
+	BriefRU  string `json:"briefRu"`
+	BriefEN  string `json:"briefEn"`
+	MinWords int    `json:"minWords"`
+	MaxWords int    `json:"maxWords"`
+}
+
+// WritingTopicsResponse is GET /api/writing/topics.
+type WritingTopicsResponse struct {
+	Topics []WritingTopicDTO `json:"topics"`
+}
+
+// WritingLastCheckDTO is the newest check on a piece, for the list.
+type WritingLastCheckDTO struct {
+	Source    string `json:"source"` // local | external
+	Model     string `json:"model"`
+	CreatedAt string `json:"createdAt"`
+}
+
+// WritingListItemDTO is one row of GET /api/writing (newest edit first).
+type WritingListItemDTO struct {
+	ID        int64                `json:"id"`
+	Title     string               `json:"title"`
+	TopicCode string               `json:"topicCode"`
+	Level     string               `json:"level"`
+	Words     int                  `json:"words"`
+	UpdatedAt string               `json:"updatedAt"`
+	Checks    int                  `json:"checks"`
+	LastCheck *WritingLastCheckDTO `json:"lastCheck,omitempty"`
+}
+
+// WritingListResponse is GET /api/writing.
+type WritingListResponse struct {
+	Pieces []WritingListItemDTO `json:"pieces"`
+}
+
+// WritingCreateRequest is POST /api/writing. All fields optional; an empty
+// topicCode is a free topic, an empty title becomes the topic's title.
+type WritingCreateRequest struct {
+	TopicCode string `json:"topicCode"`
+	Level     string `json:"level"`
+	Title     string `json:"title"`
+}
+
+// WritingUpdateRequest is PUT /api/writing/:id (autosave).
+type WritingUpdateRequest struct {
+	Title string `json:"title"`
+	Body  string `json:"body"`
+}
+
+// WritingCheckSummaryDTO is a check without its text: the history list.
+type WritingCheckSummaryDTO struct {
+	ID          int64  `json:"id"`
+	Source      string `json:"source"` // local | external
+	Model       string `json:"model"`
+	Lang        string `json:"lang"`
+	CreatedAt   string `json:"createdAt"`
+	Status      string `json:"status"` // ok | partial | failed
+	Truncated   bool   `json:"truncated"`
+	Interrupted bool   `json:"interrupted"`
+	Level       string `json:"level"`      // CEFR level the model assigned, or ""
+	ErrorCount  int    `json:"errorCount"` // parsed errors
+}
+
+// WritingPieceDTO is GET/PUT /api/writing/:id and the answer to create. Checks
+// is the history newest first; Latest is the newest one in full (nil when none).
+type WritingPieceDTO struct {
+	ID        int64                    `json:"id"`
+	Title     string                   `json:"title"`
+	TopicCode string                   `json:"topicCode"`
+	Level     string                   `json:"level"`
+	Body      string                   `json:"body"`
+	Words     int                      `json:"words"`
+	CreatedAt string                   `json:"createdAt"`
+	UpdatedAt string                   `json:"updatedAt"`
+	Checks    []WritingCheckSummaryDTO `json:"checks"`
+	Latest    *WritingCheckDTO         `json:"latest"`
+}
+
+// WritingPromptRequest is POST /api/writing/:id/prompt.
+type WritingPromptRequest struct {
+	Lang string `json:"lang"` // ru | en; anything else falls back to the UI locale
+}
+
+// WritingPromptResponse carries the ready-to-copy prompt. Text is the essay
+// that was embedded in it; the client returns it with the pasted answer.
+type WritingPromptResponse struct {
+	Prompt        string `json:"prompt"`
+	Text          string `json:"text"`
+	PromptVersion int    `json:"promptVersion"`
+}
+
+// WritingExternalRequest is POST /api/writing/:id/checks/external.
+type WritingExternalRequest struct {
+	Lang  string `json:"lang"`
+	Text  string `json:"text"`  // the essay the prompt embedded; empty = current body
+	Raw   string `json:"raw"`   // the chat's answer, as pasted
+	Model string `json:"model"` // free label ("ChatGPT"); empty = "external"
+}
+
+// WritingLocalRequest is POST /api/writing/:id/checks/local.
+type WritingLocalRequest struct {
+	Lang string `json:"lang"`
+}
+
+// WritingErrorDTO is one marked error. N is 1-based and is the number printed
+// on the text. Unattested lists Hungarian words of FIX/EXAMPLE the dictionary
+// does not carry. TopicCode/TopicTitle name a grammar lesson that exists in
+// the installed pack (open it at /grammar?topic=<code>); omitted otherwise.
+type WritingErrorDTO struct {
+	N          int      `json:"n"`
+	Quote      string   `json:"quote"`
+	Fix        string   `json:"fix"`
+	Type       string   `json:"type"` // closed list, see docs/API.md
+	Hint       string   `json:"hint"`
+	Why        string   `json:"why"`
+	Rule       string   `json:"rule"`
+	Example    string   `json:"example"`
+	Anchored   bool     `json:"anchored"`
+	Unattested []string `json:"unattested"`
+	TopicCode  string   `json:"topicCode,omitempty"`
+	TopicTitle string   `json:"topicTitle,omitempty"`
+}
+
+// WritingSegmentDTO is a piece of the checked text. Errors are 0-based indices
+// into the check's errors array (error number = index + 1) of every error whose
+// quote covers the segment; empty for plain text. Segment texts concatenate to
+// the checked text.
+type WritingSegmentDTO struct {
+	Text   string `json:"text"`
+	Errors []int  `json:"errors"`
+}
+
+// WritingCheckDTO is a whole check, rebuilt on read from the stored raw answer
+// and the checked text.
+type WritingCheckDTO struct {
+	ID          int64               `json:"id"`
+	Source      string              `json:"source"` // local | external
+	Model       string              `json:"model"`
+	Lang        string              `json:"lang"`
+	CreatedAt   string              `json:"createdAt"`
+	Status      string              `json:"status"` // ok | partial | failed
+	Truncated   bool                `json:"truncated"`
+	Interrupted bool                `json:"interrupted"`
+	Dropped     int                 `json:"dropped"`
+	Level       string              `json:"level"`
+	Summary     string              `json:"summary"`
+	Strengths   []string            `json:"strengths"`
+	Vocab       []string            `json:"vocab"`
+	Corrected   string              `json:"corrected"`
+	Raw         string              `json:"raw"`
+	Errors      []WritingErrorDTO   `json:"errors"`
+	Segments    []WritingSegmentDTO `json:"segments"`
 }

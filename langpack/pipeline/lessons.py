@@ -102,7 +102,7 @@ LESSONS: dict[str, tuple[str, str]] = {
         "An English ear does not separate a/á or o/ó without training, and the "
         "front rounded vowels ö, ő, ü, ű have no English counterpart at all. "
         "That is a perception problem, not a spelling problem, and typing "
-        "practice will not fix it — the app has a separate ear trainer for it.\n\n"
+        "practice will not fix it — listen to the words, and give it time.\n\n"
         "Second: a doubled digraph doubles the FIRST letter only. "
         "sz + sz = ssz (busszal), gy + gy = ggy (naggyal). Never szsz."
     ),

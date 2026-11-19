@@ -98,11 +98,6 @@ func settingsDTO(c config.Config, secrets map[string]bool) SettingsDTO {
 			DemonstrativePct:  c.Drill.Definiteness.DemonstrativePct,
 			HarmonyLatencyMs:  c.Drill.HarmonyLatencyMs,
 		},
-		HVPT: HVPTDTO{
-			MinTalkers:       c.HVPT.MinTalkers,
-			TrialsPerSession: c.HVPT.TrialsPerSession,
-			RateJitter:       c.HVPT.RateJitter,
-		},
 		Curriculum: CurriculumDTO{
 			FocusUnlockListeningHours: c.Curriculum.FocusUnlockListeningHours,
 			ExamDate:                  c.Curriculum.ExamDate,

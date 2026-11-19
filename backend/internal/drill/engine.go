@@ -100,8 +100,8 @@ func (e *Engine) Answer(in AnswerInput, now time.Time) (AnswerResult, error) {
 		// Same policy as the review loop: the right form on a plain keyboard
 		// passes at Hard, with the missing mark underlined. The features the
 		// item required WERE produced — the case ending was right; what was
-		// dropped is a diacritic, and that is the ear trainer's jurisdiction,
-		// where errorClass still routes it. A harmony choice can never slip
+		// dropped is a diacritic, and that is a perception gap, which
+		// errorClass still reports. A harmony choice can never slip
 		// through here: -ban/-ben differ in the vowel itself, not its length,
 		// and the folds do not merge a with e.
 		if d.AccentOnly() && in.AccentTolerance {
@@ -173,8 +173,8 @@ func (e *Engine) Answer(in AnswerInput, now time.Time) (AnswerResult, error) {
 	}
 
 	// A tolerated accent miss still produces its follow-up: the answer PASSED,
-	// but the dropped mark is a real perception gap and the routing to the ear
-	// trainer is the whole point of classifying it. Tolerance changes the
+	// but the dropped mark is a real perception gap and the diagnosis
+	// is the whole point of classifying it. Tolerance changes the
 	// grade, not the diagnosis.
 	if !outcome.Correct || res.AcceptedWithAccents {
 		res.FollowUp = FromError(morph.ErrorClass(errorClass), wrongFeature, item.FeatureIDs, e.dag)

@@ -8,8 +8,8 @@ import type { Diff } from '@/types'
  *
  * "Wrong" teaches nothing. What a learner needs is which part was wrong and
  * why, because the remedy differs completely: a harmony slip needs repetitions,
- * a wrong case needs the rule restated, and a dropped vowel length needs ear
- * training rather than more writing.
+ * a wrong case needs the rule restated, and a dropped vowel length is a hearing
+ * problem that more writing will not fix.
  *
  * The differing span is underlined on both lines using the common prefix and
  * suffix the server computed, so the eye goes straight to the morpheme.
@@ -29,8 +29,8 @@ function split(word: string) {
 const typed = computed(() => split(props.diff.typed))
 const expected = computed(() => split(props.diff.expected))
 
-// Vowel errors route to ear training rather than more writing, so they get
-// their own colour and their own follow-up.
+// Vowel errors are a perception problem that more writing will not fix, so
+// they get their own colour and their own follow-up.
 const isPerceptual = computed(
   () => props.diff.class === 'vowel_length' || props.diff.class === 'vowel_quality',
 )
