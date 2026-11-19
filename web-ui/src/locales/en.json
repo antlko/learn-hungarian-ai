@@ -1807,6 +1807,9 @@
       "corrected": "Corrected text",
       "copy": "Copy",
       "copied": "Copied",
+      "listen": "Listen",
+      "listenStop": "Stop",
+      "voice": "Voice",
       "copyFallback": "Could not copy automatically. The text is selected — press Ctrl+C (⌘C).",
       "failedTitle": "The answer could not be read"
     },

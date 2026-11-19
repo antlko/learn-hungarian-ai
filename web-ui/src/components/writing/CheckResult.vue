@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Copy } from '@lucide/vue'
+import { Copy, Square, Volume2 } from '@lucide/vue'
+import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import Note from '@/components/common/Note.vue'
+import VoicePicker from '@/components/reader/VoicePicker.vue'
 import ErrorCard from './ErrorCard.vue'
 import { useUiStore } from '@/stores/ui'
+import { useTtsStore, type PlayItem } from '@/stores/tts'
+import { useSpeechStore } from '@/stores/speech'
+import { chunkForTts } from '@/lib/tts'
 import { copyText, readShowAll, selectAll, shortDate, writeShowAll } from '@/lib/writing'
 import type { WritingCheck } from '@/types'
 
@@ -20,6 +25,31 @@ const props = defineProps<{ check: WritingCheck }>()
 const emit = defineEmits<{ external: [] }>()
 const { t } = useI18n()
 const ui = useUiStore()
+const tts = useTtsStore()
+const speech = useSpeechStore()
+
+// The corrected text, read aloud by the same neural voices as the reader
+// (Piper through the server; the device voice when the engine is off).
+const playItems = computed<PlayItem[]>(() => {
+  const out: PlayItem[] = []
+  let idx = 0
+  for (const line of (props.check.corrected || '').split('\n')) {
+    for (const sent of line.match(/[^.!?]+[.!?]*/g) ?? []) {
+      if (!/\p{L}/u.test(sent)) continue
+      for (const piece of chunkForTts(sent)) out.push({ sentIdx: idx, text: piece })
+      idx++
+    }
+  }
+  return out
+})
+const listening = computed(() => tts.status !== 'idle')
+async function listen() {
+  if (listening.value) return tts.stop()
+  const ok = await tts.play(playItems.value)
+  if (!ok) toast.error(t(speech.supported ? 'speech.noVoice' : 'speech.unsupported'))
+}
+onMounted(() => void tts.load())
+onBeforeUnmount(() => tts.stop())
 
 const showAll = ref(readShowAll())
 function toggleAll() {
@@ -193,10 +223,20 @@ async function copyCorrected() {
     <div v-if="check.corrected" class="flex flex-col gap-2">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <h3 class="text-sm font-medium">{{ t('writing.result.corrected') }}</h3>
-        <Button size="sm" variant="outline" @click="copyCorrected">
-          <Copy class="size-4" aria-hidden="true" />
-          {{ copied === 'ok' ? t('writing.result.copied') : t('writing.result.copy') }}
-        </Button>
+        <div class="flex flex-wrap items-center gap-2">
+          <Button size="sm" variant="outline" :disabled="!playItems.length" @click="listen">
+            <Square v-if="listening" class="size-4" aria-hidden="true" />
+            <Volume2 v-else class="size-4" aria-hidden="true" />
+            {{ listening ? t('writing.result.listenStop') : t('writing.result.listen') }}
+          </Button>
+          <Button v-if="tts.piperReady" size="sm" variant="ghost" @click="tts.openPicker()">
+            {{ tts.voiceName || t('writing.result.voice') }}
+          </Button>
+          <Button size="sm" variant="outline" @click="copyCorrected">
+            <Copy class="size-4" aria-hidden="true" />
+            {{ copied === 'ok' ? t('writing.result.copied') : t('writing.result.copy') }}
+          </Button>
+        </div>
       </div>
       <p
         ref="correctedEl"
@@ -205,5 +245,6 @@ async function copyCorrected() {
       >{{ check.corrected }}</p>
       <p v-if="copied === 'fallback'" class="text-xs text-muted-foreground" role="status">{{ t('writing.result.copyFallback') }}</p>
     </div>
+    <VoicePicker />
   </section>
 </template>

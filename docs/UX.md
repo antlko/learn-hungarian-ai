@@ -1254,7 +1254,7 @@ server sent one), «Нет в словаре: …» in the uncertain hue (§11).
 could not be placed says «не нашли это место в тексте». `partial` shows «часть ответа не разобрана» with
 «Показать исходный ответ» (a `<pre>`); a failed local answer says «Модель ответила не по формату —
 проверьте во внешнем чате» with that button; `level` reads «модель оценивает текст примерно как A2».
-Then summary, strengths, vocabulary notes and the corrected text (copyable), and the piece's history of
+Then summary, strengths, vocabulary notes and the corrected text (copyable; «Прослушать» reads it sentence by sentence with the same Piper voices, voice picker and device fallback as the reader), and the piece's history of
 checks, each deletable. Mobile: cards stack under the text; both themes use the design tokens (§14).
 Copy has no jargon; every key exists in ru and en.
 

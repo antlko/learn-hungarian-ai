@@ -5,6 +5,11 @@ the project uses [semantic versioning](https://semver.org/). Every design decisi
 is an ADR in [`.claude/DECISIONS.md`](.claude/DECISIONS.md), and every pedagogical claim traces to a
 note in [`.claude/research/`](.claude/research/README.md).
 
+## [1.7.1] — 2026-11-19 — «Письмо»: listen to the corrected text
+
+### Added
+- The corrected text in «Письмо» can be read aloud, sentence by sentence, with the same Piper voices, voice picker and device-voice fallback as the reader.
+
 ## [1.7.0] — 2026-11-19 — «Письмо» (Writing) added, «Слух» (ear trainer) removed
 
 ### Added
