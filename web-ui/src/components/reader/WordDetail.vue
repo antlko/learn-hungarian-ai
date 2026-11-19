@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
-import { BookmarkPlus, Check, EyeOff, Languages, MessageCircleQuestion, Plus, Sparkles } from '@lucide/vue'
+import { BookmarkPlus, Check, EyeOff, Languages, MessageCircleQuestion, Plus, Sparkles, X } from '@lucide/vue'
 import { describeError } from '@/lib/errors'
 import { Button } from '@/components/ui/button'
 import AiWordPanel from '@/components/common/AiWordPanel.vue'
@@ -71,6 +71,7 @@ const emit = defineEmits<{
   (e: 'statusChange', lemmaId: number, status: LemmaStatus): void
   (e: 'addCard', token: StoredToken, gloss: string): void
   (e: 'translateSentence'): void
+  (e: 'clearSentenceTranslation'): void
 }>()
 
 const { t } = useI18n()
@@ -349,7 +350,16 @@ const statusDisabledReason = computed(() =>
 
         <!-- The model's answer, in the same shape the pack's meaning takes,
              with the label that keeps it honest and a way to keep it. -->
-        <div v-if="wordTranslation" class="flex flex-col gap-1">
+        <div v-if="wordTranslation" class="relative flex flex-col gap-1 pr-6">
+          <button
+            type="button"
+            class="absolute right-1.5 top-1.5 rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+            :aria-label="$t('translation.close')"
+            :title="$t('translation.close')"
+            @click="wordTranslation = null"
+          >
+            <X class="size-3.5" aria-hidden="true" />
+          </button>
           <p class="text-xs text-muted-foreground">{{ $t('reader.meaning') }}</p>
           <ol class="list-inside list-decimal text-sm leading-relaxed">
             <li>{{ wordTranslation.text }}</li>
@@ -403,15 +413,16 @@ const statusDisabledReason = computed(() =>
         and only reachable by a key nobody could see.
       -->
       <div v-if="(canTranslate || canTeach) && sentence" class="flex flex-col gap-2">
-        <div class="flex flex-wrap gap-1.5">
+        <div class="grid auto-cols-fr grid-flow-col gap-1">
           <Button
             v-if="canTranslate"
             size="sm"
             variant="ghost"
+            class="h-auto flex-col gap-1 whitespace-normal px-1 py-1.5 text-center text-xs leading-tight"
             :disabled="translatingSentence"
             @click="emit('translateSentence')"
           >
-            <Languages class="size-3.5" aria-hidden="true" />
+            <Languages class="size-4" aria-hidden="true" />
             {{ translatingSentence ? $t('reader.translating') : $t('reader.translateSentence') }}
           </Button>
           <!-- The second engine. With the translator off it is the only button
@@ -420,10 +431,11 @@ const statusDisabledReason = computed(() =>
             v-if="canTeach"
             size="sm"
             variant="ghost"
+            class="h-auto flex-col gap-1 whitespace-normal px-1 py-1.5 text-center text-xs leading-tight"
             :disabled="teaching"
             @click="translateWithTeacher"
           >
-            <Sparkles class="size-3.5" aria-hidden="true" />
+            <Sparkles class="size-4" aria-hidden="true" />
             {{
               teaching
                 ? $t('reader.translating')
@@ -432,12 +444,32 @@ const statusDisabledReason = computed(() =>
                   : $t('reader.translateSentence')
             }}
           </Button>
+          <Button
+            v-if="canTeach && aiAvailable"
+            size="sm"
+            variant="ghost"
+            class="h-auto flex-col gap-1 whitespace-normal px-1 py-1.5 text-center text-xs leading-tight"
+            :disabled="aiPanel?.asking"
+            @click="explainInContext"
+          >
+            <MessageCircleQuestion class="size-4" aria-hidden="true" />
+            {{ $t('reader.explainInContext') }}
+          </Button>
         </div>
 
         <div
           v-if="canTranslate && sentenceTranslation"
-          class="flex flex-col gap-1.5 rounded-lg border border-border-subtle bg-background p-2.5"
+          class="relative flex flex-col gap-1.5 rounded-lg border border-border-subtle bg-background p-2.5 pr-7"
         >
+          <button
+            type="button"
+            class="absolute right-1.5 top-1.5 rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+            :aria-label="$t('translation.close')"
+            :title="$t('translation.close')"
+            @click="emit('clearSentenceTranslation')"
+          >
+            <X class="size-3.5" aria-hidden="true" />
+          </button>
           <p class="text-xs leading-snug text-muted-foreground" lang="hu">
             {{ sentenceTranslation.source }}
           </p>
@@ -458,8 +490,17 @@ const statusDisabledReason = computed(() =>
 
         <div
           v-if="canTeach && teacherTranslation"
-          class="flex flex-col gap-1.5 rounded-lg border border-border-subtle bg-background p-2.5"
+          class="relative flex flex-col gap-1.5 rounded-lg border border-border-subtle bg-background p-2.5 pr-7"
         >
+          <button
+            type="button"
+            class="absolute right-1.5 top-1.5 rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+            :aria-label="$t('translation.close')"
+            :title="$t('translation.close')"
+            @click="teacherTranslation = null"
+          >
+            <X class="size-3.5" aria-hidden="true" />
+          </button>
           <p class="text-xs leading-snug text-muted-foreground" lang="hu">{{ sentence }}</p>
           <p class="text-sm leading-relaxed">{{ teacherTranslation.text }}</p>
           <p class="text-[10px] leading-relaxed text-uncertain">
@@ -467,17 +508,6 @@ const statusDisabledReason = computed(() =>
           </p>
         </div>
 
-        <Button
-          v-if="canTeach && aiAvailable"
-          size="sm"
-          variant="ghost"
-          class="self-start"
-          :disabled="aiPanel?.asking"
-          @click="explainInContext"
-        >
-          <MessageCircleQuestion class="size-3.5" aria-hidden="true" />
-          {{ $t('reader.explainInContext') }}
-        </Button>
       </div>
 
       <!-- The breakdown of THIS occurrence, named rather than tagged: the

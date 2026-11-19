@@ -5,6 +5,12 @@ the project uses [semantic versioning](https://semver.org/). Every design decisi
 is an ADR in [`.claude/DECISIONS.md`](.claude/DECISIONS.md), and every pedagogical claim traces to a
 note in [`.claude/research/`](.claude/research/README.md).
 
+## [1.6.2] — 2026-11-19 — Reader: close buttons on translations, the three sentence actions in one row
+
+### Changed
+- **Reader word panel:** every translation result (word, machine sentence, AI teacher sentence) has a close button (×).
+- The three sentence actions («Перевести предложение», «Перевести ИИ-учителем», «Объяснить слово в предложении») sit in one row with the icon above the label, on the desktop rail and in the phone sheet.
+
 ## [1.6.1] — 2026-11-19 — Reader: translate and explain with the AI teacher
 
 ### Added

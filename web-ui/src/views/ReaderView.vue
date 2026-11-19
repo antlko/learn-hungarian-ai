@@ -362,6 +362,11 @@ const translation = ref<Translation | null>(null)
 const translationFor = ref<number | null>(null)
 const translating = ref(false)
 
+function clearTranslation() {
+  translation.value = null
+  translationFor.value = null
+}
+
 async function translateSentence(tk: StoredToken) {
   if (!canTranslate.value || translating.value) return
   const sentence = sentenceOf(tk)
@@ -756,6 +761,7 @@ onUnmounted(() => {
       @status-change="setStatus"
       @add-card="addCard"
       @translate-sentence="selectedToken && translateSentence(selectedToken)"
+      @clear-sentence-translation="clearTranslation"
     />
     <!-- Phone: the same panel in a pull-out sheet; the page behind stays live, so
          tapping another word just switches it. -->
@@ -778,6 +784,7 @@ onUnmounted(() => {
         @status-change="setStatus"
         @add-card="addCard"
         @translate-sentence="selectedToken && translateSentence(selectedToken)"
+      @clear-sentence-translation="clearTranslation"
       />
       <template #footer><div ref="sheetActions" /></template>
     </BottomSheet>
