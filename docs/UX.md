@@ -1228,13 +1228,22 @@ external-chat path needs no sidecar.
 Pieces newest edit first: title, topic, level, word count, «проверено: <модель> · <дата>» when checked.
 «Новое сочинение» opens a dialog: a level filter (default the estimated level, else A2), topic cards
 (title + brief in the UI locale, genre, advised length) and «Свободная тема». Empty state explains the
-feature in one sentence and offers the button.
+feature in one sentence and offers the button. **Delete:** every piece has a trash button (44 px,
+«Удалить запись: <название>») beside its card, never inside the link; it turns into an inline two-step
+confirm «Удалить запись вместе со всеми проверками? Это нельзя отменить. [Удалить] [Отмена]» that
+disarms itself after ~5 s (not while focus is inside; focus moves to «Отмена»), then the card goes and a
+toast says «Запись удалена». Errors through `describeError`.
 
 ### 7.3 Editor — `/write/:id`
 Topic brief card; title field; one `<textarea lang="hu" spellcheck="false" autocapitalize="off">`; a word
 counter «92 слова · цель 80–120» — **advice, never a lock**. Autosave about 1.5 s after typing stops, with a
 status («сохранено» / «сохраняю…» / error through `describeError`); it is flushed before a prompt is built.
-Two actions:
+**Delete** is the trash button at the end of the title row (same inline two-step confirm as the list,
+disabled while a local check streams); after it the screen returns to `/write`. **When a check is shown, the
+result comes directly under the title row and the editor (topic brief, textarea, counter, the two check
+buttons) folds into a «Редактировать текст» disclosure below it** — collapsed while a result is shown,
+expanded when there is none, while a check runs, or when the learner presses it; the textarea stays mounted,
+so autosave and typing are unchanged; a new check folds it again. Two actions:
 - **«Проверить ИИ-учителем»** — only when `caps.available('llm')`; a small-model warning when
   `modelParamsB < 7` recommends the external chat. While running: «получено 1 240 знаков, 3 ошибки» and
   **Стоп** (what is complete is kept, marked «прервано»).
@@ -1246,19 +1255,42 @@ Two actions:
 ### 7.4 Result
 Header «Разбор: qwen3:8b · ИИ-учитель на этом компьютере» or «Разбор: ChatGPT · ответ внешнего чата,
 вставлен вами» with the date; the standing line «Разбор написала модель — она может ошибаться. Ничего
-отсюда не становится карточками.» The text is rendered from `segments` **by interpolation only (never
-`v-html`)**: a red wavy underline, a tinted background and a superscript number — colour is not the only
-signal; a click scrolls to and focuses the card. Each error card: number, type label (plain words:
-«падеж», «долгота гласной»…), «Было» (struck red), the HINT, «Показать исправление» → «Как правильно»
-(green), «Почему», «Правило», «Пример», «Открыть урок» (`/grammar?topic=<topicCode>`, only when the
-server sent one), «Нет в словаре: …» in the uncertain hue (§11). A global **«Показать все
-исправления»** switch (hint-first is the default) is remembered in `localStorage` (try/catch). An error that
-could not be placed says «не нашли это место в тексте». `partial` shows «часть ответа не разобрана» with
-«Показать исходный ответ» (a `<pre>`); a failed local answer says «Модель ответила не по формату —
-проверьте во внешнем чате» with that button; `level` reads «модель оценивает текст примерно как A2».
-Then summary, strengths, vocabulary notes and the corrected text (copyable; «Прослушать» reads it sentence by sentence with the same Piper voices, voice picker and device fallback as the reader), and the piece's history of
-checks, each deletable. Mobile: cards stack under the text; both themes use the design tokens (§14).
-Copy has no jargon; every key exists in ru and en.
+отсюда не становится карточками.» **The text is the hero, the mistakes are on demand** — there is no tall
+column of cards.
+- **Strip:** (on a phone compact: date in the heading line, summary clamped to 2 lines, the chips in ONE swipeable row, so the tabs and the first mark sit in the first screen) the model's summary (clamped to 3 lines with «Показать полностью») and «N ошибок» with one chip
+  per mistake type and its count (type words from `writing.type.*`). A chip is a filter (`aria-pressed`): the
+  other marks dim and Prev/Next/«Все ошибки» walk only that type; pressing it again clears it.
+- **Tabs «Ваш текст» | «Исправленный»** in one place, so the corrected text (copyable; «Прослушать» reads it
+  sentence by sentence with the same Piper voices, voice picker and device fallback as the reader) is one tap
+  away, never below a list. Default: «Ваш текст».
+- **Marks.** The text is rendered from `segments` **by interpolation only (never `v-html`)**: a red wavy
+  underline, a tint and a superscript number — colour is not the only signal. A mark is a real
+  `role="button"` (`aria-label` «Ошибка 3: <цитата>», `aria-pressed` when selected, ring when selected,
+  an enlarged invisible hit area for touch). Click/Enter/Space **selects** that mistake. A segment that carries
+  several mistakes (overlapping or adjacent) shows all their numbers («3,4»); the first press selects the
+  first, each further press cycles to the next. The offsets never reach the browser (ADR-085).
+- **Inspector** shows ONE mistake: number, type, the quote struck through → the fix (green), the hint, «Нет в
+  словаре: …» in the uncertain hue (§11), «Почему», «Правило», «Пример», «Открыть урок»
+  (`/grammar?topic=<topicCode>`, only when the server sent one) and «не нашли это место в тексте» for an
+  unanchored one; with Prev / Next and «3 из 12». **≥ lg:** a sticky right column as tall as its content;
+  empty state «Нажмите на подчёркнутое слово…» and «Начать с первой ошибки»; `aria-live="polite"`. **< lg:**
+  the text takes the full width and the same inspector opens in a **modeless** `BottomSheet` (no scrim, the text
+  stays in sight and scrolled to the mark; ✕/Esc close and clear the selection; focus returns to the mark;
+  a visually-hidden polite status announces each change). No nested scroller on a phone.
+- The tabs use roving focus (← / → / Home / End move focus with the selection). Empty or dash-only fields
+  (`—`) are left out of the inspector, and whitespace at a mark's edge stays outside it (no orphan underline).
+- **Keys** (focus in the text or the inspector): ← / → or k / j previous/next mistake, Esc clears (≥ lg).
+  Selecting scrolls the mark into view (instant under `prefers-reduced-motion`).
+- **«Все ошибки (N)»** — a disclosure, collapsed by default, under the text: one compact line per mistake
+  (number, quote → fix, type); a click selects it and scrolls to its mark. An unanchored mistake has no mark
+  and says «не нашли в тексте» there, but is selectable. The old show-all switch is gone: the fix is always in
+  the inspector's diff.
+- «Что получилось» and «Слова и выражения» are collapsed disclosures below; the piece's history of checks
+  (each deletable) follows.
+`partial` shows «часть ответа не разобрана» with «Показать исходный ответ» (a `<pre>`); a failed local answer
+says «Модель ответила не по формату — проверьте во внешнем чате» with that button; `level` reads «модель
+оценивает текст примерно как A2». Both themes use the design tokens (§14). Copy has no jargon; every key
+exists in ru and en.
 
 ### 7.1 Listen
 

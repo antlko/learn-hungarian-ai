@@ -50,21 +50,3 @@ export function selectAll(el: HTMLElement | null | undefined) {
   sel.removeAllRanges()
   sel.addRange(range)
 }
-
-const SHOW_ALL_KEY = 'tanulom.writing.showAll'
-
-/** The remembered «show all corrections» switch; storage may be blocked. */
-export function readShowAll(): boolean {
-  try {
-    return localStorage.getItem(SHOW_ALL_KEY) === '1'
-  } catch {
-    return false
-  }
-}
-export function writeShowAll(on: boolean) {
-  try {
-    localStorage.setItem(SHOW_ALL_KEY, on ? '1' : '0')
-  } catch {
-    // Private mode: the switch just is not remembered.
-  }
-}

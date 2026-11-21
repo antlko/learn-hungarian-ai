@@ -2,7 +2,8 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
-import { MessageSquareText, Sparkles, Square, Trash2 } from '@lucide/vue'
+import { MessageSquareText, PenLine, Sparkles, Square } from '@lucide/vue'
+import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -10,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import BackButton from '@/components/common/BackButton.vue'
 import Note from '@/components/common/Note.vue'
 import CheckHistory from '@/components/writing/CheckHistory.vue'
+import DeletePieceButton from '@/components/writing/DeletePieceButton.vue'
 import CheckResult from '@/components/writing/CheckResult.vue'
 import ExternalCheckDialog from '@/components/writing/ExternalCheckDialog.vue'
 import { api, writingApi } from '@/api'
@@ -147,6 +149,9 @@ const checkError = ref('')
 const extOpen = ref(false)
 const opening = ref<number | null>(null)
 const resultEl = ref<HTMLElement | null>(null)
+// With a result on screen the editor folds away so the marked text comes first.
+const editOpen = ref(false)
+const editorOpen = computed(() => editOpen.value || running.value || !shown.value)
 
 async function refreshPiece(select?: WritingCheck) {
   try {
@@ -160,6 +165,7 @@ async function refreshPiece(select?: WritingCheck) {
 
 async function showResult(check: WritingCheck) {
   shown.value = check
+  editOpen.value = false
   if (piece.value) {
     try {
       piece.value.checks = (await writingApi.get(pieceId)).checks
@@ -240,16 +246,16 @@ async function removeCheck(checkId: number) {
 }
 
 // ── delete the piece ──────────────────────────────────────────────────────
-const askDelete = ref(false)
 async function removePiece() {
   try {
     await writingApi.remove(pieceId)
     // Only now is the draft moot; on failure autosave stays alive.
     dirty = false
     window.clearTimeout(timer)
+    toast.success(t('writing.deleted'))
     await router.replace({ name: 'write' })
   } catch (e) {
-    checkError.value = describeError(e)
+    toast.error(describeError(e))
   }
 }
 
@@ -279,83 +285,98 @@ const pick = (ru: string, en: string) => (ui.locale === 'ru' ? ru : en)
     </div>
 
     <template v-else>
-      <Card v-if="topic" variant="tint-cream" class="flex flex-col gap-1 p-4 text-sm">
-        <span class="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-          {{ t('writing.editor.brief') }} · {{ piece.level }} · {{ t(`writing.genre.${topic.genre}`) }}
-        </span>
-        <span class="font-medium">{{ pick(topic.titleRu, topic.titleEn) }}</span>
-        <span class="leading-relaxed">{{ pick(topic.briefRu, topic.briefEn) }}</span>
-      </Card>
-
-      <div class="flex flex-col gap-1.5">
+      <div class="flex flex-wrap items-center gap-x-1 gap-y-2">
         <label for="writing-title" class="sr-only">{{ t('writing.editor.titleLabel') }}</label>
         <Input
           id="writing-title"
           v-model="title"
           maxlength="120"
-          class="h-11 text-base font-medium"
+          class="h-11 min-w-0 flex-1 text-base font-medium"
           :placeholder="t('writing.untitled')"
           @input="touch"
         />
-      </div>
-
-      <div class="flex flex-col gap-1.5">
-        <label for="writing-body" class="sr-only">{{ t('writing.editor.bodyLabel') }}</label>
-        <textarea
-          id="writing-body"
-          v-model="body"
-          lang="hu"
-          spellcheck="false"
-          autocapitalize="off"
-          autocomplete="off"
-          rows="12"
-          maxlength="6000"
-          :placeholder="t('writing.editor.bodyPlaceholder')"
-          class="min-h-56 w-full resize-y rounded-xl border border-input bg-card p-4 text-base leading-7 placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-          @input="touch"
-        />
-        <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs text-muted-foreground">
-          <span :title="topic ? t('writing.editor.targetNote') : undefined" class="tabular-nums">
-            {{ t('writing.editor.count', { n: words }) }}
-            <template v-if="topic"> · {{ t('writing.editor.target', { min: topic.minWords, max: topic.maxWords }) }}</template>
-          </span>
-          <span role="status" :class="saveState === 'error' ? 'text-destructive' : ''">{{ saveLine }}</span>
-        </div>
+        <DeletePieceButton :disabled="running" :busy-hint="t('writing.deleteBusy')" @confirm="removePiece" />
       </div>
 
       <Note v-if="checkError" variant="error">{{ checkError }}</Note>
 
-      <div class="flex flex-col gap-3">
-        <div class="flex flex-wrap gap-2">
-          <Button v-if="caps.available('llm')" :disabled="running || empty" @click="checkLocal">
-            <Sparkles class="size-4" aria-hidden="true" />
-            {{ t('writing.check.local') }}
-          </Button>
-          <Button :variant="caps.available('llm') ? 'outline' : 'default'" :disabled="running || empty" @click="openExternal">
-            <MessageSquareText class="size-4" aria-hidden="true" />
-            {{ t('writing.check.external') }}
-          </Button>
-        </div>
-        <p v-if="empty" class="text-xs text-muted-foreground">{{ t('writing.check.emptyHint') }}</p>
-        <Note v-if="caps.available('llm') && smallModel && !running" variant="limit">
-          {{ t('writing.check.smallModel', { model: smallModel.model, size: smallModel.size }) }}
-        </Note>
-        <div v-if="running" class="flex flex-wrap items-center gap-3 rounded-xl border border-border-subtle bg-card px-4 py-3 text-sm" role="status">
-          <span class="min-w-0 flex-1">
-            <span class="font-medium">{{ t('writing.check.running') }}</span>
-            <span class="block text-xs text-muted-foreground tabular-nums">
-              {{ t('writing.check.progress', { chars: progress.chars.toLocaleString(ui.locale === 'ru' ? 'ru-RU' : 'en-GB'), errors: progress.errors }) }}
-            </span>
-          </span>
-          <Button size="sm" variant="outline" :disabled="stopping" @click="stop">
-            <Square class="size-3.5" aria-hidden="true" />
-            {{ stopping ? t('writing.check.stopping') : t('writing.check.stop') }}
-          </Button>
-        </div>
-      </div>
-
       <div ref="resultEl" class="scroll-mt-16">
         <CheckResult v-if="shown && !running" :key="shown.id" :check="shown" @external="openExternal" />
+      </div>
+
+      <button
+        v-if="shown && !running"
+        type="button"
+        class="inline-flex min-h-11 cursor-pointer items-center gap-2 self-start rounded-lg border border-border-subtle bg-card px-3 text-sm font-medium hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring"
+        :aria-expanded="editorOpen"
+        aria-controls="writing-editor"
+        @click="editOpen = !editOpen"
+      >
+        <PenLine class="size-4" aria-hidden="true" />
+        {{ editorOpen ? t('writing.editor.collapse') : t('writing.editor.edit') }}
+      </button>
+
+      <div v-show="editorOpen" id="writing-editor" class="flex flex-col gap-5">
+        <Card v-if="topic" variant="tint-cream" class="flex flex-col gap-1 p-4 text-sm">
+          <span class="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+            {{ t('writing.editor.brief') }} · {{ piece.level }} · {{ t(`writing.genre.${topic.genre}`) }}
+          </span>
+          <span class="font-medium">{{ pick(topic.titleRu, topic.titleEn) }}</span>
+          <span class="leading-relaxed">{{ pick(topic.briefRu, topic.briefEn) }}</span>
+        </Card>
+
+      <div class="flex flex-col gap-1.5">
+          <label for="writing-body" class="sr-only">{{ t('writing.editor.bodyLabel') }}</label>
+          <textarea
+            id="writing-body"
+            v-model="body"
+            lang="hu"
+            spellcheck="false"
+            autocapitalize="off"
+            autocomplete="off"
+            rows="12"
+            maxlength="6000"
+            :placeholder="t('writing.editor.bodyPlaceholder')"
+            class="min-h-56 w-full resize-y rounded-xl border border-input bg-card p-4 text-base leading-7 placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            @input="touch"
+          />
+          <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            <span :title="topic ? t('writing.editor.targetNote') : undefined" class="tabular-nums">
+              {{ t('writing.editor.count', { n: words }) }}
+              <template v-if="topic"> · {{ t('writing.editor.target', { min: topic.minWords, max: topic.maxWords }) }}</template>
+            </span>
+            <span role="status" :class="saveState === 'error' ? 'text-destructive' : ''">{{ saveLine }}</span>
+          </div>
+        </div>
+  
+        <div class="flex flex-col gap-3">
+          <div class="flex flex-wrap gap-2">
+            <Button v-if="caps.available('llm')" :disabled="running || empty" @click="checkLocal">
+              <Sparkles class="size-4" aria-hidden="true" />
+              {{ t('writing.check.local') }}
+            </Button>
+            <Button :variant="caps.available('llm') ? 'outline' : 'default'" :disabled="running || empty" @click="openExternal">
+              <MessageSquareText class="size-4" aria-hidden="true" />
+              {{ t('writing.check.external') }}
+            </Button>
+          </div>
+          <p v-if="empty" class="text-xs text-muted-foreground">{{ t('writing.check.emptyHint') }}</p>
+          <Note v-if="caps.available('llm') && smallModel && !running" variant="limit">
+            {{ t('writing.check.smallModel', { model: smallModel.model, size: smallModel.size }) }}
+          </Note>
+          <div v-if="running" class="flex flex-wrap items-center gap-3 rounded-xl border border-border-subtle bg-card px-4 py-3 text-sm" role="status">
+            <span class="min-w-0 flex-1">
+              <span class="font-medium">{{ t('writing.check.running') }}</span>
+              <span class="block text-xs text-muted-foreground tabular-nums">
+                {{ t('writing.check.progress', { chars: progress.chars.toLocaleString(ui.locale === 'ru' ? 'ru-RU' : 'en-GB'), errors: progress.errors }) }}
+              </span>
+            </span>
+            <Button size="sm" variant="outline" :disabled="stopping" @click="stop">
+              <Square class="size-3.5" aria-hidden="true" />
+              {{ stopping ? t('writing.check.stopping') : t('writing.check.stop') }}
+            </Button>
+          </div>
+        </div>
       </div>
 
       <CheckHistory
@@ -365,18 +386,6 @@ const pick = (ru: string, en: string) => (ui.locale === 'ru' ? ru : en)
         @open="openCheck"
         @remove="removeCheck"
       />
-
-      <div class="flex flex-wrap items-center gap-2 border-t border-border-subtle pt-4">
-        <Button v-if="!askDelete" variant="ghost" size="sm" @click="askDelete = true">
-          <Trash2 class="size-4" aria-hidden="true" />
-          {{ t('writing.delete') }}
-        </Button>
-        <template v-else>
-          <span class="text-sm">{{ t('writing.deleteAsk') }}</span>
-          <Button variant="destructive" size="sm" @click="removePiece">{{ t('writing.deleteYes') }}</Button>
-          <Button variant="ghost" size="sm" @click="askDelete = false">{{ t('common.cancel') }}</Button>
-        </template>
-      </div>
 
       <ExternalCheckDialog
         :open="extOpen"

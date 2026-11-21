@@ -5,6 +5,18 @@ the project uses [semantic versioning](https://semver.org/). Every design decisi
 is an ADR in [`.claude/DECISIONS.md`](.claude/DECISIONS.md), and every pedagogical claim traces to a
 note in [`.claude/research/`](.claude/research/README.md).
 
+## [1.8.1] — 2026-11-21 — «Письмо»: mistakes on demand, delete a piece
+
+### Added
+- **Delete a piece of writing from the list**: every card has a trash button with an inline two-step confirm that says its checks go with it and that it cannot be undone (it reverts after ~5 s). In the editor the delete button moved from the very bottom to the title row.
+
+### Changed
+- **The check result is the text, not a column of mistakes** (UX §7.4). Marked mistakes stay in the text; tapping one opens just that mistake: «quote → fix», hint, why, rule, example and topic link. On a desktop it is a sticky panel on the right that never stretches the page; on a phone it is a bottom sheet that leaves the text visible. «3 of 16», Prev/Next, ←/→ and j/k, Esc.
+- A summary strip with the model's note and mistake counts by type; tapping a type shows only those marks. The full list is a collapsed «All mistakes» disclosure with one-line rows; a mistake the server could not find in the text is marked and still selectable. Two mistakes on one word are reached by pressing it again.
+- The corrected text is a tab («Ваш текст» | «Исправленный», with Copy and Listen) at the top instead of below the list. Strengths and recommended words are collapsed disclosures.
+- With a check on screen the editor is folded under «Edit the text»; typing, autosave and re-checking work as before. On a phone the type chips are one swipeable row and the summary is two lines with «Show more», so the text is on the first screen.
+- The mistake hint is no longer hidden behind a reveal: the fix is always visible. Check history buttons are at least 44 px on touch widths.
+
 ## [1.8.0] — 2026-11-21 — Grammar: varied exercises, pictures, matching; resizable sidebar
 
 ### Added

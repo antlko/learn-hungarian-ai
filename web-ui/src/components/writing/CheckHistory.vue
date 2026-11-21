@@ -38,11 +38,12 @@ const asking = ref<number | null>(null)
         </div>
         <div class="flex items-center gap-1">
           <span v-if="shownId === c.id" class="text-xs text-muted-foreground">{{ t('writing.history.shown') }}</span>
-          <Button v-else size="sm" variant="outline" :disabled="busy" @click="emit('open', c.id)">{{ t('writing.history.open') }}</Button>
+          <Button v-else size="sm" variant="outline" class="max-md:min-h-11" :disabled="busy" @click="emit('open', c.id)">{{ t('writing.history.open') }}</Button>
           <Button
             v-if="asking !== c.id"
             size="icon"
             variant="ghost"
+            class="max-md:size-11"
             :aria-label="t('writing.history.delete')"
             :title="t('writing.history.delete')"
             @click="asking = c.id"
@@ -50,8 +51,8 @@ const asking = ref<number | null>(null)
             <Trash2 class="size-4" aria-hidden="true" />
           </Button>
           <template v-else>
-            <Button size="sm" variant="destructive" @click="emit('remove', c.id); asking = null">{{ t('writing.deleteYes') }}</Button>
-            <Button size="sm" variant="ghost" @click="asking = null">{{ t('common.cancel') }}</Button>
+            <Button size="sm" variant="destructive" class="max-md:min-h-11" @click="emit('remove', c.id); asking = null">{{ t('writing.deleteYes') }}</Button>
+            <Button size="sm" variant="ghost" class="max-md:min-h-11" @click="asking = null">{{ t('common.cancel') }}</Button>
           </template>
         </div>
       </li>
