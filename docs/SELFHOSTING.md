@@ -407,6 +407,12 @@ checksum pinned, the button answers that the pack "has not been published yet"; 
 `schema_version` at startup and refuses to start on a major mismatch with an actionable message.
 `morph_feature` ids are stable across pack versions, so your learning state carries over.
 
+**Getting a pack that a new release carries.** The embedded starter only affects fresh installs; an
+existing data directory keeps its own pack. When a release commits a new pack file, pull the new
+image, then Settings → Компоненты → the dictionary → **Install**, then **Restart**. The install
+does not keep a copy of the old pack: copy `langpack-hu-v1.sqlite` out of the data directory first
+if you want to be able to go back.
+
 ## Multi-user
 
 Roles are **admin** (full control) and **learner** (own data only). Learning data is per-user;

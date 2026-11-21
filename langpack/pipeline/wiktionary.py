@@ -54,6 +54,9 @@ TAG_TO_FEATURE: dict[str, tuple[str, str]] = {
     "present": ("Tense", "Pres"),
     "conditional": ("Mood", "Cnd"),
     "imperative": ("Mood", "Imp"),
+    # English Wiktionary tags Hungarian imperative forms (menjek, lássa) as
+    # "subjunctive"; UD Hungarian uses Mood=Imp for both (features.py).
+    "subjunctive": ("Mood", "Imp"),
     "indicative": ("Mood", "Ind"),
     "definite": ("Definite", "Def"),
     "indefinite": ("Definite", "Ind"),
@@ -139,6 +142,17 @@ class FormOf:
     lemma: str
     upos: str
     feats: dict[str, str] = field(default_factory=dict)
+    # One feature dict PER SENSE of the page: olvassuk is both the 1pl definite
+    # indicative and the 1pl definite imperative, and merging the senses into one
+    # dict lost one of the two readings. `feats` stays the first reading for
+    # callers that want a single one; the build writes every reading.
+    readings: list[dict[str, str]] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        if not self.readings:
+            self.readings = [self.feats]
+        else:
+            self.feats = self.readings[0]
 
 
 # wiktextract writes inflection glosses as "<description> of <lemma>", sometimes
@@ -152,7 +166,8 @@ _INFLECTION_WORDS = (
     "inessive", "illative", "elative", "superessive", "sublative", "delative",
     "adessive", "allative", "ablative", "instrumental", "causal", "terminative",
     "translative", "essive", "distributive", "comparative", "superlative",
-    "nominative", "person", "tense", "conditional", "imperative", "participle",
+    "nominative", "person", "tense", "conditional", "imperative", "subjunctive",
+    "participle",
 )
 
 
@@ -222,7 +237,7 @@ def _as_form_of(raw: dict, upos: str) -> FormOf | None:
         return None
 
     lemma = ""
-    feats: dict[str, str] = {}
+    readings: list[dict[str, str]] = []
 
     for sense in senses:
         tags = sense.get("tags") or []
@@ -245,7 +260,7 @@ def _as_form_of(raw: dict, upos: str) -> FormOf | None:
             return None
         lemma = lemma or target
 
-        feats.update(_feats_from_tags(tags))
+        feats = _feats_from_tags(tags)
         if not feats:
             # Recover features from the gloss wording when tags are absent.
             desc = gloss.lower()
@@ -259,10 +274,12 @@ def _as_form_of(raw: dict, upos: str) -> FormOf | None:
             ):
                 if word in desc:
                     feats[mapped[0]] = mapped[1]
+        if feats and feats not in readings:
+            readings.append(feats)
 
     if not lemma or not _is_plausible_form(raw.get("word", "")):
         return None
-    return FormOf(form=raw["word"], lemma=lemma, upos=upos, feats=feats)
+    return FormOf(form=raw["word"], lemma=lemma, upos=upos, readings=readings or [{}])
 
 
 def parse(path: Path, *, limit: int | None = None) -> Iterator[Entry | FormOf]:

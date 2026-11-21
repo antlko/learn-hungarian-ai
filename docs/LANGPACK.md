@@ -200,11 +200,15 @@ fetch → normalise → analyse → merge → score → emit
 | Stage | Module | Does |
 |---|---|---|
 | fetch | `pipeline/fetch.py` | pinned URLs + SHA256 into `cache/`; **refuses to proceed on checksum mismatch** — reproducibility over convenience |
-| normalise | `wiktionary.py`, `wiktionary_ru.py`, `frequency.py` | JSONL → `lemma`, `lemma_gloss`, `paradigm`, IPA; frequency → ranks |
+| normalise | `wiktionary.py` (tag -> feature map: `subjunctive` -> `Mood=Imp`; one `wordform` row per sense, [ADR-087](../.claude/DECISIONS.md#adr-087)), `wiktionary_ru.py`, `frequency.py` | JSONL → `lemma`, `lemma_gloss`, `paradigm`, IPA; frequency → ranks |
 | analyse | *(in `build.py`)* | **No tagger and no `analyse.py`.** Tokens of Tatoeba sentences are linked to lemmas by dictionary lookup (`sentence_token.feats` is empty); `wordform` is Wiktionary paradigms ∪ generated rows (`verbs.py`, attested wins) |
 | merge | `features.py` | resolve lemma identity across sources; derive `morph_feature` incl. allomorph tables from harmony class |
 | score | `sentences.py`, `curriculum.py`, `lessons.py`, `ngram.py` | sentence difficulty; CEFR estimate per lemma; topic DAG + lesson text; n-gram counts |
 | emit | `emit.py` | write SQLite, create indexes, `VACUUM`, checksum, `manifest.json` |
+
+**Applied ([ADR-087](../.claude/DECISIONS.md#adr-087)).** The `subjunctive` -> `Mood=Imp` and per-sense fixes in `wiktionary.py` were applied with the English kaikki dump (`cache/kaikki-hu.jsonl`, ~590 MB, gitignored) by re-deriving only the VERB form-of `wordform` rows of an existing pack (a full `pipeline.build` also refetches every corpus and would drop the later backfills; nouns were left alone because the newer dump retags them). Result: `Mood=Imp` 1 -> 1537 rows in the full pack (1238 in the starter), `Mood=Cnd` 691 -> 825 (648 -> 776), verbs with at least 4 Imp cells 0 -> 94 (86), at least 4 Cnd cells 72 -> 73 (70); 1315 mood-less verb rows replaced, only one indicative reading lost (`neveljük`, now imperative only). Person-drill yield: imperative 0 -> 507 items over 55 verbs. A fresh `make langpack` now produces the same rows by construction.
+
+**Picture tooling.** `langpack/tools/picture_coverage.py` is an offline helper (not shipped, reads the pack read-only): it estimates how many top-frequency nouns could get a picture and writes a candidate TSV for a human to curate into `backend/internal/pictures/catalog.json` ([ADR-089](../.claude/DECISIONS.md#adr-089)). The pictures are embedded in the binary, not in the pack, so they need no pack rebuild or schema bump.
 
 ### Editing a lesson without a full rebuild
 
@@ -624,12 +628,17 @@ So there are two editions, distinguished by `pack_meta.edition`:
 |---|---|---|
 | where | embedded in the binary (`internal/lang/starter/`, gzipped) | downloaded or built |
 | lemmas | 6 989 — a frequency band, plus every course word and every lemma their sentences need | 35 311 |
-| wordforms | 722 534 | 1 980 147 |
+| wordforms | 722 534 | 2 016 109 |
 | sentences | 15 416 (12 000 chosen by the selection rule below, plus those pulled in for the reading sets and for the intermediate / advanced course words), all Tatoeba, fully resolvable inside the starter's lemma set | 60 000 |
 | lemmas with a Russian gloss | 3 168 | 8 620 |
 | course words | 3 645 (all of them) | 3 645 |
 | curriculum, features, course, resources, n-grams | complete | complete |
 | size | ~24.1 MB gzipped | 252 MB |
+
+The committed release asset `langpack/release/langpack-hu-v1.sqlite.gz` (what Settings installs) is
+65 547 175 bytes, sha256 `ebe8b842…23b5f0`, pinned in `config.DefaultLangPackSHA256` /
+`DefaultLangPackSizeBytes`; it is the Tatoeba-only pack (`make langpack-derive`), with the
+imperative rows of [ADR-087](../.claude/DECISIONS.md#adr-087). Re-pin both constants whenever it changes.
 
 `langpack/pipeline/starter.py` derives it from the full pack. The selection rule that matters:
 a sentence is kept only when **every** word token resolves to a kept lemma, so the reader and

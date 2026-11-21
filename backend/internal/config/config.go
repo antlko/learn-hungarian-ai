@@ -83,10 +83,10 @@ const (
 	// sentences. These live in the binary and are resolved at point of use by
 	// EffectiveLangPack; they are never written into config.yaml.
 	DefaultLangPackURL    = "https://raw.githubusercontent.com/antlko/learn-hungarian-ai/main/langpack/release/langpack-hu-v1.sqlite.gz"
-	DefaultLangPackSHA256 = "584c4ca9838c2ad98713e6019f2ee20014efb6a6378afa943a7ee6d0274c4acd"
+	DefaultLangPackSHA256 = "ebe8b84270e5d6b9289a407b17dfe247a755130846da4d96b5287cd83d23b5f0"
 	// DefaultLangPackSizeBytes is the compressed download size, for the button
 	// label only. 0 = unknown.
-	DefaultLangPackSizeBytes int64 = 65535311
+	DefaultLangPackSizeBytes int64 = 65547175
 
 	// legacyLangPackURL was the default before the data release; configs that
 	// normalize()d it onto disk are treated as "unset".

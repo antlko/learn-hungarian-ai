@@ -155,8 +155,9 @@ def main() -> int:
             lid = lemma_ids.get((fo.lemma, fo.upos)) or by_word.get(fo.lemma)
             if lid is None:
                 continue  # target headword absent; the form teaches nothing alone
-            form_rows.append(
-                (fo.form, lid, fo.upos, feats_to_str(fo.feats), "wiktionary", "high"))
+            for reading in fo.readings:
+                form_rows.append(
+                    (fo.form, lid, fo.upos, feats_to_str(reading), "wiktionary", "high"))
             resolved += 1
         stats["form_of_pages"] = len(pending_forms)
         stats["form_of_resolved"] = resolved
