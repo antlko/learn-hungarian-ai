@@ -50,6 +50,8 @@ type AnswerInput struct {
 	// form only in diacritics. Threaded in from config by the handler; the
 	// engine stays a pure function of its inputs.
 	AccentTolerance bool
+	// Parts is a sort item's answer: tile id -> column text.
+	Parts map[string]string
 }
 
 // AnswerResult is everything the UI needs to render the outcome and the gate.
@@ -67,6 +69,9 @@ type AnswerResult struct {
 	// FollowUp is what this specific mistake says to practise next, including
 	// the honest "a drill cannot fix this" cases. See from_error.go.
 	FollowUp []Target `json:"followUp,omitempty"`
+	// PartResults is the per-tile verdict of a sort item, filled only after
+	// grading: it carries the expected column, which stays secret until then.
+	PartResults []PartResult `json:"partResults,omitempty"`
 }
 
 // Answer grades one item and applies its consequences.
@@ -89,7 +94,33 @@ func (e *Engine) Answer(in AnswerInput, now time.Time) (AnswerResult, error) {
 	outcome.MedianDuration = time.Duration(before.MedianMs) * time.Millisecond
 
 	var wrongFeature, errorClass string
-	if item.Kind.Typed() {
+	var personSlip bool
+	answerLog := in.Answer
+	var pairGrades []srs.FeatureGrade
+	if item.Kind.MultiPart() {
+		// One verdict for the whole item: the scheduler hears ONE review per
+		// required feature, never one per tile — six reviews of a feature in the
+		// same second would distort its stability.
+		if err := item.CheckParts(in.Parts); err != nil {
+			return res, err
+		}
+		results, all := item.gradeParts(in.Parts)
+		res.PartResults = results
+		res.Expected = ""
+		outcome.Correct = all
+		// A tap is recognition, not production: at most Good.
+		outcome.MedianDuration = 0
+		answerLog = encodeParts(item, in.Parts)
+		if !all {
+			errorClass = string(morph.ErrHarmony)
+			if item.Kind == KindMatch {
+				errorClass = string(item.matchErrorClass())
+			}
+		}
+		if item.Kind == KindMatch {
+			pairGrades = item.matchGrades(results, outcome)
+		}
+	} else if item.Kind.Typed() {
 		d := morph.DiffForms(in.Answer, item.Expected(), e.analyzer)
 		res.Diff = &d
 		outcome.Correct = d.Match
@@ -109,11 +140,25 @@ func (e *Engine) Answer(in AnswerInput, now time.Time) (AnswerResult, error) {
 			outcome.PartiallyCorrect = true
 			res.AcceptedWithAccents = true
 		}
+		// A right verb in the wrong person is its own mistake, and one the diff
+		// cannot see: it does not know which person was asked for.
+		if item.Kind == KindPerson && !outcome.Correct {
+			d, personSlip = classifyPerson(d, item, in.Answer, e.analyzer)
+			res.Diff = &d
+			outcome.PartiallyCorrect = d.NearMatch
+			wrongFeature = d.WrongFeature
+			errorClass = string(d.Class)
+		}
 	} else {
 		// A choice item is graded by string equality, case-insensitively: the
 		// options came from the server, and a sentence-initial capital is not a
 		// mistake.
 		outcome.Correct = strings.EqualFold(strings.TrimSpace(in.Answer), item.Expected())
+		if item.Kind == KindQword || item.Kind == KindScene {
+			// A tap is recognition, not production: at most Good. Dropping the
+			// learner's median removes the only path to Easy.
+			outcome.MedianDuration = 0
+		}
 		if !outcome.Correct {
 			errorClass = string(classifyChoice(item, in.Answer, e.analyzer))
 			if errorClass == string(morph.ErrHarmony) {
@@ -131,6 +176,15 @@ func (e *Engine) Answer(in AnswerInput, now time.Time) (AnswerResult, error) {
 	// case when they got the case right and the harmony wrong is exactly the
 	// noise this project refuses to put in the heatmap.
 	grades := srs.RequiredFeatures(item.FeatureIDs, outcome, wrongFeature)
+	if item.Kind == KindMatch {
+		grades = pairGrades
+	}
+	if personSlip {
+		// Wrong person, right verb AND right features: nothing the item required
+		// was shown to be missing, nor shown to be held. The attempt still counts
+		// against the gate; the feature state is left alone.
+		grades = nil
+	}
 	res.GradedFeatures = grades
 
 	after := Fold(before, item.Phase, outcome.Correct, in.DurationMs, e.cfg)
@@ -159,9 +213,10 @@ func (e *Engine) Answer(in AnswerInput, now time.Time) (AnswerResult, error) {
 	}
 	if err := e.store.AppendAttempt(tx, in.UserID, Attempt{
 		TopicCode: item.TopicCode, Kind: item.Kind, Phase: item.Phase,
-		Prompt: promptOf(item), Expected: item.Expected(), Answer: in.Answer,
+		Prompt: promptOf(item), Expected: item.Expected(), Answer: answerLog,
 		Correct: outcome.Correct, DurationMs: in.DurationMs,
 		FeatureIDs: item.FeatureIDs, ErrorClass: errorClass, Origin: origin,
+		ItemKey: item.Key(), SentenceID: item.SentenceID,
 	}); err != nil {
 		return res, err
 	}
@@ -198,6 +253,12 @@ func classifyChoice(item Item, chosen string, a *morph.Analyzer) morph.ErrorClas
 	case KindCase:
 		return morph.ErrCase
 	case KindAllomorph:
+		return morph.ErrHarmony
+	case KindQword:
+		return classifyQword(item.Expected(), chosen)
+	case KindScene:
+		return classifyScene(item, chosen)
+	case KindSort:
 		return morph.ErrHarmony
 	}
 	d := morph.DiffForms(chosen, item.Expected(), a)

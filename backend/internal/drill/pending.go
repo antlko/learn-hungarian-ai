@@ -133,6 +133,33 @@ func (p *Served[T]) Take(userID int64, id string) (T, bool) {
 	return e.item, true
 }
 
+// Items returns the unanswered, unexpired items of a user (answers included —
+// for server-side use only). The generator reads them so that a learner who
+// fetches the next batch before answering the last one is not served the same
+// questions again.
+func (p *Served[T]) Items(userID int64) []T {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	now := time.Now()
+	var out []T
+	for _, e := range p.byUser[userID] {
+		if now.Sub(e.served) <= p.ttl {
+			out = append(out, e.item)
+		}
+	}
+	return out
+}
+
+// Keys returns keyOf applied to each unanswered item of a user.
+func (p *Served[T]) Keys(userID int64, keyOf func(T) string) []string {
+	items := p.Items(userID)
+	out := make([]string, 0, len(items))
+	for _, it := range items {
+		out = append(out, keyOf(it))
+	}
+	return out
+}
+
 // Forget drops every pending item for a user, used when a session is abandoned.
 func (p *Served[T]) Forget(userID int64) {
 	p.mu.Lock()

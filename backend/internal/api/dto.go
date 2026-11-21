@@ -1,5 +1,7 @@
 package api
 
+import "tanulom/internal/drill"
+
 // Data-transfer objects. These are the wire contract; web-ui/src/types mirrors
 // them in camelCase. Change both together, and update docs/API.md in the same
 // change.
@@ -482,4 +484,18 @@ type WritingCheckDTO struct {
 	Raw         string              `json:"raw"`
 	Errors      []WritingErrorDTO   `json:"errors"`
 	Segments    []WritingSegmentDTO `json:"segments"`
+}
+
+// TopicExamplesResponse is `GET /api/grammar/topics/:code/examples`: attested
+// pack sentences per feature, for the rule card. A feature with no surface
+// ending has an empty list; nothing is invented to fill it.
+type TopicExamplesResponse struct {
+	Topic    string               `json:"topic"`
+	Features []FeatureExamplesDTO `json:"features"`
+}
+
+// FeatureExamplesDTO is one feature's examples.
+type FeatureExamplesDTO struct {
+	FeatureID string          `json:"featureId"`
+	Examples  []drill.Example `json:"examples"`
 }

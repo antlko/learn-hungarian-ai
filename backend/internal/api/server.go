@@ -79,6 +79,7 @@ type Server struct {
 	// that may legitimately take minutes — waiting without cancelling would
 	// turn every shutdown into a two-minute hang. See handlers_crib.go.
 	cribFlights sync.Map
+	warmDrills  bool
 	bg          sync.WaitGroup
 	bgCtx       context.Context
 	// onTutorDelta is a test seam: called after each streamed tutor delta has
@@ -129,6 +130,12 @@ type Server struct {
 // Option adjusts a Server before its components are built. Operator-level
 // inputs that must not be reachable from a request or from config.yaml live here.
 type Option func(*Server)
+
+// WithDrillWarmup starts a background goroutine after boot that precomputes the
+// drill generator's caches, so the first grammar request is not the slow one. It
+// never blocks startup, stops with the server, and is off by default so unit
+// tests stay deterministic; cmd/tanulom turns it on.
+func WithDrillWarmup() Option { return func(s *Server) { s.warmDrills = true } }
 
 // WithVoicesDir points the tts component at the directory holding the Piper
 // voice files (--voices-dir / TANULOM_VOICES_DIR). Empty keeps `<data>/voices`.
@@ -272,6 +279,14 @@ func (s *Server) loadPack() {
 	}
 	s.dag = dag
 	s.drills = drill.NewGenerator(p, s.analyzer, dag)
+	if s.warmDrills {
+		gen, ctx := s.drills, s.bgCtx
+		s.bg.Add(1)
+		go func() {
+			defer s.bg.Done()
+			gen.Warm(ctx)
+		}()
+	}
 
 	// A pack without a course still serves everything else; the plan screen
 	// says the pack carries no syllabus rather than the app refusing to boot.
@@ -409,6 +424,7 @@ func (s *Server) buildApp() *fiber.App {
 	api.Get("/lemma/:id", s.requireAuth, s.handleLemma)
 	api.Get("/lemma/:id/examples", s.requireAuth, s.handleLemmaExamples)
 	api.Get("/features", s.requireAuth, s.handleFeatures)
+	api.Get("/pictures/:file", s.requireAuth, s.handlePicture)
 	api.Get("/breakdown", s.requireAuth, s.handleBreakdown)
 	api.Post("/morph/correction", s.requireAuth, s.handleCreateCorrection)
 	api.Delete("/morph/correction", s.requireAuth, s.handleDeleteCorrection)
@@ -465,6 +481,7 @@ func (s *Server) buildApp() *fiber.App {
 	// Grammar and curriculum.
 	api.Get("/curriculum", s.requireAuth, s.handleCurriculum)
 	api.Get("/curriculum/:code", s.requireAuth, s.handleTopic)
+	api.Get("/grammar/topics/:code/examples", s.requireAuth, s.handleTopicExamples)
 	api.Get("/drill/next", s.requireAuth, s.handleDrillNext)
 	api.Post("/drill/answer", s.requireAuth, s.handleDrillAnswer)
 	api.Get("/placement", s.requireAuth, s.handlePlacement)

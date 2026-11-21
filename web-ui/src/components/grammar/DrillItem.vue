@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { X } from '@lucide/vue'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import MatchBoard from '@/components/grammar/MatchBoard.vue'
+import ScenePicture from '@/components/grammar/ScenePicture.vue'
+import SortBoard from '@/components/grammar/SortBoard.vue'
 import SpeakButton from '@/components/common/SpeakButton.vue'
 import { useAnswerFeedback } from '@/composables/useAnswerFeedback'
 import { pickGloss } from '@/lib/gloss'
@@ -32,7 +35,7 @@ const props = defineProps<{
   submitting: boolean
 }>()
 const answer = defineModel<string>('answer', { default: '' })
-const emit = defineEmits<{ choose: [value: string]; submit: []; next: [] }>()
+const emit = defineEmits<{ choose: [value: string]; submit: []; sort: [parts: Record<string, string>]; next: [] }>()
 
 const { t, te } = useI18n()
 const ui = useUiStore()
@@ -55,7 +58,48 @@ watch(
 /** The pack ships English glosses only today; say so rather than passing it off. */
 const gloss = computed(() => pickGloss(props.item.glossRu, props.item.glossEn, ui.locale))
 
-const isTyped = computed(() => props.item.kind === 'cloze' || props.item.kind === 'transform')
+const isTyped = computed(
+  () => ['cloze', 'transform', 'person'].includes(props.item.kind),
+)
+
+/**
+ * The cue right after the gap, MagyarOK style: «Ez a ___ (ház) nagy.» A cloze
+ * names the base form; a person item adds the pronoun («tanul · te»), because
+ * the gap alone does not say which person is wanted.
+ */
+const cue = computed(() => {
+  const it = props.item
+  if (it.kind === 'cloze' && it.lemma) return it.lemma
+  if (it.kind === 'person') {
+    const l = it.promptArgs?.lemma ?? it.lemma
+    const p = it.promptArgs?.pronoun
+    if (l && p) return `${l} · ${p}`
+    return l ?? ''
+  }
+  return ''
+})
+
+/** The input's name says the task, not just "type the Hungarian". */
+const typedLabel = computed(() => {
+  const l = props.item.promptArgs?.lemma ?? props.item.lemma
+  const p = props.item.promptArgs?.pronoun
+  return l && p ? t('drill.typedLabel', { lemma: l, pronoun: p }) : t('review.typeAnswer')
+})
+
+const accents = ['á', 'é', 'í', 'ó', 'ö', 'ő', 'ú', 'ü', 'ű']
+
+/** Insert a letter at the caret of the answer box (the keys have no physical counterpart on a phone). */
+function insertAccent(ch: string) {
+  const el = document.querySelector<HTMLInputElement>('[data-drill-input]')
+  if (!el || props.result) return
+  const start = el.selectionStart ?? answer.value.length
+  const end = el.selectionEnd ?? start
+  answer.value = answer.value.slice(0, start) + ch + answer.value.slice(end)
+  void nextTick(() => {
+    el.focus()
+    el.setSelectionRange(start + ch.length, start + ch.length)
+  })
+}
 
 /**
  * The question, with every id resolved to something a learner can read.
@@ -72,6 +116,11 @@ const isTyped = computed(() => props.item.kind === 'cloze' || props.item.kind ==
  */
 const promptText = computed(() => {
   const args: Record<string, string> = { ...props.item.promptArgs, gloss: gloss.value.text }
+  // A scene's question word is Hungarian in the data; the learner reads it in their language.
+  if (args.question) {
+    const k = `drill.scene.question.${args.question}`
+    if (te(k)) args.question = t(k)
+  }
   if (args.feature) args.feature = catalogue.label(args.feature)
   for (const key of ['row', 'column', 'harmony', 'object'] as const) {
     const raw = args[key]
@@ -126,6 +175,39 @@ async function focusAnswer() {
 watch(() => props.item.id, focusAnswer, { immediate: true })
 
 /**
+ * A new item never inherits the last item's answer: a choice sets `answer` to the
+ * option text, and a typed box that opened with it would submit «oldalbanképről».
+ */
+watch(
+  () => props.item.id,
+  () => {
+    answer.value = ''
+  },
+)
+
+/** The sort board's placements live here so the verdict's re-key cannot wipe them. */
+const sortPlaced = ref<Record<string, string>>({})
+/** Likewise the match board's pairs (form id -> cue). */
+const matchPaired = ref<Record<string, string>>({})
+watch(
+  () => props.item.id,
+  () => {
+    sortPlaced.value = {}
+    matchPaired.value = {}
+  },
+)
+
+/** Board kinds own their keys and have no typed box, no options. */
+const isBoard = computed(() => props.item.kind === 'sort' || props.item.kind === 'match')
+
+/** A bare person item names the wanted mood / tense, since there is no sentence to say it. */
+const modeChip = computed(() => {
+  const a = props.item.promptArgs
+  const id = a?.mood || a?.tense
+  return props.item.bare && id ? catalogue.label(id) : ''
+})
+
+/**
  * The keyboard map lives on `window`, not on the component root.
  *
  * A choice item has nothing focused — the answer buttons are not autofocused,
@@ -143,7 +225,8 @@ function onKey(e: KeyboardEvent) {
     }
     return
   }
-  if (isTyped.value || typing || props.submitting) return
+  // A sort item owns its keys (1–3 are columns there, Backspace unassigns).
+  if (isBoard.value || isTyped.value || typing || props.submitting) return
 
   const n = Number(e.key)
   if (n >= 1 && n <= (props.item.options?.length ?? 0)) {
@@ -182,15 +265,35 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       exists.
     -->
     <div :key="flashKey" :class="['flex flex-col gap-5', flashClass]">
-      <div v-if="item.frame" class="flex items-start gap-2">
-        <p class="text-2xl leading-relaxed" lang="hu">
+      <div v-if="item.kind === 'scene' && item.picture" class="flex flex-col items-center gap-3">
+        <ScenePicture :picture="item.picture" :correct="!!result?.correct" />
+        <p v-if="item.promptArgs?.place" class="text-2xl" lang="hu">
+          <span
+            data-drill-cue
+            class="whitespace-nowrap rounded-full border border-border-subtle px-2.5 py-0.5 align-middle text-xl text-muted-foreground"
+            >({{ item.promptArgs.place }})</span
+          >
+        </p>
+      </div>
+      <div v-else-if="item.frame" class="flex min-w-0 items-start gap-2">
+        <p class="min-w-0 text-2xl leading-relaxed" lang="hu">
           {{ framePieces.before }}
           <span
             class="rounded px-2 py-0.5 transition-colors"
             :class="result ? 'bg-tint-sage text-foreground' : 'bg-tint-mist text-muted-foreground'"
             >{{ result ? result.expected : '___' }}</span
-          >
-          {{ framePieces.after }}
+          ><span
+            v-if="cue"
+            data-drill-cue
+            class="ml-1.5 inline-block max-w-full break-words rounded-full border border-border-subtle px-2 py-0.5 align-middle text-base text-muted-foreground"
+            lang="hu"
+            >({{ cue }})</span
+          ><span
+            v-if="modeChip"
+            data-drill-mode
+            class="ml-1.5 inline-block max-w-full break-words rounded-full border border-border-subtle bg-tint-cream px-2 py-0.5 align-middle text-sm text-foreground"
+            >{{ modeChip }}</span
+          >{{ framePieces.after }}
         </p>
         <!-- Only once the gap is filled: reading the sentence out with the
              answer in it, before the answer, would be the answer. -->
@@ -199,6 +302,15 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           :text="framePieces.before + result.expected + framePieces.after"
         />
       </div>
+      <p v-else-if="item.parts?.length" class="text-2xl leading-relaxed" lang="hu">
+        <template v-for="(p, i) in item.parts" :key="i"
+          ><span
+            :class="p.focus && 'font-semibold underline decoration-2 underline-offset-4'"
+            :data-focus="p.focus ? '' : undefined"
+            >{{ p.text }}</span
+          ></template
+        >
+      </p>
       <div v-else-if="item.lemma" class="flex items-center gap-2">
         <p class="text-3xl font-medium" lang="hu">{{ item.lemma }}</p>
         <SpeakButton :text="item.lemma" />
@@ -206,7 +318,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 
       <!-- Choice items: minimally different options, so the learner has to make
            the distinction rather than recognise the odd one out. [R5] -->
-      <div v-if="!isTyped" class="flex flex-wrap gap-2">
+      <div v-if="!isBoard && !isTyped" class="flex flex-wrap gap-2">
         <button
           v-for="(o, i) in item.options"
           :key="o.text"
@@ -214,7 +326,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           lang="hu"
           :class="[
             buttonVariants({ variant: 'outline', size: 'lg' }),
-            'min-h-12 min-w-32 font-mono text-base',
+            'min-h-12 w-full justify-start font-mono text-base sm:w-auto sm:min-w-32 sm:justify-center',
             optionState(o.text) === 'correct' && 'border-known bg-tint-sage text-foreground',
             optionState(o.text) === 'wrong' && 'border-tint-blush-edge bg-tint-blush text-foreground',
             !result && 'bg-tint-mist/50 hover:bg-tint-mist',
@@ -253,27 +365,68 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         </button>
       </div>
 
+      <div v-else-if="isBoard" class="flex flex-col gap-4">
+        <MatchBoard
+          v-if="item.kind === 'match'"
+          v-model:paired="matchPaired"
+          :item="item"
+          :result="result"
+          :submitting="submitting"
+          @submit="(parts) => emit('sort', parts)"
+        />
+        <SortBoard
+          v-else
+          v-model:placed="sortPlaced"
+          :item="item"
+          :result="result"
+          :submitting="submitting"
+          @submit="(parts) => emit('sort', parts)"
+        />
+        <Button v-if="result" variant="secondary" class="min-h-11 self-start" @click="emit('next')">{{
+          $t('review.next')
+        }}</Button>
+      </div>
+
       <!-- Typed items: production, which is the direction that transfers. [R12] -->
-      <form v-else class="flex items-center gap-2" @submit.prevent="emit('submit')">
+      <form v-else class="flex flex-col gap-3" @submit.prevent="emit('submit')">
+        <div class="flex flex-wrap items-center gap-2">
         <Input
           v-model="answer"
           data-drill-input
           lang="hu"
           autocomplete="off"
           autocapitalize="off"
+          autocorrect="off"
           spellcheck="false"
           :disabled="!!result"
           :placeholder="$t('review.typeAnswer')"
-          class="max-w-sm font-mono text-base"
+          :aria-label="typedLabel"
+          class="min-h-11 w-full max-w-sm font-mono text-base"
         />
-        <Button v-if="!result" type="submit" :disabled="submitting || !answer.trim()">
+        <Button v-if="!result" type="submit" class="min-h-11" :disabled="submitting || !answer.trim()">
           {{ $t('review.check') }}
         </Button>
-        <Button v-else variant="secondary" @click="emit('next')">{{ $t('review.next') }}</Button>
+        <Button v-else variant="secondary" class="min-h-11" @click="emit('next')">{{ $t('review.next') }}</Button>
+        </div>
+        <!-- Accent keys: tapping inserts at the caret; mousedown is prevented so
+             the input keeps focus and the phone keyboard stays up. -->
+        <div v-if="!result" role="group" class="flex flex-wrap gap-1.5" lang="hu" :aria-label="$t('grammar.accentKeys')">
+          <button
+            v-for="ch in accents"
+            :key="ch"
+            type="button"
+            tabindex="-1"
+            :class="[buttonVariants({ variant: 'outline' }), 'size-11 min-h-11 min-w-11 p-0 font-mono text-base']"
+            @mousedown.prevent
+            @click="insertAccent(ch)"
+          >
+            {{ ch }}
+          </button>
+        </div>
       </form>
     </div>
 
-    <p v-if="result && !result.correct && !isTyped" class="flex items-center gap-1.5 text-sm">
+    <p v-if="result && !result.correct && !isTyped && !isBoard" class="flex items-center gap-1.5 text-sm">
       <span class="text-muted-foreground">{{ $t('review.right') }}</span>
       <span class="font-mono" lang="hu">{{ result.expected }}</span>
       <!-- A wrong allomorph is very often a wrong SOUND. Hearing the right one

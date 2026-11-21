@@ -593,6 +593,12 @@ export type ErrorClass =
   | 'stem'
   | 'spelling'
   | 'unknown'
+  /** A person drill answered with the right verb in another person. */
+  | 'person'
+  /** A question-word drill: place mistaken for goal, or the reverse. */
+  | 'direction'
+  /** A question-word drill: source (honnan) mixed up with place or goal. */
+  | 'source'
 
 /** The morpheme-level comparison of a typed answer against the target. */
 export interface Diff {
@@ -1030,7 +1036,23 @@ export interface LemmaMemory {
 export type Phase = 'locked' | 'explained' | 'blocked' | 'interleaved' | 'mastered'
 
 /** The exercise types. Each has its own renderer in components/grammar. */
-export type DrillKind = 'allomorph' | 'case' | 'conjugation' | 'cloze' | 'transform' | 'mcq'
+export type DrillKind =
+  | 'allomorph'
+  | 'case'
+  | 'conjugation'
+  | 'cloze'
+  | 'transform'
+  | 'mcq'
+  /** Typed: the verb of a real sentence in the person a pronoun asks for. */
+  | 'person'
+  /** Choice: which question word (hol / hova / honnan...) the focused word answers. */
+  | 'qword'
+  /** Choice, multi-part: tap tiles into suffix columns (-ban / -ben). Graded once per feature. */
+  | 'sort'
+  /** Choice, multi-part: pair 3-5 cues (pronouns, question words) with the forms of one word. One tile per column. */
+  | 'match'
+  /** Choice: a picture of an object at a place with a motion; pick the locative form of the place noun. */
+  | 'scene'
 
 /**
  * The gate's verdict, with everything needed to explain it.
@@ -1144,6 +1166,52 @@ export interface DrillOption {
   attested: boolean
 }
 
+/**
+ * One run of a sentence split by the server. The client renders the parts in
+ * order and never slices Hungarian with offsets (bytes on the server, UTF-16 here).
+ */
+export interface FramePart {
+  text: string
+  /** Set on exactly one part of a `qword` frame: the word the question is about. */
+  focus?: boolean
+}
+
+/** One word to sort in a `sort` item. */
+export interface SortTile {
+  id: string
+  text: string
+  glossRu?: string
+  glossEn?: string
+}
+
+/** The verdict on one tile of a `sort` item; sent only after grading. */
+export interface PartResult {
+  id: string
+  correct: boolean
+  /** The right column's text, e.g. `-ban`. */
+  expected: string
+}
+
+/**
+ * What a `scene` item draws. `place` and `object` are catalogue ids: the picture
+ * is GET /api/pictures/<id>.svg. `relation` is in|on, `motion` is static|into|out
+ * (draw no arrow / an arrow into-onto / out of-off). The alts are accessible
+ * descriptions; the component alts let the client build its own sentence.
+ * The picture is a cue only: the right form never depends on it.
+ */
+export interface ScenePicture {
+  place: string
+  object: string
+  relation: 'in' | 'on'
+  motion: 'static' | 'into' | 'out'
+  altRu: string
+  altEn: string
+  placeAltRu: string
+  placeAltEn: string
+  objectAltRu: string
+  objectAltEn: string
+}
+
 /** One exercise. The expected answer is never included — the server holds it. */
 export interface DrillItem {
   id: string
@@ -1154,6 +1222,20 @@ export interface DrillItem {
   promptArgs?: Record<string, string>
   /** The Hungarian frame with `___` where the answer goes. */
   frame?: string
+  /** A `qword` item's sentence as ordered runs, one of them focused. No `frame`. */
+  parts?: FramePart[]
+  /** A `sort` item's 2-3 allomorph labels of one feature, e.g. `-ban`, `-ben`; a `match` item's 3-5 CUES (én, te, ő / hol, hova, honnan). */
+  columns?: string[]
+  /** A `sort` item's six words, each under exactly one column; a `match` item's forms, exactly one under each cue. Answer `parts`: tile id -> column. */
+  tiles?: SortTile[]
+  /**
+   * A `person` item with no sentence: `frame` is just the gap. Render a cue chip
+   * from `lemma`, `promptArgs.pronoun` and the optional `promptArgs.mood` /
+   * `promptArgs.tense` (feature ids; labels come from stores/features).
+   */
+  bare?: boolean
+  /** A `scene` item's picture; `promptArgs` carries `question` (hol|hova|honnan) and `place` (lemma). */
+  picture?: ScenePicture
   lemma?: string
   lemmaId?: number
   glossRu?: string
@@ -1193,7 +1275,10 @@ export interface DrillNextResponse {
 
 export interface DrillAnswerRequest {
   itemId: string
+  /** Empty for a `sort` item, which answers with `parts`. */
   answer: string
+  /** `sort` only: tile id -> column text. Every tile, no extras (else 400). */
+  parts?: Record<string, string>
   usedHint?: boolean
   durationMs: number
 }
@@ -1205,6 +1290,8 @@ export interface DrillAnswerResponse {
   expected: string
   rating: number
   diff?: Diff
+  /** `sort` only: the per-tile verdict, present only after grading. `expected` is empty then. */
+  partResults?: PartResult[]
   gradedFeatures: FeatureGrade[]
   progress: TopicProgress
   decision: GateDecision
@@ -1978,4 +2065,23 @@ export interface WritingExternalRequest {
 export interface WritingProgress {
   chars: number
   errors: number
+}
+
+/** One attested pack sentence for a lesson feature. `parts` has one focused run. */
+export interface TopicExample {
+  sentenceId: number
+  parts: FramePart[]
+  translationRu?: string
+  translationEn?: string
+}
+
+export interface FeatureExamples {
+  featureId: string
+  /** Up to 4; empty for a feature with no surface ending (nothing is invented). */
+  examples: TopicExample[]
+}
+
+export interface TopicExamplesResponse {
+  topic: string
+  features: FeatureExamples[]
 }

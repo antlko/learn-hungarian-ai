@@ -82,6 +82,13 @@ due date. The estimate of memory is computed by the FSRS library, not invented.
 - **13 of the 33 topics have exercises.** The rest are explained only and say so; they do not lock
   anything after them. Where an error cannot be fixed by typing practice (vowel length), the app
   says so and lists it as something no exercise here treats.
+- **Varied, non-repeating practice** *(ADR-086, 087-089)*. Coming back to a topic serves
+  new sentences and words, and the way of asking rotates: choose the form, type the verb for a
+  person (also without a sentence), pick the question word, sort words into -ban / -ben columns,
+  match pronouns or question words to the forms of one word, and read a small picture (a cat in
+  or on a box, going in or out) to choose hol / hova / honnan. The imperative has person
+  drills too. Each lesson shows real
+  example sentences with «Ещё примеры».
 
 Optional: the tutor, linked from every lesson.
 

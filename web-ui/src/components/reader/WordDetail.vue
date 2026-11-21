@@ -504,7 +504,7 @@ const statusDisabledReason = computed(() =>
           <p class="text-xs leading-snug text-muted-foreground" lang="hu">{{ sentence }}</p>
           <p class="text-sm leading-relaxed">{{ teacherTranslation.text }}</p>
           <p class="text-[10px] leading-relaxed text-uncertain">
-            {{ $t('translation.teacher', { model: teacherModel }) }}
+            {{ $t('translation.teacherNote', { model: teacherModel }) }}
           </p>
         </div>
 

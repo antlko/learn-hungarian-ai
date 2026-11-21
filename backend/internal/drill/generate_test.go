@@ -87,7 +87,9 @@ func TestCorrectAnswersAreAlwaysAttested(t *testing.T) {
 			if it.Expected() == "" {
 				t.Errorf("%s/%s: empty expected answer", code, it.Kind)
 			}
-			if !g.analyzer.IsAttested(it.Expected()) {
+			// A question word is a closed-table answer; what must be attested is
+			// the focused noun's reading, which TestQwordItems checks.
+			if it.Kind != KindQword && !it.Kind.MultiPart() && !g.analyzer.IsAttested(it.Expected()) {
 				t.Errorf("%s/%s: expected %q is not attested in the pack",
 					code, it.Kind, it.Expected())
 			}

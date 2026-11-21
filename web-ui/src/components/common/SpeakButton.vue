@@ -40,6 +40,7 @@ const title = computed(() => {
     type="button"
     variant="ghost"
     :size="size"
+    class="max-md:min-h-11 max-md:min-w-11"
     :disabled="disabled"
     :title="$t(title)"
     :aria-label="label || $t('speech.play')"

@@ -80,7 +80,7 @@ async function fetchNext() {
   }
 }
 
-async function submit(choice?: string) {
+async function submit(choice?: string, parts?: Record<string, string>) {
   const it = item.value
   if (!it || submitting.value || result.value) return
   submitting.value = true
@@ -88,6 +88,7 @@ async function submit(choice?: string) {
     result.value = await api.drillAnswer({
       itemId: it.id,
       answer: choice ?? answer.value,
+      ...(parts ? { parts } : {}),
       durationMs: Math.max(0, Date.now() - shownAt),
     })
   } catch (e) {
@@ -171,6 +172,7 @@ onMounted(() => {
           v-model:answer="answer"
           @choose="submit"
           @submit="submit()"
+          @sort="(parts) => submit('', parts)"
           @next="advance"
         />
         <div

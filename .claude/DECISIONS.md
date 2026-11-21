@@ -3283,3 +3283,54 @@ S is FSRS stability in days. 180 days (`srs.ProgressFullDays`) is a declared dis
 - **Surface.** Routes `/write`, `/write/:id`; nav item «Письмо»/«Writing», always visible (the external path needs no sidecar). Any signed-in learner; not admin-only.
 
 **Rejected.** JSON output; Markdown output; a server-enforced staged reveal (a lock on information the learner can read in the chat); model-written drills (LLM Hungarian entering practice, [R16](research/16-debunked.md)); storing parsed results (a parser fix would not reach old checks); keeping nothing when a local check is interrupted (it cost minutes).
+
+## ADR-086 — Grammar exercise variety and per-topic anti-repetition
+
+**Status:** accepted 2026-11-21, **implementation in progress** *(user report: practising a topic again served the same items)* · research [R25](research/25-exercise-variability.md) · builds on [R5](research/05-interleaving.md), [ADR-008](#adr-008)/[ADR-017](#adr-017)/[ADR-060](#adr-060)
+
+**Context.** The blocked phase always served the first kind in `blockedPreference`; `pickWord` took two thirds known lemmas even from a tiny set; dedup lived inside one request; nothing remembered earlier sessions.
+
+**Decision.**
+- **Anti-repeat is a filter, never a scheduler.** Built per user and topic from `drill_attempt`. It never reduces a session below `Count`; three relaxing stages: (1) reject exact item keys, used sentences and lemmas used >= 2 times; (2) allow lemmas; (3) allow sentences, then keys oldest-first. Weak-feature oversampling is untouched. Served-but-unanswered keys count as used.
+- **Data.** Migration `00025` rebuilds `drill_attempt`: drops the `kind` CHECK (kind is validated in Go, so new kinds need no migration), adds `item_key` and `corpus_sentence`, index `(user_id, topic_code, id)`. Old rows match on `prompt`. Accepted cost: a newer export imported into an older binary fails on unknown kinds.
+- **Kind rotation.** Blocked phase = one kind per session, the least-recently-used choice kind; typed kinds join after >= 10 correct blocked attempts; interleaved weights toward least-recently-used kinds. The 80% gate in `drill/schedule.go` stays pure.
+- **New kinds.** `person` (typed): an attested pack sentence with the verb blanked, cue "(lemma · pronoun)"; grades the topic's own features only, **not Person/Number** (those belong to the pronoun/plural topics); Def only from the definite-conjugation topic on; error class `person`; a wrong answer that is an attested form of the same verb in another person **and** carries all required features is a **"no evidence" outcome** - feature state untouched, still incorrect for the gate via `Fold`. `qword` (choice): hol/hova/honnan/mit/kinek/mivel for a highlighted noun in a real sentence; tap = max Good; the distractors can name cases the learner has not met yet (accepted: the correct word is always present and all options are real question words). `sort` (choice): tap tiles into suffix columns such as -ban/-ben; a multi-part item grading **each feature once** (Again if any tile carrying it is wrong, else Good at most), because six reviews of one feature in the same second would distort its stability. Existing `cloze` now shows the lemma in brackets after the gap. Phase 2 (not built): paradigm, multi-gap, match.
+- **Lesson examples.** `GET /api/grammar/topics/:code/examples?feature=&exclude=`: <= 4 attested pack sentences per feature, 4-10 words, `parts` with the focus token, ru/en translation if the pack has one, known lemmas first; «Ещё примеры» button. Features without surface endings show no examples (no invented text).
+- **Phase 3 (not built, own ADR later).** A1 topics missing against the MagyarOK order (a/az, ikes verbs, megy/jön/eszik/iszik, nationality -i, -ul/-ül; -kor and -ul/-ül sit in B1 remaining-cases, -val/-vel and tud+-ni at A2). Needs `curriculum.py`/`lessons.py` changes, a rebuilt pack and regenerated starter `.gz`.
+
+**Rejected.** Word-order tiles (Hungarian order is free; marking one order wrong is dishonest and tests no morphological feature; reconsider only for focus word order); true/false (reading, not grammar); free writing («Письмо» does it); listening/pictures (sidecar or authored media); LLM-made items ([ADR-072](#adr-072)); a separate seen-items table (`drill_attempt` is the history); per-tile FSRS reviews in `sort`.
+
+## ADR-087 — Conditional and imperative material, and the bare `person` mode
+
+**Status:** accepted 2026-11-21; **applied 2026-11-21**: fix tested, dump downloaded, verb form-of rows of the starter and a scratch copy of the data pack re-derived (not a from-scratch build; see LANGPACK.md); `Mood=Imp` 1 -> 1537 rows (data) / 1238 (starter); imperative drill items 0 -> 507 (55 verbs) · builds on [ADR-086](#adr-086), [R25](research/25-exercise-variability.md)
+
+**Context.** The imperative topic had 0 drill items. Measured on the pack before the fix: data pack `Mood=Cnd` 691 rows, `Mood=Imp` 1; starter `Cnd` 648, `Imp` 1; 1325 (data) / 1055 (starter) VERB rows carry `Person` but no `Mood`. Two causes in `langpack/pipeline/wiktionary.py`: `TAG_TO_FEATURE` never mapped Wiktionary's `subjunctive`, and `_as_form_of` merged every sense of a form into one feats dict, so a form that is both indicative and imperative (`olvassuk`) lost one reading.
+
+**Decision.**
+- **Pipeline.** Map `subjunctive` -> `Mood=Imp` (UD uses `Imp` for both the imperative and the Hungarian subjunctive) and emit **one `wordform` row per sense**, so `olvassuk` keeps its indicative and its imperative row. pytest: 244 passed.
+- **Rebuild is the bottleneck.** The fix takes effect only after a full pack rebuild, which needs the English kaikki dump (~580 MB, `langpack/cache/kaikki-hu.jsonl`, not present on the dev machine). Until the owner agrees to the download, the imperative topic shows 0 items: the "we have not built this" outcome is supported and honest. No hand-patching of the shipped pack.
+- **Bare `person` mode.** When a topic has fewer than 30 sentence items (`bareThreshold`), `person` also serves a sentence-less item: cue "(lemma · pronoun)" plus a mood/tense chip, answer = the attested wordform. A person/number cell with more than one attested string is skipped (unique cell). Item field `bare: true`. Conditional on the starter pack: 13 sentence items + 121 bare. Grading is unchanged (the topic's own features, never Person/Number).
+
+**Rejected.** Loosening the corpus attestation guards to find more sentences; **generating** Cnd/Imp forms (invariant: verb forms are never produced by rule for a drill, ADR-069/INVARIANTS); a typed paradigm exercise now (not needed to close the gap; later).
+
+## ADR-088 — `match`: pair cues with the forms of one word
+
+**Status:** accepted 2026-11-21 · research [R26](research/26-pictures-and-matching.md) · builds on [ADR-086](#adr-086)
+
+**Decision.** `match` is a recognition item over **one lemma**: 3-5 cue -> form pairs. Verb topics: pronouns -> forms of one tense/mood/definiteness. Case topics: question words (`hol`, `hova`, `honnan`, `mit`/`kit`, `kinek`, `mivel`/`kivel`) -> case forms. Reuses `sort`'s shape: `columns` are the cues, `tiles` the forms, answer `parts` = `{tileId: cue}` (`Kind.MultiPart`). Every form is attested, unambiguous and pairwise distinct. Grading: one review per **distinct required feature** (Again if any pair carrying it is wrong, else Good at most; a tap never reaches Easy); **Person/Number are the question and never graded**. No placement use. Topics with no clean cue get no `match`.
+
+**Rejected pairings.** Lemma <-> form of *different* lemmas (tests lemma recognition, mixes the two state spaces); singular <-> plural (solvable by stem matching alone, no morphology needed); word <-> translation (lemma space, not a morphological feature).
+
+## ADR-089 — Pictures: the `scene` kind and the embedded picture set
+
+**Status:** accepted 2026-11-21 · research [R26](research/26-pictures-and-matching.md) · supersedes the "pictures" line of [ADR-086](#adr-086) Rejected
+
+**Decision.**
+- **`scene`** (choice): a picture shows an object in/on a place with an optional motion arrow; the learner picks the locative form of the **place noun**. `Hol?`/`Hova?`/`Honnan?` <-> Ine/Ill/Ela (in) and Sup/Sbl/Del (on). Ade/All/Abl are excluded: the "at" relation cannot be drawn apart from `mellett`, and postpositions take the nominative. **A picture never defines correctness:** the answer is an attested form of the place noun resolved through `internal/morph`; a missing or multi-string cell skips the item.
+- **Assets.** Noto Emoji SVG (Apache-2.0; 117 objects) + 10 original line-drawn places, **embedded in the binary** (`backend/internal/pictures`, `go:embed`, the `readsets` pattern; not in the pack, so no schema bump). Catalogue `catalog.json` is hand-curated: 127 entries; 123 resolve on the starter pack (`ananász`, `harang`, `pillangó`, `őszibarack` absent there), 127/127 on the data pack. ~1.14 MB embedded (cap 1.5 MB). 13 Illustrator exports had their DOCTYPE/ENTITY block replaced by literal URLs (noted in `NOTICE`).
+- **Serving.** `GET /api/pictures/:id.svg`, auth required, `Cache-Control: public, max-age=31536000, immutable`, `ETag`, `Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'`, `nosniff`; SVGs are sanitised and the sanitiser has tests.
+- **Licence.** `NOTICE` + `THIRD_PARTY_LICENSES/noto-emoji-LICENSE.txt` + a credits line in Settings.
+- **a11y.** `role="img"` with a server-built alt (ru/en: `altRu`/`altEn`, plus place/object alts); the motion arrow is a shape, not colour; place drawings are mask-themed (an `<img>` does not inherit `currentColor`); object emoji sit on a muted tile; reduced motion respected.
+- **Helper.** `langpack/tools/picture_coverage.py` (offline, not shipped) lists top-frequency nouns that could get a picture: 22/300 (7.3%), a lower bound because top-frequency nouns are abstract.
+
+**Rejected.** OpenMoji / Mulberry (CC BY-SA inside an MIT binary needs an owner decision); Twemoji (attribution burden, no gain); ARASAAC (NC); system emoji fonts (differ per OS; cross-platform misreadings, Miller et al., ICWSM 2016); picture dictation (weakest evidence); **"name the picture"** as a grammar drill (grades a lemma and would mix the two state spaces; the future form is an additive picture cue on word cards, **not built**); listening ([ADR-084](#adr-084) removed the ear trainer at the owner's request; nothing here blocks adding audio later).

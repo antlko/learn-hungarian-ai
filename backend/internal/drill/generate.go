@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"slices"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -49,10 +51,29 @@ const (
 	KindTransform Kind = "transform"
 	// KindMCQ: choose the right cell among minimally different distractors.
 	KindMCQ Kind = "mcq"
+	// KindPerson: type the verb of a real sentence in the person a pronoun asks
+	// for. Typed; see person.go.
+	KindPerson Kind = "person"
+	// KindQword: which question word does the highlighted noun answer (hol,
+	// hova, honnan...)? Choice; see qword.go.
+	KindQword Kind = "qword"
+	// KindSort: tap tiles into suffix columns (-ban / -ben). A multi-part
+	// choice item graded once per feature; see sort.go.
+	KindSort Kind = "sort"
+	// KindMatch: pair 3-5 cues (pronouns, question words) with the forms of ONE
+	// lemma. A multi-part recognition item graded once per feature; see match.go.
+	KindMatch Kind = "match"
+	// KindScene: pick the locative form of a PLACE noun from a picture of an
+	// object at it (static, into, out). Choice; see scene.go.
+	KindScene Kind = "scene"
 )
 
+// MultiPart reports whether the item is answered as a set of tile -> column
+// placements (`parts`) rather than one string.
+func (k Kind) MultiPart() bool { return k == KindSort || k == KindMatch }
+
 // AllKinds in a stable order.
-var AllKinds = []Kind{KindAllomorph, KindCase, KindConjugation, KindCloze, KindTransform, KindMCQ}
+var AllKinds = []Kind{KindAllomorph, KindCase, KindConjugation, KindCloze, KindTransform, KindMCQ, KindPerson, KindQword, KindSort, KindMatch, KindScene}
 
 // Valid reports whether k is a known kind.
 func (k Kind) Valid() bool {
@@ -66,7 +87,7 @@ func (k Kind) Valid() bool {
 
 // Typed reports whether the learner types the answer rather than choosing it.
 // Typed items are strictly harder and are what transfers to production. [R12]
-func (k Kind) Typed() bool { return k == KindCloze || k == KindTransform }
+func (k Kind) Typed() bool { return k == KindCloze || k == KindTransform || k == KindPerson }
 
 // Feature is one teachable morphological atom, as the generator needs it.
 type Feature struct {
@@ -167,10 +188,17 @@ type Generator struct {
 
 	probeMu sync.Mutex
 	probed  map[string]Availability
-	anchors anchors
-	nouns   []Word
-	verbs   []Word
-	adjs    []Word
+	// kindProbed caches probeKind verdicts, "topic|kind" -> an item can be built.
+	kindProbed map[string]bool
+	scene      sceneState
+	// personCache holds the usable (sentence, token) pairs per topic and verb.
+	personCache map[string][]personCand
+	personTotal map[string]int
+	bareCache   map[string][]bareRef
+	anchors     anchors
+	nouns       []Word
+	verbs       []Word
+	adjs        []Word
 }
 
 // NewGenerator wires a generator. All three dependencies are required; without a
@@ -247,6 +275,52 @@ var excludedLemmas = map[string]bool{
 	"baszik": true, "szarik": true, "kefél": true, "segg": true, "fing": true,
 }
 
+// vulgarMarkers are the substrings (lower case) by which the pack's glosses
+// flag a word as vulgar or offensive. The pack is inconsistent — `fasz` is
+// «вульг.» in Russian, `seggfej` has only "arsehole" in English and no marker at
+// all — so both the dictionary labels and the plain words are matched.
+var vulgarMarkers = []string{
+	"vulg", "вульг", "offens", "derog", "obscen", "pej.", "груб", "whore",
+	"prostitut", "arsehole", "asshole", "fuck", "dick", "cunt", "penis", "bitch",
+	"shit", "piss", "slut",
+}
+
+// harmlessDespiteMarkers are lemmas the substring markers catch by accident:
+// `kerítés` (fence; pimping is its second sense), `farok` (tail), `makk`
+// (acorn), `támadó` (attacking), `közönséges` (common), `bántó` (hurtful).
+var harmlessDespiteMarkers = map[string]bool{
+	"kerítés": true, "farok": true, "makk": true, "támadó": true,
+	"közönséges": true, "bántó": true,
+}
+
+// vulgarLemmas returns the lemma ids with a vulgar or offensive gloss. Such a
+// word is real Hungarian and the reader will still gloss it, but a grammar drill
+// must not spontaneously build an exercise around it.
+func (g *Generator) vulgarLemmas() map[int64]bool {
+	out := map[int64]bool{}
+	cond := make([]string, len(vulgarMarkers))
+	args := make([]any, len(vulgarMarkers))
+	for i, m := range vulgarMarkers {
+		cond[i] = "g.gloss LIKE ?"
+		args[i] = "%" + m + "%"
+	}
+	rows, err := g.pack.DB().Query(
+		`SELECT DISTINCT g.lemma_id, l.lemma FROM lemma_gloss g JOIN lemma l ON l.id = g.lemma_id WHERE `+
+			strings.Join(cond, " OR "), args...)
+	if err != nil {
+		return out
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id int64
+		var lemma string
+		if rows.Scan(&id, &lemma) == nil && !harmlessDespiteMarkers[lemma] {
+			out[id] = true
+		}
+	}
+	return out
+}
+
 // evidenceFeature is the inflected form a part of speech must actually have
 // attested before we will build drills around it. See loadVocabulary.
 var evidenceFeature = map[string]string{
@@ -275,6 +349,7 @@ var evidenceFeature = map[string]string{
 // Run once per process, so the cost is paid at first use rather than per request.
 func (g *Generator) loadVocabulary(upos string) ([]Word, error) {
 	evidence := evidenceFeature[upos]
+	vulgar := g.vulgarLemmas()
 	rows, err := g.pack.DB().Query(`
 		SELECT l.id, l.lemma, l.upos, l.freq_rank FROM lemma l
 		 WHERE l.upos = ? AND l.freq_rank IS NOT NULL AND l.freq_rank <= ?
@@ -295,7 +370,7 @@ func (g *Generator) loadVocabulary(upos string) ([]Word, error) {
 		if err := rows.Scan(&w.LemmaID, &w.Lemma, &w.UPOS, &w.Rank); err != nil {
 			return nil, err
 		}
-		if w.Lemma != strings.ToLower(w.Lemma) || excludedLemmas[w.Lemma] {
+		if w.Lemma != strings.ToLower(w.Lemma) || excludedLemmas[w.Lemma] || vulgar[w.LemmaID] {
 			continue
 		}
 		out = append(out, w)
@@ -321,6 +396,13 @@ type Option struct {
 	Attested bool `json:"attested"`
 }
 
+// FramePart is one run of a sentence. Exactly one part of a qword frame has
+// Focus set: the word the question is about.
+type FramePart struct {
+	Text  string `json:"text"`
+	Focus bool   `json:"focus,omitempty"`
+}
+
 // Item is one exercise, ready to render.
 //
 // Prose is absent by design. PromptKey is an i18n key and PromptArgs are its
@@ -339,6 +421,23 @@ type Item struct {
 	LemmaID int64  `json:"lemmaId,omitempty"`
 	GlossRU string `json:"glossRu,omitempty"`
 	GlossEN string `json:"glossEn,omitempty"`
+	// Parts is a frame split server-side into runs of text, one of them focused
+	// (qword). The client never slices a sentence with offsets; see ADR on UTF-8
+	// versus UTF-16 offsets.
+	Parts []FramePart `json:"parts,omitempty"`
+	// Columns and Tiles make a sort item: 2-3 allomorph labels of ONE feature
+	// and six lemmas to put under them. The right column of each tile stays in
+	// `expected` on the server.
+	// A match item reuses them: Columns are the CUES (pronouns, question words),
+	// Tiles the FORMS, and exactly one tile belongs under each column.
+	Columns []string `json:"columns,omitempty"`
+	Tiles   []Tile   `json:"tiles,omitempty"`
+	// Bare marks a person item with no sentence: the frame is just the gap and
+	// the client shows the lemma, pronoun and mood as a cue chip.
+	Bare bool `json:"bare,omitempty"`
+	// Picture is what a `scene` item draws: catalogue ids of the place and the
+	// object, the motion, and descriptions for accessibility.
+	Picture *Picture `json:"picture,omitempty"`
 	// Options empty means the learner types the answer.
 	Options []Option `json:"options,omitempty"`
 	// FeatureIDs are the features this item REQUIRES, and the only ones a
@@ -357,6 +456,21 @@ type Item struct {
 	// it — the alternative would let a client tag ordinary practice as placement
 	// and skip the curriculum.
 	Origin string `json:"-"`
+
+	// sceneObjectID, sceneMotion and sceneForms (lower-case form -> case) are a
+	// scene item's server-side facts: the key and the error classification.
+	sceneObjectID int64
+	sceneMotion   string
+	sceneForms    map[string]string
+	// cell names a bare person item's paradigm cell, for its key.
+	cell string
+	// pairFeats maps a match tile id to the features that pair carries, so each
+	// distinct feature is judged once. Server-side only.
+	pairFeats map[string][]string
+
+	// answerPerson is "Person|Number" of a person item's expected form, used to
+	// tell a wrong person from any other slip. Server-side only.
+	answerPerson string
 
 	// expected never leaves the server. The client posts back an item id and its
 	// answer; the server holds the truth. See pending.go.
@@ -388,7 +502,10 @@ type Request struct {
 	Origin string
 	// Definiteness carries the [R15] error-distribution weights.
 	Definiteness Weights
-	Rand         *rand.Rand
+	// Recent is what the learner met lately in this topic; nil disables
+	// anti-repeat (placement, the availability probe).
+	Recent *Recent
+	Rand   *rand.Rand
 }
 
 // Availability reports whether a topic can produce items, and why not if it cannot.
@@ -457,6 +574,10 @@ func (g *Generator) Availability(t curriculum.Topic) Availability {
 	return result
 }
 
+func newProbeRand() *rand.Rand { return rand.New(rand.NewSource(1)) }
+
+func newProbeRandSeed(seed int64) *rand.Rand { return rand.New(rand.NewSource(seed)) }
+
 // Definiteness defaults used by the availability probe, so that a probe run
 // cannot depend on a learner's settings. Mirrors config.Drill.Definiteness.
 const (
@@ -523,6 +644,26 @@ func (g *Generator) KindsFor(t curriculum.Topic) Availability {
 		kinds = append(kinds, KindCloze)
 	}
 
+	// The two newest kinds are offered only when a probe proves the pack can
+	// build one: a verb topic whose forms carry no person (the potential), or a
+	// case with no unambiguous noun in a real sentence, would otherwise
+	// advertise exercises and serve nothing.
+	if g.personTopic(t) && g.probeKind(t, KindPerson) {
+		kinds = append(kinds, KindPerson)
+	}
+	if len(g.qwordCases(t)) > 0 && g.probeKind(t, KindQword) {
+		kinds = append(kinds, KindQword)
+	}
+	if g.sceneTopic(t) && g.probeKind(t, KindScene) {
+		kinds = append(kinds, KindScene)
+	}
+	if g.matchTopic(t) && g.probeKind(t, KindMatch) {
+		kinds = append(kinds, KindMatch)
+	}
+	if len(g.sortFeatures(t)) > 0 && g.probeKind(t, KindSort) {
+		kinds = append(kinds, KindSort)
+	}
+
 	if len(kinds) == 0 {
 		return Availability{Reason: ReasonNoGenerator}
 	}
@@ -570,63 +711,216 @@ func (g *Generator) Next(req Request) ([]Item, Availability, error) {
 	if req.Count <= 0 {
 		req.Count = 10
 	}
+	// Placement measures with the kinds it always used; a multi-tile sort is a
+	// teaching format, not a probe.
+	if req.Origin == "placement" {
+		avail.Kinds = slices.DeleteFunc(slices.Clone(avail.Kinds), func(k Kind) bool { return k == KindSort || k == KindMatch || k == KindScene })
+	}
 	if req.Rand == nil {
 		req.Rand = rand.New(rand.NewSource(1))
 	}
 
-	// Blocked practice is ONE kind. If the preferred kind cannot find attested
-	// material — a topic whose only suffix is invariant, say — we fall through
-	// to the next kind rather than serving a mixture, because the mixture is the
-	// thing blocked practice exists to avoid.
+	// Blocked practice is ONE kind per session. Which one rotates: the least
+	// recently used kind with material goes first, so two sessions in a row do
+	// not ask the same question type. If that kind cannot find attested material
+	// — a topic whose only suffix is invariant, say — we fall through to the
+	// next rather than serving a mixture, because the mixture is the thing
+	// blocked practice exists to avoid.
 	if req.Phase == Blocked {
-		for _, k := range blockedPreference(avail.Kinds) {
-			if items := g.fill([]Kind{k}, req); len(items) > 0 {
+		// A kind whose material is thin (a handful of sentences) can fall short
+		// of the request; the next kind is tried and the fullest session wins,
+		// so rotating onto a thin kind never costs the learner items.
+		var best []Item
+		for _, k := range blockedOrder(avail.Kinds, req.Recent) {
+			items := g.fill([]Kind{k}, req)
+			// Without memory (placement, the probe) the first kind with any
+			// material wins, as it always did.
+			if len(items) >= req.Count || (req.Recent == nil && len(items) > 0) {
 				return items, avail, nil
 			}
+			if len(items) > len(best) {
+				best = items
+			}
+		}
+		if len(best) > 0 {
+			return best, avail, nil
 		}
 		return nil, Availability{Kinds: avail.Kinds, Reason: ReasonNoMaterial}, nil
 	}
 
-	if items := g.fill(shuffled(avail.Kinds, req.Rand), req); len(items) > 0 {
+	if items := g.fill(interleavedOrder(avail.Kinds, req), req); len(items) > 0 {
 		return items, avail, nil
 	}
 	return nil, Availability{Kinds: avail.Kinds, Reason: ReasonNoMaterial}, nil
 }
 
-// fill attempts to build req.Count items, cycling through the given kinds.
-//
-// The over-generation factor exists because a generator may decline to build an
-// item when the pack has no attested material for a particular lemma. Declining
-// is correct, so we ask for more attempts than we need.
-func (g *Generator) fill(kinds []Kind, req Request) []Item {
-	items := make([]Item, 0, req.Count)
-	seen := map[string]bool{}
+// attemptBudget is how many items fill may try to build for a request. A
+// generator declines whenever the pack has no attested material for the lemma it
+// drew, and anti-repeat discards more; the floor keeps a one-item request (the
+// availability probe) from giving up early.
+func attemptBudget(count int) int { return max(count*8, 48) }
 
-	// A floor as well as a multiple of the request. A generator declines an item
-	// whenever the pack has no attested material for the lemma it drew, so a
-	// one-item request that gave up after four attempts would report "no
-	// material" for a topic a six-item request handles fine — and the
-	// availability probe asks for exactly one item.
-	attempts := max(req.Count*4, 24)
-	for i := range attempts {
+// fill builds req.Count items, cycling through the given kinds.
+//
+// Candidates are collected first and chosen second, because "which candidates
+// are acceptable" depends on what the session has already taken. The choice
+// relaxes in stages, and a stage is only used when the stricter ones cannot
+// fill the request — recency must never make a session come back short:
+//
+//  1. no exact repeat of a recent item, no recent sentence, no lemma that is
+//     already used twice (recently or in this session);
+//  2. the lemma limit is lifted;
+//  3. the sentence limit is lifted;
+//  4. exact repeats are allowed, the oldest first.
+//
+// Inside one request an item is never served twice (a repeat is not retrieval
+// practice, it is copying), a sentence is used once and a lemma at most twice
+// for as long as a stricter stage can supply them.
+func (g *Generator) fill(kinds []Kind, req Request) []Item {
+	if len(kinds) == 1 && kinds[0] == KindPerson {
+		return g.fillPerson(req)
+	}
+	type cand struct {
+		it    Item
+		order int
+	}
+	var cands []cand
+	var spill []Item
+	seen := map[string]bool{}
+	strict := 0
+
+	need := req.Count
+	if req.Recent != nil {
+		need = req.Count + req.Count/2 + 2
+		// A sort item costs a dozen lookups; six fresh lemmas collide rarely, so
+		// no slack is bought for a session made of nothing else.
+		if len(kinds) == 1 && kinds[0] == KindSort {
+			need = req.Count
+		}
+	}
+	budget := attemptBudget(req.Count)
+	// Only a small share of lemmas can make a match or a scene (three or more
+	// attested cells, an object that fits); distinct ones take more draws.
+	if len(kinds) == 1 && (kinds[0] == KindMatch || kinds[0] == KindScene) {
+		budget *= 4
+	}
+	for i := range budget {
 		it, ok := g.build(kinds[i%len(kinds)], req)
 		if !ok {
 			continue
 		}
-		// Never serve the same question twice in one session: a repeat is not
-		// retrieval practice, it is copying.
-		key := string(it.Kind) + "|" + it.Frame + "|" + it.Lemma + "|" + it.Headline
-		if seen[key] {
+		key := it.Key() + "|" + it.Frame
+		if seen[key] || (it.Frame != "" && it.Frame != BlankMark && seen["frame|"+it.Frame]) {
 			continue
 		}
+		// Items with no frame of their own would look new each time: a question
+		// word item (same noun, same case, another sentence), a scene (same place
+		// and case, or the same object again) and a match (the same lemma). One
+		// per request while alternatives exist; the rest wait in reserve and are
+		// used only if the request cannot be filled without them.
+		if dks := dedupeKeys(it); len(dks) > 0 {
+			dup := false
+			for _, k := range dks {
+				dup = dup || seen[k]
+			}
+			if dup {
+				if !seen[key] {
+					seen[key] = true
+					spill = append(spill, it)
+				}
+				continue
+			}
+			for _, k := range dks {
+				seen[k] = true
+			}
+		}
 		seen[key] = true
-		it.Origin = req.Origin
-		items = append(items, it)
-		if len(items) >= req.Count {
+		if it.Frame != "" && it.Frame != BlankMark {
+			seen["frame|"+it.Frame] = true
+		}
+		cands = append(cands, cand{it, len(cands)})
+		if stageOf(it, req.Recent, nil, nil) == 0 {
+			strict++
+		}
+		// Enough clean candidates (with slack for in-session collisions): stop
+		// spending lookups.
+		if strict >= need {
 			break
 		}
 	}
+
+	for _, it := range spill {
+		if len(cands) >= req.Count {
+			break
+		}
+		cands = append(cands, cand{it, len(cands)})
+	}
+
+	items := make([]Item, 0, req.Count)
+	lemmaUse := map[int64]int{}
+	sentences := map[int64]bool{}
+	for len(items) < req.Count && len(cands) > 0 {
+		best, bestStage, bestAge := -1, 99, -1
+		for i, c := range cands {
+			st := stageOf(c.it, req.Recent, lemmaUse, sentences)
+			age := 0
+			if st == 3 {
+				age, _ = req.Recent.keyRank(c.it)
+			}
+			if st < bestStage || (st == bestStage && st == 3 && age > bestAge) {
+				best, bestStage, bestAge = i, st, age
+			}
+			if st == 0 && bestStage == 0 {
+				break // candidates are already in random order
+			}
+		}
+		it := cands[best].it
+		cands = append(cands[:best], cands[best+1:]...)
+		it.Origin = req.Origin
+		items = append(items, it)
+		if it.LemmaID != 0 {
+			lemmaUse[it.LemmaID]++
+		}
+		if it.SentenceID != 0 {
+			sentences[it.SentenceID] = true
+		}
+	}
 	return items
+}
+
+// dedupeKeys are the in-request uniqueness keys of the kinds that carry no
+// frame (see fill).
+func dedupeKeys(it Item) []string {
+	id := strconv.FormatInt(it.LemmaID, 10)
+	switch it.Kind {
+	case KindQword:
+		return []string{"lc|" + id + "|" + it.Headline}
+	case KindScene:
+		return []string{"lc|" + id + "|" + it.Headline, "obj|" + strconv.FormatInt(it.sceneObjectID, 10)}
+	case KindMatch:
+		return []string{"lm|" + id}
+	}
+	return nil
+}
+
+// maxLemmaUses is how often one lemma may appear (recently, plus in the session
+// being built) before a stricter stage prefers another.
+const maxLemmaUses = 2
+
+// stageOf is the relaxation stage an item needs: 0 is fully fresh, 3 is an exact
+// repeat of a recent item. `lemmaUse` and `sentences` are what the session being
+// built has already taken; nil means nothing.
+func stageOf(it Item, r *Recent, lemmaUse map[int64]int, sentences map[int64]bool) int {
+	if _, repeat := r.keyRank(it); repeat {
+		return 3
+	}
+	if it.SentenceID != 0 && (r.sentenceUsed(it.SentenceID) || sentences[it.SentenceID]) {
+		return 2
+	}
+	if it.LemmaID != 0 && r.lemmaUses(it.LemmaID)+lemmaUse[it.LemmaID] >= maxLemmaUses {
+		return 1
+	}
+	return 0
 }
 
 // blockedPreference orders the kinds for blocked practice.
@@ -635,11 +929,64 @@ func (g *Generator) fill(kinds []Kind, req Request) []Item {
 // where the form–meaning association is still being built, and asking for
 // production before it exists is the load Hwang found to be counterproductive.
 func blockedPreference(available []Kind) []Kind {
-	order := []Kind{KindAllomorph, KindConjugation, KindCase, KindMCQ, KindCloze, KindTransform}
+	order := []Kind{KindAllomorph, KindConjugation, KindCase, KindMCQ, KindQword, KindScene, KindSort, KindMatch,
+		KindCloze, KindTransform, KindPerson}
 	out := make([]Kind, 0, len(available))
 	for _, k := range order {
 		if contains(available, k) {
 			out = append(out, k)
+		}
+	}
+	return out
+}
+
+// blockedOrder is the order in which blocked practice tries kinds: the kinds in
+// rotation, least recently used first, then everything else in preference
+// order. Only choice kinds rotate until the topic has typedUnlockCorrect
+// correct blocked answers; typed kinds are still the fallback when nothing else
+// has material, so a typed-only topic is never starved.
+func blockedOrder(available []Kind, r *Recent) []Kind {
+	pref := blockedPreference(available)
+	var rotation, rest []Kind
+	for _, k := range pref {
+		if !k.Typed() || (r != nil && r.CorrectBlocked >= typedUnlockCorrect) {
+			rotation = append(rotation, k)
+		} else {
+			rest = append(rest, k)
+		}
+	}
+	sort.SliceStable(rotation, func(i, j int) bool {
+		return r.kindAge(rotation[i]) > r.kindAge(rotation[j])
+	})
+	return append(rotation, rest...)
+}
+
+// interleavedOrder draws the kinds for an interleaved request, weighted toward
+// those used least recently so a long run of sessions does not collapse onto one
+// or two kinds. Without recency it is a plain shuffle.
+func interleavedOrder(kinds []Kind, req Request) []Kind {
+	if req.Recent == nil {
+		return shuffled(kinds, req.Rand)
+	}
+	pool := append([]Kind(nil), kinds...)
+	sort.SliceStable(pool, func(i, j int) bool {
+		return req.Recent.kindAge(pool[i]) < req.Recent.kindAge(pool[j])
+	})
+	// pool[0] is the most recently used: weight 1 .. len for the stalest.
+	out := make([]Kind, 0, len(pool))
+	for len(pool) > 0 {
+		total := 0
+		for i := range pool {
+			total += i + 1
+		}
+		pick := req.Rand.Intn(total)
+		for i := range pool {
+			pick -= i + 1
+			if pick < 0 {
+				out = append(out, pool[i])
+				pool = append(pool[:i], pool[i+1:]...)
+				break
+			}
 		}
 	}
 	return out
@@ -665,6 +1012,16 @@ func (g *Generator) build(k Kind, req Request) (Item, bool) {
 		return g.transformItem(req)
 	case KindMCQ:
 		return g.mcqItem(req)
+	case KindPerson:
+		return g.personItem(req)
+	case KindQword:
+		return g.qwordItem(req)
+	case KindSort:
+		return g.sortItem(req)
+	case KindMatch:
+		return g.matchItem(req)
+	case KindScene:
+		return g.sceneItem(req)
 	}
 	return Item{}, false
 }
@@ -705,18 +1062,34 @@ func (g *Generator) pickWord(pool []Word, req Request) (Word, bool) {
 	}
 	preferKnown := len(req.KnownLemmas) > 0 && req.Rand.Intn(3) < 2
 	if preferKnown {
+		// Known words are a preference, never a trap: a learner who knows few
+		// words in the band would be handed the same handful over and over. So
+		// the preference only applies while at least minKnownPool known lemmas
+		// remain AFTER the recently used ones are taken out.
 		var known []Word
 		for _, w := range pool[:end] {
-			if req.KnownLemmas[w.LemmaID] {
+			if req.KnownLemmas[w.LemmaID] && req.Recent.lemmaUses(w.LemmaID) == 0 {
 				known = append(known, w)
 			}
 		}
-		if len(known) > 0 {
+		if len(known) >= minKnownPool || (req.Recent == nil && len(known) > 0) {
 			return known[req.Rand.Intn(len(known))], true
 		}
 	}
-	return pool[req.Rand.Intn(end)], true
+	w := pool[req.Rand.Intn(end)]
+	// A few redraws steer away from words just used; fill enforces the limit.
+	for range 3 {
+		if req.Recent.lemmaUses(w.LemmaID) == 0 {
+			break
+		}
+		w = pool[req.Rand.Intn(end)]
+	}
+	return w, true
 }
+
+// minKnownPool is how many unseen-lately known lemmas the band must offer
+// before pickWord prefers known words.
+const minKnownPool = 30
 
 // gloss loads a lemma's meanings. Both locales, always — a drill that can only
 // explain itself in English is an incomplete drill. See ADR-004.
@@ -806,33 +1179,7 @@ func (g *Generator) allomorphItem(req Request) (Item, bool) {
 		if !ok {
 			continue
 		}
-		correct, ok := g.analyzer.BestForm(w.LemmaID, spec)
-		if !ok || !correct.Attested() {
-			continue
-		}
-
-		// Which allomorph did the attested form actually use? If none of them
-		// matches the ending, the form involves an assimilation or a linking
-		// vowel we cannot decompose (`ház` + `-val` → `házzal`), and we decline
-		// to build an item rather than invent a decomposition.
-		used := ""
-		for _, allo := range Distinct(f.Allomorphs) {
-			if allo != "" && strings.HasSuffix(correct.Form, allo) && len(allo) > len(used) {
-				used = allo
-			}
-		}
-		if used == "" {
-			continue
-		}
-		stem := correct.Form[:len(correct.Form)-len(used)]
-
-		// The stem must be recognisably the lemma, or the item is really a
-		// stem-alternation question wearing a harmony costume.
-		if !strings.HasPrefix(strings.ToLower(stem), strings.ToLower(w.Lemma[:min(len(w.Lemma), 3)])) {
-			continue
-		}
-
-		alternatives, ok := g.alternativeForms(w.LemmaID, stem, used, f, correct.Form)
+		correct, _, alternatives, ok := g.attestedAllomorph(w, f, spec)
 		if !ok {
 			continue
 		}
@@ -864,6 +1211,40 @@ func (g *Generator) allomorphItem(req Request) (Item, bool) {
 		}, true
 	}
 	return Item{}, false
+}
+
+// attestedAllomorph finds the attested form of a lemma for a feature and which
+// allomorph of the feature it uses, plus the wrong-allomorph distractors. It
+// declines (ok=false) whenever the form cannot be decomposed honestly or the
+// pack attests a rival allomorph for the same lemma and feature.
+func (g *Generator) attestedAllomorph(w Word, f Feature, spec morph.FormSpec) (correct morph.Form, used string, alternatives []Option, ok bool) {
+	correct, found := g.analyzer.BestForm(w.LemmaID, spec)
+	if !found || !correct.Attested() {
+		return
+	}
+
+	// Which allomorph did the attested form actually use? If none of them
+	// matches the ending, the form involves an assimilation or a linking
+	// vowel we cannot decompose (`ház` + `-val` → `házzal`), and we decline
+	// to build an item rather than invent a decomposition.
+	for _, allo := range Distinct(f.Allomorphs) {
+		if allo != "" && strings.HasSuffix(correct.Form, allo) && len(allo) > len(used) {
+			used = allo
+		}
+	}
+	if used == "" {
+		return
+	}
+	stem := correct.Form[:len(correct.Form)-len(used)]
+
+	// The stem must be recognisably the lemma, or the item is really a
+	// stem-alternation question wearing a harmony costume.
+	if !strings.HasPrefix(strings.ToLower(stem), strings.ToLower(w.Lemma[:min(len(w.Lemma), 3)])) {
+		return
+	}
+
+	alternatives, ok = g.alternativeForms(w.LemmaID, stem, used, f, correct.Form)
+	return
 }
 
 // poolFor picks the vocabulary and the paradigm cell a feature belongs to.

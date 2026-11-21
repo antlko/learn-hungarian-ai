@@ -55,7 +55,7 @@ const offered = computed(() => PERSONAS.filter((p) => tts.voices.some((v) => v.i
 
 <template>
   <div
-    class="sticky top-0 z-20 flex flex-wrap items-center gap-2 rounded-xl border border-tint-mist-edge bg-card/95 p-2 shadow-sm backdrop-blur max-md:-mx-4 max-md:rounded-none max-md:border-x-0"
+    class="sticky -top-6 z-20 flex flex-wrap items-center gap-2 max-md:grid max-md:grid-cols-2 max-md:items-end rounded-xl border border-tint-mist-edge bg-card/95 p-2 shadow-sm backdrop-blur max-md:-mx-4 max-md:px-4 max-md:rounded-none max-md:border-x-0"
     role="group"
     :aria-label="$t('reader.audio.label')"
   >
@@ -63,7 +63,7 @@ const offered = computed(() => PERSONAS.filter((p) => tts.voices.some((v) => v.i
       v-if="idle && !listening"
       type="button"
       size="sm"
-      class="max-md:min-h-11"
+      class="max-md:min-h-11 max-md:w-full"
       :disabled="!canPlay || !canSpeak"
       :title="playTitle ? $t(playTitle) : undefined"
       @click="emit('play')"
@@ -76,26 +76,41 @@ const offered = computed(() => PERSONAS.filter((p) => tts.voices.some((v) => v.i
         v-if="tts.status === 'playing'"
         type="button"
         size="sm"
-        class="max-md:min-h-11"
+        class="max-md:min-h-11 max-md:w-full"
         @click="tts.pause()"
       >
         <Pause class="size-3.5" aria-hidden="true" />
         {{ $t('reader.audio.pause') }}
       </Button>
-      <Button v-else type="button" size="sm" class="max-md:min-h-11" @click="tts.resume()">
+      <Button
+        v-else
+        type="button"
+        size="sm"
+        class="max-md:min-h-11 max-md:w-full"
+        @click="tts.resume()"
+      >
         <Play class="size-3.5" aria-hidden="true" />
         {{ $t('reader.audio.resume') }}
       </Button>
-      <Button type="button" size="sm" variant="outline" class="max-md:min-h-11" @click="tts.stop()">
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        class="max-md:min-h-11 max-md:w-full"
+        @click="tts.stop()"
+      >
         <Square class="size-3.5" aria-hidden="true" />
         {{ $t('reader.audio.stop') }}
       </Button>
     </template>
 
-    <label v-if="!listening" class="flex items-center gap-1.5 text-xs text-muted-foreground">
+    <label
+      v-if="!listening"
+      class="flex items-center gap-1.5 text-xs text-muted-foreground max-md:flex-col max-md:items-stretch max-md:gap-1"
+    >
       <span>{{ $t('reader.audio.speed') }}</span>
       <Select
-        class="h-8 w-[5.5rem] max-md:h-11"
+        class="h-8 w-[5.5rem] max-md:h-11 max-md:w-full"
         :model-value="String(tts.rate)"
         @update:model-value="(v) => tts.setRate(Number(v))"
       >
@@ -103,10 +118,13 @@ const offered = computed(() => PERSONAS.filter((p) => tts.voices.some((v) => v.i
       </Select>
     </label>
 
-    <label v-if="tts.piperReady" class="flex items-center gap-1.5 text-xs text-muted-foreground">
+    <label
+      v-if="tts.piperReady"
+      class="flex items-center gap-1.5 text-xs text-muted-foreground max-md:flex-col max-md:items-stretch max-md:gap-1"
+    >
       <span>{{ $t('reader.audio.voice') }}</span>
       <Select
-        class="h-8 w-auto max-md:h-11"
+        class="h-8 w-auto max-md:h-11 max-md:w-full"
         :model-value="tts.activeVoice"
         @update:model-value="onVoice"
       >
@@ -116,7 +134,11 @@ const offered = computed(() => PERSONAS.filter((p) => tts.voices.some((v) => v.i
         </option>
       </Select>
     </label>
-    <span v-else class="text-xs text-muted-foreground" :title="$t('tts.unavailable')">
+    <span
+      v-else
+      class="text-xs text-muted-foreground max-md:self-center"
+      :title="$t('tts.unavailable')"
+    >
       {{ $t('tts.systemVoice') }}
     </span>
 
@@ -126,7 +148,8 @@ const offered = computed(() => PERSONAS.filter((p) => tts.voices.some((v) => v.i
       size="sm"
       :variant="listening ? 'secondary' : 'outline'"
       :aria-pressed="listening"
-      class="ml-auto max-md:min-h-11"
+      class="ml-auto max-md:min-h-11 max-md:w-full"
+      :class="!idle && !listening ? 'max-md:col-span-2' : ''"
       @click="toggleMode"
     >
       <Headphones class="size-3.5" aria-hidden="true" />

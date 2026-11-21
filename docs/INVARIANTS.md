@@ -71,6 +71,29 @@ whole file. Each rule is here because breaking it caused a real bug.
   The gate in `internal/drill/schedule.go` is a **pure function** of the learner's counters, and
   it exports the reason for its verdict as an i18n key. Keep it pure: the UI's claim that it is
   showing you the rule the server applied is only true while that holds.
+- **Drill anti-repeat is a filter, never a scheduler; a multi-part item grades each feature once; `person` never grades Person/Number.**
+  The per-user, per-topic filter over `drill_attempt` ([ADR-086](../.claude/DECISIONS.md#adr-086),
+  [R25](../.claude/research/25-exercise-variability.md)) relaxes in three stages and never shortens
+  a session below `Count`; it leaves weak-feature oversampling and the pure gate alone. A `sort`
+  item reviews each feature once (Again if any tile carrying it is wrong, else Good at most) — several
+  same-second reviews of one feature distort its stability. `person` grades the topic's own
+  features only: Person/Number belong to the pronoun/plural topics.
+  A `person` answer that is an attested form of the same verb in another person **and** carries
+  every feature the item required is a "no evidence" outcome: feature state is untouched (no
+  `feature_review`), yet the attempt still counts as incorrect for the gate (`Fold`). `qword`
+  distractors may name cases the learner has not met yet (accepted): the correct word is always
+  among the options and every option is a real question word.
+- **A picture never defines correctness; `match`/`scene`/`sort` grade each feature once per item; bare `person` uses attested wordforms with a unique cell.**
+  A `scene` item's right answer is an attested form of the place noun resolved through
+  `internal/morph`; a missing or multi-string cell skips the item, and nothing is generated
+  ([ADR-089](../.claude/DECISIONS.md#adr-089), [R26](../.claude/research/26-pictures-and-matching.md)).
+  `match` and `sort` charge one review per distinct required feature, never per pair or tile, and
+  never Person/Number ([ADR-088](../.claude/DECISIONS.md#adr-088)). Bare `person` ([ADR-087](../.claude/DECISIONS.md#adr-087))
+  answers with an attested wordform and skips any cell the pack attests with more than one string.
+- **Picture SVGs are embedded, sanitised and served with a restrictive CSP.** They live in the
+  binary (`internal/pictures`, never the pack), are served by `GET /api/pictures/:file` behind auth
+  with `default-src 'none'`, `nosniff` and an immutable cache, and a sanitiser test guards the set.
+  Third-party art is credited in `NOTICE` / `THIRD_PARTY_LICENSES/`; add an asset only with its licence.
 - **Answer options are built server-side from attested forms; grading is unchanged.**
   `QueueItem.Options` (`internal/api/options.go`, [ADR-060](../.claude/DECISIONS.md#adr-060)) holds
   `expected` plus real distractors for `cloze`/`produce`, omitted below three. A tap is submitted

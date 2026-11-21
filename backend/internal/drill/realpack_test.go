@@ -1,10 +1,12 @@
 package drill
 
 import (
+	"fmt"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 
 	"tanulom/internal/curriculum"
@@ -27,33 +29,71 @@ import (
 //	go test ./internal/drill -run RealPack -v
 func realPack(t *testing.T) *lang.Pack {
 	t.Helper()
+	sharedReal.once.Do(sharedReal.init)
+	if sharedReal.skip != "" {
+		t.Skip(sharedReal.skip)
+	}
+	if sharedReal.err != nil {
+		t.Fatal(sharedReal.err)
+	}
+	return sharedReal.pack
+}
+
+// sharedReal is ONE real pack, curriculum and generator for every real-pack test
+// in the package. Opening the pack, loading the vocabulary and warming the
+// generator's caches (person candidates, bare cells, probes, the picture
+// catalogue) dominates these tests, and under -race it is twenty times slower, so
+// doing it per test is what pushed the package past the gate's timeout. The
+// generator is safe for concurrent use (its caches are mutex-guarded); a test
+// that must not see another's warmed state builds its own with NewGenerator. The
+// pack is closed by the process exiting.
+type realShared struct {
+	once sync.Once
+	skip string
+	err  error
+	pack *lang.Pack
+	dag  *curriculum.DAG
+	gen  *Generator
+}
+
+var sharedReal realShared
+
+func (s *realShared) init() {
 	path := os.Getenv("TANULOM_TEST_PACK")
 	if path == "" {
 		path = filepath.Join("..", "..", "..", "data", "langpack-hu-v1.sqlite")
 	}
 	if _, err := os.Stat(path); err != nil {
-		t.Skipf("no language pack at %s — set TANULOM_TEST_PACK to run this", path)
+		s.skip = "no language pack at " + path + " — set TANULOM_TEST_PACK to run this"
+		return
 	}
 	p, err := lang.Open(path)
 	if err != nil {
-		t.Fatalf("open pack: %v", err)
+		s.err = fmt.Errorf("open pack: %w", err)
+		return
 	}
-	t.Cleanup(func() { p.Close() })
-	return p
+	dag, err := curriculum.Load(p)
+	if err != nil {
+		s.err = fmt.Errorf("load curriculum: %w", err)
+		return
+	}
+	s.pack, s.dag = p, dag
+	s.gen = NewGenerator(p, morph.NewAnalyzer(p), dag)
+	if err := s.gen.load(); err != nil {
+		s.err = err
+	}
 }
 
 func realGenerator(t *testing.T) (*Generator, *curriculum.DAG) {
 	t.Helper()
 	p := realPack(t)
-	dag, err := curriculum.Load(p)
-	if err != nil {
-		t.Fatalf("load curriculum: %v", err)
-	}
-	return NewGenerator(p, morph.NewAnalyzer(p), dag), dag
+	_ = p
+	return sharedReal.gen, sharedReal.dag
 }
 
 // Every item the real pack produces must be answerable and correctly attributed.
 func TestRealPackItemsAreSound(t *testing.T) {
+	t.Parallel()
 	g, dag := realGenerator(t)
 	analyzer := g.analyzer
 
@@ -75,7 +115,18 @@ func TestRealPackItemsAreSound(t *testing.T) {
 				produced++
 				where := topic.Code + "/" + string(it.Kind)
 
-				if !analyzer.IsAttested(it.Expected()) {
+				if it.Kind == KindMatch {
+					continue // checked pair by pair in TestRealPackMatchSweep
+				}
+				if it.Kind == KindSort {
+					// Multi-part: the expected answer is one line per tile, checked
+					// tile by tile in TestRealPackSortIsAvailableAndSound.
+					if len(it.Tiles) != sortTiles || len(it.Columns) < 2 || len(it.FeatureIDs) == 0 {
+						t.Errorf("%s: malformed sort item %+v", where, it)
+					}
+					continue
+				}
+				if it.Kind != KindQword && !analyzer.IsAttested(it.Expected()) {
 					t.Errorf("%s: expected answer %q is not attested", where, it.Expected())
 				}
 				// `-` is Wiktionary's empty-cell marker and the pack imported it
@@ -114,7 +165,7 @@ func TestRealPackItemsAreSound(t *testing.T) {
 						t.Errorf("%s: %d options match the answer, want 1", where, matches)
 					}
 				}
-				if it.Frame != "" && !strings.Contains(it.Frame, BlankMark) {
+				if it.Frame != "" && it.Kind != KindQword && !strings.Contains(it.Frame, BlankMark) {
 					t.Errorf("%s: frame %q has no blank", where, it.Frame)
 				}
 				if excludedLemmas[it.Lemma] {
@@ -135,6 +186,7 @@ func TestRealPackItemsAreSound(t *testing.T) {
 // The harmony answer must be the one the classifier predicts. If these two ever
 // disagree, the app is marking a learner wrong against its own rule.
 func TestRealPackHarmonyAnswersMatchTheRule(t *testing.T) {
+	t.Parallel()
 	g, dag := realGenerator(t)
 	topic, ok := dag.Topic("vowel-harmony")
 	if !ok {
@@ -167,6 +219,7 @@ func TestRealPackHarmonyAnswersMatchTheRule(t *testing.T) {
 // The pack's attested `olvashat` carries no features at all, so the potential
 // mood passes every structural test and yields nothing.
 func TestRealPackAvailabilityIsProvenNotAssumed(t *testing.T) {
+	t.Parallel()
 	g, dag := realGenerator(t)
 	for _, topic := range dag.Topics() {
 		avail := g.Availability(topic)
@@ -193,6 +246,7 @@ func TestRealPackAvailabilityIsProvenNotAssumed(t *testing.T) {
 // Blocked practice is one kind, on the real pack too — the mix is the thing it
 // exists to avoid.
 func TestRealPackBlockedPracticeIsSingleKind(t *testing.T) {
+	t.Parallel()
 	g, dag := realGenerator(t)
 	for _, topic := range dag.Topics() {
 		if !g.Availability(topic).Available {

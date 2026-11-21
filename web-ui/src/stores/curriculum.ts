@@ -52,7 +52,7 @@ export const useCurriculumStore = defineStore('curriculum', () => {
   /** Typed items are strictly harder and are what transfers to production. */
   const isTyped = computed(() => {
     const k = item.value?.kind
-    return k === 'cloze' || k === 'transform'
+    return k === 'cloze' || k === 'transform' || k === 'person'
   })
 
   const byCode = computed(() => {
@@ -116,7 +116,7 @@ export const useCurriculumStore = defineStore('curriculum', () => {
   }
 
   /** Grading is the server's job: the client never learns the answer early. */
-  async function submit(choice?: string) {
+  async function submit(choice?: string, parts?: Record<string, string>) {
     const it = item.value
     if (!it || submitting.value || result.value) return
     submitting.value = true
@@ -124,6 +124,7 @@ export const useCurriculumStore = defineStore('curriculum', () => {
       const res = await api.drillAnswer({
         itemId: it.id,
         answer: choice ?? answer.value,
+        ...(parts ? { parts } : {}),
         durationMs: Math.max(0, Date.now() - shownAt),
       })
       result.value = res

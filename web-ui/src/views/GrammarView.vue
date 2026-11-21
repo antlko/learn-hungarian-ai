@@ -335,13 +335,6 @@ async function advance() {
 // screen; duplicating it here would double-handle every Enter.
 onMounted(start)
 
-watch(
-  () => route.query.topic,
-  (code) => {
-    if (typeof code === 'string' && code) void open(code)
-  },
-)
-
 // `?why=1` is honoured on navigation, not only on mount. Read once in `start`
 // it did nothing for anyone already on this screen — which was everyone, since
 // the only link to it lived on this screen.
@@ -532,16 +525,17 @@ watch(
                     v-model:answer="store.answer"
                     @choose="choose"
                     @submit="store.submit()"
+                    @sort="(parts) => store.submit('', parts)"
                     @next="advance"
                   />
 
                   <template v-if="store.result">
-                    <MorphemeDiff v-if="store.result.diff" :diff="store.result.diff" />
+                    <MorphemeDiff v-if="store.result.diff && !store.result.diff.match" :diff="store.result.diff" />
                     <FeatureChips :features="store.result.gradedFeatures" />
                     <!-- The hint has to match the item on screen: telling someone
                          to press 1–4 in front of a text box is worse than none. -->
                     <p class="hidden text-xs text-muted-foreground md:block">
-                      {{ store.isTyped ? $t('grammar.keysTyped') : $t('grammar.keys') }}
+                      {{ store.item.kind === 'sort' ? $t('grammar.keysSort', { n: store.item.columns?.length ?? 3 }) : store.item.kind === 'match' ? $t('grammar.keysMatch', { n: store.item.columns?.length ?? 3 }) : store.isTyped ? $t('grammar.keysTyped') : $t('grammar.keys', { n: store.item.options?.length ?? 4 }) }}
                     </p>
                   </template>
                 </CardContent>

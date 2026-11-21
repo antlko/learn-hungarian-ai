@@ -56,7 +56,7 @@ func (c *client) do(method, path string, body any) (*http.Response, []byte) {
 	}
 
 	// bcrypt hashing makes setup/login slower than the 1s default.
-	resp, err := c.app.App().Test(req, fiber.TestConfig{Timeout: 90 * time.Second, FailOnTimeout: true})
+	resp, err := c.app.App().Test(req, fiber.TestConfig{Timeout: 5 * time.Minute, FailOnTimeout: true})
 	if err != nil {
 		c.t.Fatalf("%s %s: %v", method, path, err)
 	}

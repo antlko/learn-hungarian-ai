@@ -10,7 +10,7 @@ import { useCapabilitiesStore } from '@/stores/capabilities'
 import { useDeckStore } from '@/stores/deck'
 import { useLevelStore } from '@/stores/level'
 import { useReviewStore } from '@/stores/review'
-import { useUiStore } from '@/stores/ui'
+import { RAIL_COLLAPSED, useUiStore } from '@/stores/ui'
 
 const route = useRoute()
 const ui = useUiStore()
@@ -26,6 +26,9 @@ const review = useReviewStore()
  */
 const mainEl = ref<HTMLElement | null>(null)
 /** ONE container for every screen; `meta.width: 'wide'` is the only exception. */
+/** The width the PAGE is laid out against: the pinned one, in px. */
+const pinnedWidth = computed(() => `${ui.sidebarOpen ? ui.sidebarWidth : RAIL_COLLAPSED}px`)
+
 const wide = computed(() => route.meta.width === 'wide')
 
 // <main> is the scroll container and survives route changes, so the router's
@@ -86,14 +89,20 @@ const canHover =
   typeof window !== 'undefined' && window.matchMedia?.('(hover: hover)').matches !== false
 
 let foldTimer: ReturnType<typeof setTimeout> | undefined
+let unfoldTimer: ReturnType<typeof setTimeout> | undefined
 
 function unfold() {
   if (!canHover) return
   clearTimeout(foldTimer)
-  ui.navHovered = true
+  if (ui.navHovered) return
+  // A short intent delay: a pointer that only crosses the rail on its way
+  // elsewhere does not make it lurch open.
+  clearTimeout(unfoldTimer)
+  unfoldTimer = setTimeout(() => (ui.navHovered = true), 70)
 }
 
 function fold() {
+  clearTimeout(unfoldTimer)
   clearTimeout(foldTimer)
   foldTimer = setTimeout(() => (ui.navHovered = false), 120)
 }
@@ -101,10 +110,14 @@ function fold() {
 /** Focus is not a pointer: it opens with no delay and closes immediately. */
 function unfoldForFocus() {
   clearTimeout(foldTimer)
+  clearTimeout(unfoldTimer)
   ui.navHovered = true
 }
 
-onUnmounted(() => clearTimeout(foldTimer))
+onUnmounted(() => {
+  clearTimeout(foldTimer)
+  clearTimeout(unfoldTimer)
+})
 
 onMounted(() => {
   void deck.refresh(true)
@@ -144,7 +157,7 @@ watch(
        they used to sit 112px off the card they belonged to. -->
   <div
     class="flex h-dvh overflow-hidden bg-background [--bottom-tabs-h:calc(3.5rem+env(safe-area-inset-bottom))] md:[--bottom-tabs-h:0px]"
-    :style="{ '--rail': ui.sidebarOpen ? '14rem' : '3.5rem' }"
+    :style="{ '--rail': pinnedWidth }"
   >
     <!--
       The rail is desktop chrome; below md the bottom tabs replace it.
@@ -156,7 +169,10 @@ watch(
     -->
     <div
       class="relative hidden shrink-0 md:block"
-      :class="ui.sidebarOpen ? 'w-56' : 'w-14'"
+      :class="
+        ui.resizing ? '' : 'transition-[width] duration-[260ms] ease-[cubic-bezier(0.22,1,0.36,1)]'
+      "
+      :style="{ width: pinnedWidth }"
     >
       <!--
         Absolutely positioned inside a wrapper that carries the PINNED width,
@@ -165,8 +181,8 @@ watch(
         furniture and should not look lifted.
       -->
       <AppSidebar
-        class="absolute inset-y-0 left-0 z-30 bg-background"
-        :class="!ui.sidebarOpen && ui.railExpanded ? 'shadow-raised' : ''"
+        class="absolute inset-y-0 left-0 z-40 bg-background"
+        :class="!ui.sidebarOpen && ui.railExpanded ? 'shadow-raised' : 'shadow-none'"
         @pointerenter="unfold"
         @pointerleave="fold"
         @focusin="unfoldForFocus"

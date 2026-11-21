@@ -641,7 +641,7 @@ a course that never ends produces a learner who can only read material made for 
 | `GET` | `/api/curriculum` | ✅ | topic DAG with per-topic phase, the reason for it, and prerequisites |
 | `GET` | `/api/curriculum/:code` | ✅ | rule card (both locales) + per-feature mastery + what is blocking it |
 | `GET` | `/api/drill/next` | ✅ | `?topic=&count=` — items honouring the blocked→interleaved gate |
-| `POST` | `/api/drill/answer` | ✅ | `{itemId, answer, durationMs}` → grades the item, emits feature reviews, moves the gate |
+| `POST` | `/api/drill/answer` | ✅ | `{itemId, answer, durationMs, parts?}` (`parts` = `{tileId: columnText}` for a `sort` item: every tile, no extras, columns from the item, else **400** and the item is not consumed) → grades the item, emits feature reviews, moves the gate |
 | `GET` | `/api/placement` | ✅ | next probe on the adaptive ladder, or the seeds it decided |
 | `POST` | `/api/placement` | ✅ | `{action: "apply" \| "reset"}` |
 
@@ -698,7 +698,11 @@ not. `drills.reason` then says which: `drill.unavailable.noGenerator` (no genera
 these features), `noMaterial` (a generator exists, the pack has nothing attested), `noPack`.
 
 `GET /api/drill/next` item shapes — six kinds, `allomorph | case | conjugation | cloze |
-transform | mcq`. `cloze` and `transform` are typed; the rest ship `options`:
+transform | mcq`, plus `person` (typed), `qword`, `sort`, `match` and `scene` ([ADR-086](../.claude/DECISIONS.md#adr-086),
+[087](../.claude/DECISIONS.md#adr-087)-[089](../.claude/DECISIONS.md#adr-089)). `cloze`, `transform` and `person` are typed; the rest ship `options`
+(`sort` ships tiles and columns; its answer carries `parts` and grades each feature once). Items repeat neither
+within a session nor, while the pack has material, across sessions of the same topic (a filter
+over `drill_attempt`, never a scheduler). Kinds:
 
 ```json
 { "id": "8f2c…", "topicCode": "locative-grid", "kind": "allomorph", "phase": "blocked",
@@ -719,6 +723,35 @@ between forms of the same noun does **not** grade harmony, because every option 
 stem's harmony class. `option.attested = false` means that exact string is not a Hungarian word,
 which is shown after the answer.
 
+**`sort`** (choice, multi-part): `columns` are 2-3 allomorph labels of one feature (`["-ban",
+"-ben"]`) and `tiles` six lemmas `{id, text, glossRu?, glossEn?}`, at least one per column. The
+right column of a tile is the allomorph of that lemma's **attested** inflected form (so `híd` goes
+under `-on`, not `-en`); a lemma the pack attests with both allomorphs is never offered. The
+expected answer stays on the server; `promptArgs.feature` names the feature.
+
+```json
+{ "id": "…", "kind": "sort", "promptKey": "drill.prompt.sort", "promptArgs": {"feature": "Case=Sup"},
+  "columns": ["-on", "-en", "-ön"],
+  "tiles": [{"id": "t0", "text": "szem", "glossRu": "глаз", "glossEn": "eye"}, …],
+  "featureIds": ["Case=Sup", "Skill=VowelHarmony"], "headline": "Case=Sup", "attested": true }
+```
+
+**`match`** (choice, multi-part, [ADR-088](../.claude/DECISIONS.md#adr-088)): one lemma, `columns` are 3-5 cues
+(pronouns, or question words `hol`/`hova`/`honnan`/…), `tiles` the attested forms; the answer's `parts` is
+`{tileId: cue}`; graded and returned like `sort` (`partResults`), one review per distinct feature, never Person/Number.
+
+**`scene`** (choice, [ADR-089](../.claude/DECISIONS.md#adr-089)): `options` are forms of the place noun and
+`picture` is `{place, object, relation: "in"|"on", motion: "static"|"into"|"out", altRu, altEn, placeAltRu,
+placeAltEn, objectAltRu, objectAltEn}`; `place`/`object` are catalogue ids for `GET /api/pictures/:id.svg`.
+The picture is a cue only; the expected form stays on the server.
+
+**`person` bare mode** ([ADR-087](../.claude/DECISIONS.md#adr-087)): `bare: true` marks an item with no sentence
+(prompt is the cue "(lemma · pronoun)" plus a mood/tense chip); typed answer, same grading.
+
+`GET /api/pictures/:file` (auth) returns one embedded, sanitised SVG (`:file` = `<id>.svg`; 404 for an unknown
+id). Headers: `Content-Type: image/svg+xml`, `Cache-Control: public, max-age=31536000, immutable`, `ETag`,
+`Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'`, `X-Content-Type-Options: nosniff`.
+
 `POST /api/drill/answer` returns the outcome, the graded features, the gate's new verdict, the
 post-answer state of the features it touched, and — on a wrong answer — what the mistake says to
 practise next, including the cases a drill cannot treat:
@@ -734,6 +767,11 @@ practise next, including the cases a drill cannot treat:
                 "kinds": ["allomorph", "transform"], "remedy": "drill.remedy.volume",
                 "misses": 1}] }
 ```
+
+A `sort` answer sends `parts` instead of `answer` and is graded **once per feature**, never per
+tile: every feature of the item gets Again if any tile is wrong, else Good at most (a tap never
+reaches Easy). The response then carries `partResults: [{id, correct, expected}]` — `expected`
+being the tile's right column — and an empty top-level `expected`; both exist only after grading.
 
 `remedy` is deliberately not always a drill. A vowel-length or rounding error returns
 `drill.remedy.perception`: those contrasts are hard to tell apart by ear without long practice,
@@ -817,6 +855,21 @@ nothing and a test counts the tables to prove it.
 | --- | --- | --- | --- |
 | `GET` | `/api/words/ai-entry/status` | ✅ | `{available, reason?, model?}` — asked BEFORE the button is offered, so an unavailable model is a missing button and not a failed press |
 | `POST` | `/api/words/:form/entry` | ✅ | `?lang=` → `{form, model, unknown?, lemma?, pos?, meanings?, morphemes?, examples?, raw?, unattested}`. Offered only where the pack has nothing. `unattested` lists the Hungarian the dictionary has never seen — every token is checked, **including the ones the model forgot to backtick**, and the asked-about form is excluded. `raw` carries the model's text when it did not answer in the schema, shown as prose rather than discarded. `unknown` is the model's own admission, passed through. **Writes nothing**: the meaning reaches `user_gloss` only via `PUT /api/glosses/:form` with `source: "machine"`, and a card's back only after «Принять как своё» re-saves it `manual`. 503 with the tutor's own key when no model is configured; 502 `errors.llmFailed` when the call fails |
+
+### Lesson examples
+
+`GET /api/grammar/topics/:code/examples?feature=<id>&exclude=<csv sentence ids>` (auth) →
+`{topic, features: [{featureId, examples: [{sentenceId, parts: [{text, focus?}], translationRu?,
+translationEn?}]}]}`. `feature` may repeat or be a comma list; omitted = every feature of the
+topic. At most **4** attested pack sentences per feature, 4-10 words, never the AI-authored
+`source='authored'` lines. `parts` is the sentence split by the server into ordered runs with
+**exactly one** `focus` run, the token that reads *unambiguously* as the feature of a dictionary
+lemma through a non-generated reading (the cloze standard) — the client never slices with offsets.
+Translations are the pack's own and simply absent when it has none. Order: sentences of lemmas the
+learner knows, then those with a translation, then the shortest. `exclude` (at most 200 ids) is
+what «Ещё примеры» sends back; sentences listed there never return. A feature with no surface
+ending (`Definite=Ind`, `Tense=Pres`, every `Skill=*`) returns `examples: []` — nothing is invented
+to fill it. 404 unknown topic; 400 for a feature the topic does not teach or a malformed `exclude`.
 
 ## The grammar tutor
 

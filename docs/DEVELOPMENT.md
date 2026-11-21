@@ -251,6 +251,13 @@ the `.pth`, silences it.
   `// [R5] blocked-first ... see .claude/research/05-interleaving.md`
 - **Behaviour change → doc change in the same commit.** `docs/` is the contract.
 
+## Third-party assets
+
+Bundled third-party material (the Noto Emoji SVGs in `backend/internal/pictures/svg/`, Apache-2.0) is
+credited in `NOTICE`, with its licence text in `THIRD_PARTY_LICENSES/`. Add an asset only together with its
+licence file and a `NOTICE` entry (state any modification); keep the picture set under 1.5 MB embedded
+([ADR-089](../.claude/DECISIONS.md#adr-089)).
+
 ## Performance budget
 
 Measure with `cd web-ui && npm run build` (vite prints raw and gzip size per chunk) and the total

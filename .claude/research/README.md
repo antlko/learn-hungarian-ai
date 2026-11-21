@@ -53,6 +53,8 @@ In Vue, the same convention in a `<!-- -->` or `//` comment above the component 
 | R22 | [22-text-length-and-genre.md](22-text-length-and-genre.md) | Three texts per topic (short/medium/long, different genres) as a narrow-reading cluster; tier sizes are an inference | Medium |
 | R23 | [23-colloquial-register.md](23-colloquial-register.md) | Spoken Hungarian differs from the written norm in particles, clippings and ellipsis; our evidence is thin and AI-written, so the register rules are checkable and reviewed, not proven | Low |
 | R24 | [24-written-corrective-feedback.md](24-written-corrective-feedback.md) | A marked essay names place, fix, reason and rule; hint-first is the default but a lock is not; every model claim is labelled; nothing becomes a card | Low-Medium |
+| R25 | [25-exercise-variability.md](25-exercise-variability.md) | Repeating a few items trains the items, not the rule; rotate kinds and sentences per topic, keep the gate; a multi-part item grades each feature once | Medium |
+| R26 | [26-pictures-and-matching.md](26-pictures-and-matching.md) | Pictures help concrete-noun learning only weakly and not grammar; use them as a cue for six locative cases, never as the authority; match only cue-to-form pairs of one lemma | Low-medium |
 
 ## Confidence scale
 

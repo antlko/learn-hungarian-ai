@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { api } from '@/api'
+import { describeError } from '@/lib/errors'
+import { pickGloss } from '@/lib/gloss'
+import { Button } from '@/components/ui/button'
 import { useUiStore } from '@/stores/ui'
 import RuleCard from '@/components/grammar/RuleCard.vue'
-import type { TopicDetail, TopicFeature } from '@/types'
+import type { TopicDetail, TopicExample, TopicFeature } from '@/types'
 
 /**
  * The lesson: everything the learner needs BEFORE the first exercise.
@@ -62,6 +66,62 @@ const rows = computed(() =>
   }),
 )
 
+/**
+ * «Примеры из текстов»: attested pack sentences per feature, loaded once the
+ * lesson is on screen and never awaited by it. A failure or an empty answer
+ * renders nothing: the lesson is complete without them. «Ещё» passes what is
+ * already shown as `exclude` and disappears when the server has no new ones.
+ */
+const examples = ref<Record<string, TopicExample[]>>({})
+const exhausted = ref<Record<string, boolean>>({})
+const moreBusy = ref('')
+const moreError = ref('')
+
+watch(
+  () => props.detail.topic.code,
+  async (code) => {
+    examples.value = {}
+    exhausted.value = {}
+    moreError.value = ''
+    try {
+      const res = await api.topicExamples(code)
+      if (code !== props.detail.topic.code) return
+      const m: Record<string, TopicExample[]> = {}
+      for (const f of res.features) if (f.examples?.length) m[f.featureId] = f.examples
+      examples.value = m
+    } catch {
+      /* the lesson stands without them */
+    }
+  },
+  { immediate: true },
+)
+
+async function more(featureId: string) {
+  const code = props.detail.topic.code
+  moreBusy.value = featureId
+  moreError.value = ''
+  try {
+    const shown = examples.value[featureId] ?? []
+    const res = await api.topicExamples(code, {
+      feature: featureId,
+      exclude: shown.slice(-40).map((x) => x.sentenceId),
+    })
+    if (code !== props.detail.topic.code) return
+    const have = new Set(shown.map((x) => x.sentenceId))
+    const fresh = (res.features.find((f) => f.featureId === featureId)?.examples ?? []).filter(
+      (x) => !have.has(x.sentenceId),
+    )
+    if (!fresh.length) exhausted.value = { ...exhausted.value, [featureId]: true }
+    else examples.value = { ...examples.value, [featureId]: [...shown, ...fresh] }
+  } catch (e) {
+    moreError.value = describeError(e)
+  } finally {
+    moreBusy.value = ''
+  }
+}
+
+const translation = (x: TopicExample) => pickGloss(x.translationRu, x.translationEn, ui.locale)
+
 const hasVariants = computed(() => rows.value.some((r) => r.variants.length > 0))
 </script>
 
@@ -107,6 +167,29 @@ const hasVariants = computed(() => rows.value.some((r) => r.variants.length > 0)
             <span v-if="!r.varies" class="text-xs text-muted-foreground">
               {{ $t('grammar.lesson.invariant') }}
             </span>
+          </div>
+
+          <div v-if="examples[r.id]?.length" class="mt-2 flex flex-col gap-2 border-t border-border-subtle pt-2">
+            <p class="text-xs font-medium text-muted-foreground">{{ $t('grammar.examples.title') }}</p>
+            <ul class="flex flex-col gap-2">
+              <li v-for="x in examples[r.id]" :key="x.sentenceId" class="flex flex-col gap-0.5">
+                <p class="text-base leading-relaxed" lang="hu">
+                  <template v-for="(p, i) in x.parts" :key="i"
+                    ><span :class="p.focus && 'font-semibold underline decoration-2 underline-offset-4'">{{ p.text }}</span></template
+                  >
+                </p>
+                <p v-if="translation(x).text" class="text-sm text-muted-foreground">
+                  {{ translation(x).text }}
+                  <span v-if="translation(x).isFallback" class="ml-1 text-xs text-uncertain">{{ $t('translation.fallback') }}</span>
+                </p>
+              </li>
+            </ul>
+            <div v-if="!exhausted[r.id]" class="flex flex-wrap items-center gap-2">
+              <Button variant="outline" size="sm" class="min-h-11" :disabled="moreBusy === r.id" @click="more(r.id)">
+                {{ $t('grammar.examples.more') }}
+              </Button>
+              <span v-if="moreError && moreBusy === ''" class="text-xs text-error">{{ moreError }}</span>
+            </div>
           </div>
         </li>
       </ul>

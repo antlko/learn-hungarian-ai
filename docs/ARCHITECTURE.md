@@ -295,9 +295,34 @@ Two rules constrain every one of them.
   `Skill=VowelHarmony` alone; a case choice between forms of one noun does not grade harmony at
   all, because every option shares the stem's harmony class.
 
-Phase decides the mix. `blocked` serves **one kind**; `interleaved` shuffles kinds and contrasts
+Phase decides the mix. `blocked` serves **one kind** per session (the least recently used choice
+kind; typed kinds join after >= 10 correct blocked attempts); `interleaved` shuffles kinds and contrasts
 minimally different items — `-ban` against `-ba` of the *same* noun, definite against indefinite
 of the *same* verb. Variety is not the mechanism; discriminability is. [R5]
+
+**Variety and anti-repetition** ([ADR-086](../.claude/DECISIONS.md#adr-086), [R25]; *accepted,
+implementation in progress*). Three more kinds join the six: `person` (typed; an attested sentence
+with the verb blanked; grades the topic's own features, never Person/Number), `qword` (choice of
+question word for a highlighted noun) and `sort` (tap tiles into suffix columns; each feature is
+graded **once** per item, Again if any tile carrying it is wrong, else Good at most). `cloze`
+shows the lemma in brackets after the gap. A per-user, per-topic **filter** built from
+`drill_attempt` (`item_key`, `corpus_sentence` — the pack sentence a frame came from, 0 when none; migration `00025`) keeps a repeat visit from serving
+the same items: stage 1 rejects used keys, sentences and lemmas used >= 2 times, stage 2 allows
+lemmas, stage 3 allows sentences then keys oldest-first, and a session is never shorter than
+`Count`. It is not a scheduler; weak-feature oversampling and the pure gate in `schedule.go` are
+unchanged. Served-but-unanswered keys count as used. The kind is validated in Go (no CHECK).
+
+**Phase 2** ([ADR-087](../DECISIONS.md#adr-087)/[088](../DECISIONS.md#adr-088)/[089](../DECISIONS.md#adr-089), [R26]).
+Two more kinds. `match` (`drill/match.go`): 3-5 cue -> form pairs of **one lemma** (pronouns -> forms of one
+tense/mood/definiteness; question words -> case forms), reusing `sort`'s `columns`/`tiles`/`parts`
+(`Kind.MultiPart`), one review per distinct feature, never Person/Number. `scene` (`drill/scene.go`,
+`internal/pictures`): a picture of an object in/on a place with a motion arrow (`Item.Picture`:
+`place`, `object`, `relation`, `motion`, alts); choice of the place noun's locative form
+(Ine/Ill/Ela, Sup/Sbl/Del), the form read through `internal/morph`, the picture only a cue. Pictures are
+embedded SVG served by `GET /api/pictures/:file`. `person` gains a **bare** mode (`bare: true`, no
+sentence, cue "(lemma · pronoun)" + mood/tense chip) when a topic has < 30 sentence items. The generator
+is **warmed after boot** by a goroutine (`Generator.Warm`, `api.WithDrillWarmup`): the first
+`/api/curriculum` went from 3.3 s to 6 ms.
 
 Availability is **proven by building an item**, cached per topic: a topic can pass every
 structural test and still produce nothing, because the pack's attested `olvashat` carries no

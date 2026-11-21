@@ -362,6 +362,9 @@ func (s *Server) handleTopic(c fiber.Ctx) error {
 	return c.JSON(out)
 }
 
+// drillRecentWindow is how many past attempts of a topic count as recent.
+const drillRecentWindow = 300
+
 // drillRequest assembles everything the generator needs about this learner.
 func (s *Server) drillRequest(userID int64, topic curriculum.Topic, phase drill.Phase,
 	count int, cfg config.Config, states []drill.TopicState) (drill.Request, error) {
@@ -386,8 +389,20 @@ func (s *Server) drillRequest(userID int64, topic curriculum.Topic, phase drill.
 	}
 	targets := drill.FollowUp(errs, s.dag, drill.UnlockedTopics(states), 6)
 
+	// What the learner met lately in this topic, so a repeated drill varies:
+	// the attempt log plus anything served and not yet answered.
+	recent, err := store.Recent(userID, topic.Code, drillRecentWindow)
+	if err != nil {
+		return drill.Request{}, err
+	}
+	for _, it := range s.pending.Items(userID) {
+		if it.TopicCode == topic.Code {
+			recent.AddItem(it)
+		}
+	}
+
 	return drill.Request{
-		Topic: topic, Phase: phase, Count: count,
+		Topic: topic, Phase: phase, Count: count, Recent: recent,
 		KnownLemmas: knownIDs, WeakFeatures: drill.WeakFeatures(targets),
 		Definiteness: drill.Weights{
 			DefiniteObjectPct: cfg.Drill.Definiteness.DefiniteObjectPct,

@@ -80,6 +80,10 @@ func remedyFor(class morph.ErrorClass) (Remedy, []Kind) {
 		return RemedyRule, []Kind{KindConjugation}
 	case morph.ErrPossessor:
 		return RemedyRule, []Kind{KindMCQ, KindTransform}
+	case ErrPerson:
+		return RemedyVolume, []Kind{KindPerson}
+	case ErrDirection, ErrSource:
+		return RemedyRule, []Kind{KindQword, KindCase}
 	case morph.ErrVowelLength, morph.ErrVowelQuality:
 		return RemedyPerception, nil
 	case morph.ErrStem:

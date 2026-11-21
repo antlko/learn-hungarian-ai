@@ -135,10 +135,19 @@ type Attempt struct {
 	FeatureIDs []string
 	ErrorClass string
 	Origin     string
+	// ItemKey and SentenceID make the log readable as "what did this learner
+	// already meet" (recent.go). Both are optional for callers that have no item.
+	ItemKey    string
+	SentenceID int64
 }
 
 // AppendAttempt writes one drill_attempt row.
 func (s *Store) AppendAttempt(tx *sql.Tx, userID int64, a Attempt) error {
+	// The kind CHECK left the schema in migration 00025, so this is the only
+	// place a bad kind can be caught.
+	if !a.Kind.Valid() {
+		return fmt.Errorf("append drill attempt: unknown kind %q", a.Kind)
+	}
 	correct := 0
 	if a.Correct {
 		correct = 1
@@ -150,11 +159,11 @@ func (s *Store) AppendAttempt(tx *sql.Tx, userID int64, a Attempt) error {
 	_, err := s.q(tx).Exec(`
 		INSERT INTO drill_attempt (user_id, topic_code, kind, phase, prompt, expected,
 		                           answer, correct, duration_ms, feature_ids,
-		                           error_class, origin)
-		VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
+		                           error_class, origin, item_key, corpus_sentence)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
 		userID, a.TopicCode, string(a.Kind), string(a.Phase), a.Prompt, a.Expected,
 		a.Answer, correct, a.DurationMs, strings.Join(a.FeatureIDs, "|"),
-		a.ErrorClass, origin)
+		a.ErrorClass, origin, a.ItemKey, a.SentenceID)
 	if err != nil {
 		return fmt.Errorf("append drill attempt: %w", err)
 	}

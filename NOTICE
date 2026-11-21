@@ -1,0 +1,22 @@
+tanulom
+Copyright (c) 2026 tanulom contributors. Licensed under the MIT License (see LICENSE).
+
+This product bundles third-party material. Its licences are kept in
+THIRD_PARTY_LICENSES/.
+
+Noto Emoji (picture exercises)
+  Copyright 2013 Google, Inc. All Rights Reserved.
+  The SVG pictures in backend/internal/pictures/svg/emoji_u*.svg are taken from
+  https://github.com/googlefonts/noto-emoji (2D/svg) and are licensed under the
+  Apache License, Version 2.0. Text: THIRD_PARTY_LICENSES/noto-emoji-LICENSE.txt.
+  Modification: the Adobe Illustrator DOCTYPE/entity block was removed from some
+  files (entity references replaced by their literal values); the artwork is unchanged.
+
+Original line drawings
+  The one-colour line drawings of places in backend/internal/pictures/svg/
+  (box.svg, table.svg, bag.svg, basket.svg, shelf.svg, chair.svg, house.svg,
+  drawer.svg, cup.svg, wardrobe.svg) are original work of the tanulom
+  contributors, licensed under the MIT License like the rest of the code.
+
+The language pack data (not part of this repository's source licence) carries its
+own attribution; see docs/LANGPACK.md.

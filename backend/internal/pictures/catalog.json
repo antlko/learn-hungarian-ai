@@ -1,0 +1,1328 @@
+{
+ "format": 1,
+ "entries": [
+  {
+   "id": "cat",
+   "lemma": "macska",
+   "upos": "NOUN",
+   "pic": "emoji_u1f431.svg",
+   "altRu": "macska",
+   "altEn": "cat",
+   "role": "object",
+   "size": "medium",
+   "animal": true
+  },
+  {
+   "id": "dog",
+   "lemma": "kutya",
+   "upos": "NOUN",
+   "pic": "emoji_u1f436.svg",
+   "altRu": "kutya",
+   "altEn": "dog",
+   "role": "object",
+   "size": "medium",
+   "animal": true
+  },
+  {
+   "id": "fish",
+   "lemma": "hal",
+   "upos": "NOUN",
+   "pic": "emoji_u1f41f.svg",
+   "altRu": "рыба",
+   "altEn": "fish",
+   "role": "object",
+   "size": "small",
+   "animal": true
+  },
+  {
+   "id": "bird",
+   "lemma": "madár",
+   "upos": "NOUN",
+   "pic": "emoji_u1f426.svg",
+   "altRu": "птица",
+   "altEn": "bird",
+   "role": "object",
+   "size": "small",
+   "animal": true
+  },
+  {
+   "id": "horse",
+   "lemma": "ló",
+   "upos": "NOUN",
+   "pic": "emoji_u1f434.svg",
+   "altRu": "лошадь",
+   "altEn": "horse",
+   "role": "object",
+   "size": "large",
+   "animal": true
+  },
+  {
+   "id": "cow",
+   "lemma": "tehén",
+   "upos": "NOUN",
+   "pic": "emoji_u1f42e.svg",
+   "altRu": "корова",
+   "altEn": "cow",
+   "role": "object",
+   "size": "large",
+   "animal": true
+  },
+  {
+   "id": "pig",
+   "lemma": "disznó",
+   "upos": "NOUN",
+   "pic": "emoji_u1f437.svg",
+   "altRu": "свинья",
+   "altEn": "pig",
+   "role": "object",
+   "size": "large",
+   "animal": true
+  },
+  {
+   "id": "mouse",
+   "lemma": "egér",
+   "upos": "NOUN",
+   "pic": "emoji_u1f42d.svg",
+   "altRu": "мышь",
+   "altEn": "mouse",
+   "role": "object",
+   "size": "small",
+   "animal": true
+  },
+  {
+   "id": "rabbit",
+   "lemma": "nyúl",
+   "upos": "NOUN",
+   "pic": "emoji_u1f430.svg",
+   "altRu": "кролик",
+   "altEn": "rabbit",
+   "role": "object",
+   "size": "medium",
+   "animal": true
+  },
+  {
+   "id": "frog",
+   "lemma": "béka",
+   "upos": "NOUN",
+   "pic": "emoji_u1f438.svg",
+   "altRu": "лягушка",
+   "altEn": "frog",
+   "role": "object",
+   "size": "small",
+   "animal": true
+  },
+  {
+   "id": "bear",
+   "lemma": "medve",
+   "upos": "NOUN",
+   "pic": "emoji_u1f43b.svg",
+   "altRu": "медведь",
+   "altEn": "bear",
+   "role": "object",
+   "size": "large",
+   "animal": true
+  },
+  {
+   "id": "monkey",
+   "lemma": "majom",
+   "upos": "NOUN",
+   "pic": "emoji_u1f435.svg",
+   "altRu": "обезьяна",
+   "altEn": "monkey",
+   "role": "object",
+   "size": "large",
+   "animal": true
+  },
+  {
+   "id": "chicken",
+   "lemma": "csirke",
+   "upos": "NOUN",
+   "pic": "emoji_u1f414.svg",
+   "altRu": "курица",
+   "altEn": "chicken",
+   "role": "object",
+   "size": "medium",
+   "animal": true
+  },
+  {
+   "id": "duck",
+   "lemma": "kacsa",
+   "upos": "NOUN",
+   "pic": "emoji_u1f986.svg",
+   "altRu": "утка",
+   "altEn": "duck",
+   "role": "object",
+   "size": "medium",
+   "animal": true
+  },
+  {
+   "id": "sheep",
+   "lemma": "juh",
+   "upos": "NOUN",
+   "pic": "emoji_u1f411.svg",
+   "altRu": "овца",
+   "altEn": "sheep",
+   "role": "object",
+   "size": "large",
+   "animal": true
+  },
+  {
+   "id": "elephant",
+   "lemma": "elefánt",
+   "upos": "NOUN",
+   "pic": "emoji_u1f418.svg",
+   "altRu": "слон",
+   "altEn": "elephant",
+   "role": "object",
+   "size": "large",
+   "animal": true
+  },
+  {
+   "id": "lion",
+   "lemma": "oroszlán",
+   "upos": "NOUN",
+   "pic": "emoji_u1f981.svg",
+   "altRu": "лев",
+   "altEn": "lion",
+   "role": "object",
+   "size": "large",
+   "animal": true
+  },
+  {
+   "id": "snake",
+   "lemma": "kígyó",
+   "upos": "NOUN",
+   "pic": "emoji_u1f40d.svg",
+   "altRu": "змея",
+   "altEn": "snake",
+   "role": "object",
+   "size": "large",
+   "animal": true
+  },
+  {
+   "id": "bee",
+   "lemma": "méh",
+   "upos": "NOUN",
+   "pic": "emoji_u1f41d.svg",
+   "altRu": "пчела",
+   "altEn": "bee",
+   "role": "object",
+   "size": "small",
+   "animal": true
+  },
+  {
+   "id": "butterfly",
+   "lemma": "pillangó",
+   "upos": "NOUN",
+   "pic": "emoji_u1f98b.svg",
+   "altRu": "бабочка",
+   "altEn": "butterfly",
+   "role": "object",
+   "size": "small",
+   "animal": true
+  },
+  {
+   "id": "turtle",
+   "lemma": "teknős",
+   "upos": "NOUN",
+   "pic": "emoji_u1f422.svg",
+   "altRu": "черепаха",
+   "altEn": "turtle",
+   "role": "object",
+   "size": "small",
+   "animal": true
+  },
+  {
+   "id": "apple",
+   "lemma": "alma",
+   "upos": "NOUN",
+   "pic": "emoji_u1f34e.svg",
+   "altRu": "яблоко",
+   "altEn": "apple",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "pear",
+   "lemma": "körte",
+   "upos": "NOUN",
+   "pic": "emoji_u1f350.svg",
+   "altRu": "груша",
+   "altEn": "pear",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "banana",
+   "lemma": "banán",
+   "upos": "NOUN",
+   "pic": "emoji_u1f34c.svg",
+   "altRu": "банан",
+   "altEn": "banana",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "orange",
+   "lemma": "narancs",
+   "upos": "NOUN",
+   "pic": "emoji_u1f34a.svg",
+   "altRu": "апельсин",
+   "altEn": "orange",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "lemon",
+   "lemma": "citrom",
+   "upos": "NOUN",
+   "pic": "emoji_u1f34b.svg",
+   "altRu": "лимон",
+   "altEn": "lemon",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "grapes",
+   "lemma": "szőlő",
+   "upos": "NOUN",
+   "pic": "emoji_u1f347.svg",
+   "altRu": "виноград",
+   "altEn": "grapes",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "strawberry",
+   "lemma": "eper",
+   "upos": "NOUN",
+   "pic": "emoji_u1f353.svg",
+   "altRu": "клубника",
+   "altEn": "strawberry",
+   "role": "object",
+   "size": "tiny"
+  },
+  {
+   "id": "cherry",
+   "lemma": "cseresznye",
+   "upos": "NOUN",
+   "pic": "emoji_u1f352.svg",
+   "altRu": "вишня",
+   "altEn": "cherries",
+   "role": "object",
+   "size": "tiny"
+  },
+  {
+   "id": "peach",
+   "lemma": "őszibarack",
+   "upos": "NOUN",
+   "pic": "emoji_u1f351.svg",
+   "altRu": "персик",
+   "altEn": "peach",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "watermelon",
+   "lemma": "görögdinnye",
+   "upos": "NOUN",
+   "pic": "emoji_u1f349.svg",
+   "altRu": "арбуз",
+   "altEn": "watermelon",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "pineapple",
+   "lemma": "ananász",
+   "upos": "NOUN",
+   "pic": "emoji_u1f34d.svg",
+   "altRu": "ананас",
+   "altEn": "pineapple",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "tomato",
+   "lemma": "paradicsom",
+   "upos": "NOUN",
+   "pic": "emoji_u1f345.svg",
+   "altRu": "помидор",
+   "altEn": "tomato",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "carrot",
+   "lemma": "répa",
+   "upos": "NOUN",
+   "pic": "emoji_u1f955.svg",
+   "altRu": "морковь",
+   "altEn": "carrot",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "potato",
+   "lemma": "krumpli",
+   "upos": "NOUN",
+   "pic": "emoji_u1f954.svg",
+   "altRu": "картофель",
+   "altEn": "potato",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "corn",
+   "lemma": "kukorica",
+   "upos": "NOUN",
+   "pic": "emoji_u1f33d.svg",
+   "altRu": "кукуруза",
+   "altEn": "corn",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "bread",
+   "lemma": "kenyér",
+   "upos": "NOUN",
+   "pic": "emoji_u1f35e.svg",
+   "altRu": "хлеб",
+   "altEn": "bread",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "cheese",
+   "lemma": "sajt",
+   "upos": "NOUN",
+   "pic": "emoji_u1f9c0.svg",
+   "altRu": "сыр",
+   "altEn": "cheese",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "egg",
+   "lemma": "tojás",
+   "upos": "NOUN",
+   "pic": "emoji_u1f95a.svg",
+   "altRu": "яйцо",
+   "altEn": "egg",
+   "role": "object",
+   "size": "tiny"
+  },
+  {
+   "id": "milk",
+   "lemma": "tej",
+   "upos": "NOUN",
+   "pic": "emoji_u1f95b.svg",
+   "altRu": "молоко",
+   "altEn": "milk",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "butter",
+   "lemma": "vaj",
+   "upos": "NOUN",
+   "pic": "emoji_u1f9c8.svg",
+   "altRu": "масло",
+   "altEn": "butter",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "meat",
+   "lemma": "hús",
+   "upos": "NOUN",
+   "pic": "emoji_u1f356.svg",
+   "altRu": "мясо",
+   "altEn": "meat",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "cake",
+   "lemma": "torta",
+   "upos": "NOUN",
+   "pic": "emoji_u1f370.svg",
+   "altRu": "торт",
+   "altEn": "cake",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "icecream",
+   "lemma": "fagylalt",
+   "upos": "NOUN",
+   "pic": "emoji_u1f368.svg",
+   "altRu": "мороженое",
+   "altEn": "ice cream",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "chocolate",
+   "lemma": "csokoládé",
+   "upos": "NOUN",
+   "pic": "emoji_u1f36b.svg",
+   "altRu": "шоколад",
+   "altEn": "chocolate",
+   "role": "object",
+   "size": "tiny"
+  },
+  {
+   "id": "biscuit",
+   "lemma": "keksz",
+   "upos": "NOUN",
+   "pic": "emoji_u1f36a.svg",
+   "altRu": "печенье",
+   "altEn": "cookie",
+   "role": "object",
+   "size": "tiny"
+  },
+  {
+   "id": "pizza",
+   "lemma": "pizza",
+   "upos": "NOUN",
+   "pic": "emoji_u1f355.svg",
+   "altRu": "пицца",
+   "altEn": "pizza",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "soup",
+   "lemma": "leves",
+   "upos": "NOUN",
+   "pic": "emoji_u1f372.svg",
+   "altRu": "суп",
+   "altEn": "soup",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "rice",
+   "lemma": "rizs",
+   "upos": "NOUN",
+   "pic": "emoji_u1f35a.svg",
+   "altRu": "рис",
+   "altEn": "rice",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "pasta",
+   "lemma": "tészta",
+   "upos": "NOUN",
+   "pic": "emoji_u1f35d.svg",
+   "altRu": "макароны",
+   "altEn": "pasta",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "coffee",
+   "lemma": "kávé",
+   "upos": "NOUN",
+   "pic": "emoji_u2615.svg",
+   "altRu": "кофе",
+   "altEn": "coffee",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "tea",
+   "lemma": "tea",
+   "upos": "NOUN",
+   "pic": "emoji_u1f375.svg",
+   "altRu": "чай",
+   "altEn": "tea",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "beer",
+   "lemma": "sör",
+   "upos": "NOUN",
+   "pic": "emoji_u1f37a.svg",
+   "altRu": "пиво",
+   "altEn": "beer",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "wine",
+   "lemma": "bor",
+   "upos": "NOUN",
+   "pic": "emoji_u1f377.svg",
+   "altRu": "вино",
+   "altEn": "wine",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "spoon",
+   "lemma": "kanál",
+   "upos": "NOUN",
+   "pic": "emoji_u1f944.svg",
+   "altRu": "ложка",
+   "altEn": "spoon",
+   "role": "object",
+   "size": "tiny"
+  },
+  {
+   "id": "hamburger",
+   "lemma": "hamburger",
+   "upos": "NOUN",
+   "pic": "emoji_u1f354.svg",
+   "altRu": "гамбургер",
+   "altEn": "hamburger",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "sandwich",
+   "lemma": "szendvics",
+   "upos": "NOUN",
+   "pic": "emoji_u1f96a.svg",
+   "altRu": "бутерброд",
+   "altEn": "sandwich",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "honey",
+   "lemma": "méz",
+   "upos": "NOUN",
+   "pic": "emoji_u1f36f.svg",
+   "altRu": "мёд",
+   "altEn": "honey",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "mushroom",
+   "lemma": "gomba",
+   "upos": "NOUN",
+   "pic": "emoji_u1f344.svg",
+   "altRu": "гриб",
+   "altEn": "mushroom",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "salad",
+   "lemma": "saláta",
+   "upos": "NOUN",
+   "pic": "emoji_u1f957.svg",
+   "altRu": "салат",
+   "altEn": "salad",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "cucumber",
+   "lemma": "uborka",
+   "upos": "NOUN",
+   "pic": "emoji_u1f952.svg",
+   "altRu": "огурец",
+   "altEn": "cucumber",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "onion",
+   "lemma": "hagyma",
+   "upos": "NOUN",
+   "pic": "emoji_u1f9c5.svg",
+   "altRu": "лук",
+   "altEn": "onion",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "book",
+   "lemma": "könyv",
+   "upos": "NOUN",
+   "pic": "emoji_u1f4d5.svg",
+   "altRu": "книга",
+   "altEn": "book",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "key",
+   "lemma": "kulcs",
+   "upos": "NOUN",
+   "pic": "emoji_u1f511.svg",
+   "altRu": "ключ",
+   "altEn": "key",
+   "role": "object",
+   "size": "tiny"
+  },
+  {
+   "id": "ball",
+   "lemma": "labda",
+   "upos": "NOUN",
+   "pic": "emoji_u26bd.svg",
+   "altRu": "мяч",
+   "altEn": "ball",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "pen",
+   "lemma": "toll",
+   "upos": "NOUN",
+   "pic": "emoji_u1f58a.svg",
+   "altRu": "ручка",
+   "altEn": "pen",
+   "role": "object",
+   "size": "tiny"
+  },
+  {
+   "id": "pencil",
+   "lemma": "ceruza",
+   "upos": "NOUN",
+   "pic": "emoji_u270f.svg",
+   "altRu": "карандаш",
+   "altEn": "pencil",
+   "role": "object",
+   "size": "tiny"
+  },
+  {
+   "id": "phone",
+   "lemma": "telefon",
+   "upos": "NOUN",
+   "pic": "emoji_u1f4f1.svg",
+   "altRu": "телефон",
+   "altEn": "phone",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "clock",
+   "lemma": "óra",
+   "upos": "NOUN",
+   "pic": "emoji_u23f0.svg",
+   "altRu": "часы",
+   "altEn": "clock",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "hat",
+   "lemma": "kalap",
+   "upos": "NOUN",
+   "pic": "emoji_u1f3a9.svg",
+   "altRu": "шляпа",
+   "altEn": "hat",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "shoe",
+   "lemma": "cipő",
+   "upos": "NOUN",
+   "pic": "emoji_u1f45e.svg",
+   "altRu": "туфля",
+   "altEn": "shoe",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "coat",
+   "lemma": "kabát",
+   "upos": "NOUN",
+   "pic": "emoji_u1f9e5.svg",
+   "altRu": "пальто",
+   "altEn": "coat",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "tshirt",
+   "lemma": "póló",
+   "upos": "NOUN",
+   "pic": "emoji_u1f455.svg",
+   "altRu": "футболка",
+   "altEn": "T-shirt",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "trousers",
+   "lemma": "nadrág",
+   "upos": "NOUN",
+   "pic": "emoji_u1f456.svg",
+   "altRu": "брюки",
+   "altEn": "trousers",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "glasses",
+   "lemma": "szemüveg",
+   "upos": "NOUN",
+   "pic": "emoji_u1f453.svg",
+   "altRu": "очки",
+   "altEn": "glasses",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "umbrella",
+   "lemma": "esernyő",
+   "upos": "NOUN",
+   "pic": "emoji_u2602.svg",
+   "altRu": "зонт",
+   "altEn": "umbrella",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "ring",
+   "lemma": "gyűrű",
+   "upos": "NOUN",
+   "pic": "emoji_u1f48d.svg",
+   "altRu": "кольцо",
+   "altEn": "ring",
+   "role": "object",
+   "size": "tiny"
+  },
+  {
+   "id": "dress",
+   "lemma": "ruha",
+   "upos": "NOUN",
+   "pic": "emoji_u1f457.svg",
+   "altRu": "платье",
+   "altEn": "dress",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "sock",
+   "lemma": "zokni",
+   "upos": "NOUN",
+   "pic": "emoji_u1f9e6.svg",
+   "altRu": "носок",
+   "altEn": "sock",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "scarf",
+   "lemma": "sál",
+   "upos": "NOUN",
+   "pic": "emoji_u1f9e3.svg",
+   "altRu": "шарф",
+   "altEn": "scarf",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "glove",
+   "lemma": "kesztyű",
+   "upos": "NOUN",
+   "pic": "emoji_u1f9e4.svg",
+   "altRu": "перчатка",
+   "altEn": "glove",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "car",
+   "lemma": "autó",
+   "upos": "NOUN",
+   "pic": "emoji_u1f697.svg",
+   "altRu": "машина",
+   "altEn": "car",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "bus",
+   "lemma": "busz",
+   "upos": "NOUN",
+   "pic": "emoji_u1f68c.svg",
+   "altRu": "автобус",
+   "altEn": "bus",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "train",
+   "lemma": "vonat",
+   "upos": "NOUN",
+   "pic": "emoji_u1f686.svg",
+   "altRu": "поезд",
+   "altEn": "train",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "bicycle",
+   "lemma": "bicikli",
+   "upos": "NOUN",
+   "pic": "emoji_u1f6b2.svg",
+   "altRu": "велосипед",
+   "altEn": "bicycle",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "plane",
+   "lemma": "repülő",
+   "upos": "NOUN",
+   "pic": "emoji_u2708.svg",
+   "altRu": "самолёт",
+   "altEn": "aeroplane",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "ship",
+   "lemma": "hajó",
+   "upos": "NOUN",
+   "pic": "emoji_u1f6a2.svg",
+   "altRu": "корабль",
+   "altEn": "ship",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "tram",
+   "lemma": "villamos",
+   "upos": "NOUN",
+   "pic": "emoji_u1f68b.svg",
+   "altRu": "трамвай",
+   "altEn": "tram",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "taxi",
+   "lemma": "taxi",
+   "upos": "NOUN",
+   "pic": "emoji_u1f695.svg",
+   "altRu": "такси",
+   "altEn": "taxi",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "school",
+   "lemma": "iskola",
+   "upos": "NOUN",
+   "pic": "emoji_u1f3eb.svg",
+   "altRu": "школа",
+   "altEn": "school",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "church",
+   "lemma": "templom",
+   "upos": "NOUN",
+   "pic": "emoji_u26ea.svg",
+   "altRu": "церковь",
+   "altEn": "church",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "hospital",
+   "lemma": "kórház",
+   "upos": "NOUN",
+   "pic": "emoji_u1f3e5.svg",
+   "altRu": "больница",
+   "altEn": "hospital",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "bank",
+   "lemma": "bank",
+   "upos": "NOUN",
+   "pic": "emoji_u1f3e6.svg",
+   "altRu": "банк",
+   "altEn": "bank",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "shop",
+   "lemma": "üzlet",
+   "upos": "NOUN",
+   "pic": "emoji_u1f3ea.svg",
+   "altRu": "магазин",
+   "altEn": "shop",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "hotel",
+   "lemma": "szálloda",
+   "upos": "NOUN",
+   "pic": "emoji_u1f3e8.svg",
+   "altRu": "гостиница",
+   "altEn": "hotel",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "castle",
+   "lemma": "vár",
+   "upos": "NOUN",
+   "pic": "emoji_u1f3f0.svg",
+   "altRu": "замок",
+   "altEn": "castle",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "flower",
+   "lemma": "virág",
+   "upos": "NOUN",
+   "pic": "emoji_u1f33c.svg",
+   "altRu": "цветок",
+   "altEn": "flower",
+   "role": "object",
+   "size": "tiny"
+  },
+  {
+   "id": "tree",
+   "lemma": "fa",
+   "upos": "NOUN",
+   "pic": "emoji_u1f333.svg",
+   "altRu": "дерево",
+   "altEn": "tree",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "sun",
+   "lemma": "nap",
+   "upos": "NOUN",
+   "pic": "emoji_u2600.svg",
+   "altRu": "солнце",
+   "altEn": "sun",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "moon",
+   "lemma": "hold",
+   "upos": "NOUN",
+   "pic": "emoji_u1f319.svg",
+   "altRu": "луна",
+   "altEn": "moon",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "star",
+   "lemma": "csillag",
+   "upos": "NOUN",
+   "pic": "emoji_u2b50.svg",
+   "altRu": "звезда",
+   "altEn": "star",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "cloud",
+   "lemma": "felhő",
+   "upos": "NOUN",
+   "pic": "emoji_u2601.svg",
+   "altRu": "облако",
+   "altEn": "cloud",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "fire",
+   "lemma": "tűz",
+   "upos": "NOUN",
+   "pic": "emoji_u1f525.svg",
+   "altRu": "огонь",
+   "altEn": "fire",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "mountain",
+   "lemma": "hegy",
+   "upos": "NOUN",
+   "pic": "emoji_u26f0.svg",
+   "altRu": "гора",
+   "altEn": "mountain",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "money",
+   "lemma": "pénz",
+   "upos": "NOUN",
+   "pic": "emoji_u1f4b0.svg",
+   "altRu": "деньги",
+   "altEn": "money bag",
+   "role": "object",
+   "size": "tiny"
+  },
+  {
+   "id": "gift",
+   "lemma": "ajándék",
+   "upos": "NOUN",
+   "pic": "emoji_u1f381.svg",
+   "altRu": "подарок",
+   "altEn": "gift",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "guitar",
+   "lemma": "gitár",
+   "upos": "NOUN",
+   "pic": "emoji_u1f3b8.svg",
+   "altRu": "гитара",
+   "altEn": "guitar",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "tv",
+   "lemma": "tévé",
+   "upos": "NOUN",
+   "pic": "emoji_u1f4fa.svg",
+   "altRu": "телевизор",
+   "altEn": "television",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "computer",
+   "lemma": "számítógép",
+   "upos": "NOUN",
+   "pic": "emoji_u1f4bb.svg",
+   "altRu": "компьютер",
+   "altEn": "computer",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "door",
+   "lemma": "ajtó",
+   "upos": "NOUN",
+   "pic": "emoji_u1f6aa.svg",
+   "altRu": "дверь",
+   "altEn": "door",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "window",
+   "lemma": "ablak",
+   "upos": "NOUN",
+   "pic": "emoji_u1fa9f.svg",
+   "altRu": "окно",
+   "altEn": "window",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "scissors",
+   "lemma": "olló",
+   "upos": "NOUN",
+   "pic": "emoji_u2702.svg",
+   "altRu": "ножницы",
+   "altEn": "scissors",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "newspaper",
+   "lemma": "újság",
+   "upos": "NOUN",
+   "pic": "emoji_u1f4f0.svg",
+   "altRu": "газета",
+   "altEn": "newspaper",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "camera",
+   "lemma": "fényképezőgép",
+   "upos": "NOUN",
+   "pic": "emoji_u1f4f7.svg",
+   "altRu": "фотоаппарат",
+   "altEn": "camera",
+   "role": "object",
+   "size": "medium"
+  },
+  {
+   "id": "bell",
+   "lemma": "harang",
+   "upos": "NOUN",
+   "pic": "emoji_u1f514.svg",
+   "altRu": "колокол",
+   "altEn": "bell",
+   "role": "object",
+   "size": "tiny"
+  },
+  {
+   "id": "soap",
+   "lemma": "szappan",
+   "upos": "NOUN",
+   "pic": "emoji_u1f9fc.svg",
+   "altRu": "мыло",
+   "altEn": "soap",
+   "role": "object",
+   "size": "small"
+  },
+  {
+   "id": "baby",
+   "lemma": "baba",
+   "upos": "NOUN",
+   "pic": "emoji_u1f476.svg",
+   "altRu": "малыш",
+   "altEn": "baby",
+   "role": "object",
+   "size": "large"
+  },
+  {
+   "id": "box",
+   "lemma": "doboz",
+   "upos": "NOUN",
+   "pic": "box.svg",
+   "altRu": "коробка",
+   "altEn": "box",
+   "role": "place",
+   "relations": {
+    "in": "Ine",
+    "on": "Sup"
+   },
+   "capacity": "large"
+  },
+  {
+   "id": "table",
+   "lemma": "asztal",
+   "upos": "NOUN",
+   "pic": "table.svg",
+   "altRu": "стол",
+   "altEn": "table",
+   "role": "place",
+   "relations": {
+    "on": "Sup"
+   },
+   "capacity": "large"
+  },
+  {
+   "id": "bag",
+   "lemma": "táska",
+   "upos": "NOUN",
+   "pic": "bag.svg",
+   "altRu": "сумка",
+   "altEn": "bag",
+   "role": "place",
+   "relations": {
+    "in": "Ine"
+   },
+   "capacity": "medium"
+  },
+  {
+   "id": "basket",
+   "lemma": "kosár",
+   "upos": "NOUN",
+   "pic": "basket.svg",
+   "altRu": "корзина",
+   "altEn": "basket",
+   "role": "place",
+   "relations": {
+    "in": "Ine"
+   },
+   "capacity": "medium"
+  },
+  {
+   "id": "shelf",
+   "lemma": "polc",
+   "upos": "NOUN",
+   "pic": "shelf.svg",
+   "altRu": "полка",
+   "altEn": "shelf",
+   "role": "place",
+   "relations": {
+    "on": "Sup"
+   },
+   "capacity": "large"
+  },
+  {
+   "id": "chair",
+   "lemma": "szék",
+   "upos": "NOUN",
+   "pic": "chair.svg",
+   "altRu": "стул",
+   "altEn": "chair",
+   "role": "place",
+   "relations": {
+    "on": "Sup"
+   },
+   "capacity": "small"
+  },
+  {
+   "id": "house",
+   "lemma": "ház",
+   "upos": "NOUN",
+   "pic": "house.svg",
+   "altRu": "дом",
+   "altEn": "house",
+   "role": "place",
+   "relations": {
+    "in": "Ine"
+   },
+   "capacity": "large"
+  },
+  {
+   "id": "drawer",
+   "lemma": "fiók",
+   "upos": "NOUN",
+   "pic": "drawer.svg",
+   "altRu": "ящик",
+   "altEn": "drawer",
+   "role": "place",
+   "relations": {
+    "in": "Ine"
+   },
+   "capacity": "medium"
+  },
+  {
+   "id": "cup",
+   "lemma": "csésze",
+   "upos": "NOUN",
+   "pic": "cup.svg",
+   "altRu": "чашка",
+   "altEn": "cup",
+   "role": "place",
+   "relations": {
+    "in": "Ine"
+   },
+   "capacity": "tiny"
+  },
+  {
+   "id": "wardrobe",
+   "lemma": "szekrény",
+   "upos": "NOUN",
+   "pic": "wardrobe.svg",
+   "altRu": "шкаф",
+   "altEn": "wardrobe",
+   "role": "place",
+   "relations": {
+    "in": "Ine",
+    "on": "Sup"
+   },
+   "capacity": "large"
+  }
+ ]
+}

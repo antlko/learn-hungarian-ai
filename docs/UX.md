@@ -103,7 +103,7 @@ disabled with a one-line reason, never silently missing.
 
 **The shell, as built.** The sidebar orders by the daily loops — Today (which carries the course as a road — there is no Plan item), Review (with the
 `dueNow` badge), Read, Grammar — and nothing (Listen is no longer a tab: it is the reader's listening mode, §5) for features that are not built (the earlier «скоро» group of Speak and Write was removed: a row that does nothing reads as breakage). It **collapses to a 56px
-icon rail** (PanelLeft button at the foot, persisted per device in `tanulom.sidebar`, the badge
+icon rail** (PanelLeftClose/Open button in the rail's header, pinned state in `tanulom.sidebar`, the badge
 becoming a dot on the icon). Below `md` the rail is replaced by the bottom tabs (below); an earlier off-canvas drawer behind a
 hamburger was dropped, and before that the fixed 224px column ate 60% of a phone screen.
 
@@ -131,9 +131,11 @@ badge) · Чтение · Грамматика · Ещё. «Ещё» opens a she
 (bar height incl. safe area on phones, `0px` from md up); `<main>` pads by it, and a screen's own
 sticky bottom strip should sit at `bottom: var(--bottom-tabs-h)`.
 
+**The rail is resizable**: drag its right edge (176–360 px, kept per device in `tanulom.sidebarWidth`; narrower than ~130 px on release folds it to the icon rail, dragging a folded one out opens it; click on the edge toggles, double-click resets to 224, ←/→ resize when the edge is focused). Opening is eased (260 ms width, labels fade in after it starts, ~70 ms hover-intent delay) and the open rail sits above the top bar (`z-40`).
+
 **The rail is collapsed by default** — a nav one mouse-move away does not need to hold 224px of
-every screen — and **opens under the pointer**, folding back ~120 ms after it leaves. The collapse
-arrow therefore pins rather than merely closes: pinned open it never moves, pinned closed it is a
+every screen — and **opens under the pointer**, folding back ~120 ms after it leaves. The header button
+therefore pins rather than merely closes: pinned open it never moves, pinned closed it is a
 56px rail that reads in full whenever you actually look at it. Three details are load-bearing:
 
 - **It overlays; it does not push.** The wrapper keeps the pinned width and the expanded rail
@@ -1344,6 +1346,59 @@ Hungarian word is marked, because *"-házben is not a word"* is a better correct
 cross.
 
 **Keyboard:** `1`–`4` choose · `Enter` check, then `Enter` again for the next item.
+
+**Variety ([ADR-086](../.claude/DECISIONS.md#adr-086), *implementation in progress*).** Three more
+shapes: `person` (typed: a real sentence with the verb blanked, cue "(lemma · pronoun)"),
+`qword` (pick the question word — hol, hova, honnan, mit, kinek, mivel — for a highlighted noun)
+and `sort` (tap tiles into suffix columns such as -ban / -ben). `cloze` shows the lemma in
+brackets after the gap. A repeat visit to a topic serves different sentences and words; a session
+is never shortened to achieve that.
+
+**`sort` (`SortBoard.vue`).** The headline names the feature; below it equal-width column headers
+(`lang="hu"`, mono, ≥44 px tap targets) each with a dashed drop area, then a pool «Слова» of six
+word tiles (word + short gloss in the learner's gloss language, fallback labelled for screen
+readers and as a tooltip). Tap a word (selected: ring), tap a column to place it; tapping a placed
+word takes it back and selects it again. There is no drag. «Проверить» is enabled only when the
+pool is empty and nothing is sent before it. After grading each tile shows a check or a cross
+(icon, not colour alone), a wrong one adds «→ -ben» (the correct column, from `partResults`), a
+line «Не на месте: N» and a «Дальше» button. Keys: `Tab` through the words, `1`–`3` put the
+selected (or focused) word into that column, `Backspace` takes it out, `Enter` checks, then
+`Enter` again for the next item; DrillItem's `1`–`4` choice map is switched off for this kind.
+At 375 px the columns stay in one row (equal width, text truncates), the pool is a two-column
+wrapping grid; no horizontal page scroll.
+
+**`match` (`MatchBoard.vue`, chips from `ChoiceChip.vue`, shared with sort).** One word, 3-5
+cue→form pairs (pronouns én/te/ő…, or question words hol/hova/…). Two columns stay side by side
+down to 375 px: the cues on the left in fixed order, the forms on the right as served (wrap, never
+truncated, ≥44 px). Tap a cue then a form, or the other way round; the pair gets the cue's number
+as a badge and a soft tint (never colour alone); tapping a paired chip unpairs it. «Проверить»
+needs every cue paired. After grading each form shows ✓/✗ and, if wrong, «→ the right cue»; the
+pairs stay on screen. Keys: `Tab`, `Enter`/`Space` select, `1`–`n` pair the selected or focused
+form with that cue, `Backspace` unpairs, `Enter` checks, then once more for the next item.
+A bare `person` item (a verb with too few real sentences) has no sentence: only the gap «___»,
+the cue «(lemma · pronoun)» and, for conditional/past, a small mood/tense chip so the learner knows
+which form is asked; the input behaves as before.
+
+**`scene` (`ScenePicture.vue`).** A picture and three forms of the place noun. The picture is a
+4:3 box (max 320 px, centred): the place drawing, a small object tile, and, when it moves, a
+dotted curved arrow with a head (a shape, not only colour): *into* — the object outside, arrow to
+the place; *out* — the object at the place, arrow away; *static* — the object resting in or on it.
+The question line is «Где? / Куда? / Откуда?» (en: Where? / Where to? / Where from?) plus «Выберите
+форму слова» and the place in brackets (`lang="hu"`). The options are the usual choice block
+(`1`–`3`, ≥44 px). The picture is a CUE only: the right form never depends on it. a11y: the box is
+one `role="img"` whose label is the item's alt in the UI language; every part is `aria-hidden`.
+The place drawings are monochrome strokes rendered through a CSS mask in the theme foreground (so
+they follow dark mode); the objects are coloured emoji on a soft tile. After a CORRECT answer
+the object slides along the arrow (600 ms) unless `prefers-reduced-motion`. If a picture fails to
+load, the alt is shown as a line of text and the question stays answerable. Credits for the
+pictures are a small line at the bottom of Settings. A picture cue on word cards is not built yet.
+
+**Examples in the lesson.** Under each feature that has a written ending, «Примеры из текстов»:
+up to four real pack sentences (`lang="hu"`, the focus word bold and underlined) with the pack's
+own translation in the gloss language (the other language is marked as a substitute). They load
+once after the lesson appears and never block it; an error or an empty answer shows nothing. A
+«Ещё примеры» button fetches more, passing the shown sentences as `exclude`, and disappears when
+there are no new ones.
 
 ### 8.2 The tutor — a question about the rule, answered in your language
 

@@ -130,6 +130,8 @@ type DrillAnswerRequest struct {
 	Answer     string `json:"answer"`
 	UsedHint   bool   `json:"usedHint"`
 	DurationMs int64  `json:"durationMs"`
+	// Parts answers a sort item: tile id -> column text. Every tile, no extras.
+	Parts map[string]string `json:"parts,omitempty"`
 }
 
 // DrillAnswerResponse mirrors the review loop's answer: the outcome, the
@@ -163,6 +165,16 @@ func (s *Server) handleDrillAnswer(c fiber.Ctx) error {
 		return badRequest("itemId is required")
 	}
 
+	// A malformed sort answer is refused BEFORE the item is taken, so the learner
+	// can correct it instead of losing the item to a 400.
+	for _, it := range s.pending.Items(u.ID) {
+		if it.ID == req.ItemID && it.Kind.MultiPart() {
+			if err := it.CheckParts(req.Parts); err != nil {
+				return badRequest("parts: %s", err.Error())
+			}
+		}
+	}
+
 	item, ok := s.pending.Take(u.ID, req.ItemID)
 	if !ok {
 		// Gone rather than not-found: the id was valid, the item has expired or
@@ -187,7 +199,7 @@ func (s *Server) handleDrillAnswer(c fiber.Ctx) error {
 	)
 	res, err := engine.Answer(drill.AnswerInput{
 		UserID: u.ID, Item: item, Answer: req.Answer,
-		UsedHint: req.UsedHint, DurationMs: req.DurationMs, Gate: gate,
+		UsedHint: req.UsedHint, DurationMs: req.DurationMs, Gate: gate, Parts: req.Parts,
 		AccentTolerance: s.Config().Review.AccentToleranceEnabled(),
 	}, time.Now())
 	if err != nil {
@@ -316,7 +328,7 @@ func (s *Server) handlePlacement(c fiber.Ctx) error {
 	// Placement must measure, not teach: no bias towards known vocabulary and no
 	// over-sampling of weak features, or the result reflects our prompts rather
 	// than the learner.
-	req.KnownLemmas, req.WeakFeatures = nil, nil
+	req.KnownLemmas, req.WeakFeatures, req.Recent = nil, nil, nil
 
 	items, avail, err := s.drills.Next(req)
 	if err != nil {

@@ -704,11 +704,8 @@ onUnmounted(() => {
                 :class="[tokenClass(p.tok), sentClass(p.tok.sentIdx), 'max-md:scroll-mb-[45dvh]']"
                 @click="select(p.tok.index)"
                 >{{ p.tok.form }}</span
-              ><span v-else :class="sentClass(p.tok.sentIdx)">{{ p.tok.form }}</span
-              ><br v-if="p.gap.includes('\n')" /><span
-                v-else-if="p.gap"
-                :class="sentClass(p.tok.sentIdx, p.same)"
-                >{{ p.gap }}</span
+              ><span v-else>{{ p.tok.form }}</span
+              ><br v-if="p.gap.includes('\n')" /><span v-else-if="p.gap">{{ p.gap }}</span
               ></template
             >
           </p>

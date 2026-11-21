@@ -80,7 +80,7 @@ func main() {
 		slog.Error("invalid --tts-base-url", "error", err)
 		os.Exit(2)
 	}
-	srv, err := api.New(dir, api.WithVoicesDir(absDir(voicesDir)), api.WithTTSRuntimeDir(absDir(runtimeDir)), api.WithTTSBaseURL(baseURL))
+	srv, err := api.New(dir, api.WithVoicesDir(absDir(voicesDir)), api.WithTTSRuntimeDir(absDir(runtimeDir)), api.WithTTSBaseURL(baseURL), api.WithDrillWarmup())
 	if err != nil {
 		slog.Error("startup failed", "error", err)
 		os.Exit(1)

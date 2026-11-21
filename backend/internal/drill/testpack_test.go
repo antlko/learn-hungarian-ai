@@ -19,6 +19,13 @@ import (
 // identical in both conjugations and must therefore never become an item.
 func newTestGenerator(t *testing.T) (*Generator, *curriculum.DAG) {
 	t.Helper()
+	return newTestGeneratorWith(t, nil)
+}
+
+// newTestGeneratorWith lets a test add rows (the pack's SQL exec) before the
+// pack is opened, for material the shared miniature pack deliberately lacks.
+func newTestGeneratorWith(t *testing.T, extra func(exec func(q string, args ...any))) (*Generator, *curriculum.DAG) {
+	t.Helper()
 	path := filepath.Join(t.TempDir(), "langpack-hu-v1.sqlite")
 
 	db, err := sql.Open("sqlite", path)
@@ -77,6 +84,8 @@ func newTestGenerator(t *testing.T) (*Generator, *curriculum.DAG) {
 	feature("Case=Sup", "Case", "Sup", `{"back":"on","front_unrounded":"en","front_rounded":"ön"}`, 33, "surface/where")
 	feature("Definite=Ind", "Definite", "Ind", none, 80, "")
 	feature("Definite=Def", "Definite", "Def", none, 81, "")
+	feature("Tense=Pres", "Tense", "Pres", none, 70, "")
+	feature("Tense=Past", "Tense", "Past", none, 71, "")
 	feature("Skill=Politeness", "Skill", "Politeness", none, 5, "")
 
 	// ── lexicon ──────────────────────────────────────────────────────────
@@ -122,6 +131,38 @@ func newTestGenerator(t *testing.T) (*Generator, *curriculum.DAG) {
 	form("láttam", 3, "VERB", "Definite=Def|Mood=Ind|Number=Sing|Person=1|Tense=Past", "wiktionary")
 	form("láttam", 3, "VERB", "Definite=Ind|Mood=Ind|Number=Sing|Person=1|Tense=Past", "wiktionary")
 
+	// Past forms of lát: 2sg and 3sg are unambiguous for person and number.
+	form("láttál", 3, "VERB", "Definite=Ind|Mood=Ind|Number=Sing|Person=2|Tense=Past", "wiktionary")
+	form("látott", 3, "VERB", "Definite=Ind|Mood=Ind|Number=Sing|Person=3|Tense=Past", "wiktionary")
+	form("látsz", 3, "VERB", "Definite=Ind|Mood=Ind|Number=Sing|Person=2|Tense=Pres", "wiktionary")
+	// A generated guess for the person drill to refuse.
+	form("látunk", 3, "VERB", "Definite=Ind|Mood=Ind|Number=Plur|Person=1|Tense=Pres", "generated")
+
+	lemma(7, "néz", "VERB", 60)
+	form("nézek", 7, "VERB", "Definite=Ind|Mood=Ind|Number=Sing|Person=1|Tense=Pres", "wiktionary")
+	form("nézel", 7, "VERB", "Definite=Ind|Mood=Ind|Number=Sing|Person=2|Tense=Pres", "wiktionary")
+	form("néz", 7, "VERB", "Definite=Ind|Mood=Ind|Number=Sing|Person=3|Tense=Pres", "wiktionary")
+	form("nézünk", 7, "VERB", "Definite=Ind|Mood=Ind|Number=Plur|Person=1|Tense=Pres", "wiktionary")
+	form("néznek", 7, "VERB", "Definite=Ind|Mood=Ind|Number=Plur|Person=3|Tense=Pres", "wiktionary")
+	form("nézem", 7, "VERB", "Definite=Def|Mood=Ind|Number=Sing|Person=1|Tense=Pres", "wiktionary")
+	form("nézte", 7, "VERB", "Definite=Def|Mood=Ind|Number=Sing|Person=3|Tense=Past", "wiktionary")
+	form("néztél", 7, "VERB", "Definite=Ind|Mood=Ind|Number=Sing|Person=2|Tense=Past", "wiktionary")
+	form("néztem", 7, "VERB", "Definite=Ind|Mood=Ind|Number=Sing|Person=1|Tense=Past", "wiktionary")
+
+	// Homograph across two verbs, and a subjunctive: neither may become a person item.
+	lemma(8, "jelent", "VERB", 300)
+	form("jelennek", 8, "VERB", "Definite=Ind|Mood=Ind|Number=Plur|Person=3|Tense=Pres", "wiktionary")
+	form("jelentem", 8, "VERB", "Definite=Def|Mood=Ind|Number=Sing|Person=1|Tense=Pres", "wiktionary")
+	lemma(9, "jelenik", "VERB", 301)
+	form("jelennek", 9, "VERB", "Definite=Ind|Mood=Ind|Number=Plur|Person=3|Tense=Pres", "wiktionary")
+	form("jelenem", 9, "VERB", "Definite=Def|Mood=Ind|Number=Sing|Person=1|Tense=Pres", "wiktionary")
+	lemma(10, "marad", "VERB", 302)
+	form("marad", 10, "VERB", "Definite=Ind|Mood=Ind|Number=Sing|Person=3|Tense=Pres", "wiktionary")
+	form("marad", 10, "VERB", "Definite=Ind|Mood=Sub|Number=Sing|Person=3|Tense=Pres", "wiktionary")
+	form("maradjak", 10, "VERB", "Definite=Ind|Mood=Sub|Number=Sing|Person=1|Tense=Pres", "wiktionary")
+	form("maradok", 10, "VERB", "Definite=Ind|Mood=Ind|Number=Sing|Person=1|Tense=Pres", "wiktionary")
+	form("maradom", 10, "VERB", "Definite=Def|Mood=Ind|Number=Sing|Person=1|Tense=Pres", "wiktionary")
+
 	lemma(4, "az", "DET", 3)
 	form("az", 4, "DET", "", "wiktionary")
 	form("a", 4, "DET", "", "wiktionary")
@@ -142,6 +183,15 @@ func newTestGenerator(t *testing.T) (*Generator, *curriculum.DAG) {
 	sentence(103, "Azt a könyvet látja a fiú.", map[int]int64{0: 5, 1: 4, 2: 2, 3: 3})
 	sentence(104, "A házban van egy nagy könyv.", map[int]int64{0: 4, 1: 1, 3: 6, 5: 2})
 	sentence(105, "A könyvben sok szép kép van.", map[int]int64{0: 4, 1: 2})
+	sentence(106, "Te nézel egy filmet ma.", map[int]int64{1: 7})
+	sentence(107, "Ők néznek egy filmet ma.", map[int]int64{1: 7})
+	sentence(108, "Tegnap láttál egy házat itt.", map[int]int64{1: 3})
+	sentence(109, "Ő látott egy házat itt.", map[int]int64{1: 3})
+	sentence(110, "Mi nézünk egy filmet ma.", map[int]int64{1: 7})
+	sentence(111, "Én nézek egy filmet ma.", map[int]int64{1: 7})
+	sentence(112, "A fiú nézte a filmet ma.", map[int]int64{2: 7})
+	sentence(113, "Tegnap néztél egy filmet itt.", map[int]int64{1: 7})
+	sentence(114, "Itt van a könyv a házon.", map[int]int64{4: 2, 5: 1})
 
 	// ── curriculum ───────────────────────────────────────────────────────
 	topic := func(id int64, code, level, prereqs, feats string, order int) {
@@ -154,7 +204,12 @@ func newTestGenerator(t *testing.T) (*Generator, *curriculum.DAG) {
 	topic(4, "accusative", "A1", "vowel-harmony", "Case=Acc", 30)
 	topic(5, "locative-grid", "A1", "accusative", "Case=Ine,Case=Ill,Case=Ela,Case=Sup", 40)
 	topic(6, "definite-conjugation", "A2", "locative-grid", "Definite=Def,Definite=Ind", 60)
+	topic(7, "present-indefinite", "A1", "orthography", "Definite=Ind,Tense=Pres", 50)
+	topic(8, "past-tense", "A2", "present-indefinite", "Tense=Past", 55)
 
+	if extra != nil {
+		extra(exec)
+	}
 	if err := db.Close(); err != nil {
 		t.Fatal(err)
 	}

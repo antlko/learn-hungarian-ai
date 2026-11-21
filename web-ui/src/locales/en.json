@@ -42,7 +42,9 @@
     "expandNav": "Expand menu",
     "menu": "Menu",
     "closeMenu": "Close menu",
-    "collapseNavHint": "Collapse the menu — it will open on hover"
+    "collapseNavHint": "Collapse the menu — it will open on hover",
+    "resizeNav": "Menu width",
+    "resizeNavHint": "Drag the edge to resize. Double-click to reset."
   },
   "setup": {
     "title": "First run",
@@ -290,6 +292,8 @@
     "empty": "This language pack carries no catalogue. The list ships with the pack rather than with the app, so a newer pack will bring one — nothing here is broken."
   },
   "settings": {
+    "pictureCredits": "Object pictures: Noto Emoji (Google), Apache-2.0 licence; place drawings are original.",
+    "pictureCreditsLink": "github.com/googlefonts/noto-emoji",
     "title": "Settings",
     "sections": {
       "profile": "Profile",
@@ -1031,6 +1035,7 @@
     "vowelQuality": "Vowel rounding. The form is “{expected}”. The front rounded vowels (ö, ő, ü, ű) have no English counterpart, so listening to the word is what helps here.",
     "harmony": "Right case, wrong variant of the suffix: it should be “{expected}”. This is vowel harmony — a motor skill rather than knowledge, so it needs volume.",
     "feature": "Wrong grammatical feature. The form is “{expected}”.",
+    "person": "The right verb, but another person. The form for this pronoun is “{expected}”.",
     "stem": "Different word. It should have been “{expected}”.",
     "spelling": "A typo. It should be “{expected}”.",
     "generic": "The form is “{expected}”."
@@ -1135,17 +1140,17 @@
     "fallback": "(in Russian — the pack has no English translation)",
     "fallbackShort": "(ru)",
     "toLocale": "Translate into English",
-    "teacher": "Teacher's translation",
+    "teacher": "AI check",
     "teacherAsking": "The teacher is translating…",
-    "teacherBy": "The teacher's translation, {model}. Nobody has checked this line — it is a suggestion, not the answer.",
+    "teacherBy": "AI teacher, {model}",
     "useInstead": "Use this instead",
     "close": "Close",
     "restore": "Restore the original",
     "machineShort": "machine translation, {model}",
     "notConfigured": "No translator is set up. Settings → Services → Translation.",
     "unreachable": "The translator is not answering. It may still be loading its model.",
-    "machine": "Neural translation, {model}. Nobody has checked this line — use it as a crib, not as the answer.",
-    "teacher": "AI teacher translation, {model}. Nobody has checked this line — use it as a crib, not as the answer."
+    "machine": "Neural translation, {model}",
+    "teacherNote": "AI teacher, {model}"
   },
   "library": {
     "sets": {
@@ -1267,7 +1272,7 @@
     "notSeen": "not seen yet",
     "automated": "automatic",
     "notAWord": "not a Hungarian word",
-    "keys": "1–4 — choose · Enter — next",
+    "keys": "1–{n} — choose · Enter — next",
     "ruleStillApplies": "The explanation above is still the lesson — read it, then move on.",
     "remedyTitle": "Exercises will not fix these",
     "kind": {
@@ -1276,7 +1281,12 @@
       "conjugation": "Definite or indefinite?",
       "cloze": "Fill the gap",
       "transform": "Produce the form",
-      "mcq": "Which form?"
+      "mcq": "Which form?",
+      "person": "Produce the verb form",
+      "qword": "Which question word?",
+      "sort": "Words by suffix",
+      "match": "Match the pairs",
+      "scene": "Look at the picture"
     },
     "lesson": {
       "whatYouLearn": "How this works",
@@ -1319,6 +1329,10 @@
     "recall": "recall",
     "hitRate": "right",
     "keysTyped": "Enter — check · Enter again — next item",
+    "keysMatch": "Tap a pronoun or question word, then a form · 1–{n} — pair the chosen form with that number · Backspace — unpair · Enter — check · Enter again — next",
+    "keysSort": "1–{n} — column · Backspace — remove · Enter — check · Enter again — next",
+    "examples": { "title": "Examples from real texts", "more": "More examples", "none": "No examples" },
+    "accentKeys": "Hungarian letters",
     "betterFirst": "Better first:",
     "teachOrderOf": "step {n} of {of}",
     "levelTopics": "{level} topics",
@@ -1360,13 +1374,42 @@
     "next": "Next"
   },
   "drill": {
+    "typedLabel": "Form of {lemma} for {pronoun}",
+    "scene": { "question": { "hol": "Where?", "hova": "Where to?", "honnan": "Where from?" } },
+    "match": {
+      "hint": "Tap a pronoun or question word, then a form · 1–{n} puts the chosen form with that number",
+      "check": "Check",
+      "wrongCount": "Wrong pairs: {n}",
+      "unpaired": "{form}, not paired",
+      "pairNumber": "{form}, pair {n}, with {cue}",
+      "cuePaired": "{cue}, paired with {form}",
+      "cueFree": "{cue}, not paired",
+      "formRight": "{form}, with {cue}, correct",
+      "formWrong": "{form}, with {cue}, incorrect, correct: {expected}"
+    },
+    "sort": {
+      "hint": "Tap a word, then a column",
+      "check": "Check",
+      "wrongCount": "Misplaced: {n}",
+      "unplaced": "Words",
+      "placeIn": "Put in column {column}",
+      "correct": "correct",
+      "wrong": "incorrect",
+      "tileRight": "{tile}, {column}, correct",
+      "tileWrong": "{tile}, {column}, incorrect, correct: {expected}"
+    },
     "prompt": {
       "allomorph": "{lemma} + {feature} — which variant?",
       "case": "{lemma}: {row}, {column} — which form?",
       "conjugation": "The object is {object}. Which conjugation?",
       "cloze": "Put {lemma} into the form the sentence needs ({feature}).",
       "transform": "{lemma} → {feature}",
-      "mcq": "Which is the {feature} of {lemma}?"
+      "mcq": "Which is the {feature} of {lemma}?",
+      "person": "Put {lemma} into the form for “{pronoun}”.",
+      "qword": "Which question does the highlighted word answer?",
+      "sort": "Sort the words by suffix",
+      "match": "Match each cue with the right form of {lemma}",
+      "scene": "{question} Pick the form of {place}"
     },
     "unavailable": {
       "noGenerator": "We have not built exercises for this topic yet. Its explanation is real; the drills are not there.",

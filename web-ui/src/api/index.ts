@@ -27,6 +27,7 @@ import type {
   DrillAnswerRequest,
   DrillAnswerResponse,
   DrillNextResponse,
+  TopicExamplesResponse,
   PlacementResponse,
   TopicDetail,
   AnswerRequest,
@@ -312,6 +313,17 @@ export const api = {
 
   drillAnswer: (body: DrillAnswerRequest) =>
     http.post<DrillAnswerResponse>('/api/drill/answer', body),
+
+  /** Attested example sentences for a lesson's features; `exclude` = ids already shown. */
+  topicExamples: (code: string, opts: { feature?: string; exclude?: number[] } = {}) => {
+    const q = new URLSearchParams()
+    if (opts.feature) q.set('feature', opts.feature)
+    if (opts.exclude?.length) q.set('exclude', opts.exclude.join(','))
+    const qs = q.toString()
+    return http.get<TopicExamplesResponse>(
+      `/api/grammar/topics/${encodeURIComponent(code)}/examples` + (qs ? `?${qs}` : ''),
+    )
+  },
 
   placement: () => http.get<PlacementResponse>('/api/placement'),
 

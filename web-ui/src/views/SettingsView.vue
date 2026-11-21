@@ -796,5 +796,16 @@ function previewVoice() {
         <span class="text-xs text-muted-foreground">{{ $t('settings.sound.preview') }}</span>
       </CardContent>
     </Card>
+
+    <p class="text-xs text-muted-foreground">
+      {{ $t('settings.pictureCredits') }}
+      <a
+        href="https://github.com/googlefonts/noto-emoji"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="underline underline-offset-2"
+        >{{ $t('settings.pictureCreditsLink') }}</a
+      >
+    </p>
   </div>
 </template>

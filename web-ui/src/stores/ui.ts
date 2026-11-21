@@ -10,6 +10,13 @@ export type Theme = 'dark' | 'light'
 const THEME_KEY = 'tanulom.theme'
 const LOCALE_KEY = 'tanulom.locale'
 const SIDEBAR_KEY = 'tanulom.sidebar'
+const SIDEBAR_WIDTH_KEY = 'tanulom.sidebarWidth'
+
+/** The rail's widths in px: the icon rail, and the bounds / default of the open one. */
+export const RAIL_COLLAPSED = 56
+export const RAIL_MIN = 176
+export const RAIL_MAX = 360
+export const RAIL_DEFAULT = 224
 
 /**
  * Presentation state that belongs to the browser, not the account: theme, the
@@ -40,6 +47,13 @@ export const useUiStore = defineStore('ui', () => {
    * actually look at it.
    */
   const navHovered = ref(false)
+  /**
+   * The open rail's width in px, dragged by the learner and kept per device.
+   * Bounded so the labels never clip and the rail never eats the page.
+   */
+  const sidebarWidth = ref(readSidebarWidth())
+  /** True while the rail's edge is being dragged: width transitions must not lag the pointer. */
+  const resizing = ref(false)
   /**
    * Whether the rail is showing its labels right now — pinned open, or open
    * because the pointer is there.
@@ -73,6 +87,15 @@ export const useUiStore = defineStore('ui', () => {
     return localStorage.getItem(SIDEBAR_KEY) === 'open'
   }
 
+  function clampWidth(w: number): number {
+    return Math.min(RAIL_MAX, Math.max(RAIL_MIN, Math.round(w)))
+  }
+
+  function readSidebarWidth(): number {
+    const n = Number(localStorage.getItem(SIDEBAR_WIDTH_KEY))
+    return Number.isFinite(n) && n > 0 ? clampWidth(n) : RAIL_DEFAULT
+  }
+
   function readLocale(): AppLocale {
     const stored = localStorage.getItem(LOCALE_KEY)
     return stored === 'en' ? 'en' : 'ru'
@@ -97,6 +120,10 @@ export const useUiStore = defineStore('ui', () => {
     sidebarOpen.value = !sidebarOpen.value
   }
 
+  function setSidebarWidth(w: number) {
+    sidebarWidth.value = clampWidth(w)
+  }
+
   function setAppLocale(next: AppLocale) {
     locale.value = next
   }
@@ -117,6 +144,8 @@ export const useUiStore = defineStore('ui', () => {
     applyTheme()
   })
 
+  watch(sidebarWidth, (w) => localStorage.setItem(SIDEBAR_WIDTH_KEY, String(w)))
+
   watch(sidebarOpen, (open) => localStorage.setItem(SIDEBAR_KEY, open ? 'open' : 'collapsed'))
 
   watch(
@@ -136,10 +165,13 @@ export const useUiStore = defineStore('ui', () => {
     sound,
     sidebarOpen,
     navHovered,
+    sidebarWidth,
+    resizing,
     railExpanded,
     mobileNavOpen,
     toggleTheme,
     toggleSidebar,
+    setSidebarWidth,
     setAppLocale,
     toggleSound,
   }

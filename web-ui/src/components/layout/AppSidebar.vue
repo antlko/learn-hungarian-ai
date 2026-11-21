@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { computed, type Component } from 'vue'
+import { computed, ref, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   BookOpen,
-  ChevronLeft,
-  ChevronRight,
   BrainCircuit,
   ChartNoAxesColumn,
   GraduationCap,
   House,
+  PanelLeftClose,
+  PanelLeftOpen,
   PenLine,
   Settings,
   Table2,
@@ -19,7 +19,7 @@ import BrandWordmark from '@/components/brand/BrandWordmark.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useCapabilitiesStore } from '@/stores/capabilities'
 import { useDeckStore } from '@/stores/deck'
-import { useUiStore } from '@/stores/ui'
+import { RAIL_COLLAPSED, RAIL_DEFAULT, RAIL_MAX, RAIL_MIN, useUiStore } from '@/stores/ui'
 
 /**
  * `mobile`: the same nav rendered inside the off-canvas drawer below `md`.
@@ -68,21 +68,22 @@ const collapsed = computed(() => !props.mobile && !ui.railExpanded)
 const llmMissing = computed(() => caps.list.length > 0 && !caps.byName.llm?.configured)
 const minutesOwed = computed(() => deck.loaded && !deck.todayMet && deck.dueNow === 0)
 
-const items = computed(() =>
-  [
-    { to: '/', icon: House, label: t('nav.today') },
-    {
-      to: '/review',
-      icon: BrainCircuit,
-      label: t('nav.review'),
-      badge: deck.dueNow,
-      dot: deck.dueNow > 0,
-    },
-    { to: '/library', icon: BookOpen, label: t('nav.read'), dot: minutesOwed.value },
-    { to: '/grammar', icon: Table2, label: t('nav.grammar') },
-    { to: '/write', icon: PenLine, label: t('nav.write') },
-    ...(llmMissing.value ? [] : [{ to: '/tutor', icon: GraduationCap, label: t('nav.tutor') }]),
-  ] as { to: string; icon: Component; label: string; badge?: number; dot?: boolean }[],
+const items = computed(
+  () =>
+    [
+      { to: '/', icon: House, label: t('nav.today') },
+      {
+        to: '/review',
+        icon: BrainCircuit,
+        label: t('nav.review'),
+        badge: deck.dueNow,
+        dot: deck.dueNow > 0,
+      },
+      { to: '/library', icon: BookOpen, label: t('nav.read'), dot: minutesOwed.value },
+      { to: '/grammar', icon: Table2, label: t('nav.grammar') },
+      { to: '/write', icon: PenLine, label: t('nav.write') },
+      ...(llmMissing.value ? [] : [{ to: '/tutor', icon: GraduationCap, label: t('nav.tutor') }]),
+    ] as { to: string; icon: Component; label: string; badge?: number; dot?: boolean }[],
 )
 
 /**
@@ -140,8 +141,76 @@ const LINK_ACTIVE =
 const LABEL = computed(() =>
   collapsed.value
     ? 'opacity-0 transition-opacity duration-75'
-    : 'opacity-100 transition-opacity duration-150 ease-[cubic-bezier(0.2,0,0,1)]',
+    : 'opacity-100 transition-opacity delay-75 duration-200 ease-out',
 )
+/**
+ * The drawn width. Collapsed it is the icon rail; otherwise the learner's own
+ * width, which the edge handle below changes.
+ */
+const width = computed(() =>
+  props.mobile ? undefined : `${collapsed.value ? RAIL_COLLAPSED : ui.sidebarWidth}px`,
+)
+
+/**
+ * Dragging the rail's right edge.
+ *
+ * - Free resize between RAIL_MIN and RAIL_MAX; the width is kept per device.
+ * - Pull it narrower than the minimum and let go: it folds to the icon rail.
+ *   Drag a folded one out: it opens at the dragged width.
+ * - A click on the edge (no real movement) toggles it; a double click resets
+ *   the width. Arrow keys resize from the keyboard (the handle is focusable).
+ */
+const SNAP_BELOW = 130
+const dragging = ref(false)
+let startX = 0
+let startWidth = 0
+let moved = false
+
+function onHandleDown(e: PointerEvent) {
+  if (e.button !== 0) return
+  startX = e.clientX
+  startWidth = collapsed.value ? RAIL_COLLAPSED : ui.sidebarWidth
+  moved = false
+  dragging.value = true
+  ui.resizing = true
+  ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+}
+
+function onHandleMove(e: PointerEvent) {
+  if (!dragging.value) return
+  const dx = e.clientX - startX
+  if (!moved && Math.abs(dx) < 4) return
+  moved = true
+  const raw = startWidth + dx
+  ui.sidebarOpen = raw >= SNAP_BELOW
+  if (ui.sidebarOpen) ui.setSidebarWidth(raw)
+}
+
+function onHandleUp(e: PointerEvent) {
+  if (!dragging.value) return
+  dragging.value = false
+  ui.resizing = false
+  ;(e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId)
+  if (!moved) ui.toggleSidebar()
+}
+
+function resetWidth() {
+  ui.sidebarOpen = true
+  ui.setSidebarWidth(RAIL_DEFAULT)
+}
+
+function onHandleKey(e: KeyboardEvent) {
+  const step = e.shiftKey ? 48 : 16
+  if (e.key === 'ArrowRight') {
+    ui.sidebarOpen = true
+    ui.setSidebarWidth(ui.sidebarWidth + step)
+  } else if (e.key === 'ArrowLeft') {
+    if (ui.sidebarWidth - step < RAIL_MIN) ui.sidebarOpen = false
+    else ui.setSidebarWidth(ui.sidebarWidth - step)
+  } else if (e.key === 'Enter' || e.key === ' ') ui.toggleSidebar()
+  else return
+  e.preventDefault()
+}
 </script>
 
 <template>
@@ -153,37 +222,42 @@ const LABEL = computed(() =>
     reduced-motion rule still flattens it.
   -->
   <aside
-    class="relative flex h-full shrink-0 flex-col border-r border-border-subtle transition-[width] duration-150 ease-[cubic-bezier(0.2,0,0,1)]"
-    :class="collapsed ? 'w-14' : 'w-56'"
+    class="relative flex h-full shrink-0 flex-col border-r border-border-subtle transition-[width,box-shadow] duration-[260ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
+    :class="[mobile ? 'w-56' : '', ui.resizing ? 'transition-none!' : '']"
+    :style="width ? { width } : undefined"
   >
     <!--
-      The collapse arrow, on the rail's own border.
+      The resize handle, on the rail's own edge.
 
-      It lives HERE rather than in the shell for one reason that is not
-      cosmetic: the rail is the hover zone, and `pointerleave` counts the
-      element's descendants. A button positioned outside `<aside>` would be
-      outside that zone, so reaching for it would fold the rail out from under
-      the cursor. As a child it travels with the edge for free — no width
-      arithmetic, nothing to keep in step with the transition.
-
-      Its label describes the PINNED state, because that is what a click
-      changes, and it says that collapsing leaves the rail openable by pointer
-      — otherwise the mode is undiscoverable.
+      It is a child of the aside for the reason the old arrow was: the rail is
+      the hover zone and `pointerleave` counts descendants, so reaching for the
+      edge does not fold the rail out from under the cursor. A thin hit area
+      straddling the border, a line that appears on hover/drag (the only
+      affordance — a button chrome on the edge looked like an accident).
     -->
-    <button
+    <div
       v-if="!mobile"
-      type="button"
-      class="absolute top-16 -right-3 z-40 flex size-6 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-raised transition-colors hover:bg-accent hover:text-foreground"
-      :aria-label="ui.sidebarOpen ? $t('common.collapseNav') : $t('common.expandNav')"
-      :title="ui.sidebarOpen ? $t('common.collapseNavHint') : $t('common.expandNav')"
-      @click="ui.toggleSidebar()"
+      role="separator"
+      aria-orientation="vertical"
+      tabindex="0"
+      :aria-label="$t('common.resizeNav')"
+      :aria-valuemin="RAIL_MIN"
+      :aria-valuemax="RAIL_MAX"
+      :aria-valuenow="collapsed ? RAIL_COLLAPSED : ui.sidebarWidth"
+      :title="$t('common.resizeNavHint')"
+      class="group absolute inset-y-0 -right-1 z-40 flex w-2 cursor-col-resize touch-none justify-center outline-none"
+      @pointerdown="onHandleDown"
+      @pointermove="onHandleMove"
+      @pointerup="onHandleUp"
+      @pointercancel="onHandleUp"
+      @dblclick="resetWidth"
+      @keydown="onHandleKey"
     >
-      <component
-        :is="ui.sidebarOpen ? ChevronLeft : ChevronRight"
-        class="size-3.5"
-        aria-hidden="true"
+      <span
+        class="h-full w-0.5 rounded-full bg-primary opacity-0 transition-opacity duration-150 group-hover:opacity-60 group-focus-visible:opacity-100"
+        :class="dragging ? 'opacity-100!' : ''"
       />
-    </button>
+    </div>
     <!--
       The wordmark, cross-faded rather than swapped.
 
@@ -203,6 +277,27 @@ const LABEL = computed(() =>
       <div class="flex min-w-0 items-center" :class="LABEL">
         <BrandWordmark :size="28" with-word />
       </div>
+      <!-- Pin / unpin. In a hover-opened rail this reads "keep it open". -->
+      <button
+        v-if="!mobile"
+        type="button"
+        class="ml-auto flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-[opacity,color,background-color] hover:bg-tint-mist/60 hover:text-foreground focus-visible:opacity-100"
+        :class="
+          collapsed
+            ? 'pointer-events-none opacity-0 duration-75'
+            : 'opacity-100 delay-75 duration-200'
+        "
+        :tabindex="collapsed ? -1 : 0"
+        :aria-label="ui.sidebarOpen ? $t('common.collapseNav') : $t('common.expandNav')"
+        :title="ui.sidebarOpen ? $t('common.collapseNavHint') : $t('common.expandNav')"
+        @click="ui.toggleSidebar()"
+      >
+        <component
+          :is="ui.sidebarOpen ? PanelLeftClose : PanelLeftOpen"
+          class="size-4"
+          aria-hidden="true"
+        />
+      </button>
     </div>
 
     <nav class="flex flex-1 flex-col gap-0.5 overflow-x-hidden overflow-y-auto px-2 py-2">
