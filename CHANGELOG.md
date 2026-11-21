@@ -5,6 +5,38 @@ the project uses [semantic versioning](https://semver.org/). Every design decisi
 is an ADR in [`.claude/DECISIONS.md`](.claude/DECISIONS.md), and every pedagogical claim traces to a
 note in [`.claude/research/`](.claude/research/README.md).
 
+## [1.8.0] — 2026-11-21 — Grammar: varied exercises, pictures, matching; resizable sidebar
+
+### Added
+- **Five new grammar exercise kinds** (ADR-086, ADR-088, ADR-089; R25, R26). Every answer is an attested form from the pack; nothing is generated, and a picture never decides what is correct.
+  - **`person`**: put a verb into the form for a pronoun, in a real sentence, with a cue like «(tanul · te)». When a topic has too few sentences, a sentence-less cue («lemma · pronoun» plus the mood or tense) tops it up. A right verb in the wrong person gets its own hint and does not penalise the tense.
+  - **`qword`**: pick the question word (hol / hova / honnan, mit/kit, kinek, mivel/kivel) for the highlighted word of a real sentence.
+  - **`sort`**: tap words into suffix columns (-ban / -ben, -ra / -re, …). Touch-first, fully usable from the keyboard.
+  - **`match`**: pair pronouns, or question words, with the forms of one lemma.
+  - **`scene`**: an object in, on or at a place, with a drawn picture and an arrow for «into» and «out of». You pick the right form of the place noun for «Где? / Куда? / Откуда?».
+  - The sort, match and scene boards grade each feature once per item, never per tile; a tap counts at most Good.
+- **More examples in lessons**: real sentences with the focus word marked and the pack's translation, loaded lazily, with a «More examples» button (`GET /api/grammar/topics/:code/examples`). Features without a surface ending show none.
+- **Cloze shows the base form in brackets** after the gap, like a textbook.
+- **Pictures** (ADR-089): 127 object pictures (Noto Emoji, Apache-2.0) and 10 original place drawings, embedded in the binary and served sanitised at `GET /api/pictures/:id.svg`. No network is needed. `NOTICE` and `THIRD_PARTY_LICENSES/` added, and a credits line at the bottom of Settings.
+- **Resizable sidebar**: drag its right edge (176–360 px, remembered per device); pull it narrow to fold it into the icon rail, click the edge to toggle, double-click to reset, arrow keys when the edge is focused. The pin/unpin button moved into the sidebar header.
+
+### Changed
+- **Repeated practice no longer repeats items**: a per-user, per-topic filter built from the attempt history keeps sentences and words fresh, relaxing only when a topic's pool is genuinely small (ADR-086). The kind of exercise now rotates between sessions instead of always starting with the same one.
+- **The language pack now tags imperative forms** (ADR-087): Wiktionary's «subjunctive» becomes `Mood=Imp`, and a page with several senses keeps all of them (`olvassuk` is both indicative and imperative). The imperative topic gets exercises (0 → ~500 items on 55 verbs in the starter), and conditional gets more material. About 1 300 verb-form rows were re-tagged; lemma and sentence ids did not, so your cards are untouched.
+- Reader and shell: the audio bar sits flush under the top bar on phones and its fields are laid out in a grid; only the words are highlighted while a text is read aloud; the AI-translation labels are shorter and the «nobody checked this» note is gone; the sidebar opens more smoothly on hover.
+- Speaker buttons are at least 44 px high on phones.
+- The first `/api/curriculum` after boot is fast: drill caches warm up in the background (3.3 s → milliseconds).
+
+### Fixed
+- The AI-teacher button label was overwritten by a duplicate locale key.
+- A correct typed answer no longer shows a red "you / needed" diff.
+- The Exercises tab fetched its first set twice, burning a rotation slot.
+
+### Database and upgrading
+- Migration `00025_drill_attempt_keys.sql` rebuilds `drill_attempt` (adds `item_key` and `corpus_sentence`, drops the `kind` CHECK; every row survives). An export from this version cannot be imported by an older binary if it contains the new exercise kinds.
+- **Existing deployments get the new pack from the app**: pull the new image, then Settings → Components → «Install the full dictionary», then restart. The embedded starter only matters for fresh installs. The installer keeps **no backup** of the old pack; copy `data/langpack-hu-v1.sqlite` first. The new release file is pinned by sha256 in the binary, so push the repository before you deploy the image.
+- Not built yet: exercises by ear (the ear trainer was removed in 1.7.0 on purpose), a picture on word cards, the A1 topics the MagyarOK course has and the app lacks (a/az, ikes verbs, megy/jön, -i, -ul/-ül).
+
 ## [1.7.1] — 2026-11-19 — «Письмо»: listen to the corrected text
 
 ### Added
